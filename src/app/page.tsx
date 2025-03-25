@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import AppLink from '@components/shared/AppLink'
 import { ROUTES } from '@constants/routes'
 
 export default function Home() {
@@ -6,9 +6,9 @@ export default function Home() {
     <div className="flex gap-2 ">
       {Object.entries(ROUTES).map(([key, value]) => {
         return (
-          <Link key={key} href={value} className="text-gray-700 uppercase underline">
+          <AppLink key={key} href={value} className="uppercase">
             {key}
-          </Link>
+          </AppLink>
         )
       })}
     </div>

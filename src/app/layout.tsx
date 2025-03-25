@@ -16,12 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Bookie',
-  description: 'The easiest platform to book yourself',
+  description: 'Your Booking Platform Forever',
 }
 
-export default function RootLayout({ children }: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
