@@ -8,7 +8,7 @@ const Provider = async ({ params }: { params: Params }) => {
     const { providerId } = await params
     return (
         <article>
-            <header>Provider Id: {providerId}</header>
+            <header>Id fo the Provider is: "{providerId}"</header>
         </article>
     )
 }
