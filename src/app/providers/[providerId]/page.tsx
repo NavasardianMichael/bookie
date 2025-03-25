@@ -1,17 +1,10 @@
 import { Provider as ProviderType } from '@interfaces/provider'
-import { PageProps } from '../../../../.next/types/app/page'
 
-// export const getStaticProps = (async (context) => {
-//     return { props: MOCK_PROVIDERS.find(provider => context.params?.providerId === provider.id)! }
-// }) satisfies GetStaticProps<ProviderType>
+type Params = Promise<{
+    providerId: ProviderType['id']
+}>
 
-type Context = {
-    params: Promise<{
-        providerId: ProviderType['id']
-    }>
-}
-
-const Provider = async ({ params }: PageProps) => {
+const Provider = async ({ params }: { params: Params }) => {
     const { providerId } = await params
     return (
         <article>
