@@ -15,6 +15,7 @@
     "@contexts/",
     "@hooks/",
     "@types/",
+    "@interfaces/",
     "@constants/",
     "@helpers/",
     "@utils/",
