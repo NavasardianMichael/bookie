@@ -21,6 +21,7 @@ const App: React.FC = () => (
     <Flex className='w-full justify-center items-center'>
         <Form
             labelCol={{ span: 8 }}
+            wrapperCol={{ span: 20 }}
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}

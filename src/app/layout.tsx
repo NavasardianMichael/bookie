@@ -2,6 +2,7 @@ import Footer from '@components/Footer'
 import { Header } from '@components/Header'
 import type { Metadata } from 'next'
 import './globals.css'
+import { AntdRegistry } from '@ant-design/nextjs-registry'
 
 
 export const metadata: Metadata = {
@@ -13,13 +14,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
-        <div className="min-h-svh flex flex-col">
-          <Header />
-          <div className='flex-grow flex flex-col'>
-            <main className="flex-grow p-4 flex">{children}</main>
-            <Footer />
+        <AntdRegistry>
+          <div className="min-h-svh flex flex-col">
+            <Header />
+            <div className='flex-grow flex flex-col'>
+              <main className="flex-grow p-4 flex">{children}</main>
+              <Footer />
+            </div>
           </div>
-        </div>
+        </AntdRegistry>
       </body>
     </html>
   )
