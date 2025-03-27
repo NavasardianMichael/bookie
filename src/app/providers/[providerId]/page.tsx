@@ -5,7 +5,7 @@ type Props = {
     params: Promise<{
         providerId: ProviderType['id']
     }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    searchParams: null
 }
 
 export const generateMetadata = async ({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
