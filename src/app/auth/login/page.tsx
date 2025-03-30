@@ -1,5 +1,5 @@
 import { Flex } from 'antd';
-import LoginForm from './components/form';
+import LoginForm from './form';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

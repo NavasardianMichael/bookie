@@ -1,6 +1,6 @@
+import { STATE_SLICE_NAMES } from '@constants/store'
 import { SerializedError } from '@reduxjs/toolkit'
-import { AppDispatch, RootState } from 'store/main'
-import { STATE_SLICE_NAMES } from 'helpers/constants/store'
+import { AppDispatch, RootState } from "@store/main"
 
 export type ThunkConfig = {
   state: RootState

@@ -1,9 +1,8 @@
 'use client'
 
+import { FORM_DEFAULT_VALIDATION_MESSAGES, FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form';
 import { LOGIN_FORM_INITIAL_VALUES, LOGIN_TYPES } from '@constants/auth/login';
-import { REG_EXPS } from '@constants/regexps';
 import { useLogin } from '@hooks/auth/useLogin';
-import type { FormProps } from 'antd';
 import { Button, Checkbox, Form, Input } from 'antd';
 import { useFormik } from 'formik';
 
@@ -19,7 +18,6 @@ const LoginForm: React.FC = () => {
     const formik = useFormik({
         initialValues: LOGIN_FORM_INITIAL_VALUES,
         onSubmit: login,
-        enableReinitialize: true,
         validateOnChange: false,
     })
 
@@ -29,11 +27,12 @@ const LoginForm: React.FC = () => {
             wrapperCol={{ span: 20 }}
             initialValues={{ rememberMe: true }}
             autoComplete="off"
+            validateMessages={FORM_DEFAULT_VALIDATION_MESSAGES}
         >
             <Form.Item<FieldType>
                 label="Username"
                 name="username"
-                rules={[{ required: true, message: 'Please input your username!', pattern: REG_EXPS.email }]}
+                rules={FORM_ITEM_REQUIRED_RULE_SET}
             >
                 <Input name='username' value={formik.values.email} onChange={formik.handleChange} />
             </Form.Item>
@@ -41,7 +40,7 @@ const LoginForm: React.FC = () => {
             <Form.Item<FieldType>
                 label="Password"
                 name="password"
-                rules={[{ required: true, message: 'Please input your password!' }]}
+                rules={FORM_ITEM_REQUIRED_RULE_SET}
             >
                 <Input.Password name='password' value={formik.values.password} onChange={formik.handleChange} />
             </Form.Item>
