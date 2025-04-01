@@ -1,8 +1,6 @@
 import { AxiosError, isAxiosError } from 'axios'
 import { ENDPOINTS } from '../../api/auth/endpoints'
-import { telegramSignIn } from '../../api/auth/telegram'
-import { webTelegramSignIn } from '../../api/auth/webTelegram'
-import { googleSignIn } from 'api/auth/google'
+import { googleSignIn } from '@api/auth/google'
 import {
   changePasswordAPI,
   completeProfileAPI,
@@ -14,7 +12,7 @@ import {
   resetPasswordAPI,
   sendForgotPasswordInstructionsAPI,
   verifyTokenAPI,
-} from 'api/auth/main'
+} from '@api/auth/main'
 import {
   ChangePasswordAPI,
   GetProfileAPI,
@@ -25,14 +23,14 @@ import {
   ResetPasswordAPI,
   SendForgotPasswordInstructionsAPI,
   VerifyTokenAPI,
-} from 'api/auth/types'
-import { LoginTypes } from '../../helpers/types/auth'
-import { LOGIN_TYPES } from 'helpers/constants/auth/login'
-import { CompleteProfileAPI, PROFILE_INITIAL_DATA } from 'helpers/constants/profile'
-import { STATE_SLICE_NAMES } from 'helpers/constants/store'
-import { createAppAsyncThunk } from 'helpers/functions/store'
+} from '@api/auth/types'
+import { LOGIN_TYPES } from '@constants/auth/login'
+import { STATE_SLICE_NAMES } from '@constants/store'
 import { setIsLoggedIn, setProfileData } from './slice'
 import { Profile } from './types'
+import { LoginTypes } from '@interfaces/auth'
+import { createAppAsyncThunk } from '@helpers/store'
+import { CompleteProfileAPI, PROFILE_INITIAL_DATA } from '@constants/profile'
 
 export const loginThunk = createAppAsyncThunk<void, { loginType: LoginTypes; values: LoginAPI['payload'] }>(
   `${STATE_SLICE_NAMES.profile}/login`,
@@ -44,10 +42,6 @@ export const loginThunk = createAppAsyncThunk<void, { loginType: LoginTypes; val
         await loginAPI(values)
       } else if (loginType === LOGIN_TYPES.google) {
         await googleSignIn()
-      } else if (loginType === LOGIN_TYPES.telegram) {
-        await telegramSignIn()
-      } else if (loginType === LOGIN_TYPES.webTelegram) {
-        await webTelegramSignIn()
       }
       dispatch(setIsLoggedIn(true))
     } catch (e) {
