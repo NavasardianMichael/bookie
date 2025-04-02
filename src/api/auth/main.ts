@@ -1,10 +1,7 @@
-import axiosInstance from 'api/axiosInstance'
-import { APIResponse } from 'helpers/types/api'
-import { handleAPIError } from 'helpers/functions/api'
+import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processChangePasswordResponse,
-  processIniviteUserResponse,
   processProfileResponse,
   processRegisterResponse,
   processResetPasswordResponse,
@@ -14,7 +11,6 @@ import {
 import {
   ChangePasswordAPI,
   GetProfileAPI,
-  InviteUserAPI,
   LoginAPI,
   LogoutAPI,
   RegisterAPI,
@@ -22,8 +18,8 @@ import {
   SendForgotPasswordInstructionsAPI,
   VerifyTokenAPI,
 } from './types'
-import { processCompleteProfileResponse } from '../posts/processors'
-import { CompleteProfileAPI } from '../../helpers/constants/profile'
+import axiosInstance from '@api/axiosInstance'
+import { handleAPIError } from '@helpers/api'
 
 // TODO: {withCredentials: true} is needed to be added to axiosInstance headers for the protected routes
 
@@ -67,16 +63,6 @@ export const changePasswordAPI: ChangePasswordAPI['api'] = async (params) => {
   return processedResponse
 }
 
-export const inviteUserAPI: InviteUserAPI['api'] = async (params) => {
-  const { data } = await axiosInstance.post<APIResponse<InviteUserAPI['response']>>(
-    ENDPOINTS.inviteUser,
-    JSON.stringify(params)
-  )
-  handleAPIError(data)
-  const processedResponse = processIniviteUserResponse(data)
-  return processedResponse
-}
-
 export const verifyTokenAPI: VerifyTokenAPI['api'] = async (params) => {
   const { data } = await axiosInstance.post<APIResponse<VerifyTokenAPI['response']>>(
     ENDPOINTS.verifyToken,
@@ -101,17 +87,5 @@ export const getProfileAPI: GetProfileAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProfileAPI['response']>>(ENDPOINTS.getProfile)
   handleAPIError(data)
   const processedResponse = processProfileResponse(data)
-  return processedResponse
-}
-
-export const completeProfileAPI: CompleteProfileAPI['api'] = async (params) => {
-  const { data } = await axiosInstance.post<APIResponse<CompleteProfileAPI['response']>>(ENDPOINTS.getProfile, params, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    withCredentials: true
-  })
-  handleAPIError(data)
-  const processedResponse = processCompleteProfileResponse(data)
   return processedResponse
 }

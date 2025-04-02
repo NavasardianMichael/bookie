@@ -1,7 +1,6 @@
 import {
   ChangePasswordAPI,
   GetProfileAPI,
-  InviteUserAPI,
   RegisterAPI,
   ResetPasswordAPI,
   SendForgotPasswordInstructionsAPI,
@@ -23,10 +22,6 @@ export const processSendForgotPasswordInstructionsResponse: SendForgotPasswordIn
 }
 
 export const processChangePasswordResponse: ChangePasswordAPI['processor'] = (response) => {
-  return response.value
-}
-
-export const processIniviteUserResponse: InviteUserAPI['processor'] = (response) => {
   return response.value
 }
 

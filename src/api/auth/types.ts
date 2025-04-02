@@ -41,12 +41,6 @@ export type ChangePasswordAPI = Endpoint<{
   processed: void
 }>
 
-export type InviteUserAPI = Endpoint<{
-  payload: Pick<Profile, 'email'>
-  response: void
-  processed: void
-}>
-
 export type VerifyTokenAPI = Endpoint<{
   payload: {
     email: Profile['email']

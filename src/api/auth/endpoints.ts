@@ -4,7 +4,6 @@ export const ENDPOINTS = {
   logout: '/api/Identity/logout',
   sendForgotPasswordInstructions: 'sendForgotPasswordInstructions',
   changePassword: 'changePassword',
-  inviteUser: 'inviteUser',
   verifyToken: 'verifyToken',
   resetPassword: 'resetPassword',
   getProfile: '/api/Identity/userinfo',

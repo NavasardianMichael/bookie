@@ -1,11 +1,8 @@
-import { AxiosError, isAxiosError } from 'axios'
-import { ENDPOINTS } from '../../api/auth/endpoints'
 import { googleSignIn } from '@api/auth/google'
+import { AxiosError, isAxiosError } from 'axios'
 import {
   changePasswordAPI,
-  completeProfileAPI,
   getProfileAPI,
-  inviteUserAPI,
   loginAPI,
   logoutAPI,
   registerAPI,
@@ -16,7 +13,6 @@ import {
 import {
   ChangePasswordAPI,
   GetProfileAPI,
-  InviteUserAPI,
   LoginAPI,
   LogoutAPI,
   RegisterAPI,
@@ -24,13 +20,13 @@ import {
   SendForgotPasswordInstructionsAPI,
   VerifyTokenAPI,
 } from '@api/auth/types'
-import { LOGIN_TYPES } from '@constants/auth/login'
-import { STATE_SLICE_NAMES } from '@constants/store'
 import { setIsLoggedIn, setProfileData } from './slice'
 import { Profile } from './types'
 import { LoginTypes } from '@interfaces/auth'
 import { createAppAsyncThunk } from '@helpers/store'
-import { CompleteProfileAPI, PROFILE_INITIAL_DATA } from '@constants/profile'
+import { STATE_SLICE_NAMES } from '@constants/store'
+import { LOGIN_TYPES } from '@constants/auth/login'
+import { PROFILE_INITIAL_DATA } from '@constants/profile'
 
 export const loginThunk = createAppAsyncThunk<void, { loginType: LoginTypes; values: LoginAPI['payload'] }>(
   `${STATE_SLICE_NAMES.profile}/login`,
@@ -135,19 +131,6 @@ export const verifyTokenThunk = createAppAsyncThunk<void, VerifyTokenAPI['payloa
   }
 )
 
-export const inviteUserThunk = createAppAsyncThunk<void, InviteUserAPI['payload']>(
-  `${STATE_SLICE_NAMES.profile}/inviteUser`,
-  async (payload, { rejectWithValue }) => {
-    try {
-      await inviteUserAPI(payload)
-    } catch (e) {
-      const error = e as Error | AxiosError
-      const processedError = isAxiosError(error) ? error?.response?.data : error
-      return rejectWithValue(processedError)
-    }
-  }
-)
-
 export const getProfileThunk = createAppAsyncThunk<Profile, GetProfileAPI['payload']>(
   `${STATE_SLICE_NAMES.profile}/getProfile`,
   async (_, { dispatch, rejectWithValue }) => {
@@ -159,17 +142,6 @@ export const getProfileThunk = createAppAsyncThunk<Profile, GetProfileAPI['paylo
       const error = e as Error | AxiosError
       const processedError = isAxiosError(error) ? error?.response?.data : error
       return rejectWithValue(processedError)
-    }
-  }
-)
-
-export const completeProfileThunk = createAppAsyncThunk<void, CompleteProfileAPI['payload']>(
-  `${ENDPOINTS.getProfile}`,
-  async (params, { rejectWithValue }) => {
-    try {
-      completeProfileAPI(params)
-    } catch (e) {
-      return rejectWithValue(e as Error)
     }
   }
 )
