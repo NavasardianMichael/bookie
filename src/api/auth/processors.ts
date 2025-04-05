@@ -4,7 +4,6 @@ import {
   RegisterAPI,
   ResetPasswordAPI,
   SendForgotPasswordInstructionsAPI,
-  VerifyTokenAPI,
 } from './types'
 
 export const processRegisterResponse: RegisterAPI['processor'] = (response) => {
@@ -22,10 +21,6 @@ export const processSendForgotPasswordInstructionsResponse: SendForgotPasswordIn
 }
 
 export const processChangePasswordResponse: ChangePasswordAPI['processor'] = (response) => {
-  return response.value
-}
-
-export const processVerifyTokenResponse: VerifyTokenAPI['processor'] = (response) => {
   return response.value
 }
 

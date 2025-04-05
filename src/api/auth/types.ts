@@ -41,16 +41,6 @@ export type ChangePasswordAPI = Endpoint<{
   processed: void
 }>
 
-export type VerifyTokenAPI = Endpoint<{
-  payload: {
-    email: Profile['email']
-    token: string
-    type: string
-  }
-  response: void
-  processed: void
-}>
-
 export type ResetPasswordAPI = Endpoint<{
   payload: {
     token: string

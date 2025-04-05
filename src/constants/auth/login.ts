@@ -8,6 +8,4 @@ export const LOGIN_FORM_INITIAL_VALUES = {
 export const LOGIN_TYPES = {
   internal: 'internal',
   google: 'google',
-  telegram: 'telegram',
-  webTelegram: 'webTelegram'
 } as const

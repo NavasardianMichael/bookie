@@ -5,7 +5,8 @@ import { PROFILE_INITIAL_DATA } from '@constants/profile'
 
 const initialState: ProfileSlice = {
   data: PROFILE_INITIAL_DATA,
-  isLoggedIn: !!localStorage.getItem('isLoggedIn'),
+  isLoggedIn: false,
+  isPending: false,
   errorMessage: '',
 }
 
@@ -31,8 +32,7 @@ export const { reducer: profileReducer, actions } = createSlice({
       .addMatcher(isRejectedAction, (state, action: PayloadAction<SerializedError>) => {
         console.log(action)
         state.isPending = false
-
-        // state.errorMessage = action.payload.message ?? 'Rejected Action.'
+        state.errorMessage = action.payload.message ?? 'Rejected Action.'
       })
       .addMatcher(isPendingAction, (state) => {
         state.isPending = true

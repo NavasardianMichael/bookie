@@ -8,7 +8,6 @@ import {
   registerAPI,
   resetPasswordAPI,
   sendForgotPasswordInstructionsAPI,
-  verifyTokenAPI,
 } from '@api/auth/main'
 import {
   ChangePasswordAPI,
@@ -18,7 +17,6 @@ import {
   RegisterAPI,
   ResetPasswordAPI,
   SendForgotPasswordInstructionsAPI,
-  VerifyTokenAPI,
 } from '@api/auth/types'
 import { setIsLoggedIn, setProfileData } from './slice'
 import { Profile } from './types'
@@ -110,19 +108,6 @@ export const resetPasswordThunk = createAppAsyncThunk<void, ResetPasswordAPI['pa
   async (payload, { rejectWithValue }) => {
     try {
       await resetPasswordAPI(payload)
-    } catch (e) {
-      const error = e as Error | AxiosError
-      const processedError = isAxiosError(error) ? error?.response?.data : error
-      return rejectWithValue(processedError)
-    }
-  }
-)
-
-export const verifyTokenThunk = createAppAsyncThunk<void, VerifyTokenAPI['payload']>(
-  `${STATE_SLICE_NAMES.profile}/verifyToken`,
-  async (payload, { rejectWithValue }) => {
-    try {
-      await verifyTokenAPI(payload)
     } catch (e) {
       const error = e as Error | AxiosError
       const processedError = isAxiosError(error) ? error?.response?.data : error

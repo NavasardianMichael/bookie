@@ -1,22 +1,26 @@
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { forgotPasswordThunk } from 'store/profile/thunk'
-import { Profile } from 'store/profile/types'
-import { useAppDispatch } from 'hooks/useAppDispatch'
-import { PUBLIC_PAGES } from 'helpers/constants/pages'
-import { isRejectedAction } from 'helpers/functions/store'
+import { forgotPasswordThunk } from '@store/profile/thunk'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
 
 export const useForgotPassword = () => {
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  return useCallback(
-    async ({ email }: Pick<Profile, 'email'>) => {
-      const res = await dispatch(forgotPasswordThunk({ email }))
-      if (isRejectedAction(res)) return
+  const handleForgotPassword = async (email: string) => {
+    setIsLoading(true)
+    setError(null)
 
-      navigate(PUBLIC_PAGES.emailVerification)
-    },
-    [dispatch, navigate]
-  )
+    try {
+      await forgotPasswordThunk({ email })
+      router.push('/auth/login')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return { handleForgotPassword, isLoading, error }
 }

@@ -1,10 +1,12 @@
-import axiosInstance from 'api/axiosInstance'
+import axiosInstance from '@api/axiosInstance';
 import { ENDPOINTS } from './endpoints'
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export async function googleSignIn() {
-  const clientID = import.meta.env.VITE_APP_GOOGLE_CLIENT_ID // Replace with your client ID
+  const clientID = process.env.GOOGLE_CLIENT_ID! // Replace with your client ID
+  console.log({ clientID });
+
   const redirectUri = `${window.location.origin}/auth-popup` // Temporary page to handle the callback
   const scopes = ['openid', 'email', 'profile']
   const nonce = 'testnonce'

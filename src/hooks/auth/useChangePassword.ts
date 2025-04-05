@@ -1,13 +1,11 @@
+import { CHANGE_PASSWORD_FORM_INITIAL_VALUES } from '@constants/auth/changePassword'
+import { isRejectedAction } from '@helpers/store'
+import { useAppDispatch } from '@hooks/useAppDispatch'
+import { changePasswordThunk } from '@store/profile/thunk'
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { changePasswordThunk } from 'store/profile/thunk'
-import { useAppDispatch } from 'hooks/useAppDispatch'
-import { CHANGE_PASSWORD_FORM_INITIAL_VALUES } from 'helpers/constants/auth/changePassword'
-import { PUBLIC_PAGES } from 'helpers/constants/pages'
-import { isRejectedAction } from 'helpers/functions/store'
 
 export const useChangePassword = () => {
-  const navigate = useNavigate()
+  // const router = useRouter()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -15,8 +13,8 @@ export const useChangePassword = () => {
       const res = await dispatch(changePasswordThunk(values))
       if (isRejectedAction(res)) return
 
-      navigate(PUBLIC_PAGES.confirmation)
+      // router.push(PUBLIC_PAGES.confirmation)
     },
-    [dispatch, navigate]
+    [dispatch]
   )
 }

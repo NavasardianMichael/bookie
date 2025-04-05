@@ -3,7 +3,6 @@
   "importOrder": [
     "^react(.*)",
     "^react-redux(.*)",
-    "react-router-dom",
     "^@reduxjs(.*)",
     "<THIRD_PARTY_MODULES>",
     "@assets/",

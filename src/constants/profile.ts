@@ -19,7 +19,6 @@ type ProfileForm = {
   regionId: string
   address: string
   phoneNumber: string
-  telegram: string
   whatsApp: string
   viber: string
 }
@@ -37,7 +36,6 @@ export const PROFILE_FORM_INITIAL_VALUES: ProfileForm = {
   regionId: '',
   address: '',
   phoneNumber: '',
-  telegram: '',
   whatsApp: '',
   viber: '',
 }

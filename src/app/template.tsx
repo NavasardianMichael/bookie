@@ -1,10 +1,13 @@
+'use client'
+
 import { StoreProvider } from "@store/Provider";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, ThemeConfig } from "antd";
 import { PropsWithChildren } from "react";
 
-const themeConfig = {
+const themeConfig: ThemeConfig = {
     token: {
-        colorPrimary: '#add8e6',
+        colorPrimary: '#4D869C',   // Clay/tan
+        colorBgBase: '#EEF7FF',    // Soft off-white
     },
 }
 

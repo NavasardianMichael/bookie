@@ -18,7 +18,7 @@ const LoginForm: React.FC = () => {
     const formik = useFormik({
         initialValues: LOGIN_FORM_INITIAL_VALUES,
         onSubmit: login,
-        validateOnChange: false,
+        // validateOnChange: false,
     })
 
     return (
@@ -28,6 +28,7 @@ const LoginForm: React.FC = () => {
             initialValues={{ rememberMe: true }}
             autoComplete="off"
             validateMessages={FORM_DEFAULT_VALIDATION_MESSAGES}
+            onSubmitCapture={formik.handleSubmit}
         >
             <Form.Item<FieldType>
                 label="Username"
@@ -50,7 +51,7 @@ const LoginForm: React.FC = () => {
             </Form.Item>
 
             <Form.Item label={null}>
-                <Button type="primary" color='default' variant="solid" htmlType="submit">
+                <Button type="primary" variant="solid" htmlType="submit">
                     Submit
                 </Button>
             </Form.Item>

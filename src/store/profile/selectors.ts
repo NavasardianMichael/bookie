@@ -1,4 +1,4 @@
-import { RootState } from 'store/main'
+import { RootState } from '@store/main'
 
 export const selectProfileData = (state: RootState) => state.profile.data
 

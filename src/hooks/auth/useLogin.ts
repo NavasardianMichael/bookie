@@ -5,7 +5,7 @@ import { useAppDispatch } from '@hooks/useAppDispatch'
 import useLocalStorage from '@hooks/useLocalStorage'
 import { LoginTypes } from '@interfaces/auth'
 import { loginThunk } from '@store/profile/thunk'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 
 export const useLogin = (loginType: LoginTypes) => {
@@ -16,6 +16,8 @@ export const useLogin = (loginType: LoginTypes) => {
 
   return useCallback(
     async (values: LoginAPI['payload']) => {
+      console.log(123);
+
       const loginAction = await dispatch(loginThunk({ loginType, values }))
 
       if (isRejectedAction(loginAction)) return

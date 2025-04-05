@@ -1,3 +1,5 @@
+import axiosInstance from '@api/axiosInstance'
+import { handleAPIError } from '@helpers/api'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
 import {
@@ -6,7 +8,6 @@ import {
   processRegisterResponse,
   processResetPasswordResponse,
   processSendForgotPasswordInstructionsResponse,
-  processVerifyTokenResponse,
 } from './processors'
 import {
   ChangePasswordAPI,
@@ -15,11 +16,8 @@ import {
   LogoutAPI,
   RegisterAPI,
   ResetPasswordAPI,
-  SendForgotPasswordInstructionsAPI,
-  VerifyTokenAPI,
+  SendForgotPasswordInstructionsAPI
 } from './types'
-import axiosInstance from '@api/axiosInstance'
-import { handleAPIError } from '@helpers/api'
 
 // TODO: {withCredentials: true} is needed to be added to axiosInstance headers for the protected routes
 
@@ -60,16 +58,6 @@ export const changePasswordAPI: ChangePasswordAPI['api'] = async (params) => {
   )
   handleAPIError(data)
   const processedResponse = processChangePasswordResponse(data)
-  return processedResponse
-}
-
-export const verifyTokenAPI: VerifyTokenAPI['api'] = async (params) => {
-  const { data } = await axiosInstance.post<APIResponse<VerifyTokenAPI['response']>>(
-    ENDPOINTS.verifyToken,
-    JSON.stringify(params)
-  )
-  handleAPIError(data)
-  const processedResponse = processVerifyTokenResponse(data)
   return processedResponse
 }
 

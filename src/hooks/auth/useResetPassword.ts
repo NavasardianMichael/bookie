@@ -1,27 +1,26 @@
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { resetPasswordThunk } from 'store/profile/thunk'
-import { useAppDispatch } from 'hooks/useAppDispatch'
-import { useQueryParams } from 'hooks/useQueryParams'
-import { RESET_PASSWORD_FORM_INITIAL_VALUES } from 'helpers/constants/auth/resetPassword'
-import { PUBLIC_PAGES } from 'helpers/constants/pages'
-import { isRejectedAction } from 'helpers/functions/store'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
 
 export const useResetPassword = () => {
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
-  const queryParams = useQueryParams()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  const email = queryParams.email
-  const token = queryParams?.token?.replace(/ /gi, '+')
+  const handleResetPassword = async (email: string) => {
+    setIsLoading(true)
+    setError(null)
+    console.log({ email });
 
-  return useCallback(
-    async (values: typeof RESET_PASSWORD_FORM_INITIAL_VALUES) => {
-      const res = await dispatch(resetPasswordThunk({ email, token, ...values }))
-      if (isRejectedAction(res)) return
+    try {
+      // await resetPasswordAPI({ email })
+      router.push('/auth/login')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-      navigate(PUBLIC_PAGES.confirmation)
-    },
-    [dispatch, navigate, email, token]
-  )
+  return { handleResetPassword, isLoading, error }
 }

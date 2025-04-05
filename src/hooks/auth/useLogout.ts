@@ -1,25 +1,26 @@
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { logoutThunk } from 'store/profile/thunk'
-import { PUBLIC_PAGES } from 'helpers/constants/pages'
-import { isRejectedAction } from 'helpers/functions/store'
-import { useAppDispatch } from '../useAppDispatch'
-import useLocalStorage from '../useLocalStorage'
+import { logoutAPI } from '@api/auth/main'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
 
 export const useLogout = () => {
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
-  const [, , removeIsLoggedInFlag] = useLocalStorage('isLoggedIn', false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  return useCallback(async () => {
-    const res = await dispatch(logoutThunk())
-    if (isRejectedAction(res)) return
+  const handleLogout = async () => {
+    setIsLoading(true)
+    setError(null)
 
-    removeIsLoggedInFlag()
-    navigate(PUBLIC_PAGES.login, {
-      state: {
-        origin: PUBLIC_PAGES.home,
-      },
-    })
-  }, [dispatch, navigate, removeIsLoggedInFlag])
+    try {
+      await logoutAPI()
+      router.push('/auth/login')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return { handleLogout, isLoading, error }
 }
