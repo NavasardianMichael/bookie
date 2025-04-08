@@ -100,13 +100,13 @@ const RegistrationForm: React.FC = () => {
                     <Form.Item<RegistrationFormValues>
                         name="countryCode"
                         rules={FORM_ITEM_REQUIRED_RULE_SET}
-                        className="w-42 mb-0 mr-0"
+                        className="w-42 mb-0! mr-0"
                     >
                         <Select
                             value={formik.values.countryCode}
                             onChange={handleCountryChange}
                             options={countryOptions}
-                            className="rounded-l-2xl rounded-r-none"
+                            className="rounded-none!"
                         />
                     </Form.Item>
 
@@ -117,22 +117,24 @@ const RegistrationForm: React.FC = () => {
                             ...FORM_ITEM_REQUIRED_RULE_SET,
                             { validator: validatePhoneNumber }
                         ]}
-                        className="mb-0 flex-1"
+                        className="mb-0! flex-1"
                     >
                         <Input
                             name='phoneNumber'
                             value={formik.values.phoneNumber}
                             onChange={handlePhoneNumberChange}
                             placeholder={placeholder}
-                            className="rounded-l-none rounded-r-lg"
+                            className="rounded-l-none!"
                         />
                     </Form.Item>
                 </Flex>
             </Form.Item>
 
-            <Button type="primary" variant="solid" htmlType="submit" className="mx-auto">
-                Register with Phone
-            </Button>
+            <Flex>
+                <Button type="primary" variant="solid" htmlType="submit" className="mx-auto">
+                    Send Verification Code
+                </Button>
+            </Flex>
 
             <Divider>Or register with</Divider>
 
