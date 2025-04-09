@@ -1,7 +1,7 @@
-import { useAppDispatch } from '@hooks/useAppDispatch'
-import useLocalStorage from '@hooks/useLocalStorage'
-import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
+import { useAppDispatch } from '@hooks/useAppDispatch';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 type RegistrationValues = {
     phoneNumber: string;
@@ -18,7 +18,7 @@ export const useRegistration = (registrationType: string) => {
         async (values: RegistrationValues) => {
             console.log({ values });
 
-            // // Create a payload that matches what the API expects
+            // // // Create a payload that matches what the API expects
             // const apiPayload = {
             //     email: '', // Empty for phone registration
             //     password: '', // Empty for phone registration

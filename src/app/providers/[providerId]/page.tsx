@@ -1,5 +1,7 @@
 import { Provider as ProviderType } from '@interfaces/provider'
 import { Metadata, ResolvingMetadata } from 'next'
+import ProviderCalendar from './components/Calendar'
+import Title from 'antd/es/typography/Title'
 
 type Props = {
     params: Promise<{
@@ -22,7 +24,9 @@ const Provider = async ({ params }: Props) => {
     const { providerId } = await params
     return (
         <article>
-            <header>Id fo the Provider is: {providerId}</header>
+            <Title level={2} style={{ fontSize: '1rem', marginBottom: 0 }}>Id fo the Provider is: {providerId}</Title>
+            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim quaerat ipsam perferendis voluptas, sunt quo atque suscipit minus saepe consequuntur porro, labore exercitationem! Perferendis temporibus natus obcaecati vitae voluptate! Itaque.</p>
+            <ProviderCalendar />
         </article>
     )
 }

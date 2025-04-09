@@ -1,11 +1,10 @@
 
 export const LOGIN_FORM_INITIAL_VALUES = {
-  email: '',
-  password: '',
+  phone: '',
   rememberMe: false,
 } as const
 
 export const LOGIN_TYPES = {
-  internal: 'internal',
+  phone: 'phone',
   google: 'google',
 } as const

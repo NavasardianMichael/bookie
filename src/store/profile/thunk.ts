@@ -32,7 +32,7 @@ export const loginThunk = createAppAsyncThunk<void, { loginType: LoginTypes; val
     const { loginType, values } = params
 
     try {
-      if (loginType === LOGIN_TYPES.internal) {
+      if (loginType === LOGIN_TYPES.phone) {
         await loginAPI(values)
       } else if (loginType === LOGIN_TYPES.google) {
         await googleSignIn()

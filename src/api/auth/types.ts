@@ -11,10 +11,7 @@ export type LoginAPI = Endpoint<{
 }>
 
 export type RegisterAPI = Endpoint<{
-  payload: Pick<Profile, 'email'> & {
-    rememberMe: boolean
-    password: string
-  }
+  payload: Pick<Profile, 'phone'>
   response: Profile
   processed: Profile
 }>
