@@ -8,6 +8,8 @@ import { useFormik } from 'formik';
 import { getCountries, getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js';
 import { useCallback, useMemo } from 'react';
 import { FcGoogle } from 'react-icons/fc';
+import '@ant-design/v5-patch-for-react-19';
+
 import Flag from 'react-world-flags';
 
 type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES;
@@ -34,7 +36,8 @@ const RegistrationForm: React.FC = () => {
     }, [formik]);
 
     const validatePhoneNumber = useCallback((_: any, value: string) => {
-        if (!value) {
+        console.log({ value, countryCode: formik.values.countryCode });
+        if (!value || !formik.values.countryCode) {
             return Promise.resolve();
         }
 
@@ -50,7 +53,7 @@ const RegistrationForm: React.FC = () => {
     }, [formik.values.countryCode]);
 
     const formatPhoneNumber = useCallback((value: string) => {
-        if (!value) return value;
+        if (!value || !formik.values.countryCode) return value;
         try {
             const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`;
             const phoneNumber = parsePhoneNumberWithError(fullNumber);
@@ -78,19 +81,21 @@ const RegistrationForm: React.FC = () => {
         })), [countries]);
 
     // Create placeholder text for the phone input
-    const placeholder = useMemo(() =>
-        `Enter number without +${getCountryCallingCode(formik.values.countryCode)}`,
-        [formik.values.countryCode]);
+    const placeholder = useMemo(() => {
+        if (!formik.values.countryCode) return 'Enter Phone Number';
+        return `Enter number without +${getCountryCallingCode(formik.values.countryCode)}`;
+    }, [formik.values.countryCode]);
 
     return (
         <Form
             form={form}
             autoComplete="off"
             validateMessages={FORM_DEFAULT_VALIDATION_MESSAGES}
-            onSubmitCapture={formik.handleSubmit}
             requiredMark={false}
-            className="w-full max-w-[400px]"
+            className="w-full max-w-[500px]"
             layout='vertical'
+            validateTrigger={['onSubmit']}
+            onFinish={formik.handleSubmit}
         >
             <Form.Item
                 label="Select Phone Number"
@@ -106,13 +111,13 @@ const RegistrationForm: React.FC = () => {
                             value={formik.values.countryCode}
                             onChange={handleCountryChange}
                             options={countryOptions}
-                            className="rounded-none!"
+                            className="custom-antd-select border-r-0!"
                         />
                     </Form.Item>
 
                     <Form.Item<RegistrationFormValues>
                         name="phoneNumber"
-                        validateTrigger={['onBlur']}
+                        validateTrigger={['onSubmit']}
                         rules={[
                             ...FORM_ITEM_REQUIRED_RULE_SET,
                             { validator: validatePhoneNumber }
@@ -125,6 +130,7 @@ const RegistrationForm: React.FC = () => {
                             onChange={handlePhoneNumberChange}
                             placeholder={placeholder}
                             className="rounded-l-none!"
+                            type='tel'
                         />
                     </Form.Item>
                 </Flex>
