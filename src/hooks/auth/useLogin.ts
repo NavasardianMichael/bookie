@@ -16,8 +16,6 @@ export const useLogin = (loginType: LoginTypes) => {
 
   return useCallback(
     async (values: LoginAPI['payload']) => {
-      console.log(123);
-
       const loginAction = await dispatch(loginThunk({ loginType, values }))
 
       if (isRejectedAction(loginAction)) return

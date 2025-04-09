@@ -1,6 +1,6 @@
 export const REGISTRATION_FORM_INITIAL_VALUES = {
   phoneNumber: '',
-  countryCode: 'AM', // Default to Armenia
+  countryCode: undefined, // Default to Armenia
   rememberMe: false,
 } as const
 

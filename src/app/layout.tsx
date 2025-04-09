@@ -1,7 +1,8 @@
 import Footer from '@components/Footer'
 import { Header } from '@components/Header'
 import type { Metadata } from 'next'
-import './globals.css'
+import '@styles/globals.css'
+import '@styles/antd-override.css'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 
 
