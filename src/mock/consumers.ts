@@ -1,4 +1,4 @@
-import { Consumer } from '@interfaces/provider'
+import { Consumer } from "@interfaces/consumer";
 
 export const MOCK_CONSUMERS: Consumer[] = [
   {

@@ -1,13 +1,15 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
-import { Badge, Calendar, Select, Button, Flex } from 'antd';
+import { Badge, Calendar, Select, Button, Flex, Modal } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 const getListData = (value: Dayjs) => {
+    console.log({ value });
+
     let listData: { type: string; content: string }[] = []; // Specify the type of listData
     // switch (value.date()) {
     //     case 8:
@@ -44,7 +46,21 @@ const getMonthData = (value: Dayjs) => {
     }
 };
 
+// Generate time slots for the day view
+const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 9; hour <= 17; hour++) {
+        slots.push(dayjs().hour(hour).minute(0));
+        slots.push(dayjs().hour(hour).minute(30));
+    }
+    return slots;
+};
+
 const ProviderCalendar: React.FC = () => {
+    const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+    const [isDayViewOpen, setIsDayViewOpen] = useState(false);
+    const timeSlots = generateTimeSlots();
+
     const monthCellRender = (value: Dayjs) => {
         const num = getMonthData(value);
         return num ? (
@@ -69,7 +85,19 @@ const ProviderCalendar: React.FC = () => {
     };
 
     const cellRender: CalendarProps<Dayjs>['cellRender'] = (current, info) => {
-        if (info.type === 'date') return dateCellRender(current);
+        if (info.type === 'date') {
+            return (
+                <div
+                    onClick={() => {
+                        setSelectedDate(current);
+                        setIsDayViewOpen(true);
+                    }}
+                    className="cursor-pointer"
+                >
+                    {dateCellRender(current)}
+                </div>
+            );
+        }
         if (info.type === 'month') return monthCellRender(current);
         return info.originNode;
     };
@@ -122,10 +150,10 @@ const ProviderCalendar: React.FC = () => {
                     onClick={handlePrevMonth}
                     disabled={value.year() === currentYear && value.month() === currentMonth}
                 />
-                <Flex gap={2} align="center">
-                    <span className="font-bold">{value.year()}</span>
-                </Flex>
                 <Flex gap={10} >
+                    <Flex gap={2} align="center">
+                        <span className="font-bold">{value.year()}</span>
+                    </Flex>
                     <Select
                         value={value.month()}
                         onChange={(month) => onChange(value.month(month))}
@@ -142,12 +170,47 @@ const ProviderCalendar: React.FC = () => {
         );
     };
 
+    // Handle booking a time slot
+    const handleBookTimeSlot = (time: Dayjs) => {
+        console.log('Booking time slot:', selectedDate?.format('YYYY-MM-DD'), time.format('HH:mm'));
+        // Here you would implement the booking logic
+        // For now, we'll just close the modal
+        setIsDayViewOpen(false);
+    };
+
     return (
-        <Calendar
-            cellRender={cellRender}
-            disabledDate={disabledDate}
-            headerRender={headerRender}
-        />
+        <>
+            <Calendar
+                cellRender={cellRender}
+                disabledDate={disabledDate}
+                headerRender={headerRender}
+            />
+
+            <Modal
+                title={selectedDate ? `Schedule for ${selectedDate.format('MMMM D, YYYY')}` : 'Daily Schedule'}
+                open={isDayViewOpen}
+                onCancel={() => setIsDayViewOpen(false)}
+                footer={null}
+                width={600}
+            >
+                <div className="max-h-[60vh] overflow-y-auto">
+                    <div className="grid grid-cols-1 gap-2">
+                        {timeSlots.map((time, index) => (
+                            <div
+                                key={index}
+                                className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
+                                onClick={() => handleBookTimeSlot(time)}
+                            >
+                                <span className="font-medium">{time.format('h:mm A')}</span>
+                                <Button type="primary" size="small">
+                                    Book
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </Modal>
+        </>
     );
 };
 
