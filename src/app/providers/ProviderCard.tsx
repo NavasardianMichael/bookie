@@ -1,10 +1,10 @@
 import AppLink from '@components/shared/AppLink'
 import { ROUTES } from '@constants/routes'
 import { Provider } from '@interfaces/provider'
-import { Avatar, Card, Image } from 'antd'
-import React, { FC } from 'react'
-import Meta from 'antd/es/card/Meta';
-import Title from 'antd/es/typography/Title';
+import { Card, Image } from 'antd'
+import Meta from 'antd/es/card/Meta'
+import Title from 'antd/es/typography/Title'
+import { FC } from 'react'
 
 type Props = {
     data: Provider
