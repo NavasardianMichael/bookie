@@ -21,4 +21,14 @@ export const MOCK_PROVIDERS: Provider[] = [
     name: 'Provider 4',
     phone: '+1234567890',
   },
+  {
+    id: '5',
+    name: 'Provider 5',
+    phone: '+1234567890',
+  },
+  {
+    id: '6',
+    name: 'Provider 6',
+    phone: '+1234567890',
+  },
 ]

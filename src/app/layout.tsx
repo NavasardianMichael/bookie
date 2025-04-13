@@ -5,7 +5,6 @@ import '@styles/globals.css'
 import '@styles/antd-override.css'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 
-
 export const metadata: Metadata = {
   title: 'Bookie',
   description: 'Your Booking Platform Forever',

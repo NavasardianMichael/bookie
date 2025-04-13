@@ -1,16 +1,12 @@
-import AppLink from '@components/shared/AppLink'
-import { ROUTES } from '@constants/routes'
 import { MOCK_PROVIDERS } from '@mock/providers'
-import React from 'react'
+import { ProviderCard } from './ProviderCard'
 
 const Providers = () => {
     return (
-        <div className='flex gap-4'>{
+        <div className='flex flex-wrap gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6'>{
             MOCK_PROVIDERS.map((provider) => {
                 return (
-                    <AppLink key={provider.id} href={`${ROUTES.providers}/${provider.id}`}>
-                        <h2>{provider.name}</h2>
-                    </AppLink>
+                    <ProviderCard key={provider.id} data={provider} />
                 )
             })}</div>
     )

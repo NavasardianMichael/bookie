@@ -1,217 +1,84 @@
 'use client'
 
-import React, { useState } from 'react';
-import type { BadgeProps, CalendarProps } from 'antd';
-import { Badge, Calendar, Select, Button, Flex, Modal } from 'antd';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { EventClickArg, EventInput } from '@fullcalendar/core'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
+import FullCalendar from '@fullcalendar/react'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import dayjs from 'dayjs'
+import { useState } from 'react'
 
-const getListData = (value: Dayjs) => {
-    console.log({ value });
+const ProviderCalendar = () => {
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
-    let listData: { type: string; content: string }[] = []; // Specify the type of listData
-    // switch (value.date()) {
-    //     case 8:
-    //         listData = [
-    //             { type: 'warning', content: 'This is warning event.' },
-    //             { type: 'success', content: 'This is usual event.' },
-    //         ];
-    //         break;
-    //     case 10:
-    //         listData = [
-    //             { type: 'warning', content: 'This is warning event.' },
-    //             { type: 'success', content: 'This is usual event.' },
-    //             { type: 'error', content: 'This is error event.' },
-    //         ];
-    //         break;
-    //     case 15:
-    //         listData = [
-    //             { type: 'warning', content: 'This is warning event' },
-    //             { type: 'success', content: 'This is very long usual event......' },
-    //             { type: 'error', content: 'This is error event 1.' },
-    //             { type: 'error', content: 'This is error event 2.' },
-    //             { type: 'error', content: 'This is error event 3.' },
-    //             { type: 'error', content: 'This is error event 4.' },
-    //         ];
-    //         break;
-    //     default:
-    // }
-    return listData || [];
-};
+    // Generate time slots for the selected date
+    const generateTimeSlots = (date: Date) => {
+        const slots: EventInput[] = []
+        const startHour = 9
+        const endHour = 17
 
-const getMonthData = (value: Dayjs) => {
-    if (value.month() === 8) {
-        return 1394;
-    }
-};
-
-// Generate time slots for the day view
-const generateTimeSlots = () => {
-    const slots = [];
-    for (let hour = 9; hour <= 17; hour++) {
-        slots.push(dayjs().hour(hour).minute(0));
-        slots.push(dayjs().hour(hour).minute(30));
-    }
-    return slots;
-};
-
-const ProviderCalendar: React.FC = () => {
-    const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-    const [isDayViewOpen, setIsDayViewOpen] = useState(false);
-    const timeSlots = generateTimeSlots();
-
-    const monthCellRender = (value: Dayjs) => {
-        const num = getMonthData(value);
-        return num ? (
-            <div className="notes-month">
-                <section>{num}</section>
-                <span>Backlog number</span>
-            </div>
-        ) : null;
-    };
-
-    const dateCellRender = (value: Dayjs) => {
-        const listData = getListData(value);
-        return (
-            <ul className="events">
-                {listData.map((item) => (
-                    <li key={item.content}>
-                        <Badge status={item.type as BadgeProps['status']} text={item.content} />
-                    </li>
-                ))}
-            </ul>
-        );
-    };
-
-    const cellRender: CalendarProps<Dayjs>['cellRender'] = (current, info) => {
-        if (info.type === 'date') {
-            return (
-                <div
-                    onClick={() => {
-                        setSelectedDate(current);
-                        setIsDayViewOpen(true);
-                    }}
-                    className="cursor-pointer"
-                >
-                    {dateCellRender(current)}
-                </div>
-            );
+        for (let hour = startHour; hour <= endHour; hour++) {
+            for (let minute of [0, 30]) {
+                const slotDate = dayjs(date).hour(hour).minute(minute).toDate()
+                if (slotDate > new Date()) { // Only add future time slots
+                    slots.push({
+                        title: 'Available',
+                        start: slotDate,
+                        end: dayjs(slotDate).add(30, 'minutes').toDate(),
+                        display: 'block',
+                        backgroundColor: '#4D869C',
+                        classNames: ['available-slot']
+                    })
+                }
+            }
         }
-        if (info.type === 'month') return monthCellRender(current);
-        return info.originNode;
-    };
+        return slots
+    }
 
-    // Disable all dates before today
-    const disabledDate = (current: Dayjs) => {
-        return current && current < dayjs().startOf('day');
-    };
+    const handleDateClick = (arg: { date: Date, allDay: boolean }) => {
+        if (arg.allDay) return // Ignore all-day selections
+        setSelectedDate(arg.date)
+    }
 
-    // Custom header render function
-    const headerRender = ({ value, onChange }: { value: Dayjs; onChange: (date: Dayjs) => void }) => {
-        const currentYear = dayjs().year();
-        const currentMonth = dayjs().month();
-
-        // Generate month options (only future months)
-        const monthOptions = Array.from({ length: 12 }, (_, i) => {
-            const month = dayjs().month(i);
-            return {
-                value: i,
-                label: month.format('MMMM'),
-                disabled: value.year() === currentYear && i < currentMonth
-            };
-        });
-
-        // Handle previous month navigation
-        const handlePrevMonth = () => {
-            const newDate = value.subtract(1, 'month');
-            // Don't allow navigating to past months in current year
-            if (newDate.year() < currentYear ||
-                (newDate.year() === currentYear && newDate.month() < currentMonth)) {
-                return;
-            }
-            onChange(newDate);
-        };
-
-        // Handle next month navigation
-        const handleNextMonth = () => {
-            const newDate = value.add(1, 'month');
-            // Don't allow navigating beyond next year
-            if (newDate.year() > currentYear + 1) {
-                return;
-            }
-            onChange(newDate);
-        };
-
-        return (
-            <div className="p-2 flex justify-between items-center">
-                <Button
-                    icon={<LeftOutlined />}
-                    onClick={handlePrevMonth}
-                    disabled={value.year() === currentYear && value.month() === currentMonth}
-                />
-                <Flex gap={10} >
-                    <Flex gap={2} align="center">
-                        <span className="font-bold">{value.year()}</span>
-                    </Flex>
-                    <Select
-                        value={value.month()}
-                        onChange={(month) => onChange(value.month(month))}
-                        options={monthOptions}
-                        className="w-32"
-                    />
-                    <Button
-                        icon={<RightOutlined />}
-                        onClick={handleNextMonth}
-                        disabled={value.year() === currentYear + 1 && value.month() === 11}
-                    />
-                </Flex>
-            </div>
-        );
-    };
-
-    // Handle booking a time slot
-    const handleBookTimeSlot = (time: Dayjs) => {
-        console.log('Booking time slot:', selectedDate?.format('YYYY-MM-DD'), time.format('HH:mm'));
-        // Here you would implement the booking logic
-        // For now, we'll just close the modal
-        setIsDayViewOpen(false);
-    };
+    const handleEventClick = (arg: EventClickArg) => {
+        const event = arg.event
+        console.log('Booking slot:', {
+            date: event.start,
+            end: event.end
+        })
+    }
 
     return (
-        <>
-            <Calendar
-                cellRender={cellRender}
-                disabledDate={disabledDate}
-                headerRender={headerRender}
+        <div className='h-[800px]'>
+            <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                initialView="timeGridDay"
+                headerToolbar={{
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                }}
+                events={selectedDate ? generateTimeSlots(selectedDate) : []}
+                dateClick={handleDateClick}
+                eventClick={handleEventClick}
+                slotMinTime="00:00:00"
+                slotMaxTime="24:00:00"
+                allDaySlot={false}
+                selectable={true}
+                selectMirror={true}
+                dayMaxEvents={true}
+                weekends={true}
+                nowIndicator={true}
+                height="100%"
+                slotDuration="00:30:00"
+                stickyHeaderDates={true}
+                validRange={{
+                    start: new Date()
+                }}
             />
+        </div>
+    )
+}
 
-            <Modal
-                title={selectedDate ? `Schedule for ${selectedDate.format('MMMM D, YYYY')}` : 'Daily Schedule'}
-                open={isDayViewOpen}
-                onCancel={() => setIsDayViewOpen(false)}
-                footer={null}
-                width={600}
-            >
-                <div className="max-h-[60vh] overflow-y-auto">
-                    <div className="grid grid-cols-1 gap-2">
-                        {timeSlots.map((time, index) => (
-                            <div
-                                key={index}
-                                className="flex justify-between items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                                onClick={() => handleBookTimeSlot(time)}
-                            >
-                                <span className="font-medium">{time.format('h:mm A')}</span>
-                                <Button type="primary" size="small">
-                                    Book
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Modal>
-        </>
-    );
-};
-
-export default ProviderCalendar;
+export default ProviderCalendar
