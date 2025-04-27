@@ -1,6 +1,6 @@
-import AppLink from "@components/shared/AppLink"
-import { ROUTES } from "@constants/routes"
-import { OVERVIEW_ROUTES } from "@interfaces/header"
+import { OVERVIEW_ROUTES } from '@interfaces/header'
+import { ROUTES } from '@constants/routes'
+import AppLink from '@components/shared/AppLink'
 
 const RoutesOverview = () => {
   return (

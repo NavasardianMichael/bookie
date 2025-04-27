@@ -1,7 +1,6 @@
-import { logoutAPI } from '@api/auth/main'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-
+import { useRouter } from 'next/navigation'
+import { logoutAPI } from '@api/auth/main'
 
 export const useLogout = () => {
   const [isLoading, setIsLoading] = useState(false)

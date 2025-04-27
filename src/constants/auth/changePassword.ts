@@ -1,4 +1,3 @@
-
 export const CHANGE_PASSWORD_FORM_INITIAL_VALUES = {
   currentPassword: '',
   newPassword: '',

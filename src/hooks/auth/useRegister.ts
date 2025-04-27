@@ -1,10 +1,9 @@
-import { registerThunk } from '@store/profile/thunk'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-
+import { useRouter } from 'next/navigation'
+import { registerThunk } from '@store/profile/thunk'
 
 export const useRegister = (type: 'phone' | 'google') => {
-  console.log({ type });
+  console.log({ type })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

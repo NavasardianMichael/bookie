@@ -1,5 +1,5 @@
-import { Endpoint } from "@interfaces/api"
-import { Profile } from "@store/profile/types"
+import { Profile } from '@store/profile/types'
+import { Endpoint } from '@interfaces/api'
 
 export type LoginAPI = Endpoint<{
   payload: {
@@ -56,6 +56,6 @@ export type GetProfileAPI = Endpoint<{
 }>
 
 export type Marker = {
-  title: string;
-  position: string;
-};
+  title: string
+  position: string
+}

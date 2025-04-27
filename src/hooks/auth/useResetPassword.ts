@@ -1,6 +1,5 @@
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-
+import { useRouter } from 'next/navigation'
 
 export const useResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -10,7 +9,7 @@ export const useResetPassword = () => {
   const handleResetPassword = async (email: string) => {
     setIsLoading(true)
     setError(null)
-    console.log({ email });
+    console.log({ email })
 
     try {
       // await resetPasswordAPI({ email })

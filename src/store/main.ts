@@ -1,6 +1,6 @@
-import { configureStore } from "@reduxjs/toolkit"
-import profileReducer from "./profile/slice"
-import { STATE_SLICE_NAMES } from "@constants/store"
+import { configureStore } from '@reduxjs/toolkit'
+import { STATE_SLICE_NAMES } from '@constants/store'
+import profileReducer from './profile/slice'
 
 export const store = configureStore({
   reducer: {

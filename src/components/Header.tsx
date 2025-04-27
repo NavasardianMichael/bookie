@@ -1,6 +1,6 @@
-import { ROUTES } from '@constants/routes'
-import { HEADER_ROUTES } from '@interfaces/header'
 import Image from 'next/image'
+import { HEADER_ROUTES } from '@interfaces/header'
+import { ROUTES } from '@constants/routes'
 import AppLink from './shared/AppLink'
 
 export const Header = () => {
@@ -12,15 +12,17 @@ export const Header = () => {
           <Image className="dark:invert" src="/logo.svg" alt="Bookie logo" width={60} height={38} priority />
         </AppLink>
 
-        <h1 className='text-base sm:text-lg md:text-xl lg:text-2xl  sm:block'>
-          Your Booking Platform Forever
-        </h1>
+        <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl  sm:block">Your Booking Platform Forever</h1>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-4 ml-auto">
           {HEADER_ROUTES.map(({ label, name }) => {
             return (
-              <AppLink key={ROUTES[name]} href={ROUTES[name]} className="capitalize hover:text-blue-600 transition-colors">
+              <AppLink
+                key={ROUTES[name]}
+                href={ROUTES[name]}
+                className="capitalize hover:text-blue-600 transition-colors"
+              >
                 {label}
               </AppLink>
             )
@@ -45,7 +47,11 @@ export const Header = () => {
         <div className="flex flex-col gap-4 p-4">
           {HEADER_ROUTES.map(({ label, name }) => {
             return (
-              <AppLink key={ROUTES[name]} href={ROUTES[name]} className="capitalize hover:text-blue-600 transition-colors">
+              <AppLink
+                key={ROUTES[name]}
+                href={ROUTES[name]}
+                className="capitalize hover:text-blue-600 transition-colors"
+              >
                 {label}
               </AppLink>
             )

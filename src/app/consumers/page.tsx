@@ -1,6 +1,6 @@
 import { MOCK_CONSUMERS } from '@mock/consumers'
-import AppLink from '@components/shared/AppLink'
 import { ROUTES } from '@constants/routes'
+import AppLink from '@components/shared/AppLink'
 
 const Consumers = () => {
   return (

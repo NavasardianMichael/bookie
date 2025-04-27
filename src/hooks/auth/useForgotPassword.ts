@@ -1,7 +1,6 @@
-import { forgotPasswordThunk } from '@store/profile/thunk'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-
+import { useRouter } from 'next/navigation'
+import { forgotPasswordThunk } from '@store/profile/thunk'
 
 export const useForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false)

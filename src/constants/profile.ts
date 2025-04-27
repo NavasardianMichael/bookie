@@ -1,5 +1,5 @@
-import { Endpoint } from '@interfaces/api'
 import { Profile } from '@store/profile/types'
+import { Endpoint } from '@interfaces/api'
 import { ROLES } from './roles'
 
 export const PROFILE_INITIAL_DATA: Profile = {
@@ -9,7 +9,7 @@ export const PROFILE_INITIAL_DATA: Profile = {
   phone: '',
   role: ROLES.guest,
   image: '',
-  email: ''
+  email: '',
 }
 
 type ProfileForm = {

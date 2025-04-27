@@ -1,4 +1,4 @@
-import { APIResponse } from "@interfaces/api"
+import { APIResponse } from '@interfaces/api'
 
 export const handleAPIError = (response: APIResponse<unknown>) => {
   if (response.isSuccess) return
@@ -12,7 +12,7 @@ export const paramsToQueryString = (params: Record<string, unknown>): string => 
 
   for (const [key, value] of Object.entries(params)) {
     if (Array.isArray(value)) {
-      value.forEach(item => {
+      value.forEach((item) => {
         allEntries.push([key, String(item)])
       })
     } else if (value !== undefined && value !== null) {

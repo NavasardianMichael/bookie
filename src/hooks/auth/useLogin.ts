@@ -1,12 +1,12 @@
+import { useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { LoginAPI } from '@api/auth/types'
-import { ROUTES } from '@constants/routes'
-import { isRejectedAction } from '@helpers/store'
+import { loginThunk } from '@store/profile/thunk'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import useLocalStorage from '@hooks/useLocalStorage'
 import { LoginTypes } from '@interfaces/auth'
-import { loginThunk } from '@store/profile/thunk'
-import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
+import { ROUTES } from '@constants/routes'
+import { isRejectedAction } from '@helpers/store'
 
 export const useLogin = (loginType: LoginTypes) => {
   const dispatch = useAppDispatch()

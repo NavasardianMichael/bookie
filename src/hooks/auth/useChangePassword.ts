@@ -1,8 +1,8 @@
+import { useCallback } from 'react'
+import { changePasswordThunk } from '@store/profile/thunk'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { CHANGE_PASSWORD_FORM_INITIAL_VALUES } from '@constants/auth/changePassword'
 import { isRejectedAction } from '@helpers/store'
-import { useAppDispatch } from '@hooks/useAppDispatch'
-import { changePasswordThunk } from '@store/profile/thunk'
-import { useCallback } from 'react'
 
 export const useChangePassword = () => {
   // const router = useRouter()

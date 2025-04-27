@@ -1,5 +1,5 @@
-import { googleSignIn } from '@api/auth/google'
 import { AxiosError, isAxiosError } from 'axios'
+import { googleSignIn } from '@api/auth/google'
 import {
   changePasswordAPI,
   getProfileAPI,
@@ -18,13 +18,13 @@ import {
   ResetPasswordAPI,
   SendForgotPasswordInstructionsAPI,
 } from '@api/auth/types'
-import { setIsLoggedIn, setProfileData } from './slice'
-import { Profile } from './types'
 import { LoginTypes } from '@interfaces/auth'
-import { createAppAsyncThunk } from '@helpers/store'
-import { STATE_SLICE_NAMES } from '@constants/store'
 import { LOGIN_TYPES } from '@constants/auth/login'
 import { PROFILE_INITIAL_DATA } from '@constants/profile'
+import { STATE_SLICE_NAMES } from '@constants/store'
+import { createAppAsyncThunk } from '@helpers/store'
+import { setIsLoggedIn, setProfileData } from './slice'
+import { Profile } from './types'
 
 export const loginThunk = createAppAsyncThunk<void, { loginType: LoginTypes; values: LoginAPI['payload'] }>(
   `${STATE_SLICE_NAMES.profile}/login`,
