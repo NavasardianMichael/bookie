@@ -1,33 +1,35 @@
-import AppLink from '@components/shared/AppLink'
-import { ROUTES } from '@constants/routes'
-import { Provider } from '@interfaces/provider'
+import { FC } from 'react'
 import { Card, Image } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import Title from 'antd/es/typography/Title'
-import { FC } from 'react'
+import { Provider } from '@interfaces/provider'
+import { ROUTES } from '@constants/routes'
+import AppLink from '@components/shared/AppLink'
 
 type Props = {
-    data: Provider
+  data: Provider
 }
 
 export const ProviderCard: FC<Props> = ({ data }) => {
-    return (
-        <Card
-            cover={
-                <Image
-                    alt="example"
-                    src="https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg"
-                />
-            }
-
-        >
-            <AppLink href={`${ROUTES.providers}/${data.id}`}>
-                <Meta
-                    title={<Title level={3} className='text-lg'>{data.name}</Title>}
-                    description="This is the description"
-                />
-            </AppLink>
-        </Card>
-
-    )
+  return (
+    <Card
+      cover={
+        <Image
+          alt="example"
+          src="https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg"
+        />
+      }
+    >
+      <AppLink href={`${ROUTES.providers}/${data.id}`}>
+        <Meta
+          title={
+            <Title level={3} className="text-lg">
+              {data.name}
+            </Title>
+          }
+          description="This is the description"
+        />
+      </AppLink>
+    </Card>
+  )
 }

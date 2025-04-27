@@ -1,3 +1,4 @@
 import { ROUTES } from '@constants/routes';
 
-export type AppRouteNames = keyof typeof ROUTES 
+export type AppRouteName = keyof typeof ROUTES;
+export type AppRoutePath = typeof ROUTES[AppRouteName]; 
