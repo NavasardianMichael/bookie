@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { changePasswordThunk } from '@store/profile/thunk'
+import { changePasswordThunk } from '@store/providers/profile/thunk'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { CHANGE_PASSWORD_FORM_INITIAL_VALUES } from '@constants/auth/changePassword'
 import { isRejectedAction } from '@helpers/store'

@@ -1,9 +1,9 @@
-import { DBSchema } from '@mock/db.json'
 import axiosInstance from '@api/axiosInstance'
+import { Provider } from '@interfaces/provider'
 import { ProviderCard } from './ProviderCard'
 
 const getMiniEntitiesAPI = async () => {
-  const { data } = await axiosInstance.get<DBSchema['providers']>('/providers')
+  const { data } = await axiosInstance.get('/providers')
   return data
 }
 
@@ -17,7 +17,7 @@ const Providers = async () => {
 
   return (
     <div className="app-responsive-flex">
-      {providers.map((provider) => {
+      {providers.map((provider: Provider) => {
         return <ProviderCard key={provider.id} data={provider} />
       })}
     </div>

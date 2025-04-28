@@ -1,7 +1,8 @@
+import { ProviderProfileSlice } from '@store/providers/profile/types'
 import { ROLES } from '@constants/roles'
 
 export type ProfileSlice = {
-  data: Profile
+  data: ProviderProfileSlice['info']
   isLoggedIn: boolean
   isPending: boolean
   errorMessage: Error['message']

@@ -1,9 +1,9 @@
-import { Profile } from '@store/profile/types'
+import { ProviderProfileSlice } from '@store/providers/profile/types'
 import { Endpoint } from '@interfaces/api'
 
 export type LoginAPI = Endpoint<{
   payload: {
-    email: Profile['email']
+    email: ProviderProfileSlice['info']['email']
     password: string
   }
   response: void
@@ -11,9 +11,9 @@ export type LoginAPI = Endpoint<{
 }>
 
 export type RegisterAPI = Endpoint<{
-  payload: Pick<Profile, 'phone'>
-  response: Profile
-  processed: Profile
+  payload: Pick<ProviderProfileSlice['info'], 'phone'>
+  response: ProviderProfileSlice['info']
+  processed: ProviderProfileSlice['info']
 }>
 
 export type LogoutAPI = Endpoint<{
@@ -23,7 +23,7 @@ export type LogoutAPI = Endpoint<{
 }>
 
 export type SendForgotPasswordInstructionsAPI = Endpoint<{
-  payload: Pick<Profile, 'email'>
+  payload: Pick<ProviderProfileSlice['info'], 'email'>
   response: void
   processed: void
 }>
@@ -41,7 +41,7 @@ export type ChangePasswordAPI = Endpoint<{
 export type ResetPasswordAPI = Endpoint<{
   payload: {
     token: string
-    email: Profile['email']
+    email: ProviderProfileSlice['info']['email']
     newPassword: string
     confirmPassword: string
   }
@@ -51,8 +51,8 @@ export type ResetPasswordAPI = Endpoint<{
 
 export type GetProfileAPI = Endpoint<{
   payload: void
-  response: Profile
-  processed: Profile
+  response: ProviderProfileSlice['info']
+  processed: ProviderProfileSlice['info']
 }>
 
 export type Marker = {

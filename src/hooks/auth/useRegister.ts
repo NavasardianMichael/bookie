@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { registerThunk } from '@store/profile/thunk'
+import { registerThunk } from '@store/providers/profile/thunk'
 
 export const useRegister = (type: 'phone' | 'google') => {
   console.log({ type })

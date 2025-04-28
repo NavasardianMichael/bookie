@@ -1,8 +1,8 @@
-import { Profile } from '@store/profile/types'
+import { ProviderProfileSlice } from '@store/providers/profile/types'
 import { Endpoint } from '@interfaces/api'
 import { ROLES } from './roles'
 
-export const PROFILE_INITIAL_DATA: Profile = {
+export const PROFILE_INITIAL_DATA: ProviderProfileSlice['info'] = {
   id: '',
   firstName: '',
   lastName: '',
