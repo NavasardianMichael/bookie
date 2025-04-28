@@ -1,6 +1,6 @@
-import { PROVIDER_ROLES } from "@constants/providers"
+import { PROVIDER_ROLES } from '@constants/roles'
 
-export type ProviderRole = typeof PROVIDER_ROLES[keyof typeof PROVIDER_ROLES]
+export type ProviderRole = (typeof PROVIDER_ROLES)[keyof typeof PROVIDER_ROLES]
 
 export type Provider = {
   id: string
