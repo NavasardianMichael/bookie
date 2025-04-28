@@ -4,6 +4,7 @@ export type ProviderProfileSlice = {
   info: ProviderInfo
   services: ProviderService[]
   members: ProviderInfo[]
+  isLoggedIn: boolean
 }
 
 export type ProviderService = {
@@ -24,7 +25,7 @@ export type ProviderInfo = {
 
 export type Role = (typeof ROLES)[keyof typeof ROLES]
 
-export type ProfileActionPayloads = {
-  setProfileData: Partial<Profile>
-  setIsLoggedIn: ProfileSlice['isLoggedIn']
+export type ProviderProfileActionPayloads = {
+  setProfileData: Partial<ProviderProfileSlice>
+  setIsLoggedIn: ProviderProfileSlice['isLoggedIn']
 }

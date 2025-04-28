@@ -5,8 +5,8 @@ export const ROUTES = {
   providerCategories: '/provider-categories',
   providers: '/providers',
   consumers: '/consumers',
-  consumerProfile: '/consumer-profile',
-  providerProfile: '/provider-profile',
+  consumerProfile: '/consumers/profile',
+  providerProfile: '/providers/profile',
 
   // Auth
   signUp: '/auth/sign-up',
