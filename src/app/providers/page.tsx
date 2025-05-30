@@ -1,11 +1,6 @@
-import axiosInstance from '@api/axiosInstance'
+import { MOCK_PROVIDERS } from '@mock/temp-mock-providers'
 import { Provider } from '@interfaces/provider'
 import { ProviderCard } from './ProviderCard'
-
-const getMiniEntitiesAPI = async () => {
-  const { data } = await axiosInstance.get('/providers')
-  return data
-}
 
 export const metadata = {
   title: 'Providers',
@@ -13,11 +8,9 @@ export const metadata = {
 }
 
 const Providers = async () => {
-  const providers = await getMiniEntitiesAPI()
-
   return (
     <div className="app-responsive-flex">
-      {providers.map((provider: Provider) => {
+      {MOCK_PROVIDERS.map((provider: Provider) => {
         return <ProviderCard key={provider.id} data={provider} />
       })}
     </div>
