@@ -1,5 +1,5 @@
 import { ROUTES } from '@constants/routes'
-import { AppRouteName } from './routes'
+import { AppRouteName } from '../interfaces/routes'
 
 type HeaderRoute = {
   name: AppRouteName

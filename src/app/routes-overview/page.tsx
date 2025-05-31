@@ -1,4 +1,4 @@
-import { OVERVIEW_ROUTES } from '@interfaces/header'
+import { OVERVIEW_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import AppLink from '@components/shared/AppLink'
 

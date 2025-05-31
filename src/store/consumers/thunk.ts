@@ -1,5 +1,4 @@
 import { AxiosError, isAxiosError } from 'axios'
-import { googleSignIn } from '@api/auth/google'
 import {
   changePasswordAPI,
   getProfileAPI,
@@ -19,7 +18,6 @@ import {
   SendForgotPasswordInstructionsAPI,
 } from '@api/auth/types'
 import { LoginTypes } from '@interfaces/auth'
-import { LOGIN_TYPES } from '@constants/auth/login'
 import { PROFILE_INITIAL_DATA } from '@constants/profile'
 import { STATE_SLICE_NAMES } from '@constants/store'
 import { createAppAsyncThunk } from '@helpers/store'
@@ -28,14 +26,10 @@ import { setIsLoggedIn, setProfileData } from './slice'
 export const loginThunk = createAppAsyncThunk<void, { loginType: LoginTypes; values: LoginAPI['payload'] }>(
   `${STATE_SLICE_NAMES.profile}/login`,
   async (params, { rejectWithValue, dispatch }) => {
-    const { loginType, values } = params
+    const { values } = params
 
     try {
-      if (loginType === LOGIN_TYPES.phone) {
-        await loginAPI(values)
-      } else if (loginType === LOGIN_TYPES.google) {
-        await googleSignIn()
-      }
+      await loginAPI(values)
       dispatch(setIsLoggedIn(true))
     } catch (e) {
       const error = e as Error | AxiosError

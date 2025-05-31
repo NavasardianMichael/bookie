@@ -1,16 +1,20 @@
-import { ProviderProfileSlice } from '@store/providers/profile/types'
 import { ROLES } from '@constants/roles'
 
-export type ProfileSlice = {
-  data: ProviderProfileSlice['info']
+export type ConsumerProfileSlice = {
+  info: ProviderInfo
+  services: ProviderService[]
+  members: ProviderInfo[]
   isLoggedIn: boolean
-  isPending: boolean
-  errorMessage: Error['message']
 }
 
-export type Profile = {
+export type ProviderService = {
   id: string
-  userType: string
+  name: string
+  description: string
+}
+
+export type ProviderInfo = {
+  id: string
   firstName: string
   lastName: string
   phone: string
@@ -21,7 +25,7 @@ export type Profile = {
 
 export type Role = (typeof ROLES)[keyof typeof ROLES]
 
-export type ProfileActionPayloads = {
-  setProfileData: Partial<Profile>
-  setIsLoggedIn: ProfileSlice['isLoggedIn']
+export type ProviderProfileActionPayloads = {
+  setProfileData: Partial<ProviderProfileSlice>
+  setIsLoggedIn: ProviderProfileSlice['isLoggedIn']
 }

@@ -1,9 +1,11 @@
 import Image from 'next/image'
-import { HEADER_ROUTES } from '@interfaces/header'
+import { useAppSelector } from '@hooks/useAppSelector'
+import { HEADER_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import AppLink from './shared/AppLink'
 
 export const Header = () => {
+  const info = useAppSelector((state) => state.profile.info)
   return (
     <>
       <input type="checkbox" id="nav-toggle" className="hidden peer" />

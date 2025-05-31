@@ -4,5 +4,4 @@ export const LOGIN_FORM_INITIAL_VALUES = {
 
 export const LOGIN_TYPES = {
   phone: 'phone',
-  google: 'google',
 } as const

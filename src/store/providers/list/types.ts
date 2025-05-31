@@ -1,9 +1,9 @@
 import { ROLES } from '@constants/roles'
 
-export type ProviderProfileSlice = {
-  info: Provider
+export type ProvidersListSlice = {
+  info: ProviderInfo
   services: ProviderService[]
-  workers: ProviderInfo[]
+  members: ProviderInfo[]
   isLoggedIn: boolean
 }
 
@@ -13,7 +13,7 @@ export type ProviderService = {
   description: string
 }
 
-export type Provider = {
+export type ProviderInfo = {
   id: string
   firstName: string
   lastName: string
