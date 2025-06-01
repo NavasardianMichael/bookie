@@ -1,31 +1,10 @@
-import { ROLES } from '@constants/roles'
+import { Normalized } from '@interfaces/commons'
+import { Provider } from '../profile/types'
 
 export type ProvidersListSlice = {
-  info: ProviderInfo
-  services: ProviderService[]
-  members: ProviderInfo[]
-  isLoggedIn: boolean
+  list: Normalized<Provider>
 }
-
-export type ProviderService = {
-  id: string
-  name: string
-  description: string
-}
-
-export type ProviderInfo = {
-  id: string
-  firstName: string
-  lastName: string
-  phone: string
-  email: string
-  image?: string
-  role: Role
-}
-
-export type Role = (typeof ROLES)[keyof typeof ROLES]
 
 export type ProviderProfileActionPayloads = {
-  setProfileData: Partial<ProviderProfileSlice>
-  setIsLoggedIn: ProviderProfileSlice['isLoggedIn']
+  setProvidersList: Partial<ProvidersListSlice>
 }

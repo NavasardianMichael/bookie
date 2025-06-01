@@ -1,4 +1,4 @@
-import { Action, AnyAction, createAsyncThunk } from '@reduxjs/toolkit'
+import { Action, createAsyncThunk } from '@reduxjs/toolkit'
 import { StateSliceName, ThunkConfig } from '@interfaces/store'
 
 export const createAppAsyncThunk = createAsyncThunk.withTypes<ThunkConfig>()
@@ -9,8 +9,8 @@ export const isPendingAction = (action: Action) => action.type.endsWith('/pendin
 
 export const isRejectedAction = (action: Action) => action.type.endsWith('/rejected')
 
-export const getSliceActionGroup = (name: StateSliceName) => {
-  return (groupName: string) => {
-    return (action: AnyAction) => action.type.startsWith(name) && action.type.endsWith(groupName)
-  }
-}
+export const getSliceActionGroup = (name: StateSliceName) => ({
+  isFulfilledAction: (action: Action) => action.type.startsWith(name) && action.type.endsWith('/fulfilled'),
+  isPendingAction: (action: Action) => action.type.startsWith(name) && action.type.endsWith('/pending'),
+  isRejectedAction: (action: Action) => action.type.startsWith(name) && action.type.endsWith('/rejected'),
+})

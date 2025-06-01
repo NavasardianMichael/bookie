@@ -3,8 +3,8 @@ import { pick } from '@helpers/commons'
 export const ROLES = {
   guest: 'guest',
   provider: 'provider',
-  consumer: 'consumer',
   admin: 'admin',
+  consumer: 'consumer',
 } as const
 
 export const PUBLIC_ROLES = pick(ROLES, [ROLES.guest])

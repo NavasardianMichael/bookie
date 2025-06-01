@@ -1,6 +1,6 @@
-import { PROFILE_INITIAL_DATA } from '@constants/profile'
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { ProviderProfileActionPayloads, ProviderProfileSlice } from '@store/providers/profile/types'
+import { ProviderProfileActionPayloads, ProviderProfileSlice } from '@store/organizations/profile/types'
+import { PROFILE_INITIAL_DATA } from '@constants/profile'
 
 const initialState: ProviderProfileSlice = {
   isLoggedIn: false,
@@ -8,7 +8,7 @@ const initialState: ProviderProfileSlice = {
     ...PROFILE_INITIAL_DATA,
   },
   members: [],
-  services: []
+  services: [],
 }
 
 export const { reducer: profileReducer, actions } = createSlice({

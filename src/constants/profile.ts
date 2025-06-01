@@ -1,4 +1,4 @@
-import { ProviderProfileSlice } from '@store/providers/profile/types'
+import { ProviderProfileSlice } from '@store/organizations/profile/types'
 import { Endpoint } from '@interfaces/api'
 import { ROLES } from './roles'
 

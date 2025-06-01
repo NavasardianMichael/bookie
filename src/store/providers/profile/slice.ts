@@ -1,49 +1,63 @@
-import { PayloadAction, SerializedError, createSlice } from '@reduxjs/toolkit'
-import { ProfileSlice } from '@store/consumers/types'
-import { PROFILE_INITIAL_DATA } from '@constants/profile'
-import { isFulfilledAction, isPendingAction, isRejectedAction } from '@helpers/store'
-import { ProviderProfileActionPayloads } from './types'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { PLANS } from '@constants/plans'
+import { PROVIDER_ROLES } from '@constants/roles'
+import { STATE_SLICE_NAMES } from '@constants/store'
+import { getSliceActionGroup } from '@helpers/store'
+import { ProviderProfileActionPayloads, ProviderProfileSlice } from './types'
 
-const initialState: ProfileSlice = {
-  data: PROFILE_INITIAL_DATA,
-  isLoggedIn: false,
+const providerProfileActions = getSliceActionGroup(STATE_SLICE_NAMES.profile)
+
+const initialState: ProviderProfileSlice = {
+  info: {
+    id: '',
+    basicInfo: {
+      firstName: '',
+      lastName: '',
+      phone: '',
+      email: '',
+      image: '',
+    },
+    details: {
+      role: PROVIDER_ROLES.provider,
+      plan: PLANS.free,
+    },
+  },
+  organizationId: '',
+  services: [],
   isPending: false,
-  errorMessage: '',
+  error: null,
 }
 
 export const { reducer: profileReducer, actions } = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    setProfileData: (state, { payload }: PayloadAction<ProviderProfileActionPayloads['setProfileData']>) => {
-      state.data = {
-        ...state.data,
+    setProviderProfileData: (
+      state,
+      { payload }: PayloadAction<ProviderProfileActionPayloads['setProviderProfileData']>
+    ) => {
+      return {
+        ...state,
         ...payload,
       }
-    },
-    setIsLoggedIn: (state, { payload }: PayloadAction<ProviderProfileActionPayloads['setIsLoggedIn']>) => {
-      state.isLoggedIn = payload
-    },
-    resetErrorMessage: (state) => {
-      state.errorMessage = ''
     },
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(isRejectedAction, (state, action: PayloadAction<SerializedError>) => {
+      .addMatcher(providerProfileActions.isRejectedAction, (state, action: PayloadAction<Error>) => {
         console.log(action)
         state.isPending = false
-        state.errorMessage = action.payload.message ?? 'Rejected Action.'
+        state.error = action.payload ?? new Error('Something went wrong')
       })
-      .addMatcher(isPendingAction, (state) => {
+      .addMatcher(providerProfileActions.isRejectedAction, (state) => {
         state.isPending = true
       })
-      .addMatcher(isFulfilledAction, (state) => {
+      .addMatcher(providerProfileActions.isRejectedAction, (state) => {
         state.isPending = false
       })
   },
 })
 
-export const { setProfileData, setIsLoggedIn, resetErrorMessage } = actions
+export const { setProviderProfileData } = actions
 
 export default profileReducer
