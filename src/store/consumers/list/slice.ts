@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { STATE_SLICE_NAMES } from '@constants/store'
 import { getSliceActionGroup } from '@helpers/store'
-import { OrganizationsListActionPayloads, OrganizationsListSlice } from './types'
+import { ConsumersListActionPayloads, ConsumersListSlice } from './types'
 
-const sliceSpecificActions = getSliceActionGroup(STATE_SLICE_NAMES.providersList)
+const sliceSpecificActions = getSliceActionGroup(STATE_SLICE_NAMES.consumersList)
 
-const initialState: OrganizationsListSlice = {
+const initialState: ConsumersListSlice = {
   list: {
     allIds: [],
     byId: {},
@@ -14,23 +14,20 @@ const initialState: OrganizationsListSlice = {
   error: null,
 }
 
-export const { reducer: organizationsListReducer, actions } = createSlice({
-  name: STATE_SLICE_NAMES.organizationsList,
+export const { reducer: consumersListReducer, actions } = createSlice({
+  name: STATE_SLICE_NAMES.consumersList,
   initialState,
   reducers: {
-    setOrganizationsListSlice: (
+    setConsumersListSlice: (
       state,
-      { payload }: PayloadAction<OrganizationsListActionPayloads['setOrganizationsListSlice']>
+      { payload }: PayloadAction<ConsumersListActionPayloads['setConsumersListSlice']>
     ) => {
       return {
         ...state,
         ...payload,
       }
     },
-    setOrganizationList: (
-      state,
-      { payload }: PayloadAction<OrganizationsListActionPayloads['setOrganizationList']>
-    ) => {
+    setConsumersList: (state, { payload }: PayloadAction<ConsumersListActionPayloads['setConsumersList']>) => {
       state.list = {
         ...state.list,
         ...payload,
@@ -56,6 +53,6 @@ export const { reducer: organizationsListReducer, actions } = createSlice({
   },
 })
 
-export const { setOrganizationsListSlice, setOrganizationList, resetErrorMessage } = actions
+export const { setConsumersListSlice, setConsumersList, resetErrorMessage } = actions
 
-export default organizationsListReducer
+export default consumersListReducer

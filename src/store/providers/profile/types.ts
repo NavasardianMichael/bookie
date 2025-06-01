@@ -18,7 +18,7 @@ export type ProviderServices = {
 
 export type Provider = {
   id: string
-  basicInfo: {
+  basic: {
     firstName: string
     lastName: string
     phone: string
@@ -31,6 +31,9 @@ export type Provider = {
   }
 }
 
+export type BasicProvider = Pick<Provider, 'id' | 'basic'>
+
 export type ProviderProfileActionPayloads = {
   setProviderProfileData: Partial<ProviderProfileSlice>
+  setProviderInfo: Partial<ProviderProfileSlice['info']>
 }

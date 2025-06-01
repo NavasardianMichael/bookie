@@ -1,49 +1,49 @@
-import { PayloadAction, SerializedError, createSlice } from '@reduxjs/toolkit'
-import { ProfileSlice } from '@store/consumers/types'
-import { PROFILE_INITIAL_DATA } from '@constants/profile'
-import { isFulfilledAction, isPendingAction, isRejectedAction } from '@helpers/store'
-import { ProviderProfileActionPayloads } from './types'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { STATE_SLICE_NAMES } from '@constants/store'
+import { getSliceActionGroup } from '@helpers/store'
+import { ProviderProfileActionPayloads, ProvidersListSlice } from './types'
 
-const initialState: ProfileSlice = {
-  data: PROFILE_INITIAL_DATA,
-  isLoggedIn: false,
+const sliceSpecificActions = getSliceActionGroup(STATE_SLICE_NAMES.providersList)
+
+const initialState: ProvidersListSlice = {
+  list: {
+    allIds: [],
+    byId: {},
+  },
   isPending: false,
-  errorMessage: '',
+  error: null,
 }
 
-export const { reducer: profileReducer, actions } = createSlice({
-  name: 'profile',
+export const { reducer: providersListReducer, actions } = createSlice({
+  name: STATE_SLICE_NAMES.providersList,
   initialState,
   reducers: {
-    setProfileData: (state, { payload }: PayloadAction<ProviderProfileActionPayloads['setProfileData']>) => {
-      state.data = {
-        ...state.data,
+    setProvidersList: (state, { payload }: PayloadAction<ProviderProfileActionPayloads['setProvidersList']>) => {
+      state.list = {
+        ...state.list,
         ...payload,
       }
     },
-    setIsLoggedIn: (state, { payload }: PayloadAction<ProviderProfileActionPayloads['setIsLoggedIn']>) => {
-      state.isLoggedIn = payload
-    },
     resetErrorMessage: (state) => {
-      state.errorMessage = ''
+      state.error = null
     },
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(isRejectedAction, (state, action: PayloadAction<SerializedError>) => {
+      .addMatcher(sliceSpecificActions.isRejectedAction, (state, action: PayloadAction<Error>) => {
         console.log(action)
         state.isPending = false
-        state.errorMessage = action.payload.message ?? 'Rejected Action.'
+        state.error = action.payload ?? new Error('Something went wrong')
       })
-      .addMatcher(isPendingAction, (state) => {
+      .addMatcher(sliceSpecificActions.isRejectedAction, (state) => {
         state.isPending = true
       })
-      .addMatcher(isFulfilledAction, (state) => {
+      .addMatcher(sliceSpecificActions.isRejectedAction, (state) => {
         state.isPending = false
       })
   },
 })
 
-export const { setProfileData, setIsLoggedIn, resetErrorMessage } = actions
+export const { setProvidersList, resetErrorMessage } = actions
 
-export default profileReducer
+export default providersListReducer

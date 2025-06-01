@@ -1,5 +1,7 @@
 import { RootState } from '@store/main'
 
-export const selectProfileData = (state: RootState) => state.profile.info
+export const selectProviderProfileSlice = (state: RootState) => state.providerProfile
 
-export const selectIsLoggedIn = (state: RootState) => state.profile.isLoggedIn
+export const selectProviderProfile = (state: RootState) => state.providerProfile.info
+
+export const selectProviderServices = (state: RootState) => state.providerProfile.services

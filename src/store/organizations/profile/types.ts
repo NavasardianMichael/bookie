@@ -1,7 +1,8 @@
 import { Provider } from '@store/providers/profile/types'
+import { SliceCommonProps } from '@interfaces/store'
 import { ROLES } from '@constants/roles'
 
-export type OrganizationProfileSlice = {
+export type OrganizationProfileSlice = SliceCommonProps & {
   info: Organization
   services: OrganizationService[]
   providerIds: Provider['id'][]
@@ -22,4 +23,5 @@ export type OrganizationRole = (typeof ROLES)[keyof typeof ROLES]
 
 export type OrganizationProfileActionPayloads = {
   setOrganizationProfileData: Partial<OrganizationProfileSlice>
+  setOrganizationInfo: Partial<OrganizationProfileSlice['info']>
 }

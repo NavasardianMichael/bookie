@@ -1,38 +1,39 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { STATE_SLICE_NAMES } from '@constants/store'
 import { getSliceActionGroup } from '@helpers/store'
-import { OrganizationsListActionPayloads, OrganizationsListSlice } from './types'
+import { ConsumerProfileActionPayloads, ConsumerProfileSlice } from './types'
 
-const sliceSpecificActions = getSliceActionGroup(STATE_SLICE_NAMES.providersList)
+const sliceSpecificActions = getSliceActionGroup(STATE_SLICE_NAMES.consumerProfile)
 
-const initialState: OrganizationsListSlice = {
-  list: {
-    allIds: [],
-    byId: {},
+const initialState: ConsumerProfileSlice = {
+  info: {
+    id: '',
+    name: '',
+    favouriteProviders: [],
   },
   isPending: false,
   error: null,
 }
 
-export const { reducer: organizationsListReducer, actions } = createSlice({
-  name: STATE_SLICE_NAMES.organizationsList,
+export const { reducer: consumerProfileReducer, actions } = createSlice({
+  name: STATE_SLICE_NAMES.consumerProfile,
   initialState,
   reducers: {
-    setOrganizationsListSlice: (
+    setConsumerProfileSlice: (
       state,
-      { payload }: PayloadAction<OrganizationsListActionPayloads['setOrganizationsListSlice']>
+      { payload }: PayloadAction<ConsumerProfileActionPayloads['setConsumerProfileSlice']>
     ) => {
       return {
         ...state,
         ...payload,
       }
     },
-    setOrganizationList: (
+    setConsumerProfileInfo: (
       state,
-      { payload }: PayloadAction<OrganizationsListActionPayloads['setOrganizationList']>
+      { payload }: PayloadAction<ConsumerProfileActionPayloads['setConsumerProfileInfo']>
     ) => {
-      state.list = {
-        ...state.list,
+      state.info = {
+        ...state.info,
         ...payload,
       }
     },
@@ -56,6 +57,6 @@ export const { reducer: organizationsListReducer, actions } = createSlice({
   },
 })
 
-export const { setOrganizationsListSlice, setOrganizationList, resetErrorMessage } = actions
+export const { setConsumerProfileSlice, setConsumerProfileInfo, resetErrorMessage } = actions
 
-export default organizationsListReducer
+export default consumerProfileReducer

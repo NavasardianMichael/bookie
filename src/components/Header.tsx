@@ -1,11 +1,16 @@
+'use client'
+
 import Image from 'next/image'
+import { selectConsumerProfile } from '@store/consumers/profile/selectors'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { HEADER_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import AppLink from './shared/AppLink'
 
 export const Header = () => {
-  const info = useAppSelector((state) => state.profile.info)
+  const info = useAppSelector(selectConsumerProfile)
+  console.log({ info })
+
   return (
     <>
       <input type="checkbox" id="nav-toggle" className="hidden peer" />

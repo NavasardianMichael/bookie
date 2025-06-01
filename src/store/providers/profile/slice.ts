@@ -5,12 +5,12 @@ import { STATE_SLICE_NAMES } from '@constants/store'
 import { getSliceActionGroup } from '@helpers/store'
 import { ProviderProfileActionPayloads, ProviderProfileSlice } from './types'
 
-const providerProfileActions = getSliceActionGroup(STATE_SLICE_NAMES.profile)
+const sliceSpecificActions = getSliceActionGroup(STATE_SLICE_NAMES.providerProfile)
 
 const initialState: ProviderProfileSlice = {
   info: {
     id: '',
-    basicInfo: {
+    basic: {
       firstName: '',
       lastName: '',
       phone: '',
@@ -28,8 +28,8 @@ const initialState: ProviderProfileSlice = {
   error: null,
 }
 
-export const { reducer: profileReducer, actions } = createSlice({
-  name: 'profile',
+export const { reducer: providerProfileReducer, actions } = createSlice({
+  name: STATE_SLICE_NAMES.providerProfile,
   initialState,
   reducers: {
     setProviderProfileData: (
@@ -44,15 +44,15 @@ export const { reducer: profileReducer, actions } = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(providerProfileActions.isRejectedAction, (state, action: PayloadAction<Error>) => {
+      .addMatcher(sliceSpecificActions.isRejectedAction, (state, action: PayloadAction<Error>) => {
         console.log(action)
         state.isPending = false
         state.error = action.payload ?? new Error('Something went wrong')
       })
-      .addMatcher(providerProfileActions.isRejectedAction, (state) => {
+      .addMatcher(sliceSpecificActions.isRejectedAction, (state) => {
         state.isPending = true
       })
-      .addMatcher(providerProfileActions.isRejectedAction, (state) => {
+      .addMatcher(sliceSpecificActions.isRejectedAction, (state) => {
         state.isPending = false
       })
   },
@@ -60,4 +60,4 @@ export const { reducer: profileReducer, actions } = createSlice({
 
 export const { setProviderProfileData } = actions
 
-export default profileReducer
+export default providerProfileReducer

@@ -2,51 +2,253 @@
   "consumers": [
     {
       "id": "1",
-      "name": "Consumer 1"
+      "name": "Consumer 1",
+      "favouriteProviders": []
     },
     {
       "id": "2",
-      "name": "Consumer 2"
+      "name": "Consumer 2",
+      "favouriteProviders": []
     },
     {
       "id": "3",
-      "name": "Consumer 3"
+      "name": "Consumer 3",
+      "favouriteProviders": []
     },
     {
       "id": "4",
-      "name": "Consumer 4"
+      "name": "Consumer 4",
+      "favouriteProviders": []
     }
   ],
   "providers": [
     {
       "id": "1",
-      "name": "Provider 1",
-      "phone": "+1234567890"
+      "basic": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "phone": "+1234567890",
+        "email": "john.doe1@example.com",
+        "image": "https://randomuser.me/api/portraits/men/1.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
     },
     {
       "id": "2",
-      "name": "Provider 2",
-      "phone": "+1234567890"
+      "basic": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "phone": "+1234567891",
+        "email": "jane.smith2@example.com",
+        "image": "https://randomuser.me/api/portraits/women/2.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
     },
     {
       "id": "3",
-      "name": "Provider 3",
-      "phone": "+1234567890"
+      "basic": {
+        "firstName": "Alice",
+        "lastName": "Johnson",
+        "phone": "+1234567892",
+        "email": "alice.johnson3@example.com",
+        "image": "https://randomuser.me/api/portraits/women/3.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
     },
     {
       "id": "4",
-      "name": "Provider 4",
-      "phone": "+1234567890"
+      "basic": {
+        "firstName": "Bob",
+        "lastName": "Williams",
+        "phone": "+1234567893",
+        "email": "bob.williams4@example.com",
+        "image": "https://randomuser.me/api/portraits/men/4.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
     },
     {
       "id": "5",
-      "name": "Provider 5",
-      "phone": "+1234567890"
+      "basic": {
+        "firstName": "Carol",
+        "lastName": "Brown",
+        "phone": "+1234567894",
+        "email": "carol.brown5@example.com",
+        "image": "https://randomuser.me/api/portraits/women/5.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
     },
     {
       "id": "6",
-      "name": "Provider 6",
-      "phone": "+1234567890"
+      "basic": {
+        "firstName": "David",
+        "lastName": "Jones",
+        "phone": "+1234567895",
+        "email": "david.jones6@example.com",
+        "image": "https://randomuser.me/api/portraits/men/6.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
+    },
+    {
+      "id": "7",
+      "basic": {
+        "firstName": "Eve",
+        "lastName": "Garcia",
+        "phone": "+1234567896",
+        "email": "eve.garcia7@example.com",
+        "image": "https://randomuser.me/api/portraits/women/7.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
+    },
+    {
+      "id": "8",
+      "basic": {
+        "firstName": "Frank",
+        "lastName": "Martinez",
+        "phone": "+1234567897",
+        "email": "frank.martinez8@example.com",
+        "image": "https://randomuser.me/api/portraits/men/8.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
+    },
+    {
+      "id": "9",
+      "basic": {
+        "firstName": "Grace",
+        "lastName": "Lee",
+        "phone": "+1234567898",
+        "email": "grace.lee9@example.com",
+        "image": "https://randomuser.me/api/portraits/women/9.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
+    },
+    {
+      "id": "10",
+      "basic": {
+        "firstName": "Henry",
+        "lastName": "Perez",
+        "phone": "+1234567899",
+        "email": "henry.perez10@example.com",
+        "image": "https://randomuser.me/api/portraits/men/10.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
+    },
+    {
+      "id": "11",
+      "basic": {
+        "firstName": "Ivy",
+        "lastName": "White",
+        "phone": "+1234567800",
+        "email": "ivy.white11@example.com",
+        "image": "https://randomuser.me/api/portraits/women/11.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
+    },
+    {
+      "id": "12",
+      "basic": {
+        "firstName": "Jack",
+        "lastName": "Harris",
+        "phone": "+1234567801",
+        "email": "jack.harris12@example.com",
+        "image": "https://randomuser.me/api/portraits/men/12.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
+    },
+    {
+      "id": "13",
+      "basic": {
+        "firstName": "Kathy",
+        "lastName": "Clark",
+        "phone": "+1234567802",
+        "email": "kathy.clark13@example.com",
+        "image": "https://randomuser.me/api/portraits/women/13.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
+    },
+    {
+      "id": "14",
+      "basic": {
+        "firstName": "Leo",
+        "lastName": "Lewis",
+        "phone": "+1234567803",
+        "email": "leo.lewis14@example.com",
+        "image": "https://randomuser.me/api/portraits/men/14.jpg"
+      },
+      "details": {
+        "role": "admin",
+        "plan": "premium"
+      }
+    },
+    {
+      "id": "15",
+      "basic": {
+        "firstName": "Mona",
+        "lastName": "Walker",
+        "phone": "+1234567804",
+        "email": "mona.walker15@example.com",
+        "image": "https://randomuser.me/api/portraits/women/15.jpg"
+      },
+      "details": {
+        "role": "provider",
+        "plan": "basic"
+      }
+    }
+  ],
+  "organizations": [
+    {
+      "id": "1",
+      "name": "Organization 1"
+    },
+    {
+      "id": "2",
+      "name": "Organization 2"
+    },
+    {
+      "id": "3",
+      "name": "Organization 3"
+    },
+    {
+      "id": "4",
+      "name": "Organization 4"
     }
   ]
 }
