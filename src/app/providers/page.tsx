@@ -1,3 +1,4 @@
+import db from '@mock/db.json'
 import { Provider } from '@store/providers/profile/types'
 import { ProviderCard } from './ProviderCard'
 
@@ -11,10 +12,15 @@ type Props = {
 }
 
 async function getProviders(): Promise<Props> {
-  const res = await fetch(`${process.env.API_URL}/providers`)
-  const providers = await res.json()
+  try {
+    const res = await fetch(`${process.env.API_URL}/providers`)
+    const providers = await res.json()
 
-  return { providers }
+    return { providers }
+  } catch {
+    // Fallback to mock data in case of an error
+    return { providers: db.providers as Props['providers'] }
+  }
 }
 
 const Providers = async () => {
