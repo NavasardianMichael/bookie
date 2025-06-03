@@ -1,16 +1,4 @@
-import { ProviderProfileSlice } from '@store/organizations/profile/types'
 import { Endpoint } from '@interfaces/api'
-import { ROLES } from './roles'
-
-export const PROFILE_INITIAL_DATA: ProviderProfileSlice['info'] = {
-  id: '',
-  firstName: '',
-  lastName: '',
-  phone: '',
-  role: ROLES.guest,
-  image: '',
-  email: '',
-}
 
 type ProfileForm = {
   firstName: string

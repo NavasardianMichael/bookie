@@ -1,5 +1,5 @@
 import { Metadata, ResolvingMetadata } from 'next'
-import { Consumer as ConsumerType } from '@interfaces/consumer'
+import { Consumer as ConsumerType } from '@store/consumers/profile/types'
 
 type Props = {
   params: Promise<{

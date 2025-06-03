@@ -2,7 +2,7 @@ import { FC } from 'react'
 import { Card, Image } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import Title from 'antd/es/typography/Title'
-import { Provider } from '@interfaces/provider'
+import { Provider } from '@store/providers/profile/types'
 import { ROUTES } from '@constants/routes'
 import AppLink from '@components/shared/AppLink'
 
@@ -24,7 +24,7 @@ export const ProviderCard: FC<Props> = ({ data }) => {
         <Meta
           title={
             <Title level={3} className="text-lg">
-              {data.name}
+              {data.basic.firstName} {data.basic.lastName}
             </Title>
           }
           description="This is the description"

@@ -1,6 +1,6 @@
 import '@fullcalendar/core'
 import { Metadata } from 'next'
-import { Provider as ProviderType } from '@interfaces/provider'
+import { Provider as ProviderType } from '@store/providers/profile/types'
 import '@styles/full-calendar-override.css'
 import ProviderCalendar from './components/Calendar'
 

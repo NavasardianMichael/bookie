@@ -1,7 +1,6 @@
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import type { Metadata } from 'next'
-import Footer from '@components/Footer'
-import { Header } from '@components/Header'
+import App from '@components/App'
 import '@styles/antd-override.css'
 import '@styles/commons.css'
 import '@styles/globals.css'
@@ -16,13 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <AntdRegistry>
-          <div className="min-h-svh flex flex-col h-dvh">
-            <Header />
-            <div className="flex-grow flex flex-col overflow-auto">
-              <main className="flex-grow p-4 flex items-start">{children}</main>
-              <Footer />
-            </div>
-          </div>
+          <App>{children}</App>
         </AntdRegistry>
       </body>
     </html>

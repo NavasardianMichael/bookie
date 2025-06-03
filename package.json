@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "cd src && npx prettier --write .",
     "mock-api": "json-server --watch src/mock/db.json --port 3001",
-    "watch": "concurrently --kill-others-on-fail -n app,api -c green,cyan \"pnpm dev\" \"pnpm mock-api\""
+    "watch": "concurrently --kill-others-on-fail -n app,api -c green,cyan \"kill-port 3000\" \"kill-port 3001\" \"pnpm dev\" \"pnpm mock-api\""
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
@@ -48,6 +48,7 @@
     "eslint-config-next": "15.2.3",
     "eslint-config-prettier": "^10.1.2",
     "json-server": "1.0.0-beta.3",
+    "kill-port": "^2.0.1",
     "prettier": "^3.5.3",
     "react-hooks": "^1.0.1",
     "tailwindcss": "^4",

@@ -1,5 +1,4 @@
-import { MOCK_PROVIDERS } from '@mock/temp-mock-providers'
-import { Provider } from '@interfaces/provider'
+import { Provider } from '@store/providers/profile/types'
 import { ProviderCard } from './ProviderCard'
 
 export const metadata = {
@@ -7,10 +6,23 @@ export const metadata = {
   description: 'Providers page',
 }
 
+type Props = {
+  providers: Provider[]
+}
+
+async function getProviders(): Promise<Props> {
+  const res = await fetch(`${process.env.API_URL}/providers`)
+  const providers = await res.json()
+
+  return { providers }
+}
+
 const Providers = async () => {
+  const response = await getProviders()
+
   return (
     <div className="app-responsive-flex">
-      {MOCK_PROVIDERS.map((provider: Provider) => {
+      {response.providers.map((provider: Provider) => {
         return <ProviderCard key={provider.id} data={provider} />
       })}
     </div>
