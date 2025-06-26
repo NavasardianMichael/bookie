@@ -21,7 +21,7 @@ export type Organization = {
 
 export type OrganizationRole = (typeof ROLES)[keyof typeof ROLES]
 
-export type OrganizationProfileActionPayloads = {
-  setOrganizationProfileData: Partial<OrganizationProfileSlice>
-  setOrganizationInfo: Partial<OrganizationProfileSlice['info']>
+export type OrganizationProfileActions = {
+  setOrganizationProfileData: (payload: Partial<OrganizationProfileSlice>) => void
+  setOrganizationInfo: (payload: Partial<OrganizationProfileSlice['info']>) => void
 }

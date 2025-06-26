@@ -2,11 +2,11 @@ import { Normalized } from '@interfaces/commons'
 import { SliceCommonProps } from '@interfaces/store'
 import { Organization } from '../profile/types'
 
-export type OrganizationsListSlice = SliceCommonProps & {
+export type OrganizationsListState = SliceCommonProps & {
   list: Normalized<Organization>
 }
 
-export type OrganizationsListActionPayloads = {
-  setOrganizationsListSlice: Partial<OrganizationsListSlice>
-  setOrganizationList: Partial<OrganizationsListSlice['list']>
+export type OrganizationsListActions = {
+  setOrganizationsListSlice: (payload: Partial<OrganizationsListState>) => void
+  setOrganizationList: (payload: Partial<OrganizationsListState['list']>) => void
 }

@@ -11,10 +11,13 @@ export type ConsumerService = {
   description: string
 }
 
-export type Consumer = {
+export type Consumer = BasicConsumer & {
+  favoriteProviders: BasicProvider[]
+}
+
+export type BasicConsumer = {
   id: string
   name: string
-  favouriteProviders: BasicProvider[]
 }
 
 export type ConsumerProfileActionPayloads = {

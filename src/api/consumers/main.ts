@@ -1,0 +1,13 @@
+import axiosInstance from '@api/axiosInstance'
+import { APIResponse } from '@interfaces/api'
+import { handleAPIError } from '@helpers/api'
+import { ENDPOINTS } from './endpoints'
+import { processConsumersListResponse } from './processors'
+import { GetConsumersListAPI } from './types'
+
+export const getConsumersAPI: GetConsumersListAPI['api'] = async () => {
+  const { data } = await axiosInstance.get<APIResponse<GetConsumersListAPI['response']>>(ENDPOINTS.getConsumersList)
+  handleAPIError(data)
+  const processedResponse = processConsumersListResponse(data)
+  return processedResponse
+}

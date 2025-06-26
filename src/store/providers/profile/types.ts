@@ -2,7 +2,7 @@ import { Organization } from '@store/organizations/profile/types'
 import { Plan } from '@interfaces/plans'
 import { ProviderRole } from '@interfaces/roles'
 
-export type ProviderProfileSlice = {
+export type ProviderProfileState = {
   info: Provider
   services: ProviderServices[]
   organizationId: Organization['id']
@@ -33,7 +33,7 @@ export type Provider = {
 
 export type BasicProvider = Pick<Provider, 'id' | 'basic'>
 
-export type ProviderProfileActionPayloads = {
-  setProviderProfileData: Partial<ProviderProfileSlice>
-  setProviderInfo: Partial<ProviderProfileSlice['info']>
+export type ProviderProfileActions = {
+  setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
+  setProviderInfo: (payload: Partial<ProviderProfileState['info']>) => void
 }

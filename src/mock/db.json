@@ -3,22 +3,22 @@
     {
       "id": "1",
       "name": "Consumer 1",
-      "favouriteProviders": []
+      "favoriteProviders": []
     },
     {
       "id": "2",
       "name": "Consumer 2",
-      "favouriteProviders": []
+      "favoriteProviders": []
     },
     {
       "id": "3",
       "name": "Consumer 3",
-      "favouriteProviders": []
+      "favoriteProviders": []
     },
     {
       "id": "4",
       "name": "Consumer 4",
-      "favouriteProviders": []
+      "favoriteProviders": []
     }
   ],
   "providers": [
@@ -30,10 +30,6 @@
         "phone": "+1234567890",
         "email": "john.doe1@example.com",
         "image": "https://randomuser.me/api/portraits/men/1.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -58,10 +54,6 @@
         "phone": "+1234567892",
         "email": "alice.johnson3@example.com",
         "image": "https://randomuser.me/api/portraits/women/3.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -86,10 +78,6 @@
         "phone": "+1234567894",
         "email": "carol.brown5@example.com",
         "image": "https://randomuser.me/api/portraits/women/5.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -114,10 +102,6 @@
         "phone": "+1234567896",
         "email": "eve.garcia7@example.com",
         "image": "https://randomuser.me/api/portraits/women/7.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -142,10 +126,6 @@
         "phone": "+1234567898",
         "email": "grace.lee9@example.com",
         "image": "https://randomuser.me/api/portraits/women/9.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -170,10 +150,6 @@
         "phone": "+1234567800",
         "email": "ivy.white11@example.com",
         "image": "https://randomuser.me/api/portraits/women/11.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -198,10 +174,6 @@
         "phone": "+1234567802",
         "email": "kathy.clark13@example.com",
         "image": "https://randomuser.me/api/portraits/women/13.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     },
     {
@@ -226,10 +198,6 @@
         "phone": "+1234567804",
         "email": "mona.walker15@example.com",
         "image": "https://randomuser.me/api/portraits/women/15.jpg"
-      },
-      "details": {
-        "role": "provider",
-        "plan": "basic"
       }
     }
   ],
