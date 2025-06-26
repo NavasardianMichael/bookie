@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-console.log({ API_URL: process.env.API_URL })
-
 const axiosInstance = axios.create({
   baseURL: process.env.API_URL,
   headers: {
@@ -12,8 +10,13 @@ const axiosInstance = axios.create({
     indexes: null,
   },
 })
+console.log({
+  oidqwn: process.env.API_URL,
+})
 
 axiosInstance.interceptors.request.use((config) => {
+  console.log({ config })
+
   if (config.url?.startsWith('/api/Identity/')) config.withCredentials = true
   return config
 })

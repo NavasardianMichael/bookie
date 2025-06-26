@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { getProvidersListAPI } from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { ProviderProfileActions, ProvidersListState } from './types'
 
@@ -32,6 +33,14 @@ export const useProvidersListStoreBase = create<ProvidersListState & ProviderPro
               ...state.list,
               ...payload,
             }
+          })
+        },
+        fetchProvidersList: async () => {
+          const normalizedProviders = await getProvidersListAPI()
+          console.log({ normalizedProviders })
+
+          set((state) => {
+            state.list = normalizedProviders
           })
         },
       })

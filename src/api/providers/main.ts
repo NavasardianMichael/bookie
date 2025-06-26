@@ -5,9 +5,11 @@ import { ENDPOINTS } from './endpoints'
 import { processProvidersListResponse } from './processors'
 import { GetProvidersListAPI } from './types'
 
-export const getProvidersAPI: GetProvidersListAPI['api'] = async () => {
+export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProvidersListAPI['response']>>(ENDPOINTS.getProvidersList)
-  handleAPIError(data)
+  console.log({ data })
+
+  // handleAPIError(data)
   const processedResponse = processProvidersListResponse(data)
   return processedResponse
 }

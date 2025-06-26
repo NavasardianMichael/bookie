@@ -2,7 +2,8 @@ import { APIResponse } from '@interfaces/api'
 
 export const handleAPIError = (response: APIResponse<unknown>) => {
   if (response.isSuccess) return
-  throw Error(response.error.description)
+  console.error('API Error:', response)
+  throw Error(response.error?.description ?? 'Something went wrong')
 }
 
 export const paramsToQueryString = (params: Record<string, unknown>): string => {

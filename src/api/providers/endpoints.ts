@@ -1,4 +1,4 @@
 export const ENDPOINTS = {
-  getProvidersList: '/api/providers/list',
-  profile: '/api/providers/profile',
+  getProvidersList: 'providers/',
+  profile: 'providerProfile/',
 } as const
