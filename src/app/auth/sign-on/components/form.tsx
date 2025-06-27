@@ -1,20 +1,20 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { FcGoogle } from 'react-icons/fc'
+// import { FcGoogle } from 'react-icons/fc'
 import '@ant-design/v5-patch-for-react-19'
-import { Button, Divider, Flex, Form, Input, Select } from 'antd'
+import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
-import { useRegistration } from '@hooks/auth/useRegistration'
+import { useAuthStore } from '@store/auth/store'
 import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
-import { REGISTRATION_FORM_INITIAL_VALUES, REGISTRATION_TYPES } from '@constants/auth/registration'
+import { REGISTRATION_FORM_INITIAL_VALUES } from '@constants/auth/registration'
 import { useCountries } from '../useCountries'
 
 type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES
 
-const SignUpForm: React.FC = () => {
-  const register = useRegistration(REGISTRATION_TYPES.phone)
+const SignOnForm: React.FC = () => {
+  const register = useAuthStore.use.getCodeByPhoneNumber()
   const countries = useCountries()
   const [form] = Form.useForm()
 
@@ -25,10 +25,6 @@ const SignUpForm: React.FC = () => {
       register(values)
     },
   })
-
-  const handleGoogleRegistration = () => {
-    // register(REGISTRATION_FORM_INITIAL_VALUES);
-  }
 
   const handleCountryChange = useCallback(
     (value: string) => {
@@ -134,18 +130,8 @@ const SignUpForm: React.FC = () => {
           Send Verification Code
         </Button>
       </Flex>
-
-      <Divider>Or register with</Divider>
-
-      <Button
-        onClick={handleGoogleRegistration}
-        className="flex w-full items-center justify-center gap-2 bg-white border border-gray-200 text-gray-900 h-10"
-      >
-        <FcGoogle size={20} />
-        Continue with Google
-      </Button>
     </Form>
   )
 }
 
-export default SignUpForm
+export default SignOnForm

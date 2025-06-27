@@ -18,7 +18,7 @@ export const useOrganizationsListStoreBase = create<OrganizationsListState & Org
     combine(
       initialState,
       (set): OrganizationsListActions => ({
-        setOrganizationsListSlice: (payload) => {
+        setOrganizationsListState: (payload) => {
           set((state) => {
             return {
               ...state,

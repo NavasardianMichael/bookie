@@ -2,22 +2,34 @@
   "consumers": [
     {
       "id": "1",
-      "name": "Consumer 1",
+      "basic": {
+        "phoneNumber": "+1234567890",
+        "name": "Consumer 1"
+      },
       "favoriteProviders": []
     },
     {
       "id": "2",
-      "name": "Consumer 2",
+      "basic": {
+        "phoneNumber": "+1234567890",
+        "name": "Consumer 2"
+      },
       "favoriteProviders": []
     },
     {
       "id": "3",
-      "name": "Consumer 3",
+      "basic": {
+        "phoneNumber": "+1234567890",
+        "name": "Consumer 3"
+      },
       "favoriteProviders": []
     },
     {
       "id": "4",
-      "name": "Consumer 4",
+      "basic": {
+        "phoneNumber": "+1234567890",
+        "name": "Consumer 4"
+      },
       "favoriteProviders": []
     }
   ],
@@ -199,24 +211,6 @@
         "email": "mona.walker15@example.com",
         "image": "https://randomuser.me/api/portraits/women/15.jpg"
       }
-    }
-  ],
-  "organizations": [
-    {
-      "id": "1",
-      "name": "Organization 1"
-    },
-    {
-      "id": "2",
-      "name": "Organization 2"
-    },
-    {
-      "id": "3",
-      "name": "Organization 3"
-    },
-    {
-      "id": "4",
-      "name": "Organization 4"
     }
   ]
 }

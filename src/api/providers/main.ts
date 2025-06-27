@@ -1,6 +1,5 @@
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
-import { handleAPIError } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import { processProvidersListResponse } from './processors'
 import { GetProvidersListAPI } from './types'

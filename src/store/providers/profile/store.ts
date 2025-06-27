@@ -7,19 +7,17 @@ import { PROVIDER_ROLES } from '@constants/roles'
 import { ProviderProfileActions, ProviderProfileState } from './types'
 
 const initialState: ProviderProfileState = {
-  info: {
-    id: '',
-    basic: {
-      firstName: '',
-      lastName: '',
-      phone: '',
-      email: '',
-      image: '',
-    },
-    details: {
-      role: PROVIDER_ROLES.provider,
-      plan: PLANS.free,
-    },
+  id: '',
+  basic: {
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    image: '',
+  },
+  details: {
+    role: PROVIDER_ROLES.provider,
+    plan: PLANS.free,
   },
   organizationId: '',
   services: [],
@@ -36,14 +34,6 @@ export const useProviderProfileStoreBase = create<ProviderProfileState & Provide
           set((state) => {
             return {
               ...state,
-              ...payload,
-            }
-          })
-        },
-        setProviderInfo: (payload) => {
-          set((state) => {
-            state.info = {
-              ...state.info,
               ...payload,
             }
           })

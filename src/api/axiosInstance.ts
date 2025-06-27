@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: process.env.API_URL,
+  baseURL: process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -9,9 +9,6 @@ const axiosInstance = axios.create({
   formSerializer: {
     indexes: null,
   },
-})
-console.log({
-  oidqwn: process.env.API_URL,
 })
 
 axiosInstance.interceptors.request.use((config) => {

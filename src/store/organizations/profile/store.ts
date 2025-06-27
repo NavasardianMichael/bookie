@@ -2,12 +2,13 @@ import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { appendSelectors } from '@store/appendSelectors'
-import { OrganizationProfileActions, OrganizationProfileSlice } from './types'
+import { OrganizationProfileActions, OrganizationProfileState } from './types'
 
-const initialState: OrganizationProfileSlice = {
+const initialState: OrganizationProfileState = {
   info: {
     id: '',
     name: '',
+    address: '',
   },
   providerIds: [],
   services: [],
@@ -15,7 +16,7 @@ const initialState: OrganizationProfileSlice = {
   error: null,
 }
 
-export const useConsumerProfileStoreBase = create<OrganizationProfileSlice & OrganizationProfileActions>()(
+export const useConsumerProfileStoreBase = create<OrganizationProfileState & OrganizationProfileActions>()(
   immer(
     combine(
       initialState,

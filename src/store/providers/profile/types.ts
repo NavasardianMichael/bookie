@@ -1,14 +1,13 @@
 import { Organization } from '@store/organizations/profile/types'
 import { Plan } from '@interfaces/plans'
 import { ProviderRole } from '@interfaces/roles'
+import { StateCommonProps } from '@interfaces/store'
 
-export type ProviderProfileState = {
-  info: Provider
-  services: ProviderServices[]
-  organizationId: Organization['id']
-  isPending: boolean
-  error: Error | null
-}
+export type ProviderProfileState = StateCommonProps &
+  Provider & {
+    services: ProviderServices[]
+    organizationId: Organization['id']
+  }
 
 export type ProviderServices = {
   id: string
@@ -35,5 +34,4 @@ export type BasicProvider = Pick<Provider, 'id' | 'basic'>
 
 export type ProviderProfileActions = {
   setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
-  setProviderInfo: (payload: Partial<ProviderProfileState['info']>) => void
 }

@@ -1,9 +1,9 @@
 import { Metadata, ResolvingMetadata } from 'next'
-import { Consumer as ConsumerType } from '@store/consumers/profile/types'
+import { BasicConsumer as BasicConsumerType } from '@store/consumers/profile/types'
 
 type Props = {
   params: Promise<{
-    consumerId: ConsumerType['id']
+    consumerId: BasicConsumerType['id']
   }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }

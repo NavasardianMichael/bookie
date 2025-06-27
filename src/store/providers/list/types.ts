@@ -1,10 +1,10 @@
 import { Normalized } from '@interfaces/commons'
-import { SliceCommonProps } from '@interfaces/store'
+import { StateCommonProps } from '@interfaces/store'
 import { BasicProvider } from '../profile/types'
 
 export type ProvidersListState = {
   list: Normalized<BasicProvider>
-} & SliceCommonProps
+} & StateCommonProps
 
 export type ProviderProfileActions = {
   setProvidersListState: (payload: Partial<ProvidersListState>) => void

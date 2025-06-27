@@ -1,8 +1,8 @@
 import { Normalized } from '@interfaces/commons'
-import { SliceCommonProps } from '@interfaces/store'
+import { StateCommonProps } from '@interfaces/store'
 import { BasicConsumer } from '../profile/types'
 
-export type ConsumersListState = SliceCommonProps & {
+export type ConsumersListState = StateCommonProps & {
   list: Normalized<BasicConsumer>
 }
 

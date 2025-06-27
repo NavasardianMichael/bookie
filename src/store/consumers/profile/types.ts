@@ -1,9 +1,7 @@
 import { BasicProvider } from '@store/providers/profile/types'
-import { SliceCommonProps } from '@interfaces/store'
+import { StateCommonProps } from '@interfaces/store'
 
-export type ConsumerProfileSlice = SliceCommonProps & {
-  info: Consumer
-}
+export type ConsumerProfileState = StateCommonProps & Consumer
 
 export type ConsumerService = {
   id: string
@@ -11,16 +9,19 @@ export type ConsumerService = {
   description: string
 }
 
-export type Consumer = BasicConsumer & {
-  favoriteProviders: BasicProvider[]
-}
-
-export type BasicConsumer = {
+export type Consumer = {
   id: string
-  name: string
+  basic: {
+    name: string
+    phoneNumber: string
+  }
+  details: {
+    favoriteProviders: BasicProvider[]
+  }
 }
 
-export type ConsumerProfileActionPayloads = {
-  setConsumerProfileSlice: Partial<ConsumerProfileSlice>
-  setConsumerProfileInfo: Partial<ConsumerProfileSlice['info']>
+export type BasicConsumer = Pick<Consumer, 'id' | 'basic'>
+
+export type ConsumerProfileActions = {
+  setConsumerProfileState: (payload: Partial<ConsumerProfileState>) => void
 }

@@ -2,8 +2,6 @@
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "importOrder": [
     "^react(.*)",
-    "^react-redux(.*)",
-    "^@reduxjs(.*)",
     "<THIRD_PARTY_MODULES>",
     "@assets/",
     "@test/",

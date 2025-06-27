@@ -9,7 +9,7 @@ export const ROUTES = {
   providerProfile: '/providers/profile',
 
   // Auth
-  signUp: '/auth/sign-up',
+  signOn: '/auth/sign-on',
   logout: '/auth/logout',
 
   // Temporary

@@ -1,6 +1,6 @@
 import { Flex } from 'antd'
 import { Metadata } from 'next'
-import SignUpForm from './components/form'
+import SignOnForm from './components/form'
 
 export const metadata: Metadata = {
   title: 'Register',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const App: React.FC = () => (
   <Flex className="w-full justify-center items-center my-auto!">
-    <SignUpForm />
+    <SignOnForm />
   </Flex>
 )
 
