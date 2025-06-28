@@ -9,5 +9,5 @@ export type ProvidersListState = {
 export type ProviderProfileActions = {
   setProvidersListState: (payload: Partial<ProvidersListState>) => void
   setProvidersList: (payload: Partial<ProvidersListState['list']>) => void
-  fetchProvidersList: () => void
+  getProvidersList: () => void
 }

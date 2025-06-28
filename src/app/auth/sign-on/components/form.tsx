@@ -35,7 +35,6 @@ const SignOnForm: React.FC = () => {
 
   const validatePhoneNumber = useCallback(
     (_: any, value: string) => {
-      console.log({ value, countryCode: formik.values.countryCode })
       if (!value || !formik.values.countryCode) return Promise.resolve()
       try {
         const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`

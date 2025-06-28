@@ -3,214 +3,497 @@
     {
       "id": "1",
       "basic": {
-        "phoneNumber": "+1234567890",
-        "name": "Consumer 1"
+        "name": "Alice Johnson",
+        "phoneNumber": "+1234567890"
       },
-      "favoriteProviders": []
+      "details": {
+        "favoriteProviders": [
+          {
+            "id": "1",
+            "basic": {
+              "category": "General Medicine",
+              "firstName": "John",
+              "lastName": "Doe",
+              "image": "https://randomuser.me/api/portraits/men/1.jpg"
+            }
+          },
+          {
+            "id": "3",
+            "basic": {
+              "category": "Mental Health",
+              "firstName": "Alice",
+              "lastName": "Johnson",
+              "image": "https://randomuser.me/api/portraits/women/3.jpg"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "2",
       "basic": {
-        "phoneNumber": "+1234567890",
-        "name": "Consumer 2"
+        "name": "Bob Smith",
+        "phoneNumber": "+1234567891"
       },
-      "favoriteProviders": []
+      "details": {
+        "favoriteProviders": [
+          {
+            "id": "2",
+            "basic": {
+              "category": "Physical Therapy",
+              "firstName": "Jane",
+              "lastName": "Smith",
+              "image": "https://randomuser.me/api/portraits/women/2.jpg"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "3",
       "basic": {
-        "phoneNumber": "+1234567890",
-        "name": "Consumer 3"
+        "name": "Carol Williams",
+        "phoneNumber": "+1234567892"
       },
-      "favoriteProviders": []
+      "details": {
+        "favoriteProviders": []
+      }
     },
     {
       "id": "4",
       "basic": {
-        "phoneNumber": "+1234567890",
-        "name": "Consumer 4"
+        "name": "David Brown",
+        "phoneNumber": "+1234567893"
       },
-      "favoriteProviders": []
+      "details": {
+        "favoriteProviders": [
+          {
+            "id": "4",
+            "basic": {
+              "category": "Dentistry",
+              "firstName": "Bob",
+              "lastName": "Williams",
+              "image": "https://randomuser.me/api/portraits/men/4.jpg"
+            }
+          },
+          {
+            "id": "5",
+            "basic": {
+              "category": "Cardiology",
+              "firstName": "Carol",
+              "lastName": "Brown",
+              "image": "https://randomuser.me/api/portraits/women/5.jpg"
+            }
+          }
+        ]
+      }
     }
   ],
   "providers": [
     {
       "id": "1",
       "basic": {
+        "category": "General Medicine",
         "firstName": "John",
         "lastName": "Doe",
-        "phone": "+1234567890",
-        "email": "john.doe1@example.com",
         "image": "https://randomuser.me/api/portraits/men/1.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567890",
+        "country": "United States",
+        "address": "123 Main St, New York, NY 10001",
+        "email": "john.doe@example.com",
+        "organization": {
+          "id": "org-1",
+          "name": "HealthCare Plus",
+          "address": "456 Medical Ave, New York, NY 10002"
+        }
+      },
+      "services": [
+        {
+          "id": "service-1",
+          "name": "General Consultation",
+          "description": "Comprehensive health checkup and consultation"
+        },
+        {
+          "id": "service-2",
+          "name": "Preventive Care",
+          "description": "Regular health maintenance and prevention services"
+        }
+      ]
     },
     {
       "id": "2",
       "basic": {
+        "category": "Physical Therapy",
         "firstName": "Jane",
         "lastName": "Smith",
-        "phone": "+1234567891",
-        "email": "jane.smith2@example.com",
         "image": "https://randomuser.me/api/portraits/women/2.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567891",
+        "country": "United States",
+        "address": "789 Oak St, Los Angeles, CA 90210",
+        "email": "jane.smith@example.com"
+      },
+      "services": [
+        {
+          "id": "service-3",
+          "name": "Physical Therapy",
+          "description": "Rehabilitation and physical therapy services"
+        }
+      ]
     },
     {
       "id": "3",
       "basic": {
+        "category": "Mental Health",
         "firstName": "Alice",
         "lastName": "Johnson",
-        "phone": "+1234567892",
-        "email": "alice.johnson3@example.com",
         "image": "https://randomuser.me/api/portraits/women/3.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567892",
+        "country": "Canada",
+        "address": "321 Maple Ave, Toronto, ON M5V 3A8",
+        "email": "alice.johnson@example.com",
+        "organization": {
+          "id": "org-2",
+          "name": "WellnessCenter Toronto",
+          "address": "654 Health Blvd, Toronto, ON M5V 2B9"
+        }
+      },
+      "services": [
+        {
+          "id": "service-4",
+          "name": "Mental Health Counseling",
+          "description": "Professional mental health and wellness counseling"
+        },
+        {
+          "id": "service-5",
+          "name": "Stress Management",
+          "description": "Stress reduction and management techniques"
+        }
+      ]
     },
     {
       "id": "4",
       "basic": {
+        "category": "Dentistry",
         "firstName": "Bob",
         "lastName": "Williams",
-        "phone": "+1234567893",
-        "email": "bob.williams4@example.com",
         "image": "https://randomuser.me/api/portraits/men/4.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567893",
+        "country": "United States",
+        "address": "555 Pine St, Chicago, IL 60601",
+        "email": "bob.williams@example.com"
+      },
+      "services": [
+        {
+          "id": "service-6",
+          "name": "Dental Care",
+          "description": "Comprehensive dental health services"
+        },
+        {
+          "id": "service-7",
+          "name": "Orthodontics",
+          "description": "Teeth alignment and orthodontic treatments"
+        }
+      ]
     },
     {
       "id": "5",
       "basic": {
+        "category": "Cardiology",
         "firstName": "Carol",
         "lastName": "Brown",
-        "phone": "+1234567894",
-        "email": "carol.brown5@example.com",
         "image": "https://randomuser.me/api/portraits/women/5.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567894",
+        "country": "United Kingdom",
+        "address": "777 London Rd, London, SW1A 1AA",
+        "email": "carol.brown@example.com",
+        "organization": {
+          "id": "org-3",
+          "name": "London Medical Group",
+          "address": "888 Healthcare St, London, SW1A 2BB"
+        }
+      },
+      "services": [
+        {
+          "id": "service-8",
+          "name": "Cardiology",
+          "description": "Heart health and cardiovascular care"
+        }
+      ]
     },
     {
       "id": "6",
       "basic": {
+        "category": "Dermatology",
         "firstName": "David",
         "lastName": "Jones",
-        "phone": "+1234567895",
-        "email": "david.jones6@example.com",
         "image": "https://randomuser.me/api/portraits/men/6.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567895",
+        "country": "Australia",
+        "address": "999 Sydney Ave, Sydney, NSW 2000",
+        "email": "david.jones@example.com"
+      },
+      "services": [
+        {
+          "id": "service-9",
+          "name": "Dermatology",
+          "description": "Skin health and dermatological treatments"
+        },
+        {
+          "id": "service-10",
+          "name": "Cosmetic Procedures",
+          "description": "Non-invasive cosmetic treatments"
+        }
+      ]
     },
     {
       "id": "7",
       "basic": {
+        "category": "Pediatrics",
         "firstName": "Eve",
         "lastName": "Garcia",
-        "phone": "+1234567896",
-        "email": "eve.garcia7@example.com",
         "image": "https://randomuser.me/api/portraits/women/7.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567896",
+        "country": "Spain",
+        "address": "111 Madrid St, Madrid, 28001",
+        "email": "eve.garcia@example.com",
+        "organization": {
+          "id": "org-4",
+          "name": "Centro Médico Madrid",
+          "address": "222 Salud Ave, Madrid, 28002"
+        }
+      },
+      "services": [
+        {
+          "id": "service-11",
+          "name": "Pediatrics",
+          "description": "Child health and pediatric care"
+        }
+      ]
     },
     {
       "id": "8",
       "basic": {
+        "category": "Emergency Medicine",
         "firstName": "Frank",
         "lastName": "Martinez",
-        "phone": "+1234567897",
-        "email": "frank.martinez8@example.com",
         "image": "https://randomuser.me/api/portraits/men/8.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567897",
+        "country": "Mexico",
+        "address": "333 Mexico City Blvd, Mexico City, 01000",
+        "email": "frank.martinez@example.com"
+      },
+      "services": [
+        {
+          "id": "service-12",
+          "name": "Emergency Medicine",
+          "description": "24/7 emergency medical services"
+        }
+      ]
     },
     {
       "id": "9",
       "basic": {
+        "category": "Ophthalmology",
         "firstName": "Grace",
         "lastName": "Lee",
-        "phone": "+1234567898",
-        "email": "grace.lee9@example.com",
         "image": "https://randomuser.me/api/portraits/women/9.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567898",
+        "country": "South Korea",
+        "address": "444 Seoul St, Seoul, 04522",
+        "email": "grace.lee@example.com",
+        "organization": {
+          "id": "org-5",
+          "name": "Seoul Health Center",
+          "address": "555 Gangnam Ave, Seoul, 06000"
+        }
+      },
+      "services": [
+        {
+          "id": "service-13",
+          "name": "Ophthalmology",
+          "description": "Eye care and vision health services"
+        },
+        {
+          "id": "service-14",
+          "name": "LASIK Surgery",
+          "description": "Laser eye surgery and vision correction"
+        }
+      ]
     },
     {
       "id": "10",
       "basic": {
+        "category": "Orthopedics",
         "firstName": "Henry",
         "lastName": "Perez",
-        "phone": "+1234567899",
-        "email": "henry.perez10@example.com",
         "image": "https://randomuser.me/api/portraits/men/10.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567899",
+        "country": "Brazil",
+        "address": "666 São Paulo Ave, São Paulo, 01310-100",
+        "email": "henry.perez@example.com"
+      },
+      "services": [
+        {
+          "id": "service-15",
+          "name": "Orthopedics",
+          "description": "Bone and joint health services"
+        }
+      ]
     },
     {
       "id": "11",
       "basic": {
+        "category": "Neurology",
         "firstName": "Ivy",
         "lastName": "White",
-        "phone": "+1234567800",
-        "email": "ivy.white11@example.com",
         "image": "https://randomuser.me/api/portraits/women/11.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567800",
+        "country": "Germany",
+        "address": "777 Berlin St, Berlin, 10115",
+        "email": "ivy.white@example.com",
+        "organization": {
+          "id": "org-6",
+          "name": "Berlin Medical Institute",
+          "address": "888 Medical Plaza, Berlin, 10117"
+        }
+      },
+      "services": [
+        {
+          "id": "service-16",
+          "name": "Neurology",
+          "description": "Brain and nervous system health"
+        }
+      ]
     },
     {
       "id": "12",
       "basic": {
+        "category": "Gastroenterology",
         "firstName": "Jack",
         "lastName": "Harris",
-        "phone": "+1234567801",
-        "email": "jack.harris12@example.com",
         "image": "https://randomuser.me/api/portraits/men/12.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567801",
+        "country": "France",
+        "address": "999 Paris Blvd, Paris, 75001",
+        "email": "jack.harris@example.com"
+      },
+      "services": [
+        {
+          "id": "service-17",
+          "name": "Gastroenterology",
+          "description": "Digestive system health and treatment"
+        },
+        {
+          "id": "service-18",
+          "name": "Endoscopy",
+          "description": "Minimally invasive diagnostic procedures"
+        }
+      ]
     },
     {
       "id": "13",
       "basic": {
+        "category": "Gynecology",
         "firstName": "Kathy",
         "lastName": "Clark",
-        "phone": "+1234567802",
-        "email": "kathy.clark13@example.com",
         "image": "https://randomuser.me/api/portraits/women/13.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567802",
+        "country": "Italy",
+        "address": "101 Rome Ave, Rome, 00100",
+        "email": "kathy.clark@example.com",
+        "organization": {
+          "id": "org-7",
+          "name": "Roma Medical Center",
+          "address": "202 Vatican St, Rome, 00120"
+        }
+      },
+      "services": [
+        {
+          "id": "service-19",
+          "name": "Gynecology",
+          "description": "Women's health and reproductive care"
+        }
+      ]
     },
     {
       "id": "14",
       "basic": {
+        "category": "Oncology",
         "firstName": "Leo",
         "lastName": "Lewis",
-        "phone": "+1234567803",
-        "email": "leo.lewis14@example.com",
         "image": "https://randomuser.me/api/portraits/men/14.jpg"
       },
       "details": {
-        "role": "admin",
-        "plan": "premium"
-      }
+        "phone": "+1234567803",
+        "country": "Japan",
+        "address": "303 Tokyo St, Tokyo, 100-0001",
+        "email": "leo.lewis@example.com"
+      },
+      "services": [
+        {
+          "id": "service-20",
+          "name": "Oncology",
+          "description": "Cancer treatment and care"
+        },
+        {
+          "id": "service-21",
+          "name": "Radiation Therapy",
+          "description": "Advanced cancer treatment options"
+        }
+      ]
     },
     {
       "id": "15",
       "basic": {
+        "category": "Pulmonology",
         "firstName": "Mona",
         "lastName": "Walker",
-        "phone": "+1234567804",
-        "email": "mona.walker15@example.com",
         "image": "https://randomuser.me/api/portraits/women/15.jpg"
-      }
+      },
+      "details": {
+        "phone": "+1234567804",
+        "country": "Netherlands",
+        "address": "404 Amsterdam Ave, Amsterdam, 1012",
+        "email": "mona.walker@example.com",
+        "organization": {
+          "id": "org-8",
+          "name": "Amsterdam Health Network",
+          "address": "505 Canal St, Amsterdam, 1017"
+        }
+      },
+      "services": [
+        {
+          "id": "service-22",
+          "name": "Pulmonology",
+          "description": "Lung and respiratory health services"
+        }
+      ]
     }
   ]
 }

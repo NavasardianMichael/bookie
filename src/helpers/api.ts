@@ -1,7 +1,7 @@
 import { APIResponse } from '@interfaces/api'
 
 export const handleAPIError = (response: APIResponse<unknown>) => {
-  if (response.isSuccess) return
+  if (!response.error) return
   console.error('API Error:', response)
   throw Error(response.error?.description ?? 'Something went wrong')
 }

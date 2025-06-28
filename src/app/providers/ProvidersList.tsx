@@ -5,13 +5,10 @@ import { useProvidersListStore } from '@store/providers/list/store'
 import { ProviderCard } from './ProviderCard'
 
 export const ProvidersList = () => {
-  const { fetchProvidersList, list } = useProvidersListStore()
+  const { getProvidersList, list } = useProvidersListStore()
 
   useEffect(() => {
-    console.log({
-      API_URL: process.env.API_URL,
-    })
-    fetchProvidersList()
+    getProvidersList()
   }, [])
 
   return (

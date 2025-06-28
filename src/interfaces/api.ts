@@ -13,7 +13,6 @@ export type Endpoint<T extends EndpointPaths> = {
 }
 
 export type APIResponse<T> = {
-  isSuccess: boolean
   value: T
-  error: { code: number; description: string }
+  error: { code: number; description: string } | null
 }

@@ -8,8 +8,10 @@ import listPlugin from '@fullcalendar/list'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayjs from 'dayjs'
+import { useProviderStore } from '@store/providers/single/store'
 
 const ProviderCalendar = () => {
+  const basicProvider = useProviderStore.use.basic()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   // Generate time slots for the selected date
@@ -70,6 +72,7 @@ const ProviderCalendar = () => {
         selectMirror={true}
         dayMaxEvents={true}
         weekends={true}
+        noEventsText={`${basicProvider.firstName} ${basicProvider.lastName} has no any registered slots for now.`}
         nowIndicator={true}
         height="100%"
         slotDuration="00:30:00"

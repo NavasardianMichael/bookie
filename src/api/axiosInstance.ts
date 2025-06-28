@@ -5,16 +5,14 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: process.env.NODE_ENV !== 'development',
   formSerializer: {
     indexes: null,
   },
 })
 
 axiosInstance.interceptors.request.use((config) => {
-  console.log({ config })
-
-  if (config.url?.startsWith('/api/Identity/')) config.withCredentials = true
+  // if (config.url?.startsWith('/api/Identity/')) config.withCredentials = true
   return config
 })
 
