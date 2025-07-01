@@ -12,7 +12,9 @@ export type Endpoint<T extends EndpointPaths> = {
   processor: (args: APIResponse<T['response']>) => T['processed']
 }
 
+export type AppError = { code: number; message: string }
+
 export type APIResponse<T> = {
   value: T
-  error: { code: number; description: string } | null
+  error: AppError | null
 }

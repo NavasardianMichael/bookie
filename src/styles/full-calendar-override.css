@@ -1,10 +1,10 @@
 .fc {
-  --fc-button-bg-color: #4d869c;
-  --fc-button-border-color: #4d869c;
-  --fc-button-hover-bg-color: #3a6475;
-  --fc-button-hover-border-color: #3a6475;
-  --fc-button-active-bg-color: #3a6475;
-  --fc-button-active-border-color: #3a6475;
+  --fc-button-bg-color: #18294d;
+  --fc-button-border-color: #18294d;
+  --fc-button-hover-bg-color: #18294d;
+  --fc-button-hover-border-color: #18294d;
+  --fc-button-active-bg-color: #18294d;
+  --fc-button-active-border-color: #18294d;
 }
 
 .fc .fc-header-toolbar button.fc-button-primary {

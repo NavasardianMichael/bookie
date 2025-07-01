@@ -10,6 +10,6 @@ export type AuthState = StateCommonProps & {
 }
 export type AuthActions = {
   setAuthState: (payload: Partial<AuthState>) => void
-  getCodeByPhoneNumber: (payload: GetCodeByPhoneNumberAPI['payload']) => void
+  getCodeByPhoneNumber: (payload: GetCodeByPhoneNumberAPI['payload']) => Promise<void>
   validatePhoneNumberCode: (payload: ValidatePhoneNumberCodeAPI['payload']) => void
 }

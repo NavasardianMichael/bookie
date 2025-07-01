@@ -30,7 +30,7 @@ const ProviderCalendar = () => {
             start: slotDate,
             end: dayjs(slotDate).add(30, 'minutes').toDate(),
             display: 'block',
-            backgroundColor: '#4D869C',
+            backgroundColor: '#18294D',
             classNames: ['available-slot'],
           })
         }

@@ -9,7 +9,6 @@ export const getOrganizationsAPI: GetOrganizationsListAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetOrganizationsListAPI['response']>>(
     ENDPOINTS.getOrganizationsList
   )
-  handleAPIError(data)
   const processedResponse = processOrganizationsListResponse(data)
   return processedResponse
 }

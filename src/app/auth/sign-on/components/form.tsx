@@ -14,15 +14,16 @@ import { useCountries } from '../useCountries'
 type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES
 
 const SignOnForm: React.FC = () => {
-  const register = useAuthStore.use.getCodeByPhoneNumber()
+  const { getCodeByPhoneNumber, isPending } = useAuthStore()
   const countries = useCountries()
   const [form] = Form.useForm()
 
   const formik = useFormik<RegistrationFormValues>({
     initialValues: REGISTRATION_FORM_INITIAL_VALUES,
     validateOnChange: false,
-    onSubmit: (values) => {
-      register(values)
+    onSubmit: async (values) => {
+      await getCodeByPhoneNumber(values)
+      isPending
     },
   })
 
@@ -89,7 +90,7 @@ const SignOnForm: React.FC = () => {
       validateTrigger={['onSubmit']}
       onFinish={formik.handleSubmit}
     >
-      <Form.Item label="Select Phone Number" required>
+      <Form.Item required>
         <Flex>
           <Form.Item<RegistrationFormValues>
             name="countryCode"
@@ -97,17 +98,21 @@ const SignOnForm: React.FC = () => {
             rules={FORM_ITEM_REQUIRED_RULE_SET}
             validateTrigger={['onChange']}
             className="w-42 mb-0! mr-0"
+            label="Select Country Code"
           >
             <Select
               value={formik.values.countryCode}
+              labelRender={(option) => option.label}
               onChange={handleCountryChange}
               options={countries}
               className="custom-antd-select border-r-0!"
+              disabled={isPending}
             />
           </Form.Item>
 
           <Form.Item<RegistrationFormValues>
             name="phoneNumber"
+            label="Fill in Phone Number"
             messageVariables={{ label: 'phone number' }}
             rules={[...FORM_ITEM_REQUIRED_RULE_SET, { validator: validatePhoneNumber }]}
             className="mb-0! flex-1"
@@ -117,6 +122,7 @@ const SignOnForm: React.FC = () => {
               name="phone"
               value={formik.values.phoneNumber}
               onChange={handlePhoneNumberChange}
+              disabled={isPending}
               placeholder={placeholder}
               className="rounded-l-none!"
             />

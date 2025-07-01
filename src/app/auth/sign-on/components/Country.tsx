@@ -10,7 +10,7 @@ type Props = {
 const Country: FC<Props> = ({ country }) => {
   return (
     <Flex gap={2} align="center">
-      <Flag className="h-5 w-8" code={country} />
+      <Flag className="h-5 w-8 mr-2" code={country} />
       <span>
         {country} (+{getCountryCallingCode(country)})
       </span>

@@ -7,7 +7,7 @@ import { Header } from './Header'
 
 const themeConfig: ThemeConfig = {
   token: {
-    colorPrimary: '#4D869C', // Clay/tan
+    colorPrimary: '#18294D', // blue
     colorBgBase: '#EEF7FF', // Soft off-white
   },
 }

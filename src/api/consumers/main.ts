@@ -7,7 +7,6 @@ import { GetConsumersListAPI } from './types'
 
 export const getConsumersAPI: GetConsumersListAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetConsumersListAPI['response']>>(ENDPOINTS.getConsumersList)
-  handleAPIError(data)
   const processedResponse = processConsumersListResponse(data)
   return processedResponse
 }
