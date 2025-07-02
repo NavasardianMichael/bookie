@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-// import { FcGoogle } from 'react-icons/fc'
 import '@ant-design/v5-patch-for-react-19'
 import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
@@ -23,7 +22,7 @@ const SignOnForm: React.FC = () => {
     validateOnChange: false,
     onSubmit: async (values) => {
       await getCodeByPhoneNumber(values)
-      isPending
+      localStorage.setItem('phoneNumber', values.phoneNumber)
     },
   })
 

@@ -1,7 +1,16 @@
 import type { NextConfig } from 'next'
+import { ROUTES } from '@constants/routes'
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: ROUTES.auth,
+        destination: ROUTES.accountTypeSelection,
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig
