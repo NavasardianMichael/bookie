@@ -495,5 +495,7 @@
         }
       ]
     }
-  ]
+  ],
+  "getCodeByPhoneNumber": true,
+  "validatePhoneNumberCode": true
 }

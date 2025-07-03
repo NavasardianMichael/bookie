@@ -5,14 +5,17 @@ import '@ant-design/v5-patch-for-react-19'
 import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
+import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
 import { REGISTRATION_FORM_INITIAL_VALUES } from '@constants/auth/registration'
+import { ROUTES } from '@constants/routes'
 import { useCountries } from '../useCountries'
 
 type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES
 
 const SignOnForm: React.FC = () => {
+  const { replace } = useRouter()
   const { getCodeByPhoneNumber, isPending } = useAuthStore()
   const countries = useCountries()
   const [form] = Form.useForm()
@@ -23,6 +26,7 @@ const SignOnForm: React.FC = () => {
     onSubmit: async (values) => {
       await getCodeByPhoneNumber(values)
       localStorage.setItem('phoneNumber', values.phoneNumber)
+      replace(ROUTES.codeInput)
     },
   })
 
@@ -67,8 +71,8 @@ const SignOnForm: React.FC = () => {
   const handlePhoneNumberChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const formattedValue = formatPhoneNumber(e.target.value)
-      formik.setFieldValue('phoneNumber', formattedValue)
       form.setFields([{ name: 'phoneNumber', errors: [] }])
+      formik.setFieldValue('phoneNumber', formattedValue)
     },
     [formatPhoneNumber, formik.setFieldValue, form]
   )

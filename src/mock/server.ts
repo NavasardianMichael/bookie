@@ -3,6 +3,7 @@ import cors from 'cors'
 import express, { Request, Response } from 'express'
 import fs from 'fs'
 import path from 'path'
+import { ENDPOINTS as AUTH_ENDPOINTS } from '@api/auth/endpoints'
 import { ENDPOINTS as CONSUMERS_ENDPOINTS } from '@api/consumers/endpoints'
 import { ENDPOINTS as PROVIDERS_ENDPOINTS } from '@api/providers/endpoints'
 import { GetProvidersListAPI } from '@api/providers/types'
@@ -21,6 +22,8 @@ app.use(apiResponseWrapper)
 type Database = {
   consumers: Consumer[]
   providers: Provider[]
+  getCodeByPhoneNumber: boolean
+  validatePhoneNumberCode: boolean
 }
 
 // Database functions
@@ -36,6 +39,8 @@ function readDatabase(): Database {
     return {
       consumers: [],
       providers: [],
+      getCodeByPhoneNumber: false,
+      validatePhoneNumberCode: false,
     }
   }
 }
@@ -89,6 +94,14 @@ app.get(`${CONSUMERS_ENDPOINTS.getConsumersList}/:id`, (req: Request, res: Respo
   if (!consumer) res.customErrorResponse('Consumer not found', 404)
 
   res.customSuccessResponse(consumer)
+})
+
+app.get(AUTH_ENDPOINTS.getCodeByPhoneNumber, (_req: Request, res: Response) => {
+  res.customSuccessResponse(db.getCodeByPhoneNumber)
+})
+
+app.get(AUTH_ENDPOINTS.validatePhoneNumberCode, (_req: Request, res: Response) => {
+  res.customSuccessResponse(db.validatePhoneNumberCode)
 })
 
 // app.post('/api/users', (req: Request, res: Response) => {

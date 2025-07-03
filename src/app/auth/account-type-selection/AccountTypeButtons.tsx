@@ -15,10 +15,10 @@ const AccountTypeButtons: React.FC = () => {
 
   return (
     <Flex wrap="wrap" justify="center" gap={8}>
-      <Button type="dashed" onClick={handleAccountTypeClick} name="provider">
+      <Button type="primary" onClick={handleAccountTypeClick} name="provider">
         Provider
       </Button>
-      <Button type="dashed" onClick={handleAccountTypeClick} name="consumer">
+      <Button type="primary" onClick={handleAccountTypeClick} name="consumer">
         Consumer
       </Button>
     </Flex>

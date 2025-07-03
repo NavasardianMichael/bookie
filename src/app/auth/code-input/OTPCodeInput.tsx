@@ -13,7 +13,7 @@ const OTPCodeInput: React.FC = () => {
   const [showResendButton, setShowResendButton] = useState(false)
   const onFinish = () => setShowResendButton(true)
   const phoneNumberRef = useRef(localStorage.getItem('phoneNumber'))
-  const countDownDeadlineRef = useRef(Date.now() + 60 * 1000)
+  const countDownDeadlineRef = useRef(Date.now() + 2000)
 
   const onOTPCodeSubmit: OTPProps['onSubmit'] = () => {
     if (!phoneNumberRef.current) {
@@ -41,6 +41,8 @@ const OTPCodeInput: React.FC = () => {
       return
     }
     getCodeByPhoneNumber({ phoneNumber })
+    setCode(undefined)
+    setShowResendButton(false)
   }
 
   const OTPCodeValidationRules: FormItemProps['rules'] = useMemo(() => {
@@ -58,7 +60,7 @@ const OTPCodeInput: React.FC = () => {
   }, [error])
 
   return (
-    <Flex>
+    <Flex vertical align="center" justify="center" gap={8}>
       <Form.Item rules={OTPCodeValidationRules}>
         <Input.OTP onSubmit={onOTPCodeSubmit} onChange={onOTPCodeChange} disabled={isPending} />
       </Form.Item>

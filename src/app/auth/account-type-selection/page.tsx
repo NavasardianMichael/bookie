@@ -1,4 +1,6 @@
-import { Flex, Typography } from 'antd'
+import { FC } from 'react'
+import { Flex } from 'antd'
+import Paragraph from 'antd/es/typography/Paragraph'
 import { Metadata } from 'next'
 import AccountTypeButtons from './AccountTypeButtons'
 
@@ -7,10 +9,10 @@ export const metadata: Metadata = {
   description: 'Select your account type, either Provider or Consumer, to continue with the sign-on process.',
 }
 
-const AccountTypeSelection: React.FC = () => {
+const AccountTypeSelection: FC = () => {
   return (
     <Flex className="w-full flex flex-col justify-center items-center m-auto! max-w-160">
-      <Typography.Paragraph>Continue as</Typography.Paragraph>
+      <Paragraph>Continue as</Paragraph>
       <AccountTypeButtons />
     </Flex>
   )
