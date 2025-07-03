@@ -96,11 +96,11 @@ app.get(`${CONSUMERS_ENDPOINTS.getConsumersList}/:id`, (req: Request, res: Respo
   res.customSuccessResponse(consumer)
 })
 
-app.get(AUTH_ENDPOINTS.getCodeByPhoneNumber, (_req: Request, res: Response) => {
+app.post(AUTH_ENDPOINTS.getCodeByPhoneNumber, (_req: Request, res: Response) => {
   res.customSuccessResponse(db.getCodeByPhoneNumber)
 })
 
-app.get(AUTH_ENDPOINTS.validatePhoneNumberCode, (_req: Request, res: Response) => {
+app.post(AUTH_ENDPOINTS.validatePhoneNumberCode, (_req: Request, res: Response) => {
   res.customSuccessResponse(db.validatePhoneNumberCode)
 })
 

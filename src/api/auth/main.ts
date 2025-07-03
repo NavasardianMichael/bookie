@@ -12,9 +12,10 @@ export const getCodeByPhoneNumberAPI: GetCodeByPhoneNumberAPI['api'] = async () 
   return processedResponse
 }
 
-export const validatePhoneNumberCodeAPI: ValidatePhoneNumberCodeAPI['api'] = async () => {
-  const { data } = await axiosInstance.get<APIResponse<ValidatePhoneNumberCodeAPI['response']>>(
-    ENDPOINTS.validatePhoneNumberCode
+export const validatePhoneNumberCodeAPI: ValidatePhoneNumberCodeAPI['api'] = async (params) => {
+  const { data } = await axiosInstance.post<APIResponse<ValidatePhoneNumberCodeAPI['response']>>(
+    ENDPOINTS.validatePhoneNumberCode,
+    params
   )
   const processedResponse = processGetCodeResponse(data)
   return processedResponse
