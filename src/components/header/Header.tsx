@@ -1,18 +1,27 @@
+import { HEADER_ROUTES, HEADER_UTILS_BY_ROUTE } from '@constants/header'
+import { ROUTE_KEYS_BY_VALUES, ROUTES } from '@constants/routes'
+import { AppRoutePath } from '@interfaces/routes'
 import Image from 'next/image'
-import { HEADER_ROUTES } from '@constants/header'
-import { ROUTES } from '@constants/routes'
-import AppLink from './shared/AppLink'
+import { usePathname } from 'next/navigation'
+import AppLink from '../shared/AppLink'
+import { BackHistoryBtn } from './BackHistoryBtn'
 
 export const Header = () => {
+  const pathName = usePathname() as AppRoutePath
+  const key = ROUTE_KEYS_BY_VALUES[pathName]
+  const headerUtils = HEADER_UTILS_BY_ROUTE[key]
+
   return (
     <>
       <input type='checkbox' id='nav-toggle' className='hidden peer' />
       <header className='flex items-center p-4 gap-4 relative z-20 dark:bg-gray-800'>
-        <AppLink href={ROUTES.home}>
-          <Image src='/logo.svg' alt='Bookie logo' width={24} height={24} priority />
-        </AppLink>
+        {headerUtils?.logo && (
+          <AppLink href={ROUTES.home}>
+            <Image src='/logo.svg' alt='Bookie logo' width={32} height={32} priority />
+          </AppLink>
+        )}
 
-        {/* <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl  sm:block">Your Booking Platform Forever</h1> */}
+        <BackHistoryBtn />
 
         {/* Desktop Navigation */}
         <nav className='hidden md:flex gap-4 ml-auto'>
@@ -31,10 +40,10 @@ export const Header = () => {
 
         {/* Mobile Menu Button */}
         <label htmlFor='nav-toggle' className='md:hidden ml-auto cursor-pointer'>
-          <div className='w-[24px] h-[24px] relative flex flex-col justify-between'>
-            <span className='w-full h-0.5 bg-current transform transition-transform origin-right peer-checked:rotate-45'></span>
-            <span className='w-full h-0.5 bg-current peer-checked:opacity-0 transition-opacity'></span>
-            <span className='w-full h-0.5 bg-current transform transition-transform origin-right peer-checked:-rotate-45'></span>
+          <div className='w-[20px] h-[20px] relative flex flex-col justify-between'>
+            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:rotate-45'></span>
+            <span className='w-full h-[2px] bg-current peer-checked:opacity-0 transition-opacity'></span>
+            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:-rotate-45'></span>
           </div>
         </label>
       </header>

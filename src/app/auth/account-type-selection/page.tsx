@@ -5,6 +5,7 @@ import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
 import AccountTypeButtons from './AccountTypeButtons'
 import LogoIcon from '@assets/images/logo.svg'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'Bookie | Account Type Selection',
@@ -25,7 +26,7 @@ const AccountTypeSelection: FC = () => {
         <AccountTypeButtons />
       </Flex>
 
-      <LogoIcon />
+      <Image src={LogoIcon} alt='Bookie logo' width={300} height={400} className='mx-auto' />
 
       <Flex vertical gap={8}>
         <Paragraph type='secondary' className='text-base! text-center'>

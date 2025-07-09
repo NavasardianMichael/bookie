@@ -28,7 +28,6 @@ type Database = {
 
 // Database functions
 const DB_PATH = path.join(process.cwd(), 'src/mock/db.json')
-console.log({ DB_PATH })
 
 function readDatabase(): Database {
   try {

@@ -1,4 +1,4 @@
-import { ROUTES } from '@constants/routes'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { AppRouteName } from '../interfaces/routes'
 
 type HeaderRoute = {
@@ -27,3 +27,12 @@ export const OVERVIEW_ROUTES: HeaderRoute[] = Object.entries(ROUTES).map(([name]
     label: name,
   } as HeaderRoute
 })
+
+export const HEADER_UTILS_BY_ROUTE: Partial<Record<AppRouteName, { arrow?: boolean; logo?: boolean }>> = {
+  [ROUTE_KEYS.accountTypeSelection]: {
+    logo: true,
+  },
+  [ROUTE_KEYS.phoneNumberInput]: {
+    arrow: true,
+  },
+}

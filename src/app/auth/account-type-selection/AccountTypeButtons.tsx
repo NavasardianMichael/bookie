@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation'
 import { MouseEventHandler } from 'react'
 
 const AccountTypeButtons: React.FC = () => {
-  const { replace } = useRouter()
+  const { push } = useRouter()
   const handleAccountTypeClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     const { name } = event.currentTarget
     localStorage.setItem('accountType', name)
-    replace(ROUTES.phoneNumberInput)
+    push(ROUTES.phoneNumberInput)
   }
 
   return (

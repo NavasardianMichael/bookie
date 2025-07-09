@@ -13,8 +13,6 @@ type Props = {
 }
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
-  console.log({ params })
-
   const provider = await getProviderAPI({
     id: (await params).providerId,
   })
@@ -44,11 +42,11 @@ const Provider = async ({ params }: Props) => {
   })
 
   return (
-    <article className="max-w-2xl mx-auto flex flex-col gap-4">
-      <h2 className="text-2xl mb-0">
+    <article className='max-w-2xl mx-auto flex flex-col gap-4'>
+      <h2 className='text-2xl mb-0'>
         {provider.basic.category} | {provider.basic.firstName} {provider.basic.lastName}
       </h2>
-      <ul className="list-none p-0 m-0 text-sm">
+      <ul className='list-none p-0 m-0 text-sm'>
         <li>
           <strong>Phone:</strong> {provider.details.phone}
         </li>
