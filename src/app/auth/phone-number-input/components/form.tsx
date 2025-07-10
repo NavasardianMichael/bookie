@@ -86,58 +86,54 @@ const SignOnForm: React.FC = () => {
   return (
     <Form
       form={form}
-      autoComplete="off"
+      autoComplete='off'
       requiredMark={false}
-      className="w-full max-w-[500px]"
-      layout="vertical"
+      className='w-full flex flex-col'
+      layout='vertical'
       validateTrigger={['onSubmit']}
       onFinish={formik.handleSubmit}
     >
-      <Form.Item required>
+      <Form.Item required className='mb-1'>
         <Flex>
           <Form.Item<RegistrationFormValues>
-            name="countryCode"
+            name='countryCode'
             messageVariables={{ label: 'country' }}
             rules={FORM_ITEM_REQUIRED_RULE_SET}
             validateTrigger={['onChange']}
-            className="w-42 mb-0! mr-0"
-            label="Select Country Code"
+            className='mb-0! mr-0'
           >
             <Select
               value={formik.values.countryCode}
               labelRender={(option) => option.label}
               onChange={handleCountryChange}
               options={countries}
-              className="custom-antd-select border-r-0!"
+              className='custom-antd-select border-r-0! h-[56px]! w-[64px]! bg-transparent!'
               disabled={isPending}
             />
           </Form.Item>
 
           <Form.Item<RegistrationFormValues>
-            name="phoneNumber"
-            label="Fill in Phone Number"
+            name='phoneNumber'
             messageVariables={{ label: 'phone number' }}
             rules={[...FORM_ITEM_REQUIRED_RULE_SET, { validator: validatePhoneNumber }]}
-            className="mb-0! flex-1"
+            className='mb-0! grow'
           >
             <Input
-              type="tel"
-              name="phone"
+              type='tel'
+              name='phone'
               value={formik.values.phoneNumber}
               onChange={handlePhoneNumberChange}
               disabled={isPending}
               placeholder={placeholder}
-              className="rounded-l-none!"
+              className='rounded-l-none! border-l-0! h-[56px] bg-transparent!'
             />
           </Form.Item>
         </Flex>
       </Form.Item>
 
-      <Flex>
-        <Button type="primary" variant="solid" htmlType="submit" className="mx-auto">
-          Send Verification Code
-        </Button>
-      </Flex>
+      <Button type='primary' variant='solid' htmlType='submit' className='w-full py-[24px]!'>
+        Send Verification Code
+      </Button>
     </Form>
   )
 }

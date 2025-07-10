@@ -7,7 +7,7 @@ import { Header } from './header/Header'
 const themeConfig: ThemeConfig = {
   token: {
     colorPrimary: '#18294D', // blue
-    colorBgBase: '#D2D2D2', // Soft off-white
+    // colorBgBase: '#D2D2D2', // Soft off-white
     colorTextBase: '#18294D', // Dark blue for text
     colorTextSecondary: '#18294D',
   },
