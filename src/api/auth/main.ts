@@ -5,7 +5,7 @@ import { processGetCodeResponse } from './processors'
 import { GetCodeByPhoneNumberAPI, ValidatePhoneNumberCodeAPI } from './types'
 
 export const getCodeByPhoneNumberAPI: GetCodeByPhoneNumberAPI['api'] = async () => {
-  const { data } = await axiosInstance.get<APIResponse<GetCodeByPhoneNumberAPI['response']>>(
+  const { data } = await axiosInstance.post<APIResponse<GetCodeByPhoneNumberAPI['response']>>(
     ENDPOINTS.getCodeByPhoneNumber
   )
   const processedResponse = processGetCodeResponse(data)

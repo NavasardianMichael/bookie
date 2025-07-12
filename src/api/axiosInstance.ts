@@ -12,6 +12,8 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use((config) => {
+  console.log('aaaaaaaaaaaaaa', process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL)
+
   // if (config.url?.startsWith('/api/Identity/')) config.withCredentials = true
   return config
 })

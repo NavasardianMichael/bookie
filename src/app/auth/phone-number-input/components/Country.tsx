@@ -1,6 +1,7 @@
-import { CountryCode } from 'libphonenumber-js'
 import { FC } from 'react'
 import Flag from 'react-world-flags'
+import { Flex } from 'antd'
+import { CountryCode, getCountryCallingCode } from 'libphonenumber-js'
 
 type Props = {
   country: CountryCode
@@ -8,12 +9,10 @@ type Props = {
 
 const Country: FC<Props> = ({ country }) => {
   return (
-    <Flag className='w-[24px]' code={country} />
-    // <Flex gap={2} align="center">
-    //   <span>
-    //     {country} (+{getCountryCallingCode(country)})
-    //   </span>
-    // </Flex>
+    <Flex gap={2} align='center'>
+      <Flag className='h-5 w-8 mr-2' code={country} />
+      <span>+{getCountryCallingCode(country)}</span>
+    </Flex>
   )
 }
 

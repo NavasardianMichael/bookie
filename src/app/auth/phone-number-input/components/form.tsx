@@ -107,7 +107,7 @@ const SignOnForm: React.FC = () => {
               labelRender={(option) => option.label}
               onChange={handleCountryChange}
               options={countries}
-              className='custom-antd-select border-r-0! h-[56px]! w-[64px]! bg-transparent!'
+              className='custom-antd-select border-r-0! h-[56px]! w-[112px]! bg-transparent!'
               disabled={isPending}
             />
           </Form.Item>
@@ -125,7 +125,7 @@ const SignOnForm: React.FC = () => {
               onChange={handlePhoneNumberChange}
               disabled={isPending}
               placeholder={placeholder}
-              className='rounded-l-none! border-l-0! h-[56px] bg-transparent!'
+              className='rounded-l-none! h-[56px] bg-transparent!'
             />
           </Form.Item>
         </Flex>
