@@ -2,10 +2,10 @@
 echo "Running lint-fix..."
 pnpm lint-fix
 
-# Check if there are any remaining linting issues
+# Check if there are any remaining linting issues (fail on warnings too)
 echo "Checking for remaining linting issues..."
-if ! pnpm lint; then
-  echo "❌ Linting failed! Please fix the issues before committing."
+if ! pnpm lint --max-warnings 0; then
+  echo "❌ Linting failed! Please fix all warnings and errors before committing."
   exit 1
 fi
 

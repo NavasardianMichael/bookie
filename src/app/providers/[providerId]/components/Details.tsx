@@ -14,7 +14,7 @@ const ProviderDetails: FC<Props> = ({ initialState }) => {
 
   useEffect(() => {
     providerStore.setProviderState(initialState)
-  }, [providerStore])
+  }, [providerStore, initialState])
 
   return (
     <>
