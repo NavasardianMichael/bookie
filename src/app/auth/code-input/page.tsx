@@ -2,6 +2,7 @@ import { Flex } from 'antd'
 import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
 import OTPCodeInput from './OTPCodeInput'
+import Paragraph from 'antd/es/typography/Paragraph'
 
 export const metadata: Metadata = {
   title: 'Bookie | OTP Code Input',
@@ -9,14 +10,9 @@ export const metadata: Metadata = {
 }
 
 const CodeInput: React.FC = () => (
-  <Flex
-    vertical
-    align="center"
-    justify="center"
-    className='className="w-full flex flex-col justify-center items-center m-auto! max-w-160"'
-  >
-    <Title level={2} style={{ textAlign: 'center', marginBottom: '20px' }}>
-      Enter OTP Code
+  <Flex vertical align='center' justify='center' className='w-full flex flex-col' gap={16}>
+    <Title level={2} className='text-center mb-0!'>
+      6-digit code
     </Title>
     <OTPCodeInput />
   </Flex>

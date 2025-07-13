@@ -35,4 +35,10 @@ export const HEADER_UTILS_BY_ROUTE: Partial<Record<AppRouteName, { arrow?: boole
   [ROUTE_KEYS.phoneNumberInput]: {
     arrow: true,
   },
+  [ROUTE_KEYS.codeInput]: {
+    arrow: true,
+  },
+  [ROUTE_KEYS.profileCreated]: {
+    arrow: true,
+  },
 }

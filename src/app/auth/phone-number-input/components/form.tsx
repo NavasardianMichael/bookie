@@ -15,7 +15,7 @@ import { useCountries } from '../useCountries'
 type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES
 
 const SignOnForm: React.FC = () => {
-  const { replace } = useRouter()
+  const { push } = useRouter()
   const { getCodeByPhoneNumber, isPending } = useAuthStore()
   const countries = useCountries()
   const [form] = Form.useForm()
@@ -26,7 +26,7 @@ const SignOnForm: React.FC = () => {
     onSubmit: async (values) => {
       await getCodeByPhoneNumber(values)
       localStorage.setItem('phoneNumber', values.phoneNumber)
-      replace(ROUTES.codeInput)
+      push(ROUTES.codeInput)
     },
   })
 

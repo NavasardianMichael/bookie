@@ -1,6 +1,6 @@
 'use client'
 
-import { LeftOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import { HEADER_UTILS_BY_ROUTE } from '@constants/header'
 import { ROUTE_KEYS_BY_VALUES } from '@constants/routes'
 import { AppRoutePath } from '@interfaces/routes'
@@ -15,5 +15,5 @@ export const BackHistoryBtn = () => {
 
   if (!headerUtils?.arrow) return null
 
-  return <Button type='text' onClick={() => router.back()} icon={<LeftOutlined />} />
+  return <Button type='text' onClick={() => router.back()} icon={<ArrowLeftOutlined style={{ fontSize: 20 }} />} />
 }
