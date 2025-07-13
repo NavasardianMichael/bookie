@@ -3,8 +3,8 @@
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, CountdownProps, Flex, Form, FormItemProps, Input, Statistic } from 'antd'
 import { OTPProps } from 'antd/es/input/OTP'
-import { useRouter } from 'next/navigation'
 import Paragraph from 'antd/es/typography/Paragraph'
+import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { ROUTES } from '@constants/routes'
 
