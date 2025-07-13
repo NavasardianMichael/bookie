@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "cd src && npx prettier --write .",
     "mock-api": "tsx ./src/mock/server.ts",
-    "watch": "concurrently --kill-others-on-fail -n app,api -c green,cyan \"kill-port 3000\" \"kill-port 3001\" \"pnpm dev\" \"pnpm mock-api\""
+    "watch": "concurrently --kill-others-on-fail -n app,api -c green,cyan \"kill-port 3000\" \"kill-port 3001\" \"pnpm dev\" \"pnpm mock-api\"",
+    "lint-fix": "next lint --fix",
+    "format": "cd src && npx prettier --write .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
@@ -62,6 +64,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "express": "^5.1.0",
     "globals": "^16.3.0",
+    "husky": "^9.1.7",
     "kill-port": "^2.0.1",
     "prettier": "^3.5.3",
     "react-hooks": "^1.0.1",

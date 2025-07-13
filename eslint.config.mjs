@@ -7,6 +7,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import a11y from 'eslint-plugin-jsx-a11y'
 import security from 'eslint-plugin-security'
+import eslintPluginPrettier from 'eslint-plugin-prettier'
+import react from 'eslint-plugin-react'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -40,8 +42,10 @@ const eslintConfig = [
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'simple-import-sort': simpleImportSort,
+      prettier: eslintPluginPrettier,
       'jsx-a11y': a11y,
       security,
+      react,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,

@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run lint fix first
+echo "Running lint-fix..."
+pnpm lint-fix
+
+# Check if there are any remaining linting issues
+echo "Checking for remaining linting issues..."
+if ! pnpm lint; then
+  echo "❌ Linting failed! Please fix the issues before committing."
+  exit 1
+fi
+
+echo "✅ Linting passed!"
