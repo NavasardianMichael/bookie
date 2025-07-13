@@ -21,7 +21,7 @@ const ProviderCalendar = () => {
     const endHour = 17
 
     for (let hour = startHour; hour <= endHour; hour++) {
-      for (let minute of [0, 30]) {
+      for (const minute of [0, 30]) {
         const slotDate = dayjs(date).hour(hour).minute(minute).toDate()
         if (slotDate > new Date()) {
           // Only add future time slots

@@ -1,8 +1,8 @@
 import { Flex } from 'antd'
+import Paragraph from 'antd/es/typography/Paragraph'
+import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
 import SignOnForm from './components/form'
-import Title from 'antd/es/typography/Title'
-import Paragraph from 'antd/es/typography/Paragraph'
 
 export const metadata: Metadata = {
   title: 'Bookie | Sign On',

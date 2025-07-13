@@ -9,10 +9,10 @@ export const ProvidersList = () => {
 
   useEffect(() => {
     getProvidersList()
-  }, [])
+  }, [getProvidersList])
 
   return (
-    <div className="app-responsive-flex">
+    <div className='app-responsive-flex'>
       {list.allIds.map((providerId) => {
         const provider = list.byId[providerId]
         return <ProviderCard key={provider.id} data={provider} />

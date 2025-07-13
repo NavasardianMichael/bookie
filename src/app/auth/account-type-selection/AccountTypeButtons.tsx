@@ -1,9 +1,9 @@
 'use client'
 
-import { ROUTES } from '@constants/routes'
+import { MouseEventHandler } from 'react'
 import { Button, Col, Row } from 'antd'
 import { useRouter } from 'next/navigation'
-import { MouseEventHandler } from 'react'
+import { ROUTES } from '@constants/routes'
 
 const AccountTypeButtons: React.FC = () => {
   const { push } = useRouter()

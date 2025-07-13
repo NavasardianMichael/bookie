@@ -1,11 +1,11 @@
 'use client'
 
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { HEADER_UTILS_BY_ROUTE } from '@constants/header'
-import { ROUTE_KEYS_BY_VALUES } from '@constants/routes'
-import { AppRoutePath } from '@interfaces/routes'
 import { Button } from 'antd'
 import { usePathname, useRouter } from 'next/navigation'
+import { AppRoutePath } from '@interfaces/routes'
+import { HEADER_UTILS_BY_ROUTE } from '@constants/header'
+import { ROUTE_KEYS_BY_VALUES } from '@constants/routes'
 
 export const BackHistoryBtn = () => {
   const router = useRouter()

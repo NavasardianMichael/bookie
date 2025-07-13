@@ -3,9 +3,9 @@ import { Button, Flex } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
 import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
-import AccountTypeButtons from './AccountTypeButtons'
-import LogoIcon from '@assets/images/logo.svg'
 import Image from 'next/image'
+import LogoIcon from '@assets/images/logo.svg'
+import AccountTypeButtons from './AccountTypeButtons'
 
 export const metadata: Metadata = {
   title: 'Bookie | Account Type Selection',

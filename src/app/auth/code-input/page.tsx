@@ -2,7 +2,6 @@ import { Flex } from 'antd'
 import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
 import OTPCodeInput from './OTPCodeInput'
-import Paragraph from 'antd/es/typography/Paragraph'
 
 export const metadata: Metadata = {
   title: 'Bookie | OTP Code Input',

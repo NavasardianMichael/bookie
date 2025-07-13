@@ -1,9 +1,10 @@
-import '@fullcalendar/core'
 import { Metadata } from 'next'
 import { getProviderAPI } from '@api/providers/main'
 import { Provider as ProviderType } from '@store/providers/profile/types'
 import '@styles/full-calendar-override.css'
 import ProviderDetails from './components/Details'
+
+import '@fullcalendar/core'
 
 type Props = {
   params: Promise<{

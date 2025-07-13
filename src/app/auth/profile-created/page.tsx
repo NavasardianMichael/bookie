@@ -1,4 +1,4 @@
-import { Button, Divider, Flex } from 'antd'
+import { Flex } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
 import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'

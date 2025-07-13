@@ -1,7 +1,7 @@
 'use client'
 
-import { ConfigProvider, ThemeConfig } from 'antd'
 import { FC, PropsWithChildren } from 'react'
+import { ConfigProvider, ThemeConfig } from 'antd'
 import { Header } from './header/Header'
 
 const themeConfig: ThemeConfig = {

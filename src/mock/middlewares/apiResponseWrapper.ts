@@ -2,12 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import { APIResponse } from '@interfaces/api'
 
 // Extend Express Response type to include our custom methods
-declare global {
-  namespace Express {
-    interface Response {
-      customSuccessResponse<T>(data: T, statusCode?: number): Response
-      customErrorResponse(message: string, statusCode?: number): Response
-    }
+declare module 'express' {
+  interface Response {
+    customSuccessResponse<T>(data: T, statusCode?: number): Response
+    customErrorResponse(message: string, statusCode?: number): Response
   }
 }
 
@@ -26,7 +24,7 @@ export const apiResponseWrapper = (_req: Request, res: Response, next: NextFunct
     const response: APIResponse<null> = {
       value: null,
       error: {
-        description: message,
+        message,
         code: statusCode,
       },
     }

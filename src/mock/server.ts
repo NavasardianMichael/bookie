@@ -55,7 +55,7 @@ function readDatabase(): Database {
 // }
 
 // Initialize database
-let db = readDatabase()
+const db = readDatabase()
 
 // Routes
 app.get(PROVIDERS_ENDPOINTS.getProvidersList, (_req: Request, res: Response) => {

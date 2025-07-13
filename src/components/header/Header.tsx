@@ -1,10 +1,10 @@
-import { HEADER_ROUTES, HEADER_UTILS_BY_ROUTE } from '@constants/header'
-import { ROUTE_KEYS_BY_VALUES, ROUTES } from '@constants/routes'
-import { AppRoutePath } from '@interfaces/routes'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import AppLink from '../shared/AppLink'
+import { AppRoutePath } from '@interfaces/routes'
+import { HEADER_ROUTES, HEADER_UTILS_BY_ROUTE } from '@constants/header'
+import { ROUTE_KEYS_BY_VALUES, ROUTES } from '@constants/routes'
 import { BackHistoryBtn } from './BackHistoryBtn'
+import AppLink from '../shared/AppLink'
 
 export const Header = () => {
   const pathName = usePathname() as AppRoutePath

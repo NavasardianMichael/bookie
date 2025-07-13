@@ -3,10 +3,10 @@
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, CountdownProps, Flex, Form, FormItemProps, Input, Statistic } from 'antd'
 import { OTPProps } from 'antd/es/input/OTP'
-import { useAuthStore } from '@store/auth/store'
-import { useRouter } from 'next/navigation'
-import { ROUTES } from '@constants/routes'
 import Paragraph from 'antd/es/typography/Paragraph'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@store/auth/store'
+import { ROUTES } from '@constants/routes'
 
 const { Countdown } = Statistic
 
@@ -80,7 +80,7 @@ const OTPCodeInput: React.FC = () => {
         },
       },
     ]
-  }, [error])
+  }, [error, setAuthState])
   console.log({ countDownDeadline })
 
   const onCountdownChange: CountdownProps['onChange'] = (value) => {

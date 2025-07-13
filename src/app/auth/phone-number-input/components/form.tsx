@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import '@ant-design/v5-patch-for-react-19'
 import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
@@ -11,6 +10,8 @@ import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
 import { REGISTRATION_FORM_INITIAL_VALUES } from '@constants/auth/registration'
 import { ROUTES } from '@constants/routes'
 import { useCountries } from '../useCountries'
+
+import '@ant-design/v5-patch-for-react-19'
 
 type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES
 
@@ -38,13 +39,13 @@ const SignOnForm: React.FC = () => {
   )
 
   const validatePhoneNumber = useCallback(
-    (_: any, value: string) => {
+    (_: unknown, value: string) => {
       if (!value || !formik.values.countryCode) return Promise.resolve()
       try {
         const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`
         if (isValidPhoneNumber(fullNumber)) return Promise.resolve()
         return Promise.reject('Please enter a valid phone number')
-      } catch (error) {
+      } catch (_error) {
         return Promise.reject('Please enter a valid phone number')
       }
     },
@@ -61,7 +62,7 @@ const SignOnForm: React.FC = () => {
           .formatNational()
           .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
           .trim()
-      } catch (error) {
+      } catch (_error) {
         return value
       }
     },
@@ -74,7 +75,7 @@ const SignOnForm: React.FC = () => {
       form.setFields([{ name: 'phoneNumber', errors: [] }])
       formik.setFieldValue('phoneNumber', formattedValue)
     },
-    [formatPhoneNumber, formik.setFieldValue, form]
+    [formatPhoneNumber, formik, form]
   )
 
   // Create placeholder text for the phone input
