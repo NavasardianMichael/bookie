@@ -15,13 +15,7 @@ export const metadata: Metadata = {
 
 const AccountTypeSelection: FC = () => {
   return (
-    <Flex
-      vertical
-      justify='space-between'
-      className='w-full h-full grow!'
-      gap={16}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <Flex vertical justify='space-between' className='w-full h-full grow!' gap={16}>
       <Flex vertical gap={8}>
         <Title className='text-xl! mb-0!'>
           Welcome to <b>Bookie</b>
