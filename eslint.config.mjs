@@ -8,7 +8,6 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import a11y from 'eslint-plugin-jsx-a11y'
 import security from 'eslint-plugin-security'
 import eslintPluginPrettier from 'eslint-plugin-prettier'
-import react from 'eslint-plugin-react'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -45,7 +44,6 @@ const eslintConfig = [
       prettier: eslintPluginPrettier,
       'jsx-a11y': a11y,
       security,
-      react,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -82,6 +80,7 @@ const eslintConfig = [
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/rules-of-hooks': 'error',
       'react/no-unescaped-entities': 'off',
+      '@next/next/no-img-element': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
