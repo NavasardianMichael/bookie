@@ -2,10 +2,13 @@ import { NextFunction, Request, Response } from 'express'
 import { APIResponse } from '@interfaces/api'
 
 // Extend Express Response type to include our custom methods
-declare module 'express' {
-  interface Response {
-    customSuccessResponse<T>(data: T, statusCode?: number): Response
-    customErrorResponse(message: string, statusCode?: number): Response
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Response {
+      customSuccessResponse<T>(data: T, statusCode?: number): Response
+      customErrorResponse(message: string, statusCode?: number): Response
+    }
   }
 }
 
