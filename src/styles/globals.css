@@ -33,6 +33,7 @@
 }
 
 body {
+  touch-action: manipulation;
   color: var(--primary-color);
 }
 

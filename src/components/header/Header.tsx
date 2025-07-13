@@ -36,7 +36,7 @@ export const Header = () => {
         </nav>
 
         {/* Mobile Menu Button */}
-        <label htmlFor='mobile navigation bar' className='md:hidden ml-auto cursor-pointer'>
+        <label htmlFor='nav-toggle' className='md:hidden ml-auto cursor-pointer'>
           <span className='sr-only'>Open mobile navigation</span>
           <div className='w-[20px] h-[20px] relative flex flex-col justify-between'>
             <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:rotate-45' />
