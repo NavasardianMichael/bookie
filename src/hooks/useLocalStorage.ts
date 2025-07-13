@@ -5,8 +5,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T): [() =>
     try {
       const item = window.localStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
-    } catch (error) {
-      console.error(error)
+    } catch (_error) {
       return initialValue
     }
   }, [initialValue, key])
@@ -15,9 +14,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T): [() =>
     (value: T): void => {
       try {
         window.localStorage.setItem(key, JSON.stringify(value))
-      } catch (error) {
-        console.error(error)
-      }
+      } catch (_error) {}
     },
     [key]
   )
@@ -25,9 +22,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T): [() =>
   const removeValue = useCallback(() => {
     try {
       window.localStorage.removeItem(key)
-    } catch (error) {
-      console.error(error)
-    }
+    } catch (_error) {}
   }, [key])
 
   return useMemo(() => [getStoredValue, setValue, removeValue], [getStoredValue, setValue, removeValue])

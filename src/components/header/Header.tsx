@@ -8,8 +8,8 @@ import AppLink from '../shared/AppLink'
 
 export const Header = () => {
   const pathName = usePathname() as AppRoutePath
-  const key = ROUTE_KEYS_BY_VALUES[pathName]
-  const headerUtils = HEADER_UTILS_BY_ROUTE[key]
+  const key = ROUTE_KEYS_BY_VALUES[pathName!]
+  const headerUtils = HEADER_UTILS_BY_ROUTE[key!]
 
   return (
     <>
@@ -26,12 +26,9 @@ export const Header = () => {
         {/* Desktop Navigation */}
         <nav className='hidden md:flex gap-4 ml-auto'>
           {HEADER_ROUTES.map(({ label, name }) => {
+            const route = ROUTES[name!]
             return (
-              <AppLink
-                key={ROUTES[name]}
-                href={ROUTES[name]}
-                className='capitalize hover:text-blue-600 transition-colors'
-              >
+              <AppLink key={route} href={route} className='capitalize hover:text-blue-600 transition-colors'>
                 {label}
               </AppLink>
             )
@@ -39,28 +36,26 @@ export const Header = () => {
         </nav>
 
         {/* Mobile Menu Button */}
-        <label htmlFor='nav-toggle' className='md:hidden ml-auto cursor-pointer'>
+        <label htmlFor='mobile navigation bar' className='md:hidden ml-auto cursor-pointer'>
+          <span className='sr-only'>Open mobile navigation</span>
           <div className='w-[20px] h-[20px] relative flex flex-col justify-between'>
-            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:rotate-45'></span>
-            <span className='w-full h-[2px] bg-current peer-checked:opacity-0 transition-opacity'></span>
-            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:-rotate-45'></span>
+            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:rotate-45' />
+            <span className='w-full h-[2px] bg-current peer-checked:opacity-0 transition-opacity' />
+            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:-rotate-45' />
           </div>
         </label>
       </header>
 
       {/* Mobile Menu Overlay */}
-      <div className='fixed inset-0 bg-black/50 opacity-0 peer-checked:opacity-100 pointer-events-none peer-checked:pointer-events-auto transition-opacity md:hidden z-10'></div>
+      <div className='fixed inset-0 bg-black/50 opacity-0 peer-checked:opacity-100 pointer-events-none peer-checked:pointer-events-auto transition-opacity md:hidden z-10' />
 
       {/* Mobile Navigation */}
       <nav className='fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg transform translate-x-full peer-checked:translate-x-0 transition-transform md:hidden z-10'>
         <div className='flex flex-col gap-4 p-4'>
           {HEADER_ROUTES.map(({ label, name }) => {
+            const route = ROUTES[name!]
             return (
-              <AppLink
-                key={ROUTES[name]}
-                href={ROUTES[name]}
-                className='capitalize hover:text-blue-600 transition-colors'
-              >
+              <AppLink key={route} href={route} className='capitalize hover:text-blue-600 transition-colors'>
                 {label}
               </AppLink>
             )
