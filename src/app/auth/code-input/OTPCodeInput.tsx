@@ -29,7 +29,7 @@ const OTPCodeInput: React.FC = () => {
     phoneNumberRef.current = localStorage.getItem('phoneNumber')!
   }, [])
 
-  const onOTPCodeSubmit: OTPProps['onSubmit'] = () => {}
+  const onOTPCodeSubmit: OTPProps['onSubmit'] = () => { }
 
   const onOTPCodeChange: OTPProps['onChange'] = async (value) => {
     if (!phoneNumberRef.current) {
@@ -117,8 +117,7 @@ const OTPCodeInput: React.FC = () => {
               value={countDownDeadline}
               onFinish={onFinish}
               onChange={onCountdownChange}
-              className='text-xs! absolute right-[6px]'
-              style={{ fontSize: 6 }}
+              className='absolute right-[6px]'
               format='ss'
             />
           )}

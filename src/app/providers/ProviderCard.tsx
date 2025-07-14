@@ -1,3 +1,5 @@
+'use client'
+
 import { FC } from 'react'
 import { Card, Image } from 'antd'
 import Meta from 'antd/es/card/Meta'
@@ -17,6 +19,9 @@ export const ProviderCard: FC<Props> = ({ data }) => {
         <Image
           alt="example"
           src="https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg"
+        // preview={{
+        //   toolbarRender: () => null,
+        // }}
         />
       }
     >

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
@@ -30,6 +30,55 @@ const SignOnForm: React.FC = () => {
       push(ROUTES.codeInput)
     },
   })
+
+  // Auto-detect user's country
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        // Only set country if not already set
+        if (formik.values.countryCode) return
+
+        // Try to get country from IP geolocation
+        const response = await fetch('https://ipapi.co/json/')
+        const data = await response.json()
+
+        if (data.country_code) {
+          const countryCode = data.country_code.toUpperCase()
+          // Check if the detected country is in our countries list
+          const countryExists = countries.some(country => country.value === countryCode)
+
+          if (countryExists) {
+            formik.setFieldValue('countryCode', countryCode)
+            form.setFieldValue('countryCode', countryCode)
+          }
+        }
+      } catch (_error) {
+        console.warn('Could not detect country from https://ipapi.co/json/. Falling back to browser locale.')
+        // Fallback to browser locale if IP detection fails
+        try {
+          const locale = navigator.language || navigator.languages[0]
+          const countryCode = locale.split('-')[1]?.toUpperCase()
+
+          if (countryCode) {
+            const countryExists = countries.some(country => country.value === countryCode)
+            if (countryExists) {
+              formik.setFieldValue('countryCode', countryCode)
+              form.setFieldValue('countryCode', countryCode)
+            }
+          } else {
+            console.warn('Could not extract country code from locale:', locale)
+          }
+        } catch (fallbackError) {
+          console.warn('Could not detect country:', fallbackError)
+        }
+      }
+    }
+
+    // Only run detection if countries are loaded
+    if (countries.length > 0) {
+      detectCountry()
+    }
+  }, [countries, formik, form])
 
   const handleCountryChange = useCallback(
     (value: string) => {
@@ -98,17 +147,17 @@ const SignOnForm: React.FC = () => {
         <Flex>
           <Form.Item<RegistrationFormValues>
             name='countryCode'
-            messageVariables={{ label: 'country' }}
+            messageVariables={{ label: 'Country Code' }}
             rules={FORM_ITEM_REQUIRED_RULE_SET}
             validateTrigger={['onChange']}
-            className='mb-0! mr-0'
+            className='mb-0! mr-0 w-[130px]'
           >
             <Select
               value={formik.values.countryCode}
               labelRender={(option) => option.label}
               onChange={handleCountryChange}
               options={countries}
-              className='custom-antd-select border-r-0! h-[56px]! w-[112px]! bg-transparent!'
+              className='custom-antd-select border-r-0! h-[56px]! bg-transparent! d-block w-full!'
               disabled={isPending}
             />
           </Form.Item>
@@ -132,7 +181,7 @@ const SignOnForm: React.FC = () => {
         </Flex>
       </Form.Item>
 
-      <Button type='primary' variant='solid' htmlType='submit' className='w-full py-[24px]!'>
+      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!'>
         Send Verification Code
       </Button>
     </Form>
