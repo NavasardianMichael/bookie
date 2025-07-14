@@ -37,7 +37,6 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
 }
 
 const Provider = async ({ params }: Props) => {
-  console.log({ params: await params })
   const provider = await getProviderAPI({
     id: (await params).providerId,
   })

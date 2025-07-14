@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react'
 import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
-import { getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
+import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
@@ -26,6 +26,8 @@ const SignOnForm: React.FC = () => {
     validateOnChange: false,
     onSubmit: async (values) => {
       await getCodeByPhoneNumber(values)
+      const countryCode = getCountryCallingCode(values.countryCode!)
+      localStorage.setItem('countryCode', countryCode)
       localStorage.setItem('phoneNumber', values.phoneNumber)
       push(ROUTES.codeInput)
     },
@@ -52,30 +54,29 @@ const SignOnForm: React.FC = () => {
     [formik.values.countryCode]
   )
 
-  const formatPhoneNumber = useCallback(
-    (value: string) => {
-      if (!value || !formik.values.countryCode) return value
-      try {
-        const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`
-        const phoneNumber = parsePhoneNumberWithError(fullNumber)
-        return phoneNumber
-          .formatNational()
-          .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
-          .trim()
-      } catch (_error) {
-        return value
-      }
-    },
-    [formik.values.countryCode]
-  )
+  // const formatPhoneNumber = useCallback(
+  //   (value: string) => {
+  //     if (!value || !formik.values.countryCode) return value
+  //     try {
+  //       const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`
+  //       const phoneNumber = parsePhoneNumberWithError(fullNumber)
+  //       return phoneNumber
+  //         .formatNational()
+  //         .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
+  //         .trim()
+  //     } catch (_error) {
+  //       return value
+  //     }
+  //   },
+  //   [formik.values.countryCode]
+  // )
 
   const handlePhoneNumberChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const formattedValue = formatPhoneNumber(e.target.value)
       form.setFields([{ name: 'phoneNumber', errors: [] }])
-      formik.setFieldValue('phoneNumber', formattedValue)
+      formik.setFieldValue('phoneNumber', e.target.value)
     },
-    [formatPhoneNumber, formik, form]
+    [formik, form]
   )
 
   // Create placeholder text for the phone input

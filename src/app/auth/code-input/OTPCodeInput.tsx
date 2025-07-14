@@ -7,10 +7,12 @@ import Paragraph from 'antd/es/typography/Paragraph'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { ROUTES } from '@constants/routes'
+import { combineClassNames } from '@helpers/commons'
+import styles from './countdown.module.css'
 
 const { Countdown } = Statistic
 
-const COUNTDOWN_DURATION = 5_000
+const COUNTDOWN_DURATION = 60_000
 
 const OTPCodeInput: React.FC = () => {
   const { replace } = useRouter()
@@ -20,13 +22,12 @@ const OTPCodeInput: React.FC = () => {
   const [countdownValue, setCountdownValue] = useState<number>(COUNTDOWN_DURATION)
   const onFinish = () => {
     setShowResendButton(true)
-    setCountdownValue(COUNTDOWN_DURATION)
   }
   const phoneNumberRef = useRef<string | undefined>(undefined)
   const [countDownDeadline, setCountDownDeadline] = useState(Date.now() + COUNTDOWN_DURATION)
 
   useEffect(() => {
-    phoneNumberRef.current = localStorage.getItem('phoneNumber')!
+    phoneNumberRef.current = `+${localStorage.getItem('countryCode')!}${localStorage.getItem('phoneNumber')!}`
   }, [])
 
   const onOTPCodeSubmit: OTPProps['onSubmit'] = () => {}
@@ -53,16 +54,19 @@ const OTPCodeInput: React.FC = () => {
       setAuthState({ error: err as Error })
       setCode('')
       setShowResendButton(true)
+      // ERROR HANDLING
+      replace(ROUTES.profileCreated)
     }
   }
 
-  const onResendButtonClick: MouseEventHandler<HTMLElement> = () => {
+  const onResendButtonClick: MouseEventHandler<HTMLElement> = async () => {
     const phoneNumber = localStorage.getItem('phoneNumber')
     if (!phoneNumber) {
       console.error('Phone number not found in local storage.')
       return
     }
-    getCodeByPhoneNumber({ phoneNumber })
+    setCountdownValue(COUNTDOWN_DURATION)
+    await getCodeByPhoneNumber({ phoneNumber })
     setCode('')
     setShowResendButton(false)
     setCountDownDeadline(Date.now() + COUNTDOWN_DURATION)
@@ -81,19 +85,15 @@ const OTPCodeInput: React.FC = () => {
       },
     ]
   }, [error, setAuthState])
-  console.log({ countDownDeadline })
 
   const onCountdownChange: CountdownProps['onChange'] = (value) => {
     setCountdownValue(+value!)
-  }
-  if (countdownValue <= 0) {
-    console.log({ countdownValue })
   }
 
   return (
     <>
       <Paragraph type='secondary' className='text-center mb-0!'>
-        Please confirm code sent to your {phoneNumberRef.current} phone number.
+        Please confirm code sent to your <strong>{phoneNumberRef.current}</strong> phone number.
       </Paragraph>
       <Flex vertical align='center' justify='center' gap={8}>
         <Form.Item rules={OTPCodeValidationRules}>
@@ -107,7 +107,7 @@ const OTPCodeInput: React.FC = () => {
 
         <Button
           onClick={onResendButtonClick}
-          className='relative w-full h-[56px]!'
+          className='relative w-full h-[56px]! bg-bookie-gray! text-bookie-blue!'
           size='large'
           disabled={isPending || !showResendButton}
         >
@@ -117,9 +117,8 @@ const OTPCodeInput: React.FC = () => {
               value={countDownDeadline}
               onFinish={onFinish}
               onChange={onCountdownChange}
-              className='text-xs! absolute right-[6px]'
-              style={{ fontSize: 6 }}
-              format='ss'
+              className={combineClassNames('absolute right-[6px]', styles.countdown)}
+              format='mm:ss'
             />
           )}
         </Button>

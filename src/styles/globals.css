@@ -8,21 +8,6 @@
 @theme {
   --color-bookie-blue: var(--primary-color);
   --color-bookie-gray: var(--secondary-color);
-  --color-bookie-blue-light: #3b4a6b;
-  --color-bookie-blue-dark: #0f1b2f;
-  --color-bookie-gray-light: #f5f5f5;
-  --color-bookie-gray-dark: #8a8a8a;
-
-  /* Additional custom colors */
-  --color-bookie-accent: #ff6b6b;
-  --color-bookie-success: #51cf66;
-  --color-bookie-warning: #ffd43b;
-  --color-bookie-danger: #ff6b6b;
-
-  /* --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono); */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,49 +24,4 @@ body {
 
 /* Custom utility classes */
 @layer utilities {
-  .bg-bookie-gradient {
-    background: linear-gradient(135deg, var(--color-bookie-blue) 0%, var(--color-bookie-blue-light) 100%);
-  }
-
-  .text-bookie-primary {
-    color: var(--color-bookie-blue);
-  }
-
-  .text-bookie-secondary {
-    color: var(--color-bookie-gray);
-  }
-
-  .border-bookie-primary {
-    border-color: var(--color-bookie-blue);
-  }
-
-  .shadow-bookie {
-    box-shadow:
-      0 4px 6px -1px rgba(24, 41, 77, 0.1),
-      0 2px 4px -1px rgba(24, 41, 77, 0.06);
-  }
-
-  .btn-bookie-primary {
-    background-color: var(--color-bookie-blue);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    transition: background-color 0.2s ease-in-out;
-  }
-
-  .btn-bookie-primary:hover {
-    background-color: var(--color-bookie-blue-dark);
-  }
-
-  .btn-bookie-secondary {
-    background-color: var(--color-bookie-gray);
-    color: var(--color-bookie-blue);
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    transition: background-color 0.2s ease-in-out;
-  }
-
-  .btn-bookie-secondary:hover {
-    background-color: var(--color-bookie-gray-dark);
-  }
 }

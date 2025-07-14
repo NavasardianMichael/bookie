@@ -7,5 +7,40 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "todo-tree.general.tags": ["TODO", "FIXME", "HACK", "BUG", "NOTE", "XXX", "ERROR HANDLING"],
+  "todo-tree.highlights.defaultHighlight": {
+    "icon": "alert",
+    "type": "tag",
+    "foreground": "#ff0000",
+    "background": "#ffffff",
+    "opacity": 50,
+    "iconColour": "#0000ff"
+  },
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "foreground": "#000000",
+      "background": "#ffff00",
+      "iconColour": "#ffff00"
+    },
+    "FIXME": {
+      "icon": "bug",
+      "foreground": "#ffffff",
+      "background": "#ff0000",
+      "iconColour": "#ff0000"
+    },
+    "ERROR HANDLING": {
+      "icon": "flame",
+      "foreground": "#ffffff",
+      "background": "#ff0000",
+      "iconColour": "#ff0000"
+    },
+    "ERRORS": {
+      "icon": "flame",
+      "foreground": "#ffffff",
+      "background": "#ff0000",
+      "iconColour": "#ff0000"
+    }
+  }
 }

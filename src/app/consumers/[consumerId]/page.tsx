@@ -8,9 +8,8 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-export const generateMetadata = async ({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
+export const generateMetadata = async ({ params }: Props, _parent: ResolvingMetadata): Promise<Metadata> => {
   const { consumerId } = await params
-  console.log(await parent)
 
   return {
     title: `Consumer page with an id ${consumerId}`,
