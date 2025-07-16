@@ -8,7 +8,7 @@ const AppLink: FC<PropsWithChildren<Props>> = ({ children, ...props }) => {
   return (
     <Link
       {...props}
-      className={combineClassNames("bookie-blue", props.className)}
+      className={combineClassNames("text-bookie-blue", props.className)}
     >
       {children}
     </Link>

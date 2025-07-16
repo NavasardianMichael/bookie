@@ -5,7 +5,6 @@ import Paragraph from 'antd/es/typography/Paragraph'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { USER_TYPES } from '@constants/auth'
-import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
 import { ROUTES } from '@constants/routes'
 
 type AccountTypeFormValues = {
@@ -26,12 +25,11 @@ const ACCOUNT_TYPE_OPTIONS: CheckboxOptionType[] = [
 ]
 
 const ACCOUNT_TYPE_FORM_INITIAL_VALUES: AccountTypeFormValues = {
-  accountType: ACCOUNT_TYPE_OPTIONS[0].value,
+  accountType: ACCOUNT_TYPE_OPTIONS[1].value,
 }
 
 const AccountTypeButtons: React.FC = () => {
   const { push } = useRouter()
-  const [form] = Form.useForm()
 
   const formik = useFormik<AccountTypeFormValues>({
     initialValues: ACCOUNT_TYPE_FORM_INITIAL_VALUES,
@@ -43,20 +41,21 @@ const AccountTypeButtons: React.FC = () => {
   })
 
   return (
-    <Form form={form} layout='vertical' onFinish={formik.handleSubmit} className='w-full h-full flex'>
+    <Form layout='vertical' onFinish={formik.handleSubmit} className='w-full h-full flex'>
       <Flex vertical gap={8} justify='center'>
-        <Form.Item name='accountType' rules={FORM_ITEM_REQUIRED_RULE_SET} className='mb-0! w-full'>
+        <Form.Item name='accountType' className='mb-0! w-full'>
           <Radio.Group
             options={ACCOUNT_TYPE_OPTIONS}
             optionType='button'
             buttonStyle='solid'
             size='large'
             className='w-full flex! gap-2!'
+            defaultValue={ACCOUNT_TYPE_OPTIONS[1].value}
             value={formik.values.accountType}
             onChange={(e) => formik.setFieldValue('accountType', e.target.value)}
           />
         </Form.Item>
-        {}
+        { }
         <Flex vertical className='w-full h-full grow!' justify='space-between'>
           <img src='/logo.svg' alt='Bookie logo' className='h-[200px] md:h-[400px] object-cover m-auto' />
 

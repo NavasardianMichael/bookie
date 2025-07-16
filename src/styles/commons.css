@@ -4,7 +4,7 @@
 }
 
 /* SM: 576px and up */
-@media (min-width: 576px) {
+@media (max-width: 767px) {
   :root {
     --app-responsive-gap: calc(var(--app-spacing-base) * 1 / 2);
     --app-responsive-flex-item-width: 50%;

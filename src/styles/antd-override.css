@@ -5,3 +5,7 @@
     border-right: 0 !important;
   }
 }
+
+.ant-form-item-control:has(.custom-antd-select) .ant-form-item-explain-error {
+  margin-right: 4px !important;
+}

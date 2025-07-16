@@ -2,12 +2,12 @@ import { Endpoint } from '@interfaces/api'
 
 export type GetCodeByPhoneNumberAPI = Endpoint<{
   payload: { phoneNumber: string }
-  response: void
+  response: boolean
   processed: void
 }>
 
 export type ValidatePhoneNumberCodeAPI = Endpoint<{
   payload: { phoneNumber: string; code: number }
-  response: void
+  response: boolean
   processed: void
 }>
