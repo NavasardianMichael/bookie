@@ -4,9 +4,10 @@ import { ENDPOINTS } from './endpoints'
 import { processGetCodeResponse } from './processors'
 import { GetCodeByPhoneNumberAPI, ValidatePhoneNumberCodeAPI } from './types'
 
-export const getCodeByPhoneNumberAPI: GetCodeByPhoneNumberAPI['api'] = async () => {
+export const getCodeByPhoneNumberAPI: GetCodeByPhoneNumberAPI['api'] = async (params) => {
   const { data } = await axiosInstance.post<APIResponse<GetCodeByPhoneNumberAPI['response']>>(
-    ENDPOINTS.getCodeByPhoneNumber
+    ENDPOINTS.getCodeByPhoneNumber,
+    params
   )
   const processedResponse = processGetCodeResponse(data)
   return processedResponse
