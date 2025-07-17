@@ -47,7 +47,7 @@ const SignOnForm: React.FC = () => {
         if (data.country_code) {
           const countryCode = data.country_code.toUpperCase()
           // Check if the detected country is in our countries list
-          const countryExists = countries.some(country => country.value === countryCode)
+          const countryExists = countries.some((country) => country.value === countryCode)
 
           if (countryExists) {
             formik.setFieldValue('countryCode', countryCode)
@@ -62,7 +62,7 @@ const SignOnForm: React.FC = () => {
           const countryCode = locale.split('-')[1]?.toUpperCase()
 
           if (countryCode) {
-            const countryExists = countries.some(country => country.value === countryCode)
+            const countryExists = countries.some((country) => country.value === countryCode)
             if (countryExists) {
               formik.setFieldValue('countryCode', countryCode)
               form.setFieldValue('countryCode', countryCode)
@@ -182,7 +182,7 @@ const SignOnForm: React.FC = () => {
         </Flex>
       </Form.Item>
 
-      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!'>
+      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
         Send Verification Code
       </Button>
     </Form>

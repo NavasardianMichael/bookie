@@ -31,11 +31,6 @@ const useAuthStoreBase = create<AuthState & AuthActions>()(
         getCodeByPhoneNumber: async (payload) => {
           set({ phoneNumber: payload.phoneNumber, isPending: true })
           await getCodeByPhoneNumberAPI(payload)
-
-          // const nextStepName = NEXT_SIGN_ON_STEP_BY_CURRENT[state.step]
-          // if (!nextStepName) return
-          // const nextStepPath = SIGN_ON_STEP_PATH[nextStepName]
-          // state.step = nextStepName
           set({ isPending: false })
         },
         validatePhoneNumberCode: async (payload) => {

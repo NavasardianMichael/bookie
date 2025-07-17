@@ -119,6 +119,7 @@ const OTPCodeInput: React.FC = () => {
               onChange={onCountdownChange}
               className={combineClassNames('absolute right-[6px]', styles.countdown)}
               format='mm:ss'
+              loading={isPending}
             />
           )}
         </Button>

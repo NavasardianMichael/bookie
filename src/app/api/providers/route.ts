@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DB } from '@api/_shared/db'
-import { GetCodeByPhoneNumberAPI } from '@api/auth/types'
+import { GetProvidersListAPI } from '@api/providers/types'
 import { APIResponse } from '@interfaces/api'
 import { sleep } from '@helpers/commons'
 
-export const POST = async (request: NextRequest) => {
+export const GET = async (_request: NextRequest) => {
   try {
-    const payload: GetCodeByPhoneNumberAPI['payload'] = await request.json()
-
-    console.log('Received payload:', payload)
-    const response: APIResponse<GetCodeByPhoneNumberAPI['response']> = {
+    const response: APIResponse<GetProvidersListAPI['response']> = {
       error: null,
-      value: DB.getCodeByPhoneNumber,
+      value: DB.providers.map((provider) => {
+        return {
+          id: provider.id,
+          basic: {
+            firstName: provider.basic.firstName,
+            lastName: provider.basic.lastName,
+            image: provider.basic.image,
+            category: provider.basic.category,
+          },
+        }
+      }),
     }
     await sleep(2000)
     return new NextResponse(JSON.stringify(response), { status: 200, headers: { 'Content-Type': 'application/json' } })

@@ -1,8 +1,29 @@
-export async function POST(_request: Request) {
+import { NextRequest, NextResponse } from 'next/server'
+import { DB } from '@api/_shared/db'
+import { ValidatePhoneNumberCodeAPI } from '@api/auth/types'
+import { APIResponse } from '@interfaces/api'
+import { sleep } from '@helpers/commons'
+
+export const POST = async (request: NextRequest) => {
   try {
-    // const payload: GetWordAPI['payload'] = await request.json()
-    return new Response()
-  } catch (error) {
-    return new Response(JSON.stringify(error), { status: 500 })
+    const payload: ValidatePhoneNumberCodeAPI['payload'] = await request.json()
+
+    console.log('Received payload:', payload)
+    const response: APIResponse<ValidatePhoneNumberCodeAPI['response']> = {
+      error: null,
+      value: DB.validatePhoneNumberCode,
+    }
+    await sleep(2000)
+    return new NextResponse(JSON.stringify(response), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  } catch (e) {
+    const error = e instanceof Error ? e : new Error('Unknown error occurred')
+    console.log('Error processing request:', error)
+    return new NextResponse(
+      JSON.stringify({
+        error: error.message,
+        value: null,
+      }),
+      { status: 500 }
+    )
   }
 }
