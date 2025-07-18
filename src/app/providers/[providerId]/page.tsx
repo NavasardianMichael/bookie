@@ -4,8 +4,6 @@ import { Provider as ProviderType } from '@store/providers/profile/types'
 import '@styles/full-calendar-override.css'
 import ProviderDetails from './components/Details'
 
-import '@fullcalendar/core'
-
 type Props = {
   params: Promise<{
     providerId: ProviderType['id']
@@ -14,8 +12,9 @@ type Props = {
 }
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+  const { providerId } = await params
   const provider = await getProviderAPI({
-    id: (await params).providerId,
+    id: providerId,
   })
   const { basic, details } = provider
 
@@ -37,8 +36,10 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
 }
 
 const Provider = async ({ params }: Props) => {
+  const { providerId } = await params
+
   const provider = await getProviderAPI({
-    id: (await params).providerId,
+    id: providerId,
   })
 
   return (

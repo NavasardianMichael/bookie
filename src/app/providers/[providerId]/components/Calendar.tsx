@@ -10,6 +10,8 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import dayjs from 'dayjs'
 import { useProviderStore } from '@store/providers/single/store'
 
+import '@fullcalendar/core'
+
 const ProviderCalendar = () => {
   const basicProvider = useProviderStore.use.basic()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -53,10 +55,10 @@ const ProviderCalendar = () => {
   }
 
   return (
-    <div className="h-[800px]">
+    <div className='h-[800px]'>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-        initialView="timeGridDay"
+        initialView='timeGridDay'
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
@@ -65,8 +67,8 @@ const ProviderCalendar = () => {
         events={selectedDate ? generateTimeSlots(selectedDate) : []}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
-        slotMinTime="00:00:00"
-        slotMaxTime="24:00:00"
+        slotMinTime='00:00:00'
+        slotMaxTime='24:00:00'
         allDaySlot={false}
         selectable={true}
         selectMirror={true}
@@ -74,8 +76,8 @@ const ProviderCalendar = () => {
         weekends={true}
         noEventsText={`${basicProvider.firstName} ${basicProvider.lastName} has no any registered slots for now.`}
         nowIndicator={true}
-        height="100%"
-        slotDuration="00:30:00"
+        height='100%'
+        slotDuration='00:30:00'
         stickyHeaderDates={true}
         validRange={{
           start: new Date(),
