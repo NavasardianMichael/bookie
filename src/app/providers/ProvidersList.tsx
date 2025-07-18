@@ -14,8 +14,6 @@ export const ProvidersList = () => {
   return (
     <div className='app-responsive-flex'>
       {list.allIds.map((providerId) => {
-        console.log({ providerId });
-
         const provider = list.byId[providerId!]
         return <ProviderCard key={provider.id} data={provider} />
       })}

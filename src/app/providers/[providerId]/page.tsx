@@ -24,14 +24,9 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
   return {
     title: `Bookie | ${basic.category} | ${provider.basic.firstName} ${provider.basic.lastName}${organizationTitleText}`,
     description: `Welcome to ${provider.basic.firstName} ${provider.basic.lastName}'s profile page${organizationDescriptionText}`,
-    keywords: `${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.address}, ${provider.details.phone}, ${provider.details.email}`,
-    classification: `${basic.category}`,
-    authors: [
-      {
-        name: 'Michael Navasardyan',
-        url: 'https://www.linkedin.com/in/michael-navasardyan/',
-      },
-    ],
+    keywords: `Bookie, ${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.address}, ${provider.details.phone}, ${provider.details.email}`,
+    classification: basic.category,
+
   }
 }
 
@@ -43,25 +38,38 @@ const Provider = async ({ params }: Props) => {
   })
 
   return (
-    <article className='max-w-2xl mx-auto flex flex-col gap-4'>
-      <h2 className='text-2xl mb-0'>
-        {provider.basic.category} | {provider.basic.firstName} {provider.basic.lastName}
-      </h2>
-      <ul className='list-none p-0 m-0 text-sm'>
-        <li>
-          <strong>Phone:</strong> {provider.details.phone}
-        </li>
-        <li>
-          <strong>Country:</strong> {provider.details.country}
-        </li>
-        <li>
-          <strong>Address:</strong> {provider.details.address}
-        </li>
-        <li>
-          <strong>Email:</strong> {provider.details.email}
-        </li>
-      </ul>
-      <ProviderDetails initialState={provider} />
+    <article className='flex flex-col gap-4 w-full'>
+      <section className='flex gap-4'>
+        <div className='flex flex-col gap-4 grow text-xs!'>
+          <h2 className='text-xl mb-0 font-bold'>
+            {provider.basic.firstName} {provider.basic.lastName}
+          </h2>
+          <h3 className='text-lg mb-0'>
+            {provider.basic.category}
+          </h3>
+          <h4>
+            {provider.details.organization?.name || 'No organization'}
+          </h4>
+          <ul className='text-sm list-none p-0 m-0'>
+            <li>
+              <strong>Phone:</strong> <a href={`tel:${provider.details.phone}`} target='_blank'>{provider.details.phone}</a>
+            </li>
+            <li>
+              <strong>Country:</strong> {provider.details.country}
+            </li>
+            <li>
+              <strong>Address:</strong> {provider.details.address}
+            </li>
+            <li>
+              <strong>Email:</strong> <a href={`mailto:${provider.details.email}`} target='_blank'>{provider.details.email}</a>
+            </li>
+          </ul>
+        </div>
+        <img src={provider.basic.image} alt={`${provider.basic.firstName} ${provider.basic.lastName}`} className='w-full object-cover' />
+      </section>
+      <section>
+        <ProviderDetails initialState={provider} />
+      </section>
     </article>
   )
 }

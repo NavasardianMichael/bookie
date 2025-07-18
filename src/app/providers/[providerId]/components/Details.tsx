@@ -21,7 +21,7 @@ const ProviderDetails: FC<Props> = ({ initialState }) => {
 
   return (
     <>
-      <h3 className='mb-0'>Provider Details</h3>
+      {/* <h3 className='mb-0'>Provider Details</h3> */}
       <ProviderCalendar />
     </>
   )

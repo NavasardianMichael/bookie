@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Button, Flex, Form, Input, Select } from 'antd'
 import { useFormik } from 'formik'
-import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
+import { getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
@@ -26,61 +26,10 @@ const SignOnForm: React.FC = () => {
     validateOnChange: false,
     onSubmit: async (values) => {
       await getCodeByPhoneNumber(values)
-      const countryCode = getCountryCallingCode(values.countryCode!)
-      localStorage.setItem('countryCode', countryCode)
       localStorage.setItem('phoneNumber', values.phoneNumber)
       push(ROUTES.codeInput)
     },
   })
-
-  // Auto-detect user's country
-  useEffect(() => {
-    const detectCountry = async () => {
-      try {
-        // Only set country if not already set
-        if (formik.values.countryCode) return
-
-        // Try to get country from IP geolocation
-        const response = await fetch('https://ipapi.co/json/')
-        const data = await response.json()
-
-        if (data.country_code) {
-          const countryCode = data.country_code.toUpperCase()
-          // Check if the detected country is in our countries list
-          const countryExists = countries.some((country) => country.value === countryCode)
-
-          if (countryExists) {
-            formik.setFieldValue('countryCode', countryCode)
-            form.setFieldValue('countryCode', countryCode)
-          }
-        }
-      } catch (_error) {
-        console.warn('Could not detect country from https://ipapi.co/json/. Falling back to browser locale.')
-        // Fallback to browser locale if IP detection fails
-        try {
-          const locale = navigator.language || navigator.languages[0]
-          const countryCode = locale.split('-')[1]?.toUpperCase()
-
-          if (countryCode) {
-            const countryExists = countries.some((country) => country.value === countryCode)
-            if (countryExists) {
-              formik.setFieldValue('countryCode', countryCode)
-              form.setFieldValue('countryCode', countryCode)
-            }
-          } else {
-            console.warn('Could not extract country code from locale:', locale)
-          }
-        } catch (fallbackError) {
-          console.warn('Could not detect country:', fallbackError)
-        }
-      }
-    }
-
-    // Only run detection if countries are loaded
-    if (countries.length > 0) {
-      detectCountry()
-    }
-  }, [countries, formik, form])
 
   const handleCountryChange = useCallback(
     (value: string) => {
@@ -103,29 +52,30 @@ const SignOnForm: React.FC = () => {
     [formik.values.countryCode]
   )
 
-  // const formatPhoneNumber = useCallback(
-  //   (value: string) => {
-  //     if (!value || !formik.values.countryCode) return value
-  //     try {
-  //       const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`
-  //       const phoneNumber = parsePhoneNumberWithError(fullNumber)
-  //       return phoneNumber
-  //         .formatNational()
-  //         .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
-  //         .trim()
-  //     } catch (_error) {
-  //       return value
-  //     }
-  //   },
-  //   [formik.values.countryCode]
-  // )
+  const formatPhoneNumber = useCallback(
+    (value: string) => {
+      if (!value || !formik.values.countryCode) return value
+      try {
+        const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`
+        const phoneNumber = parsePhoneNumberWithError(fullNumber)
+        return phoneNumber
+          .formatNational()
+          .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
+          .trim()
+      } catch (_error) {
+        return value
+      }
+    },
+    [formik.values.countryCode]
+  )
 
   const handlePhoneNumberChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
+      const formattedValue = formatPhoneNumber(e.target.value)
       form.setFields([{ name: 'phoneNumber', errors: [] }])
-      formik.setFieldValue('phoneNumber', e.target.value)
+      formik.setFieldValue('phoneNumber', formattedValue)
     },
-    [formik, form]
+    [formatPhoneNumber, formik, form]
   )
 
   // Create placeholder text for the phone input
@@ -182,7 +132,7 @@ const SignOnForm: React.FC = () => {
         </Flex>
       </Form.Item>
 
-      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
+      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!'>
         Send Verification Code
       </Button>
     </Form>

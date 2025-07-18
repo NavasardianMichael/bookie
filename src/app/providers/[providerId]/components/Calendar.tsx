@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { EventClickArg, EventInput } from '@fullcalendar/core'
+import { useMemo, useState } from 'react'
+import { CalendarOptions, EventClickArg, EventInput } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
@@ -10,10 +10,11 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import dayjs from 'dayjs'
 import { useProviderStore } from '@store/providers/single/store'
 
+// import ViewsDropdown from './ViewsDropdown'
 import '@fullcalendar/core'
 
 const ProviderCalendar = () => {
-  const basicProvider = useProviderStore.use.basic()
+  const { basic: basicProvider } = useProviderStore()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   // Generate time slots for the selected date
@@ -54,21 +55,29 @@ const ProviderCalendar = () => {
     })
   }
 
+  const headerToolbar: CalendarOptions['headerToolbar'] = useMemo(() => {
+    return {
+      left: 'prev',
+      // center: 'title',
+      center: 'today',
+      // right: 'viewsDropdown',
+      right: 'next',
+      // right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    }
+  }, [])
+
   return (
     <div className='h-[800px]'>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
         initialView='timeGridDay'
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
-        }}
+        headerToolbar={headerToolbar}
         events={selectedDate ? generateTimeSlots(selectedDate) : []}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
         slotMinTime='00:00:00'
         slotMaxTime='24:00:00'
+        locale={'hy-am'}
         allDaySlot={false}
         selectable={true}
         selectMirror={true}
@@ -77,6 +86,9 @@ const ProviderCalendar = () => {
         noEventsText={`${basicProvider.firstName} ${basicProvider.lastName} has no any registered slots for now.`}
         nowIndicator={true}
         height='100%'
+        // customButtons={{
+        //   viewDropdown: <ViewsDropdown />
+        // }}
         slotDuration='00:30:00'
         stickyHeaderDates={true}
         validRange={{

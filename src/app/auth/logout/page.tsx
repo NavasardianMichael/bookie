@@ -4,8 +4,8 @@ import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Register',
-  description: 'Create a new account and start the journey with Bookie',
+  title: 'Bookie | Log out',
+  description: 'Log out from your Bookie account',
 }
 
 const Logout: React.FC = () => (

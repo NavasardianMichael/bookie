@@ -18,7 +18,7 @@ export const BackHistoryBtn = () => {
     router.back()
   }, [router])
 
-  if (!headerUtils?.arrow) return null
+  if (headerUtils?.logo) return null
 
   return <Button type='text' onClick={handleBackClick} icon={<ArrowLeftOutlined style={{ fontSize: 20 }} />} />
 }

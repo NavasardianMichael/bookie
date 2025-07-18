@@ -6,8 +6,8 @@ import Image from 'next/image'
 import profileVerifiedImage from '@assets/images/verified_icon.png'
 
 export const metadata: Metadata = {
-  title: 'Register',
-  description: 'Create a new account and start the journey with Bookie',
+  title: 'Bookie | Profile Created',
+  description: 'Your profile has been successfully created!',
 }
 
 const ProfileCreated: React.FC = () => {

@@ -17,11 +17,8 @@ export const ProviderCard: FC<Props> = ({ data }) => {
     <Card
       cover={
         <Image
-          alt="example"
-          src="https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg"
-        // preview={{
-        //   toolbarRender: () => null,
-        // }}
+          alt={`${data.basic.firstName} ${data.basic.lastName}`}
+          src={data.basic.image}
         />
       }
     >

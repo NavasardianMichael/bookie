@@ -55,7 +55,6 @@ export const Header = () => {
         <nav className='hidden md:flex gap-4 ml-auto'>
           {HEADER_ROUTES.map(({ label, name }) => {
             const route = ROUTES[name!]
-            console.log({ route });
 
             return (
               <AppLink key={route} href={route} className='capitalize hover:text-blue-600 transition-colors'>

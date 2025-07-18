@@ -8,6 +8,12 @@ import '@styles/globals.css'
 export const metadata: Metadata = {
   title: 'Bookie',
   description: 'Your Booking Platform Forever',
+  authors: [
+    {
+      name: 'Michael Navasardyan',
+      url: 'https://www.linkedin.com/in/michael-navasardyan/',
+    },
+  ],
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

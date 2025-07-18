@@ -4,9 +4,10 @@ import { GetProviderAPI } from '@api/providers/types'
 import { APIResponse } from '@interfaces/api'
 import { sleep } from '@helpers/commons'
 
-export const GET = async (_request: NextRequest, context: { params: { providerId: string } }) => {
+export const GET = async (_request: NextRequest, context: { params: Promise<{ providerId: string }> }) => {
   try {
-    const provider = DB.providers.find((provider) => provider.id === context.params.providerId)
+    const providerId = (await context.params).providerId
+    const provider = DB.providers.find((provider) => provider.id === providerId)
     await sleep(2000)
 
     if (!provider) {
