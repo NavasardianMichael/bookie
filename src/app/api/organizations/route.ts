@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { DB } from '@api/_shared/db'
 import { GetOrganizationsListAPI } from '@api/organizations/types'
 import { APIResponse } from '@interfaces/api'
 import { sleep } from '@helpers/commons'
@@ -7,8 +8,9 @@ export const GET = async (_request: NextRequest) => {
   try {
     const response: APIResponse<GetOrganizationsListAPI['response']> = {
       error: null,
-      value: [],
+      value: DB.organizations,
     }
+
     await sleep(2000)
     return new NextResponse(JSON.stringify(response), { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (e) {

@@ -1,5 +1,5 @@
 export const ENDPOINTS = {
   getProvidersList: '/providers',
-  getBasicProvider: '/providers',
+  getProvider: '/providers',
   profile: 'providerProfile/',
 } as const

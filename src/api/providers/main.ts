@@ -12,12 +12,11 @@ export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
 
 export const getProviderAPI: GetProviderAPI['api'] = async (args) => {
   console.log({ args })
-  console.log('Fetching provider with ID:', `${ENDPOINTS.getBasicProvider}/${args.id}`)
+  console.log('Fetching provider with ID:', `${ENDPOINTS.getProvider}/${args.id}`)
 
   const { data } = await axiosInstance.get<APIResponse<GetProviderAPI['response']>>(
-    `${ENDPOINTS.getBasicProvider}/${args.id}`
+    `${ENDPOINTS.getProvider}/${args.id}`
   )
-  console.log({ data })
 
   const processedResponse = processProviderResponse(data)
   return processedResponse

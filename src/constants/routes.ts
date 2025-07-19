@@ -4,6 +4,7 @@ export const ROUTE_KEYS = {
   providerCategories: 'providerCategories',
   providers: 'providers',
   consumers: 'consumers',
+  organizations: 'organizations',
   consumerProfile: 'consumerProfile',
   providerProfile: 'providerProfile',
 
@@ -29,6 +30,7 @@ export const ROUTES = {
   [ROUTE_KEYS.consumers]: '/consumers',
   [ROUTE_KEYS.consumerProfile]: '/consumers/profile',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
+  [ROUTE_KEYS.organizations]: '/organizations',
 
   // Auth
   [ROUTE_KEYS.signOn]: '/auth/sign-on',

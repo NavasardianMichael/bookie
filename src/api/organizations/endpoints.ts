@@ -1,4 +1,4 @@
 export const ENDPOINTS = {
-  getOrganizationsList: '/api/organizations/list',
-  getProfile: '/api/organizations/profile',
+  getOrganizationsList: '/organizations/',
+  getOrganization: '/organizations/',
 } as const

@@ -1,4 +1,6 @@
-export const DB = {
+import { DBType } from './db.types'
+
+export const DB: DBType = {
   consumers: [
     {
       id: '1',
@@ -105,8 +107,10 @@ export const DB = {
         email: 'john.doe@example.com',
         organization: {
           id: 'org-1',
-          name: 'HealthCare Plus',
-          address: '456 Medical Ave, New York, NY 10002',
+          basic: {
+            name: 'HealthCare Plus',
+            category: 'General Medicine',
+          },
         },
       },
       services: [
@@ -159,8 +163,10 @@ export const DB = {
         email: 'alice.johnson@example.com',
         organization: {
           id: 'org-2',
-          name: 'WellnessCenter Toronto',
-          address: '654 Health Blvd, Toronto, ON M5V 2B9',
+          basic: {
+            name: 'WellnessCenter Toronto',
+            category: 'Mental Health',
+          },
         },
       },
       services: [
@@ -218,8 +224,10 @@ export const DB = {
         email: 'carol.brown@example.com',
         organization: {
           id: 'org-3',
-          name: 'London Medical Group',
-          address: '888 Healthcare St, London, SW1A 2BB',
+          basic: {
+            name: 'London Medical Group',
+            category: 'Cardiology',
+          },
         },
       },
       services: [
@@ -272,8 +280,10 @@ export const DB = {
         email: 'eve.garcia@example.com',
         organization: {
           id: 'org-4',
-          name: 'Centro Médico Madrid',
-          address: '222 Salud Ave, Madrid, 28002',
+          basic: {
+            name: 'Centro Médico Madrid',
+            category: 'Pediatrics',
+          },
         },
       },
       services: [
@@ -321,8 +331,10 @@ export const DB = {
         email: 'grace.lee@example.com',
         organization: {
           id: 'org-5',
-          name: 'Seoul Health Center',
-          address: '555 Gangnam Ave, Seoul, 06000',
+          basic: {
+            name: 'Seoul Health Center',
+            category: 'Ophthalmology',
+          },
         },
       },
       services: [
@@ -375,8 +387,10 @@ export const DB = {
         email: 'ivy.white@example.com',
         organization: {
           id: 'org-6',
-          name: 'Berlin Medical Institute',
-          address: '888 Medical Plaza, Berlin, 10117',
+          basic: {
+            name: 'Berlin Medical Institute',
+            category: 'Neurology',
+          },
         },
       },
       services: [
@@ -429,8 +443,10 @@ export const DB = {
         email: 'kathy.clark@example.com',
         organization: {
           id: 'org-7',
-          name: 'Roma Medical Center',
-          address: '202 Vatican St, Rome, 00120',
+          basic: {
+            name: 'Roma Medical Center',
+            category: 'Gynecology',
+          },
         },
       },
       services: [
@@ -483,8 +499,10 @@ export const DB = {
         email: 'mona.walker@example.com',
         organization: {
           id: 'org-8',
-          name: 'Amsterdam Health Network',
-          address: '505 Canal St, Amsterdam, 1017',
+          basic: {
+            name: 'Amsterdam Health Network',
+            category: 'Pulmonology',
+          },
         },
       },
       services: [
@@ -494,6 +512,208 @@ export const DB = {
           description: 'Lung and respiratory health services',
         },
       ],
+    },
+  ],
+  organizations: [
+    {
+      id: 'org-1',
+      basic: {
+        name: 'HealthCare Plus',
+        category: 'General Medicine',
+      },
+      details: {
+        phone: '+1234567890',
+        country: 'United States',
+        address: '456 Medical Ave, New York, NY 10002',
+        email: 'info@healthcareplus.com',
+        website: 'https://healthcareplus.com',
+        logoUrl: 'https://via.placeholder.com/150x150?text=HealthCare+Plus',
+      },
+    },
+    {
+      id: 'org-2',
+      basic: {
+        name: 'WellnessCenter Toronto',
+        category: 'Mental Health',
+      },
+      details: {
+        phone: '+1416555123',
+        country: 'Canada',
+        address: '654 Health Blvd, Toronto, ON M5V 2B9',
+        email: 'contact@wellnesscenter.ca',
+        website: 'https://wellnesscenter.ca',
+        logoUrl: 'https://via.placeholder.com/150x150?text=WellnessCenter',
+      },
+    },
+    {
+      id: 'org-3',
+      basic: {
+        name: 'London Medical Group',
+        category: 'Cardiology',
+      },
+      details: {
+        phone: '+442071234567',
+        country: 'United Kingdom',
+        address: '888 Healthcare St, London, SW1A 2BB',
+        email: 'info@londonmedical.co.uk',
+        website: 'https://londonmedical.co.uk',
+        logoUrl: 'https://via.placeholder.com/150x150?text=London+Medical',
+      },
+    },
+    {
+      id: 'org-4',
+      basic: {
+        name: 'Centro Médico Madrid',
+        category: 'Pediatrics',
+      },
+      details: {
+        phone: '+34911234567',
+        country: 'Spain',
+        address: '222 Salud Ave, Madrid, 28002',
+        email: 'info@centromedicomadrid.es',
+        website: 'https://centromedicomadrid.es',
+        logoUrl: 'https://via.placeholder.com/150x150?text=Centro+Madrid',
+      },
+    },
+    {
+      id: 'org-5',
+      basic: {
+        name: 'Seoul Health Center',
+        category: 'Ophthalmology',
+      },
+      details: {
+        phone: '+82212345678',
+        country: 'South Korea',
+        address: '555 Gangnam Ave, Seoul, 06000',
+        email: 'info@seoulhealth.kr',
+        website: 'https://seoulhealth.kr',
+        logoUrl: 'https://via.placeholder.com/150x150?text=Seoul+Health',
+      },
+    },
+    {
+      id: 'org-6',
+      basic: {
+        name: 'Berlin Medical Institute',
+        category: 'Neurology',
+      },
+      details: {
+        phone: '+493012345678',
+        country: 'Germany',
+        address: '888 Medical Plaza, Berlin, 10117',
+        email: 'kontakt@berlinmedical.de',
+        website: 'https://berlinmedical.de',
+        logoUrl: 'https://via.placeholder.com/150x150?text=Berlin+Medical',
+      },
+    },
+    {
+      id: 'org-7',
+      basic: {
+        name: 'Roma Medical Center',
+        category: 'Gynecology',
+      },
+      details: {
+        phone: '+390612345678',
+        country: 'Italy',
+        address: '202 Vatican St, Rome, 00120',
+        email: 'info@romamedical.it',
+        website: 'https://romamedical.it',
+        logoUrl: 'https://via.placeholder.com/150x150?text=Roma+Medical',
+      },
+    },
+    {
+      id: 'org-8',
+      basic: {
+        name: 'Amsterdam Health Network',
+        category: 'Pulmonology',
+      },
+      details: {
+        phone: '+31201234567',
+        country: 'Netherlands',
+        address: '505 Canal St, Amsterdam, 1017',
+        email: 'info@amsterdamhealth.nl',
+        website: 'https://amsterdamhealth.nl',
+        logoUrl: 'https://via.placeholder.com/150x150?text=Amsterdam+Health',
+      },
+    },
+  ],
+  appointments: [
+    {
+      id: 'appt-1',
+      consumerId: '1',
+      providerId: '1',
+      serviceId: 'service-1',
+      organizationId: 'org-1',
+      time: {
+        startDate: '2025-07-25T09:00:00.000Z',
+        endDate: '2025-07-25T09:30:00.000Z',
+        duration: 30,
+      },
+      status: 'scheduled',
+      notes: 'Annual health checkup',
+      createdAt: '2025-07-20T10:00:00.000Z',
+      updatedAt: '2025-07-20T10:00:00.000Z',
+    },
+    {
+      id: 'appt-2',
+      consumerId: '2',
+      providerId: '2',
+      serviceId: 'service-3',
+      time: {
+        startDate: '2025-07-25T14:00:00.000Z',
+        endDate: '2025-07-25T15:00:00.000Z',
+        duration: 60,
+      },
+      status: 'confirmed',
+      notes: 'Post-injury rehabilitation session',
+      createdAt: '2025-07-19T15:30:00.000Z',
+      updatedAt: '2025-07-20T08:00:00.000Z',
+    },
+    {
+      id: 'appt-3',
+      consumerId: '1',
+      providerId: '3',
+      serviceId: 'service-4',
+      organizationId: 'org-2',
+      time: {
+        startDate: '2025-07-22T11:00:00.000Z',
+        endDate: '2025-07-22T12:00:00.000Z',
+        duration: 60,
+      },
+      status: 'completed',
+      notes: 'Follow-up counseling session',
+      createdAt: '2025-07-15T12:00:00.000Z',
+      updatedAt: '2025-07-22T12:00:00.000Z',
+    },
+    {
+      id: 'appt-4',
+      consumerId: '4',
+      providerId: '5',
+      serviceId: 'service-8',
+      organizationId: 'org-3',
+      time: {
+        startDate: '2025-07-24T16:00:00.000Z',
+        endDate: '2025-07-24T16:45:00.000Z',
+        duration: 45,
+      },
+      status: 'scheduled',
+      notes: 'Cardiovascular health consultation',
+      createdAt: '2025-07-18T09:30:00.000Z',
+      updatedAt: '2025-07-18T09:30:00.000Z',
+    },
+    {
+      id: 'appt-5',
+      consumerId: '3',
+      providerId: '4',
+      serviceId: 'service-6',
+      time: {
+        startDate: '2025-07-23T08:30:00.000Z',
+        endDate: '2025-07-23T09:30:00.000Z',
+        duration: 60,
+      },
+      status: 'no-show',
+      notes: 'Routine dental cleaning',
+      createdAt: '2025-07-16T14:20:00.000Z',
+      updatedAt: '2025-07-23T09:35:00.000Z',
     },
   ],
   getCodeByPhoneNumber: true,

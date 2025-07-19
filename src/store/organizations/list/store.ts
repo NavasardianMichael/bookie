@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { getOrganizationsListAPI } from '@api/organizations/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { OrganizationsListActions, OrganizationsListState } from './types'
 
@@ -32,6 +33,14 @@ export const useOrganizationsListStoreBase = create<OrganizationsListState & Org
               ...state.list,
               ...payload,
             }
+          })
+        },
+        getOrganizationsList: async () => {
+          const normalizedOrganizations = await getOrganizationsListAPI()
+          console.log({ normalizedOrganizations })
+
+          set((state) => {
+            state.list = normalizedOrganizations
           })
         },
       })

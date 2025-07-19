@@ -1,4 +1,4 @@
-import { Organization } from '@store/organizations/profile/types'
+import { BasicOrganization } from '@store/organizations/single/types'
 import { Plan } from '@interfaces/plans'
 import { ProviderRole } from '@interfaces/roles'
 import { StateCommonProps } from '@interfaces/store'
@@ -18,7 +18,7 @@ export type Provider = {
     country: string
     address: string
     email: string
-    organization?: Organization
+    organization?: BasicOrganization
   }
   services: ProviderServices[]
 }

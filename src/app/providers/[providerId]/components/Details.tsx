@@ -13,8 +13,6 @@ const ProviderDetails: FC<Props> = ({ initialState }) => {
   const providerStore = useProviderStore()
 
   useEffect(() => {
-    console.log({ initialState });
-
     providerStore.setProviderState(JSON.parse(JSON.stringify(initialState)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

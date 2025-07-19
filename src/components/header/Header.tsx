@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation'
 import { AppRoutePath } from '@interfaces/routes'
 import { HEADER_ROUTES, HEADER_UTILS_BY_ROUTE } from '@constants/header'
 import { ROUTE_KEYS_BY_VALUES, ROUTES } from '@constants/routes'
-import AppLinkWithClick from '@components/shared/AppLinkWithClick'
 import { BackHistoryBtn } from './BackHistoryBtn'
 import AppLink from '../shared/AppLink'
 
@@ -16,9 +15,7 @@ export const Header = () => {
   const mobileNavRef = useRef<HTMLElement>(null)
 
   const closeMobileNav = useCallback(() => {
-    console.log(46545465465);
-
-    if (!navToggleRef.current) return;
+    if (!navToggleRef.current) return
     navToggleRef.current.checked = false
   }, [])
 
@@ -79,17 +76,21 @@ export const Header = () => {
       <div className='fixed inset-0 bg-black/50 opacity-0 peer-checked:opacity-100 pointer-events-none peer-checked:pointer-events-auto transition-opacity md:hidden z-10' />
 
       {/* Mobile Navigation */}
-      <nav ref={mobileNavRef} className='fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg transform translate-x-full peer-checked:translate-x-0 transition-transform md:hidden z-10'>
-        <div className='flex flex-col gap-4 p-4'>
+      <nav
+        ref={mobileNavRef}
+        className='fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg transform translate-x-full peer-checked:translate-x-0 transition-transform md:hidden z-10'
+      >
+        <div className='flex flex-col gap-4 p-4 mt-12'>
           {HEADER_ROUTES.map(({ label, name }) => {
             const route = ROUTES[name!]
             return (
-              <AppLinkWithClick key={route} href={route} beforeNavigateCallback={closeMobileNav} className='capitalize hover:text-blue-600 transition-colors'>
+              <AppLink key={route} href={route} className='capitalize hover:text-blue-600 transition-colors'>
                 {label}
-              </AppLinkWithClick>
+              </AppLink>
             )
           })}
         </div>
+        {/* <CloseNavbar closeMobileNav={closeMobileNav} /> */}
       </nav>
     </>
   )
