@@ -1,11 +1,15 @@
+import { DB } from '@app/api/_shared/db/db'
 import { NextRequest, NextResponse } from 'next/server'
-import { DB } from '@api/_shared/db'
 import { GetOrganizationsListAPI } from '@api/organizations/types'
 import { APIResponse } from '@interfaces/api'
 import { sleep } from '@helpers/commons'
 
 export const GET = async (_request: NextRequest) => {
   try {
+    console.log({
+      org: DB.organizations,
+    })
+
     const response: APIResponse<GetOrganizationsListAPI['response']> = {
       error: null,
       value: DB.organizations,

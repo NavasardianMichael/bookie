@@ -1,3 +1,4 @@
+import { BasicCategory } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Plan } from '@interfaces/plans'
 import { ProviderRole } from '@interfaces/roles'
@@ -8,7 +9,7 @@ export type ProviderProfileState = StateCommonProps & Provider & ProviderProfile
 export type Provider = {
   id: string
   basic: {
-    category: string
+    categories: BasicCategory[]
     firstName: string
     lastName: string
     image: string

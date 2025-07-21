@@ -1,6 +1,7 @@
 export const ROUTE_KEYS = {
   home: 'home',
   contact: 'contact',
+  categories: 'categories',
   providerCategories: 'providerCategories',
   providers: 'providers',
   consumers: 'consumers',
@@ -25,6 +26,7 @@ export const ROUTES = {
   // Main
   [ROUTE_KEYS.home]: '/',
   [ROUTE_KEYS.contact]: '/contact',
+  [ROUTE_KEYS.categories]: '/categories',
   [ROUTE_KEYS.providerCategories]: '/provider-categories',
   [ROUTE_KEYS.providers]: '/providers',
   [ROUTE_KEYS.consumers]: '/consumers',

@@ -1,6 +1,7 @@
 import { getProviderAPI } from '@api/providers/main'
 import { Provider as ProviderType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import AppLink from '@components/shared/AppLink'
 import '@styles/full-calendar-override.css'
 import ProviderDetails from './components/Details'
@@ -24,10 +25,10 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const organizationDescriptionText = basicOrganization ? `, who works at ${basicOrganization.name}.` : ''
 
   return {
-    title: `Bookie | ${basic.category} | ${provider.basic.firstName} ${provider.basic.lastName}${organizationTitleText}`,
+    title: `Bookie | ${provider.basic.firstName} ${provider.basic.lastName}${organizationTitleText} | ${basic.categories.map((cat) => cat.name).join(', ')}`,
     description: `Welcome to ${provider.basic.firstName} ${provider.basic.lastName}'s profile page${organizationDescriptionText}`,
     keywords: `Bookie, ${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.address}, ${provider.details.phone}, ${provider.details.email}`,
-    classification: basic.category,
+    classification: basic.categories.map((cat) => cat.name).join(', '),
   }
 }
 
@@ -45,7 +46,13 @@ const Provider = async ({ params }: Props) => {
           <h2 className='text-xl mb-0 font-bold'>
             {provider.basic.firstName} {provider.basic.lastName}
           </h2>
-          <h3 className='text-lg mb-0'>{provider.basic.category}</h3>
+          {provider.basic.categories.map((category) => {
+            return (
+              <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>
+                #{category.name}
+              </AppLink>
+            )
+          })}
           {provider.details.organization ? (
             <AppLink href={provider.details.organization.id}>#{provider.details.organization?.basic.name}</AppLink>
           ) : (

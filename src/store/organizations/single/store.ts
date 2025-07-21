@@ -9,7 +9,8 @@ const initialState: OrganizationState = {
   id: '',
   basic: {
     name: '',
-    category: '',
+    description: '',
+    categories: [],
   },
   details: {
     address: '',

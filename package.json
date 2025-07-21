@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 4141",
+    "dev": "next dev --turbopack --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -11,7 +11,7 @@
     "format": "cd src && npx prettier --write .",
     "prepare": "husky",
     "mock-api": "tsx ./src/mock/server.ts",
-    "watch": "concurrently --kill-others-on-fail -n app,api -c green,cyan \"kill-port 4141\" \"kill-port 3001\" \"pnpm dev\" \"pnpm mock-api\"",
+    "watch": "concurrently --kill-others-on-fail -n app,api -c green,cyan \"kill-port 3000\" \"kill-port 3001\" \"pnpm dev\" \"pnpm mock-api\"",
     "cleardeps": "rm -rf node_modules",
     "cleardeps:hard": "rm -rf node_modules && rm -rf package-lock.json && rm -rf pnpm-lock.yaml && rm -rf yarn.lock"
   },

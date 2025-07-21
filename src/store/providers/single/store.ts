@@ -11,7 +11,7 @@ const initialState: ProviderState = {
     firstName: '',
     lastName: '',
     image: '',
-    category: '',
+    categories: [],
   },
   details: {
     phone: '',

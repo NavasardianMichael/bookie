@@ -2,7 +2,7 @@ import { getOrganizationAPI } from '@api/organizations/main'
 import { Organization as OrganizationType } from '@store/organizations/single/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { generateGoogleMapsLink } from '@helpers/location'
-import '@styles/full-calendar-override.css'
+import AppLink from '@components/shared/AppLink'
 
 type Props = {
   params: Promise<{
@@ -20,10 +20,10 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const basicOrganization = organization.basic
 
   return {
-    title: `Bookie | ${basicOrganization.category} | ${basicOrganization.name}`,
+    title: `Bookie | ${basicOrganization.categories.map((category) => category.name).join('| ')} | ${basicOrganization.name}`,
     description: `Welcome to ${basicOrganization.name}`,
     keywords: `Bookie, ${basicOrganization.name}, ${organization.details.country}, ${organization.details.address}, ${organization.details.phone}, ${organization.details.email}`,
-    classification: basicOrganization.category,
+    classification: basicOrganization.categories.map((category) => category.name).join(', '),
   }
 }
 
@@ -38,14 +38,16 @@ const Organization = async ({ params }: Props) => {
     <article>
       <div className='flex flex-col gap-4 grow'>
         <h2 className='text-xl mb-0 font-bold'>{organization.basic.name}</h2>
-        <h3 className='text-lg mb-0'>{organization.basic.category}</h3>
-        {/* {organization.details.organization ? (
-            <AppLink href={organization.details.organization.id}>
-              #{organization.details.organization?.basic.name}
-            </AppLink>
-          ) : (
-            <p>No organization</p>
-          )} */}
+        <h3 className='text-lg mb-0'>
+          {organization.basic.categories.map((category) => {
+            return (
+              <AppLink key={category.id} href={category.id}>
+                {category.name}
+              </AppLink>
+            )
+          })}
+        </h3>
+
         <div className='p-0 m-0 flex flex-col gap-2'>
           <div>
             <p>

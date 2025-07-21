@@ -1,5 +1,5 @@
+import { DB } from '@app/api/_shared/db/db'
 import { NextRequest, NextResponse } from 'next/server'
-import { DB } from '@api/_shared/db'
 import { GetProviderAPI } from '@api/providers/types'
 import { APIResponse } from '@interfaces/api'
 import { sleep } from '@helpers/commons'

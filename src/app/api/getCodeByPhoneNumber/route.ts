@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DB } from '@api/_shared/db'
+import { DB } from '@app/api/_shared/db/db'
 import { GetCodeByPhoneNumberAPI } from '@api/auth/types'
 import { APIResponse } from '@interfaces/api'
 import { sleep } from '@helpers/commons'

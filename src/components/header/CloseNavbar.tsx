@@ -30,18 +30,18 @@ export const CloseNavbar: FC<Props> = ({ closeMobileNav }) => {
   }, [closeMobileNav])
 
   useEffect(() => {
-    const handleRouteChange = () => {
+    const routeChangeComplete = () => {
       closeMobileNav()
     }
 
-    router.events.on('routeChangeStart', handleRouteChange)
+    router.events.on('routeChangeComplete', routeChangeComplete)
 
     // If the component is unmounted, unsubscribe
     // from the event with the `off` method:
     return () => {
-      router.events.off('routeChangeStart', handleRouteChange)
+      router.events.off('routeChangeComplete', routeChangeComplete)
     }
   }, [closeMobileNav, router])
 
-  return <noscript>The </noscript>
+  return <noscript>Mobile Navbar Closing Falsy Block</noscript>
 }

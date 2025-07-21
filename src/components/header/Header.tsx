@@ -13,6 +13,7 @@ export const Header = () => {
   const headerUtils = HEADER_UTILS_BY_ROUTE[key!]
   const navToggleRef = useRef<HTMLInputElement>(null)
   const mobileNavRef = useRef<HTMLElement>(null)
+  const pathname = usePathname()
 
   const closeMobileNav = useCallback(() => {
     if (!navToggleRef.current) return
@@ -35,6 +36,10 @@ export const Header = () => {
     document.addEventListener('mousedown', handleOutsideClick)
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [closeMobileNav])
+
+  useEffect(() => {
+    closeMobileNav()
+  }, [pathname, closeMobileNav])
 
   return (
     <>

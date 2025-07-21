@@ -1,4 +1,4 @@
-import { OrganizationsList } from './OrganizationsList'
+import { OrganizationsList } from './components/OrganizationsList'
 
 export const metadata = {
   title: 'Organizations List',
