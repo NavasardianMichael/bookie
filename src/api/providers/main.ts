@@ -11,7 +11,6 @@ export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
 }
 
 export const getProviderAPI: GetProviderAPI['api'] = async (args) => {
-  console.log({ args })
   console.log('Fetching provider with ID:', `${ENDPOINTS.getProvider}/${args.id}`)
 
   const { data } = await axiosInstance.get<APIResponse<GetProviderAPI['response']>>(

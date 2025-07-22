@@ -11,7 +11,6 @@ export const getCategoriesListAPI: GetCategoriesListAPI['api'] = async () => {
 }
 
 export const getCategoryAPI: GetCategoryAPI['api'] = async (args) => {
-  console.log({ args })
   console.log('Fetching category with ID:', `${ENDPOINTS.getCategory}/${args.id}`)
 
   const { data } = await axiosInstance.get<APIResponse<GetCategoryAPI['response']>>(

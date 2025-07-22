@@ -13,7 +13,6 @@ export const getOrganizationsListAPI: GetOrganizationsListAPI['api'] = async () 
 }
 
 export const getOrganizationAPI: GetOrganizationAPI['api'] = async (args) => {
-  console.log({ args })
   console.log('Fetching organization with ID:', `${ENDPOINTS.getOrganization}/${args.id}`)
 
   const { data } = await axiosInstance.get<APIResponse<GetOrganizationAPI['response']>>(
