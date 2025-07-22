@@ -6,10 +6,6 @@ import { sleep } from '@helpers/commons'
 
 export const GET = async (_request: NextRequest) => {
   try {
-    console.log({
-      org: DB.organizations,
-    })
-
     const response: APIResponse<GetOrganizationsListAPI['response']> = {
       error: null,
       value: DB.organizations,
