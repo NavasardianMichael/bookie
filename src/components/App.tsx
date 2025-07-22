@@ -18,8 +18,8 @@ const App: FC<PropsWithChildren> = ({ children }) => {
     <ConfigProvider theme={themeConfig}>
       <div className='min-h-svh flex flex-col h-dvh'>
         <Header />
-        <div className='flex-grow flex flex-col overflow-auto'>
-          <main className='flex-grow p-4 flex w-full'>{children}</main>
+        <div className='w-full d-block flex-grow flex flex-col overflow-auto'>
+          <main className='h-full flex-grow p-4'>{children}</main>
           {/* <Footer /> */}
         </div>
       </div>

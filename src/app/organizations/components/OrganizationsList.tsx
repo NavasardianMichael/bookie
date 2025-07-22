@@ -1,25 +1,18 @@
 'use client'
 
-import { MouseEventHandler, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useOrganizationsListStore } from '@store/organizations/list/store'
+import { useEntityClickHandler } from '@hooks/useEntityClickHandler'
 import { OrganizationCard } from './OrganizationCard'
 
 export const OrganizationsList = () => {
-  const { push } = useRouter()
   const { getOrganizationsList, list } = useOrganizationsListStore()
 
   useEffect(() => {
     getOrganizationsList()
   }, [getOrganizationsList])
 
-  const onEntityClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-    (event) => {
-      event.preventDefault()
-      push(event.currentTarget.name)
-    },
-    [push]
-  )
+  const onEntityClick = useEntityClickHandler()
 
   return (
     <div className='app-responsive-flex'>

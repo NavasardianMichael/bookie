@@ -12,12 +12,20 @@ export const HEADER_ROUTES: HeaderRoute[] = [
     label: 'Providers',
   },
   {
+    name: 'organizations',
+    label: 'organizations',
+  },
+  {
+    name: 'categories',
+    label: 'categories',
+  },
+  {
     name: 'contact',
     label: 'Contact',
   },
   {
-    name: 'routesOverview',
-    label: 'Routes Overview',
+    name: 'signOn',
+    label: 'Sign On',
   },
 ]
 

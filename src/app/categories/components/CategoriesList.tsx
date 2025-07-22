@@ -1,22 +1,18 @@
 'use client'
 
-import { MouseEventHandler, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useCategoriesListStore } from '@store/categories/list/store'
+import { useEntityClickHandler } from '@hooks/useEntityClickHandler'
 import { CategoryCard } from './CategoryCard'
 
 export const CategoriesList = () => {
-  const { push } = useRouter()
   const { getCategoriesList, list } = useCategoriesListStore()
 
   useEffect(() => {
     getCategoriesList()
   }, [getCategoriesList])
 
-  const onEntityClick: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.preventDefault()
-    push(event.currentTarget.name)
-  }
+  const onEntityClick = useEntityClickHandler()
 
   return (
     <div className='app-responsive-flex'>

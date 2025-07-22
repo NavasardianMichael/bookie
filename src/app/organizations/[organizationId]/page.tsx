@@ -1,6 +1,7 @@
 import { getOrganizationAPI } from '@api/organizations/main'
 import { Organization as OrganizationType } from '@store/organizations/single/types'
 import { GenerateMetadata } from '@interfaces/components'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { generateGoogleMapsLink } from '@helpers/location'
 import AppLink from '@components/shared/AppLink'
 
@@ -41,7 +42,7 @@ const Organization = async ({ params }: Props) => {
         <h3 className='text-lg mb-0'>
           {organization.basic.categories.map((category) => {
             return (
-              <AppLink key={category.id} href={category.id}>
+              <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>
                 {category.name}
               </AppLink>
             )

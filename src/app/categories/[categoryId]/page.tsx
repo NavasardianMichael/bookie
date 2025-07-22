@@ -1,5 +1,7 @@
 import { OrganizationCard } from '@app/organizations/components/OrganizationCard'
 import { ProviderCard } from '@app/providers/ProviderCard'
+import { Divider } from 'antd'
+import Title from 'antd/es/typography/Title'
 import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -40,10 +42,14 @@ const Category = async ({ params }: Props) => {
           <p className='text-gray-600'>Browse {category.name.toLowerCase()} providers and organizations</p>
         </div>
 
+        <Title level={3}>Organizations</Title>
         {category.organizations.map((organization) => {
           return <OrganizationCard key={organization.id} data={organization} />
         })}
 
+        <Divider />
+
+        <Title level={3}>Providers</Title>
         {category.providers.map((provider) => {
           return <ProviderCard key={provider.id} data={provider} />
         })}

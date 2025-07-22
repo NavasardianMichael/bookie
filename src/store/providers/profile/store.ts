@@ -12,7 +12,7 @@ const initialState: ProviderProfileState = {
     firstName: '',
     lastName: '',
     image: '',
-    category: '',
+    categories: [],
   },
   details: {
     address: '',

@@ -12,7 +12,7 @@ type Props = {
 export const CategoryCardDetails: FC<Props> = ({ data }) => {
   return (
     <Flex vertical gap={4}>
-      <button>#{data.name}</button>
+      <button>{data.name}</button>
       <Paragraph>Browse {data.name.toLowerCase()} providers and organizations</Paragraph>
     </Flex>
   )
