@@ -24,7 +24,7 @@ export const HEADER_ROUTES: HeaderRoute[] = [
     label: 'Contact',
   },
   {
-    name: 'signOn',
+    name: 'accountTypeSelection',
     label: 'Sign On',
   },
 ]
