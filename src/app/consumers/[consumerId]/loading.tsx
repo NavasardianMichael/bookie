@@ -1,3 +1,3 @@
-import Loading from '@app/loading'
+import Loading from '@app/_loading'
 
 export default Loading

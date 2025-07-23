@@ -1,3 +1,5 @@
+import { Person, WithContext } from 'schema-dts'
+import serializeJS from 'serialize-javascript'
 import { getProviderAPI } from '@api/providers/main'
 import { Provider as ProviderType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -39,13 +41,37 @@ const Provider = async ({ params }: Props) => {
     id: providerId,
   })
 
+  const jsonLd: WithContext<Person> = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    givenName: provider.basic.firstName,
+    familyName: provider.basic.lastName,
+    image: provider.basic.image,
+    worksFor: {
+      '@type': 'Organization',
+      name: provider.details.organization?.basic.name,
+      url: `${process.env.NEXT_PUBLIC_API_URL}${ROUTES[ROUTE_KEYS.organizations]}/${provider.details.organization?.id}`,
+    },
+    workLocation: provider.details.address,
+    relatedTo: '',
+    email: provider.details.email,
+    telephone: provider.details.phone,
+    url: `${process.env.NEXT_PUBLIC_API_URL}${ROUTES[ROUTE_KEYS.providers]}/${provider.id}`,
+  }
+
   return (
-    <article className='flex flex-col gap-4 w-full'>
+    <article className='flex flex-col gap-4'>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: serializeJS(jsonLd).replace(/</g, '\\u003c'),
+        }}
+      />
       <section className='flex items-start gap-4'>
-        <div className='flex flex-col gap-4 grow'>
-          <h2 className='text-xl mb-0 font-bold'>
+        <div className='flex flex-col gap-4 grow w-fit'>
+          <h1 className='text-xl! mb-0 font-bold'>
             {provider.basic.firstName} {provider.basic.lastName}
-          </h2>
+          </h1>
           {provider.basic.categories.map((category) => {
             return (
               <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>

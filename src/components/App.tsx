@@ -11,6 +11,11 @@ const themeConfig: ThemeConfig = {
     colorTextBase: '#18294D', // Dark blue for text
     colorTextSecondary: '#18294D',
   },
+  components: {
+    Typography: {
+      margin: 0,
+    },
+  },
 }
 
 const App: FC<PropsWithChildren> = ({ children }) => {

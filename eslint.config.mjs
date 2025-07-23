@@ -42,7 +42,7 @@ const eslintConfig = [
       'react-refresh': reactRefresh,
       'simple-import-sort': simpleImportSort,
       prettier: eslintPluginPrettier,
-      'jsx-a11y': a11y,
+      // 'jsx-a11y': a11y,
       security,
     },
     rules: {

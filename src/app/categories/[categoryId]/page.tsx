@@ -1,4 +1,3 @@
-import { OrganizationCard } from '@app/organizations/components/OrganizationCard'
 import { ProviderCard } from '@app/providers/ProviderCard'
 import { Divider } from 'antd'
 import Title from 'antd/es/typography/Title'
@@ -43,9 +42,9 @@ const Category = async ({ params }: Props) => {
         </div>
 
         <Title level={3}>Organizations</Title>
-        {category.organizations.map((organization) => {
+        {/* {category.organizations.map((organization) => {
           return <OrganizationCard key={organization.id} data={organization} />
-        })}
+        })} */}
 
         <Divider />
 
