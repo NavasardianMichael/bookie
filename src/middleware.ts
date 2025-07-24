@@ -21,18 +21,29 @@ export const config = {
 
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-  const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' 'nonce-${nonce}';
-    img-src 'self' blob: data:;
-    font-src 'self';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-    upgrade-insecure-requests;
-`
+  // TODO: remove other instances of images when implemented on back end
+  const isDev = process.env.NODE_ENV === 'development'
+
+  const cspHeader = isDev
+    ? `default-src 'self' 'unsafe-eval' 'unsafe-inline';`
+    : `
+      default-src 'self';
+      script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline' https://*.vercel.app https://vitals.vercel-insights.com;
+      style-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://*.vercel.app;
+      img-src 'self' blob: data: https://randomuser.me https://*.vercel.app;
+      font-src 'self' https://*.vercel.app;
+      connect-src 'self' https://*.vercel.app https://vitals.vercel-insights.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      frame-src 'self' https://*.vercel.app;
+      media-src 'self' https://*.vercel.app;
+      worker-src 'self' https://*.vercel.app;
+      upgrade-insecure-requests;
+    `
+        .replace(/\s{2,}/g, ' ')
+        .trim()
   // Replace newline characters and spaces
   const contentSecurityPolicyHeaderValue = cspHeader.replace(/\s{2,}/g, ' ').trim()
 
