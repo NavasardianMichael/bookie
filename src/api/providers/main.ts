@@ -21,19 +21,13 @@ export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
 //   return processedResponse
 // }
 
-export const getProviderAPI: GetProviderAPI['api'] = async () => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${ENDPOINTS.getProvider}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+export const getProviderAPI: GetProviderAPI['api'] = async (args) => {
+  console.log('Fetching provider with ID:', `${ENDPOINTS.getProvider}/${args.id}`)
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
-  }
+  const { data } = await axiosInstance.get<APIResponse<GetProviderAPI['response']>>(
+    `${ENDPOINTS.getProvider}/${args.id}`
+  )
 
-  const data: APIResponse<GetProviderAPI['response']> = await response.json()
   const processedResponse = processProviderResponse(data)
   return processedResponse
 }
