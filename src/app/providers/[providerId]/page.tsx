@@ -1,5 +1,5 @@
-import { Person, WithContext } from 'schema-dts'
-import serializeJS from 'serialize-javascript'
+import { getProviderLDSchema } from '@linkedDataSchema/providers'
+import serializeJavascript from 'serialize-javascript'
 import { getProviderAPI } from '@api/providers/main'
 import { Provider as ProviderType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -41,30 +41,14 @@ const Provider = async ({ params }: Props) => {
     id: providerId,
   })
 
-  const jsonLd: WithContext<Person> = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    givenName: provider.basic.firstName,
-    familyName: provider.basic.lastName,
-    image: provider.basic.image,
-    worksFor: {
-      '@type': 'Organization',
-      name: provider.details.organization?.basic.name,
-      url: `${process.env.NEXT_PUBLIC_API_URL}${ROUTES[ROUTE_KEYS.organizations]}/${provider.details.organization?.id}`,
-    },
-    workLocation: provider.details.address,
-    relatedTo: '',
-    email: provider.details.email,
-    telephone: provider.details.phone,
-    url: `${process.env.NEXT_PUBLIC_API_URL}${ROUTES[ROUTE_KEYS.providers]}/${provider.id}`,
-  }
+  const jsonLd = getProviderLDSchema(provider)
 
   return (
     <article className='flex flex-col gap-4'>
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{
-          __html: serializeJS(jsonLd).replace(/</g, '\\u003c'),
+          __html: serializeJavascript(jsonLd),
         }}
       />
       <section className='flex items-start gap-4'>

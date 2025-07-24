@@ -14,24 +14,19 @@ type Props = {
 
 export const ProviderCard: FC<Props> = ({ data }) => {
   return (
-    <Card
-      cover={
-        <Image
-          alt={`${data.basic.firstName} ${data.basic.lastName}`}
-          src={data.basic.image}
-        />
-      }
-    >
-      <AppLink href={`${ROUTES.providers}/${data.id}`}>
-        <Meta
-          title={
-            <Title level={3} className="text-lg">
-              {data.basic.firstName} {data.basic.lastName}
-            </Title>
-          }
-          description="This is the description"
-        />
-      </AppLink>
-    </Card>
+    <article>
+      <Card cover={<Image alt={`${data.basic.firstName} ${data.basic.lastName}`} src={data.basic.image} />}>
+        <AppLink href={`${ROUTES.providers}/${data.id}`}>
+          <Meta
+            title={
+              <Title level={3} className='text-lg'>
+                {data.basic.firstName} {data.basic.lastName}
+              </Title>
+            }
+            description='This is the description'
+          />
+        </AppLink>
+      </Card>
+    </article>
   )
 }
