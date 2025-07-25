@@ -10,13 +10,13 @@ export const providers: DBType['providers'] = [
       firstName: 'John',
       lastName: 'Doe',
       image: 'https://randomuser.me/api/portraits/men/1.jpg',
+      organization: organizationToBasic(organizations[0]),
     },
     details: {
       phone: '+1234567890',
       country: 'United States',
       address: '123 Main St, New York, NY 10001',
       email: 'john.doe@example.com',
-      organization: organizationToBasic(organizations[0]),
     },
     services: [
       {
@@ -60,12 +60,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Alice',
       lastName: 'Johnson',
       image: 'https://randomuser.me/api/portraits/women/3.jpg',
-    },
-    details: {
-      phone: '+1234567892',
-      country: 'Canada',
-      address: '321 Maple Ave, Toronto, ON M5V 3A8',
-      email: 'alice.johnson@example.com',
       organization: {
         id: 'org-2',
         basic: {
@@ -75,6 +69,12 @@ export const providers: DBType['providers'] = [
             'A leading mental health facility in Toronto offering comprehensive counseling, therapy, and wellness services to support mental and emotional well-being.',
         },
       },
+    },
+    details: {
+      phone: '+1234567892',
+      country: 'Canada',
+      address: '321 Maple Ave, Toronto, ON M5V 3A8',
+      email: 'alice.johnson@example.com',
     },
     services: [
       {
@@ -123,12 +123,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Carol',
       lastName: 'Brown',
       image: 'https://randomuser.me/api/portraits/women/5.jpg',
-    },
-    details: {
-      phone: '+1234567894',
-      country: 'United Kingdom',
-      address: '777 London Rd, London, SW1A 1AA',
-      email: 'carol.brown@example.com',
       organization: {
         id: 'org-3',
         basic: {
@@ -138,6 +132,12 @@ export const providers: DBType['providers'] = [
             'Premier cardiovascular care center in London, specializing in advanced heart treatments and preventive cardiac medicine with state-of-the-art facilities.',
         },
       },
+    },
+    details: {
+      phone: '+1234567894',
+      country: 'United Kingdom',
+      address: '777 London Rd, London, SW1A 1AA',
+      email: 'carol.brown@example.com',
     },
     services: [
       {
@@ -181,12 +181,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Eve',
       lastName: 'Garcia',
       image: 'https://randomuser.me/api/portraits/women/7.jpg',
-    },
-    details: {
-      phone: '+1234567896',
-      country: 'Spain',
-      address: '111 Madrid St, Madrid, 28001',
-      email: 'eve.garcia@example.com',
       organization: {
         id: 'org-4',
         basic: {
@@ -196,6 +190,12 @@ export const providers: DBType['providers'] = [
             'Specialized pediatric medical center in Madrid providing comprehensive child healthcare services with experienced pediatricians and modern facilities.',
         },
       },
+    },
+    details: {
+      phone: '+1234567896',
+      country: 'Spain',
+      address: '111 Madrid St, Madrid, 28001',
+      email: 'eve.garcia@example.com',
     },
     services: [
       {
@@ -234,12 +234,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Grace',
       lastName: 'Lee',
       image: 'https://randomuser.me/api/portraits/women/9.jpg',
-    },
-    details: {
-      phone: '+1234567898',
-      country: 'South Korea',
-      address: '444 Seoul St, Seoul, 04522',
-      email: 'grace.lee@example.com',
       organization: {
         id: 'org-5',
         basic: {
@@ -249,6 +243,12 @@ export const providers: DBType['providers'] = [
             'Advanced eye care center in Seoul offering comprehensive ophthalmology services including LASIK surgery and cutting-edge vision correction treatments.',
         },
       },
+    },
+    details: {
+      phone: '+1234567898',
+      country: 'South Korea',
+      address: '444 Seoul St, Seoul, 04522',
+      email: 'grace.lee@example.com',
     },
     services: [
       {
@@ -292,12 +292,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Ivy',
       lastName: 'White',
       image: 'https://randomuser.me/api/portraits/women/11.jpg',
-    },
-    details: {
-      phone: '+1234567800',
-      country: 'Germany',
-      address: '777 Berlin St, Berlin, 10115',
-      email: 'ivy.white@example.com',
       organization: {
         id: 'org-6',
         basic: {
@@ -307,6 +301,12 @@ export const providers: DBType['providers'] = [
             'Leading neurological research and treatment institute in Berlin, specializing in brain and nervous system disorders with innovative therapeutic approaches.',
         },
       },
+    },
+    details: {
+      phone: '+1234567800',
+      country: 'Germany',
+      address: '777 Berlin St, Berlin, 10115',
+      email: 'ivy.white@example.com',
     },
     services: [
       {
@@ -350,12 +350,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Kathy',
       lastName: 'Clark',
       image: 'https://randomuser.me/api/portraits/women/13.jpg',
-    },
-    details: {
-      phone: '+1234567802',
-      country: 'Italy',
-      address: '101 Rome Ave, Rome, 00100',
-      email: 'kathy.clark@example.com',
       organization: {
         id: 'org-7',
         basic: {
@@ -365,6 +359,12 @@ export const providers: DBType['providers'] = [
             "Comprehensive women's health center in Rome providing specialized gynecological services, reproductive health care, and wellness programs for women of all ages.",
         },
       },
+    },
+    details: {
+      phone: '+1234567802',
+      country: 'Italy',
+      address: '101 Rome Ave, Rome, 00100',
+      email: 'kathy.clark@example.com',
     },
     services: [
       {
@@ -408,12 +408,6 @@ export const providers: DBType['providers'] = [
       firstName: 'Mona',
       lastName: 'Walker',
       image: 'https://randomuser.me/api/portraits/women/15.jpg',
-    },
-    details: {
-      phone: '+1234567804',
-      country: 'Netherlands',
-      address: '404 Amsterdam Ave, Amsterdam, 1012',
-      email: 'mona.walker@example.com',
       organization: {
         id: 'org-8',
         basic: {
@@ -423,6 +417,12 @@ export const providers: DBType['providers'] = [
             'Specialized respiratory care network in Amsterdam offering advanced pulmonology services, lung health assessments, and comprehensive treatment for respiratory conditions.',
         },
       },
+    },
+    details: {
+      phone: '+1234567804',
+      country: 'Netherlands',
+      address: '404 Amsterdam Ave, Amsterdam, 1012',
+      email: 'mona.walker@example.com',
     },
     services: [
       {

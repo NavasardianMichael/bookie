@@ -15,7 +15,9 @@ type Props = {
 export const ProviderCard: FC<Props> = ({ data }) => {
   return (
     <article>
-      <Card cover={<Image alt={`${data.basic.firstName} ${data.basic.lastName}`} src={data.basic.image} />}>
+      <Card
+        cover={<Image preview={false} alt={`${data.basic.firstName} ${data.basic.lastName}`} src={data.basic.image} />}
+      >
         <AppLink href={`${ROUTES.providers}/${data.id}`}>
           <Meta
             title={

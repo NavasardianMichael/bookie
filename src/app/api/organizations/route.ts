@@ -8,7 +8,6 @@ export const GET = async (_request: NextRequest) => {
       error: null,
       value: DB.organizations,
     }
-    console.log({ response })
 
     await sleep(2000)
     return new NextResponse(JSON.stringify(response), { status: 200, headers: { 'Content-Type': 'application/json' } })

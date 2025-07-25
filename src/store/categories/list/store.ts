@@ -37,7 +37,6 @@ export const useCategoriesListStoreBase = create<CategoriesListState & Categorie
         },
         getCategoriesList: async () => {
           const normalizedCategories = await getCategoriesListAPI()
-          console.log({ normalizedCategories })
 
           set((state) => {
             state.list = normalizedCategories

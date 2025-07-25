@@ -8,27 +8,7 @@ export const GET = async (_request: NextRequest) => {
   try {
     const response: APIResponse<GetCategoriesListAPI['response']> = {
       error: null,
-      value: DB.categories.map((category) => ({
-        id: category.id,
-        name: category.name,
-        organizations: category.organizations.map((org) => ({
-          id: org.id,
-          basic: {
-            name: org.basic.name,
-            categories: org.basic.categories,
-            description: org.basic.description,
-          },
-        })),
-        providers: category.providers.map((provider) => ({
-          id: provider.id,
-          basic: {
-            firstName: provider.basic.firstName,
-            lastName: provider.basic.lastName,
-            categories: provider.basic.categories,
-            image: provider.basic.image,
-          },
-        })),
-      })),
+      value: DB.categories,
     }
 
     await sleep(2000)

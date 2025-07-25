@@ -28,11 +28,11 @@ export const getProviderLDSchema = (provider: Provider): WithContext<Person> => 
     url: generateEntityUrl(ROUTE_KEYS.providers, provider.id),
   }
 
-  if (provider.details.organization?.id) {
+  if (provider.basic.organization?.id) {
     ldSchema.worksFor = {
       '@type': 'Organization',
-      name: provider.details.organization?.basic.name,
-      url: generateEntityUrl(ROUTE_KEYS.organizations, provider.details.organization.id),
+      name: provider.basic.organization?.basic.name,
+      url: generateEntityUrl(ROUTE_KEYS.organizations, provider.basic.organization.id),
     }
   }
 

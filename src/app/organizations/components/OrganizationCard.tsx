@@ -13,13 +13,15 @@ type Props = {
 
 export const OrganizationCard: FC<Props> = ({ data, hideCategories }) => {
   return (
-    <Card>
-      <AppLink href={`${ROUTES.organizations}/${data.id}`}>
-        <Meta
-          title={data.basic.name}
-          description={<OrganizationCardDetails data={data} hideCategories={hideCategories} />}
-        />
-      </AppLink>
-    </Card>
+    <article>
+      <Card>
+        <AppLink href={`${ROUTES.organizations}/${data.id}`}>
+          <Meta
+            title={data.basic.name}
+            description={<OrganizationCardDetails data={data} hideCategories={hideCategories} />}
+          />
+        </AppLink>
+      </Card>
+    </article>
   )
 }

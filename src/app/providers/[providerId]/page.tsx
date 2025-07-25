@@ -20,8 +20,8 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const provider = await getProviderAPI({
     id: providerId,
   })
-  const { basic, details } = provider
-  const basicOrganization = details.organization?.basic
+  const { basic } = provider
+  const basicOrganization = basic.organization?.basic
 
   const organizationTitleText = basicOrganization ? ` | ${basicOrganization.name}` : ''
   const organizationDescriptionText = basicOrganization ? `, who works at ${basicOrganization.name}.` : ''
@@ -43,6 +43,9 @@ const Provider = async ({ params }: Props) => {
 
   const jsonLd = getProviderLDSchema(provider)
 
+  const organization = provider.basic.organization
+  const categories = provider.basic.categories
+
   return (
     <article className='flex flex-col gap-4'>
       <script
@@ -56,17 +59,15 @@ const Provider = async ({ params }: Props) => {
           <h1 className='text-xl! mb-0 font-bold'>
             {provider.basic.firstName} {provider.basic.lastName}
           </h1>
-          {provider.basic.categories.map((category) => {
+          {categories.map((category) => {
             return (
               <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>
                 #{category.name}
               </AppLink>
             )
           })}
-          {provider.details.organization ? (
-            <AppLink href={`/${ROUTES.organizations}/${provider.details.organization.id}`}>
-              #{provider.details.organization?.basic.name}
-            </AppLink>
+          {organization ? (
+            <AppLink href={`/${ROUTES.organizations}/${organization.id}`}>#{organization?.basic.name}</AppLink>
           ) : (
             <p>No organization</p>
           )}

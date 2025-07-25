@@ -37,7 +37,6 @@ export const useOrganizationsListStoreBase = create<OrganizationsListState & Org
         },
         getOrganizationsList: async () => {
           const normalizedOrganizations = await getOrganizationsListAPI()
-          console.log({ normalizedOrganizations })
 
           set((state) => {
             state.list = normalizedOrganizations

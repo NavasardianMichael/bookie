@@ -37,7 +37,6 @@ export const useProvidersListStoreBase = create<ProvidersListState & ProviderPro
         },
         getProvidersList: async () => {
           const normalizedProviders = await getProvidersListAPI()
-          console.log({ normalizedProviders })
 
           set((state) => {
             state.list = normalizedProviders

@@ -13,13 +13,13 @@ export type Provider = {
     firstName: string
     lastName: string
     image: string
+    organization?: BasicOrganization
   }
   details: {
     phone: string
     country: string
     address: string
     email: string
-    organization?: BasicOrganization
   }
   services: ProviderServices[]
 }
