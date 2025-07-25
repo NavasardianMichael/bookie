@@ -5,7 +5,10 @@ export const organizations: DBType['organizations'] = [
     id: 'org-1',
     basic: {
       name: 'HealthCare Plus',
-      categories: [],
+      categories: [
+        { id: 'cat-2', name: 'Physical Therapy', organizations: [], providers: [] },
+        { id: 'cat-3', name: 'Mental Health', organizations: [], providers: [] },
+      ],
       description:
         'A comprehensive healthcare facility providing quality general medical services and preventive care to patients of all ages in the heart of New York.',
     },

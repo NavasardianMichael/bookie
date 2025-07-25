@@ -132,7 +132,7 @@ const SignOnForm: React.FC = () => {
         </Flex>
       </Form.Item>
 
-      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!'>
+      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
         Send Verification Code
       </Button>
     </Form>

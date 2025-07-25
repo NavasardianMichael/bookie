@@ -67,7 +67,7 @@ const Provider = async ({ params }: Props) => {
             )
           })}
           {organization ? (
-            <AppLink href={`/${ROUTES.organizations}/${organization.id}`}>#{organization?.basic.name}</AppLink>
+            <AppLink href={`${ROUTES.organizations}/${organization.id}`}>#{organization?.basic.name}</AppLink>
           ) : (
             <p>No organization</p>
           )}

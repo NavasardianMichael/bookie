@@ -39,16 +39,17 @@ const Organization = async ({ params }: Props) => {
     <article>
       <div className='flex flex-col gap-4 grow'>
         <h2 className='text-xl mb-0 font-bold'>{organization.basic.name}</h2>
-        <h3 className='text-lg mb-0'>
+
+        <div className='flex gap-2'>
           {organization.basic.categories.map((category) => {
             return (
               <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>
-                {category.name}
+                #{category.name}
               </AppLink>
             )
           })}
-        </h3>
-
+        </div>
+        <hr />
         <div className='p-0 m-0 flex flex-col gap-2'>
           <div>
             <p>
