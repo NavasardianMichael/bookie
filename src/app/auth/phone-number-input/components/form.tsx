@@ -72,10 +72,10 @@ const SignOnForm: React.FC = () => {
   const handlePhoneNumberChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const formattedValue = formatPhoneNumber(e.target.value)
-      form.setFields([{ name: 'phoneNumber', errors: [] }])
+      formik.setErrors({})
       formik.setFieldValue('phoneNumber', formattedValue)
     },
-    [formatPhoneNumber, formik, form]
+    [formatPhoneNumber, formik]
   )
 
   // Create placeholder text for the phone input
