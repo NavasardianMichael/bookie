@@ -27,6 +27,7 @@ const SignOnForm: React.FC = () => {
     onSubmit: async (values) => {
       await getCodeByPhoneNumber(values)
       localStorage.setItem('phoneNumber', values.phoneNumber)
+      localStorage.setItem('countryCode', getCountryCallingCode(values.countryCode!))
       push(ROUTES.codeInput)
     },
   })

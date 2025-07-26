@@ -10,9 +10,9 @@ import { ROUTES } from '@constants/routes'
 import { combineClassNames } from '@helpers/commons'
 import styles from './countdown.module.css'
 
-const { Countdown } = Statistic
+const { Timer } = Statistic
 
-const COUNTDOWN_DURATION = 60_000
+const COUNTDOWN_DURATION = 3_000
 
 const OTPCodeInput: React.FC = () => {
   const { replace } = useRouter()
@@ -65,9 +65,9 @@ const OTPCodeInput: React.FC = () => {
       console.error('Phone number not found in local storage.')
       return
     }
-    setCountdownValue(COUNTDOWN_DURATION)
-    await getCodeByPhoneNumber({ phoneNumber })
     setCode('')
+    setCountdownValue(Date.now() + COUNTDOWN_DURATION)
+    await getCodeByPhoneNumber({ phoneNumber })
     setShowResendButton(false)
     setCountDownDeadline(Date.now() + COUNTDOWN_DURATION)
   }
@@ -107,13 +107,15 @@ const OTPCodeInput: React.FC = () => {
 
         <Button
           onClick={onResendButtonClick}
-          className='relative w-full h-[56px]! bg-bookie-gray! text-bookie-blue!'
+          className='relative w-full h-[56px]!'
           size='large'
+          type='primary'
           disabled={isPending || !showResendButton}
         >
           Resend Code
           {countdownValue > 0 && (
-            <Countdown
+            <Timer
+              type='countdown'
               value={countDownDeadline}
               onFinish={onFinish}
               onChange={onCountdownChange}

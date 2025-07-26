@@ -9,3 +9,9 @@
 .ant-form-item-control:has(.custom-antd-select) .ant-form-item-explain-error {
   margin-right: 4px !important;
 }
+
+.ant-otp-input-wrapper input {
+  width: 56px;
+  height: 56px;
+  box-sizing: border-box;
+}
