@@ -15,7 +15,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+1234567890',
       country: 'United States',
-      address: '456 Medical Ave, New York, NY 10002',
+      location: {
+        address: '456 Medical Ave, New York, NY 10002',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'info@healthcareplus.com',
       website: 'https://healthcareplus.com',
       logoUrl: 'https://via.placeholder.com/150x150?text=HealthCare+Plus',
@@ -32,7 +35,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+1416555123',
       country: 'Canada',
-      address: '654 Health Blvd, Toronto, ON M5V 2B9',
+      location: {
+        address: '654 Health Blvd, Toronto, ON M5V 2B9',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'contact@wellnesscenter.ca',
       website: 'https://wellnesscenter.ca',
       logoUrl: 'https://via.placeholder.com/150x150?text=WellnessCenter',
@@ -49,7 +55,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+442071234567',
       country: 'United Kingdom',
-      address: '888 Healthcare St, London, SW1A 2BB',
+      location: {
+        address: '888 Healthcare St, London, SW1A 2BB',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'info@londonmedical.co.uk',
       website: 'https://londonmedical.co.uk',
       logoUrl: 'https://via.placeholder.com/150x150?text=London+Medical',
@@ -66,7 +75,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+34911234567',
       country: 'Spain',
-      address: '222 Salud Ave, Madrid, 28002',
+      location: {
+        address: '222 Salud Ave, Madrid, 28002',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'info@centromedicomadrid.es',
       website: 'https://centromedicomadrid.es',
       logoUrl: 'https://via.placeholder.com/150x150?text=Centro+Madrid',
@@ -83,7 +95,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+82212345678',
       country: 'South Korea',
-      address: '555 Gangnam Ave, Seoul, 06000',
+      location: {
+        address: '555 Gangnam Ave, Seoul, 06000',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'info@seoulhealth.kr',
       website: 'https://seoulhealth.kr',
       logoUrl: 'https://via.placeholder.com/150x150?text=Seoul+Health',
@@ -100,7 +115,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+493012345678',
       country: 'Germany',
-      address: '888 Medical Plaza, Berlin, 10117',
+      location: {
+        address: '888 Medical Plaza, Berlin, 10117',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'kontakt@berlinmedical.de',
       website: 'https://berlinmedical.de',
       logoUrl: 'https://via.placeholder.com/150x150?text=Berlin+Medical',
@@ -117,7 +135,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+390612345678',
       country: 'Italy',
-      address: '202 Vatican St, Rome, 00120',
+      location: {
+        address: '202 Vatican St, Rome, 00120',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'info@romamedical.it',
       website: 'https://romamedical.it',
       logoUrl: 'https://via.placeholder.com/150x150?text=Roma+Medical',
@@ -134,7 +155,10 @@ export const organizations: DBType['organizations'] = [
     details: {
       phone: '+31201234567',
       country: 'Netherlands',
-      address: '505 Canal St, Amsterdam, 1017',
+      location: {
+        address: '505 Canal St, Amsterdam, 1017',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'info@amsterdamhealth.nl',
       website: 'https://amsterdamhealth.nl',
       logoUrl: 'https://via.placeholder.com/150x150?text=Amsterdam+Health',

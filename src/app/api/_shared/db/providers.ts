@@ -15,7 +15,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567890',
       country: 'United States',
-      address: '123 Main St, New York, NY 10001',
+      location: {
+        address: '123 Main St, New York, NY 10001',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'john.doe@example.com',
     },
     services: [
@@ -42,7 +45,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567891',
       country: 'United States',
-      address: '789 Oak St, Los Angeles, CA 90210',
+      location: {
+        address: '789 Oak St, Los Angeles, CA 90210',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'jane.smith@example.com',
     },
     services: [
@@ -73,7 +79,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567892',
       country: 'Canada',
-      address: '321 Maple Ave, Toronto, ON M5V 3A8',
+      location: {
+        address: '321 Maple Ave, Toronto, ON M5V 3A8',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'alice.johnson@example.com',
     },
     services: [
@@ -100,7 +109,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567893',
       country: 'United States',
-      address: '555 Pine St, Chicago, IL 60601',
+      location: {
+        address: '555 Pine St, Chicago, IL 60601',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'bob.williams@example.com',
     },
     services: [
@@ -136,7 +148,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567894',
       country: 'United Kingdom',
-      address: '777 London Rd, London, SW1A 1AA',
+      location: {
+        address: '777 London Rd, London, SW1A 1AA',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'carol.brown@example.com',
     },
     services: [
@@ -158,7 +173,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567895',
       country: 'Australia',
-      address: '999 Sydney Ave, Sydney, NSW 2000',
+      location: {
+        address: '999 Sydney Ave, Sydney, NSW 2000',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'david.jones@example.com',
     },
     services: [
@@ -194,7 +212,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567896',
       country: 'Spain',
-      address: '111 Madrid St, Madrid, 28001',
+      location: {
+        address: '111 Madrid St, Madrid, 28001',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'eve.garcia@example.com',
     },
     services: [
@@ -216,7 +237,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567897',
       country: 'Mexico',
-      address: '333 Mexico City Blvd, Mexico City, 01000',
+      location: {
+        address: '333 Mexico City Blvd, Mexico City, 01000',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'frank.martinez@example.com',
     },
     services: [
@@ -247,7 +271,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567898',
       country: 'South Korea',
-      address: '444 Seoul St, Seoul, 04522',
+      location: {
+        address: '444 Seoul St, Seoul, 04522',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'grace.lee@example.com',
     },
     services: [
@@ -274,7 +301,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567899',
       country: 'Brazil',
-      address: '666 São Paulo Ave, São Paulo, 01310-100',
+      location: {
+        address: '666 São Paulo Ave, São Paulo, 01310-100',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'henry.perez@example.com',
     },
     services: [
@@ -305,7 +335,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567800',
       country: 'Germany',
-      address: '777 Berlin St, Berlin, 10115',
+      location: {
+        address: '777 Berlin St, Berlin, 10115',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'ivy.white@example.com',
     },
     services: [
@@ -327,7 +360,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567801',
       country: 'France',
-      address: '999 Paris Blvd, Paris, 75001',
+      location: {
+        address: '999 Paris Blvd, Paris, 75001',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'jack.harris@example.com',
     },
     services: [
@@ -363,7 +399,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567802',
       country: 'Italy',
-      address: '101 Rome Ave, Rome, 00100',
+      location: {
+        address: '101 Rome Ave, Rome, 00100',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'kathy.clark@example.com',
     },
     services: [
@@ -385,7 +424,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567803',
       country: 'Japan',
-      address: '303 Tokyo St, Tokyo, 100-0001',
+      location: {
+        address: '303 Tokyo St, Tokyo, 100-0001',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'leo.lewis@example.com',
     },
     services: [
@@ -421,7 +463,10 @@ export const providers: DBType['providers'] = [
     details: {
       phone: '+1234567804',
       country: 'Netherlands',
-      address: '404 Amsterdam Ave, Amsterdam, 1012',
+      location: {
+        address: '404 Amsterdam Ave, Amsterdam, 1012',
+        url: 'https://maps.app.goo.gl/KWULuyYevsEf1Qq29',
+      },
       email: 'mona.walker@example.com',
     },
     services: [

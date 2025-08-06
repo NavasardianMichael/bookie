@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { getCountries } from 'libphonenumber-js'
-import { EXCLUDED_COUNTRIES } from '@constants/countries'
+import { SIGN_ON_EXCLUDED_COUNTRIES } from '@constants/countries'
 import Country from './components/Country'
 
 export const useCountries = () => {
@@ -9,7 +9,7 @@ export const useCountries = () => {
     return (
       countries
         // eslint-disable-next-line security/detect-object-injection
-        .filter((country) => !EXCLUDED_COUNTRIES[country])
+        .filter((country) => !SIGN_ON_EXCLUDED_COUNTRIES[country])
         .map((country) => ({
           value: country,
           label: <Country country={country} />,

@@ -13,7 +13,10 @@ const initialState: OrganizationState = {
     categories: [],
   },
   details: {
-    address: '',
+    location: {
+      address: '',
+      url: '',
+    },
     phone: '',
     email: '',
     country: '',

@@ -1,23 +1,22 @@
 import { Flex } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
-import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
-// import SignOnForm from './components/form'
+import ProviderProfileForm from '@components/providerProfileForm/ProviderProfileForm'
 
 export const metadata: Metadata = {
-  title: 'Bookie | Sign On',
-  description: 'Sign on to your Bookie account using your phone number and start the journey with Bookie now!.',
+  title: 'Bookie | Create Your Own Profile',
+  description: 'Fill in Profile Primary Info of your Profile',
 }
 
 const ProfileCreation: React.FC = () => (
   <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-    <Title className='text-xl! mb-0!'>Enter your phone number</Title>
-    <Paragraph type='secondary' className='text-base! mb-0!'>
-      We will send confirmation code via SMS to the phone number.
+    <Paragraph className='text-2xl! font-bold text-center mb-1!'>Let's Get Started!</Paragraph>
+    <Paragraph className='text-xl! font-bold text-center mt-1!'>
+      Fill in Primary Information <br /> of your Profile
     </Paragraph>
     <Flex className='w-full! justify-center items-center'>
       <Flex vertical gap={8} className='w-full'>
-        {/* <SignOnForm /> */}
+        <ProviderProfileForm />
       </Flex>
     </Flex>
   </Flex>

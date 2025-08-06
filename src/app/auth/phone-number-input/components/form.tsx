@@ -6,15 +6,15 @@ import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
-import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/auth/form'
-import { REGISTRATION_FORM_INITIAL_VALUES } from '@constants/auth/registration'
+import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
 import { ROUTES } from '@constants/routes'
+import { SIGN_ON_FORM_INITIAL_VALUES } from '@constants/sign-on'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 import { useCountries } from '../useCountries'
 
 import '@ant-design/v5-patch-for-react-19'
 
-type RegistrationFormValues = typeof REGISTRATION_FORM_INITIAL_VALUES
+type RegistrationFormValues = typeof SIGN_ON_FORM_INITIAL_VALUES
 
 const SignOnForm: React.FC = () => {
   const { push } = useRouter()
@@ -23,7 +23,7 @@ const SignOnForm: React.FC = () => {
   const [form] = Form.useForm()
 
   const formik = useFormik<RegistrationFormValues>({
-    initialValues: REGISTRATION_FORM_INITIAL_VALUES,
+    initialValues: SIGN_ON_FORM_INITIAL_VALUES,
     validateOnChange: false,
     onSubmit: async (values) => {
       const processedCountryCode = getCountryCallingCode(values.code!)

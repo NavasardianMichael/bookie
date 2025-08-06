@@ -5,7 +5,7 @@ type Form = {
   code: CountryCode | undefined
 }
 
-export const REGISTRATION_FORM_INITIAL_VALUES: Form = {
+export const SIGN_ON_FORM_INITIAL_VALUES: Form = {
   number: '',
   code: undefined,
 }

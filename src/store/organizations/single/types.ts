@@ -1,5 +1,6 @@
 import { GetOrganizationAPI } from '@api/organizations/types'
 import { BasicCategory } from '@store/categories/single/types'
+import { Location } from '@interfaces/app'
 import { StateCommonProps } from '@interfaces/store'
 
 export type OrganizationState = StateCommonProps & Organization
@@ -14,7 +15,7 @@ export type Organization = {
   details: {
     phone: string
     country: string
-    address: string
+    location: Location
     email: string
     website: string
     logoUrl: string
