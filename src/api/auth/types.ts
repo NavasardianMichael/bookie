@@ -7,7 +7,7 @@ export type GetCodeByPhoneNumberAPI = Endpoint<{
 }>
 
 export type ValidatePhoneNumberCodeAPI = Endpoint<{
-  payload: { phoneNumber: string; code: number }
+  payload: { phoneNumber: string; otp: string }
   response: boolean
   processed: void
 }>

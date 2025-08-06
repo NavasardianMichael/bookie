@@ -1,4 +1,6 @@
+import { AppError } from './api'
+
 export type StateCommonProps = {
   isPending: boolean
-  error: Error | null
+  error: AppError | null
 }

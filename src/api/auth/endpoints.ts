@@ -1,4 +1,4 @@
 export const ENDPOINTS = {
-  getCodeByPhoneNumber: '/getCodeByPhoneNumber',
-  validatePhoneNumberCode: '/validatePhoneNumberCode',
+  getCodeByPhoneNumber: '/identity/send-otp',
+  validatePhoneNumberCode: '/identity/login',
 } as const

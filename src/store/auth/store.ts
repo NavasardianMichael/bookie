@@ -4,6 +4,7 @@ import { immer } from 'zustand/middleware/immer'
 import { getCodeByPhoneNumberAPI, validatePhoneNumberCodeAPI } from '@api/auth/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { SIGN_ON_STEPS } from '@constants/auth'
+import { errorMiddleware } from '@helpers/store'
 import { AuthActions, AuthState } from './types'
 
 const initialState: AuthState = {
@@ -17,28 +18,30 @@ const initialState: AuthState = {
 
 const useAuthStoreBase = create<AuthState & AuthActions>()(
   immer(
-    combine(
-      initialState,
-      (set): AuthActions => ({
-        setAuthState: (payload) => {
-          set((state) => {
-            return {
-              ...state,
-              ...payload,
-            }
-          })
-        },
-        getCodeByPhoneNumber: async (payload) => {
-          set({ phoneNumber: payload.phoneNumber, isPending: true })
-          await getCodeByPhoneNumberAPI(payload)
-          set({ isPending: false })
-        },
-        validatePhoneNumberCode: async (payload) => {
-          set({ isPending: true })
-          await validatePhoneNumberCodeAPI(payload)
-          set({ isPending: false })
-        },
-      })
+    errorMiddleware(
+      combine(
+        initialState,
+        (set): AuthActions => ({
+          setAuthState: (payload) => {
+            set((state) => {
+              return {
+                ...state,
+                ...payload,
+              }
+            })
+          },
+          getCodeByPhoneNumber: async (payload) => {
+            set({ phoneNumber: payload.phoneNumber, isPending: true })
+            await getCodeByPhoneNumberAPI(payload)
+            set({ isPending: false })
+          },
+          validatePhoneNumberCode: async (payload) => {
+            set({ isPending: true })
+            await validatePhoneNumberCodeAPI(payload)
+            set({ isPending: false })
+          },
+        })
+      )
     )
   )
 )

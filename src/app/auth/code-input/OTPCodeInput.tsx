@@ -45,7 +45,7 @@ const OTPCodeInput: React.FC = () => {
     try {
       setCode(value)
       await validatePhoneNumberCode({
-        code: +value,
+        otp: value,
         phoneNumber: phoneNumberRef.current,
       })
       replace(ROUTES.profileCreated)

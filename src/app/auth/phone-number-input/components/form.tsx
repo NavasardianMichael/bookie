@@ -25,9 +25,9 @@ const SignOnForm: React.FC = () => {
     initialValues: REGISTRATION_FORM_INITIAL_VALUES,
     validateOnChange: false,
     onSubmit: async (values) => {
-      await getCodeByPhoneNumber(values)
       localStorage.setItem('phoneNumber', values.phoneNumber)
       localStorage.setItem('countryCode', getCountryCallingCode(values.countryCode!))
+      await getCodeByPhoneNumber(values)
       push(ROUTES.codeInput)
     },
   })
@@ -59,8 +59,14 @@ const SignOnForm: React.FC = () => {
       try {
         const fullNumber = `+${getCountryCallingCode(formik.values.countryCode)}${value}`
         const phoneNumber = parsePhoneNumberWithError(fullNumber)
+        console.log({
+          phoneNumber: phoneNumber
+            .format('INTERNATIONAL')
+            .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
+            .trim(),
+        })
         return phoneNumber
-          .formatNational()
+          .format('INTERNATIONAL')
           .replace(`+${getCountryCallingCode(formik.values.countryCode)}`, '')
           .trim()
       } catch (_error) {

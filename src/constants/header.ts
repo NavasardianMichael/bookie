@@ -40,4 +40,7 @@ export const HEADER_UTILS_BY_ROUTE: Partial<Record<AppRouteName, { arrow?: boole
   [ROUTE_KEYS.accountTypeSelection]: {
     logo: true,
   },
+  [ROUTE_KEYS.profileCreated]: {
+    arrow: false,
+  },
 }

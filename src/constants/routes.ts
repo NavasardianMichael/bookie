@@ -7,6 +7,7 @@ export const ROUTE_KEYS = {
   consumers: 'consumers',
   organizations: 'organizations',
   consumerProfile: 'consumerProfile',
+  providerProfileCreation: 'providerProfileCreation',
   providerProfile: 'providerProfile',
 
   signOn: 'signOn',
@@ -22,7 +23,7 @@ export const ROUTE_KEYS = {
   routesOverview: 'routesOverview',
 } as const
 
-export const ROUTES = {
+export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   // Main
   [ROUTE_KEYS.home]: '/',
   [ROUTE_KEYS.contact]: '/contact',
@@ -30,9 +31,10 @@ export const ROUTES = {
   [ROUTE_KEYS.providerCategories]: '/provider-categories',
   [ROUTE_KEYS.providers]: '/providers',
   [ROUTE_KEYS.consumers]: '/consumers',
-  [ROUTE_KEYS.consumerProfile]: '/consumers/profile',
-  [ROUTE_KEYS.providerProfile]: '/providers/profile',
   [ROUTE_KEYS.organizations]: '/organizations',
+  [ROUTE_KEYS.consumerProfile]: '/consumers/profile',
+  [ROUTE_KEYS.providerProfileCreation]: '/providers/provider-profile-creation',
+  [ROUTE_KEYS.providerProfile]: '/providers/profile',
 
   // Auth
   [ROUTE_KEYS.signOn]: '/auth/sign-on',

@@ -51,7 +51,7 @@ export const Header = () => {
           </AppLink>
         )}
 
-        <BackHistoryBtn />
+        {headerUtils?.arrow !== false && <BackHistoryBtn />}
 
         {/* Desktop Navigation */}
         <nav className='hidden md:flex gap-4 ml-auto'>
