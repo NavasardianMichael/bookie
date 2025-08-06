@@ -33,7 +33,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.consumers]: '/consumers',
   [ROUTE_KEYS.organizations]: '/organizations',
   [ROUTE_KEYS.consumerProfile]: '/consumers/profile',
-  [ROUTE_KEYS.providerProfileCreation]: '/providers/provider-profile-creation',
+  [ROUTE_KEYS.providerProfileCreation]: '/providers/profile-creation',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
 
   // Auth

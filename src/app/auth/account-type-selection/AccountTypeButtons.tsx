@@ -6,6 +6,7 @@ import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
+import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 
 type AccountTypeFormValues = {
   accountType: (typeof ACCOUNT_TYPE_OPTIONS)[number]['value']
@@ -35,7 +36,7 @@ const AccountTypeButtons: React.FC = () => {
     initialValues: ACCOUNT_TYPE_FORM_INITIAL_VALUES,
     validateOnChange: false,
     onSubmit: async (values) => {
-      localStorage.setItem('accountType', values.accountType)
+      localStorage.setItem(LOCAL_STORAGE_KEYS.accountType, values.accountType)
       push(ROUTES.phoneNumberInput)
     },
   })
@@ -50,12 +51,12 @@ const AccountTypeButtons: React.FC = () => {
             buttonStyle='solid'
             size='large'
             className='w-full flex! gap-2!'
-            defaultValue={ACCOUNT_TYPE_OPTIONS[1].value}
+            // defaultValue={ACCOUNT_TYPE_OPTIONS[1].value}
             value={formik.values.accountType}
             onChange={(e) => formik.setFieldValue('accountType', e.target.value)}
           />
         </Form.Item>
-        { }
+        {}
         <Flex vertical className='w-full h-full grow!' justify='space-between'>
           <img src='/logo.svg' alt='Bookie logo' className='h-[200px] md:h-[400px] object-cover m-auto' />
 

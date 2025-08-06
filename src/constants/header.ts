@@ -43,4 +43,7 @@ export const HEADER_UTILS_BY_ROUTE: Partial<Record<AppRouteName, { arrow?: boole
   [ROUTE_KEYS.profileCreated]: {
     arrow: false,
   },
+  [ROUTE_KEYS.providerProfileCreation]: {
+    arrow: false,
+  },
 }

@@ -1,11 +1,12 @@
 import { GetCodeByPhoneNumberAPI, ValidatePhoneNumberCodeAPI } from '@api/auth/types'
+import { PhoneNumber } from '@interfaces/app'
 import { SignOnStep, UserType } from '@interfaces/auth'
 import { StateCommonProps } from '@interfaces/store'
 
 export type AuthState = StateCommonProps & {
   isSignedOn: boolean
-  phoneNumber: string
-  userType: null | UserType
+  phone: PhoneNumber
+  userType: UserType | null
   step: SignOnStep
 }
 export type AuthActions = {

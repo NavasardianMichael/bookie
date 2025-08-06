@@ -15,7 +15,14 @@ export const metadata: Metadata = {
 const ProfileCreated: React.FC = () => {
   return (
     <Flex vertical gap={8} align='center' justify='center' className='grow h-full'>
-      <Image src={profileVerifiedImage} alt='Profile Verified' width={100} height={100} />
+      <Image
+        priority
+        src={profileVerifiedImage}
+        alt='Profile Verified'
+        width={100}
+        // height={100}
+        // style={{ width: 'auto' }}
+      />
       <Flex vertical gap={16}>
         <Title level={4} className='text-center mb-0!'>
           Success!

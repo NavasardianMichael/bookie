@@ -1,13 +1,14 @@
+import { AuthState } from '@store/auth/types'
 import { Endpoint } from '@interfaces/api'
 
 export type GetCodeByPhoneNumberAPI = Endpoint<{
-  payload: { phoneNumber: string }
+  payload: Pick<AuthState, 'phone'>
   response: boolean
   processed: void
 }>
 
 export type ValidatePhoneNumberCodeAPI = Endpoint<{
-  payload: { phoneNumber: string; otp: string }
+  payload: Pick<AuthState, 'phone'> & { otp: number }
   response: boolean
   processed: void
 }>
