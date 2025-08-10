@@ -11,6 +11,7 @@ import { sleep } from '@helpers/commons'
 import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
 import CategoriesSelect from './CategoriesSelect'
+import LocationInput from './LocationInput'
 import OrganizationSelect from './OrganizationSelect'
 
 import '@ant-design/v5-patch-for-react-19'
@@ -85,6 +86,8 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       >
         <CategoriesSelect formik={formik} />
       </Form.Item>
+
+      <LocationInput formik={formik} disabled={isPending} />
 
       <Form.Item<typeof initialValues>
         name='organization'

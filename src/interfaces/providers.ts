@@ -5,6 +5,8 @@ export type ProviderProfileFormValues = {
   firstName: Provider['basic']['firstName']
   lastName: Provider['basic']['lastName']
   categories: Category['id'][]
+  address: Provider['details']['location']['address']
+  locationURL: Provider['details']['location']['url']
   description?: Provider['basic']['description']
   image?: Provider['basic']['image']
   email?: Provider['details']['email']
