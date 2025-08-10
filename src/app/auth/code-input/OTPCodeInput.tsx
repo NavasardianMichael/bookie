@@ -1,7 +1,7 @@
 'use client'
 
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, CountdownProps, Flex, Form, FormItemProps, Input, Statistic } from 'antd'
+import { CountdownProps, Flex, Form, FormItemProps, Input, Statistic } from 'antd'
 import { OTPProps } from 'antd/es/input/OTP'
 import Paragraph from 'antd/es/typography/Paragraph'
 import { useRouter } from 'next/navigation'
@@ -11,6 +11,7 @@ import { ROUTES } from '@constants/routes'
 import { combineClassNames } from '@helpers/commons'
 import { processError } from '@helpers/error'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
+import AppButton from '@components/ui/AppButton'
 import styles from './countdown.module.css'
 
 const { Timer } = Statistic
@@ -137,7 +138,7 @@ const OTPCodeInput: React.FC = () => {
           />
         </Form.Item>
 
-        <Button
+        <AppButton
           onClick={onResendButtonClick}
           className='relative w-full h-[56px]!'
           size='large'
@@ -157,7 +158,7 @@ const OTPCodeInput: React.FC = () => {
               loading={isPending}
             />
           )}
-        </Button>
+        </AppButton>
       </Flex>
     </>
   )

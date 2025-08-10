@@ -22,7 +22,7 @@ export const getProviderLDSchema = (provider: Provider): WithContext<Person> => 
     givenName: provider.basic.firstName,
     familyName: provider.basic.lastName,
     image: provider.basic.image,
-    workLocation: provider.details.address,
+    workLocation: provider.details.location.address,
     email: provider.details.email,
     telephone: provider.details.phone,
     url: generateEntityUrl(ROUTE_KEYS.providers, provider.id),

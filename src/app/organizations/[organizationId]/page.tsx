@@ -1,9 +1,10 @@
+import { Metadata } from 'next'
 import { getOrganizationAPI } from '@api/organizations/main'
 import { Organization as OrganizationType } from '@store/organizations/single/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { generateGoogleMapsLink } from '@helpers/location'
-import AppLink from '@components/shared/AppLink'
+import AppLink from '@components/ui/AppLink'
 
 type Props = {
   params: Promise<{
@@ -12,7 +13,7 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
+export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { organizationId } = await params
   const organization = await getOrganizationAPI({
     id: organizationId,
@@ -23,7 +24,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   return {
     title: `Bookie | ${basicOrganization.categories.map((category) => category.name).join('| ')} | ${basicOrganization.name}`,
     description: `Welcome to ${basicOrganization.name}`,
-    keywords: `Bookie, ${basicOrganization.name}, ${organization.details.country}, ${organization.details.address}, ${organization.details.phone}, ${organization.details.email}`,
+    keywords: `Bookie, ${basicOrganization.name}, ${organization.details.country}, ${organization.details.location.address}, ${organization.details.phone}, ${organization.details.email}`,
     classification: basicOrganization.categories.map((category) => category.name).join(', '),
   }
 }
@@ -63,8 +64,12 @@ const Organization = async ({ params }: Props) => {
             <p>
               <strong>Address</strong>
             </p>
-            <a href={generateGoogleMapsLink(organization.details.address)} target='_blank' className='underline block!'>
-              {organization.details.address}
+            <a
+              href={generateGoogleMapsLink(organization.details.location.address)}
+              target='_blank'
+              className='underline block!'
+            >
+              {organization.details.location.address}
             </a>
           </div>
           <div>

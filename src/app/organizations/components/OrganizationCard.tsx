@@ -3,7 +3,7 @@ import { Card } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/shared/AppLink'
+import AppLink from '@components/ui/AppLink'
 import { OrganizationCardDetails } from './OrganizationCardDetails'
 
 type Props = {

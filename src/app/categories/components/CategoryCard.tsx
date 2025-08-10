@@ -6,7 +6,7 @@ import Meta from 'antd/es/card/Meta'
 import Title from 'antd/es/typography/Title'
 import { BasicCategory } from '@store/categories/single/types'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/shared/AppLink'
+import AppLink from '@components/ui/AppLink'
 import { CategoryCardDetails } from './CategoryCardDetails'
 
 type Props = {

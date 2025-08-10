@@ -1,11 +1,12 @@
-import { Button, Flex } from 'antd'
+import { Flex } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
 import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
 import Image from 'next/image'
 import profileVerifiedImage from '@assets/images/verified_icon.png'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import AppLink from '@components/shared/AppLink'
+import AppButton from '@components/ui/AppButton'
+import AppLink from '@components/ui/AppLink'
 
 export const metadata: Metadata = {
   title: 'Bookie | Profile Created',
@@ -30,9 +31,9 @@ const ProfileCreated: React.FC = () => {
         <Paragraph type='secondary' className='text-center mb-0!'>
           You're all set — let's get started.
         </Paragraph>
-        <Button type='primary'>
+        <AppButton type='primary'>
           <AppLink href={ROUTES[ROUTE_KEYS.providerProfileCreation]}>Configure Your Profile</AppLink>
-        </Button>
+        </AppButton>
       </Flex>
     </Flex>
   )

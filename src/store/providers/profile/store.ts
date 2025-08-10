@@ -15,7 +15,9 @@ const initialState: ProviderProfileState = {
     categories: [],
   },
   details: {
-    address: '',
+    location: {
+      address: '',
+    },
     country: '',
     email: '',
     phone: '',

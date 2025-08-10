@@ -1,10 +1,11 @@
 import { getProviderLDSchema } from '@linkedDataSchema/providers'
+import { Metadata } from 'next'
 import serializeJavascript from 'serialize-javascript'
 import { getProviderAPI } from '@api/providers/main'
 import { Provider as ProviderType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import AppLink from '@components/shared/AppLink'
+import AppLink from '@components/ui/AppLink'
 import '@styles/full-calendar-override.css'
 import ProviderDetails from './components/Details'
 
@@ -15,7 +16,7 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
+export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { providerId } = await params
   const provider = await getProviderAPI({
     id: providerId,
@@ -27,10 +28,10 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const organizationDescriptionText = basicOrganization ? `, who works at ${basicOrganization.name}.` : ''
 
   return {
-    title: `Bookie | ${provider.basic.firstName} ${provider.basic.lastName}${organizationTitleText} | ${basic.categories.map((cat) => cat.name).join(', ')}`,
+    title: `Bookie | ${provider.basic.firstName} ${provider.basic.lastName}${organizationTitleText} | ${basic.categories?.map((cat) => cat.name).join(', ')}`,
     description: `Welcome to ${provider.basic.firstName} ${provider.basic.lastName}'s profile page${organizationDescriptionText}`,
-    keywords: `Bookie, ${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.address}, ${provider.details.phone}, ${provider.details.email}`,
-    classification: basic.categories.map((cat) => cat.name).join(', '),
+    keywords: `Bookie, ${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.location.address}, ${provider.details.phone}, ${provider.details.email}`,
+    classification: basic.categories?.map((cat) => cat.name).join(', ') ?? '',
   }
 }
 
@@ -59,7 +60,7 @@ const Provider = async ({ params }: Props) => {
           <h1 className='text-xl! mb-0 font-bold'>
             {provider.basic.firstName} {provider.basic.lastName}
           </h1>
-          {categories.map((category) => {
+          {categories?.map((category) => {
             return (
               <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>
                 #{category.name}
@@ -84,7 +85,7 @@ const Provider = async ({ params }: Props) => {
               <p>
                 <strong>Address</strong>
               </p>
-              <p>{provider.details.address}</p>
+              <p>{provider.details.location.address}</p>
             </div>
             <div>
               <p>

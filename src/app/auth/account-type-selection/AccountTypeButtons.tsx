@@ -1,12 +1,13 @@
 'use client'
 
-import { Button, CheckboxOptionType, Flex, Form, Radio } from 'antd'
+import { CheckboxOptionType, Flex, Form, Radio } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
+import AppButton from '@components/ui/AppButton'
 
 type AccountTypeFormValues = {
   accountType: (typeof ACCOUNT_TYPE_OPTIONS)[number]['value']
@@ -65,7 +66,7 @@ const AccountTypeButtons: React.FC = () => {
               Quick access — sign in with your phone number to get started.
             </Paragraph>
 
-            <Button
+            <AppButton
               type='primary'
               htmlType='submit'
               size='large'
@@ -73,7 +74,7 @@ const AccountTypeButtons: React.FC = () => {
               disabled={!formik.values.accountType}
             >
               Sign on
-            </Button>
+            </AppButton>
           </Flex>
         </Flex>
       </Flex>

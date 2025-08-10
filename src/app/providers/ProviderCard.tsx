@@ -6,7 +6,7 @@ import Meta from 'antd/es/card/Meta'
 import Title from 'antd/es/typography/Title'
 import { BasicProvider } from '@store/providers/profile/types'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/shared/AppLink'
+import AppLink from '@components/ui/AppLink'
 
 type Props = {
   data: BasicProvider

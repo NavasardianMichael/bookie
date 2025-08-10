@@ -1,7 +1,8 @@
 import { FC, MouseEventHandler } from 'react'
-import { Button, Flex } from 'antd'
+import { Flex } from 'antd'
 import { BasicCategory } from '@store/categories/single/types'
 import { ROUTE_KEYS } from '@constants/routes'
+import AppButton from '@components/ui/AppButton'
 
 type Props = {
   data: BasicCategory
@@ -12,7 +13,7 @@ export const CategoryCardDetails: FC<Props> = ({ data, onEntityClick }) => {
   return (
     <Flex vertical gap={4}>
       {data.organizations.map((organization) => (
-        <Button
+        <AppButton
           type='primary'
           key={organization.id}
           data-entity-name={ROUTE_KEYS.organizations}
@@ -20,7 +21,7 @@ export const CategoryCardDetails: FC<Props> = ({ data, onEntityClick }) => {
           onClick={onEntityClick}
         >
           #{organization.basic.name}
-        </Button>
+        </AppButton>
       ))}
     </Flex>
   )

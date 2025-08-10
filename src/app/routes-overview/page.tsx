@@ -1,6 +1,6 @@
 import { OVERVIEW_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/shared/AppLink'
+import AppLink from '@components/ui/AppLink'
 
 const RoutesOverview = () => {
   return (

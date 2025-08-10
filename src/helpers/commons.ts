@@ -1,3 +1,5 @@
+import { Normalized } from '@interfaces/commons'
+
 export const combineClassNames = (...classNames: ReadonlyArray<string | undefined | boolean>) => {
   return classNames.filter((className) => !!className).join(' ')
 }
@@ -10,4 +12,24 @@ export const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]) =>
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export const normalizedToFlat = <T extends { id: string }>(data: Normalized<T>): T[] => {
+  // eslint-disable-next-line security/detect-object-injection
+  return data.allIds.map((itemId) => data.byId[itemId])
+}
+
+export const flatToNormalized = <T extends { id: string }>(data: T[]): Normalized<T> => {
+  return data.reduce(
+    (acc, item) => {
+      if (!item.id) return acc
+      acc.byId[item.id as T['id']] = item
+      acc.allIds.push(item.id)
+      return acc
+    },
+    {
+      allIds: [] as Normalized<T>['allIds'],
+      byId: {} as Normalized<T>['byId'],
+    }
+  )
 }

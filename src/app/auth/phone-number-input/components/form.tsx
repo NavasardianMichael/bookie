@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { Button, Flex, Form, Input, Select } from 'antd'
+import { Flex, Form, Select } from 'antd'
 import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useRouter } from 'next/navigation'
@@ -10,6 +10,8 @@ import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { SIGN_ON_FORM_INITIAL_VALUES } from '@constants/sign-on'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
+import AppButton from '@components/ui/AppButton'
+import AppInput from '@components/ui/AppInput'
 import { useCountries } from '../useCountries'
 
 import '@ant-design/v5-patch-for-react-19'
@@ -110,7 +112,7 @@ const SignOnForm: React.FC = () => {
             rules={[...FORM_ITEM_REQUIRED_RULE_SET, { validator: validatePhoneNumber }]}
             className='mb-0! grow'
           >
-            <Input
+            <AppInput
               type='tel'
               name='phone'
               value={formik.values.number}
@@ -123,9 +125,9 @@ const SignOnForm: React.FC = () => {
         </Flex>
       </Form.Item>
 
-      <Button type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
+      <AppButton type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
         Send Verification Code
-      </Button>
+      </AppButton>
     </Form>
   )
 }

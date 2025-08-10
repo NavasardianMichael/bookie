@@ -1,7 +1,8 @@
-import { Button, Divider, Flex } from 'antd'
+import { Divider, Flex } from 'antd'
 import Paragraph from 'antd/es/typography/Paragraph'
 import Title from 'antd/es/typography/Title'
 import { Metadata } from 'next'
+import AppButton from '@components/ui/AppButton'
 
 export const metadata: Metadata = {
   title: 'Bookie | Log out',
@@ -29,9 +30,9 @@ const Logout: React.FC = () => (
         <br />
         All your data will be permanently removed from our system.
       </Paragraph>
-      <Button danger type='primary' variant='solid' htmlType='submit' className='mx-auto'>
+      <AppButton danger type='primary' variant='solid' htmlType='submit' className='mx-auto'>
         Delete Account Permanently
-      </Button>
+      </AppButton>
     </Flex>
   </Flex>
 )

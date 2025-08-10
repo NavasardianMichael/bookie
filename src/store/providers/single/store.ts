@@ -16,7 +16,9 @@ const initialState: ProviderState = {
   details: {
     phone: '',
     country: '',
-    address: '',
+    location: {
+      address: '',
+    },
     email: '',
   },
   services: [],
