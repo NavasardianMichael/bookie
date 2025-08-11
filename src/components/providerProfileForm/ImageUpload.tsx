@@ -13,22 +13,16 @@ type Props = {
 }
 
 const ImageUpload: React.FC<Props> = ({ formik }) => {
-  const [previewImage, setPreviewImage] = useState(formik.values.image)
+  const [previewImage, setPreviewImage] = useState<string>(() => formik.values.image?.url ?? '')
   const [localFiles, setLocalFiles] = useState<UploadFile[]>([])
 
   useEffect(() => {
-    const imageURL = formik.values.image
-    if (!imageURL) return
+    const image = formik.values.image
+    if (!image) return
 
-    const file: UploadFile = {
-      uid: '1',
-      name: 'Profile picture',
-      url: formik.values.image,
-    }
-    setLocalFiles([file])
+    setLocalFiles([image])
   }, [formik.values.image])
 
-  // const handleChange: UploadProps['onChange'] = async ({ fileList }) => {}
   const onModalOk: ImgCropProps['onModalOk'] = async (file) => {
     if (!file) {
       formik.setFieldValue('image', undefined)
@@ -41,28 +35,34 @@ const ImageUpload: React.FC<Props> = ({ formik }) => {
     setPreviewImage(newFileURL)
   }
 
+  const onRemovePictureClick = async () => {
+    await formik.setFieldValue('image', undefined)
+    setPreviewImage('')
+  }
+
   return (
     <>
-      <ImgCrop aspect={1} onModalOk={onModalOk}>
-        <Flex gap={8}>
+      <Flex gap={8} wrap>
+        <ImgCrop aspect={1} onModalOk={onModalOk}>
           <Upload maxCount={1} fileList={localFiles} showUploadList={false}>
             <AppButton icon={formik.values.image ? <RedoOutlined /> : <UploadOutlined />}>
               {formik.values.image ? 'Upload another picture' : 'Upload'}
             </AppButton>
           </Upload>
-          <AppButton danger icon={<DeleteOutlined />} color='red'>
-            Remove
-          </AppButton>
-        </Flex>
-      </ImgCrop>
-      <Image
-        wrapperStyle={{ display: 'block' }}
-        className='mt-6 mx-auto max-w-80'
-        alt='Profile picture'
-        preview={false}
-        src={previewImage}
-      />
-      {/* )} */}
+        </ImgCrop>
+        <AppButton danger icon={<DeleteOutlined />} color='red' onClick={onRemovePictureClick}>
+          Remove
+        </AppButton>
+      </Flex>
+      {previewImage && (
+        <Image
+          wrapperClassName='block!'
+          className='mt-6 mx-auto max-w-80'
+          alt='Profile picture'
+          preview={false}
+          src={previewImage}
+        />
+      )}
     </>
   )
 }

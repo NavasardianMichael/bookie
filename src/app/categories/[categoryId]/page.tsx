@@ -31,7 +31,6 @@ const Category = async ({ params }: Props) => {
   const category = await getCategoryAPI({
     id: categoryId,
   })
-  console.log({ category })
 
   return (
     <article>

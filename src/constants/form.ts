@@ -9,7 +9,7 @@ const _RULE_NAMES = {
 } as const
 
 export const FORM_ITEM_RULES: Record<(typeof _RULE_NAMES)[keyof typeof _RULE_NAMES], RuleObject> = {
-  required: { required: true, message: 'Please Fill in ${label}' },
+  required: { required: true, message: 'Please fill in ${label}' },
   maxCharsForInput: { max: 40, message: 'Max count of characters is 40' },
   maxCharsForTextarea: { max: 300, message: 'Max count of characters is 300' },
   email: { type: 'email', message: 'Invalid Email' },

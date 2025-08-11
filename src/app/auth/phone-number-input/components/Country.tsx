@@ -8,8 +8,6 @@ type Props = {
 }
 
 const Country: FC<Props> = ({ country }) => {
-  console.log({ country })
-
   return (
     <Flex gap={2} align='center'>
       <Flag className='h-5 w-8 mr-2' code={country} />
