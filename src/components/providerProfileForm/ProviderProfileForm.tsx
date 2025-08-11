@@ -1,18 +1,19 @@
 'use client'
 
-import { useState } from 'react'
 import { Form } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import { useFormik } from 'formik'
+import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { sleep } from '@helpers/commons'
 import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
 import CategoriesSelect from './CategoriesSelect'
+import ImageUpload from './ImageUpload'
 import LocationInput from './LocationInput'
 import OrganizationSelect from './OrganizationSelect'
+import ProviderProfileFormItem from './ProviderProfileFormItem'
 
 import '@ant-design/v5-patch-for-react-19'
 
@@ -21,17 +22,20 @@ type Props = {
 }
 
 const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
-  const [isPending, setIsPending] = useState(false)
   const [form] = Form.useForm()
+
+  const requiredRuleSet = useFormItemRules('required')
+  const emailMaxCharsCountRuleSet = useFormItemRules('email', 'maxCharsForInput')
+  const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
+  const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
+  const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
 
   const formik = useFormik<typeof initialValues>({
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      setIsPending(true)
       await sleep(3000)
       console.log({ values })
-      setIsPending(false)
     },
   })
 
@@ -41,85 +45,76 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       requiredMark={true}
       className='w-full flex flex-col'
       layout='vertical'
-      validateTrigger={['onSubmit']}
+      validateTrigger='onSubmit'
       onFinish={formik.handleSubmit}
     >
-      <Form.Item<typeof initialValues>
+      <ProviderProfileFormItem
         name='firstName'
         label='First Name'
-        messageVariables={{ label: 'First Name' }}
-        rules={FORM_ITEM_REQUIRED_RULE_SET}
-        validateTrigger={['onChange']}
-        required
+        rules={inputTextRequiredMaxCharsCountRuleSet}
+        validateDebounce={300}
       >
         <AppInput
           name='firstName'
           value={formik.values.firstName}
           onChange={formik.handleChange}
-          disabled={isPending}
+          disabled={formik.isSubmitting}
           size='large'
         />
-      </Form.Item>
+      </ProviderProfileFormItem>
 
-      <Form.Item<typeof initialValues>
-        name='lastName'
-        label='Last Name'
-        messageVariables={{ label: 'Last Name' }}
-        rules={FORM_ITEM_REQUIRED_RULE_SET}
-        validateTrigger={['onChange']}
-      >
+      <ProviderProfileFormItem name='lastName' label='Last Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
         <AppInput
           name='lastName'
           value={formik.values.lastName}
           onChange={formik.handleChange}
-          disabled={isPending}
+          disabled={formik.isSubmitting}
           size='large'
         />
-      </Form.Item>
+      </ProviderProfileFormItem>
 
-      <Form.Item<typeof initialValues>
-        name='categories'
-        label='Categories'
-        messageVariables={{ label: 'Categories' }}
-        rules={FORM_ITEM_REQUIRED_RULE_SET}
-        validateTrigger={['onChange']}
-      >
+      <ProviderProfileFormItem name='categories' label='Categories' rules={requiredRuleSet}>
         <CategoriesSelect formik={formik} />
-      </Form.Item>
+      </ProviderProfileFormItem>
 
-      <LocationInput formik={formik} disabled={isPending} />
+      <LocationInput formik={formik} disabled={formik.isSubmitting} />
 
-      <Form.Item<typeof initialValues>
-        name='organization'
-        label='Organization'
-        messageVariables={{ label: 'Organization' }}
-      >
+      <ProviderProfileFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
         <OrganizationSelect formik={formik} />
-      </Form.Item>
+      </ProviderProfileFormItem>
 
-      <Form.Item<typeof initialValues> name='email' label='Email' messageVariables={{ label: 'Email' }}>
+      <ProviderProfileFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
         <AppInput
-          type='email'
           name='email'
           value={formik.values.email}
           onChange={formik.handleChange}
-          disabled={isPending}
+          disabled={formik.isSubmitting}
           size='large'
         />
-      </Form.Item>
+      </ProviderProfileFormItem>
 
-      <Form.Item<typeof initialValues> name='description' label='Notes' messageVariables={{ label: 'Notes' }}>
+      <ProviderProfileFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
         <TextArea
           name='description'
           value={formik.values.description}
           onChange={formik.handleChange}
-          disabled={isPending}
+          disabled={formik.isSubmitting}
           size='large'
           autoSize={{ minRows: 3, maxRows: 5 }}
         />
-      </Form.Item>
+      </ProviderProfileFormItem>
 
-      <AppButton type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
+      <ProviderProfileFormItem name='image' label='Image'>
+        <ImageUpload formik={formik} />
+      </ProviderProfileFormItem>
+
+      <AppButton
+        type='primary'
+        variant='solid'
+        htmlType='submit'
+        className='w-full h-[56px]!'
+        loading={formik.isSubmitting}
+      >
         Proceed to Services
       </AppButton>
     </Form>
