@@ -3,7 +3,7 @@ import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { getProvidersListAPI } from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
-import { ProviderProfileActions, ProvidersListState } from './types'
+import { ProvidersListActions, ProvidersListState } from './types'
 
 const initialState: ProvidersListState = {
   list: {
@@ -14,11 +14,11 @@ const initialState: ProvidersListState = {
   error: null,
 }
 
-export const useProvidersListStoreBase = create<ProvidersListState & ProviderProfileActions>()(
+export const useProvidersListStoreBase = create<ProvidersListState & ProvidersListActions>()(
   immer(
     combine(
       initialState,
-      (set): ProviderProfileActions => ({
+      (set): ProvidersListActions => ({
         setProvidersListState: (payload) => {
           set((state) => {
             return {

@@ -6,7 +6,7 @@ export type ProvidersListState = {
   list: Normalized<BasicProvider>
 } & StateCommonProps
 
-export type ProviderProfileActions = {
+export type ProvidersListActions = {
   setProvidersListState: (payload: Partial<ProvidersListState>) => void
   setProvidersList: (payload: Partial<ProvidersListState['list']>) => void
   getProvidersList: () => void

@@ -41,4 +41,5 @@ export type ProviderProfile = {
 
 export type ProviderProfileActions = {
   setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
+  postProviderProfileData: (payload: Partial<Provider>) => Promise<void>
 }

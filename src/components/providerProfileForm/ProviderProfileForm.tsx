@@ -1,19 +1,21 @@
 'use client'
 
+import { useEffect } from 'react'
 import { Form } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import { useFormik } from 'formik'
+import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { sleep } from '@helpers/commons'
 import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
-import CategoriesSelect from './CategoriesSelect'
-import ImageUpload from './ImageUpload'
-import LocationInput from './LocationInput'
-import OrganizationSelect from './OrganizationSelect'
+import CategoriesSelect from './ProviderProfileFormCategories'
+import ImageUpload from './ProviderProfileFormImage'
 import ProviderProfileFormItem from './ProviderProfileFormItem'
+import LocationInput from './ProviderProfileFormLocation'
+import OrganizationSelect from './ProviderProfileFormOrganization'
 
 import '@ant-design/v5-patch-for-react-19'
 
@@ -22,6 +24,7 @@ type Props = {
 }
 
 const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
+  const postProviderProfileData = useProviderProfileStore.use.postProviderProfileData()
   const [form] = Form.useForm()
 
   const requiredRuleSet = useFormItemRules('required')
@@ -30,12 +33,15 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
 
+  useEffect(() => {
+    console.log({ requiredRuleSet })
+  }, [requiredRuleSet])
+
   const formik = useFormik<typeof initialValues>({
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      await sleep(3000)
-      console.log({ values })
+      await postProviderProfileData(values)
     },
   })
 
@@ -47,6 +53,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       layout='vertical'
       validateTrigger='onSubmit'
       onFinish={formik.handleSubmit}
+      scrollToFirstError
     >
       <ProviderProfileFormItem
         name='firstName'

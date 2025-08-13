@@ -1,7 +1,7 @@
 type EndpointPaths = {
-  payload: unknown
-  response: unknown
-  processed: unknown
+  payload?: unknown
+  response?: unknown
+  processed?: unknown
 }
 
 export type Endpoint<T extends EndpointPaths> = {

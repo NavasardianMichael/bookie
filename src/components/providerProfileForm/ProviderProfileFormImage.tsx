@@ -8,9 +8,7 @@ import { FormikProps } from 'formik'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import AppButton from '@components/ui/AppButton'
 
-type Props = {
-  formik: FormikProps<ProviderProfileFormValues>
-}
+type Props = AppFormProps<ProviderProfileFormValues>
 
 const ImageUpload: React.FC<Props> = ({ formik }) => {
   const [previewImage, setPreviewImage] = useState<string>(() => formik.values.image?.url ?? '')

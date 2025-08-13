@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { postProviderProviderProfileAPI } from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { PLANS } from '@constants/plans'
 import { PROVIDER_ROLES } from '@constants/roles'
@@ -41,6 +42,9 @@ export const useProviderProfileStoreBase = create<ProviderProfileState & Provide
               ...payload,
             }
           })
+        },
+        postProviderProfileData: async (args) => {
+          await postProviderProviderProfileAPI(args)
         },
       })
     )
