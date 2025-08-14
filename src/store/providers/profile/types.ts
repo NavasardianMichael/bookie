@@ -2,6 +2,7 @@ import { BasicCategory } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location } from '@interfaces/app'
 import { Plan } from '@interfaces/plans'
+import { ProviderProfileFormValues } from '@interfaces/providers'
 import { ProviderRole } from '@interfaces/roles'
 import { StateCommonProps } from '@interfaces/store'
 
@@ -41,5 +42,5 @@ export type ProviderProfile = {
 
 export type ProviderProfileActions = {
   setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
-  postProviderProfileData: (payload: Partial<Provider>) => Promise<void>
+  putProviderProfileData: (payload: ProviderProfileFormValues) => Promise<void>
 }

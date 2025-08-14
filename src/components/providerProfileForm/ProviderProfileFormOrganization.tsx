@@ -4,14 +4,14 @@ import { useMemo, useRef } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Divider, InputRef, Select, Space } from 'antd'
 import { DefaultOptionType, SelectProps } from 'antd/es/select'
-import { FormikProps } from 'formik'
 import { useOrganizationsListStore } from '@store/organizations/list/store'
+import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import AppLink from '@components/ui/AppLink'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
-const OrganizationSelect: React.FC<Props> = ({ formik }) => {
+const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
   const { list } = useOrganizationsListStore()
   const inputRef = useRef<InputRef>(null)
 
@@ -52,10 +52,10 @@ const OrganizationSelect: React.FC<Props> = ({ formik }) => {
         </>
       )}
       onChange={onOptionChange}
-      defaultValue={formik.values.organization}
+      defaultValue={formik.values.organizationId}
       options={options}
     />
   )
 }
 
-export default OrganizationSelect
+export default ProviderProfileOrganization

@@ -1,3 +1,4 @@
+import { UploadFile } from 'antd'
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { ProvidersListState } from '@store/providers/list/types'
@@ -11,16 +12,16 @@ export type ProviderProfileResponse = {
   Id: string
   FirstName: string
   LastName: string
-  Description: string
-  Image: string
-  Categories: Provider['basic']['categories']
-  Organization: Provider['basic']['organization']
   PhoneNumberCode: string
   PhoneNumber: string
-  Email: string
-  Country: string
+  Categories: Provider['basic']['categories']
   Address: string
   LocationURL: string
+  Description?: string
+  Organization?: Provider['basic']['organization']
+  Image?: string
+  Email?: string
+  Country?: string
 }
 
 type ProviderResponse = ProviderProfileResponse
@@ -33,8 +34,12 @@ export type BasicProviderResponse = Pick<
 // ---------------------------------------------
 // Payloads
 // ---------------------------------------------
-export type PostProviderProfileRequestPayload = Partial<
-  Omit<ProviderProfileResponse, 'PhoneNumber' | 'PhoneNumberCode' | 'Categories' | 'ORganization' | 'Country'> & {
+export type PutProviderProfileRequestPayload = Partial<
+  Omit<
+    ProviderProfileResponse,
+    'Id' | 'PhoneNumber' | 'PhoneNumberCode' | 'Categories' | 'Organization' | 'Country' | 'Image'
+  > & {
+    Image: UploadFile
     CategoryIds: Category['id'][]
     OrganizationId: Organization['id']
   }
@@ -61,6 +66,6 @@ export type GetProviderProviderProfileAPI = Endpoint<{
   processed: Provider
 }>
 
-export type PostProviderProviderProfileAPI = Endpoint<{
-  payload: PostProviderProfileRequestPayload
+export type PutProviderProviderProfileAPI = Endpoint<{
+  payload: PutProviderProfileRequestPayload
 }>

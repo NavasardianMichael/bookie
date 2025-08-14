@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { CloseCircleFilled, LinkOutlined } from '@ant-design/icons'
+import { CloseCircleFilled, DeleteOutlined, LinkOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 import { FormikProps } from 'formik'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -14,7 +14,7 @@ type Props = {
   formik: FormikProps<ProviderProfileFormValues>
 }
 
-const LocationInput: React.FC<Props> = ({ formik, disabled }) => {
+const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => {
   const [locationInputShown, setLocationInputShown] = useState(!!formik.values.locationURL)
 
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
@@ -32,6 +32,7 @@ const LocationInput: React.FC<Props> = ({ formik, disabled }) => {
         label='Address'
         rules={textareaRequiredMaxCharsCountRuleSet}
         validateTrigger='onChange'
+        className={locationInputShown ? 'mb-2!' : undefined}
       >
         <Flex vertical>
           <AppInput
@@ -68,9 +69,7 @@ const LocationInput: React.FC<Props> = ({ formik, disabled }) => {
             onChange={formik.handleChange}
             disabled={disabled}
             size='large'
-            suffix={
-              <Button type='text' className='h-[24px]!' icon={<CloseCircleFilled />} onClick={onRemoveUrlClick} />
-            }
+            suffix={<Button type='text' className='h-[24px]!' icon={<DeleteOutlined />} onClick={onRemoveUrlClick} />}
           />
         </ProviderProfileFormItem>
       )}
@@ -78,4 +77,4 @@ const LocationInput: React.FC<Props> = ({ formik, disabled }) => {
   )
 }
 
-export default LocationInput
+export default ProviderProfileLocationInput

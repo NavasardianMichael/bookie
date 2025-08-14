@@ -6,16 +6,16 @@ import TextArea from 'antd/es/input/TextArea'
 import { useFormik } from 'formik'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useMultipleSelectRequiredRuleSet } from '@hooks/useMultipleSelectRequiredRuleSet'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
-import { sleep } from '@helpers/commons'
 import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
-import CategoriesSelect from './ProviderProfileFormCategories'
-import ImageUpload from './ProviderProfileFormImage'
+import ProviderProfileFormCategories from './ProviderProfileFormCategories'
+import ProviderProfileImage from './ProviderProfileFormImage'
 import ProviderProfileFormItem from './ProviderProfileFormItem'
-import LocationInput from './ProviderProfileFormLocation'
-import OrganizationSelect from './ProviderProfileFormOrganization'
+import ProviderProfileLocationInput from './ProviderProfileFormLocation'
+import ProviderProfileOrganization from './ProviderProfileFormOrganization'
 
 import '@ant-design/v5-patch-for-react-19'
 
@@ -24,7 +24,7 @@ type Props = {
 }
 
 const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
-  const postProviderProfileData = useProviderProfileStore.use.postProviderProfileData()
+  const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
   const [form] = Form.useForm()
 
   const requiredRuleSet = useFormItemRules('required')
@@ -41,9 +41,10 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      await postProviderProfileData(values)
+      await putProviderProfileData(values)
     },
   })
+  const categoriesRequiredRuleSet = useMultipleSelectRequiredRuleSet()
 
   return (
     <Form
@@ -80,14 +81,19 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
         />
       </ProviderProfileFormItem>
 
-      <ProviderProfileFormItem name='categories' label='Categories' rules={requiredRuleSet}>
-        <CategoriesSelect formik={formik} />
+      <ProviderProfileFormItem
+        valuePropName='categoryIds'
+        name='categoryIds'
+        label='Categories'
+        rules={categoriesRequiredRuleSet}
+      >
+        <ProviderProfileFormCategories formik={formik} />
       </ProviderProfileFormItem>
 
-      <LocationInput formik={formik} disabled={formik.isSubmitting} />
+      <ProviderProfileLocationInput formik={formik} disabled={formik.isSubmitting} />
 
       <ProviderProfileFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
-        <OrganizationSelect formik={formik} />
+        <ProviderProfileOrganization formik={formik} />
       </ProviderProfileFormItem>
 
       <ProviderProfileFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
@@ -112,7 +118,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       </ProviderProfileFormItem>
 
       <ProviderProfileFormItem name='image' label='Image'>
-        <ImageUpload formik={formik} />
+        <ProviderProfileImage formik={formik} />
       </ProviderProfileFormItem>
 
       <AppButton

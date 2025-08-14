@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react'
 import { DeleteOutlined, RedoOutlined, UploadOutlined } from '@ant-design/icons'
 import { Flex, Image, Upload, UploadFile } from 'antd'
 import ImgCrop, { ImgCropProps } from 'antd-img-crop'
-import { FormikProps } from 'formik'
+import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import AppButton from '@components/ui/AppButton'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
-const ImageUpload: React.FC<Props> = ({ formik }) => {
+const ProviderProfileImage: React.FC<Props> = ({ formik }) => {
   const [previewImage, setPreviewImage] = useState<string>(() => formik.values.image?.url ?? '')
   const [localFiles, setLocalFiles] = useState<UploadFile[]>([])
 
@@ -65,4 +65,4 @@ const ImageUpload: React.FC<Props> = ({ formik }) => {
   )
 }
 
-export default ImageUpload
+export default ProviderProfileImage

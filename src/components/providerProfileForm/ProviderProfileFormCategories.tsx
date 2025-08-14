@@ -14,7 +14,7 @@ type Props = AppFormProps<ProviderProfileFormValues>
 
 const MAX_COUNT = 3
 
-const CategoriesSelect: React.FC<Props> = ({ formik }) => {
+const ProviderProfileFormCategories: React.FC<Props> = ({ formik }) => {
   const { list } = useCategoriesListStore()
   const inputRef = useRef<InputRef>(null)
 
@@ -37,14 +37,15 @@ const CategoriesSelect: React.FC<Props> = ({ formik }) => {
   }
 
   const onOptionChange: SelectProps['onChange'] = (ids) => {
-    formik.setFieldValue('categories', ids)
+    if (ids.length) formik.setFieldError('categoryIds', undefined)
+    formik.setFieldValue('categoryIds', ids)
   }
 
   return (
     <Select
       size='large'
       mode='multiple'
-      suffixIcon={<SelectSuffix value={formik.values.categories.length} limit={MAX_COUNT} />}
+      suffixIcon={<SelectSuffix value={formik.values.categoryIds.length} limit={MAX_COUNT} />}
       popupRender={(menu) => (
         <>
           {menu}
@@ -57,11 +58,11 @@ const CategoriesSelect: React.FC<Props> = ({ formik }) => {
         </>
       )}
       onChange={onOptionChange}
-      defaultValue={formik.values.categories}
+      value={formik.values.categoryIds}
       options={options}
       maxCount={MAX_COUNT}
     />
   )
 }
 
-export default CategoriesSelect
+export default ProviderProfileFormCategories

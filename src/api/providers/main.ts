@@ -6,7 +6,7 @@ import {
   GetProviderAPI,
   GetProviderProviderProfileAPI,
   GetProvidersListAPI,
-  PostProviderProviderProfileAPI,
+  PutProviderProviderProfileAPI,
 } from './types'
 
 export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
@@ -33,9 +33,6 @@ export const getProviderProfileAPI: GetProviderProviderProfileAPI['api'] = async
   return processedResponse
 }
 
-export const postProviderProviderProfileAPI: PostProviderProviderProfileAPI['api'] = async (params) => {
-  await axiosInstance.post<APIResponse<PostProviderProviderProfileAPI['response']>>(
-    ENDPOINTS.postProfileProfile,
-    params
-  )
+export const putProviderProviderProfileAPI: PutProviderProviderProfileAPI['api'] = async (params) => {
+  await axiosInstance.post<APIResponse<PutProviderProviderProfileAPI['response']>>(ENDPOINTS.postProfileProfile, params)
 }

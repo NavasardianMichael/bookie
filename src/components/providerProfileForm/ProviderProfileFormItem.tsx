@@ -16,7 +16,8 @@ const ProviderProfileFormItem: React.FC<Props> = ({ children, label, ...props })
       messageVariables={memoizedMessageVariables}
       validateDebounce={300}
       label={label}
-      validateTrigger='onChange'
+      hasFeedback
+      // validateTrigger='onChange'
       {...props}
     >
       {children}

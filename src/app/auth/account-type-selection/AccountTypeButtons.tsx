@@ -9,6 +9,8 @@ import { ROUTES } from '@constants/routes'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 import AppButton from '@components/ui/AppButton'
 
+import '@ant-design/v5-patch-for-react-19'
+
 type AccountTypeFormValues = {
   accountType: (typeof ACCOUNT_TYPE_OPTIONS)[number]['value']
 }
@@ -41,6 +43,7 @@ const AccountTypeButtons: React.FC = () => {
       push(ROUTES.phoneNumberInput)
     },
   })
+  console.log(formik.values.accountType)
 
   return (
     <Form layout='vertical' onFinish={formik.handleSubmit} className='w-full h-full flex'>
@@ -52,7 +55,7 @@ const AccountTypeButtons: React.FC = () => {
             buttonStyle='solid'
             size='large'
             className='w-full flex! gap-2!'
-            // defaultValue={ACCOUNT_TYPE_OPTIONS[1].value}
+            defaultValue={ACCOUNT_TYPE_OPTIONS[1].value}
             value={formik.values.accountType}
             onChange={(e) => formik.setFieldValue('accountType', e.target.value)}
           />
