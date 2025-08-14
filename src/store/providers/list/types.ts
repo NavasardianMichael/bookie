@@ -1,6 +1,8 @@
 import { Normalized } from '@interfaces/commons'
 import { StateCommonProps } from '@interfaces/store'
-import { BasicProvider } from '../profile/types'
+import { ProviderProfile } from '../profile/types'
+
+export type BasicProvider = Pick<ProviderProfile, 'id' | 'basic'>
 
 export type ProvidersListState = {
   list: Normalized<BasicProvider>

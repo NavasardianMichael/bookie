@@ -37,26 +37,26 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik }) => {
   }
 
   const onOptionChange: SelectProps['onChange'] = (ids) => {
-    if (ids.length) formik.setFieldError('categoryIds', undefined)
+    // if (ids.length) formik.setFieldError('categoryIds', undefined)
     formik.setFieldValue('categoryIds', ids)
   }
 
   return (
     <Select
       size='large'
-      mode='multiple'
+      mode='tags'
       suffixIcon={<SelectSuffix value={formik.values.categoryIds.length} limit={MAX_COUNT} />}
-      popupRender={(menu) => (
-        <>
-          {menu}
-          <Divider style={{ margin: '8px 0' }} />
-          <Space style={{ padding: '0 8px 4px' }}>
-            <Button type='text' icon={<PlusOutlined />} onClick={addItem}>
-              <AppLink href={'/'}>Create a new category</AppLink>
-            </Button>
-          </Space>
-        </>
-      )}
+      // popupRender={(menu) => (
+      //   <>
+      //     {menu}
+      //     <Divider style={{ margin: '8px 0' }} />
+      //     <Space style={{ padding: '0 8px 4px' }}>
+      //       <Button type='text' icon={<PlusOutlined />} onClick={addItem}>
+      //         <AppLink href={'/'}>Create a new category</AppLink>
+      //       </Button>
+      //     </Space>
+      //   </>
+      // )}
       onChange={onOptionChange}
       value={formik.values.categoryIds}
       options={options}

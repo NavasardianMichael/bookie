@@ -2,8 +2,6 @@ import { useMemo } from 'react'
 import { Form, FormItemProps } from 'antd'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 
-import '@ant-design/v5-patch-for-react-19'
-
 type Props = FormItemProps
 
 const ProviderProfileFormItem: React.FC<Props> = ({ children, label, ...props }) => {
@@ -16,8 +14,8 @@ const ProviderProfileFormItem: React.FC<Props> = ({ children, label, ...props })
       messageVariables={memoizedMessageVariables}
       validateDebounce={300}
       label={label}
+      validateTrigger='onChange'
       hasFeedback
-      // validateTrigger='onChange'
       {...props}
     >
       {children}

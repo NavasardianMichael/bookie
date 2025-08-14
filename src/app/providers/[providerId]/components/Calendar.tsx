@@ -8,13 +8,13 @@ import listPlugin from '@fullcalendar/list'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayjs from 'dayjs'
-import { useProviderStore } from '@store/providers/single/store'
+import { useSingleProviderStore } from '@store/providers/single/store'
 
 // import ViewsDropdown from './ViewsDropdown'
 import '@fullcalendar/core'
 
 const ProviderCalendar = () => {
-  const { basic: basicProvider } = useProviderStore()
+  const { basic: basicProvider } = useSingleProviderStore()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   // Generate time slots for the selected date

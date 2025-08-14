@@ -1,24 +1,25 @@
 import { getProviderLDSchema } from '@linkedDataSchema/providers'
 import { Metadata } from 'next'
 import serializeJavascript from 'serialize-javascript'
-import { getProviderAPI } from '@api/providers/main'
-import { Provider as ProviderType } from '@store/providers/profile/types'
+import { getSingleProviderAPI } from '@api/providers/main'
+import { ProviderProfile as ProviderProfileType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import AppLink from '@components/ui/AppLink'
 import '@styles/full-calendar-override.css'
 import ProviderDetails from './components/Details'
 
 type Props = {
   params: Promise<{
-    providerId: ProviderType['id']
+    providerId: ProviderProfileType['id']
   }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { providerId } = await params
-  const provider = await getProviderAPI({
+  const provider = await getSingleProviderAPI({
     id: providerId,
   })
   const { basic } = provider
@@ -30,7 +31,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   return {
     title: `Bookie | ${provider.basic.firstName} ${provider.basic.lastName}${organizationTitleText} | ${basic.categories?.map((cat) => cat.name).join(', ')}`,
     description: `Welcome to ${provider.basic.firstName} ${provider.basic.lastName}'s profile page${organizationDescriptionText}`,
-    keywords: `Bookie, ${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.location.address}, ${provider.details.phone}, ${provider.details.email}`,
+    keywords: `Bookie, ${provider.basic.firstName}, ${provider.basic.lastName}, ${provider.details.country}, ${provider.details.location.address}, ${generateFriendlyPhoneNumber(provider.details.phone, { prefix: '+' })}, ${provider.details.email}`,
     classification: basic.categories?.map((cat) => cat.name).join(', ') ?? '',
   }
 }
@@ -38,7 +39,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
 const Provider = async ({ params }: Props) => {
   const { providerId } = await params
 
-  const provider = await getProviderAPI({
+  const provider = await getSingleProviderAPI({
     id: providerId,
   })
 
@@ -77,8 +78,12 @@ const Provider = async ({ params }: Props) => {
               <p>
                 <strong>Phone</strong>
               </p>
-              <a href={`tel:${provider.details.phone}`} target='_blank' className='underline block!'>
-                {provider.details.phone}
+              <a
+                href={`tel:+${generateFriendlyPhoneNumber(provider.details.phone)}`}
+                target='_blank'
+                className='underline block!'
+              >
+                {generateFriendlyPhoneNumber(provider.details.phone, { delimiter: ' ', prefix: '+' })}
               </a>
             </div>
             <div>

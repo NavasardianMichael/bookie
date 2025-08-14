@@ -1,6 +1,6 @@
 import { GetCategoryAPI } from '@api/categories/types'
 import { BasicOrganization } from '@store/organizations/single/types'
-import { BasicProvider } from '@store/providers/profile/types'
+import { BasicProvider } from '@store/providers/list/types'
 import { StateCommonProps } from '@interfaces/store'
 
 export type CategoryState = StateCommonProps & Category

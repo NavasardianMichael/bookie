@@ -1,14 +1,23 @@
-import { categories } from '@app/api/_shared/db/categories'
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { appendSelectors } from '@store/appendSelectors'
-import { flatToNormalized } from '@helpers/commons'
 import { CategoriesListActions, CategoriesListState } from './types'
 
 const initialState: CategoriesListState = {
-  list: flatToNormalized(categories),
+  list: {
+    allIds: ['c-1'],
+
+    byId: {
+      'c-1': {
+        id: 'smth',
+        name: 'ex',
+        organizations: [],
+        providers: [],
+      },
+    },
+  },
   isPending: false,
   error: null,
 }

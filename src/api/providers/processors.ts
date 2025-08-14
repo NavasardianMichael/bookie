@@ -1,11 +1,20 @@
-import { BasicProvider } from '@store/providers/profile/types'
-import { BasicProviderResponse, GetProviderAPI, GetProviderProviderProfileAPI, GetProvidersListAPI } from './types'
+import { BasicProvider } from '@store/providers/list/types'
+import { ProviderProfile } from '@store/providers/profile/types'
+import { SingleProvider } from '@store/providers/single/types'
+import {
+  BasicProviderResponse,
+  GetProviderProfileAPI,
+  GetProvidersListAPI,
+  GetSingleProviderAPI,
+  ProviderProfileResponse,
+  SingleProviderResponse,
+} from './types'
 
 export const processProvidersListResponse: GetProvidersListAPI['processor'] = (response) => {
   return response.value.reduce(
     (acc, provider) => {
       const processedProvider = processBasicProvider(provider)
-      acc.byId[provider.id] = processedProvider
+      acc.byId[processedProvider.id] = processedProvider
       acc.allIds.push(processedProvider.id)
       return acc
     },
@@ -16,14 +25,81 @@ export const processProvidersListResponse: GetProvidersListAPI['processor'] = (r
   )
 }
 
-export const processProviderResponse: GetProviderAPI['processor'] = (provider) => {
-  return provider.value
+export const processSingleProviderResponse: GetSingleProviderAPI['processor'] = (provider) => {
+  return processSingleProvider(provider.value)
 }
 
-export const processProviderProfileResponse: GetProviderProviderProfileAPI['processor'] = (providerProfile) => {
-  return providerProfile.value
+export const processProviderProfileResponse: GetProviderProfileAPI['processor'] = (providerProfile) => {
+  return processProviderProfile(providerProfile.value)
+}
+
+export const processProviderProfile = (provider: ProviderProfileResponse): ProviderProfile => {
+  return {
+    id: provider.Id,
+    basic: {
+      firstName: provider.FirstName,
+      lastName: provider.LastName,
+      categories: provider.Categories,
+      description: provider.Description,
+      image: provider.Image,
+      organization: provider.Organization,
+    },
+    details: {
+      location: {
+        address: provider.Address,
+        url: provider.LocationURL,
+      },
+      phone: {
+        code: +provider.PhoneNumberCode,
+        number: +provider.PhoneNumber,
+      },
+      country: provider.Country,
+      email: provider.Email,
+    },
+    services: [],
+    personal: {
+      plan: provider.Plan,
+    },
+  }
+}
+
+export const processSingleProvider = (provider: SingleProviderResponse): SingleProvider => {
+  return {
+    id: provider.Id,
+    basic: {
+      firstName: provider.FirstName,
+      lastName: provider.LastName,
+      categories: provider.Categories,
+      description: provider.Description,
+      image: provider.Image,
+      organization: provider.Organization,
+    },
+    details: {
+      location: {
+        address: provider.Address,
+        url: provider.LocationURL,
+      },
+      phone: {
+        code: +provider.PhoneNumberCode,
+        number: +provider.PhoneNumber,
+      },
+      country: provider.Country,
+      email: provider.Email,
+    },
+    services: [],
+  }
 }
 
 export const processBasicProvider = (provider: BasicProviderResponse): BasicProvider => {
-  return provider
+  return {
+    id: provider.Id,
+    basic: {
+      firstName: provider.FirstName,
+      lastName: provider.LastName,
+      categories: provider.Categories,
+      description: provider.Description,
+      image: provider.Image,
+      organization: provider.Organization,
+    },
+  }
 }

@@ -1,19 +1,19 @@
 'use client'
 
 import { FC, useEffect } from 'react'
-import { Provider } from '@store/providers/profile/types'
-import { useProviderStore } from '@store/providers/single/store'
+import { useSingleProviderStore } from '@store/providers/single/store'
+import { SingleProvider } from '@store/providers/single/types'
 import ProviderCalendar from './Calendar'
 
 type Props = {
-  initialState: Provider
+  initialState: SingleProvider
 }
 
 const ProviderDetails: FC<Props> = ({ initialState }) => {
-  const providerStore = useProviderStore()
+  const providerStore = useSingleProviderStore()
 
   useEffect(() => {
-    providerStore.setProviderState(JSON.parse(JSON.stringify(initialState)))
+    providerStore.setSingleProviderState(JSON.parse(JSON.stringify(initialState)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -1,13 +1,12 @@
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
-import { processProviderProfileResponse, processProviderResponse, processProvidersListResponse } from './processors'
 import {
-  GetProviderAPI,
-  GetProviderProviderProfileAPI,
-  GetProvidersListAPI,
-  PutProviderProviderProfileAPI,
-} from './types'
+  processProviderProfileResponse,
+  processProvidersListResponse,
+  processSingleProviderResponse,
+} from './processors'
+import { GetProviderProfileAPI, GetProvidersListAPI, GetSingleProviderAPI, PutProviderProfileAPI } from './types'
 
 export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProvidersListAPI['response']>>(ENDPOINTS.getProvidersList)
@@ -15,24 +14,24 @@ export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
   return processedResponse
 }
 
-export const getProviderAPI: GetProviderAPI['api'] = async (args) => {
-  const { data } = await axiosInstance.get<APIResponse<GetProviderAPI['response']>>(
-    `${ENDPOINTS.getProvider}/${args.id}`
+export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) => {
+  const { data } = await axiosInstance.get<APIResponse<GetSingleProviderAPI['response']>>(
+    `${ENDPOINTS.getSingleProvider}/${args.id}`
   )
 
-  const processedResponse = processProviderResponse(data)
+  const processedResponse = processSingleProviderResponse(data)
   return processedResponse
 }
 
-export const getProviderProfileAPI: GetProviderProviderProfileAPI['api'] = async (args) => {
-  const { data } = await axiosInstance.get<APIResponse<GetProviderProviderProfileAPI['response']>>(
-    `${ENDPOINTS.getProfileProfile}/${args.id}`
+export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async (args) => {
+  const { data } = await axiosInstance.get<APIResponse<GetProviderProfileAPI['response']>>(
+    `${ENDPOINTS.getProviderProfile}/${args.id}`
   )
 
   const processedResponse = processProviderProfileResponse(data)
   return processedResponse
 }
 
-export const putProviderProviderProfileAPI: PutProviderProviderProfileAPI['api'] = async (params) => {
-  await axiosInstance.post<APIResponse<PutProviderProviderProfileAPI['response']>>(ENDPOINTS.postProfileProfile, params)
+export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params) => {
+  await axiosInstance.post<APIResponse<PutProviderProfileAPI['response']>>(ENDPOINTS.putProviderProfile, params)
 }

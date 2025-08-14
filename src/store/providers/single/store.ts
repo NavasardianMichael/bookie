@@ -1,37 +1,28 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { getProviderAPI } from '@api/providers/main'
+import { getSingleProviderAPI } from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
-import { ProviderActions, ProviderState } from './types'
+import { SingleProviderActions, SingleProviderState } from './types'
+import { PROVIDER_PROFILE_INITIAL_STATE } from '../profile/store'
 
-const initialState: ProviderState = {
-  id: '',
-  basic: {
-    firstName: '',
-    lastName: '',
-    image: '',
-    categories: [],
-  },
-  details: {
-    phone: '',
-    country: '',
-    location: {
-      address: '',
-    },
-    email: '',
-  },
-  services: [],
+const base = structuredClone(PROVIDER_PROFILE_INITIAL_STATE)
+
+const initialState: SingleProviderState = {
+  id: base.id,
+  basic: base.basic,
+  details: base.details,
+  services: base.services,
   isPending: false,
   error: null,
 }
 
-export const useProviderBase = create<ProviderState & ProviderActions>()(
+export const useSingleProviderBase = create<SingleProviderState & SingleProviderActions>()(
   immer(
     combine(
       initialState,
-      (set): ProviderActions => ({
-        setProviderState: (payload) => {
+      (set): SingleProviderActions => ({
+        setSingleProviderState: (payload) => {
           set((state) => {
             return {
               ...state,
@@ -39,8 +30,8 @@ export const useProviderBase = create<ProviderState & ProviderActions>()(
             }
           })
         },
-        getProvider: async (args) => {
-          const provider = await getProviderAPI(args)
+        getSingleProvider: async (args) => {
+          const provider = await getSingleProviderAPI(args)
           set((state) => {
             return {
               ...state,
@@ -53,4 +44,4 @@ export const useProviderBase = create<ProviderState & ProviderActions>()(
   )
 )
 
-export const useProviderStore = appendSelectors(useProviderBase)
+export const useSingleProviderStore = appendSelectors(useSingleProviderBase)

@@ -1,7 +1,9 @@
 import { Person, WithContext } from 'schema-dts'
-import { BasicProvider, Provider } from '@store/providers/profile/types'
+import { BasicProvider } from '@store/providers/list/types'
+import { SingleProvider } from '@store/providers/single/types'
 import { ROUTE_KEYS } from '@constants/routes'
 import { generateEntityUrl } from '@helpers/entities'
+import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { ListLDGraph } from './types'
 
 export const getBasicProviderLDSchema = (provider: BasicProvider): WithContext<Person> => {
@@ -15,7 +17,7 @@ export const getBasicProviderLDSchema = (provider: BasicProvider): WithContext<P
   }
 }
 
-export const getProviderLDSchema = (provider: Provider): WithContext<Person> => {
+export const getProviderLDSchema = (provider: SingleProvider): WithContext<Person> => {
   const ldSchema: ReturnType<typeof getProviderLDSchema> = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -24,7 +26,7 @@ export const getProviderLDSchema = (provider: Provider): WithContext<Person> => 
     image: provider.basic.image,
     workLocation: provider.details.location.address,
     email: provider.details.email,
-    telephone: provider.details.phone,
+    telephone: generateFriendlyPhoneNumber(provider.details.phone, { prefix: '+' }),
     url: generateEntityUrl(ROUTE_KEYS.providers, provider.id),
   }
 

@@ -1,14 +1,13 @@
+import { PutProviderProfileAPI } from '@api/providers/types'
 import { BasicCategory } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
-import { Location } from '@interfaces/app'
+import { Location, PhoneNumber } from '@interfaces/app'
 import { Plan } from '@interfaces/plans'
-import { ProviderProfileFormValues } from '@interfaces/providers'
-import { ProviderRole } from '@interfaces/roles'
 import { StateCommonProps } from '@interfaces/store'
 
-export type ProviderProfileState = StateCommonProps & Provider & ProviderProfile
+export type ProviderProfileState = StateCommonProps & ProviderProfile
 
-export type Provider = {
+export type ProviderProfile = {
   id: string
   basic: {
     firstName: string
@@ -19,15 +18,14 @@ export type Provider = {
     organization?: BasicOrganization
   }
   details: {
-    phone: string
-    country: string
     location: Location
-    email: string
+    phone: PhoneNumber
+    country?: string
+    email?: string
   }
   services: ProviderServices[]
+  personal: ProviderPersonalValues
 }
-
-export type BasicProvider = Pick<Provider, 'id' | 'basic'>
 
 export type ProviderServices = {
   id: string
@@ -35,12 +33,11 @@ export type ProviderServices = {
   description: string
 }
 
-export type ProviderProfile = {
-  role: ProviderRole
+type ProviderPersonalValues = {
   plan: Plan
 }
 
 export type ProviderProfileActions = {
   setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
-  putProviderProfileData: (payload: ProviderProfileFormValues) => Promise<void>
+  putProviderProfileData: (payload: PutProviderProfileAPI['payload']) => Promise<void>
 }

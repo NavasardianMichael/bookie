@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { CloseCircleFilled, DeleteOutlined, LinkOutlined } from '@ant-design/icons'
+import { DeleteOutlined, LinkOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 import { FormikProps } from 'formik'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -32,7 +32,7 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
         label='Address'
         rules={textareaRequiredMaxCharsCountRuleSet}
         validateTrigger='onChange'
-        className={locationInputShown ? 'mb-2!' : undefined}
+        // className={locationInputShown ? 'mb-2!' : undefined}
       >
         <Flex vertical>
           <AppInput

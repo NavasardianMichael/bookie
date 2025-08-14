@@ -1,10 +1,12 @@
-import { GetProviderAPI } from '@api/providers/types'
+import { GetSingleProviderAPI } from '@api/providers/types'
 import { StateCommonProps } from '@interfaces/store'
-import { Provider } from '../profile/types'
+import { ProviderProfile } from '../profile/types'
 
-export type ProviderState = StateCommonProps & Provider
+export type SingleProvider = Pick<ProviderProfile, 'id' | 'basic' | 'details' | 'services'>
 
-export type ProviderActions = {
-  setProviderState: (payload: Partial<ProviderState>) => void
-  getProvider: (args: GetProviderAPI['payload']) => void
+export type SingleProviderState = StateCommonProps & SingleProvider
+
+export type SingleProviderActions = {
+  setSingleProviderState: (payload: Partial<SingleProviderState>) => void
+  getSingleProvider: (args: GetSingleProviderAPI['payload']) => void
 }

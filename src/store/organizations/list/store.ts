@@ -1,14 +1,15 @@
-import { organizations } from '@app/api/_shared/db/organizations'
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { getOrganizationsListAPI } from '@api/organizations/main'
 import { appendSelectors } from '@store/appendSelectors'
-import { flatToNormalized } from '@helpers/commons'
 import { OrganizationsListActions, OrganizationsListState } from './types'
 
 const initialState: OrganizationsListState = {
-  list: flatToNormalized(organizations),
+  list: {
+    allIds: [],
+    byId: {},
+  },
   isPending: false,
   error: null,
 }

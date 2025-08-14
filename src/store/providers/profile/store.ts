@@ -1,13 +1,12 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { putProviderProviderProfileAPI } from '@api/providers/main'
+import { putProviderProfileAPI } from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { PLANS } from '@constants/plans'
-import { PROVIDER_ROLES } from '@constants/roles'
 import { ProviderProfileActions, ProviderProfileState } from './types'
 
-const initialState: ProviderProfileState = {
+export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
   id: '',
   basic: {
     firstName: '',
@@ -21,11 +20,15 @@ const initialState: ProviderProfileState = {
     },
     country: '',
     email: '',
-    phone: '',
+    phone: {
+      code: 0,
+      number: 0,
+    },
   },
-  role: PROVIDER_ROLES.provider,
-  plan: PLANS.free,
   services: [],
+  personal: {
+    plan: PLANS.free,
+  },
   isPending: false,
   error: null,
 }
@@ -33,7 +36,7 @@ const initialState: ProviderProfileState = {
 export const useProviderProfileStoreBase = create<ProviderProfileState & ProviderProfileActions>()(
   immer(
     combine(
-      initialState,
+      PROVIDER_PROFILE_INITIAL_STATE,
       (set): ProviderProfileActions => ({
         setProviderProfileData: (payload) => {
           set((state) => {
@@ -44,7 +47,7 @@ export const useProviderProfileStoreBase = create<ProviderProfileState & Provide
           })
         },
         putProviderProfileData: async (args) => {
-          await putProviderProviderProfileAPI(args)
+          await putProviderProfileAPI(args)
         },
       })
     )

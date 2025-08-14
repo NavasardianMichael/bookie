@@ -2,8 +2,10 @@ import { UploadFile } from 'antd'
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { ProvidersListState } from '@store/providers/list/types'
-import { Provider } from '@store/providers/profile/types'
+import { ProviderProfile } from '@store/providers/profile/types'
+import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
+import { Plan } from '@interfaces/plans'
 
 // ---------------------------------------------
 // Responses
@@ -14,17 +16,18 @@ export type ProviderProfileResponse = {
   LastName: string
   PhoneNumberCode: string
   PhoneNumber: string
-  Categories: Provider['basic']['categories']
+  Categories: ProviderProfile['basic']['categories']
   Address: string
   LocationURL: string
   Description?: string
-  Organization?: Provider['basic']['organization']
+  Organization?: ProviderProfile['basic']['organization']
   Image?: string
   Email?: string
   Country?: string
+  Plan: Plan
 }
 
-type ProviderResponse = ProviderProfileResponse
+export type SingleProviderResponse = Omit<ProviderProfileResponse, 'Plan'>
 
 export type BasicProviderResponse = Pick<
   ProviderProfileResponse,
@@ -37,7 +40,7 @@ export type BasicProviderResponse = Pick<
 export type PutProviderProfileRequestPayload = Partial<
   Omit<
     ProviderProfileResponse,
-    'Id' | 'PhoneNumber' | 'PhoneNumberCode' | 'Categories' | 'Organization' | 'Country' | 'Image'
+    'Id' | 'PhoneNumber' | 'PhoneNumberCode' | 'Categories' | 'Organization' | 'Country' | 'Image' | 'Plan'
   > & {
     Image: UploadFile
     CategoryIds: Category['id'][]
@@ -54,18 +57,18 @@ export type GetProvidersListAPI = Endpoint<{
   processed: ProvidersListState['list']
 }>
 
-export type GetProviderAPI = Endpoint<{
-  payload: Pick<Provider, 'id'>
-  response: ProviderResponse
-  processed: Provider
+export type GetSingleProviderAPI = Endpoint<{
+  payload: Pick<SingleProvider, 'id'>
+  response: SingleProviderResponse
+  processed: SingleProvider
 }>
 
-export type GetProviderProviderProfileAPI = Endpoint<{
-  payload: Pick<Provider, 'id'>
+export type GetProviderProfileAPI = Endpoint<{
+  payload: Pick<ProviderProfile, 'id'>
   response: ProviderProfileResponse
-  processed: Provider
+  processed: ProviderProfile
 }>
 
-export type PutProviderProviderProfileAPI = Endpoint<{
+export type PutProviderProfileAPI = Endpoint<{
   payload: PutProviderProfileRequestPayload
 }>

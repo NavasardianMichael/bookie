@@ -4,7 +4,7 @@ import { FC } from 'react'
 import { Card, Image } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import Title from 'antd/es/typography/Title'
-import { BasicProvider } from '@store/providers/profile/types'
+import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
 import AppLink from '@components/ui/AppLink'
 

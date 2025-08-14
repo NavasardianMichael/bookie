@@ -1,16 +1,16 @@
 'use client'
 
-import { useEffect } from 'react'
 import { Form } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import { useFormik } from 'formik'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { useMultipleSelectRequiredRuleSet } from '@hooks/useMultipleSelectRequiredRuleSet'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
+// import { useMultipleSelectRequiredRuleSet } from '@hooks/useMultipleSelectRequiredRuleSet'
 import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
+import { processProviderProfileFormToPostPayload } from './processors'
 import ProviderProfileFormCategories from './ProviderProfileFormCategories'
 import ProviderProfileImage from './ProviderProfileFormImage'
 import ProviderProfileFormItem from './ProviderProfileFormItem'
@@ -27,24 +27,19 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
   const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
   const [form] = Form.useForm()
 
-  const requiredRuleSet = useFormItemRules('required')
   const emailMaxCharsCountRuleSet = useFormItemRules('email', 'maxCharsForInput')
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
 
-  useEffect(() => {
-    console.log({ requiredRuleSet })
-  }, [requiredRuleSet])
-
   const formik = useFormik<typeof initialValues>({
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      await putProviderProfileData(values)
+      const payload = processProviderProfileFormToPostPayload(values)
+      await putProviderProfileData(payload)
     },
   })
-  const categoriesRequiredRuleSet = useMultipleSelectRequiredRuleSet()
 
   return (
     <Form
@@ -56,12 +51,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       onFinish={formik.handleSubmit}
       scrollToFirstError
     >
-      <ProviderProfileFormItem
-        name='firstName'
-        label='First Name'
-        rules={inputTextRequiredMaxCharsCountRuleSet}
-        validateDebounce={300}
-      >
+      <ProviderProfileFormItem name='firstName' label='First Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
         <AppInput
           name='firstName'
           value={formik.values.firstName}
@@ -82,10 +72,10 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       </ProviderProfileFormItem>
 
       <ProviderProfileFormItem
-        valuePropName='categoryIds'
         name='categoryIds'
         label='Categories'
-        rules={categoriesRequiredRuleSet}
+        required
+        rules={[{ type: 'array', message: 'jihuyguhijo', min: 1 }]}
       >
         <ProviderProfileFormCategories formik={formik} />
       </ProviderProfileFormItem>

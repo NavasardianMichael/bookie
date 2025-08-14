@@ -1,4 +1,4 @@
-import { BasicProvider } from '@store/providers/profile/types'
+import { BasicProvider } from '@store/providers/list/types'
 import { StateCommonProps } from '@interfaces/store'
 
 export type ConsumerProfileState = StateCommonProps & Consumer

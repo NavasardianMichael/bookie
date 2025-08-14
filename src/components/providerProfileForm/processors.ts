@@ -1,11 +1,10 @@
-import { PutProviderProviderProfileAPI } from '@api/providers/types'
+import { PutProviderProfileAPI } from '@api/providers/types'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 
 export const processProviderProfileFormToPostPayload = (
   formValues: ProviderProfileFormValues
-): PutProviderProviderProfileAPI['payload'] => {
+): PutProviderProfileAPI['payload'] => {
   const processedPayload: ReturnType<typeof processProviderProfileFormToPostPayload> = {}
-  if (formValues.id) processedPayload.Id = formValues.id
   if (formValues.firstName) processedPayload.LastName = formValues.lastName
   if (formValues.lastName) processedPayload.LastName = formValues.lastName
   if (formValues.categoryIds) processedPayload.CategoryIds = formValues.categoryIds
