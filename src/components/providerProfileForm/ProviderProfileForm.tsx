@@ -74,10 +74,16 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       <ProviderProfileFormItem
         name='categoryIds'
         label='Categories'
-        required
-        rules={[{ type: 'array', message: 'jihuyguhijo', min: 1 }]}
+        rules={[
+          {
+            required: true,
+            type: 'array',
+            min: 1,
+            message: 'Please select at least one category',
+          },
+        ]}
       >
-        <ProviderProfileFormCategories formik={formik} />
+        <ProviderProfileFormCategories form={form} formik={formik} />
       </ProviderProfileFormItem>
 
       <ProviderProfileLocationInput formik={formik} disabled={formik.isSubmitting} />

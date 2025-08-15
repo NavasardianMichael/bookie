@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const ProfileCreation: React.FC = () => (
   <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
     <Paragraph className='text-2xl! font-bold text-center mb-1!'>Let's Get Started!</Paragraph>
-    <Paragraph className='text-xl! font-bold text-center mt-1!'>
+    <Paragraph className='text-xl! text-center mt-1!'>
       Fill in Primary Information <br /> of your Profile
     </Paragraph>
     <Flex className='w-full! justify-center items-center'>

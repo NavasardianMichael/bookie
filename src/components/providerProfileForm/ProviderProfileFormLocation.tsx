@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { DeleteOutlined, LinkOutlined } from '@ant-design/icons'
+import { LinkOutlined, MinusCircleOutlined } from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 import { FormikProps } from 'formik'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -17,22 +17,21 @@ type Props = {
 const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => {
   const [locationInputShown, setLocationInputShown] = useState(!!formik.values.locationURL)
 
-  const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
+  const textareaMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForTextarea')
   const textareaRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
 
   const onRemoveUrlClick = useCallback(async () => {
-    await formik.setFieldValue('locationURL', '')
+    await formik.setFieldValue('locationURL', undefined)
     setLocationInputShown(false)
   }, [formik])
 
   return (
-    <Flex vertical gap={0}>
+    <Flex vertical gap={0} className='mb-4!'>
       <ProviderProfileFormItem
         name='address'
         label='Address'
         rules={textareaRequiredMaxCharsCountRuleSet}
-        validateTrigger='onChange'
-        // className={locationInputShown ? 'mb-2!' : undefined}
+        className={locationInputShown ? undefined : 'mb-0!'}
       >
         <Flex vertical>
           <AppInput
@@ -42,36 +41,37 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
             disabled={disabled}
             size='large'
           />
-          {!locationInputShown && (
-            <Button
-              type='text'
-              icon={<LinkOutlined />}
-              className='w-fit! pl-0!'
-              onClick={() => setLocationInputShown(true)}
-            >
-              Attach URL
-            </Button>
-          )}
         </Flex>
       </ProviderProfileFormItem>
 
-      {locationInputShown && (
-        <ProviderProfileFormItem
-          name='locationURL'
-          label='Location URL'
-          rules={textareaMaxCharsCountRuleSet}
-          validateTrigger='onChange'
-        >
-          <AppInput
-            type='url'
-            name='url'
-            value={formik.values.locationURL}
-            onChange={formik.handleChange}
-            disabled={disabled}
-            size='large'
-            suffix={<Button type='text' className='h-[24px]!' icon={<DeleteOutlined />} onClick={onRemoveUrlClick} />}
-          />
+      {locationInputShown ? (
+        <ProviderProfileFormItem name='locationURL' label='Location URL' rules={textareaMaxCharsCountRuleSet}>
+          <Flex gap={8} align='center'>
+            <AppInput
+              type='url'
+              name='url'
+              value={formik.values.locationURL}
+              onChange={formik.handleChange}
+              disabled={disabled}
+              size='large'
+            />
+            <Button
+              type='text'
+              size='large'
+              icon={<MinusCircleOutlined className='text-red-600!' />}
+              onClick={onRemoveUrlClick}
+            />
+          </Flex>
         </ProviderProfileFormItem>
+      ) : (
+        <Button
+          type='text'
+          icon={<LinkOutlined />}
+          className='w-fit! pl-0!'
+          onClick={() => setLocationInputShown(true)}
+        >
+          Attach URL
+        </Button>
       )}
     </Flex>
   )

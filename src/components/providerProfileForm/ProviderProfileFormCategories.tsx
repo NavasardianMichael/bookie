@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Divider, InputRef, Select, Space } from 'antd'
+import { Button, Divider, FormInstance, InputRef, Select, Space } from 'antd'
 import { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { AppFormProps } from '@interfaces/forms'
@@ -10,11 +10,13 @@ import { ProviderProfileFormValues } from '@interfaces/providers'
 import SelectSuffix from '@components/shared/SelectSuffix'
 import AppLink from '@components/ui/AppLink'
 
-type Props = AppFormProps<ProviderProfileFormValues>
+type Props = AppFormProps<ProviderProfileFormValues> & {
+  form: FormInstance
+}
 
 const MAX_COUNT = 3
 
-const ProviderProfileFormCategories: React.FC<Props> = ({ formik }) => {
+const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
   const { list } = useCategoriesListStore()
   const inputRef = useRef<InputRef>(null)
 
@@ -36,9 +38,10 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik }) => {
     }, 0)
   }
 
-  const onOptionChange: SelectProps['onChange'] = (ids) => {
-    // if (ids.length) formik.setFieldError('categoryIds', undefined)
-    formik.setFieldValue('categoryIds', ids)
+  const onOptionChange: SelectProps['onChange'] = async (ids) => {
+    await formik.setFieldValue('categoryIds', ids)
+    form.setFieldValue('categoryIds', ids)
+    form.validateFields(['categoryIds']).catch(() => {})
   }
 
   return (
@@ -59,9 +62,15 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik }) => {
       )}
       onChange={onOptionChange}
       value={formik.values.categoryIds}
-      options={options}
+      // options={options}
       maxCount={MAX_COUNT}
-    />
+    >
+      {options.map((item) => (
+        <Select.Option key={item.value} value={item.value}>
+          {item.label}
+        </Select.Option>
+      ))}
+    </Select>
   )
 }
 
