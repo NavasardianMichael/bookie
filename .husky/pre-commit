@@ -1,12 +1,12 @@
-# # Run lint fix first
-# echo "Running lint-fix..."
-# pnpm lint-fix
+# Run lint fix first
+echo "Running lint-fix..."
+pnpm lint-fix
 
-# # Check if there are any remaining linting issues (fail on warnings too)
-# echo "Checking for remaining linting issues..."
-# if ! pnpm lint --max-warnings 0; then
-#   echo "❌ Linting failed! Please fix all warnings and errors before committing."
-#   exit 1
-# fi
+# Check if there are any remaining linting issues (fail on warnings too)
+echo "Checking for remaining linting issues..."
+if ! pnpm lint --max-warnings 0; then
+  echo "❌ Linting failed! Please fix all warnings and errors before committing."
+  exit 1
+fi
 
-# echo "✅ Linting passed!"
+echo "✅ Linting passed!"
