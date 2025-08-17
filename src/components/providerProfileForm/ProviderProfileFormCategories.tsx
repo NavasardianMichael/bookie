@@ -41,7 +41,7 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
   const onOptionChange: SelectProps['onChange'] = async (ids) => {
     await formik.setFieldValue('categoryIds', ids)
     form.setFieldValue('categoryIds', ids)
-    form.validateFields(['categoryIds']).catch(() => {})
+    form.validateFields(['categoryIds'])
   }
 
   return (

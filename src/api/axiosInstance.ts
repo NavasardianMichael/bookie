@@ -6,9 +6,9 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: process.env.NODE_ENV !== 'development',
-  // formSerializer: {
-  //   indexes: null,
-  // },
+  formSerializer: {
+    indexes: null,
+  },
 })
 
 axiosInstance.interceptors.request.use((config) => {

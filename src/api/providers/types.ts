@@ -1,4 +1,3 @@
-import { UploadFile } from 'antd'
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { ProvidersListState } from '@store/providers/list/types'
@@ -42,7 +41,8 @@ export type PutProviderProfileRequestPayload = Partial<
     ProviderProfileResponse,
     'Id' | 'PhoneNumber' | 'PhoneNumberCode' | 'Categories' | 'Organization' | 'Country' | 'Image' | 'Plan'
   > & {
-    Image: UploadFile
+    Image: ProviderProfile['basic']['image'] | File
+    Gallery: (ProviderProfile['details']['gallery'][number] | File)[]
     CategoryIds: Category['id'][]
     OrganizationId: Organization['id']
   }

@@ -33,5 +33,9 @@ export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async (args) 
 }
 
 export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params) => {
-  await axiosInstance.post<APIResponse<PutProviderProfileAPI['response']>>(ENDPOINTS.putProviderProfile, params)
+  await axiosInstance.put<APIResponse<PutProviderProfileAPI['response']>>(ENDPOINTS.putProviderProfile, params, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
 }

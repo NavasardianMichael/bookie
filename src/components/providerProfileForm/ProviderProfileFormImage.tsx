@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { DeleteOutlined, RedoOutlined, UploadOutlined } from '@ant-design/icons'
-import { Flex, Image, Upload, UploadFile } from 'antd'
+import { Flex, Image, Upload } from 'antd'
 import ImgCrop, { ImgCropProps } from 'antd-img-crop'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
@@ -11,15 +11,7 @@ import AppButton from '@components/ui/AppButton'
 type Props = AppFormProps<ProviderProfileFormValues>
 
 const ProviderProfileImage: React.FC<Props> = ({ formik }) => {
-  const [previewImage, setPreviewImage] = useState<string>(() => formik.values.image?.url ?? '')
-  const [localFiles, setLocalFiles] = useState<UploadFile[]>([])
-
-  useEffect(() => {
-    const image = formik.values.image
-    if (!image) return
-
-    setLocalFiles([image])
-  }, [formik.values.image])
+  const [previewImage, setPreviewImage] = useState(formik.values.image)
 
   const onModalOk: ImgCropProps['onModalOk'] = async (file) => {
     if (!file) {
@@ -27,22 +19,22 @@ const ProviderProfileImage: React.FC<Props> = ({ formik }) => {
       return
     }
 
-    const newFileURL = URL.createObjectURL(file as Blob | MediaSource)
+    await formik.setFieldValue('image', file)
 
-    await formik.setFieldValue('image', newFileURL)
+    const newFileURL = URL.createObjectURL(file as File)
     setPreviewImage(newFileURL)
   }
 
   const onRemovePictureClick = async () => {
     await formik.setFieldValue('image', undefined)
-    setPreviewImage('')
+    setPreviewImage(undefined)
   }
 
   return (
     <>
       <Flex gap={8} wrap>
         <ImgCrop aspect={1} onModalOk={onModalOk}>
-          <Upload maxCount={1} fileList={localFiles} showUploadList={false}>
+          <Upload maxCount={1} showUploadList={false}>
             <AppButton icon={formik.values.image ? <RedoOutlined /> : <UploadOutlined />}>
               {formik.values.image ? 'Upload another picture' : 'Upload'}
             </AppButton>

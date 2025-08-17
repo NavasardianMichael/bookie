@@ -12,6 +12,7 @@ import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
 import { processProviderProfileFormToPostPayload } from './processors'
 import ProviderProfileFormCategories from './ProviderProfileFormCategories'
+import ProviderProfileFormGallery from './ProviderProfileFormGallery'
 import ProviderProfileImage from './ProviderProfileFormImage'
 import ProviderProfileFormItem from './ProviderProfileFormItem'
 import ProviderProfileLocationInput from './ProviderProfileFormLocation'
@@ -76,7 +77,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
         label='Categories'
         rules={[
           {
-            required: true,
+            // required: true,
             type: 'array',
             min: 1,
             message: 'Please select at least one category',
@@ -115,6 +116,10 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
 
       <ProviderProfileFormItem name='image' label='Image'>
         <ProviderProfileImage formik={formik} />
+      </ProviderProfileFormItem>
+
+      <ProviderProfileFormItem name='gallery' label='Gallery'>
+        <ProviderProfileFormGallery formik={formik} />
       </ProviderProfileFormItem>
 
       <AppButton

@@ -22,9 +22,15 @@ export type ProviderProfile = {
     phone: PhoneNumber
     country?: string
     email?: string
+    gallery: GalleryItem[]
   }
   services: ProviderServices[]
   personal: ProviderPersonalValues
+}
+
+type GalleryItem = {
+  name: string
+  url: string
 }
 
 export type ProviderServices = {

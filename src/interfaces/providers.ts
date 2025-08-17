@@ -1,4 +1,3 @@
-import { UploadFile } from 'antd'
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { ProviderProfile } from '@store/providers/profile/types'
@@ -11,7 +10,8 @@ export type ProviderProfileFormValues = {
   address: ProviderProfile['details']['location']['address']
   locationURL: ProviderProfile['details']['location']['url']
   description?: ProviderProfile['basic']['description']
-  image?: UploadFile
+  image?: ProviderProfile['basic']['image']
   email?: ProviderProfile['details']['email']
   organizationId?: Organization['id']
+  gallery?: (ProviderProfile['details']['gallery'][number] | File)[]
 }

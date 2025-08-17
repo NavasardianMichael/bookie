@@ -24,6 +24,7 @@ export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
       code: 0,
       number: 0,
     },
+    gallery: [],
   },
   services: [],
   personal: {

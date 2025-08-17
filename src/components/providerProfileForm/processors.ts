@@ -4,6 +4,8 @@ import { ProviderProfileFormValues } from '@interfaces/providers'
 export const processProviderProfileFormToPostPayload = (
   formValues: ProviderProfileFormValues
 ): PutProviderProfileAPI['payload'] => {
+  console.log({ formValues })
+
   const processedPayload: ReturnType<typeof processProviderProfileFormToPostPayload> = {}
   if (formValues.firstName) processedPayload.LastName = formValues.lastName
   if (formValues.lastName) processedPayload.LastName = formValues.lastName
@@ -13,6 +15,7 @@ export const processProviderProfileFormToPostPayload = (
   if (formValues.description) processedPayload.Description = formValues.description
   if (formValues.email) processedPayload.Email = formValues.email
   if (formValues.image) processedPayload.Image = formValues.image
+  if (formValues.gallery) processedPayload.Gallery = formValues.gallery
   if (formValues.organizationId) processedPayload.OrganizationId = formValues.organizationId
   return processedPayload
 }

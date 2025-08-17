@@ -55,6 +55,7 @@ export const processProviderProfile = (provider: ProviderProfileResponse): Provi
       },
       country: provider.Country,
       email: provider.Email,
+      gallery: [],
     },
     services: [],
     personal: {
@@ -85,6 +86,7 @@ export const processSingleProvider = (provider: SingleProviderResponse): SingleP
       },
       country: provider.Country,
       email: provider.Email,
+      gallery: [],
     },
     services: [],
   }

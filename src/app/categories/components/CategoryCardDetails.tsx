@@ -1,3 +1,5 @@
+'use client'
+
 import { FC, MouseEventHandler } from 'react'
 import { Flex } from 'antd'
 import { BasicCategory } from '@store/categories/single/types'

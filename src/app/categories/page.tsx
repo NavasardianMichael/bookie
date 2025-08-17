@@ -1,15 +1,11 @@
-import { CategoriesList } from './components/CategoriesList'
+import type { Metadata } from 'next'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Categories List',
   description: 'Categories List Page',
 }
 
 const Categories = async () => {
-  return (
-    <div>
-      <CategoriesList />
-    </div>
-  )
+  return <div>Not working temp</div>
 }
 export default Categories
