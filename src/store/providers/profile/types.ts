@@ -1,5 +1,5 @@
 import { PutProviderProfileAPI } from '@api/providers/types'
-import { BasicCategory } from '@store/categories/single/types'
+import { BasicCategory, Category } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location, PhoneNumber } from '@interfaces/app'
 import { Plan } from '@interfaces/plans'
@@ -16,6 +16,7 @@ export type ProviderProfile = {
     image?: string
     categories?: BasicCategory[]
     organization?: BasicOrganization
+    available: boolean
   }
   details: {
     location: Location
@@ -23,8 +24,9 @@ export type ProviderProfile = {
     country?: string
     email?: string
     gallery: GalleryItem[]
+    schedule: Record<string, { start: string; end?: string }[]>
   }
-  services: ProviderServices[]
+  services: ProviderService[]
   personal: ProviderPersonalValues
 }
 
@@ -33,10 +35,16 @@ type GalleryItem = {
   url: string
 }
 
-export type ProviderServices = {
+export type ProviderService = {
   id: string
   name: string
-  description: string
+  duration: number
+  categoryId: Category['id']
+  description?: string
+  price?: number
+  currency?: string
+  image?: string
+  missing?: boolean
 }
 
 type ProviderPersonalValues = {

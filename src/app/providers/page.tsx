@@ -1,9 +1,10 @@
 import { getProvidersListLDSchema } from '@linkedDataSchema/providers'
+import type { Metadata } from 'next'
 import serializeJavascript from 'serialize-javascript'
 import { getProvidersListAPI } from '@api/providers/main'
 import { ProviderCard } from './ProviderCard'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Providers List',
   description: 'Providers List Page',
 }

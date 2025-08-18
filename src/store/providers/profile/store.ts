@@ -13,6 +13,7 @@ export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
     lastName: '',
     image: '',
     categories: [],
+    schedule: {},
   },
   details: {
     location: {

@@ -1,13 +1,15 @@
 'use client'
 
+import { useCallback } from 'react'
 import { Form } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import { useFormik } from 'formik'
+import { useRouter } from 'next/navigation'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
-// import { useMultipleSelectRequiredRuleSet } from '@hooks/useMultipleSelectRequiredRuleSet'
+import { ROUTES } from '@constants/routes'
 import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
 import { processProviderProfileFormToPostPayload } from './processors'
@@ -25,6 +27,7 @@ type Props = {
 }
 
 const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
+  const { push } = useRouter()
   const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
   const [form] = Form.useForm()
 
@@ -32,6 +35,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
+  const oneItemSelectedAtLeastRuleSet = useFormItemRules('required', 'oneItemSelectedAtLeast')
 
   const formik = useFormik<typeof initialValues>({
     initialValues,
@@ -39,14 +43,20 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
     onSubmit: async (values) => {
       const payload = processProviderProfileFormToPostPayload(values)
       await putProviderProfileData(payload)
+      push(ROUTES.providerProfileServices)
     },
   })
+
+  const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+    if (form.getFieldError('firstName').length || form.getFieldError('lastName').length) return
+    if (form.getFieldError('categoryIds').length) form.scrollToField('lastName')
+  }, [form])
 
   return (
     <Form
       form={form}
       requiredMark={true}
-      className='w-full flex flex-col'
+      className={`w-full flex flex-col gap-4`}
       layout='vertical'
       validateTrigger='onSubmit'
       onFinish={formik.handleSubmit}
@@ -75,14 +85,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       <ProviderProfileFormItem
         name='categoryIds'
         label='Categories'
-        rules={[
-          {
-            required: true,
-            type: 'array',
-            min: 1,
-            message: 'Please select at least one category',
-          },
-        ]}
+        rules={oneItemSelectedAtLeastRuleSet}
       >
         <ProviderProfileFormCategories form={form} formik={formik} />
       </ProviderProfileFormItem>
@@ -128,10 +131,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
         htmlType='submit'
         className='w-full h-[56px]!'
         loading={formik.isSubmitting}
-        onClick={() => {
-          if (form.getFieldError('firstName').length || form.getFieldError('lastName').length) return
-          if (form.getFieldError('categoryIds').length) form.scrollToField('lastName')
-        }}
+        onClick={onSubmitButtonClick}
       >
         Proceed to Services
       </AppButton>

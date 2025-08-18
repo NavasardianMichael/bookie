@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { Flex, Image, Modal, Typography, Upload } from 'antd'
 import ImgCrop, { ImgCropProps } from 'antd-img-crop'
@@ -8,6 +8,7 @@ import { ProviderProfile } from '@store/providers/profile/types'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import AppButton from '@components/ui/AppButton'
+import styles from './styles.module.css'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
@@ -50,30 +51,34 @@ const ProviderProfileFormGallery: React.FC<Props> = ({ formik }) => {
     setPendingDeleteImageName(previewImageName)
   }, [])
 
+  const disabled = useMemo(() => {
+    return formik.isSubmitting || !!formik.values?.gallery?.length && formik.values.gallery.length >= 10
+  }, [formik.isSubmitting, formik.values?.gallery?.length])
+
   return (
     <>
       <Flex gap={8} wrap>
         <ImgCrop aspect={1} onModalOk={onModalOk}>
-          <Upload maxCount={10} showUploadList={false}>
-            <AppButton icon={<UploadOutlined />} className='mr-2'>
+          <Upload maxCount={10} showUploadList={false} disabled={disabled}>
+            <AppButton icon={<UploadOutlined />} className='mr-2' disabled={disabled} >
               Upload
             </AppButton>
             up to 10 pictures to your gallery
           </Upload>
         </ImgCrop>
       </Flex>
-      <Flex wrap gap={8}>
+      <Flex wrap gap={8} className='mt-4! basis-[100px] grow-0 shrink-0'>
         {previewImages?.map(({ name, url }) => {
           return (
-            <Flex key={name} vertical gap={4}>
+            <Flex key={name} vertical gap={0} className='flex-1 shadow-lg'>
               <Image
                 wrapperClassName='block!'
-                className='mt-6 mx-auto'
+                className='mx-auto rounded-tr-lg! rounded-tl-lg!'
                 alt='Profile picture'
-                preview={false}
                 src={url}
+                rootClassName={styles['gallery-image-preview-root']}
               />
-              <AppButton danger icon={<DeleteOutlined />} color='red' onClick={onRemovePictureClick} name={name}>
+              <AppButton danger className='rounded-tr-none! rounded-tl-none!' icon={<DeleteOutlined />} color='red' onClick={onRemovePictureClick} name={name}>
                 Remove
               </AppButton>
             </Flex>

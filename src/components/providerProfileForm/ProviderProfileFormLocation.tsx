@@ -17,8 +17,8 @@ type Props = {
 const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => {
   const [locationInputShown, setLocationInputShown] = useState(!!formik.values.locationURL)
 
-  const textareaMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForTextarea')
   const textareaRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
+  const urlRuleSet = useFormItemRules('required', 'url')
 
   const onRemoveUrlClick = useCallback(async () => {
     await formik.setFieldValue('locationURL', undefined)
@@ -26,12 +26,11 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
   }, [formik])
 
   return (
-    <Flex vertical gap={0} className='mb-4!'>
+    <Flex vertical gap={locationInputShown ? 16 : 0}>
       <ProviderProfileFormItem
         name='address'
         label='Address'
         rules={textareaRequiredMaxCharsCountRuleSet}
-        className={locationInputShown ? undefined : 'mb-0!'}
       >
         <Flex vertical>
           <AppInput
@@ -45,11 +44,11 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
       </ProviderProfileFormItem>
 
       {locationInputShown ? (
-        <ProviderProfileFormItem name='locationURL' label='Location URL' rules={textareaMaxCharsCountRuleSet}>
+        <ProviderProfileFormItem name='locationURL' label='Location URL' rules={urlRuleSet}>
           <Flex gap={8} align='center'>
             <AppInput
               type='url'
-              name='url'
+              name='locationURL'
               value={formik.values.locationURL}
               onChange={formik.handleChange}
               disabled={disabled}
@@ -69,6 +68,7 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
           icon={<LinkOutlined />}
           className='w-fit! pl-0!'
           onClick={() => setLocationInputShown(true)}
+          disabled={formik.isSubmitting}
         >
           Attach URL
         </Button>

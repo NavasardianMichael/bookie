@@ -8,6 +8,7 @@ export const ROUTE_KEYS = {
   organizations: 'organizations',
   consumerProfile: 'consumerProfile',
   providerProfileCreation: 'providerProfileCreation',
+  providerProfileServices: 'providerProfileServices',
   providerProfile: 'providerProfile',
 
   signOn: 'signOn',
@@ -34,6 +35,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.organizations]: '/organizations',
   [ROUTE_KEYS.consumerProfile]: '/consumers/profile',
   [ROUTE_KEYS.providerProfileCreation]: '/providers/profile-creation',
+  [ROUTE_KEYS.providerProfileServices]: '/providers/profile-services',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
 
   // Auth

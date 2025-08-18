@@ -55,15 +55,10 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
       )}
       onChange={onOptionChange}
       value={formik.values.categoryIds}
-      // options={options}
+      options={options}
       maxCount={MAX_COUNT}
-    >
-      {options.map((item) => (
-        <Select.Option key={item.value} value={item.value}>
-          {item.label}
-        </Select.Option>
-      ))}
-    </Select>
+      disabled={formik.isSubmitting}
+    />
   )
 }
 

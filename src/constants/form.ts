@@ -6,13 +6,17 @@ const _RULE_NAMES = {
   maxCharsForInput: 'maxCharsForInput',
   maxCharsForTextarea: 'maxCharsForTextarea',
   email: 'email',
+  oneItemSelectedAtLeast: 'oneItemSelectedAtLeast',
+  url: 'url',
 } as const
 
 export const FORM_ITEM_RULES: Record<(typeof _RULE_NAMES)[keyof typeof _RULE_NAMES], RuleObject> = {
   required: { required: true, message: 'Please fill in ${label}' },
   maxCharsForInput: { max: 40, message: 'Max count of characters is 40' },
   maxCharsForTextarea: { max: 300, message: 'Max count of characters is 300' },
+  oneItemSelectedAtLeast: { type: 'array', min: 1, message: 'Please select at least one item' },
   email: { type: 'email', message: 'Invalid Email' },
+  url: { type: 'url', message: 'Invalid URL' },
 } as const
 
 export const FORM_ITEM_REQUIRED_RULE_SET: Rule[] = [FORM_ITEM_RULES.required]

@@ -34,15 +34,17 @@ const ProviderProfileImage: React.FC<Props> = ({ formik }) => {
     <>
       <Flex gap={8} wrap>
         <ImgCrop aspect={1} onModalOk={onModalOk}>
-          <Upload maxCount={1} showUploadList={false}>
-            <AppButton icon={formik.values.image ? <RedoOutlined /> : <UploadOutlined />}>
+          <Upload maxCount={1} showUploadList={false} disabled={formik.isSubmitting}>
+            <AppButton icon={formik.values.image ? <RedoOutlined /> : <UploadOutlined />} disabled={formik.isSubmitting}>
               {formik.values.image ? 'Upload another picture' : 'Upload'}
             </AppButton>
           </Upload>
         </ImgCrop>
-        <AppButton danger icon={<DeleteOutlined />} color='red' onClick={onRemovePictureClick}>
-          Remove
-        </AppButton>
+        {
+          previewImage && <AppButton danger icon={<DeleteOutlined />} color='red' onClick={onRemovePictureClick} disabled={formik.isSubmitting}>
+            Remove
+          </AppButton>
+        }
       </Flex>
       {previewImage && (
         <Image

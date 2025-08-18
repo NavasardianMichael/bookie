@@ -54,6 +54,7 @@ const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
       onChange={onOptionChange}
       defaultValue={formik.values.organizationId}
       options={options}
+      disabled={formik.isSubmitting}
     />
   )
 }
