@@ -82,11 +82,6 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
             min: 1,
             message: 'Please select at least one category',
           },
-          // {
-          //   type: 'array',
-          //   min: 1,
-          //   message: 'Please select at least one category',
-          // },
         ]}
       >
         <ProviderProfileFormCategories form={form} formik={formik} />
@@ -133,10 +128,14 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
         htmlType='submit'
         className='w-full h-[56px]!'
         loading={formik.isSubmitting}
+        onClick={() => {
+          if (form.getFieldError('firstName').length || form.getFieldError('lastName').length) return
+          if (form.getFieldError('categoryIds').length) form.scrollToField('lastName')
+        }}
       >
         Proceed to Services
       </AppButton>
-    </Form>
+    </Form >
   )
 }
 

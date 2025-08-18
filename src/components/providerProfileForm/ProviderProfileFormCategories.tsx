@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Divider, FormInstance, InputRef, Select, Space } from 'antd'
+import { Button, Divider, FormInstance, Select, Space } from 'antd'
 import { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { AppFormProps } from '@interfaces/forms'
@@ -18,7 +18,6 @@ const MAX_COUNT = 3
 
 const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
   const { list } = useCategoriesListStore()
-  const inputRef = useRef<InputRef>(null)
 
   const options: DefaultOptionType[] = useMemo(() => {
     return list.allIds.map((categoryId) => {
@@ -31,17 +30,11 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
     })
   }, [list.allIds, list.byId])
 
-  const addItem = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    e.preventDefault()
-    setTimeout(() => {
-      inputRef.current?.focus()
-    }, 0)
-  }
-
   const onOptionChange: SelectProps['onChange'] = async (ids) => {
     await formik.setFieldValue('categoryIds', ids)
     form.setFieldValue('categoryIds', ids)
     form.validateFields(['categoryIds'])
+
   }
 
   return (
@@ -54,7 +47,7 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
           {menu}
           <Divider style={{ margin: '8px 0' }} />
           <Space style={{ padding: '0 8px 4px' }}>
-            <Button type='text' icon={<PlusOutlined />} onClick={addItem}>
+            <Button type='text' icon={<PlusOutlined />}>
               <AppLink href={'/'}>Create a new category</AppLink>
             </Button>
           </Space>
