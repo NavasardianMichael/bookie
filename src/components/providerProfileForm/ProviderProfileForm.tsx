@@ -77,11 +77,16 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
         label='Categories'
         rules={[
           {
-            // required: true,
+            required: true,
             type: 'array',
             min: 1,
             message: 'Please select at least one category',
           },
+          // {
+          //   type: 'array',
+          //   min: 1,
+          //   message: 'Please select at least one category',
+          // },
         ]}
       >
         <ProviderProfileFormCategories form={form} formik={formik} />
