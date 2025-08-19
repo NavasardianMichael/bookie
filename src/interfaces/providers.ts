@@ -14,4 +14,5 @@ export type ProviderProfileFormValues = {
   email?: ProviderProfile['details']['email']
   organizationId?: Organization['id']
   gallery?: (ProviderProfile['details']['gallery'][number] | File)[]
+  weekSchedule: ProviderProfile['details']['weekSchedule']
 }

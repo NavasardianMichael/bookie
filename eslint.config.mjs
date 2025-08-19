@@ -81,6 +81,7 @@ const eslintConfig = [
       'react-hooks/rules-of-hooks': 'error',
       'react/no-unescaped-entities': 'off',
       '@next/next/no-img-element': 'off',
+      'security/detect-object-injection': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

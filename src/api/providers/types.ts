@@ -24,13 +24,15 @@ export type ProviderProfileResponse = {
   Email?: string
   Country?: string
   Plan: Plan
+  Available: boolean
+  WeekSchedule: ProviderProfile['details']['weekSchedule']
 }
 
 export type SingleProviderResponse = Omit<ProviderProfileResponse, 'Plan'>
 
 export type BasicProviderResponse = Pick<
   ProviderProfileResponse,
-  'Id' | 'FirstName' | 'LastName' | 'Description' | 'Image' | 'Categories' | 'Organization'
+  'Id' | 'FirstName' | 'LastName' | 'Description' | 'Image' | 'Categories' | 'Organization' | 'Available'
 >
 
 // ---------------------------------------------

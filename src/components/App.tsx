@@ -10,6 +10,7 @@ const themeConfig: ThemeConfig = {
     // colorBgBase: '#D2D2D2', // Soft off-white
     colorTextBase: '#18294D', // Dark blue for text
     colorTextSecondary: '#18294D',
+    colorLink: '#18294D',
   },
   components: {
     Typography: {

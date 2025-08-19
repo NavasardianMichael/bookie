@@ -19,6 +19,7 @@ import ProviderProfileImage from './ProviderProfileFormImage'
 import ProviderProfileFormItem from './ProviderProfileFormItem'
 import ProviderProfileLocationInput from './ProviderProfileFormLocation'
 import ProviderProfileOrganization from './ProviderProfileFormOrganization'
+import ProviderProfileWeekSchedule from './ProviderProfileWeekSchedule'
 
 import '@ant-design/v5-patch-for-react-19'
 
@@ -94,6 +95,10 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
 
       <ProviderProfileFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
         <ProviderProfileOrganization formik={formik} />
+      </ProviderProfileFormItem>
+
+      <ProviderProfileFormItem name='weekSchedule' label='Week Schedule'>
+        <ProviderProfileWeekSchedule formik={formik} />
       </ProviderProfileFormItem>
 
       <ProviderProfileFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>

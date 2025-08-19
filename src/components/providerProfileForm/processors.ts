@@ -17,5 +17,6 @@ export const processProviderProfileFormToPostPayload = (
   if (formValues.image) processedPayload.Image = formValues.image
   if (formValues.gallery) processedPayload.Gallery = formValues.gallery
   if (formValues.organizationId) processedPayload.OrganizationId = formValues.organizationId
+  if (formValues.weekSchedule) processedPayload.WeekSchedule = formValues.weekSchedule
   return processedPayload
 }

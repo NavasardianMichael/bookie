@@ -13,19 +13,29 @@ export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
     lastName: '',
     image: '',
     categories: [],
-    schedule: {},
+
+    available: true,
   },
   details: {
     location: {
       address: '',
     },
-    country: '',
-    email: '',
     phone: {
       code: 0,
       number: 0,
     },
+    country: '',
+    email: '',
     gallery: [],
+    weekSchedule: {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    },
   },
   services: [],
   personal: {

@@ -3,6 +3,7 @@ import { BasicCategory, Category } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location, PhoneNumber } from '@interfaces/app'
 import { Plan } from '@interfaces/plans'
+import { WeekDay } from '@interfaces/schedule'
 import { StateCommonProps } from '@interfaces/store'
 
 export type ProviderProfileState = StateCommonProps & ProviderProfile
@@ -24,16 +25,22 @@ export type ProviderProfile = {
     country?: string
     email?: string
     gallery: GalleryItem[]
-    schedule: Record<string, { start: string; end?: string }[]>
+    weekSchedule: WeekSchedule
   }
   services: ProviderService[]
   personal: ProviderPersonalValues
 }
 
-type GalleryItem = {
+export type GalleryItem = {
   name: string
   url: string
 }
+
+export type WeekSchedule = Record<WeekDay, DaySchedule>
+
+export type DaySchedule = DaySchedulePart[]
+
+type DaySchedulePart = { start: string; end: string }
 
 export type ProviderService = {
   id: string

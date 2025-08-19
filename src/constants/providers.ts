@@ -11,4 +11,13 @@ export const PROVIDER_PROFILE_FORM_INITIAL_VALUES: ProviderProfileFormValues = {
   email: undefined,
   organizationId: undefined,
   gallery: [],
+  weekSchedule: {
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    saturday: [],
+    sunday: [],
+  },
 }
