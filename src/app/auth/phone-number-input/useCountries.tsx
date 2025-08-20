@@ -8,7 +8,6 @@ export const useCountries = () => {
   const countryOptions = useMemo(() => {
     return (
       countries
-        // eslint-disable-next-line security/detect-object-injection
         .filter((country) => !SIGN_ON_EXCLUDED_COUNTRIES[country])
         .map((country) => ({
           value: country,

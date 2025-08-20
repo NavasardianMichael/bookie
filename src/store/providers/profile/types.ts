@@ -38,9 +38,12 @@ export type GalleryItem = {
 
 export type WeekSchedule = Record<WeekDay, DaySchedule>
 
-export type DaySchedule = DaySchedulePart[]
+export type DaySchedule = {
+  availability: DaySchedulePart
+  breaks: DaySchedulePart[]
+}
 
-type DaySchedulePart = { start: string; end: string }
+export type DaySchedulePart = { start: string; end: string }
 
 export type ProviderService = {
   id: string

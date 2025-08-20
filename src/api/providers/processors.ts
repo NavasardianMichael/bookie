@@ -43,6 +43,7 @@ export const processProviderProfile = (provider: ProviderProfileResponse): Provi
       description: provider.Description,
       image: provider.Image,
       organization: provider.Organization,
+      available: provider.Available,
     },
     details: {
       location: {
@@ -56,6 +57,7 @@ export const processProviderProfile = (provider: ProviderProfileResponse): Provi
       country: provider.Country,
       email: provider.Email,
       gallery: [],
+      weekSchedule: provider.WeekSchedule,
     },
     services: [],
     personal: {
@@ -74,6 +76,7 @@ export const processSingleProvider = (provider: SingleProviderResponse): SingleP
       description: provider.Description,
       image: provider.Image,
       organization: provider.Organization,
+      available: provider.Available,
     },
     details: {
       location: {
@@ -87,6 +90,7 @@ export const processSingleProvider = (provider: SingleProviderResponse): SingleP
       country: provider.Country,
       email: provider.Email,
       gallery: [],
+      weekSchedule: provider.WeekSchedule,
     },
     services: [],
   }
@@ -102,6 +106,7 @@ export const processBasicProvider = (provider: BasicProviderResponse): BasicProv
       description: provider.Description,
       image: provider.Image,
       organization: provider.Organization,
+      available: provider.Available,
     },
   }
 }

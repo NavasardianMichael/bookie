@@ -21,7 +21,6 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
 
   const options: DefaultOptionType[] = useMemo(() => {
     return list.allIds.map((categoryId) => {
-      // eslint-disable-next-line security/detect-object-injection
       const category = list.byId[categoryId]
       return {
         value: category.id,

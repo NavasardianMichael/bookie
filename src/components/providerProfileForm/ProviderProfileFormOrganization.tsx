@@ -17,7 +17,6 @@ const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
 
   const options: DefaultOptionType[] = useMemo(() => {
     return list.allIds.map((organizationId) => {
-      // eslint-disable-next-line security/detect-object-injection
       const organization = list.byId[organizationId]
       return {
         value: organization.id,

@@ -1,6 +1,6 @@
 import { Consumer } from '@store/consumers/profile/types'
 import { Organization } from '@store/organizations/single/types'
-import { ProviderProfile, ProviderServices } from '@store/providers/profile/types'
+import { ProviderProfile, ProviderService } from '@store/providers/profile/types'
 
 export type AppointmentStatus = 'scheduled' | 'confirmed' | 'cancelled' | 'completed' | 'no-show'
 
@@ -14,7 +14,7 @@ export type Appointment = {
   id: string
   consumerId: Consumer['id']
   providerId: ProviderProfile['id']
-  serviceId: ProviderServices['id']
+  serviceId: ProviderService['id']
   organizationId?: Organization['id']
   time: AppointmentTime
   status: AppointmentStatus
@@ -28,6 +28,6 @@ export type BasicAppointment = Pick<Appointment, 'id' | 'time' | 'status'>
 export type AppointmentWithDetails = Appointment & {
   consumer: Pick<Consumer, 'id' | 'basic'>
   provider: Pick<ProviderProfile, 'id' | 'basic'>
-  service: ProviderServices
+  service: ProviderProfile['services'][number]
   organization?: Pick<Organization, 'id' | 'basic'>
 }

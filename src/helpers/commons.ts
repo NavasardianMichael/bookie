@@ -15,7 +15,6 @@ export const sleep = (ms: number): Promise<void> => {
 }
 
 export const normalizedToFlat = <T extends { id: string }>(data: Normalized<T>): T[] => {
-  // eslint-disable-next-line security/detect-object-injection
   return data.allIds.map((itemId) => data.byId[itemId])
 }
 

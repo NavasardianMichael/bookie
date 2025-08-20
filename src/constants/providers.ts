@@ -1,3 +1,4 @@
+import { PROVIDER_PROFILE_INITIAL_STATE } from '@store/providers/profile/store'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 
 export const PROVIDER_PROFILE_FORM_INITIAL_VALUES: ProviderProfileFormValues = {
@@ -11,13 +12,5 @@ export const PROVIDER_PROFILE_FORM_INITIAL_VALUES: ProviderProfileFormValues = {
   email: undefined,
   organizationId: undefined,
   gallery: [],
-  weekSchedule: {
-    monday: [],
-    tuesday: [],
-    wednesday: [],
-    thursday: [],
-    friday: [],
-    saturday: [],
-    sunday: [],
-  },
+  weekSchedule: PROVIDER_PROFILE_INITIAL_STATE.details.weekSchedule,
 }
