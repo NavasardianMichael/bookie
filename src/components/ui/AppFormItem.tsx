@@ -4,7 +4,7 @@ import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 
 type Props = FormItemProps
 
-const ProviderProfileFormItem: React.FC<Props> = ({ children, label, className, ...props }) => {
+const AppProfileFormItem: React.FC<Props> = ({ children, label, className, ...props }) => {
   const memoizedMessageVariables: FormItemProps['messageVariables'] = useMemo(() => {
     return { label } as Record<string, string>
   }, [label])
@@ -24,4 +24,4 @@ const ProviderProfileFormItem: React.FC<Props> = ({ children, label, className, 
   )
 }
 
-export default ProviderProfileFormItem
+export default AppProfileFormItem

@@ -1,7 +1,8 @@
-import { PutProviderProfileAPI } from '@api/providers/types'
+import { DeleteProviderServiceAPI, EditProviderServiceAPI, PutProviderProfileAPI } from '@api/providers/types'
 import { BasicCategory, Category } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location, PhoneNumber } from '@interfaces/app'
+import { Normalized } from '@interfaces/commons'
 import { Plan } from '@interfaces/plans'
 import { WeekDay } from '@interfaces/schedule'
 import { StateCommonProps } from '@interfaces/store'
@@ -27,7 +28,7 @@ export type ProviderProfile = {
     gallery: GalleryItem[]
     weekSchedule: WeekSchedule
   }
-  services: ProviderService[]
+  services: Normalized<ProviderService>
   personal: ProviderPersonalValues
 }
 
@@ -62,6 +63,9 @@ type ProviderPersonalValues = {
 }
 
 export type ProviderProfileActions = {
-  setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
+  // setProviderProfileData: (payload: Partial<ProviderProfileState>) => void
+  getProviderProfileData: () => Promise<void>
   putProviderProfileData: (payload: PutProviderProfileAPI['payload']) => Promise<void>
+  deleteProviderService: (payload: DeleteProviderServiceAPI['payload']) => Promise<void>
+  editProviderService: (payload: EditProviderServiceAPI['payload']) => Promise<void>
 }

@@ -1,0 +1,6 @@
+.gallery-image-preview-root {
+  :global(.ant-image-preview-img-wrapper) {
+    padding: 8px;
+    box-sizing: border-box;
+  }
+}

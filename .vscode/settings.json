@@ -37,5 +37,8 @@
       "iconColour": "#ff0000"
     }
   },
-  "cSpell.words": ["Navasardyan"]
+  "cSpell.words": ["Navasardyan"],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

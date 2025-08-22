@@ -1,12 +1,20 @@
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
+import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processProviderProfileResponse,
   processProvidersListResponse,
   processSingleProviderResponse,
 } from './processors'
-import { GetProviderProfileAPI, GetProvidersListAPI, GetSingleProviderAPI, PutProviderProfileAPI } from './types'
+import {
+  DeleteProviderServiceAPI,
+  EditProviderServiceAPI,
+  GetProviderProfileAPI,
+  GetProvidersListAPI,
+  GetSingleProviderAPI,
+  PutProviderProfileAPI,
+} from './types'
 
 export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProvidersListAPI['response']>>(ENDPOINTS.getProvidersList)
@@ -23,9 +31,9 @@ export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) =>
   return processedResponse
 }
 
-export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async (args) => {
+export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProviderProfileAPI['response']>>(
-    `${ENDPOINTS.getProviderProfile}/${args.id}`
+    `${ENDPOINTS.getProviderProfile}`
   )
 
   const processedResponse = processProviderProfileResponse(data)
@@ -38,4 +46,14 @@ export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params
       'Content-Type': 'multipart/form-data',
     },
   })
+}
+
+export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (args) => {
+  await axiosInstance.delete<APIResponse<DeleteProviderServiceAPI['response']>>(
+    `${ENDPOINTS.deleteProviderService}?${paramsToQueryString(args)}`
+  )
+}
+
+export const editProviderServiceAPI: EditProviderServiceAPI['api'] = async (args) => {
+  await axiosInstance.post<APIResponse<EditProviderServiceAPI['response']>>(`${ENDPOINTS.editProviderService}`, args)
 }

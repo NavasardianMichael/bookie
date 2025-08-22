@@ -1,14 +1,27 @@
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { ProvidersListState } from '@store/providers/list/types'
-import { ProviderProfile } from '@store/providers/profile/types'
+import { ProviderProfile, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
+import { PartialButRequired } from '@interfaces/commons'
 import { Plan } from '@interfaces/plans'
 
 // ---------------------------------------------
 // Responses
 // ---------------------------------------------
+type ProviderServiceResponse = {
+  Id: string
+  Name: string
+  Duration: number
+  CategoryId: Category['id']
+  Description?: string
+  Price?: number
+  Currency?: string
+  Image?: string
+  Missing?: boolean
+}
+
 export type ProviderProfileResponse = {
   Id: string
   FirstName: string
@@ -26,6 +39,7 @@ export type ProviderProfileResponse = {
   Plan: Plan
   Available: boolean
   WeekSchedule: ProviderProfile['details']['weekSchedule']
+  Services: ProviderServiceResponse[]
 }
 
 export type SingleProviderResponse = Omit<ProviderProfileResponse, 'Plan'>
@@ -66,11 +80,25 @@ export type GetSingleProviderAPI = Endpoint<{
 }>
 
 export type GetProviderProfileAPI = Endpoint<{
-  payload: Pick<ProviderProfile, 'id'>
+  payload: void
   response: ProviderProfileResponse
   processed: ProviderProfile
 }>
 
 export type PutProviderProfileAPI = Endpoint<{
   payload: PutProviderProfileRequestPayload
+}>
+
+export type DeleteProviderServiceAPI = Endpoint<{
+  payload: {
+    providerId: ProviderProfile['id']
+    serviceId: ProviderService['id']
+  }
+}>
+
+export type EditProviderServiceAPI = Endpoint<{
+  payload: {
+    providerId: ProviderProfile['id']
+    service: PartialButRequired<ProviderServiceResponse, 'Id'>
+  }
 }>

@@ -1,7 +1,12 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { putProviderProfileAPI } from '@api/providers/main'
+import {
+  deleteProviderServiceAPI,
+  editProviderServiceAPI,
+  getProviderProfileAPI,
+  putProviderProfileAPI,
+} from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { PLANS } from '@constants/plans'
 import { ProviderProfileActions, ProviderProfileState } from './types'
@@ -37,7 +42,10 @@ export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
       sunday: { availability: { start: '', end: '' }, breaks: [] },
     },
   },
-  services: [],
+  services: {
+    allIds: [],
+    byId: {},
+  },
   personal: {
     plan: PLANS.free,
   },
@@ -50,16 +58,35 @@ export const useProviderProfileStoreBase = create<ProviderProfileState & Provide
     combine(
       PROVIDER_PROFILE_INITIAL_STATE,
       (set): ProviderProfileActions => ({
-        setProviderProfileData: (payload) => {
+        getProviderProfileData: async () => {
+          const profile = await getProviderProfileAPI()
           set((state) => {
             return {
               ...state,
-              ...payload,
+              ...profile,
             }
           })
         },
         putProviderProfileData: async (args) => {
           await putProviderProfileAPI(args)
+        },
+        deleteProviderService: async (args) => {
+          await deleteProviderServiceAPI(args)
+          set((state) => {
+            if (state.services.byId[args.serviceId]) {
+              delete state.services.byId[args.serviceId]
+              state.services.allIds = state.services.allIds.filter((id) => id !== args.serviceId)
+            }
+          })
+        },
+        editProviderService: async (args) => {
+          await editProviderServiceAPI(args)
+          set((state) => {
+            const currentServiceState = state.services.byId[args.service.Id]
+            if (currentServiceState) {
+              state.services.byId[args.service.Id] = { ...currentServiceState, ...args.service }
+            }
+          })
         },
       })
     )
