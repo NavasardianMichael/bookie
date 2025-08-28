@@ -141,7 +141,6 @@ const OTPCodeInput: React.FC = () => {
         <AppButton
           onClick={onResendButtonClick}
           className='relative w-full h-[56px]!'
-          size='large'
           type='primary'
           disabled={isPending || !showResendButton}
           loading={isPending}

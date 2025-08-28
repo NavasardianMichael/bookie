@@ -29,13 +29,7 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
     <Flex vertical gap={locationInputShown ? 16 : 0}>
       <AppProfileFormItem name='address' label='Address' rules={textareaRequiredMaxCharsCountRuleSet}>
         <Flex vertical>
-          <AppInput
-            name='address'
-            value={formik.values.address}
-            onChange={formik.handleChange}
-            disabled={disabled}
-            size='large'
-          />
+          <AppInput name='address' value={formik.values.address} onChange={formik.handleChange} disabled={disabled} />
         </Flex>
       </AppProfileFormItem>
 
@@ -48,7 +42,6 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
               value={formik.values.locationURL}
               onChange={formik.handleChange}
               disabled={disabled}
-              size='large'
             />
             <Button
               type='text'
