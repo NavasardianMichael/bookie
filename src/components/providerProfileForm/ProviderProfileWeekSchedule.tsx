@@ -219,7 +219,6 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
                     separator={'-'}
                   />
                   <AppButton
-                    size='large'
                     danger
                     icon={<MinusCircleFilled />}
                     type='text'

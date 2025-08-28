@@ -69,7 +69,6 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
           value={formik.values.firstName}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
-          size='large'
         />
       </AppProfileFormItem>
 
@@ -79,7 +78,6 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
           value={formik.values.lastName}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
-          size='large'
         />
       </AppProfileFormItem>
 
@@ -101,7 +99,6 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
           value={formik.values.email}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
-          size='large'
         />
       </AppProfileFormItem>
 
@@ -111,7 +108,6 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
           value={formik.values.description}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
-          size='large'
           autoSize={{ minRows: 3, maxRows: 5 }}
         />
       </AppProfileFormItem>

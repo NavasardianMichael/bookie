@@ -5,11 +5,18 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { Avatar, Button, Card, Flex, Modal, Typography } from 'antd'
 import { useFormik } from 'formik'
 import { useProviderProfileStore } from '@store/providers/profile/store'
+import { ProviderProfileServiceFormValues } from '@interfaces/services'
+import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
+import ProviderProfileServiceForm from '@components/providerProfileServiceForm/ProviderProfileServiceForm'
 import AppButton from '@components/ui/AppButton'
 
 import '@ant-design/v5-patch-for-react-19'
 
-const ProviderProfileServices: React.FC = () => {
+type Props = {
+  initialValues?: ProviderProfileServiceFormValues
+}
+
+const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const { id: providerId, services, isPending, editProviderService, deleteProviderService } = useProviderProfileStore()
   const { allIds, byId } = services
 
@@ -52,21 +59,20 @@ const ProviderProfileServices: React.FC = () => {
     setEditServiceModalOpened(false)
   }, [])
 
-  const onEditServiceApprove: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
-    const props = editServicePropsRef.current
-    await editProviderService(props)
-    closeEditServiceModal()
-  }, [closeEditServiceModal, editProviderService])
-
-  const formik = useFormik<typeof initialValues>({
+  const formik = useFormik<ProviderProfileServiceFormValues>({
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      const payload = processProviderProfileFormToPostPayload(values)
-      await putProviderProfileData(payload)
-      push(ROUTES.providerProfileServices)
+      // const payload = processProviderProfileFormToPostPayload(values)
+      // await putProviderProfileData(payload)
+      // push(ROUTES.providerProfileServices)
     },
   })
+
+  const onEditServiceApprove: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
+    // await editProviderService(formik.values)
+    closeEditServiceModal()
+  }, [closeEditServiceModal, editProviderService])
 
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
@@ -128,7 +134,7 @@ const ProviderProfileServices: React.FC = () => {
         okButtonProps={{ loading: isPending, disabled: isPending }}
         centered
       >
-        <Typography.Paragraph>Edit Provider Form</Typography.Paragraph>
+        <ProviderProfileServiceForm formik={formik} />
       </Modal>
       <Modal
         title='Delete service'
