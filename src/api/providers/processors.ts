@@ -59,7 +59,10 @@ export const processProviderProfile = (provider: ProviderProfileResponse): Provi
       gallery: [],
       weekSchedule: provider.WeekSchedule,
     },
-    services: [],
+    services: {
+      allIds: [],
+      byId: {},
+    },
     personal: {
       plan: provider.Plan,
     },
@@ -92,7 +95,10 @@ export const processSingleProvider = (provider: SingleProviderResponse): SingleP
       gallery: [],
       weekSchedule: provider.WeekSchedule,
     },
-    services: [],
+    services: {
+      allIds: [],
+      byId: {},
+    },
   }
 }
 

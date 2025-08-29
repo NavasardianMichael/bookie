@@ -28,6 +28,6 @@ export type BasicAppointment = Pick<Appointment, 'id' | 'time' | 'status'>
 export type AppointmentWithDetails = Appointment & {
   consumer: Pick<Consumer, 'id' | 'basic'>
   provider: Pick<ProviderProfile, 'id' | 'basic'>
-  service: ProviderProfile['services'][number]
+  service: ProviderService
   organization?: Pick<Organization, 'id' | 'basic'>
 }

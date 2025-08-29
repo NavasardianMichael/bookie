@@ -19,6 +19,7 @@ type Props = {
 const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const { id: providerId, services, isPending, editProviderService, deleteProviderService } = useProviderProfileStore()
   const { allIds, byId } = services
+  console.log({ editProviderService })
 
   const [editServiceModalOpened, setEditServiceModalOpened] = useState(false)
   const editServicePropsRef = useRef<string | undefined>('')
@@ -63,6 +64,8 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
+      console.log({ values })
+
       // const payload = processProviderProfileFormToPostPayload(values)
       // await putProviderProfileData(payload)
       // push(ROUTES.providerProfileServices)
@@ -71,8 +74,10 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
 
   const onEditServiceApprove: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
     // await editProviderService(formik.values)
+    formik.submitForm()
     closeEditServiceModal()
-  }, [closeEditServiceModal, editProviderService])
+  }, [closeEditServiceModal, formik])
+  console.log(Object.values(formik.errors))
 
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
@@ -125,7 +130,7 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       </AppButton>
 
       <Modal
-        title='Confirm changes'
+        title='Service Configuration'
         open={editServiceModalOpened}
         onOk={onEditServiceApprove}
         onCancel={closeEditServiceModal}
@@ -143,7 +148,11 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         onCancel={closeDeleteServiceModal}
         okText='Yes'
         cancelText='No'
-        okButtonProps={{ danger: true, loading: isPending, disabled: isPending }}
+        okButtonProps={{
+          danger: true,
+          loading: isPending,
+          disabled: isPending || Object.values(formik.errors).length > 0,
+        }}
         centered
       >
         <Typography.Paragraph>Are you sure you want to delete this image?</Typography.Paragraph>
