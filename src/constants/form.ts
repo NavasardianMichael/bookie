@@ -8,6 +8,7 @@ const _RULE_NAMES = {
   email: 'email',
   oneItemSelectedAtLeast: 'oneItemSelectedAtLeast',
   url: 'url',
+  positiveNumber: 'positiveNumber',
 } as const
 
 export const FORM_ITEM_RULES: Record<(typeof _RULE_NAMES)[keyof typeof _RULE_NAMES], RuleObject> = {
@@ -16,6 +17,7 @@ export const FORM_ITEM_RULES: Record<(typeof _RULE_NAMES)[keyof typeof _RULE_NAM
   maxCharsForTextarea: { max: 300, message: 'Max count of characters is 300' },
   oneItemSelectedAtLeast: { type: 'array', min: 1, message: 'Please select at least one item' },
   email: { type: 'email', message: 'Invalid Email' },
+  positiveNumber: { type: 'number', min: 0, message: 'Must be a positive number' },
   url: { type: 'url', message: 'Invalid URL' },
 } as const
 

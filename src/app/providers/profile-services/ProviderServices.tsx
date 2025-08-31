@@ -3,23 +3,28 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { Avatar, Button, Card, Flex, Modal, Typography } from 'antd'
+import { useForm } from 'antd/es/form/Form'
 import { useFormik } from 'formik'
+import { useRouter } from 'next/navigation'
 import { useProviderProfileStore } from '@store/providers/profile/store'
-import { ProviderProfileServiceFormValues } from '@interfaces/services'
+import { ProviderServiceFormValues } from '@interfaces/services'
+import { ROUTES } from '@constants/routes'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
-import ProviderProfileServiceForm from '@components/providerProfileServiceForm/ProviderProfileServiceForm'
+import { processProviderServiceFormToPostPayload } from '@components/providerServiceForm/processors'
+import ProviderServiceForm from '@components/providerServiceForm/ProviderServiceForm'
 import AppButton from '@components/ui/AppButton'
 
 import '@ant-design/v5-patch-for-react-19'
 
 type Props = {
-  initialValues?: ProviderProfileServiceFormValues
+  initialValues?: ProviderServiceFormValues
 }
 
-const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
-  const { id: providerId, services, isPending, editProviderService, deleteProviderService } = useProviderProfileStore()
+const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
+  const { push } = useRouter()
+  const { id: providerId, services, putProviderService, deleteProviderService } = useProviderProfileStore()
   const { allIds, byId } = services
-  console.log({ editProviderService })
+  const [form] = useForm<ProviderServiceFormValues>()
 
   const [editServiceModalOpened, setEditServiceModalOpened] = useState(false)
   const editServicePropsRef = useRef<string | undefined>('')
@@ -60,24 +65,21 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     setEditServiceModalOpened(false)
   }, [])
 
-  const formik = useFormik<ProviderProfileServiceFormValues>({
+  const formik = useFormik<ProviderServiceFormValues>({
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
       console.log({ values })
-
-      // const payload = processProviderProfileFormToPostPayload(values)
-      // await putProviderProfileData(payload)
-      // push(ROUTES.providerProfileServices)
+      const payload = processProviderServiceFormToPostPayload(providerId, values)
+      await putProviderService(payload)
+      push(ROUTES.providerServices)
     },
   })
 
   const onEditServiceApprove: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
-    // await editProviderService(formik.values)
-    formik.submitForm()
-    closeEditServiceModal()
-  }, [closeEditServiceModal, formik])
-  console.log(Object.values(formik.errors))
+    await formik.submitForm()
+    form.validateFields()
+  }, [form, formik])
 
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
@@ -136,10 +138,13 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         onCancel={closeEditServiceModal}
         okText='Save'
         cancelText='Close'
-        okButtonProps={{ loading: isPending, disabled: isPending }}
+        okButtonProps={{ className: 'hidden!' }}
+        cancelButtonProps={{ className: 'hidden!' }}
+        className='p-2! max-h-[97vh]! overflow-auto'
+        wrapClassName='m-auto'
         centered
       >
-        <ProviderProfileServiceForm formik={formik} />
+        <ProviderServiceForm form={form} formik={formik} />
       </Modal>
       <Modal
         title='Delete service'
@@ -150,8 +155,9 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         cancelText='No'
         okButtonProps={{
           danger: true,
-          loading: isPending,
-          disabled: isPending || Object.values(formik.errors).length > 0,
+          htmlType: 'submit',
+          loading: formik.isSubmitting,
+          disabled: formik.isSubmitting,
         }}
         centered
       >
@@ -161,4 +167,4 @@ const ProviderProfileServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   )
 }
 
-export default ProviderProfileServices
+export default ProviderServices

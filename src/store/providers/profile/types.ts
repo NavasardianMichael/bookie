@@ -1,4 +1,4 @@
-import { DeleteProviderServiceAPI, EditProviderServiceAPI, PutProviderProfileAPI } from '@api/providers/types'
+import { DeleteProviderServiceAPI, PutProviderProfileAPI, PutProviderServiceAPI } from '@api/providers/types'
 import { BasicCategory, Category } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location, PhoneNumber } from '@interfaces/app'
@@ -67,5 +67,5 @@ export type ProviderProfileActions = {
   getProviderProfileData: () => Promise<void>
   putProviderProfileData: (payload: PutProviderProfileAPI['payload']) => Promise<void>
   deleteProviderService: (payload: DeleteProviderServiceAPI['payload']) => Promise<void>
-  editProviderService: (payload: EditProviderServiceAPI['payload']) => Promise<void>
+  putProviderService: (payload: PutProviderServiceAPI['payload']) => Promise<void>
 }

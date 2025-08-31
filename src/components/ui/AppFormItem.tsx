@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { Form, FormItemProps } from 'antd'
-import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 
 type Props = FormItemProps
 
@@ -10,7 +9,7 @@ const AppProfileFormItem: React.FC<Props> = ({ children, label, className, ...pr
   }, [label])
 
   return (
-    <Form.Item<typeof PROVIDER_PROFILE_FORM_INITIAL_VALUES>
+    <Form.Item
       messageVariables={memoizedMessageVariables}
       validateDebounce={300}
       label={label}

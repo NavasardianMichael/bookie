@@ -4,16 +4,17 @@ import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processProviderProfileResponse,
+  processProviderServiceResponse,
   processProvidersListResponse,
   processSingleProviderResponse,
 } from './processors'
 import {
   DeleteProviderServiceAPI,
-  EditProviderServiceAPI,
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
   PutProviderProfileAPI,
+  PutProviderServiceAPI,
 } from './types'
 
 export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
@@ -54,6 +55,16 @@ export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (
   )
 }
 
-export const editProviderServiceAPI: EditProviderServiceAPI['api'] = async (args) => {
-  await axiosInstance.post<APIResponse<EditProviderServiceAPI['response']>>(`${ENDPOINTS.editProviderService}`, args)
+export const putProviderServiceAPI: PutProviderServiceAPI['api'] = async (params) => {
+  const { data } = await axiosInstance.put<APIResponse<PutProviderServiceAPI['response']>>(
+    `${ENDPOINTS.putProviderService}`,
+    params,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  )
+  const processedResponse = processProviderServiceResponse(data)
+  return processedResponse
 }

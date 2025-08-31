@@ -44,7 +44,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
     onSubmit: async (values) => {
       const payload = processProviderProfileFormToPostPayload(values)
       await putProviderProfileData(payload)
-      push(ROUTES.providerProfileServices)
+      push(ROUTES.providerServices)
     },
   })
 

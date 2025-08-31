@@ -4,7 +4,6 @@ import { ProvidersListState } from '@store/providers/list/types'
 import { ProviderProfile, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
-import { PartialButRequired } from '@interfaces/commons'
 import { Plan } from '@interfaces/plans'
 
 // ---------------------------------------------
@@ -96,9 +95,11 @@ export type DeleteProviderServiceAPI = Endpoint<{
   }
 }>
 
-export type EditProviderServiceAPI = Endpoint<{
+export type PutProviderServiceAPI = Endpoint<{
   payload: {
     providerId: ProviderProfile['id']
-    service: PartialButRequired<ProviderServiceResponse, 'Id'>
+    service: Partial<ProviderServiceResponse>
   }
+  response: ProviderServiceResponse
+  processed: ProviderService
 }>

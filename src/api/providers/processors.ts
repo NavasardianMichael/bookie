@@ -7,6 +7,7 @@ import {
   GetProvidersListAPI,
   GetSingleProviderAPI,
   ProviderProfileResponse,
+  PutProviderServiceAPI,
   SingleProviderResponse,
 } from './types'
 
@@ -31,6 +32,21 @@ export const processSingleProviderResponse: GetSingleProviderAPI['processor'] = 
 
 export const processProviderProfileResponse: GetProviderProfileAPI['processor'] = (providerProfile) => {
   return processProviderProfile(providerProfile.value)
+}
+
+export const processProviderServiceResponse: PutProviderServiceAPI['processor'] = (response) => {
+  const values = response.value
+  const result = {
+    id: values.Id,
+    name: values.Name,
+    duration: values.Duration,
+    categoryId: values.CategoryId,
+    description: values.Description,
+    price: values.Price,
+    currency: values.Currency,
+    image: values.Image,
+  }
+  return result
 }
 
 export const processProviderProfile = (provider: ProviderProfileResponse): ProviderProfile => {

@@ -3,9 +3,9 @@ import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import {
   deleteProviderServiceAPI,
-  editProviderServiceAPI,
   getProviderProfileAPI,
   putProviderProfileAPI,
+  putProviderServiceAPI,
 } from '@api/providers/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { PLANS } from '@constants/plans'
@@ -79,13 +79,13 @@ export const useProviderProfileStoreBase = create<ProviderProfileState & Provide
             }
           })
         },
-        editProviderService: async (args) => {
-          await editProviderServiceAPI(args)
+        putProviderService: async (args) => {
+          const service = await putProviderServiceAPI(args)
           set((state) => {
-            const currentServiceState = state.services.byId[args.service.Id]
-            if (currentServiceState) {
-              state.services.byId[args.service.Id] = { ...currentServiceState, ...args.service }
-            }
+            const serviceId = service.id
+            const currentServiceState = state.services.byId[serviceId!] ?? {}
+            state.services.byId[serviceId] = { ...currentServiceState, ...args.service }
+            if (!state.services.allIds.includes(serviceId)) state.services.allIds.push(serviceId)
           })
         },
       })

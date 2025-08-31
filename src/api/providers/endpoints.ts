@@ -4,5 +4,5 @@ export const ENDPOINTS = {
   getProviderProfile: '/providerProfile',
   putProviderProfile: '/providerProfile',
   deleteProviderService: '/deleteProviderService',
-  editProviderService: '/editProviderService',
+  putProviderService: '/putProviderService',
 } as const
