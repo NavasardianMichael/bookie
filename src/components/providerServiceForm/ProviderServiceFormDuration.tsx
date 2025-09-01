@@ -1,36 +1,43 @@
 'use client'
 
 import React from 'react'
-import { AutoComplete, AutoCompleteProps } from 'antd'
+import { AutoComplete, AutoCompleteProps, FormInstance } from 'antd'
+import { DefaultOptionType } from 'antd/es/select'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
+import { minsToDisplayFormat } from '@constants/dates'
 
-import '@ant-design/v5-patch-for-react-19'
+type Props = AppFormProps<ProviderServiceFormValues> & {
+  form: FormInstance
+}
 
-type Props = AppFormProps<ProviderServiceFormValues>
-
-const ProviderServiceFormDuration: React.FC<Props> = ({ formik }) => {
+const ProviderServiceFormDuration: React.FC<Props> = ({ formik, form }) => {
   const [text, setText] = React.useState<string>('')
-  const [options, setOptions] = React.useState<{ value: string }[]>([])
+  const [options, setOptions] = React.useState<DefaultOptionType[]>([])
 
-  const onSelect: AutoCompleteProps['onSelect'] = (option) => {
+  const onSelect: AutoCompleteProps['onSelect'] = async (_, option) => {
     const { value } = option
-    setText(value)
-    formik.setFieldValue('duration', value)
+    if (!value) return
+
+    setText(value?.toString())
+    await formik.setFieldValue('duration', value)
+    form.setFieldValue('duration', value)
   }
 
   const onSearch: AutoCompleteProps['onSearch'] = (text) => {
     const value = +text
-    if (isNaN(value) || value <= 0) return
+    if (isNaN(value) || +value < 0) return
     setText(text)
 
-    let hours = 0
-    if (value / 12 > 5) {
-      hours = Math.floor(value / 60)
-    }
-    const newOptions = Array.from({ length: 12 }, (_, i) => ({
-      value: `${hours ? `${hours} hours, ` : ''}${(i + 1) * 5} minutes`,
-    }))
+    const { hours } = minsToDisplayFormat(value)
+    const newOptions = Array.from({ length: 12 }, (_, i) => {
+      const base = hours * 60 + (i + 1) * 5
+      return {
+        value: base.toString(),
+        label: minsToDisplayFormat(base).text,
+        key: base.toString(),
+      } as DefaultOptionType
+    })
     setOptions(newOptions)
   }
 
@@ -42,6 +49,8 @@ const ProviderServiceFormDuration: React.FC<Props> = ({ formik }) => {
       value={text}
       onSearch={onSearch}
       placeholder='input here'
+      disabled={formik.isSubmitting}
+      suffixIcon={<span className='mr-2'>minutes</span>}
     />
   )
 }

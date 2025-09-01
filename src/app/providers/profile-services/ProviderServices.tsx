@@ -5,10 +5,8 @@ import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { Avatar, Button, Card, Flex, Modal, Typography } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import { useFormik } from 'formik'
-import { useRouter } from 'next/navigation'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
-import { ROUTES } from '@constants/routes'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
 import { processProviderServiceFormToPostPayload } from '@components/providerServiceForm/processors'
 import ProviderServiceForm from '@components/providerServiceForm/ProviderServiceForm'
@@ -21,7 +19,6 @@ type Props = {
 }
 
 const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
-  const { push } = useRouter()
   const { id: providerId, services, putProviderService, deleteProviderService } = useProviderProfileStore()
   const { allIds, byId } = services
   const [form] = useForm<ProviderServiceFormValues>()
@@ -72,14 +69,11 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
       console.log({ values })
       const payload = processProviderServiceFormToPostPayload(providerId, values)
       await putProviderService(payload)
-      push(ROUTES.providerServices)
+
+      formik.resetForm()
+      closeEditServiceModal()
     },
   })
-
-  const onEditServiceApprove: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
-    await formik.submitForm()
-    form.validateFields()
-  }, [form, formik])
 
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
@@ -134,7 +128,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
       <Modal
         title='Service Configuration'
         open={editServiceModalOpened}
-        onOk={onEditServiceApprove}
         onCancel={closeEditServiceModal}
         okText='Save'
         cancelText='Close'
@@ -144,7 +137,7 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
         wrapClassName='m-auto'
         centered
       >
-        <ProviderServiceForm form={form} formik={formik} />
+        <ProviderServiceForm form={form} formik={formik} closeModal={closeEditServiceModal} />
       </Modal>
       <Modal
         title='Delete service'

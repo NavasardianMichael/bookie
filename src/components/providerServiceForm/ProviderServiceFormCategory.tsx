@@ -11,8 +11,6 @@ type Props = AppFormProps<ProviderServiceFormValues> & {
   form: FormInstance
 }
 
-const MAX_COUNT = 3
-
 const ProviderServiceFormCategory: React.FC<Props> = ({ formik, form }) => {
   const { list } = useCategoriesListStore()
 
@@ -37,7 +35,6 @@ const ProviderServiceFormCategory: React.FC<Props> = ({ formik, form }) => {
       onChange={onOptionChange}
       value={formik.values.categoryId}
       options={options}
-      maxCount={MAX_COUNT}
       disabled={formik.isSubmitting}
     />
   )

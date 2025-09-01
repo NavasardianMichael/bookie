@@ -14,22 +14,21 @@ import ProviderServiceFormCategory from './ProviderServiceFormCategory'
 import ProviderServiceFormDuration from './ProviderServiceFormDuration'
 import ProviderServiceFormImage from './ProviderServiceFormImage'
 
-import '@ant-design/v5-patch-for-react-19'
-
 type Props = AppFormProps<ProviderServiceFormValues> & {
   form: FormInstance
+  closeModal: () => void
 }
 
-const ProviderServiceForm: React.FC<Props> = ({ formik, form }) => {
+const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
-  const textareaRequiredAndMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForTextarea')
-  const inputNumberRequiredAndPositiveRuleSet = useFormItemRules('required', 'positiveNumber')
+  const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
+  const inputNumberPositiveRuleSet = useFormItemRules('positiveNumber')
 
-  const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(() => {
-    if (form.getFieldError('firstName').length || form.getFieldError('lastName').length) return
-    if (form.getFieldError('categoryIds').length) form.scrollToField('lastName')
-  }, [form])
+  const onCancelButtonClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+    formik.resetForm()
+    closeModal()
+  }, [closeModal, formik])
 
   return (
     <Form
@@ -49,16 +48,7 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form }) => {
           disabled={formik.isSubmitting}
         />
       </AppFormItem>
-      <AppFormItem name='description' label='Description' rules={textareaRequiredAndMaxCharsCountRuleSet}>
-        <TextArea
-          name='description'
-          value={formik.values.description}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-          autoSize={{ minRows: 3, maxRows: 5 }}
-        />
-      </AppFormItem>
-      <AppFormItem name='duration' label='Duration' rules={inputNumberRequiredAndPositiveRuleSet} hasFeedback={false}>
+      <AppFormItem name='duration' label='Duration' rules={requiredRuleSet}>
         {/* <InputNumber
           controls
           size='large'
@@ -73,21 +63,37 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form }) => {
           max={1440}
           addonAfter='minutes'
         /> */}
-        <ProviderServiceFormDuration formik={formik} />
+        <ProviderServiceFormDuration formik={formik} form={form} />
       </AppFormItem>
 
-      <AppFormItem name='price' label='Price' rules={inputNumberRequiredAndPositiveRuleSet}>
-        <InputNumber value={formik.values.price} size='large' onChange={formik.handleChange} className='w-full!' />
+      <AppFormItem name='description' label='Description' rules={textareaMaxCharsCountRuleSet}>
+        <TextArea
+          name='description'
+          value={formik.values.description}
+          onChange={formik.handleChange}
+          disabled={formik.isSubmitting}
+          autoSize={{ minRows: 3, maxRows: 5 }}
+        />
       </AppFormItem>
-      <AppFormItem name='currency' label='Currency' rules={requiredRuleSet}>
+      <AppFormItem name='price' label='Price' rules={inputNumberPositiveRuleSet}>
+        <InputNumber
+          value={formik.values.price}
+          size='large'
+          onChange={formik.handleChange}
+          className='w-full!'
+          disabled={formik.isSubmitting}
+        />
+      </AppFormItem>
+      <AppFormItem name='currency' label='Currency'>
         <Select
           value={formik.values.currency}
           size='large'
           onChange={formik.handleChange}
           options={PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE}
+          disabled={formik.isSubmitting}
         />
       </AppFormItem>
-      <AppFormItem name='categoryId' label='Categories' rules={inputTextRequiredMaxCharsCountRuleSet}>
+      <AppFormItem name='categoryId' label='Category'>
         <ProviderServiceFormCategory form={form} formik={formik} />
       </AppFormItem>
       <AppFormItem name='image' label='Image'>
@@ -98,19 +104,12 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form }) => {
           variant='solid'
           size='large'
           className='grow'
-          loading={formik.isSubmitting}
-          onClick={onSubmitButtonClick}
+          disabled={formik.isSubmitting}
+          onClick={onCancelButtonClick}
         >
           Close
         </AppButton>
-        <AppButton
-          type='primary'
-          variant='solid'
-          htmlType='submit'
-          className='grow'
-          loading={formik.isSubmitting}
-          onClick={onSubmitButtonClick}
-        >
+        <AppButton type='primary' variant='solid' htmlType='submit' className='grow' loading={formik.isSubmitting}>
           Save
         </AppButton>
       </Flex>
