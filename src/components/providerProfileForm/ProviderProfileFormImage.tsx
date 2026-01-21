@@ -48,8 +48,7 @@ const ProviderProfileImage: React.FC<Props> = ({ formik }) => {
       </Flex>
       {previewImage && (
         <Image
-          wrapperClassName='block!'
-          className='mt-6 mx-auto max-w-80'
+          className='mt-6 mx-auto max-w-80 block!'
           alt='Profile picture'
           preview={false}
           src={previewImage}

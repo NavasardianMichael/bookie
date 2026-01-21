@@ -1,6 +1,4 @@
-import { Divider, Flex } from 'antd'
-import Paragraph from 'antd/es/typography/Paragraph'
-import Title from 'antd/es/typography/Title'
+import { Divider, Flex, Typography } from 'antd'
 import { Metadata } from 'next'
 import AppButton from '@components/ui/AppButton'
 
@@ -9,27 +7,27 @@ export const metadata: Metadata = {
   description: 'Log out from your Bookie account',
 }
 
-const Logout: React.FC = () => (
+const Logout = () => (
   <Flex className='w-full flex flex-col justify-center items-center m-auto! max-w-160'>
     <Flex className='flex flex-col justify-center items-center'>
-      <Title level={3} className='text-lg mb-0'>
+      <Typography.Title level={3} className='text-lg mb-0'>
         We&apos;re sorry to see you go!
-      </Title>
-      <Paragraph className='text-center text-gray-500 mt-2 mb-4'>
+      </Typography.Title>
+      <Typography.Paragraph className='text-center text-gray-500 mt-2 mb-4'>
         If you have any feedback or suggestions, please let us know. <br />
         Contact us at{' '}
         <a href='mailto:support.bookie@gmail.com' className='text-gray-500!'>
           support.bookie@gmail.com
         </a>
-      </Paragraph>
+      </Typography.Paragraph>
     </Flex>
     <Divider>Delete Your Account</Divider>
     <Flex className='w-full flex flex-col justify-center items-center'>
-      <Paragraph type='danger' className='text-center mt-2 mb-4'>
+      <Typography.Paragraph type='danger' className='text-center mt-2 mb-4'>
         * If you want to delete your account, please note that this action is irreversible.
         <br />
         All your data will be permanently removed from our system.
-      </Paragraph>
+      </Typography.Paragraph>
       <AppButton danger type='primary' variant='solid' htmlType='submit' className='mx-auto'>
         Delete Account Permanently
       </AppButton>

@@ -1,9 +1,8 @@
 'use client'
 
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
-import { CountdownProps, Flex, Form, FormItemProps, Input, Statistic } from 'antd'
-import { OTPProps } from 'antd/es/input/OTP'
-import Paragraph from 'antd/es/typography/Paragraph'
+import { CountdownProps, Flex, Form, FormItemProps, Input, Statistic, Typography } from 'antd'
+import type { OTPProps } from 'antd/es/input/OTP'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { PhoneNumber } from '@interfaces/app'
@@ -121,11 +120,11 @@ const OTPCodeInput: React.FC = () => {
 
   return (
     <>
-      <Paragraph type='secondary' className='text-center mb-0!'>
+      <Typography.Paragraph type='secondary' className='text-center mb-0!'>
         Please confirm code sent to your phone number
         <br />
         <strong>{phoneNumberDisplayFormatRef.current}</strong>
-      </Paragraph>
+      </Typography.Paragraph>
       <Flex vertical align='center' justify='center' gap={8}>
         <Form.Item rules={OTPCodeValidationRules}>
           <Input.OTP

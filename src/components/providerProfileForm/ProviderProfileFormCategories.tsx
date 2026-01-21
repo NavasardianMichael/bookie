@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Divider, FormInstance, Select, Space } from 'antd'
-import { DefaultOptionType, SelectProps } from 'antd/es/select'
+import type { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'

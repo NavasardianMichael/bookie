@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { Flex, Form, FormInstance, InputNumber, Select } from 'antd'
-import TextArea from 'antd/es/input/TextArea'
+import { Flex, Form, FormInstance, Input, InputNumber, Select } from 'antd'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
@@ -67,7 +66,7 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
       </AppFormItem>
 
       <AppFormItem name='description' label='Description' rules={textareaMaxCharsCountRuleSet}>
-        <TextArea
+        <Input.TextArea
           name='description'
           value={formik.values.description}
           onChange={formik.handleChange}

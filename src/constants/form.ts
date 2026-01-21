@@ -1,5 +1,5 @@
 import { FormProps } from 'antd'
-import { Rule, RuleObject } from 'antd/es/form'
+import type { Rule, RuleObject } from 'antd/es/form'
 
 const _RULE_NAMES = {
   required: 'required',

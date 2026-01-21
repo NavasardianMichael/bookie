@@ -12,8 +12,6 @@ import { processProviderServiceFormToPostPayload } from '@components/providerSer
 import ProviderServiceForm from '@components/providerServiceForm/ProviderServiceForm'
 import AppButton from '@components/ui/AppButton'
 
-import '@ant-design/v5-patch-for-react-19'
-
 type Props = {
   initialValues?: ProviderServiceFormValues
 }

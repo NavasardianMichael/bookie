@@ -1,9 +1,7 @@
 'use client'
 
 import { FC } from 'react'
-import { Card, Image } from 'antd'
-import Meta from 'antd/es/card/Meta'
-import Title from 'antd/es/typography/Title'
+import { Card, Image, Typography } from 'antd'
 import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
 import AppLink from '@components/ui/AppLink'
@@ -19,11 +17,11 @@ export const ProviderCard: FC<Props> = ({ data }) => {
         cover={<Image preview={false} alt={`${data.basic.firstName} ${data.basic.lastName}`} src={data.basic.image} />}
       >
         <AppLink href={`${ROUTES.providers}/${data.id}`}>
-          <Meta
+          <Card.Meta
             title={
-              <Title level={3} className='text-lg'>
+              <Typography.Title level={3} className='text-lg'>
                 {data.basic.firstName} {data.basic.lastName}
-              </Title>
+              </Typography.Title>
             }
             description='This is the description'
           />

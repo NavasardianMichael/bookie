@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { FormInstance, Select } from 'antd'
-import { DefaultOptionType, SelectProps } from 'antd/es/select'
+import type { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
