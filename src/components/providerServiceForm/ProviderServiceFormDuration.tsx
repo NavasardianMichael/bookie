@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
+import { FC, useState } from 'react'
 import { AutoComplete, AutoCompleteProps, FormInstance } from 'antd'
-import { DefaultOptionType } from 'antd/es/select'
+import type { DefaultOptionType } from 'antd/es/select'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { minsToDisplayFormat } from '@constants/dates'
@@ -11,9 +11,9 @@ type Props = AppFormProps<ProviderServiceFormValues> & {
   form: FormInstance
 }
 
-const ProviderServiceFormDuration: React.FC<Props> = ({ formik, form }) => {
-  const [text, setText] = React.useState<string>('')
-  const [options, setOptions] = React.useState<DefaultOptionType[]>([])
+const ProviderServiceFormDuration: FC<Props> = ({ formik, form }) => {
+  const [text, setText] = useState<string>('')
+  const [options, setOptions] = useState<DefaultOptionType[]>([])
 
   const onSelect: AutoCompleteProps['onSelect'] = async (_, option) => {
     const { value } = option
@@ -47,7 +47,9 @@ const ProviderServiceFormDuration: React.FC<Props> = ({ formik, form }) => {
       onSelect={onSelect}
       size='large'
       value={text}
-      onSearch={onSearch}
+      showSearch={{
+        onSearch,
+      }}
       placeholder='input here'
       disabled={formik.isSubmitting}
       suffixIcon={<span className='mr-2'>minutes</span>}

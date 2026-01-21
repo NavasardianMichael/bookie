@@ -1,15 +1,12 @@
 'use client'
 
-import { CheckboxOptionType, Flex, Form, Radio } from 'antd'
-import Paragraph from 'antd/es/typography/Paragraph'
+import { CheckboxOptionType, Flex, Form, Radio, Typography } from 'antd'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 import AppButton from '@components/ui/AppButton'
-
-import '@ant-design/v5-patch-for-react-19'
 
 type AccountTypeFormValues = {
   accountType: (typeof ACCOUNT_TYPE_OPTIONS)[number]['value']
@@ -65,9 +62,9 @@ const AccountTypeButtons: React.FC = () => {
           <img src='/logo.svg' alt='Bookie logo' className='h-[200px] md:h-[400px] object-cover m-auto' />
 
           <Flex vertical gap={8} className='w-full'>
-            <Paragraph type='secondary' className='text-base! text-center mb-0!'>
+            <Typography.Paragraph type='secondary' className='text-base! text-center mb-0!'>
               Quick access — sign in with your phone number to get started.
-            </Paragraph>
+            </Typography.Paragraph>
 
             <AppButton
               type='primary'

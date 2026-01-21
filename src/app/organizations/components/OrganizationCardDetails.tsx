@@ -1,6 +1,5 @@
 import { FC } from 'react'
-import { Flex } from 'antd'
-import Paragraph from 'antd/es/typography/Paragraph'
+import { Flex, Typography } from 'antd'
 import { BasicOrganization } from '@store/organizations/single/types'
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
 export const OrganizationCardDetails: FC<Props> = ({ data }) => {
   return (
     <Flex vertical gap={4}>
-      <Paragraph>{data.basic.description}</Paragraph>
+      <Typography.Paragraph>{data.basic.description}</Typography.Paragraph>
     </Flex>
   )
 }

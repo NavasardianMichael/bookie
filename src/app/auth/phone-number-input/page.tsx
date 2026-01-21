@@ -1,6 +1,4 @@
-import { Flex } from 'antd'
-import Paragraph from 'antd/es/typography/Paragraph'
-import Title from 'antd/es/typography/Title'
+import { Flex, Typography } from 'antd'
 import { Metadata } from 'next'
 import SignOnForm from './components/form'
 
@@ -9,12 +7,12 @@ export const metadata: Metadata = {
   description: 'Sign on to your Bookie account using your phone number and start the journey with Bookie now!.',
 }
 
-const PhoneNumberInput: React.FC = () => (
+const PhoneNumberInput = () => (
   <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-    <Title className='text-xl! mb-0!'>Enter your phone number</Title>
-    <Paragraph type='secondary' className='text-base! mb-0!'>
+    <Typography.Title className='text-xl! mb-0!'>Enter your phone number</Typography.Title>
+    <Typography.Paragraph type='secondary' className='text-base! mb-0!'>
       We will send confirmation code via SMS to the phone number.
-    </Paragraph>
+    </Typography.Paragraph>
     <Flex className='w-full! justify-center items-center'>
       <Flex vertical gap={8} className='w-full'>
         <SignOnForm />

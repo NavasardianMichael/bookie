@@ -52,7 +52,7 @@ const ProviderProfileFormGallery: React.FC<Props> = ({ formik }) => {
   }, [])
 
   const disabled = useMemo(() => {
-    return formik.isSubmitting || !!formik.values?.gallery?.length && formik.values.gallery.length >= 10
+    return formik.isSubmitting || (!!formik.values?.gallery?.length && formik.values.gallery.length >= 10)
   }, [formik.isSubmitting, formik.values?.gallery?.length])
 
   return (
@@ -60,25 +60,31 @@ const ProviderProfileFormGallery: React.FC<Props> = ({ formik }) => {
       <Flex gap={8} wrap>
         <ImgCrop aspect={1} onModalOk={onModalOk}>
           <Upload maxCount={10} showUploadList={false} disabled={disabled}>
-            <AppButton icon={<UploadOutlined />} className='mr-2' disabled={disabled} >
+            <AppButton icon={<UploadOutlined />} className='mr-2' disabled={disabled}>
               Upload
             </AppButton>
             up to 10 pictures to your gallery
           </Upload>
         </ImgCrop>
       </Flex>
-      <Flex wrap gap={8} className='mt-4! basis-[100px] grow-0 shrink-0'>
+      <Flex wrap gap={8} className='mt-4! basis-25 grow-0 shrink-0'>
         {previewImages?.map(({ name, url }) => {
           return (
             <Flex key={name} vertical gap={0} className='flex-1 shadow-lg'>
               <Image
-                wrapperClassName='block!'
-                className='mx-auto rounded-tr-lg! rounded-tl-lg!'
+                className='mx-auto rounded-tr-lg! rounded-tl-lg! block!'
                 alt='Profile picture'
                 src={url}
                 rootClassName={styles['gallery-image-preview-root']}
               />
-              <AppButton danger className='rounded-tr-none! rounded-tl-none!' icon={<DeleteOutlined />} color='red' onClick={onRemovePictureClick} name={name}>
+              <AppButton
+                danger
+                className='rounded-tr-none! rounded-tl-none!'
+                icon={<DeleteOutlined />}
+                color='red'
+                onClick={onRemovePictureClick}
+                name={name}
+              >
                 Remove
               </AppButton>
             </Flex>

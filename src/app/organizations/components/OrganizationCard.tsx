@@ -1,6 +1,5 @@
 import { FC } from 'react'
 import { Card } from 'antd'
-import Meta from 'antd/es/card/Meta'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { ROUTES } from '@constants/routes'
 import AppLink from '@components/ui/AppLink'
@@ -16,7 +15,7 @@ export const OrganizationCard: FC<Props> = ({ data, hideCategories }) => {
     <article>
       <Card>
         <AppLink href={`${ROUTES.organizations}/${data.id}`}>
-          <Meta
+          <Card.Meta
             title={data.basic.name}
             description={<OrganizationCardDetails data={data} hideCategories={hideCategories} />}
           />

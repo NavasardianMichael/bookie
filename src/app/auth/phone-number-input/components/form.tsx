@@ -14,8 +14,6 @@ import AppButton from '@components/ui/AppButton'
 import AppInput from '@components/ui/AppInput'
 import { useCountries } from '../useCountries'
 
-import '@ant-design/v5-patch-for-react-19'
-
 type RegistrationFormValues = typeof SIGN_ON_FORM_INITIAL_VALUES
 
 const SignOnForm: React.FC = () => {

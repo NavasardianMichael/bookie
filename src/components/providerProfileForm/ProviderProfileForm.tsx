@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { Form } from 'antd'
-import TextArea from 'antd/es/input/TextArea'
+import { Form, Input } from 'antd'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { useProviderProfileStore } from '@store/providers/profile/store'
@@ -20,8 +19,6 @@ import ProviderProfileImage from './ProviderProfileFormImage'
 import ProviderProfileLocationInput from './ProviderProfileFormLocation'
 import ProviderProfileOrganization from './ProviderProfileFormOrganization'
 import ProviderProfileWeekSchedule from './ProviderProfileWeekSchedule'
-
-import '@ant-design/v5-patch-for-react-19'
 
 type Props = {
   initialValues?: ProviderProfileFormValues
@@ -103,7 +100,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       </AppProfileFormItem>
 
       <AppProfileFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
-        <TextArea
+        <Input.TextArea
           name='description'
           value={formik.values.description}
           onChange={formik.handleChange}
