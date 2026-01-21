@@ -1,8 +1,9 @@
 'use client'
 
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react'
-import { CountdownProps, Flex, Form, FormItemProps, Input, Statistic, Typography } from 'antd'
+import { CountdownProps, Flex, Form, FormItemProps, Input, Typography } from 'antd'
 import type { OTPProps } from 'antd/es/input/OTP'
+import Countdown from 'antd/es/statistic/Countdown'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { PhoneNumber } from '@interfaces/app'
@@ -12,8 +13,6 @@ import { processError } from '@helpers/error'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 import AppButton from '@components/ui/AppButton'
 import styles from './countdown.module.css'
-
-const { Timer } = Statistic
 
 const COUNTDOWN_DURATION = 60_000
 
@@ -146,14 +145,12 @@ const OTPCodeInput: React.FC = () => {
         >
           Resend Code
           {countdownValue > 0 && (
-            <Timer
-              type='countdown'
+            <Countdown
               value={countDownDeadline}
               onFinish={onFinish}
               onChange={onCountdownChange}
               className={combineClassNames('absolute right-[6px]', styles.countdown)}
               format='mm:ss'
-              loading={isPending}
             />
           )}
         </AppButton>

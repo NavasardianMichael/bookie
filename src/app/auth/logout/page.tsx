@@ -1,6 +1,8 @@
-import { Divider, Flex, Typography } from 'antd'
 import { Metadata } from 'next'
+import AppBox from '@components/ui/AppBox'
 import AppButton from '@components/ui/AppButton'
+import AppParagraph from '@components/ui/AppParagraph'
+import AppTitle from '@components/ui/AppTitle'
 
 export const metadata: Metadata = {
   title: 'Bookie | Log out',
@@ -8,31 +10,33 @@ export const metadata: Metadata = {
 }
 
 const Logout = () => (
-  <Flex className='w-full flex flex-col justify-center items-center m-auto! max-w-160'>
-    <Flex className='flex flex-col justify-center items-center'>
-      <Typography.Title level={3} className='text-lg mb-0'>
+  <AppBox className='w-full flex flex-col justify-center items-center m-auto max-w-160'>
+    <AppBox className='flex flex-col justify-center items-center'>
+      <AppTitle level={'h3'} className='text-lg mb-0'>
         We&apos;re sorry to see you go!
-      </Typography.Title>
-      <Typography.Paragraph className='text-center text-gray-500 mt-2 mb-4'>
+      </AppTitle>
+      <AppParagraph className='text-center text-gray-500 mt-2 mb-4'>
         If you have any feedback or suggestions, please let us know. <br />
         Contact us at{' '}
-        <a href='mailto:support.bookie@gmail.com' className='text-gray-500!'>
+        <a href='mailto:support.bookie@gmail.com' className='text-gray-500'>
           support.bookie@gmail.com
         </a>
-      </Typography.Paragraph>
-    </Flex>
-    <Divider>Delete Your Account</Divider>
-    <Flex className='w-full flex flex-col justify-center items-center'>
-      <Typography.Paragraph type='danger' className='text-center mt-2 mb-4'>
+      </AppParagraph>
+    </AppBox>
+    <hr />
+    Delete Your Account
+    <hr />
+    <AppBox className='w-full flex flex-col justify-center items-center'>
+      <AppParagraph className='text-center mt-2 mb-4 text-red-600'>
         * If you want to delete your account, please note that this action is irreversible.
         <br />
         All your data will be permanently removed from our system.
-      </Typography.Paragraph>
+      </AppParagraph>
       <AppButton danger type='primary' variant='solid' htmlType='submit' className='mx-auto'>
         Delete Account Permanently
       </AppButton>
-    </Flex>
-  </Flex>
+    </AppBox>
+  </AppBox>
 )
 
 export default Logout

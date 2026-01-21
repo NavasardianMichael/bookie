@@ -1,5 +1,7 @@
-import { Flex, Typography } from 'antd'
 import { Metadata } from 'next'
+import AppBox from '@components/ui/AppBox'
+import AppParagraph from '@components/ui/AppParagraph'
+import AppTitle from '@components/ui/AppTitle'
 import SignOnForm from './components/form'
 
 export const metadata: Metadata = {
@@ -8,17 +10,17 @@ export const metadata: Metadata = {
 }
 
 const PhoneNumberInput = () => (
-  <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-    <Typography.Title className='text-xl! mb-0!'>Enter your phone number</Typography.Title>
-    <Typography.Paragraph type='secondary' className='text-base! mb-0!'>
+  <AppBox className='w-full flex flex-col justify-between items-center gap-4'>
+    <AppTitle className='text-xl mb-0'>Enter your phone number</AppTitle>
+    <AppParagraph className='text-base mb-0'>
       We will send confirmation code via SMS to the phone number.
-    </Typography.Paragraph>
-    <Flex className='w-full! justify-center items-center'>
-      <Flex vertical gap={8} className='w-full'>
+    </AppParagraph>
+    <AppBox className='w-full justify-center items-center'>
+      <AppBox className='w-full flex flex-col gap-2'>
         <SignOnForm />
-      </Flex>
-    </Flex>
-  </Flex>
+      </AppBox>
+    </AppBox>
+  </AppBox>
 )
 
 export default PhoneNumberInput

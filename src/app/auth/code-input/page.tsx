@@ -1,5 +1,6 @@
-import { Flex, Typography } from 'antd'
 import { Metadata } from 'next'
+import AppBox from '@components/ui/AppBox'
+import AppTitle from '@components/ui/AppTitle'
 import OTPCodeInput from './OTPCodeInput'
 
 export const metadata: Metadata = {
@@ -8,12 +9,12 @@ export const metadata: Metadata = {
 }
 
 const CodeInput = () => (
-  <Flex vertical align='center' justify='center' className='w-full flex flex-col' gap={16}>
-    <Typography.Title level={2} className='text-center mb-0!'>
+  <AppBox className='w-full flex flex-col justify-center items-center gap-4'>
+    <AppTitle level={'h2'} className='text-center mb-0'>
       6-digit code
-    </Typography.Title>
+    </AppTitle>
     <OTPCodeInput />
-  </Flex>
+  </AppBox>
 )
 
 export default CodeInput

@@ -1,15 +1,10 @@
-import { FC, PropsWithChildren, useMemo } from 'react'
+import { FC, PropsWithChildren } from 'react'
 import { Button, ButtonProps } from 'antd'
-import { combineClassNames } from '@helpers/commons'
 
 type Props = ButtonProps
 
 const AppButton: FC<PropsWithChildren<Props>> = ({ className, ...props }) => {
-  const combinedClassName = useMemo(() => {
-    return combineClassNames(className)
-  }, [className])
-
-  return <Button size='large' className={combinedClassName} {...props} />
+  return <Button size='large' className={className} {...props} />
 }
 
 export default AppButton
