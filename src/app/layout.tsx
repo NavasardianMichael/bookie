@@ -6,7 +6,7 @@ import '@styles/commons.css'
 import '@styles/globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL!),
+  metadataBase: new URL('https://bookie-sigma.vercel.app'),
   title: 'Bookie',
   description: 'Your Booking Platform Forever',
   // TODO: add manifest and appropriate assets
@@ -15,13 +15,13 @@ export const metadata: Metadata = {
   robots: 'index, follow',
   applicationName: 'Bookie',
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_API_URL,
+    canonical: 'https://bookie-sigma.vercel.app',
   },
   icons: {
     icon: [{ url: '/logo.svg', type: 'image/svg+xml' }],
   },
   openGraph: {
-    url: process.env.NEXT_PUBLIC_API_URL,
+    url: 'https://bookie-sigma.vercel.app',
     type: 'website',
     title: 'Bookie',
     description:

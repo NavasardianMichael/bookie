@@ -1,7 +1,7 @@
 import { ROUTES } from '@constants/routes'
 import AppLink from '@components/ui/AppLink'
 
-export default async function NotFound() {
+export default function NotFound() {
   return (
     <div className='text-center flex flex-col justify-center items-center w-full'>
       <h1 className='text-2xl font-bold'>Not Found</h1>
