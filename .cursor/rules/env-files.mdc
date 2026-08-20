@@ -1,0 +1,20 @@
+---
+description: Never read secret env files; use .env.example only for documented keys
+alwaysApply: true
+---
+
+# Env files
+
+Never read, open, search, or print files that start with `.env`, including:
+
+- `.env`
+- `.env.local`
+- `.env.development`
+- `.env.production`
+- `.env.development.local`
+- `server/.env`
+- any other `.env*` path except examples
+
+**Allowed:** `.env.example` and `server/.env.example` (and similarly named `*.env.example`). Use those only to see which keys exist and to document them. Do not invent or copy secret values from other env files.
+
+If a real env file is missing, copy from the matching `.env.example` and fill placeholders — do not inspect existing secret env files to discover values.
