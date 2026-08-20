@@ -1,27 +1,215 @@
 @import 'tailwindcss';
 
-:root {
-  --primary-color: #18294d;
-  --secondary-color: #d2d2d2;
-}
+/* ───────────────────────────────────────────────────────────────────────────
+   1. Breakpoints
 
+   Literal `px` on purpose: Tailwind compiles these into `@media (width >= X)`
+   and media queries cannot resolve var(). These are Ant Design v6's built-in
+   screen* defaults, so ConfigProvider overrides NO screen tokens and this stays
+   the only breakpoint declaration site in the codebase.
+
+   Mirrors BREAKPOINTS in src/styles/tokens.ts — <BreakpointInvariant/> asserts
+   they agree in development.
+
+   `--breakpoint-*: initial` clears Tailwind's own 40/48/64/80/96rem scale first,
+   so `2xl:` cannot silently keep meaning 1536px.
+   ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --color-bookie-blue: var(--primary-color);
-  --color-bookie-gray: var(--secondary-color);
+  --breakpoint-*: initial;
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1600px;
+  --breakpoint-xxxl: 1920px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --secondary-color: #18294d;
-    --primary-color: #d2d2d2;
+/* ───────────────────────────────────────────────────────────────────────────
+   2. Brand aliases over antd's emitted CSS variables
+
+   antd is the sole owner of these values (tokens.ts -> theme.ts ->
+   ConfigProvider cssVar -> :root{--ant-*}). This block is the ONLY place in the
+   app allowed to name an `--ant-*` variable, so an antd upgrade or a prefix
+   change is a one-file edit.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --brand-primary: var(--ant-color-primary);
+  --brand-primary-hover: var(--ant-color-primary-hover);
+  --brand-text: var(--ant-color-text);
+  --brand-text-muted: var(--ant-color-text-secondary);
+  --brand-border: var(--ant-color-border);
+  --brand-border-subtle: var(--ant-color-border-secondary);
+  --brand-surface: var(--ant-color-bg-container);
+  --brand-surface-sunken: var(--ant-color-bg-layout);
+  --brand-radius: var(--ant-border-radius-lg);
+  --brand-control-h: var(--ant-control-height-lg);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3. App-only layout tokens (no antd counterpart)
+
+   Declared in the `--spacing-*` namespace so one declaration serves both as a
+   Tailwind utility (`h-header`) and as a variable usable inside calc().
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --spacing-header: 3.5rem;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   4. Tailwind namespaces
+
+   `inline` so utilities emit the alias variable directly rather than adding a
+   second level of indirection.
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme inline {
+  /* next/font exposes Inter as --font-app (see src/styles/fonts.ts). Pointing
+     Tailwind's own --font-sans at it keeps `font-sans` and Tailwind's
+     --default-font-family, applied to <html> by preflight, on the app typeface. */
+  --font-sans: var(--font-app), system-ui, -apple-system, sans-serif;
+
+  --color-brand: var(--brand-primary);
+  --color-brand-hover: var(--brand-primary-hover);
+  --color-brand-text: var(--brand-text);
+  --color-brand-muted: var(--brand-text-muted);
+  --color-brand-border: var(--brand-border);
+  --color-brand-border-subtle: var(--brand-border-subtle);
+  --color-surface: var(--brand-surface);
+  --color-surface-sunken: var(--brand-surface-sunken);
+  --radius-brand: var(--brand-radius);
+}
+
+/* Ramp steps and status colors, for the cases antd has no semantic token for.
+   Values mirror src/styles/tokens.ts. */
+@theme {
+  --color-brand-50: #f2f5fa;
+  --color-brand-100: #e3e9f4;
+  --color-brand-200: #c6d1e6;
+  --color-brand-300: #9dafd2;
+  --color-brand-400: #6d84b4;
+  --color-brand-500: #4a6194;
+  --color-brand-600: #33487a;
+  --color-brand-700: #243662;
+  --color-brand-800: #1c2b50;
+  --color-brand-900: #18294d;
+  --color-brand-950: #0e1830;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   5. Content widths -> max-w-content / max-w-prose-content / max-w-form-content
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --container-content: 80rem;
+  --container-prose-content: 45rem;
+  --container-form-content: 40rem;
+  --container-auth-content: 26rem;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   6. Fluid type scale
+
+   Semantic steps rather than raw sizes, so a heading is declared once and
+   scales between 360px and 1280px without per-breakpoint overrides.
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --text-display: clamp(1.75rem, 1.15rem + 2.7vw, 2.75rem);
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-h1: clamp(1.5rem, 1.15rem + 1.6vw, 2rem);
+  --text-h1--line-height: 1.18;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h1--font-weight: 700;
+
+  --text-h2: clamp(1.25rem, 1.06rem + 0.85vw, 1.5rem);
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 650;
+
+  --text-h3: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 600;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.55;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.5;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.45;
+
+  --text-overline: 0.6875rem;
+  --text-overline--line-height: 1.3;
+  --text-overline--letter-spacing: 0.07em;
+  --text-overline--font-weight: 600;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   7. Base
+   ─────────────────────────────────────────────────────────────────────────── */
+body {
+  background: var(--brand-surface);
+  color: var(--brand-text);
+  font-family: var(--font-app), system-ui, -apple-system, sans-serif;
+  /* Suppresses the 300ms double-tap-to-zoom delay on touch devices. */
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Body copy is de-emphasised against headings. Without this, `body { color }`
+   paints every paragraph at full heading strength and all hierarchy is lost. */
+:where(p, li, dd) {
+  color: var(--brand-text-muted);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Keeps `scrollToFirstError` and #anchor jumps clear of the sticky header. */
+[id] {
+  scroll-margin-top: calc(var(--spacing-header) + 1rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-body {
-  touch-action: manipulation;
-  color: var(--primary-color);
+/* ───────────────────────────────────────────────────────────────────────────
+   8. Utilities
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/** Tabular figures. Use on every time, duration and price. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Custom utility classes */
-@layer utilities {
+/** Page gutters: fluid, safe-area aware, no breakpoints needed. */
+@utility app-gutter-x {
+  padding-inline-start: max(1rem, env(safe-area-inset-left), min(4vw, 2rem));
+  padding-inline-end: max(1rem, env(safe-area-inset-right), min(4vw, 2rem));
+}
+
+@utility app-safe-t {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility app-safe-b {
+  padding-bottom: env(safe-area-inset-bottom);
 }

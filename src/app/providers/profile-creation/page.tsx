@@ -1,6 +1,6 @@
-import { Flex, Typography } from 'antd'
 import { Metadata } from 'next'
 import ProviderProfileForm from '@components/providerProfileForm/ProviderProfileForm'
+import { PageHeader, PageShell } from '@components/ui/layout'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,19 +10,10 @@ export const metadata: Metadata = {
 }
 
 const ProfileCreation = () => (
-  <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-    <Typography.Paragraph className='text-2xl! font-bold text-center mb-1!'>
-      Let's Get Started!
-    </Typography.Paragraph>
-    <Typography.Paragraph className='text-xl! text-center mt-1!'>
-      Fill in Primary Information <br /> of your Profile
-    </Typography.Paragraph>
-    <Flex className='w-full! justify-center items-center'>
-      <Flex vertical gap={8} className='w-full'>
-        <ProviderProfileForm />
-      </Flex>
-    </Flex>
-  </Flex>
+  <PageShell width='form' className='flex flex-col gap-6'>
+    <PageHeader title="Let's get started" subtitle='Fill in the primary information for your profile.' />
+    <ProviderProfileForm />
+  </PageShell>
 )
 
 export default ProfileCreation

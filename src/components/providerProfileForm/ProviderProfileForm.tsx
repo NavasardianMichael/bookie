@@ -10,7 +10,7 @@ import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
 import AppButton from '@components/ui/AppButton'
-import AppProfileFormItem from '@components/ui/AppFormItem'
+import AppFormItem from '@components/ui/AppFormItem'
 import AppInput from '@components/ui/AppInput'
 import { processProviderProfileFormToPostPayload } from './processors'
 import ProviderProfileFormCategories from './ProviderProfileFormCategories'
@@ -60,46 +60,46 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
       onFinish={formik.handleSubmit}
       scrollToFirstError
     >
-      <AppProfileFormItem name='firstName' label='First Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
+      <AppFormItem name='firstName' label='First Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
         <AppInput
           name='firstName'
           value={formik.values.firstName}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
         />
-      </AppProfileFormItem>
+      </AppFormItem>
 
-      <AppProfileFormItem name='lastName' label='Last Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
+      <AppFormItem name='lastName' label='Last Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
         <AppInput
           name='lastName'
           value={formik.values.lastName}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
         />
-      </AppProfileFormItem>
+      </AppFormItem>
 
-      <AppProfileFormItem name='categoryIds' label='Categories' rules={oneItemSelectedAtLeastRuleSet}>
+      <AppFormItem name='categoryIds' label='Categories' rules={oneItemSelectedAtLeastRuleSet}>
         <ProviderProfileFormCategories form={form} formik={formik} />
-      </AppProfileFormItem>
+      </AppFormItem>
 
       <ProviderProfileLocationInput formik={formik} disabled={formik.isSubmitting} />
 
       <ProviderProfileWeekSchedule formik={formik} />
 
-      <AppProfileFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
+      <AppFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
         <ProviderProfileOrganization formik={formik} />
-      </AppProfileFormItem>
+      </AppFormItem>
 
-      <AppProfileFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
+      <AppFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
         <AppInput
           name='email'
           value={formik.values.email}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
         />
-      </AppProfileFormItem>
+      </AppFormItem>
 
-      <AppProfileFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
+      <AppFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
         <Input.TextArea
           name='description'
           value={formik.values.description}
@@ -107,15 +107,15 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
           disabled={formik.isSubmitting}
           autoSize={{ minRows: 3, maxRows: 5 }}
         />
-      </AppProfileFormItem>
+      </AppFormItem>
 
-      <AppProfileFormItem name='image' label='Image'>
+      <AppFormItem name='image' label='Image'>
         <ProviderProfileImage formik={formik} />
-      </AppProfileFormItem>
+      </AppFormItem>
 
-      <AppProfileFormItem name='gallery' label='Gallery'>
+      <AppFormItem name='gallery' label='Gallery'>
         <ProviderProfileFormGallery formik={formik} />
-      </AppProfileFormItem>
+      </AppFormItem>
 
       <AppButton
         type='primary'

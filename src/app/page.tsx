@@ -1,3 +1,9 @@
+import { PageShell } from '@components/ui/layout'
+
 export default function Home() {
-  return <h1>Welcome To Bookie</h1>
+  return (
+    <PageShell>
+      <h1 className='text-display text-brand-text'>Welcome To Bookie</h1>
+    </PageShell>
+  )
 }

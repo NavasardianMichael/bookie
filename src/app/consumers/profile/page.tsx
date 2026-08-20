@@ -1,5 +1,9 @@
-const ConsumerProfile = () => {
-  return <div className="flex gap-4">Consumer Profile</div>
-}
+import { PageHeader, PageShell } from '@components/ui/layout'
+
+const ConsumerProfile = () => (
+  <PageShell width='form'>
+    <PageHeader title='Consumer Profile' />
+  </PageShell>
+)
 
 export default ConsumerProfile

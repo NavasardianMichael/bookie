@@ -9,7 +9,7 @@ import { useAuthStore } from '@store/auth/store'
 import { PhoneNumber } from '@interfaces/app'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { combineClassNames } from '@helpers/commons'
+import { cn } from '@helpers/cn'
 import { processError } from '@helpers/error'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 import AppButton from '@components/ui/AppButton'
@@ -157,7 +157,7 @@ const OTPCodeInput: React.FC = () => {
               value={countDownDeadline}
               onFinish={onFinish}
               onChange={onCountdownChange}
-              className={combineClassNames('absolute right-[6px]', styles.countdown)}
+              className={cn('absolute right-[6px]', styles.countdown)}
               format='mm:ss'
             />
           )}

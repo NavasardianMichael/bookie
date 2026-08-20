@@ -4,7 +4,7 @@
 
 - Next.js (App Router) + TypeScript
 - Ant Design UI
-- Redux Toolkit
+- Zustand (with immer)
 - pnpm
 - CSS + Tailwind utilities
 
@@ -19,7 +19,7 @@ src/
 - helpers/ Shared utilities
 - hooks/ Custom React hooks
 - interfaces/ Shared TypeScript interfaces
-- store/ Redux slices/selectors
+- store/ Zustand stores/selectors
 - styles/ Global/override styles
 - types/ Domain-specific types
 
@@ -27,6 +27,12 @@ src/
 
 - Before creating or modifying code, always inspect existing files in the same domain/folder and follow the established structure, naming, and patterns exactly. Do not invent new patterns.
 - Add comments only when the code's purpose is not immediately clear from its context or naming, or for readability.
+
+## Secrets & Env Files
+
+- Never read, open, search, or print any file starting with `.env` (`.env`, `.env.local`, `.env.development`, `.env.production`, `.env.*.local`, `server/.env`, etc.), at any depth and by any means — including shell commands.
+- Only `*.env.example` files (`.env.example`, `server/.env.example`) may be read. Use them to see which keys exist and to document them.
+- If a real env file is missing, copy the matching `.env.example` and leave placeholders. Never inspect a secret env file to discover a value, and never echo secret values into code, comments, or commits.
 
 ## Canonical References
 
@@ -39,15 +45,15 @@ src/
 ## Next.js Rules
 
 - Server Components by default.
-- Add `"use client"` only when using hooks, Redux, browser APIs, or interactivity.
+- Add `"use client"` only when using hooks, store access, browser APIs, or interactivity.
 - Do not access browser APIs in Server Components.
 - Use the existing API layer for all data access.
 
 ## State Management Rules
 
-- Redux logic only inside src/store/.
-- Async logic must follow existing thunk pattern.
-- Use selectors; do not access state shape directly.
+- Store logic only inside src/store/.
+- Async logic must follow the existing Zustand action pattern (`create` + `devtools` + `immer`, async actions on the store).
+- Use the generated `use.*` selectors from `appendSelectors`; do not access state shape directly.
 - Do not couple API layer with store logic.
 
 ## Code Style
@@ -92,3 +98,4 @@ src/
 - Mixing UI, API, and store concerns
 - Introducing new patterns without precedent
 - Duplicating existing functionality
+- Reading or printing `.env*` files (except `*.env.example`)

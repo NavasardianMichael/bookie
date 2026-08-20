@@ -1,6 +1,10 @@
 import { Plan, PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
+// Run directly via tsx, so it does not go through src/config.ts and has to load
+// the env file itself — otherwise DATABASE_URL is undefined.
+import 'dotenv/config'
+
 const prisma = new PrismaClient()
 
 const DEV_OTP = '123456'

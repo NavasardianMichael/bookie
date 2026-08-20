@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import minMax from 'dayjs/plugin/minMax'
 import { DaySchedule, DaySchedulePart } from '@store/providers/profile/types'
 
@@ -6,6 +7,10 @@ import { DaySchedule, DaySchedulePart } from '@store/providers/profile/types'
  * Returns the available parts (availability - breaks).
  * Uses dayjs for time comparison.
  */
+// customParseFormat is required for `dayjs('09:00', 'HH:mm')`. Without it dayjs
+// ignores the format string and falls back to `new Date('09:00')` — an Invalid
+// Date — so every comparison below silently returns an empty schedule.
+dayjs.extend(customParseFormat)
 dayjs.extend(minMax)
 export function splitScheduleIntoParts(schedule: DaySchedule): DaySchedulePart[] {
   const { availability, breaks } = schedule

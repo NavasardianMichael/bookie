@@ -1,13 +1,19 @@
 import { getProviderLDSchema } from '@linkedDataSchema/providers'
+import { Descriptions, DescriptionsProps, Tag } from 'antd'
 import { Metadata } from 'next'
+import Image from 'next/image'
 import serializeJavascript from 'serialize-javascript'
 import { getSingleProviderAPI } from '@api/providers/main'
 import { ProviderProfile as ProviderProfileType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { resolveAssetUrl } from '@helpers/images'
+import { generateGoogleMapsLink } from '@helpers/location'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import AppAvatar from '@components/ui/AppAvatar'
 import AppLink from '@components/ui/AppLink'
-import '@styles/full-calendar-override.css'
+import ContactActions from '@components/ui/ContactActions'
+import { PageHeader, PageShell, Section } from '@components/ui/layout'
 import ProviderDetails from './components/Details'
 
 export const dynamic = 'force-dynamic'
@@ -47,73 +53,107 @@ const Provider = async ({ params }: Props) => {
 
   const jsonLd = getProviderLDSchema(provider)
 
-  const organization = provider.basic.organization
-  const categories = provider.basic.categories
+  const { basic, details } = provider
+  const organization = basic.organization
+  const categories = basic.categories
+  const fullName = `${basic.firstName} ${basic.lastName}`
+  const image = resolveAssetUrl(basic.image)
+  const phone = generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
+
+  const detailItems: DescriptionsProps['items'] = [
+    {
+      key: 'phone',
+      label: 'Phone',
+      children: (
+        <a href={`tel:${phone}`} className='tnum'>
+          {phone}
+        </a>
+      ),
+    },
+    {
+      key: 'address',
+      label: 'Address',
+      children: (
+        <a href={generateGoogleMapsLink(details.location.address)} target='_blank' rel='noopener noreferrer'>
+          {details.location.address}
+        </a>
+      ),
+    },
+  ]
+
+  if (details.email) {
+    detailItems.push({
+      key: 'email',
+      label: 'Email',
+      children: <a href={`mailto:${details.email}`}>{details.email}</a>,
+    })
+  }
+
+  if (details.country) {
+    detailItems.push({ key: 'country', label: 'Country', children: details.country })
+  }
 
   return (
-    <article className='flex flex-col gap-4'>
+    <PageShell as='article' className='flex flex-col gap-6'>
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: serializeJavascript(jsonLd),
         }}
       />
-      <section className='flex items-start gap-4'>
-        <div className='flex flex-col gap-4 grow w-fit'>
-          <h1 className='text-xl! mb-0 font-bold'>
-            {provider.basic.firstName} {provider.basic.lastName}
-          </h1>
-          {categories?.map((category) => {
-            return (
-              <AppLink key={category.id} href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}>
-                #{category.name}
-              </AppLink>
-            )
-          })}
-          {organization ? (
-            <AppLink href={`${ROUTES.organizations}/${organization.id}`}>#{organization?.basic.name}</AppLink>
+
+      <PageHeader
+        title={fullName}
+        subtitle={basic.description}
+        media={
+          image ? (
+            // Fixed aspect box: the raw <img max-w-[160px]> in a never-wrapping
+            // row squeezed the text column to ~120px on a phone.
+            <div className='bg-surface-sunken relative aspect-[4/3] w-full overflow-hidden rounded-brand md:aspect-square md:w-40'>
+              <Image
+                src={image}
+                alt={fullName}
+                fill
+                priority
+                sizes='(max-width: 768px) 100vw, 160px'
+                className='object-cover'
+              />
+            </div>
           ) : (
-            <p>No organization</p>
-          )}
-          <div className='p-0 m-0 flex flex-col gap-2'>
-            <div>
-              <p>
-                <strong>Phone</strong>
-              </p>
-              <a
-                href={`tel:+${generateFriendlyPhoneNumber(provider.details.phone)}`}
-                target='_blank'
-                className='underline block!'
+            <AppAvatar name={fullName} size={96} shape='square' />
+          )
+        }
+        meta={
+          <>
+            {categories?.map((category) => (
+              <AppLink
+                key={category.id}
+                href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}
+                className='no-underline'
               >
-                {generateFriendlyPhoneNumber(provider.details.phone, { delimiter: ' ', prefix: '+' })}
-              </a>
-            </div>
-            <div>
-              <p>
-                <strong>Address</strong>
-              </p>
-              <p>{provider.details.location.address}</p>
-            </div>
-            <div>
-              <p>
-                <strong>Email</strong>{' '}
-              </p>
-              <a href={`mailto:${provider.details.email}`} target='_blank' className='underline block!'>
-                {provider.details.email}
-              </a>
-            </div>
-          </div>
-        </div>
-        <img
-          src={provider.basic.image}
-          alt={`${provider.basic.firstName} ${provider.basic.lastName}`}
-          className='w-full max-w-[160px] object-cover'
-        />
-      </section>
-      <section>
+                <Tag>{category.name}</Tag>
+              </AppLink>
+            ))}
+            {organization && (
+              <AppLink href={`${ROUTES.organizations}/${organization.id}`} className='no-underline'>
+                <Tag color='blue'>{organization.basic.name}</Tag>
+              </AppLink>
+            )}
+          </>
+        }
+        actions={
+          <ContactActions phone={phone} address={details.location.address} email={details.email} />
+        }
+      />
+
+      <Section title='Book an appointment' headingLevel={2}>
         <ProviderDetails initialState={provider} />
-      </section>
-    </article>
+      </Section>
+
+      <Section title='Details' headingLevel={2}>
+        <Descriptions column={{ xs: 1, md: 2 }} size='small' bordered items={detailItems} />
+      </Section>
+    </PageShell>
   )
 }
 

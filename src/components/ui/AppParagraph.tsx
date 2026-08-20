@@ -1,11 +1,11 @@
 import { FC, HTMLAttributes, PropsWithChildren } from 'react'
-import { combineClassNames } from '@helpers/commons'
+import { cn } from '@helpers/cn'
 
 type Props = HTMLAttributes<HTMLParagraphElement>
 
-const AppParagraph: FC<PropsWithChildren<Props>> = ({ children,className, ...props }) => {
+const AppParagraph: FC<PropsWithChildren<Props>> = ({ children, className, ...props }) => {
   return (
-    <p className={combineClassNames('text-bookie-blue', className)} {...props}>
+    <p className={cn('text-brand-muted', className)} {...props}>
       {children}
     </p>
   )

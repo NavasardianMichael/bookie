@@ -22,8 +22,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
   const [form] = useForm<ProviderServiceFormValues>()
 
   const [editServiceModalOpened, setEditServiceModalOpened] = useState(false)
-  const editServicePropsRef = useRef<string | undefined>('')
-  // const [tempEditService, setTempEditService] = useState<null | typeof byId[string]>(null)
   const [deleteServiceModalOpened, setDeleteServiceModalOpened] = useState(false)
   const deleteServicePropsRef = useRef<Parameters<typeof deleteProviderService>[0] | null>(null)
 
@@ -49,13 +47,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     closeDeleteServiceModal()
   }, [closeDeleteServiceModal, deleteProviderService])
 
-  const onEditServiceClick: React.MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
-    const dataset = e.currentTarget.dataset
-    const providerId = dataset.providerId
-    editServicePropsRef.current = providerId
-    setEditServiceModalOpened(true)
-  }, [])
-
   const closeEditServiceModal = useCallback(() => {
     setEditServiceModalOpened(false)
   }, [])
@@ -64,7 +55,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log({ values })
       const payload = processProviderServiceFormToPostPayload(providerId, values)
       await putProviderService(payload)
 
@@ -72,6 +62,34 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
       closeEditServiceModal()
     },
   })
+
+  const onEditServiceClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      const { serviceId } = e.currentTarget.dataset
+      const service = serviceId ? byId[serviceId] : undefined
+
+      // "Add service" passes no serviceId. Editing loads the clicked service into
+      // both stores — formik owns the values, antd owns validation — so the modal
+      // is not a blank create form.
+      const nextValues: ProviderServiceFormValues = service
+        ? {
+            id: service.id,
+            name: service.name,
+            duration: service.duration,
+            description: service.description,
+            price: service.price,
+            currency: service.currency,
+            image: service.image,
+            categoryId: service.categoryId,
+          }
+        : initialValues
+
+      formik.setValues(nextValues)
+      form.setFieldsValue(nextValues)
+      setEditServiceModalOpened(true)
+    },
+    [byId, form, formik, initialValues]
+  )
 
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
@@ -81,7 +99,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
           return (
             <Card
               key={service.id}
-              loading={true}
               className='w-full'
               actions={[
                 <Button
@@ -152,7 +169,7 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
         }}
         centered
       >
-        <Typography.Paragraph>Are you sure you want to delete this image?</Typography.Paragraph>
+        <Typography.Paragraph>Are you sure you want to delete this service?</Typography.Paragraph>
       </Modal>
     </Flex>
   )

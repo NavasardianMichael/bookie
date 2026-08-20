@@ -12,14 +12,12 @@ export const metadata: Metadata = {
 
 const AccountTypeSelection = () => {
   return (
-    <AppBox className='w-full h-full grow flex flex-col justify-between gap-4'>
-      <AppBox className='flex flex-col gap-2'>
-        <AppTitle className='text-xl mb-0'>
+    <AppBox className='flex w-full flex-1 flex-col justify-between gap-6'>
+      <AppBox className='flex flex-col gap-1'>
+        <AppTitle className='text-h1'>
           Welcome to <b>Bookie</b>
         </AppTitle>
-        <AppParagraph className='text-base mb-0'>
-          Choose who you want to sign up as.
-        </AppParagraph>
+        <AppParagraph className='text-body'>Choose who you want to sign up as.</AppParagraph>
       </AppBox>
       <AccountTypeButtons />
     </AppBox>

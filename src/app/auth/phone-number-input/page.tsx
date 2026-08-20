@@ -10,16 +10,14 @@ export const metadata: Metadata = {
 }
 
 const PhoneNumberInput = () => (
-  <AppBox className='w-full flex flex-col justify-between items-center gap-4'>
-    <AppTitle className='text-xl mb-0'>Enter your phone number</AppTitle>
-    <AppParagraph className='text-base mb-0'>
-      We will send confirmation code via SMS to the phone number.
-    </AppParagraph>
-    <AppBox className='w-full justify-center items-center'>
-      <AppBox className='w-full flex flex-col gap-2'>
-        <SignOnForm />
-      </AppBox>
+  <AppBox className='flex w-full flex-col gap-6'>
+    <AppBox className='flex flex-col gap-1'>
+      <AppTitle className='text-h1'>Enter your phone number</AppTitle>
+      <AppParagraph className='text-body-sm'>
+        We will send a confirmation code via SMS to that number.
+      </AppParagraph>
     </AppBox>
+    <SignOnForm />
   </AppBox>
 )
 

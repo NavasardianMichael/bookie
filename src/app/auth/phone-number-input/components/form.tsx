@@ -99,7 +99,7 @@ const SignOnForm: React.FC = () => {
               labelRender={(option) => option.label}
               onChange={handleCountryChange}
               options={countries}
-              className='custom-antd-select border-r-0! h-[56px]! bg-transparent! d-block w-full!'
+              className='custom-antd-select border-r-0! h-[56px]! bg-transparent! w-full!'
               disabled={isPending}
             />
           </Form.Item>

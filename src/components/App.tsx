@@ -1,36 +1,38 @@
 'use client'
 
 import { FC, PropsWithChildren } from 'react'
-import { ConfigProvider, ThemeConfig } from 'antd'
+import { App as AntApp, ConfigProvider } from 'antd'
+import { antdTheme } from '@styles/theme'
+import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { Header } from './header/Header'
+import SkipLink from './layout/SkipLink'
 
-const themeConfig: ThemeConfig = {
-  token: {
-    colorPrimary: '#18294D', // blue
-    // colorBgBase: '#D2D2D2', // Soft off-white
-    colorTextBase: '#18294D', // Dark blue for text
-    colorTextSecondary: '#18294D',
-    colorLink: '#18294D',
-  },
-  components: {
-    Typography: {
-      margin: 0,
-    },
-  },
-}
-
-const App: FC<PropsWithChildren> = ({ children }) => {
-  return (
-    <ConfigProvider theme={themeConfig}>
-      <div className='min-h-svh flex flex-col h-dvh'>
+/**
+ * A single document-level scroller.
+ *
+ * The previous shell was `h-dvh` with two nested `overflow-auto` wrappers, which
+ * cost a second scrollbar on tall pages, iOS momentum scrolling, URL-bar
+ * collapse, and scroll restoration — and made `position: sticky` impossible,
+ * since a sticky element sticks to its nearest scrollport.
+ *
+ * `<main>` deliberately carries no container: each page picks its own width via
+ * PageShell, so an auth form can stay narrow while a card grid goes wide.
+ */
+const App: FC<PropsWithChildren> = ({ children }) => (
+  <ConfigProvider theme={antdTheme}>
+    {/* component={false} renders context only — no wrapper element to interfere
+        with layout — while still enabling App.useApp() for message/modal. */}
+    <AntApp component={false}>
+      <SkipLink />
+      <div className='flex min-h-dvh flex-col'>
         <Header />
-        <div className='w-full h-full d-block grow overflow-auto scroll-smooth'>
-          <main className='h-full grow p-4 overflow-auto scroll-smooth'>{children}</main>
-          {/* <Footer /> */}
-        </div>
+        <main id='main' className='flex-1 app-safe-b'>
+          {children}
+        </main>
       </div>
-    </ConfigProvider>
-  )
-}
+      {process.env.NODE_ENV !== 'production' && <BreakpointInvariant />}
+    </AntApp>
+  </ConfigProvider>
+)
 
 export default App

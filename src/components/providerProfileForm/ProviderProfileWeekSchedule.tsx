@@ -9,10 +9,10 @@ import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { WeekDay } from '@interfaces/schedule'
-import { WEEK_DAYS_LIST } from '@constants/schedule'
+import { SCHEDULE_DISPLAY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from '@helpers/schedule'
 import AppButton from '@components/ui/AppButton'
-import AppProfileFormItem from '@components/ui/AppFormItem'
+import AppFormItem from '@components/ui/AppFormItem'
 import { WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS } from './constants'
 
 type Props = AppFormProps<ProviderProfileFormValues>
@@ -54,22 +54,22 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
     const weekSchedule: WeekSchedule = { ...formik.values.weekSchedule }
     Object.keys(selectedDays).forEach((day) => {
       const currentDay = day as WeekDay
-      if (!selectedDays[currentDay] || !tempAvailability || !tempAvailability[0] || !tempAvailability[1]) {
-        weekSchedule[currentDay] = weekSchedule[currentDay]
-        return
-      }
+      if (!selectedDays[currentDay] || !tempAvailability || !tempAvailability[0] || !tempAvailability[1]) return
 
+      // Always persist as 24-hour `HH:mm`. `hh:mm` is 12-hour without a
+      // meridiem, so 14:30 would be stored as "02:30" and become
+      // indistinguishable from 02:30.
       const formattedAvailability = {
-        start: tempAvailability[0].format('hh:mm'),
-        end: tempAvailability[1].format('hh:mm'),
+        start: tempAvailability[0].format(SCHEDULE_VALUE_FORMAT),
+        end: tempAvailability[1].format(SCHEDULE_VALUE_FORMAT),
       }
 
       const formattedBreaks = tempBreaks.reduce(
         (acc, datesArr) => {
           if (!datesArr || datesArr.includes(undefined)) return acc
           acc.push({
-            start: datesArr[0]!.format('hh:mm'),
-            end: datesArr[1]!.format('hh:mm'),
+            start: datesArr[0]!.format(SCHEDULE_VALUE_FORMAT),
+            end: datesArr[1]!.format(SCHEDULE_VALUE_FORMAT),
           })
           return acc
         },
@@ -139,7 +139,7 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
   }, [hasFilledRanges])
 
   return (
-    <AppProfileFormItem name='weekSchedule' label='Week Schedule' rules={rules}>
+    <AppFormItem name='weekSchedule' label='Week Schedule' rules={rules}>
       <Flex vertical gap={16}>
         <Row>
           {WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS.map(({ label, childFieldNames }) => {
@@ -195,7 +195,7 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
               use12Hours
               showNow
               value={tempAvailability}
-              format={'hh:mm'}
+              format={SCHEDULE_DISPLAY_FORMAT}
               onChange={onAvailabilityChange}
               minuteStep={5}
               separator={'-'}
@@ -213,7 +213,7 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
                     use12Hours
                     showNow
                     value={range}
-                    format={'hh:mm'}
+                    format={SCHEDULE_DISPLAY_FORMAT}
                     onChange={(dates, dateStrings) => onRangeChange(dates, dateStrings, index)}
                     minuteStep={5}
                     separator={'-'}
@@ -260,7 +260,7 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
           </Flex>
         )}
       </Flex>
-    </AppProfileFormItem>
+    </AppFormItem>
   )
 }
 

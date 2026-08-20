@@ -39,9 +39,9 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
       onFinish={formik.handleSubmit}
       scrollToFirstError
     >
-      <AppFormItem name='title' label='Title' rules={inputTextRequiredMaxCharsCountRuleSet}>
+      <AppFormItem name='name' label='Title' rules={inputTextRequiredMaxCharsCountRuleSet}>
         <AppInput
-          name='firstName'
+          name='name'
           value={formik.values.name}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}

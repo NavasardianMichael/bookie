@@ -15,19 +15,21 @@ export const metadata: Metadata = {
 
 const ProfileCreated = () => {
   return (
-    <Flex vertical gap={8} align='center' justify='center' className='grow h-full'>
-      <Image priority src={profileVerifiedImage} alt='Profile Verified' width={100} />
-      <Flex vertical gap={16}>
-        <Typography.Title level={4} className='text-center mb-0!'>
+    <Flex vertical gap={16} align='center' justify='center' className='flex-1'>
+      <Image priority src={profileVerifiedImage} alt='Profile Verified' width={96} />
+      <Flex vertical gap={8} align='center'>
+        <Typography.Title level={2} className='text-h1 text-center'>
           Success!
         </Typography.Title>
-        <Typography.Paragraph type='secondary' className='text-center mb-0!'>
-          You're all set — let's get started.
+        <Typography.Paragraph type='secondary' className='text-body-sm text-center'>
+          You&apos;re all set — let&apos;s get started.
         </Typography.Paragraph>
-        <AppButton type='primary'>
-          <AppLink href={ROUTES[ROUTE_KEYS.providerProfileCreation]}>Configure Your Profile</AppLink>
-        </AppButton>
       </Flex>
+      <AppLink href={ROUTES[ROUTE_KEYS.providerProfileCreation]} className='w-full no-underline'>
+        <AppButton type='primary' className='w-full'>
+          Configure Your Profile
+        </AppButton>
+      </AppLink>
     </Flex>
   )
 }

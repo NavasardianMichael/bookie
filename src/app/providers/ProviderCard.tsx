@@ -1,32 +1,36 @@
-'use client'
-
 import { FC } from 'react'
-import { Card, Image, Typography } from 'antd'
 import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/AppLink'
+import EntityCard from '@components/ui/EntityCard'
 
 type Props = {
   data: BasicProvider
 }
 
+/**
+ * Server Component: it no longer needs antd's Image, so it stays off the client
+ * bundle.
+ */
 export const ProviderCard: FC<Props> = ({ data }) => {
+  const { basic } = data
+  const fullName = `${basic.firstName} ${basic.lastName}`
+
   return (
-    <article>
-      <Card
-        cover={<Image preview={false} alt={`${data.basic.firstName} ${data.basic.lastName}`} src={data.basic.image} />}
-      >
-        <AppLink href={`${ROUTES.providers}/${data.id}`}>
-          <Card.Meta
-            title={
-              <Typography.Title level={3} className='text-lg'>
-                {data.basic.firstName} {data.basic.lastName}
-              </Typography.Title>
-            }
-            description='This is the description'
+    <EntityCard
+      href={`${ROUTES.providers}/${data.id}`}
+      title={fullName}
+      subtitle={basic.organization?.basic.name}
+      description={basic.description}
+      image={basic.image}
+      badges={
+        <span className='text-caption inline-flex items-center gap-1.5'>
+          <span
+            aria-hidden='true'
+            className={basic.available ? 'size-2 rounded-full bg-green-500' : 'bg-brand-300 size-2 rounded-full'}
           />
-        </AppLink>
-      </Card>
-    </article>
+          {basic.available ? 'Available' : 'Fully booked'}
+        </span>
+      }
+    />
   )
 }

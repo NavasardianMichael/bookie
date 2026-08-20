@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { Form, FormItemProps } from 'antd'
+import { cn } from '@helpers/cn'
 
 type Props = FormItemProps
 
-const AppProfileFormItem: React.FC<Props> = ({ children, label, className, ...props }) => {
+const AppFormItem: React.FC<Props> = ({ children, label, className, ...props }) => {
   const memoizedMessageVariables: FormItemProps['messageVariables'] = useMemo(() => {
     return { label } as Record<string, string>
   }, [label])
@@ -15,7 +16,7 @@ const AppProfileFormItem: React.FC<Props> = ({ children, label, className, ...pr
       label={label}
       validateTrigger='onChange'
       hasFeedback
-      className={`mb-0! ${className}`}
+      className={cn(className)}
       {...props}
     >
       {children}
@@ -23,4 +24,4 @@ const AppProfileFormItem: React.FC<Props> = ({ children, label, className, ...pr
   )
 }
 
-export default AppProfileFormItem
+export default AppFormItem

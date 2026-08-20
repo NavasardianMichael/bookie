@@ -40,7 +40,6 @@ const AccountTypeButtons: React.FC = () => {
       push(ROUTES.phoneNumberInput)
     },
   })
-  console.log(formik.values.accountType)
 
   return (
     <Form layout='vertical' onFinish={formik.handleSubmit} className='w-full h-full flex'>
@@ -57,7 +56,6 @@ const AccountTypeButtons: React.FC = () => {
             onChange={(e) => formik.setFieldValue('accountType', e.target.value)}
           />
         </Form.Item>
-        {}
         <Flex vertical className='w-full h-full grow!' justify='space-between'>
           <img src='/logo.svg' alt='Bookie logo' className='h-[200px] md:h-[400px] object-cover m-auto' />
 
