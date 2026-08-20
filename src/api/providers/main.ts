@@ -1,6 +1,5 @@
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
-import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processProviderProfileResponse,
@@ -51,20 +50,29 @@ export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params
 
 export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (args) => {
   await axiosInstance.delete<APIResponse<DeleteProviderServiceAPI['response']>>(
-    `${ENDPOINTS.deleteProviderService}?${paramsToQueryString(args)}`
+    `${ENDPOINTS.deleteProviderService}/${args.providerId}/services/${args.serviceId}`
   )
 }
 
 export const putProviderServiceAPI: PutProviderServiceAPI['api'] = async (params) => {
-  const { data } = await axiosInstance.put<APIResponse<PutProviderServiceAPI['response']>>(
-    `${ENDPOINTS.putProviderService}`,
-    params,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }
-  )
+  const { providerId, service } = params
+  const serviceId = service.id
+
+  const url = serviceId
+    ? `${ENDPOINTS.putProviderService}/${providerId}/services/${serviceId}`
+    : `${ENDPOINTS.putProviderService}/${providerId}/services`
+
+  const method = serviceId ? 'put' : 'post'
+
+  const { data } = await axiosInstance.request<APIResponse<PutProviderServiceAPI['response']>>({
+    url,
+    method,
+    data: { service },
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
   const processedResponse = processProviderServiceResponse(data)
   return processedResponse
 }

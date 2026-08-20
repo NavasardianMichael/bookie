@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,14 +11,18 @@
 !.yarn/versions
 
 # testing
-/coverage
+coverage/
 
 # next.js
-/.next/
+.next/
 /out/
 
 # production
 /build
+dist/
+
+# husky internals
+.husky/_
 
 # zip files
 *.zip
@@ -35,6 +39,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!server/.env.example
+
+# server uploads (keep folder via .gitkeep)
+server/uploads/*
+!server/uploads/.gitkeep
 
 # vercel
 .vercel

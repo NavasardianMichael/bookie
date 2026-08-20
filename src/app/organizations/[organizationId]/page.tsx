@@ -6,6 +6,8 @@ import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { generateGoogleMapsLink } from '@helpers/location'
 import AppLink from '@components/ui/AppLink'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{
     organizationId: OrganizationType['id']

@@ -4,6 +4,8 @@ import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{
     categoryId: CategoryType['id']

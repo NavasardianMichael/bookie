@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bookie
 
-## Getting Started
+Healthcare booking platform — Next.js frontend + Express/Prisma API + PostgreSQL.
 
-First, run the development server:
+## Stack
+
+- **Web:** Next.js 16, React 19, Ant Design, Tailwind, Zustand
+- **API:** Express 5, Prisma, JWT session cookies
+- **DB:** PostgreSQL 16 (Docker)
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install        # generates Prisma client; migrates + seeds when Postgres is up
+cp .env.example .env.local
+cp server/.env.example server/.env
+
+pnpm db:up          # start Postgres (Docker required)
+pnpm watch          # Next.js :4141 + API :4142
 ```
 
-Open [http://localhost:4141](http://localhost:4141) with your browser to see the result.
+`pnpm install` runs migrations and seed automatically when `server/.env` exists and Postgres is reachable. If the database is down, install still succeeds — run `pnpm db:up` then `pnpm db:setup` once.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Pre-commit hooks run `eslint --fix` on staged files (including import sorting).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:4141](http://localhost:4141).
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Next.js only (port 4141) |
+| `pnpm server:dev` | API only (port 4142) |
+| `pnpm watch` | Both in parallel |
+| `pnpm db:up` / `pnpm db:down` | Docker Postgres |
+| `pnpm db:migrate` | Apply migrations |
+| `pnpm db:seed` | Seed sample data |
+| `pnpm lint` | ESLint |
+| `pnpm lint-fix` | ESLint with auto-fix (imports, etc.) |
+| `pnpm typecheck` | TypeScript |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [DEV_CREDS.md](./DEV_CREDS.md) — local login credentials (OTP, provider/consumer phones)
+- [DATABASE_STRUCTURE.md](./DATABASE_STRUCTURE.md) — schema and API routes
+- [IMPROVEMENTS.md](./IMPROVEMENTS.md) — frontend upgrade notes and follow-ups
 
-## Deploy on Vercel
+## Deploy notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Set strong `JWT_SECRET` and production `DATABASE_URL` in `server/.env`
+- Set `CORS_ORIGIN` to your frontend URL
+- Run `pnpm db:migrate` against the production database before starting the API

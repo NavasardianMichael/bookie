@@ -1,22 +1,39 @@
 import { BasicProvider } from '@store/providers/list/types'
 import { ProviderProfile } from '@store/providers/profile/types'
+import { ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
+import { Normalized } from '@interfaces/commons'
 import {
-  BasicProviderResponse,
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
-  ProviderProfileResponse,
   PutProviderServiceAPI,
-  SingleProviderResponse,
 } from './types'
+
+function normalizeServices(services: ProviderService[] | undefined): Normalized<ProviderService> {
+  if (!services?.length) return { allIds: [], byId: {} }
+  return services.reduce(
+    (acc, service) => {
+      acc.byId[service.id] = service
+      acc.allIds.push(service.id)
+      return acc
+    },
+    { allIds: [] as string[], byId: {} as Normalized<ProviderService>['byId'] }
+  )
+}
+
+function normalizeServicesFromRecord(services: Normalized<ProviderService> | undefined): Normalized<ProviderService> {
+  if (!services) return { allIds: [], byId: {} }
+  if (services.allIds?.length) return services
+  return normalizeServices(Object.values(services.byId ?? {}))
+}
 
 export const processProvidersListResponse: GetProvidersListAPI['processor'] = (response) => {
   return response.value.reduce(
     (acc, provider) => {
-      const processedProvider = processBasicProvider(provider)
-      acc.byId[processedProvider.id] = processedProvider
-      acc.allIds.push(processedProvider.id)
+      const item = provider as BasicProvider
+      acc.byId[item.id] = item
+      acc.allIds.push(item.id)
       return acc
     },
     {
@@ -27,108 +44,21 @@ export const processProvidersListResponse: GetProvidersListAPI['processor'] = (r
 }
 
 export const processSingleProviderResponse: GetSingleProviderAPI['processor'] = (provider) => {
-  return processSingleProvider(provider.value)
+  const value = provider.value as SingleProvider
+  return {
+    ...value,
+    services: normalizeServicesFromRecord(value.services),
+  }
 }
 
 export const processProviderProfileResponse: GetProviderProfileAPI['processor'] = (providerProfile) => {
-  return processProviderProfile(providerProfile.value)
+  const value = providerProfile.value as ProviderProfile
+  return {
+    ...value,
+    services: normalizeServicesFromRecord(value.services),
+  }
 }
 
 export const processProviderServiceResponse: PutProviderServiceAPI['processor'] = (response) => {
-  const values = response.value
-  const result = {
-    id: values.Id,
-    name: values.Name,
-    duration: values.Duration,
-    categoryId: values.CategoryId,
-    description: values.Description,
-    price: values.Price,
-    currency: values.Currency,
-    image: values.Image,
-  }
-  return result
-}
-
-export const processProviderProfile = (provider: ProviderProfileResponse): ProviderProfile => {
-  return {
-    id: provider.Id,
-    basic: {
-      firstName: provider.FirstName,
-      lastName: provider.LastName,
-      categories: provider.Categories,
-      description: provider.Description,
-      image: provider.Image,
-      organization: provider.Organization,
-      available: provider.Available,
-    },
-    details: {
-      location: {
-        address: provider.Address,
-        url: provider.LocationURL,
-      },
-      phone: {
-        code: +provider.PhoneNumberCode,
-        number: +provider.PhoneNumber,
-      },
-      country: provider.Country,
-      email: provider.Email,
-      gallery: [],
-      weekSchedule: provider.WeekSchedule,
-    },
-    services: {
-      allIds: [],
-      byId: {},
-    },
-    personal: {
-      plan: provider.Plan,
-    },
-  }
-}
-
-export const processSingleProvider = (provider: SingleProviderResponse): SingleProvider => {
-  return {
-    id: provider.Id,
-    basic: {
-      firstName: provider.FirstName,
-      lastName: provider.LastName,
-      categories: provider.Categories,
-      description: provider.Description,
-      image: provider.Image,
-      organization: provider.Organization,
-      available: provider.Available,
-    },
-    details: {
-      location: {
-        address: provider.Address,
-        url: provider.LocationURL,
-      },
-      phone: {
-        code: +provider.PhoneNumberCode,
-        number: +provider.PhoneNumber,
-      },
-      country: provider.Country,
-      email: provider.Email,
-      gallery: [],
-      weekSchedule: provider.WeekSchedule,
-    },
-    services: {
-      allIds: [],
-      byId: {},
-    },
-  }
-}
-
-export const processBasicProvider = (provider: BasicProviderResponse): BasicProvider => {
-  return {
-    id: provider.Id,
-    basic: {
-      firstName: provider.FirstName,
-      lastName: provider.LastName,
-      categories: provider.Categories,
-      description: provider.Description,
-      image: provider.Image,
-      organization: provider.Organization,
-      available: provider.Available,
-    },
-  }
+  return response.value as PutProviderServiceAPI['processed']
 }

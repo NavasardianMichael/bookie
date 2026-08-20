@@ -5,20 +5,19 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: process.env.NODE_ENV !== 'development',
+  withCredentials: true,
   formSerializer: {
     indexes: null,
   },
 })
 
 axiosInstance.interceptors.request.use((config) => {
-  // if (config.url?.startsWith('/api/Identity/')) config.withCredentials = true
   return config
 })
 
 axiosInstance.interceptors.response.use(null, (error) => {
-  if (error.status === 401) {
-    // window.location.href = PUBLIC_PAGES.login
+  if (error.response?.status === 401) {
+    // window.location.href = ROUTES.accountTypeSelection
   }
   return Promise.reject(error)
 })

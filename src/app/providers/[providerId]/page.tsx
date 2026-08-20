@@ -10,6 +10,8 @@ import AppLink from '@components/ui/AppLink'
 import '@styles/full-calendar-override.css'
 import ProviderDetails from './components/Details'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{
     providerId: ProviderProfileType['id']

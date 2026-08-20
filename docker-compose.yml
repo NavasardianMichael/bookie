@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bookie-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: bookie
+      POSTGRES_PASSWORD: bookie
+      POSTGRES_DB: bookie
+    volumes:
+      - bookie_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U bookie -d bookie']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  bookie_pg:

@@ -1,86 +1,42 @@
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
+import { BasicProvider } from '@store/providers/list/types'
 import { ProvidersListState } from '@store/providers/list/types'
 import { ProviderProfile, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
-import { Plan } from '@interfaces/plans'
 
-// ---------------------------------------------
-// Responses
-// ---------------------------------------------
-type ProviderServiceResponse = {
-  Id: string
-  Name: string
-  Duration: number
-  CategoryId: Category['id']
-  Description?: string
-  Price?: number
-  Currency?: string
-  Image?: string
-  Missing?: boolean
-}
+export type ProviderServiceResponse = ProviderService
 
-export type ProviderProfileResponse = {
-  Id: string
-  FirstName: string
-  LastName: string
-  PhoneNumberCode: string
-  PhoneNumber: string
-  Categories: ProviderProfile['basic']['categories']
-  Address: string
-  LocationURL: string
-  Description?: string
-  Organization?: ProviderProfile['basic']['organization']
-  Image?: string
-  Email?: string
-  Country?: string
-  Plan: Plan
-  Available: boolean
-  WeekSchedule: ProviderProfile['details']['weekSchedule']
-  Services: ProviderServiceResponse[]
-}
+export type PutProviderProfileRequestPayload = Partial<{
+  firstName: string
+  lastName: string
+  description: string
+  email: string
+  address: string
+  locationURL: string
+  organizationId: Organization['id']
+  categoryIds: Category['id'][]
+  weekSchedule: ProviderProfile['details']['weekSchedule']
+  image: ProviderProfile['basic']['image'] | File
+  gallery: (ProviderProfile['details']['gallery'][number] | File)[]
+}>
 
-export type SingleProviderResponse = Omit<ProviderProfileResponse, 'Plan'>
-
-export type BasicProviderResponse = Pick<
-  ProviderProfileResponse,
-  'Id' | 'FirstName' | 'LastName' | 'Description' | 'Image' | 'Categories' | 'Organization' | 'Available'
->
-
-// ---------------------------------------------
-// Payloads
-// ---------------------------------------------
-export type PutProviderProfileRequestPayload = Partial<
-  Omit<
-    ProviderProfileResponse,
-    'Id' | 'PhoneNumber' | 'PhoneNumberCode' | 'Categories' | 'Organization' | 'Country' | 'Image' | 'Plan'
-  > & {
-    Image: ProviderProfile['basic']['image'] | File
-    Gallery: (ProviderProfile['details']['gallery'][number] | File)[]
-    CategoryIds: Category['id'][]
-    OrganizationId: Organization['id']
-  }
->
-
-// ---------------------------------------------
-// API
-// ---------------------------------------------
 export type GetProvidersListAPI = Endpoint<{
   payload: void
-  response: BasicProviderResponse[]
+  response: BasicProvider[]
   processed: ProvidersListState['list']
 }>
 
 export type GetSingleProviderAPI = Endpoint<{
   payload: Pick<SingleProvider, 'id'>
-  response: SingleProviderResponse
+  response: SingleProvider
   processed: SingleProvider
 }>
 
 export type GetProviderProfileAPI = Endpoint<{
   payload: void
-  response: ProviderProfileResponse
+  response: ProviderProfile
   processed: ProviderProfile
 }>
 

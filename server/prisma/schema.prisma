@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  free
+  basic
+  standard
+  premium
+}
+
+enum AppointmentStatus {
+  scheduled
+  confirmed
+  cancelled
+  completed
+  no_show
+}
+
+model User {
+  id            String    @id @default(uuid())
+  phoneCode     Int
+  phoneNumber   BigInt
+  otpHash       String?
+  otpExpiresAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  consumer      Consumer?
+  provider      Provider?
+
+  @@unique([phoneCode, phoneNumber])
+}
+
+model Category {
+  id            String                 @id @default(uuid())
+  name          String                 @unique
+  organizations OrganizationCategory[]
+  providers     ProviderCategory[]
+  services      Service[]
+}
+
+model Organization {
+  id           String                 @id @default(uuid())
+  name         String
+  description  String                 @default("")
+  phone        String                 @default("")
+  country      String                 @default("")
+  address      String                 @default("")
+  locationUrl  String                 @default("")
+  email        String                 @default("")
+  website      String                 @default("")
+  logoUrl      String                 @default("")
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  categories   OrganizationCategory[]
+  providers    Provider[]
+  appointments Appointment[]
+  reviews      Review[]
+}
+
+model OrganizationCategory {
+  organizationId String
+  categoryId     String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  category       Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, categoryId])
+}
+
+model Provider {
+  id             String             @id @default(uuid())
+  userId         String             @unique
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName      String
+  lastName       String
+  description    String?
+  imageUrl       String?
+  email          String?
+  country        String?
+  address        String             @default("")
+  locationUrl    String             @default("")
+  available      Boolean            @default(true)
+  plan           Plan               @default(free)
+  organizationId String?
+  organization   Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  weekSchedule   Json               @default("{}")
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  categories     ProviderCategory[]
+  gallery        ProviderGallery[]
+  services       Service[]
+  appointments   Appointment[]
+  reviews        Review[]
+  favorites      FavoriteProvider[]
+}
+
+model ProviderCategory {
+  providerId String
+  categoryId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, categoryId])
+}
+
+model ProviderGallery {
+  id         String   @id @default(uuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  name       String
+  url        String
+}
+
+model Service {
+  id              String        @id @default(uuid())
+  providerId      String
+  provider        Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        Category      @relation(fields: [categoryId], references: [id])
+  name            String
+  durationMinutes Int
+  description     String?
+  price           Decimal?      @db.Decimal(10, 2)
+  currency        String?
+  imageUrl        String?
+  appointments    Appointment[]
+}
+
+model Consumer {
+  id        String             @id @default(uuid())
+  userId    String             @unique
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  favorites FavoriteProvider[]
+  appointments Appointment[]
+  reviews   Review[]
+}
+
+model FavoriteProvider {
+  consumerId String
+  providerId String
+  consumer   Consumer @relation(fields: [consumerId], references: [id], onDelete: Cascade)
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([consumerId, providerId])
+}
+
+model Appointment {
+  id              String            @id @default(uuid())
+  consumerId      String
+  consumer        Consumer          @relation(fields: [consumerId], references: [id])
+  providerId      String
+  provider        Provider          @relation(fields: [providerId], references: [id])
+  serviceId       String
+  service         Service           @relation(fields: [serviceId], references: [id])
+  organizationId  String?
+  organization    Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  startAt         DateTime
+  endAt           DateTime
+  durationMinutes Int
+  status          AppointmentStatus @default(scheduled)
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  review          Review?
+
+  @@index([providerId, startAt])
+}
+
+model Review {
+  id             String       @id @default(uuid())
+  consumerId     String
+  consumer       Consumer     @relation(fields: [consumerId], references: [id])
+  providerId     String?
+  provider       Provider?    @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  appointmentId  String?      @unique
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  rating         Int
+  comment        String?
+  createdAt      DateTime     @default(now())
+}

@@ -7,6 +7,7 @@ import Countdown from 'antd/es/statistic/Countdown'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@store/auth/store'
 import { PhoneNumber } from '@interfaces/app'
+import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { combineClassNames } from '@helpers/commons'
 import { processError } from '@helpers/error'
@@ -22,19 +23,21 @@ const OTPCodeInput: React.FC = () => {
   const [code, setCode] = useState<string>('')
   const [showResendButton, setShowResendButton] = useState(false)
   const [countdownValue, setCountdownValue] = useState<number>(COUNTDOWN_DURATION)
-  const [countDownDeadline, setCountDownDeadline] = useState(Date.now() + COUNTDOWN_DURATION)
+  const [countDownDeadline, setCountDownDeadline] = useState(0)
+  const [phoneNumberDisplayFormat, setPhoneNumberDisplayFormat] = useState('')
   const phoneNumberRef = useRef<PhoneNumber['number'] | null>(null)
   const countryCodeRef = useRef<PhoneNumber['code'] | null>(null)
-  const phoneNumberDisplayFormatRef = useRef<string>('')
 
   useEffect(() => {
-    phoneNumberRef.current = +localStorage.getItem(LOCAL_STORAGE_KEYS.phoneNumber)!
-  }, [])
-  useEffect(() => {
-    countryCodeRef.current = +localStorage.getItem(LOCAL_STORAGE_KEYS.countryCode)!
-  }, [])
-  useEffect(() => {
-    phoneNumberDisplayFormatRef.current = `+${countryCodeRef.current} ${phoneNumberRef.current}`
+    const phoneNumber = +localStorage.getItem(LOCAL_STORAGE_KEYS.phoneNumber)!
+    const countryCode = +localStorage.getItem(LOCAL_STORAGE_KEYS.countryCode)!
+    phoneNumberRef.current = phoneNumber
+    countryCodeRef.current = countryCode
+    // Hydrate client-only values after mount; localStorage is not available during SSR.
+    /* eslint-disable react-hooks/set-state-in-effect -- localStorage snapshot on mount */
+    setPhoneNumberDisplayFormat(`+${countryCode} ${phoneNumber}`)
+    setCountDownDeadline(Date.now() + COUNTDOWN_DURATION)
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [])
 
   const validatePhoneNumberValues = () => {
@@ -66,8 +69,13 @@ const OTPCodeInput: React.FC = () => {
     try {
       setCode(value)
 
+      const accountType =
+        (localStorage.getItem(LOCAL_STORAGE_KEYS.accountType) as typeof USER_TYPES.consumer | null) ??
+        USER_TYPES.consumer
+
       await validatePhoneNumberCode({
         otp: +value,
+        userType: accountType,
         phone: {
           number: phoneNumberRef.current!,
           code: countryCodeRef.current!,
@@ -122,7 +130,7 @@ const OTPCodeInput: React.FC = () => {
       <Typography.Paragraph type='secondary' className='text-center mb-0!'>
         Please confirm code sent to your phone number
         <br />
-        <strong>{phoneNumberDisplayFormatRef.current}</strong>
+        <strong>{phoneNumberDisplayFormat}</strong>
       </Typography.Paragraph>
       <Flex vertical align='center' justify='center' gap={8}>
         <Form.Item rules={OTPCodeValidationRules}>

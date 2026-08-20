@@ -4,19 +4,19 @@ import { ProviderProfileFormValues } from '@interfaces/providers'
 export const processProviderProfileFormToPostPayload = (
   formValues: ProviderProfileFormValues
 ): PutProviderProfileAPI['payload'] => {
-  console.log({ formValues })
+  const processedPayload: Record<string, unknown> = {}
 
-  const processedPayload: ReturnType<typeof processProviderProfileFormToPostPayload> = {}
-  if (formValues.firstName) processedPayload.LastName = formValues.lastName
-  if (formValues.lastName) processedPayload.LastName = formValues.lastName
-  if (formValues.categoryIds) processedPayload.CategoryIds = formValues.categoryIds
-  if (formValues.address) processedPayload.Address = formValues.address
-  if (formValues.locationURL) processedPayload.LocationURL = formValues.locationURL
-  if (formValues.description) processedPayload.Description = formValues.description
-  if (formValues.email) processedPayload.Email = formValues.email
-  if (formValues.image) processedPayload.Image = formValues.image
-  if (formValues.gallery) processedPayload.Gallery = formValues.gallery
-  if (formValues.organizationId) processedPayload.OrganizationId = formValues.organizationId
-  if (formValues.weekSchedule) processedPayload.WeekSchedule = formValues.weekSchedule
-  return processedPayload
+  if (formValues.firstName) processedPayload.firstName = formValues.firstName
+  if (formValues.lastName) processedPayload.lastName = formValues.lastName
+  if (formValues.categoryIds) processedPayload.categoryIds = JSON.stringify(formValues.categoryIds)
+  if (formValues.address) processedPayload.address = formValues.address
+  if (formValues.locationURL) processedPayload.locationURL = formValues.locationURL
+  if (formValues.description) processedPayload.description = formValues.description
+  if (formValues.email) processedPayload.email = formValues.email
+  if (formValues.image) processedPayload.image = formValues.image
+  if (formValues.gallery) processedPayload.gallery = formValues.gallery
+  if (formValues.organizationId) processedPayload.organizationId = formValues.organizationId
+  if (formValues.weekSchedule) processedPayload.weekSchedule = JSON.stringify(formValues.weekSchedule)
+
+  return processedPayload as PutProviderProfileAPI['payload']
 }
