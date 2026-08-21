@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { EditOutlined, MinusCircleFilled, PlusOutlined } from '@ant-design/icons'
-import { Checkbox, CheckboxProps, Col, Flex, Modal, ModalProps, Row, TimePicker, Typography } from 'antd'
+import { Checkbox, CheckboxProps, Col, Flex, Row, TimePicker, Typography } from 'antd'
 import { RangePickerProps } from 'antd/es/date-picker'
 import { Rule } from 'antd/es/form'
 import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
@@ -13,6 +13,7 @@ import { SCHEDULE_DISPLAY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '
 import { splitScheduleIntoParts } from '@helpers/schedule'
 import AppButton from '@components/ui/AppButton'
 import AppFormItem from '@components/ui/AppFormItem'
+import AppSheet from '@components/ui/AppSheet'
 import { WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS } from './constants'
 
 type Props = AppFormProps<ProviderProfileFormValues>
@@ -50,7 +51,7 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
     })
   }
 
-  const onScheduleChangesConfirm: ModalProps['onOk'] = async () => {
+  const onScheduleChangesConfirm = async () => {
     const weekSchedule: WeekSchedule = { ...formik.values.weekSchedule }
     Object.keys(selectedDays).forEach((day) => {
       const currentDay = day as WeekDay
@@ -138,14 +139,83 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
     return result
   }, [hasFilledRanges])
 
+  const scheduleEditor = (
+    <Flex vertical gap={8}>
+      <Typography.Paragraph>
+        for{' '}
+        {selectedDaysList.map((day, i, arr) => (
+          <Typography.Text className='capitalize' key={day}>
+            {day}
+            {i < arr.length - 1 ? ', ' : ''}
+          </Typography.Text>
+        ))}
+      </Typography.Paragraph>
+      <TimePicker.RangePicker
+        size='large'
+        className='grow'
+        use12Hours
+        showNow
+        value={tempAvailability}
+        format={SCHEDULE_DISPLAY_FORMAT}
+        onChange={onAvailabilityChange}
+        minuteStep={5}
+        separator={'-'}
+        name='weekSchedule'
+      />
+      {tempBreaks.length > 0 && (
+        <Typography.Paragraph className='mt-4 mb-0 text-lg font-semibold'>Breaks</Typography.Paragraph>
+      )}
+      {tempBreaks.map((range, index) => {
+        return (
+          <Flex gap={8} key={index} align='center'>
+            <TimePicker.RangePicker
+              size='large'
+              className='grow'
+              use12Hours
+              showNow
+              value={range}
+              format={SCHEDULE_DISPLAY_FORMAT}
+              onChange={(dates, dateStrings) => onRangeChange(dates, dateStrings, index)}
+              minuteStep={5}
+              separator={'-'}
+            />
+            <AppButton
+              danger
+              icon={<MinusCircleFilled />}
+              type='text'
+              aria-label={`Remove break ${index + 1}`}
+              className='min-h-11 min-w-11'
+              onClick={() => onRemoveRangeClick(index)}
+            />
+          </Flex>
+        )
+      })}
+      <AppButton
+        icon={<PlusOutlined />}
+        type='link'
+        onClick={onAddRangeClick}
+        className='mt-0 w-fit text-left text-xs'
+        size='small'
+      >
+        Add break
+      </AppButton>
+      <Flex gap={8} justify='end' className='mt-4'>
+        <AppButton onClick={() => setIsEditScheduleModalOpened(false)}>Cancel</AppButton>
+        <AppButton type='primary' disabled={!areChangesComplete} onClick={onScheduleChangesConfirm}>
+          Confirm
+        </AppButton>
+      </Flex>
+    </Flex>
+  )
+
   return (
     <AppFormItem name='weekSchedule' label='Week Schedule' rules={rules}>
       <Flex vertical gap={16}>
-        <Row>
+        <Row gutter={[8, 8]}>
           {WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS.map(({ label, childFieldNames }) => {
             const checked = childFieldNames.every((day) => selectedDays[day])
             return (
-              <Col key={label} span={8} className='my-1'>
+              <Col key={label} xs={12} sm={8} lg={6}>
                 <Checkbox checked={checked} value={label} onChange={onAdditionalOptionSelected} className='capitalize'>
                   {label}
                 </Checkbox>
@@ -154,9 +224,9 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
           })}
           {WEEK_DAYS_LIST.map((day) => {
             return (
-              <Col key={day} span={8} className='my-1'>
+              <Col key={day} xs={12} sm={8} lg={6}>
                 <Checkbox checked={selectedDays[day]} value={day} onChange={onDaySelected} className='capitalize'>
-                  {day} {selectedDays[day]}
+                  {day}
                 </Checkbox>
               </Col>
             )
@@ -169,75 +239,13 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
           </AppButton>
         )}
 
-        <Modal
+        <AppSheet
           title='Rescheduling'
           open={!!isEditScheduleModalOpened}
-          onOk={onScheduleChangesConfirm}
-          okButtonProps={{ disabled: !areChangesComplete }}
-          onCancel={() => setIsEditScheduleModalOpened(false)}
-          okText='Confirm'
-          cancelText='Cancel'
-          centered
+          onClose={() => setIsEditScheduleModalOpened(false)}
         >
-          <Flex vertical gap={8}>
-            <Typography.Paragraph>
-              for{' '}
-              {selectedDaysList.map((day, i, arr) => (
-                <Typography.Text className='capitalize' key={day}>
-                  {day}
-                  {i < arr.length - 1 ? ', ' : ''}
-                </Typography.Text>
-              ))}
-            </Typography.Paragraph>
-            <TimePicker.RangePicker
-              size='large'
-              className='grow'
-              use12Hours
-              showNow
-              value={tempAvailability}
-              format={SCHEDULE_DISPLAY_FORMAT}
-              onChange={onAvailabilityChange}
-              minuteStep={5}
-              separator={'-'}
-              name='weekSchedule'
-            />
-            {tempBreaks.length > 0 && (
-              <Typography.Paragraph className='text-lg font-semibold mt-4 mb-0!'>Breaks</Typography.Paragraph>
-            )}
-            {tempBreaks.map((range, index) => {
-              return (
-                <Flex gap={8} key={index}>
-                  <TimePicker.RangePicker
-                    size='large'
-                    className='grow'
-                    use12Hours
-                    showNow
-                    value={range}
-                    format={SCHEDULE_DISPLAY_FORMAT}
-                    onChange={(dates, dateStrings) => onRangeChange(dates, dateStrings, index)}
-                    minuteStep={5}
-                    separator={'-'}
-                  />
-                  <AppButton
-                    danger
-                    icon={<MinusCircleFilled />}
-                    type='text'
-                    onClick={() => onRemoveRangeClick(index)}
-                  />
-                </Flex>
-              )
-            })}
-            <AppButton
-              icon={<PlusOutlined />}
-              type='link'
-              onClick={onAddRangeClick}
-              className='text-left! w-fit text-xs! mt-0!'
-              size='small'
-            >
-              Add break
-            </AppButton>
-          </Flex>
-        </Modal>
+          {scheduleEditor}
+        </AppSheet>
 
         {hasFilledRanges && (
           <Flex vertical gap={8}>
@@ -249,8 +257,8 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
 
                 return (
                   <Flex key={day} gap={4}>
-                    <Typography.Text className=' font-semibold capitalize'>{day}: </Typography.Text>
-                    <Typography.Text>
+                    <Typography.Text className='font-semibold capitalize tnum'>{day}: </Typography.Text>
+                    <Typography.Text className='tnum'>
                       {splittedSchedule.map((range) => `${range.start} - ${range.end}`).join(' | ') || '-'}
                     </Typography.Text>
                   </Flex>

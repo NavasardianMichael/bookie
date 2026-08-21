@@ -48,7 +48,7 @@ const ContactActions: FC<ContactActionsProps> = ({ phone, address, email, websit
           {...(key === 'website' || key === 'directions'
             ? { target: '_blank', rel: 'noopener noreferrer' }
             : undefined)}
-          className='border-brand-border text-brand-text hover:border-brand hover:bg-brand-50 flex min-h-11 flex-1 basis-24 items-center justify-center gap-2 rounded-brand border px-3 text-body-sm font-medium no-underline transition-colors'
+          className='border-brand-border text-brand-text hover:border-brand hover:bg-brand-50 active:bg-brand-100 flex min-h-11 flex-1 basis-24 items-center justify-center gap-2 rounded-brand border px-3 text-body-sm font-medium no-underline transition-colors'
         >
           <span aria-hidden='true'>{icon}</span>
           {label}

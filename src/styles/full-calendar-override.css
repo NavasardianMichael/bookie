@@ -48,6 +48,10 @@
   font-weight: 600;
 }
 
+.fc .fc-daygrid-event.available-slot {
+  font-weight: 600;
+}
+
 /* The default toolbar lays out as a single row and overflows below ~420px. */
 @media (width < 480px) {
   .fc .fc-header-toolbar.fc-toolbar {

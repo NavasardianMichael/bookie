@@ -57,7 +57,7 @@ const EntityCard: FC<EntityCardProps> = ({
     <article
       className={cn(
         'group border-brand-border bg-surface relative flex h-full flex-col overflow-hidden rounded-brand border transition-shadow',
-        href && 'hover:shadow-md focus-within:shadow-md',
+        href && 'hover:shadow-md focus-within:shadow-md active:scale-[0.99] active:shadow-sm',
         className
       )}
     >

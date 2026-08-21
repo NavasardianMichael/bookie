@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { Flex, Form, FormInstance, Input, InputNumber, Select } from 'antd'
+import { Col, Flex, Form, FormInstance, Input, InputNumber, Row, Select } from 'antd'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
@@ -33,7 +33,7 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
     <Form
       form={form}
       requiredMark={true}
-      className='w-full flex flex-col gap-4 mt-4!'
+      className='mt-4 flex w-full flex-col gap-4'
       layout='vertical'
       validateTrigger='onSubmit'
       onFinish={formik.handleSubmit}
@@ -45,24 +45,9 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
           value={formik.values.name}
           onChange={formik.handleChange}
           disabled={formik.isSubmitting}
+          autoComplete='off'
+          enterKeyHint='next'
         />
-      </AppFormItem>
-      <AppFormItem name='duration' label='Duration' rules={requiredRuleSet}>
-        {/* <InputNumber
-          controls
-          size='large'
-          name='duration'
-          className='w-full'
-          placeholder='Select a duration'
-          value={formik.values.duration}
-          onBlur={onDurationBlur}
-          disabled={formik.isSubmitting}
-          min={5}
-          step={5}
-          max={1440}
-          addonAfter='minutes'
-        /> */}
-        <ProviderServiceFormDuration formik={formik} form={form} />
       </AppFormItem>
 
       <AppFormItem name='description' label='Description' rules={textareaMaxCharsCountRuleSet}>
@@ -74,31 +59,52 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
           autoSize={{ minRows: 3, maxRows: 5 }}
         />
       </AppFormItem>
-      <AppFormItem name='price' label='Price' rules={inputNumberPositiveRuleSet}>
-        <InputNumber
-          value={formik.values.price}
-          size='large'
-          onChange={formik.handleChange}
-          className='w-full!'
-          disabled={formik.isSubmitting}
-        />
-      </AppFormItem>
-      <AppFormItem name='currency' label='Currency'>
-        <Select
-          value={formik.values.currency}
-          size='large'
-          onChange={formik.handleChange}
-          options={PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE}
-          disabled={formik.isSubmitting}
-        />
-      </AppFormItem>
-      <AppFormItem name='categoryId' label='Category'>
-        <ProviderServiceFormCategory form={form} formik={formik} />
-      </AppFormItem>
+
+      <Row gutter={[16, 0]}>
+        <Col xs={24} sm={12}>
+          <AppFormItem name='duration' label='Duration' rules={requiredRuleSet}>
+            <ProviderServiceFormDuration formik={formik} form={form} />
+          </AppFormItem>
+        </Col>
+        <Col xs={24} sm={12}>
+          <AppFormItem name='categoryId' label='Category'>
+            <ProviderServiceFormCategory form={form} formik={formik} />
+          </AppFormItem>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 0]}>
+        <Col xs={24} sm={12}>
+          <AppFormItem name='price' label='Price' rules={inputNumberPositiveRuleSet}>
+            <InputNumber
+              value={formik.values.price}
+              size='large'
+              onChange={(value) => formik.setFieldValue('price', value)}
+              className='w-full'
+              disabled={formik.isSubmitting}
+              inputMode='decimal'
+            />
+          </AppFormItem>
+        </Col>
+        <Col xs={24} sm={12}>
+          <AppFormItem name='currency' label='Currency'>
+            <Select
+              value={formik.values.currency}
+              size='large'
+              onChange={(value) => formik.setFieldValue('currency', value)}
+              options={PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE}
+              disabled={formik.isSubmitting}
+              className='w-full'
+            />
+          </AppFormItem>
+        </Col>
+      </Row>
+
       <AppFormItem name='image' label='Image'>
         <ProviderServiceFormImage formik={formik} />
       </AppFormItem>
-      <Flex justify='end' gap={8} className='mt-4!'>
+
+      <Flex justify='end' gap={8} className='mt-4'>
         <AppButton
           variant='solid'
           size='large'

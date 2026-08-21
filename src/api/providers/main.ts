@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
@@ -22,14 +23,15 @@ export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
   return processedResponse
 }
 
-export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) => {
+/** Dedupes generateMetadata + page fetches within a single request. */
+const fetchSingleProvider = cache(async (id: string) => {
   const { data } = await axiosInstance.get<APIResponse<GetSingleProviderAPI['response']>>(
-    `${ENDPOINTS.getSingleProvider}/${args.id}`
+    `${ENDPOINTS.getSingleProvider}/${id}`
   )
+  return processSingleProviderResponse(data)
+})
 
-  const processedResponse = processSingleProviderResponse(data)
-  return processedResponse
-}
+export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) => fetchSingleProvider(args.id)
 
 export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProviderProfileAPI['response']>>(

@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
@@ -10,13 +11,12 @@ export const getCategoriesListAPI: GetCategoriesListAPI['api'] = async () => {
   return processedResponse
 }
 
-export const getCategoryAPI: GetCategoryAPI['api'] = async (args) => {
-  console.log('Fetching category with ID:', `${ENDPOINTS.getCategory}/${args.id}`)
-
+/** Dedupes generateMetadata + page fetches within a single request. */
+const fetchCategory = cache(async (id: string) => {
   const { data } = await axiosInstance.get<APIResponse<GetCategoryAPI['response']>>(
-    `${ENDPOINTS.getCategory}/${args.id}`
+    `${ENDPOINTS.getCategory}/${id}`
   )
+  return processCategoryResponse(data)
+})
 
-  const processedResponse = processCategoryResponse(data)
-  return processedResponse
-}
+export const getCategoryAPI: GetCategoryAPI['api'] = async (args) => fetchCategory(args.id)

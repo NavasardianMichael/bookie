@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import axiosInstance from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
@@ -12,11 +13,12 @@ export const getOrganizationsListAPI: GetOrganizationsListAPI['api'] = async () 
   return processedResponse
 }
 
-export const getOrganizationAPI: GetOrganizationAPI['api'] = async (args) => {
+/** Dedupes generateMetadata + page fetches within a single request. */
+const fetchOrganization = cache(async (id: string) => {
   const { data } = await axiosInstance.get<APIResponse<GetOrganizationAPI['response']>>(
-    `${ENDPOINTS.getOrganization}/${args.id}`
+    `${ENDPOINTS.getOrganization}/${id}`
   )
+  return processOrganizationResponse(data)
+})
 
-  const processedResponse = processOrganizationResponse(data)
-  return processedResponse
-}
+export const getOrganizationAPI: GetOrganizationAPI['api'] = async (args) => fetchOrganization(args.id)

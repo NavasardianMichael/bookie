@@ -7,12 +7,13 @@ type HeaderRoute = {
 }
 
 /**
- * `categories` and `contact` are intentionally omitted until those pages hold
- * real content — a nav link to a placeholder is worse than one link fewer.
+ * Nav destinations with real content. `contact` stays omitted until that page
+ * holds something worth linking to.
  */
 export const HEADER_ROUTES: HeaderRoute[] = [
   { name: ROUTE_KEYS.providers, label: 'Providers' },
   { name: ROUTE_KEYS.organizations, label: 'Organizations' },
+  { name: ROUTE_KEYS.categories, label: 'Categories' },
 ]
 
 /** Rendered as the header's primary call to action rather than a nav link. */

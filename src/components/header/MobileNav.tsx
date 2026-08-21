@@ -46,7 +46,7 @@ const MobileNav: FC<Props> = ({ isActive }) => {
         open={open}
         onClose={close}
         // Never eats the whole screen at 320px, never looks cramped on a tablet.
-        width='min(20rem, 85vw)'
+        size='min(20rem, 85vw)'
         rootClassName='md:hidden'
         styles={{ body: { padding: 12, overscrollBehavior: 'contain' } }}
       >

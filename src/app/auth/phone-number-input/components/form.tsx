@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
-import { Flex, Form, Select } from 'antd'
+import { useCallback } from 'react'
+import { Form, Select, Space } from 'antd'
 import { useFormik } from 'formik'
 import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useRouter } from 'next/navigation'
@@ -69,11 +69,7 @@ const SignOnForm: React.FC = () => {
     [formik]
   )
 
-  // Create placeholder text for the phone input
-  const placeholder = useMemo(() => {
-    if (!formik.values.code) return 'Enter Phone Number'
-    return `Enter number without +${getCountryCallingCode(formik.values.code)}`
-  }, [formik.values.code])
+  const placeholder = 'Phone number'
 
   return (
     <Form
@@ -86,21 +82,25 @@ const SignOnForm: React.FC = () => {
       onFinish={formik.handleSubmit}
     >
       <Form.Item required className='mb-1'>
-        <Flex>
+        <Space.Compact className='w-full'>
           <Form.Item<RegistrationFormValues>
             name='code'
             messageVariables={{ label: 'Country Code' }}
             rules={FORM_ITEM_REQUIRED_RULE_SET}
             validateTrigger={['onChange']}
-            className='mb-0! mr-0 w-[130px]'
+            className='mb-0 w-[7.5rem] shrink-0'
           >
             <Select
               value={formik.values.code}
               labelRender={(option) => option.label}
               onChange={handleCountryChange}
               options={countries}
-              className='custom-antd-select border-r-0! h-[56px]! bg-transparent! w-full!'
+              showSearch
+              optionFilterProp='label'
+              popupMatchSelectWidth={320}
               disabled={isPending}
+              size='large'
+              aria-label='Country code'
             />
           </Form.Item>
 
@@ -108,7 +108,7 @@ const SignOnForm: React.FC = () => {
             name='number'
             messageVariables={{ label: 'phone number' }}
             rules={[...FORM_ITEM_REQUIRED_RULE_SET, { validator: validatePhoneNumber }]}
-            className='mb-0! grow'
+            className='mb-0 grow'
           >
             <AppInput
               type='tel'
@@ -117,13 +117,15 @@ const SignOnForm: React.FC = () => {
               onChange={handlePhoneNumberChange}
               disabled={isPending}
               placeholder={placeholder}
-              className='rounded-l-none! h-[56px] bg-transparent!'
+              inputMode='numeric'
+              autoComplete='tel-national'
+              enterKeyHint='send'
             />
           </Form.Item>
-        </Flex>
+        </Space.Compact>
       </Form.Item>
 
-      <AppButton type='primary' variant='solid' htmlType='submit' className='w-full h-[56px]!' loading={isPending}>
+      <AppButton type='primary' variant='solid' htmlType='submit' className='w-full' loading={isPending}>
         Send Verification Code
       </AppButton>
     </Form>

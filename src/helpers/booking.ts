@@ -89,3 +89,29 @@ export const getSlotsForDate = ({
 
   return slots
 }
+
+/** Inclusive of `start`, exclusive of `end` — matches FullCalendar's visible range. */
+export const getSlotsForDateRange = ({
+  weekSchedule,
+  start,
+  end,
+  durationMinutes,
+  now = new Date(),
+}: {
+  weekSchedule?: WeekSchedule
+  start: Date
+  end: Date
+  durationMinutes: number
+  now?: Date
+}): BookingSlot[] => {
+  const slots: BookingSlot[] = []
+  let cursor = dayjs(start).startOf('day')
+  const last = dayjs(end)
+
+  while (cursor.isBefore(last)) {
+    slots.push(...getSlotsForDate({ weekSchedule, date: cursor.toDate(), durationMinutes, now }))
+    cursor = cursor.add(1, 'day')
+  }
+
+  return slots
+}

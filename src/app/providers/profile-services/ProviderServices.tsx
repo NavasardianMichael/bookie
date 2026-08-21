@@ -11,6 +11,8 @@ import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/service
 import { processProviderServiceFormToPostPayload } from '@components/providerServiceForm/processors'
 import ProviderServiceForm from '@components/providerServiceForm/ProviderServiceForm'
 import AppButton from '@components/ui/AppButton'
+import AppSheet from '@components/ui/AppSheet'
+import EmptyState from '@components/ui/EmptyState'
 
 type Props = {
   initialValues?: ProviderServiceFormValues
@@ -91,69 +93,77 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     [byId, form, formik, initialValues]
   )
 
+  const addServiceButton = (
+    <AppButton icon={<PlusOutlined />} className='w-full' onClick={onEditServiceClick} data-provider-id={providerId}>
+      Add service
+    </AppButton>
+  )
+
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-      <Flex vertical gap='middle' className='w-full'>
-        {allIds.map((serviceId) => {
-          const service = byId[serviceId]
-          return (
-            <Card
-              key={service.id}
-              className='w-full'
-              actions={[
-                <Button
-                  type='text'
-                  icon={<EditOutlined />}
-                  key='edit'
-                  onClick={onEditServiceClick}
-                  data-provider-id={providerId}
-                  data-service-id={serviceId}
-                />,
-                <Button
-                  type='text'
-                  icon={<DeleteOutlined />}
-                  key='delete'
-                  danger
-                  onClick={onDeleteServiceClick}
-                  data-provider-id={providerId}
-                  data-service-id={serviceId}
-                />,
-              ]}
-            >
-              <Card.Meta
-                avatar={service.image ? <Avatar src={service.image} alt={service.name} /> : undefined}
-                title={service.name}
-                description={
-                  <>
-                    <p>{service.description}</p>
-                    <p>
-                      {service.price} {service.currency}
-                    </p>
-                  </>
-                }
-              />
-            </Card>
-          )
-        })}
-      </Flex>
-      <AppButton icon={<PlusOutlined />} className='w-full' onClick={onEditServiceClick} data-provider-id={providerId}>
-        Add service
-      </AppButton>
+      {allIds.length ? (
+        <Flex vertical gap='middle' className='w-full'>
+          {allIds.map((serviceId) => {
+            const service = byId[serviceId]
+            return (
+              <Card
+                key={service.id}
+                className='w-full'
+                actions={[
+                  <Button
+                    type='text'
+                    icon={<EditOutlined />}
+                    key='edit'
+                    aria-label={`Edit ${service.name}`}
+                    className='min-h-11 min-w-11'
+                    onClick={onEditServiceClick}
+                    data-provider-id={providerId}
+                    data-service-id={serviceId}
+                  />,
+                  <Button
+                    type='text'
+                    icon={<DeleteOutlined />}
+                    key='delete'
+                    danger
+                    aria-label={`Delete ${service.name}`}
+                    className='min-h-11 min-w-11'
+                    onClick={onDeleteServiceClick}
+                    data-provider-id={providerId}
+                    data-service-id={serviceId}
+                  />,
+                ]}
+              >
+                <Card.Meta
+                  avatar={service.image ? <Avatar src={service.image} alt={service.name} /> : undefined}
+                  title={service.name}
+                  description={
+                    <>
+                      <p>{service.description}</p>
+                      <p>
+                        {service.price} {service.currency}
+                      </p>
+                    </>
+                  }
+                />
+              </Card>
+            )
+          })}
+        </Flex>
+      ) : (
+        <EmptyState
+          className='w-full'
+          title='No services yet'
+          description='Add the services clients can book with you.'
+          action={addServiceButton}
+        />
+      )}
 
-      <Modal
-        title='Service Configuration'
-        open={editServiceModalOpened}
-        onCancel={closeEditServiceModal}
-        okText='Save'
-        cancelText='Close'
-        okButtonProps={{ className: 'hidden!' }}
-        cancelButtonProps={{ className: 'hidden!' }}
-        className='p-2! max-h-[97vh]! overflow-auto'
-        wrapClassName='m-auto'
-        centered
-      >
+      {!!allIds.length && addServiceButton}
+
+      <AppSheet title='Service Configuration' open={editServiceModalOpened} onClose={closeEditServiceModal}>
         <ProviderServiceForm form={form} formik={formik} closeModal={closeEditServiceModal} />
-      </Modal>
+      </AppSheet>
+
       <Modal
         title='Delete service'
         open={deleteServiceModalOpened}

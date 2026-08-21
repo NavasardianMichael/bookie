@@ -1,7 +1,6 @@
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import type { Metadata, Viewport } from 'next'
 import App from '@components/App'
-import '@styles/antd-override.css'
 import '@styles/globals.css'
 import { fontSans } from '@styles/fonts'
 import { BRAND } from '@styles/tokens'

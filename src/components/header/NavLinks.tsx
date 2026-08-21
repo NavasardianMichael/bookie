@@ -39,7 +39,9 @@ const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
             className={cn(
               'flex min-h-11 items-center rounded-brand px-3 text-body-sm font-medium transition-colors',
               isVertical && 'min-h-12',
-              active ? 'bg-brand-50 text-brand' : 'text-brand-muted hover:bg-surface-sunken hover:text-brand-text'
+              active
+                ? 'bg-brand-50 text-brand active:bg-brand-100'
+                : 'text-brand-muted hover:bg-surface-sunken hover:text-brand-text active:bg-surface-sunken'
             )}
           >
             {label}
