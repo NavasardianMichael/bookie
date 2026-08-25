@@ -3,6 +3,8 @@ import { ProviderCard } from '@app/providers/ProviderCard'
 import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
+import EmptyState from '@components/ui/EmptyState'
+import { PageHeader, PageShell, ResponsiveGrid, Section } from '@components/ui/layout'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,37 +36,45 @@ const Category = async ({ params }: Props) => {
     id: categoryId,
   })
 
+  const isEmpty = !category.organizations.length && !category.providers.length
+
   return (
-    <article>
-      <div className='flex flex-col gap-6 grow'>
-        <div>
-          <h1 className='text-2xl mb-2 font-bold'>{category.name}</h1>
-        </div>
+    <PageShell as='article' className='flex flex-col gap-8'>
+      <PageHeader title={category.name} />
 
-        <hr />
+      {isEmpty && (
+        <EmptyState
+          title='Nothing here yet'
+          description={`No providers or organizations are listed under ${category.name} so far.`}
+        />
+      )}
 
-        {!!category.organizations.length && (
-          <>
-            <div className='flex flex-col gap-6'>
-              <h2 className='text-2xl'>Organizations</h2>
-              {category.organizations.map((organization) => {
-                return <OrganizationCard key={organization.id} data={organization} />
-              })}
-            </div>
-            <hr />
-          </>
-        )}
+      {/* The same cards render through the same grid as the list pages — they used
+          to stack full-width here and sit at 1/8 width on /providers. */}
+      {!!category.organizations.length && (
+        <Section title='Organizations' count={category.organizations.length}>
+          <ResponsiveGrid as='ul'>
+            {category.organizations.map((organization) => (
+              <li key={organization.id}>
+                <OrganizationCard data={organization} hideCategories />
+              </li>
+            ))}
+          </ResponsiveGrid>
+        </Section>
+      )}
 
-        {!!category.providers.length && (
-          <div className='flex flex-col gap-6'>
-            <h2 className='text-2xl'>Providers</h2>
-            {category.providers.map((provider) => {
-              return <ProviderCard key={provider.id} data={provider} />
-            })}
-          </div>
-        )}
-      </div>
-    </article>
+      {!!category.providers.length && (
+        <Section title='Providers' count={category.providers.length}>
+          <ResponsiveGrid as='ul'>
+            {category.providers.map((provider) => (
+              <li key={provider.id}>
+                <ProviderCard data={provider} />
+              </li>
+            ))}
+          </ResponsiveGrid>
+        </Section>
+      )}
+    </PageShell>
   )
 }
 

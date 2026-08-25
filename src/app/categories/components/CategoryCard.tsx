@@ -1,30 +1,26 @@
-'use client'
-
-import { FC, MouseEventHandler } from 'react'
-import { Card, Typography } from 'antd'
+import { FC } from 'react'
 import { BasicCategory } from '@store/categories/single/types'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/AppLink'
-import { CategoryCardDetails } from './CategoryCardDetails'
+import EntityCard from '@components/ui/EntityCard'
 
 type Props = {
   data: BasicCategory
-  onEntityClick: MouseEventHandler<HTMLButtonElement>
 }
 
-export const CategoryCard: FC<Props> = ({ data, onEntityClick }) => {
+export const CategoryCard: FC<Props> = ({ data }) => {
+  const counts = [
+    data.providers.length ? `${data.providers.length} providers` : null,
+    data.organizations.length ? `${data.organizations.length} organizations` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+
   return (
-    <Card>
-      <AppLink href={`${ROUTES.categories}/${data.id}`}>
-        <Card.Meta
-          title={
-            <Typography.Title level={3} className='text-lg'>
-              {data.name}
-            </Typography.Title>
-          }
-          description={<CategoryCardDetails data={data} onEntityClick={onEntityClick} />}
-        />
-      </AppLink>
-    </Card>
+    <EntityCard
+      href={`${ROUTES.categories}/${data.id}`}
+      title={data.name}
+      aspect='16/9'
+      footer={counts || 'Nothing listed yet'}
+    />
   )
 }

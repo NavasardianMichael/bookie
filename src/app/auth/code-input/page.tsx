@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import AppBox from '@components/ui/AppBox'
+import AppParagraph from '@components/ui/AppParagraph'
 import AppTitle from '@components/ui/AppTitle'
 import OTPCodeInput from './OTPCodeInput'
 
@@ -9,10 +10,13 @@ export const metadata: Metadata = {
 }
 
 const CodeInput = () => (
-  <AppBox className='w-full flex flex-col justify-center items-center gap-4'>
-    <AppTitle level={'h2'} className='text-center mb-0'>
-      6-digit code
-    </AppTitle>
+  <AppBox className='flex w-full flex-col gap-6'>
+    <AppBox className='flex flex-col gap-1 text-center'>
+      <AppTitle level='h1' className='text-h1'>
+        6-digit code
+      </AppTitle>
+      <AppParagraph className='text-body-sm'>Enter the code we just sent you.</AppParagraph>
+    </AppBox>
     <OTPCodeInput />
   </AppBox>
 )

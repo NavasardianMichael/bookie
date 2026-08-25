@@ -1,10 +1,17 @@
+/* Colocated with src/app/providers/[providerId]/components/Calendar.tsx — the only
+   consumer. Brand values come from antd's emitted CSS variables so this file
+   holds no hex of its own. */
+
 .fc {
-  --fc-button-bg-color: #18294d;
-  --fc-button-border-color: #18294d;
-  --fc-button-hover-bg-color: #18294d;
-  --fc-button-hover-border-color: #18294d;
-  --fc-button-active-bg-color: #18294d;
-  --fc-button-active-border-color: #18294d;
+  --fc-button-bg-color: var(--ant-color-primary);
+  --fc-button-border-color: var(--ant-color-primary);
+  --fc-button-hover-bg-color: var(--ant-color-primary-hover);
+  --fc-button-hover-border-color: var(--ant-color-primary-hover);
+  --fc-button-active-bg-color: var(--ant-color-primary-active);
+  --fc-button-active-border-color: var(--ant-color-primary-active);
+  --fc-border-color: var(--ant-color-border-secondary);
+  --fc-page-bg-color: var(--ant-color-bg-container);
+  --fc-today-bg-color: var(--color-brand-50);
 }
 
 .fc .fc-header-toolbar button.fc-button-primary {
@@ -24,10 +31,36 @@
   cursor: pointer;
 }
 
+/* Slot rows are shorter on phones so a full working day fits without the grid
+   becoming its own scroll container. */
 .fc .fc-timegrid-slot {
-  height: 40px;
+  height: 2.25rem;
+}
+
+@media (width >= 768px) {
+  .fc .fc-timegrid-slot {
+    height: 2.5rem;
+  }
 }
 
 .fc .fc-toolbar-title {
-  font-size: 1.2em;
+  font-size: var(--text-h3);
+  font-weight: 600;
+}
+
+.fc .fc-daygrid-event.available-slot {
+  font-weight: 600;
+}
+
+/* The default toolbar lays out as a single row and overflows below ~420px. */
+@media (width < 480px) {
+  .fc .fc-header-toolbar.fc-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+  }
 }

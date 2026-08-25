@@ -1,5 +1,6 @@
 import { Metadata, ResolvingMetadata } from 'next'
 import { BasicConsumer as BasicConsumerType } from '@store/consumers/profile/types'
+import { PageHeader, PageShell } from '@components/ui/layout'
 
 type Props = {
   params: Promise<{
@@ -19,10 +20,11 @@ export const generateMetadata = async ({ params }: Props, _parent: ResolvingMeta
 
 const Consumer = async ({ params }: Props) => {
   const { consumerId } = await params
+
   return (
-    <article>
-      <header>Id fo the Consumer is: {consumerId}</header>
-    </article>
+    <PageShell as='article' width='prose'>
+      <PageHeader title='Consumer' subtitle={`Id: ${consumerId}`} />
+    </PageShell>
   )
 }
 

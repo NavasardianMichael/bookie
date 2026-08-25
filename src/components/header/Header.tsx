@@ -1,102 +1,49 @@
-import { useCallback, useEffect, useRef } from 'react'
+'use client'
+
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-import { AppRoutePath } from '@interfaces/routes'
-import { HEADER_ROUTES, HEADER_UTILS_BY_ROUTE } from '@constants/header'
-import { ROUTE_KEYS_BY_VALUES, ROUTES } from '@constants/routes'
+import { useHeaderConfig } from '@hooks/useHeaderConfig'
+import { HEADER_CTA } from '@constants/header'
+import { ROUTES } from '@constants/routes'
+import AppButton from '@components/ui/AppButton'
+import AppLink from '@components/ui/AppLink'
+import Container from '@components/ui/layout/Container'
 import { BackHistoryBtn } from './BackHistoryBtn'
-import AppLink from '../ui/AppLink'
+import MobileNav from './MobileNav'
+import NavLinks from './NavLinks'
 
 export const Header = () => {
-  const pathName = usePathname() as AppRoutePath
-  const key = ROUTE_KEYS_BY_VALUES[pathName!]
-  const headerUtils = HEADER_UTILS_BY_ROUTE[key!]
-  const navToggleRef = useRef<HTMLInputElement>(null)
-  const mobileNavRef = useRef<HTMLElement>(null)
-  const pathname = usePathname()
-
-  const closeMobileNav = useCallback(() => {
-    if (!navToggleRef.current) return
-    navToggleRef.current.checked = false
-  }, [])
-
-  // Handle outside click to close mobile nav
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        navToggleRef.current?.checked &&
-        mobileNavRef.current &&
-        !mobileNavRef.current.contains(event.target as Node) &&
-        !(event.target as Element).closest('label[for="nav-toggle"]')
-      ) {
-        closeMobileNav()
-      }
-    }
-
-    document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
-  }, [closeMobileNav])
-
-  useEffect(() => {
-    closeMobileNav()
-  }, [pathname, closeMobileNav])
+  const { showLogo, showBack, showNav, backFallback, isActive } = useHeaderConfig()
 
   return (
-    <>
-      <input type='checkbox' id='nav-toggle' className='hidden peer' ref={navToggleRef} />
-      <header className='flex items-center p-4 gap-4 relative z-20 dark:bg-gray-800'>
-        {headerUtils?.logo && (
-          <AppLink href={ROUTES.home}>
-            <Image src='/logo.svg' alt='Bookie logo' width={32} height={32} priority />
+    // Sticky is only possible now that the shell scrolls the document rather than
+    // nesting overflow-auto containers. --header-h must match h-14.
+    <header className='border-brand-border-subtle bg-surface/85 sticky top-0 z-20 border-b backdrop-blur-md app-safe-t'>
+      <Container className='flex h-header items-center gap-2'>
+        {showBack && <BackHistoryBtn fallback={backFallback} />}
+
+        {showLogo && (
+          <AppLink href={ROUTES.home} className='flex items-center gap-2 no-underline' aria-label='Bookie home'>
+            <Image src='/logo.svg' alt='' width={28} height={28} priority />
+            <span className='text-h3 text-brand-text font-bold'>Bookie</span>
           </AppLink>
         )}
 
-        {headerUtils?.arrow !== false && <BackHistoryBtn />}
-
-        {/* Desktop Navigation */}
-        <nav className='hidden md:flex gap-4 ml-auto'>
-          {HEADER_ROUTES.map(({ label, name }) => {
-            const route = ROUTES[name!]
-
-            return (
-              <AppLink key={route} href={route} className='capitalize hover:text-blue-600 transition-colors'>
-                {label}
+        {showNav && (
+          <>
+            <div className='ml-auto hidden items-center gap-2 md:flex'>
+              <NavLinks orientation='horizontal' isActive={isActive} />
+              <AppLink href={ROUTES.accountTypeSelection} className='no-underline'>
+                <AppButton type='primary' size='middle'>
+                  {HEADER_CTA.label}
+                </AppButton>
               </AppLink>
-            )
-          })}
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <label htmlFor='nav-toggle' className='md:hidden ml-auto cursor-pointer'>
-          <span className='sr-only'>Open mobile navigation</span>
-          <div className='w-[20px] h-[20px] relative flex flex-col justify-between'>
-            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:rotate-45' />
-            <span className='w-full h-[2px] bg-current peer-checked:opacity-0 transition-opacity' />
-            <span className='w-full h-[2px] bg-current transform transition-transform origin-right peer-checked:-rotate-45' />
-          </div>
-        </label>
-      </header>
-
-      {/* Mobile Menu Overlay */}
-      <div className='fixed inset-0 bg-black/50 opacity-0 peer-checked:opacity-100 pointer-events-none peer-checked:pointer-events-auto transition-opacity md:hidden z-10' />
-
-      {/* Mobile Navigation */}
-      <nav
-        ref={mobileNavRef}
-        className='fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg transform translate-x-full peer-checked:translate-x-0 transition-transform md:hidden z-10'
-      >
-        <div className='flex flex-col gap-4 p-4 mt-12'>
-          {HEADER_ROUTES.map(({ label, name }) => {
-            const route = ROUTES[name!]
-            return (
-              <AppLink key={route} href={route} className='capitalize hover:text-blue-600 transition-colors'>
-                {label}
-              </AppLink>
-            )
-          })}
-        </div>
-        {/* <CloseNavbar closeMobileNav={closeMobileNav} /> */}
-      </nav>
-    </>
+            </div>
+            <div className='ml-auto md:hidden'>
+              <MobileNav isActive={isActive} />
+            </div>
+          </>
+        )}
+      </Container>
+    </header>
   )
 }

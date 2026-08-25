@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckboxOptionType, Flex, Form, Radio, Typography } from 'antd'
+import { Flex, Form, Segmented, Typography } from 'antd'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { USER_TYPES } from '@constants/auth'
@@ -12,18 +12,10 @@ type AccountTypeFormValues = {
   accountType: (typeof ACCOUNT_TYPE_OPTIONS)[number]['value']
 }
 
-const ACCOUNT_TYPE_OPTIONS: CheckboxOptionType[] = [
-  {
-    label: 'Client',
-    value: USER_TYPES.consumer,
-    style: { flexGrow: 1, flexBasis: 1, textAlign: 'center' },
-  },
-  {
-    label: 'Service Provider',
-    value: USER_TYPES.provider,
-    style: { flexGrow: 1, flexBasis: 1, textAlign: 'center' },
-  },
-]
+const ACCOUNT_TYPE_OPTIONS = [
+  { label: 'Client', value: USER_TYPES.consumer },
+  { label: 'Service Provider', value: USER_TYPES.provider },
+] as const
 
 const ACCOUNT_TYPE_FORM_INITIAL_VALUES: AccountTypeFormValues = {
   accountType: ACCOUNT_TYPE_OPTIONS[1].value,
@@ -40,29 +32,28 @@ const AccountTypeButtons: React.FC = () => {
       push(ROUTES.phoneNumberInput)
     },
   })
-  console.log(formik.values.accountType)
 
   return (
-    <Form layout='vertical' onFinish={formik.handleSubmit} className='w-full h-full flex'>
-      <Flex vertical gap={8} justify='center'>
-        <Form.Item name='accountType' className='mb-0! w-full'>
-          <Radio.Group
-            options={ACCOUNT_TYPE_OPTIONS}
-            optionType='button'
-            buttonStyle='solid'
+    <Form layout='vertical' onFinish={formik.handleSubmit} className='flex h-full w-full'>
+      <Flex vertical gap={8} justify='center' className='w-full'>
+        <Form.Item name='accountType' className='mb-0 w-full'>
+          <Segmented
+            block
             size='large'
-            className='w-full flex! gap-2!'
-            defaultValue={ACCOUNT_TYPE_OPTIONS[1].value}
+            options={[...ACCOUNT_TYPE_OPTIONS]}
             value={formik.values.accountType}
-            onChange={(e) => formik.setFieldValue('accountType', e.target.value)}
+            onChange={(value) => formik.setFieldValue('accountType', value)}
           />
         </Form.Item>
-        {}
-        <Flex vertical className='w-full h-full grow!' justify='space-between'>
-          <img src='/logo.svg' alt='Bookie logo' className='h-[200px] md:h-[400px] object-cover m-auto' />
+        <Flex vertical className='h-full w-full grow' justify='space-between'>
+          <img
+            src='/logo.svg'
+            alt='Bookie logo'
+            className='mx-auto max-h-[40vh] w-auto object-contain'
+          />
 
           <Flex vertical gap={8} className='w-full'>
-            <Typography.Paragraph type='secondary' className='text-base! text-center mb-0!'>
+            <Typography.Paragraph type='secondary' className='mb-0 text-center text-base'>
               Quick access — sign in with your phone number to get started.
             </Typography.Paragraph>
 
@@ -70,7 +61,7 @@ const AccountTypeButtons: React.FC = () => {
               type='primary'
               htmlType='submit'
               size='large'
-              className='w-full py-6!'
+              className='w-full'
               disabled={!formik.values.accountType}
             >
               Sign on

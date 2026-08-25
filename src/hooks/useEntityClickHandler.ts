@@ -7,7 +7,7 @@ export const useEntityClickHandler = (onEntityClick?: Props) => {
   const { push } = useRouter()
   const onEntityClickHandler: MouseEventHandler<HTMLButtonElement> = useCallback(
     (event) => {
-      if (onEntityClick) return onEntityClick
+      if (onEntityClick) return onEntityClick(event)
       event.preventDefault()
       const { entityName, entityId } = event.currentTarget.dataset
       push(`/${entityName}/${entityId}`)

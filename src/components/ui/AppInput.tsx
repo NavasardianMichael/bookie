@@ -1,15 +1,11 @@
-import { FC, PropsWithChildren, useMemo } from 'react'
+import { FC, PropsWithChildren } from 'react'
 import { Input, InputProps } from 'antd'
-import { combineClassNames } from '@helpers/commons'
+import { cn } from '@helpers/cn'
 
 type Props = InputProps
 
 const AppInput: FC<PropsWithChildren<Props>> = ({ className, ...props }) => {
-  const combinedClassName = useMemo(() => {
-    return combineClassNames('bg-transparent!', className)
-  }, [className])
-
-  return <Input size='large' className={combinedClassName} {...props} />
+  return <Input size='large' className={cn(className)} {...props} />
 }
 
 export default AppInput

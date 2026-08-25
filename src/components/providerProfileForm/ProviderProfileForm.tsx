@@ -1,7 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
-import { Form, Input } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
 import { useProviderProfileStore } from '@store/providers/profile/store'
@@ -10,7 +9,8 @@ import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
 import AppButton from '@components/ui/AppButton'
-import AppProfileFormItem from '@components/ui/AppFormItem'
+import AppFormItem from '@components/ui/AppFormItem'
+import AppFormSection from '@components/ui/AppFormSection'
 import AppInput from '@components/ui/AppInput'
 import { processProviderProfileFormToPostPayload } from './processors'
 import ProviderProfileFormCategories from './ProviderProfileFormCategories'
@@ -45,88 +45,106 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
     },
   })
 
-  const onSubmitButtonClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(() => {
-    if (form.getFieldError('firstName').length || form.getFieldError('lastName').length) return
-    if (form.getFieldError('categoryIds').length) form.scrollToField('lastName')
-  }, [form])
-
   return (
     <Form
       form={form}
       requiredMark={true}
-      className={`w-full flex flex-col gap-4`}
+      className='relative flex w-full flex-col gap-6 pb-24 md:pb-0'
       layout='vertical'
       validateTrigger='onSubmit'
       onFinish={formik.handleSubmit}
       scrollToFirstError
     >
-      <AppProfileFormItem name='firstName' label='First Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
-        <AppInput
-          name='firstName'
-          value={formik.values.firstName}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-        />
-      </AppProfileFormItem>
+      <AppFormSection title='About you'>
+        <Row gutter={[16, 0]}>
+          <Col xs={24} md={12}>
+            <AppFormItem name='firstName' label='First Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
+              <AppInput
+                name='firstName'
+                value={formik.values.firstName}
+                onChange={formik.handleChange}
+                disabled={formik.isSubmitting}
+                autoComplete='given-name'
+                enterKeyHint='next'
+              />
+            </AppFormItem>
+          </Col>
+          <Col xs={24} md={12}>
+            <AppFormItem name='lastName' label='Last Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
+              <AppInput
+                name='lastName'
+                value={formik.values.lastName}
+                onChange={formik.handleChange}
+                disabled={formik.isSubmitting}
+                autoComplete='family-name'
+                enterKeyHint='next'
+              />
+            </AppFormItem>
+          </Col>
+        </Row>
+      </AppFormSection>
 
-      <AppProfileFormItem name='lastName' label='Last Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
-        <AppInput
-          name='lastName'
-          value={formik.values.lastName}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-        />
-      </AppProfileFormItem>
+      <AppFormSection title='What you do'>
+        <AppFormItem name='categoryIds' label='Categories' rules={oneItemSelectedAtLeastRuleSet}>
+          <ProviderProfileFormCategories form={form} formik={formik} />
+        </AppFormItem>
+      </AppFormSection>
 
-      <AppProfileFormItem name='categoryIds' label='Categories' rules={oneItemSelectedAtLeastRuleSet}>
-        <ProviderProfileFormCategories form={form} formik={formik} />
-      </AppProfileFormItem>
+      <AppFormSection title='Where'>
+        <ProviderProfileLocationInput formik={formik} disabled={formik.isSubmitting} />
+      </AppFormSection>
 
-      <ProviderProfileLocationInput formik={formik} disabled={formik.isSubmitting} />
+      <AppFormSection title='When you work'>
+        <ProviderProfileWeekSchedule formik={formik} />
+      </AppFormSection>
 
-      <ProviderProfileWeekSchedule formik={formik} />
+      <AppFormSection title='Optional'>
+        <Row gutter={[16, 0]}>
+          <Col xs={24} md={12}>
+            <AppFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
+              <AppInput
+                name='email'
+                type='email'
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                disabled={formik.isSubmitting}
+                autoComplete='email'
+                inputMode='email'
+                enterKeyHint='next'
+              />
+            </AppFormItem>
+          </Col>
+          <Col xs={24} md={12}>
+            <AppFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
+              <ProviderProfileOrganization formik={formik} />
+            </AppFormItem>
+          </Col>
+        </Row>
 
-      <AppProfileFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
-        <ProviderProfileOrganization formik={formik} />
-      </AppProfileFormItem>
+        <AppFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
+          <Input.TextArea
+            name='description'
+            value={formik.values.description}
+            onChange={formik.handleChange}
+            disabled={formik.isSubmitting}
+            autoSize={{ minRows: 3, maxRows: 5 }}
+          />
+        </AppFormItem>
 
-      <AppProfileFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
-        <AppInput
-          name='email'
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-        />
-      </AppProfileFormItem>
+        <AppFormItem name='image' label='Image'>
+          <ProviderProfileImage formik={formik} />
+        </AppFormItem>
 
-      <AppProfileFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
-        <Input.TextArea
-          name='description'
-          value={formik.values.description}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-          autoSize={{ minRows: 3, maxRows: 5 }}
-        />
-      </AppProfileFormItem>
+        <AppFormItem name='gallery' label='Gallery'>
+          <ProviderProfileFormGallery formik={formik} />
+        </AppFormItem>
+      </AppFormSection>
 
-      <AppProfileFormItem name='image' label='Image'>
-        <ProviderProfileImage formik={formik} />
-      </AppProfileFormItem>
-
-      <AppProfileFormItem name='gallery' label='Gallery'>
-        <ProviderProfileFormGallery formik={formik} />
-      </AppProfileFormItem>
-
-      <AppButton
-        type='primary'
-        variant='solid'
-        htmlType='submit'
-        className='w-full h-[56px]!'
-        loading={formik.isSubmitting}
-        onClick={onSubmitButtonClick}
-      >
-        Proceed to Services
-      </AppButton>
+      <div className='app-safe-b border-brand-border bg-surface sticky bottom-0 z-10 -mx-4 border-t px-4 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0'>
+        <AppButton type='primary' variant='solid' htmlType='submit' className='w-full' loading={formik.isSubmitting}>
+          Proceed to Services
+        </AppButton>
+      </div>
     </Form>
   )
 }

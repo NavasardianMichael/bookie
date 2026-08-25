@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
+import ErrorState from '@components/ui/ErrorState'
+import { PageShell } from '@components/ui/layout'
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
@@ -8,9 +10,12 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   }, [error])
 
   return (
-    <div>
-      <h2>Something went wrong!</h2>
-      <button onClick={() => reset()}>Try again</button>
-    </div>
+    <PageShell variant='fill' width='prose' className='justify-center'>
+      <ErrorState
+        description='We could not load the providers list. Please try again.'
+        digest={error.digest}
+        onRetry={reset}
+      />
+    </PageShell>
   )
 }

@@ -6,7 +6,7 @@ import { Button, Flex } from 'antd'
 import { FormikProps } from 'formik'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import AppProfileFormItem from '@components/ui/AppFormItem'
+import AppFormItem from '@components/ui/AppFormItem'
 import AppInput from '@components/ui/AppInput'
 
 type Props = {
@@ -27,14 +27,21 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
 
   return (
     <Flex vertical gap={locationInputShown ? 16 : 0}>
-      <AppProfileFormItem name='address' label='Address' rules={textareaRequiredMaxCharsCountRuleSet}>
+      <AppFormItem name='address' label='Address' rules={textareaRequiredMaxCharsCountRuleSet}>
         <Flex vertical>
-          <AppInput name='address' value={formik.values.address} onChange={formik.handleChange} disabled={disabled} />
+        <AppInput
+          name='address'
+          value={formik.values.address}
+          onChange={formik.handleChange}
+          disabled={disabled}
+          autoComplete='street-address'
+          enterKeyHint='next'
+        />
         </Flex>
-      </AppProfileFormItem>
+      </AppFormItem>
 
       {locationInputShown ? (
-        <AppProfileFormItem name='locationURL' label='Location URL' rules={urlRuleSet}>
+        <AppFormItem name='locationURL' label='Location URL' rules={urlRuleSet}>
           <Flex gap={8} align='center'>
             <AppInput
               type='url'
@@ -42,20 +49,25 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
               value={formik.values.locationURL}
               onChange={formik.handleChange}
               disabled={disabled}
+              autoComplete='url'
+              inputMode='url'
+              enterKeyHint='done'
             />
             <Button
               type='text'
               size='large'
-              icon={<MinusCircleOutlined className='text-red-600!' />}
+              icon={<MinusCircleOutlined className='text-red-600' />}
               onClick={onRemoveUrlClick}
+              aria-label='Remove location URL'
+              className='min-h-11 min-w-11'
             />
           </Flex>
-        </AppProfileFormItem>
+        </AppFormItem>
       ) : (
         <Button
           type='text'
           icon={<LinkOutlined />}
-          className='w-fit! pl-0!'
+          className='w-fit pl-0'
           onClick={() => setLocationInputShown(true)}
           disabled={formik.isSubmitting}
         >

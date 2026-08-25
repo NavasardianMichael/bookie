@@ -117,7 +117,15 @@ const eslintConfig = defineConfig([
         'warn',
         {
           allowConstantExport: true,
-          allowExportNames: ['metadata', 'generateMetadata', 'generateStaticParams', 'generateViewport'],
+          allowExportNames: [
+            'metadata',
+            'generateMetadata',
+            'generateStaticParams',
+            'viewport',
+            'generateViewport',
+            'dynamic',
+            'revalidate',
+          ],
         },
       ],
     },

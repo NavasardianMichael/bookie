@@ -1,5 +1,9 @@
-const ProviderProfile = () => {
-  return <div className='flex gap-4'>Provider Profile</div>
-}
+import { PageHeader, PageShell } from '@components/ui/layout'
+
+const ProviderProfile = () => (
+  <PageShell width='form'>
+    <PageHeader title='Provider Profile' />
+  </PageShell>
+)
 
 export default ProviderProfile

@@ -9,7 +9,7 @@ import { useAuthStore } from '@store/auth/store'
 import { PhoneNumber } from '@interfaces/app'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { combineClassNames } from '@helpers/commons'
+import { cn } from '@helpers/cn'
 import { processError } from '@helpers/error'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
 import AppButton from '@components/ui/AppButton'
@@ -127,16 +127,21 @@ const OTPCodeInput: React.FC = () => {
 
   return (
     <>
-      <Typography.Paragraph type='secondary' className='text-center mb-0!'>
+      <Typography.Paragraph type='secondary' className='mb-0 text-center'>
         Please confirm code sent to your phone number
         <br />
         <strong>{phoneNumberDisplayFormat}</strong>
       </Typography.Paragraph>
-      <Flex vertical align='center' justify='center' gap={8}>
-        <Form.Item rules={OTPCodeValidationRules}>
+      <Flex vertical align='center' justify='center' gap={8} className='w-full'>
+        <Form.Item rules={OTPCodeValidationRules} className='mb-0 w-full'>
           <Input.OTP
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
+            size='large'
+            className='w-full'
+            classNames={{ input: 'min-w-0 flex-1 aspect-square' }}
+            inputMode='numeric'
+            autoComplete='one-time-code'
             onSubmit={onOTPCodeSubmit}
             onChange={onOTPCodeChange}
             disabled={isPending || showResendButton || countdownValue <= 0}
@@ -144,23 +149,24 @@ const OTPCodeInput: React.FC = () => {
           />
         </Form.Item>
 
+        {countdownValue > 0 && (
+          <Countdown
+            value={countDownDeadline}
+            onFinish={onFinish}
+            onChange={onCountdownChange}
+            className={cn(styles.countdown)}
+            format='mm:ss'
+          />
+        )}
+
         <AppButton
           onClick={onResendButtonClick}
-          className='relative w-full h-[56px]!'
+          className='w-full'
           type='primary'
           disabled={isPending || !showResendButton}
           loading={isPending}
         >
           Resend Code
-          {countdownValue > 0 && (
-            <Countdown
-              value={countDownDeadline}
-              onFinish={onFinish}
-              onChange={onCountdownChange}
-              className={combineClassNames('absolute right-[6px]', styles.countdown)}
-              format='mm:ss'
-            />
-          )}
         </AppButton>
       </Flex>
     </>

@@ -1,23 +1,19 @@
-import { Flex, Typography } from 'antd'
 import { Metadata } from 'next'
+import { PageHeader, PageShell } from '@components/ui/layout'
 import ProviderServices from './ProviderServices'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Bookie | Create Your Own Profile',
-  description: 'Fill in Profile Primary Info of your Profile',
+  title: 'Bookie | Your Services',
+  description: 'Create and manage the services clients can book.',
 }
 
-const ProviderServicesPage = () => {
-  return (
-    <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-      <Typography.Paragraph className='text-2xl! font-bold text-center mb-1!'>
-        Generate your own services
-      </Typography.Paragraph>
-      <ProviderServices />
-    </Flex>
-  )
-}
+const ProviderServicesPage = () => (
+  <PageShell width='form' className='flex flex-col gap-6'>
+    <PageHeader title='Your services' subtitle='Add at least one service so clients can book you.' />
+    <ProviderServices />
+  </PageShell>
+)
 
 export default ProviderServicesPage

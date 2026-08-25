@@ -11,6 +11,8 @@ import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/service
 import { processProviderServiceFormToPostPayload } from '@components/providerServiceForm/processors'
 import ProviderServiceForm from '@components/providerServiceForm/ProviderServiceForm'
 import AppButton from '@components/ui/AppButton'
+import AppSheet from '@components/ui/AppSheet'
+import EmptyState from '@components/ui/EmptyState'
 
 type Props = {
   initialValues?: ProviderServiceFormValues
@@ -22,8 +24,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
   const [form] = useForm<ProviderServiceFormValues>()
 
   const [editServiceModalOpened, setEditServiceModalOpened] = useState(false)
-  const editServicePropsRef = useRef<string | undefined>('')
-  // const [tempEditService, setTempEditService] = useState<null | typeof byId[string]>(null)
   const [deleteServiceModalOpened, setDeleteServiceModalOpened] = useState(false)
   const deleteServicePropsRef = useRef<Parameters<typeof deleteProviderService>[0] | null>(null)
 
@@ -49,13 +49,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     closeDeleteServiceModal()
   }, [closeDeleteServiceModal, deleteProviderService])
 
-  const onEditServiceClick: React.MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
-    const dataset = e.currentTarget.dataset
-    const providerId = dataset.providerId
-    editServicePropsRef.current = providerId
-    setEditServiceModalOpened(true)
-  }, [])
-
   const closeEditServiceModal = useCallback(() => {
     setEditServiceModalOpened(false)
   }, [])
@@ -64,7 +57,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     initialValues,
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log({ values })
       const payload = processProviderServiceFormToPostPayload(providerId, values)
       await putProviderService(payload)
 
@@ -73,70 +65,105 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     },
   })
 
+  const onEditServiceClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      const { serviceId } = e.currentTarget.dataset
+      const service = serviceId ? byId[serviceId] : undefined
+
+      // "Add service" passes no serviceId. Editing loads the clicked service into
+      // both stores — formik owns the values, antd owns validation — so the modal
+      // is not a blank create form.
+      const nextValues: ProviderServiceFormValues = service
+        ? {
+            id: service.id,
+            name: service.name,
+            duration: service.duration,
+            description: service.description,
+            price: service.price,
+            currency: service.currency,
+            image: service.image,
+            categoryId: service.categoryId,
+          }
+        : initialValues
+
+      formik.setValues(nextValues)
+      form.setFieldsValue(nextValues)
+      setEditServiceModalOpened(true)
+    },
+    [byId, form, formik, initialValues]
+  )
+
+  const addServiceButton = (
+    <AppButton icon={<PlusOutlined />} className='w-full' onClick={onEditServiceClick} data-provider-id={providerId}>
+      Add service
+    </AppButton>
+  )
+
   return (
     <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
-      <Flex vertical gap='middle' className='w-full'>
-        {allIds.map((serviceId) => {
-          const service = byId[serviceId]
-          return (
-            <Card
-              key={service.id}
-              loading={true}
-              className='w-full'
-              actions={[
-                <Button
-                  type='text'
-                  icon={<EditOutlined />}
-                  key='edit'
-                  onClick={onEditServiceClick}
-                  data-provider-id={providerId}
-                  data-service-id={serviceId}
-                />,
-                <Button
-                  type='text'
-                  icon={<DeleteOutlined />}
-                  key='delete'
-                  danger
-                  onClick={onDeleteServiceClick}
-                  data-provider-id={providerId}
-                  data-service-id={serviceId}
-                />,
-              ]}
-            >
-              <Card.Meta
-                avatar={service.image ? <Avatar src={service.image} alt={service.name} /> : undefined}
-                title={service.name}
-                description={
-                  <>
-                    <p>{service.description}</p>
-                    <p>
-                      {service.price} {service.currency}
-                    </p>
-                  </>
-                }
-              />
-            </Card>
-          )
-        })}
-      </Flex>
-      <AppButton icon={<PlusOutlined />} className='w-full' onClick={onEditServiceClick} data-provider-id={providerId}>
-        Add service
-      </AppButton>
+      {allIds.length ? (
+        <Flex vertical gap='middle' className='w-full'>
+          {allIds.map((serviceId) => {
+            const service = byId[serviceId]
+            return (
+              <Card
+                key={service.id}
+                className='w-full'
+                actions={[
+                  <Button
+                    type='text'
+                    icon={<EditOutlined />}
+                    key='edit'
+                    aria-label={`Edit ${service.name}`}
+                    className='min-h-11 min-w-11'
+                    onClick={onEditServiceClick}
+                    data-provider-id={providerId}
+                    data-service-id={serviceId}
+                  />,
+                  <Button
+                    type='text'
+                    icon={<DeleteOutlined />}
+                    key='delete'
+                    danger
+                    aria-label={`Delete ${service.name}`}
+                    className='min-h-11 min-w-11'
+                    onClick={onDeleteServiceClick}
+                    data-provider-id={providerId}
+                    data-service-id={serviceId}
+                  />,
+                ]}
+              >
+                <Card.Meta
+                  avatar={service.image ? <Avatar src={service.image} alt={service.name} /> : undefined}
+                  title={service.name}
+                  description={
+                    <>
+                      <p>{service.description}</p>
+                      <p>
+                        {service.price} {service.currency}
+                      </p>
+                    </>
+                  }
+                />
+              </Card>
+            )
+          })}
+        </Flex>
+      ) : (
+        <EmptyState
+          className='w-full'
+          title='No services yet'
+          description='Add the services clients can book with you.'
+          action={addServiceButton}
+        />
+      )}
 
-      <Modal
-        title='Service Configuration'
-        open={editServiceModalOpened}
-        onCancel={closeEditServiceModal}
-        okText='Save'
-        cancelText='Close'
-        okButtonProps={{ className: 'hidden!' }}
-        cancelButtonProps={{ className: 'hidden!' }}
-        className='p-2! max-h-[97vh]! overflow-auto'
-        wrapClassName='m-auto'
-        centered
-      >
+      {!!allIds.length && addServiceButton}
+
+      <AppSheet title='Service Configuration' open={editServiceModalOpened} onClose={closeEditServiceModal}>
         <ProviderServiceForm form={form} formik={formik} closeModal={closeEditServiceModal} />
-      </Modal>
+      </AppSheet>
+
       <Modal
         title='Delete service'
         open={deleteServiceModalOpened}
@@ -152,7 +179,7 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
         }}
         centered
       >
-        <Typography.Paragraph>Are you sure you want to delete this image?</Typography.Paragraph>
+        <Typography.Paragraph>Are you sure you want to delete this service?</Typography.Paragraph>
       </Modal>
     </Flex>
   )

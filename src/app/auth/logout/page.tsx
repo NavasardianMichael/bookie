@@ -1,3 +1,4 @@
+import { Divider } from 'antd'
 import { Metadata } from 'next'
 import AppBox from '@components/ui/AppBox'
 import AppButton from '@components/ui/AppButton'
@@ -10,29 +11,29 @@ export const metadata: Metadata = {
 }
 
 const Logout = () => (
-  <AppBox className='w-full flex flex-col justify-center items-center m-auto max-w-160'>
-    <AppBox className='flex flex-col justify-center items-center'>
-      <AppTitle level={'h3'} className='text-lg mb-0'>
+  <AppBox className='flex w-full flex-col gap-2'>
+    <AppBox className='flex flex-col gap-1 text-center'>
+      <AppTitle level='h1' className='text-h2'>
         We&apos;re sorry to see you go!
       </AppTitle>
-      <AppParagraph className='text-center text-gray-500 mt-2 mb-4'>
-        If you have any feedback or suggestions, please let us know. <br />
-        Contact us at{' '}
-        <a href='mailto:support.bookie@gmail.com' className='text-gray-500'>
+      <AppParagraph className='text-body-sm'>
+        If you have any feedback or suggestions, please let us know. Contact us at{' '}
+        <a href='mailto:support.bookie@gmail.com' className='underline'>
           support.bookie@gmail.com
         </a>
       </AppParagraph>
     </AppBox>
-    <hr />
-    Delete Your Account
-    <hr />
-    <AppBox className='w-full flex flex-col justify-center items-center'>
-      <AppParagraph className='text-center mt-2 mb-4 text-red-600'>
-        * If you want to delete your account, please note that this action is irreversible.
-        <br />
-        All your data will be permanently removed from our system.
+
+    <Divider />
+
+    <AppBox className='flex flex-col gap-3 text-center'>
+      <AppTitle level='h2' className='text-h3'>
+        Delete your account
+      </AppTitle>
+      <AppParagraph className='text-body-sm text-red-600'>
+        This action is irreversible. All your data will be permanently removed from our system.
       </AppParagraph>
-      <AppButton danger type='primary' variant='solid' htmlType='submit' className='mx-auto'>
+      <AppButton danger type='primary' variant='solid' className='w-full'>
         Delete Account Permanently
       </AppButton>
     </AppBox>
