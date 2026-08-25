@@ -105,6 +105,19 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    files: ['tests/**/*.ts', '*.config.{ts,mts}'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      // Fixtures deliberately build partial entities and cast at the call site; the
+      // alternative is reproducing whole object graphs for a two-field assertion.
+      '@typescript-eslint/no-explicit-any': 'off',
+      // Test doubles routinely pass shapes narrower than the real type.
+      'security/detect-object-injection': 'off',
+    },
+  },
+  {
     files: [
       '**/app/**/page.{ts,tsx}',
       '**/app/**/layout.{ts,tsx}',
