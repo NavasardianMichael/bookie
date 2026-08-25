@@ -1,3 +1,24 @@
+# Dependency upgrade + code review — historical record
+
+The upgrade pass that moved the app to Next.js 16.3.1 / React 19.2.8 / antd 6.6 /
+Tailwind 4.3 / TypeScript 6.0.3, plus the code review written at the same time.
+
+**Most of the review's findings have since been fixed.** Verified resolved: the
+Redux-vs-Zustand doc drift, the `src/api/_shared/db.ts` reference, `_loading.tsx`,
+the unused list client components, the missing mock server, `AppBox`, the placeholder
+category page, the duplicated `error.tsx` files, axios fetch duplication (React `cache()`
+now wraps all three single-entity getters), `serialize-javascript` (replaced by
+`src/helpers/jsonLd.ts`), `<img>` → `next/image`, the exact-path header route lookup
+(replaced by prefix matching in `src/helpers/routes.ts`), Calendar memoization and
+`listPlugin`, `generateEntityUrl` using the API origin, the `pnpm watch` ports, the
+commented-out Husky hook, and the missing `.env.example`.
+
+Anything still outstanding was moved to [`docs/BACKLOG.md`](../BACKLOG.md).
+
+Kept below for the reasoning and the upgrade-compatibility table.
+
+---
+
 # Improvements and Organization Notes
 
 This document records what was upgraded in this pass, what was intentionally left behind, and the highest-value code organization and performance work for Bookie.

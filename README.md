@@ -41,9 +41,17 @@ Open [http://localhost:4141](http://localhost:4141).
 
 ## Documentation
 
-- [DEV_CREDS.md](./DEV_CREDS.md) — local login credentials (OTP, provider/consumer phones)
-- [DATABASE_STRUCTURE.md](./DATABASE_STRUCTURE.md) — schema and API routes
-- [IMPROVEMENTS.md](./IMPROVEMENTS.md) — frontend upgrade notes and follow-ups
+| | |
+| --- | --- |
+| [docs/DEV_CREDS.md](./docs/DEV_CREDS.md) | Local login credentials (OTP, seeded phones) |
+| [docs/DATABASE_STRUCTURE.md](./docs/DATABASE_STRUCTURE.md) | Schema, API envelope, routes |
+| [docs/BACKLOG.md](./docs/BACKLOG.md) | Known defects and outstanding work |
+| [docs/history/](./docs/history/) | Completed work, kept for the reasoning |
+| [CLAUDE.md](./CLAUDE.md) | Conventions and codebase map, for humans and agents alike |
+
+Each major directory also carries its own `CLAUDE.md` with that layer's invariants —
+`src/api`, `src/app`, `src/components`, `src/helpers`, `src/store`, `src/styles`,
+`server`, `tests`. Read the local one before editing there.
 
 ## Deploy notes
 

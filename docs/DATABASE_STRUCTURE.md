@@ -1,6 +1,6 @@
 # Bookie — Database & API
 
-PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](server/prisma/schema.prisma).
+PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server/prisma/schema.prisma).
 
 ## Core models
 
@@ -61,7 +61,7 @@ All JSON responses use:
 4. Run API + web: `pnpm watch`
 5. Frontend env: copy `.env.example` → `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:4142`
 
-**Dev login:** see [DEV_CREDS.md](../DEV_CREDS.md) for seeded provider/consumer phones and OTP.
+**Dev login:** see [DEV_CREDS.md](DEV_CREDS.md) for seeded provider/consumer phones and OTP.
 
 ## Project layout
 
