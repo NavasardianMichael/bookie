@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Explore Service Providers | Bookie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                        "border-muted": "#e5e7eb",
+                        "text-charcoal": "#344054"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#121417] dark:text-white transition-colors duration-200">
+<!-- Global Top Bar -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-border-muted dark:border-white/10">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-1.5 rounded-lg">
+<svg class="size-6 text-white" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-extrabold tracking-tight text-primary dark:text-white">Bookie</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold hover:text-primary dark:hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-sm font-semibold text-primary underline decoration-2 underline-offset-4" href="#">Explore</a>
+<a class="text-sm font-semibold hover:text-primary dark:hover:text-primary transition-colors" href="#">How it Works</a>
+<a class="text-sm font-semibold hover:text-primary dark:hover:text-primary transition-colors" href="#">For Providers</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 text-sm font-bold text-primary dark:text-white hover:bg-primary/5 rounded-lg transition-colors">Sign In</button>
+<button class="px-5 py-2 text-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg hover:shadow-primary/20 transition-all">Join Now</button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-12">
+<!-- Hero Search Section -->
+<section class="max-w-3xl mx-auto text-center mb-16">
+<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[#121417] dark:text-white mb-6">
+                Find and book <span class="text-primary italic">top-rated</span> professionals.
+            </h1>
+<div class="bg-white dark:bg-white/5 p-2 rounded-xl border border-border-muted dark:border-white/10 shadow-sm flex flex-col md:flex-row gap-2">
+<div class="flex flex-1 items-center px-4 gap-3 border-b md:border-b-0 md:border-r border-border-muted dark:border-white/10 py-2">
+<span class="material-symbols-outlined text-gray-400">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-gray-400 font-medium" placeholder="What service are you looking for?" type="text"/>
+</div>
+<div class="flex flex-1 items-center px-4 gap-3 py-2">
+<span class="material-symbols-outlined text-gray-400">location_on</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-gray-400 font-medium" placeholder="Location" type="text"/>
+</div>
+<button class="bg-primary text-white font-bold py-3 px-8 rounded-lg transition-transform active:scale-95">
+                    Search
+                </button>
+</div>
+</section>
+<!-- Category Filter Rail -->
+<section class="mb-12">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold">Browse Categories</h3>
+<a class="text-sm font-bold text-primary hover:underline" href="#">View All</a>
+</div>
+<div class="flex gap-3 overflow-x-auto pb-4 custom-scrollbar">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white px-5 text-sm font-bold">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+                    All Services
+                </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 px-5 text-sm font-bold hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">spa</span>
+                    Beauty
+                </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 px-5 text-sm font-bold hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">health_and_safety</span>
+                    Health
+                </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 px-5 text-sm font-bold hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">gavel</span>
+                    Professional
+                </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 px-5 text-sm font-bold hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">home_repair_service</span>
+                    Maintenance
+                </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 px-5 text-sm font-bold hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">school</span>
+                    Lessons
+                </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 px-5 text-sm font-bold hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">fitness_center</span>
+                    Wellness
+                </button>
+</div>
+</section>
+<!-- Provider Grid -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-extrabold tracking-tight">Top Service Providers</h2>
+<div class="flex items-center gap-2 text-sm font-medium text-gray-500">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+                    Sort by: <span class="text-primary font-bold cursor-pointer">Recommended</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="group bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Provider profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Professional workspace of a wellness practitioner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9g_9IKV76jpHq9ibYGZVrUSTiDGownIDeA88CQVK207X2f9ioUItRP4jf_-ehr0YbAiQSLL_1d83KRoqxTyL2p5GF02Ow2PaejbzaWcNuliz0iODbNQOSBfuqQLcn2lyPZ-bDUvxoX9Hl-9fXKA8fEvpLjFMFAgoDcA8z8Geny6KDTLfwVt0OWaWJHgSR6FqBz7xMgssoW5_BgW38xOKiShCKkhJ4uwSEnBer2BM9dmU-Oq1Y10_lbPyaV6X_3-7AkfJ5iwSyl3av"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-yellow-500 text-[18px] fill-current">star</span>
+<span class="text-xs font-bold text-gray-800">4.9</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Sarah Jenkins, RMT</h3>
+<p class="text-sm text-gray-500 font-medium">Registered Massage Therapist</p>
+</div>
+<div class="size-2 bg-green-500 rounded-full animate-pulse" title="Available Now"></div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Downtown
+                            </div>
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Next: Today, 2 PM
+                            </div>
+</div>
+<button class="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            View Profile
+                        </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Provider profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Clean minimalist architectural office space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL-GkyxDVtQwewLdHkoIJsunlqX20qQhXxgb0nkAx3np_Nwg6B5CdMlC4kuFvW1HNnvZVSs0D0zN3Hx74ljS58r6Z1OF35hzbk84VQeYJt06DluCHB_M6uMuB2ZHRTEXytOe43q7eGpr0Y9Uz97PvsLhhnZJDJPkBUeebA-fb_D8yk8JTBjpwYiS2KfAsJvA7CfBF_SgtgA3cpjj8VkJ3567upddVWQsXRSI5U2aU-Uv9IAUeF5xkRQf8Gx3U_z_Q7C2heBNSlT_Og"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-yellow-500 text-[18px] fill-current">star</span>
+<span class="text-xs font-bold text-gray-800">5.0</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Marcus Chen</h3>
+<p class="text-sm text-gray-500 font-medium">Legal Consultant</p>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                West End
+                            </div>
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Next: Mon, 9 AM
+                            </div>
+</div>
+<button class="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            View Profile
+                        </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Provider profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A brightly lit design and lesson studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZcfaPJLluc_eUQvSbIjQKcndOwi-hPPTmEuLPRhk9napRGRJOmVcftZmZ0b181Z5JhD4z4Ek3hwI366tIw3J4g5x6fx8SexwyYbX9zM5awfVJCdjAnOvOKYRoIAHxVqRgLm41XGcQzlxR3tn8yYDkphd8gUOvfQSJ-UoqT_XY9bRcZL1c1tUve1tT171QOL3uIWhewmEHnd1GjGhFAhJTXT0yp7eU6eHeRTd7KG9nhuwcQZ_oIx308chRQdM4QfJKcuuarW6iqPBG"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-yellow-500 text-[18px] fill-current">star</span>
+<span class="text-xs font-bold text-gray-800">4.8</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Elena Rodriguez</h3>
+<p class="text-sm text-gray-500 font-medium">Language Tutor (ESL)</p>
+</div>
+<div class="size-2 bg-green-500 rounded-full" title="Available Now"></div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Remote / North Side
+                            </div>
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Next: Today, 4 PM
+                            </div>
+</div>
+<button class="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            View Profile
+                        </button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-6xl">home_repair_service</span>
+</div>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-yellow-500 text-[18px] fill-current">star</span>
+<span class="text-xs font-bold text-gray-800">4.7</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">David Miller</h3>
+<p class="text-sm text-gray-500 font-medium">Master Electrician</p>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Greater Area
+                            </div>
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Next: Tue, 8 AM
+                            </div>
+</div>
+<button class="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            View Profile
+                        </button>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Provider profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Modern fitness studio with high-end equipment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjaFrgYsH6ZxhwMAqAoNmQjGGRjBbBE1_0z84pGuxlsZn9HOgeCeTtF_TZPqkBrL-dIX7ID4mUXbY0HBYq2PVgWVvM3NgQsrYgetUS-pcH4FZstx3cZS1cAM2KYH0MAy59tq_lOd6edAzdL0J-DSXzMMJJ9H7ND7gXTr5hvpNpZmSEM5tSnSWEjHGDSg9CDXbLFnKtbd3DuHCEAfm-9ePkg7PS4nlY6_EEa268HfWkCIpNNBmthLgV7SWk1ioQOCly0y8OLaAkhJNO"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-yellow-500 text-[18px] fill-current">star</span>
+<span class="text-xs font-bold text-gray-800">4.9</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">The Zen Space</h3>
+<p class="text-sm text-gray-500 font-medium">Yoga &amp; Mindfulness</p>
+</div>
+<div class="size-2 bg-green-500 rounded-full" title="Available Now"></div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                East Village
+                            </div>
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Next: Today, 6 PM
+                            </div>
+</div>
+<button class="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            View Profile
+                        </button>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group bg-white dark:bg-white/5 border border-border-muted dark:border-white/10 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Provider profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Professional office setup for a business consultant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKqe7WiVo8ERHbxtVHbz6911-E4bawlcM7MTdRLBu1KFQzkWn8QE-PKVwtCe5zvbSeGwi3l_QQHqUwNStoQBOqnPOsUeL_Rau8m5vqECH_sg1FdwZtxcF0yc1IdxVV8Dusyp8bo_DF5-GSXK-l1Ed-BOBNZ5X0mfzBCg4fHyEJEfl5wir8-klGsJA5KGFaDiEwI--lQhl3FHpbzdx0aetboqsxNw4jZYpQmZIZbR5p9Z8-KVyrGfIYmTtqnCgO4sJvj1zngl4QoUQv"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-yellow-500 text-[18px] fill-current">star</span>
+<span class="text-xs font-bold text-gray-800">4.6</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Apex Strategy Group</h3>
+<p class="text-sm text-gray-500 font-medium">Business Consulting</p>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                                Financial District
+                            </div>
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                Next: Wed, 10 AM
+                            </div>
+</div>
+<button class="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            View Profile
+                        </button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex items-center justify-center gap-4">
+<button class="flex items-center justify-center size-10 rounded-lg border border-border-muted dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="size-10 rounded-lg bg-primary text-white font-bold text-sm">1</button>
+<button class="size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 font-bold text-sm">2</button>
+<button class="size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 font-bold text-sm">3</button>
+<span class="px-2">...</span>
+<button class="size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 font-bold text-sm">12</button>
+</div>
+<button class="flex items-center justify-center size-10 rounded-lg border border-border-muted dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-background-dark border-t border-border-muted dark:border-white/10 py-12">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-primary p-1 rounded-lg">
+<svg class="size-5 text-white" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-lg font-extrabold tracking-tight text-primary dark:text-white">Bookie</h2>
+</div>
+<p class="text-sm text-gray-500 leading-relaxed">The modern standard for professional appointment scheduling. Connecting experts with seekers seamlessly.</p>
+</div>
+<div>
+<h4 class="font-bold mb-4">Platform</h4>
+<ul class="space-y-2 text-sm text-gray-500">
+<li><a class="hover:text-primary" href="#">Find a Provider</a></li>
+<li><a class="hover:text-primary" href="#">Pricing</a></li>
+<li><a class="hover:text-primary" href="#">Business Solutions</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-4">Support</h4>
+<ul class="space-y-2 text-sm text-gray-500">
+<li><a class="hover:text-primary" href="#">Help Center</a></li>
+<li><a class="hover:text-primary" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-4">Join Our Newsletter</h4>
+<div class="flex gap-2">
+<input class="flex-1 bg-background-light dark:bg-white/5 border-none rounded-lg text-sm px-3 focus:ring-1 focus:ring-primary" placeholder="Email" type="email"/>
+<button class="p-2 bg-primary text-white rounded-lg">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-border-muted dark:border-white/5 text-center text-xs text-gray-400">
+            © 2024 Bookie Inc. All rights reserved.
+        </div>
+</footer>
+</body></html>

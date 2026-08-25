@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Public Provider Profile - Bookie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-8 bg-primary text-white rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">calendar_today</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-primary dark:text-white">Bookie</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Find Providers</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">My Bookings</a>
+<div class="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
+<button class="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold">Sign In</button>
+</nav>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-10">
+<div class="bento-grid">
+<!-- Left Column: Provider Info & Services -->
+<aside class="flex flex-col gap-6">
+<!-- Profile Card -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex flex-col items-center text-center">
+<div class="size-32 rounded-full mb-4 bg-slate-200 overflow-hidden ring-4 ring-slate-50 dark:ring-slate-800">
+<img alt="Professional headshot of a service provider" class="w-full h-full object-cover" data-alt="Professional portrait of Alex Rivera smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPJm58ZRUfxxvMIJccR7fNu_1rQVtCOh3CWc5JfpiKGv00cmQcKxSaS7OfWi4sN1o1by1ek8sAH_sUsmmj_b5jMENADK21MKXD9NfEct5WHlejICXg3B5mWYZyYmo8XC2zBLpvzvoa0UQk1fmcm-whV7vhEYuVAZ7xpFOdlGj0BJif4DXzuLPtj9oNk3nj40-aOwpsDCA-09Q0esBu29L51pVinuHdJIlrRzKTL7BIBja4sGwkj0Gws5ZbEc07sLvDE5RDWcGP_66e"/>
+</div>
+<div class="flex items-center gap-1 mb-1">
+<h2 class="text-2xl font-bold">Alex Rivera</h2>
+<span class="material-symbols-outlined text-blue-500 text-lg">verified</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 font-medium mb-3">Master Barber &amp; Stylist</p>
+<div class="flex items-center gap-2 mb-6">
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+</div>
+<span class="text-xs font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">4.9 (120 reviews)</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                            Specializing in contemporary cuts and classic grooming. Over 10 years of experience in high-end styling. Committed to providing a personalized experience.
+                        </p>
+<div class="flex w-full gap-2">
+<button class="flex-1 h-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all">
+<span class="material-symbols-outlined text-base">share</span>
+                                Share
+                            </button>
+<button class="h-10 w-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-base">favorite</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Services List -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<h3 class="font-bold">Services</h3>
+<span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">4 Options</span>
+</div>
+<div class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Service Item -->
+<div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">content_cut</span>
+</div>
+<div>
+<h4 class="text-sm font-bold">Classic Haircut</h4>
+<p class="text-xs text-slate-500">45 mins</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">$50</p>
+<span class="text-[10px] text-primary dark:text-blue-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">SELECT</span>
+</div>
+</div>
+<!-- Service Item -->
+<div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">face</span>
+</div>
+<div>
+<h4 class="text-sm font-bold">Beard Sculpting</h4>
+<p class="text-xs text-slate-500">25 mins</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">$25</p>
+<span class="text-[10px] text-primary dark:text-blue-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">SELECT</span>
+</div>
+</div>
+<!-- Service Item -->
+<div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors flex items-center justify-between group bg-primary/5 border-l-2 border-primary">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-primary text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">shutter_speed</span>
+</div>
+<div>
+<h4 class="text-sm font-bold">Executive Combo</h4>
+<p class="text-xs text-slate-500">75 mins</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">$70</p>
+<span class="text-[10px] text-primary dark:text-blue-400 font-bold">SELECTED</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Contact & Location -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<h3 class="font-bold mb-4">Location</h3>
+<div class="aspect-video w-full bg-slate-200 dark:bg-slate-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+<img alt="Map location in New York" class="w-full h-full object-cover" data-location="New York, NY" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN54NdRJDd5DqH1b875p3Nlr2q6_4SQkCk4kvWgH_ai_yiQnwgd2Vhqk6bvXxm4gn55gLF7EAUmfDz3MgDO1WpqiWJPV-dVpKAm1v17E_X2XHRt8KkbEZlGW--yCLTBbXZ7Sg49Q0vF0IAc92mfK-Qf5nqb9MbhqXePu4WehFHvMOAEfrkvwF-D1hClNnLE2yBs87IM6MwShAYoma-oLsg4HqdVSvGLmsMRNUTvVlzMksFBzI182lRDAqDg9Yb12-am6Hm9wwkY2j8"/>
+</div>
+<div class="flex gap-3 text-sm text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-lg">location_on</span>
+<span>123 Madison Ave, Suite 402<br/>New York, NY 10016</span>
+</div>
+</div>
+</aside>
+<!-- Right Column: Booking Logic -->
+<section class="flex flex-col gap-6">
+<!-- Calendar Card -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<div>
+<h3 class="text-lg font-bold">October 2023</h3>
+<p class="text-sm text-slate-500">Pick a date for your Executive Combo</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-base">chevron_left</span>
+</button>
+<button class="p-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="p-6">
+<div class="grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
+<!-- Calendar Days Header -->
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sun</div>
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mon</div>
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tue</div>
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wed</div>
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thu</div>
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fri</div>
+<div class="bg-slate-50 dark:bg-slate-900 py-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sat</div>
+<!-- Calendar Grid Placeholder (Simulated) -->
+<!-- Row 1 -->
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">24</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">25</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">26</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">27</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">28</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">29</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-300">30</div>
+<!-- Row 2 -->
+<div class="bg-white dark:bg-slate-900 h-24 p-2 text-slate-400">1</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 relative">
+<span>2</span>
+<div class="absolute bottom-2 left-2 right-2 flex gap-0.5">
+<div class="h-1 flex-1 bg-primary/20 rounded-full"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">
+<span>3</span>
+<div class="absolute bottom-2 left-2 right-2 flex gap-0.5">
+<div class="h-1 flex-1 bg-primary/20 rounded-full"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2 relative">
+<span>4</span>
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 size-1 bg-[#F59E0B] rounded-full"></div>
+</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">5</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">6</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">7</div>
+<!-- Row 3 -->
+<div class="bg-white dark:bg-slate-900 h-24 p-2">8</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">9</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">10</div>
+<div class="bg-primary text-white h-24 p-2 ring-2 ring-primary ring-inset">
+<span class="font-bold">11</span>
+<div class="absolute bottom-3 left-3">
+<span class="text-[10px] font-bold">SELECTED</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">12</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">13</div>
+<div class="bg-white dark:bg-slate-900 h-24 p-2">14</div>
+</div>
+</div>
+</div>
+<!-- Time Slot Grid -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="font-bold">Available Times</h3>
+<p class="text-sm text-slate-500">Wednesday, October 11</p>
+</div>
+<div class="flex items-center gap-2 text-sm text-slate-500">
+<span class="material-symbols-outlined text-base">schedule</span>
+                            Local time
+                        </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold hover:border-primary hover:text-primary dark:hover:border-blue-400 dark:hover:text-blue-400 transition-all text-center">09:00 AM</button>
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold hover:border-primary hover:text-primary dark:hover:border-blue-400 dark:hover:text-blue-400 transition-all text-center">10:15 AM</button>
+<button class="py-3 px-4 bg-primary text-white border border-primary rounded-lg text-sm font-bold shadow-md shadow-primary/20 text-center">11:30 AM</button>
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold hover:border-primary hover:text-primary dark:hover:border-blue-400 dark:hover:text-blue-400 transition-all text-center">01:45 PM</button>
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold hover:border-primary hover:text-primary dark:hover:border-blue-400 dark:hover:text-blue-400 transition-all text-center">03:00 PM</button>
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold opacity-40 cursor-not-allowed bg-slate-50 text-center line-through">04:15 PM</button>
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold hover:border-primary hover:text-primary dark:hover:border-blue-400 dark:hover:text-blue-400 transition-all text-center">05:30 PM</button>
+<button class="py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold hover:border-primary hover:text-primary dark:hover:border-blue-400 dark:hover:text-blue-400 transition-all text-center text-primary dark:text-blue-400">View More</button>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="bg-white dark:bg-slate-900 size-12 rounded-lg flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-2xl">check_circle</span>
+</div>
+<div>
+<h4 class="font-bold">Ready to confirm?</h4>
+<p class="text-sm text-slate-500">Oct 11 • 11:30 AM • Executive Combo ($70)</p>
+</div>
+</div>
+<button class="w-full md:w-auto px-10 h-12 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                            Book Now
+                        </button>
+</div>
+</div>
+<!-- Footer Social proof -->
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-500 text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">shield</span>
+                            Bookie Verified
+                        </div>
+<div class="flex items-center gap-2 text-slate-500 text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">payments</span>
+                            Secure Payment
+                        </div>
+</div>
+<div class="flex gap-4">
+<a class="size-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-base">public</span>
+</a>
+<a class="size-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-base">share_reviews</span>
+</a>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Success Toast (Hidden by default, for UI visual) -->
+<div class="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce hidden">
+<span class="material-symbols-outlined">task_alt</span>
+<span class="font-bold">Slot selected! Click Book Now to finalize.</span>
+</div>
+</body></html>

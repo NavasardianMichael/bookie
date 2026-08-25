@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bookie | Scheduling Simplified</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#121417] dark:text-white transition-colors duration-300">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Navigation -->
+<header class="sticky top-0 z-50 w-full border-b border-[#dddfe4] dark:border-white/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-40 py-4">
+<div class="mx-auto flex max-w-[1200px] items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined text-2xl">grid_view</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-primary dark:text-white">Bookie</h2>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-sm font-semibold hover:text-primary/70 transition-colors" href="#">How it Works</a>
+<a class="text-sm font-semibold hover:text-primary/70 transition-colors" href="#">Features</a>
+<a class="text-sm font-semibold hover:text-primary/70 transition-colors" href="#">Pricing</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2 text-sm font-bold text-primary dark:text-white hover:bg-primary/5 rounded-lg transition-all">Sign In</button>
+<button class="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all">Get Started</button>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<!-- Hero Section -->
+<section class="px-6 lg:px-40 py-16 md:py-24">
+<div class="mx-auto max-w-[1200px]">
+<div class="flex flex-col @[864px]:flex-row gap-12 items-center">
+<div class="flex flex-1 flex-col gap-8">
+<div class="flex flex-col gap-4">
+<span class="text-primary font-bold tracking-[0.2em] text-xs uppercase">Welcome to the future of booking</span>
+<h1 class="text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight text-[#121417] dark:text-white">
+                                    Scheduling, <span class="text-primary/40 dark:text-white/40 italic">simplified.</span>
+</h1>
+<p class="max-w-[500px] text-lg text-[#687182] dark:text-gray-400 leading-relaxed">
+                                    Book local services or manage your business with Bookie’s professional toolkit. A single platform for modern providers.
+                                </p>
+</div>
+<!-- Search Bar Style Interaction -->
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="flex h-14 min-w-[200px] items-center justify-center rounded-xl bg-primary px-8 text-base font-bold text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                    Find a Provider
+                                </button>
+<button class="flex h-14 min-w-[200px] items-center justify-center rounded-xl border-2 border-[#dddfe4] dark:border-white/20 px-8 text-base font-bold hover:bg-white dark:hover:bg-white/5 transition-all">
+                                    Join as a Provider
+                                </button>
+</div>
+<div class="flex items-center gap-4 text-sm text-[#687182]">
+<div class="flex -space-x-3">
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 bg-[url('https://placeholder.pics/svg/32')] bg-cover" data-alt="User avatar 1"></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 bg-[url('https://placeholder.pics/svg/32')] bg-cover" data-alt="User avatar 2"></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 bg-[url('https://placeholder.pics/svg/32')] bg-cover" data-alt="User avatar 3"></div>
+</div>
+<span>Trusted by 10,000+ professionals</span>
+</div>
+</div>
+<div class="flex-1 w-full relative">
+<div class="aspect-square rounded-[2rem] bg-primary/5 dark:bg-white/5 p-8 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl border border-gray-100 dark:border-white/10 p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center mb-4">
+<div class="h-4 w-24 bg-gray-100 dark:bg-white/10 rounded-full"></div>
+<div class="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="h-12 w-full bg-background-light dark:bg-white/5 rounded-lg flex items-center px-4 gap-3">
+<div class="h-2 w-2 rounded-full bg-green-500"></div>
+<div class="h-3 w-1/2 bg-gray-200 dark:bg-white/20 rounded-full"></div>
+</div>
+<div class="h-12 w-full bg-primary/10 rounded-lg flex items-center px-4 gap-3">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+<div class="h-3 w-1/3 bg-primary/30 rounded-full"></div>
+</div>
+<div class="h-12 w-full bg-background-light dark:bg-white/5 rounded-lg flex items-center px-4 gap-3">
+<div class="h-2 w-2 rounded-full bg-orange-400"></div>
+<div class="h-3 w-2/3 bg-gray-200 dark:bg-white/20 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof Bar -->
+<section class="bg-white dark:bg-white/5 border-y border-[#dddfe4] dark:border-white/10 py-10">
+<div class="mx-auto max-w-[1200px] px-6">
+<p class="text-center text-sm font-bold tracking-widest text-[#687182] uppercase mb-10">Trusted by professionals in these industries</p>
+<div class="flex flex-wrap justify-center gap-6 md:gap-12 opacity-50 dark:opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">content_cut</span>
+<span class="text-lg font-bold">Salons</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="text-lg font-bold">Clinics</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="text-lg font-bold">Wellness</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">architecture</span>
+<span class="text-lg font-bold">Designers</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">school</span>
+<span class="text-lg font-bold">Tutors</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Features Section -->
+<section class="px-6 lg:px-40 py-24">
+<div class="mx-auto max-w-[1200px]">
+<div class="mb-16">
+<h2 class="text-4xl font-extrabold tracking-tight mb-4">Designed for growth</h2>
+<p class="text-lg text-[#687182] dark:text-gray-400">Everything you need to manage appointments in one place.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Bento Item 1: Large -->
+<div class="md:col-span-2 rounded-2xl bg-white dark:bg-white/5 border border-[#dddfe4] dark:border-white/10 p-8 hover:border-primary/30 transition-all group">
+<div class="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<h3 class="text-2xl font-bold mb-3">Smart Calendar</h3>
+<p class="text-[#687182] dark:text-gray-400 mb-8 max-w-sm">Instant sync across all your devices with advanced collision detection and automated buffer times between sessions.</p>
+<div class="relative h-40 w-full overflow-hidden rounded-xl bg-background-light dark:bg-white/5 border border-dashed border-[#dddfe4] dark:border-white/10 flex items-center justify-center">
+<span class="text-xs font-mono text-primary/30 uppercase tracking-widest">Interactive Calendar Visualization</span>
+</div>
+</div>
+<!-- Bento Item 2 -->
+<div class="rounded-2xl bg-primary text-white p-8 hover:scale-[1.01] transition-all flex flex-col justify-between">
+<div>
+<div class="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white">
+<span class="material-symbols-outlined">notifications_active</span>
+</div>
+<h3 class="text-2xl font-bold mb-3">Automated Reminders</h3>
+<p class="text-white/70">Reduce no-shows with automated SMS and Email alerts that go out exactly when they should.</p>
+</div>
+<div class="mt-8 flex items-center gap-2 bg-white/10 p-3 rounded-lg border border-white/10">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-xs">98% No-show reduction rate</span>
+</div>
+</div>
+<!-- Bento Item 3 -->
+<div class="rounded-2xl bg-white dark:bg-white/5 border border-[#dddfe4] dark:border-white/10 p-8 hover:border-primary/30 transition-all group">
+<div class="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Seamless Payments</h3>
+<p class="text-[#687182] dark:text-gray-400">Get paid securely and on time with integrated Stripe and PayPal support.</p>
+</div>
+<!-- Bento Item 4 -->
+<div class="rounded-2xl bg-white dark:bg-white/5 border border-[#dddfe4] dark:border-white/10 p-8 hover:border-primary/30 transition-all group">
+<div class="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Growth Analytics</h3>
+<p class="text-[#687182] dark:text-gray-400">Track your most popular services and peak booking times to optimize.</p>
+</div>
+<!-- Bento Item 5 -->
+<div class="rounded-2xl bg-white dark:bg-white/5 border border-[#dddfe4] dark:border-white/10 p-8 hover:border-primary/30 transition-all group">
+<div class="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Team Management</h3>
+<p class="text-[#687182] dark:text-gray-400">Add staff members, set individual schedules, and manage permissions.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="px-6 lg:px-40 py-32 bg-primary relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-[100px] translate-x-1/2 translate-y-1/2"></div>
+</div>
+<div class="mx-auto max-w-[800px] text-center relative z-10 flex flex-col items-center gap-10">
+<h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">Ready to reclaim your time?</h2>
+<p class="text-xl text-white/70 max-w-lg leading-relaxed">
+                        Join thousands of businesses and individual providers who trust Bookie for their daily scheduling needs.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+<button class="bg-white text-primary px-10 py-5 rounded-xl text-lg font-bold shadow-xl hover:bg-gray-100 transition-all">Get Started for Free</button>
+<button class="bg-primary/20 border border-white/20 text-white px-10 py-5 rounded-xl text-lg font-bold hover:bg-white/10 transition-all">Schedule a Demo</button>
+</div>
+<p class="text-sm text-white/50">No credit card required. 14-day free trial on all pro features.</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-background-dark border-t border-[#dddfe4] dark:border-white/10 px-6 lg:px-40 py-20">
+<div class="mx-auto max-w-[1200px]">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 lg:gap-8">
+<div class="col-span-2 lg:col-span-2">
+<div class="flex items-center gap-3 mb-6">
+<div class="flex h-8 w-8 items-center justify-center rounded bg-primary text-white">
+<span class="material-symbols-outlined text-xl">grid_view</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-primary dark:text-white">Bookie</h2>
+</div>
+<p class="text-[#687182] dark:text-gray-400 max-w-xs leading-relaxed mb-8">
+                            Empowering small businesses and independent professionals with tools that used to be reserved for the big players.
+                        </p>
+<div class="flex gap-4">
+<div class="h-10 w-10 rounded-full bg-primary/5 dark:bg-white/5 flex items-center justify-center text-primary dark:text-white hover:bg-primary hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined text-lg">public</span>
+</div>
+<div class="h-10 w-10 rounded-full bg-primary/5 dark:bg-white/5 flex items-center justify-center text-primary dark:text-white hover:bg-primary hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined text-lg">share</span>
+</div>
+<div class="h-10 w-10 rounded-full bg-primary/5 dark:bg-white/5 flex items-center justify-center text-primary dark:text-white hover:bg-primary hover:text-white transition-all cursor-pointer">
+<span class="material-symbols-outlined text-lg">chat</span>
+</div>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-sm uppercase tracking-widest text-[#121417] dark:text-white mb-6">Product</h4>
+<ul class="space-y-4 text-sm text-[#687182] dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">Features</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Integrations</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Changelog</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-sm uppercase tracking-widest text-[#121417] dark:text-white mb-6">Company</h4>
+<ul class="space-y-4 text-sm text-[#687182] dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Blog</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Careers</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-sm uppercase tracking-widest text-[#121417] dark:text-white mb-6">Legal</h4>
+<ul class="space-y-4 text-sm text-[#687182] dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">Privacy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Security</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-20 pt-8 border-t border-[#dddfe4] dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-xs text-[#687182] dark:text-gray-500">© 2024 Bookie Scheduling Inc. All rights reserved.</p>
+<div class="flex items-center gap-6 text-xs text-[#687182] dark:text-gray-500">
+<span class="flex items-center gap-1 cursor-pointer hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">language</span> English (US)
+                        </span>
+<span class="cursor-pointer hover:text-primary transition-all">System Status</span>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

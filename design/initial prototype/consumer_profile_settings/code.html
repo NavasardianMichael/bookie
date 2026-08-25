@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consumer Profile Settings - Bookie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-nav { background-color: #f1f2f4; border-left: 3px solid #18294e; }
+        input:focus { border-color: #18294e !rd-only; ring-color: #18294e; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#121417] dark:text-white transition-colors duration-200">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-[#e5e7eb] dark:border-[#2d323b] bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-8 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary dark:text-white">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined !text-xl">calendar_today</span>
+</div>
+<h2 class="text-xl font-extrabold tracking-tight">Bookie</h2>
+</div>
+<div class="hidden md:flex flex-col min-w-80 h-10">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f1f2f4] dark:bg-[#1e232e]">
+<div class="text-[#687182] flex items-center justify-center pl-4">
+<span class="material-symbols-outlined !text-xl">search</span>
+</div>
+<input class="form-input w-full border-none bg-transparent focus:ring-0 placeholder:text-[#687182] text-sm" placeholder="Search services or providers" value=""/>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex size-10 items-center justify-center rounded-lg bg-[#f1f2f4] dark:bg-[#1e232e] text-primary dark:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full border border-[#e5e7eb] dark:border-[#2d323b] bg-cover bg-center" data-alt="User profile avatar close-up portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFZuiTrEYWnceMTv06NlQoDrCwIOHhd9g8_ZIGoh35p7agDEU0PWKYFUUJoutk73BfeaSBdcoscIR7Q-vWYAQO-iIwRGkt53HuM-lEkFbbMBPjzxpEkwSMjrsGdwaYRKkZS3rdYCqYXwlL01wgcEI1IKCeBsqdaPhEuhIqmT4uu4ZTWn-mgNDw4ra6bOK2aE9ZkVbCFlyco14zjLg-NdRh1Qlujdc-om5GaTqoDYpMzYjfM2P3zUU1pDokztxo1QcZi3xOpm2Cg7qL');"></div>
+</div>
+</header>
+<div class="flex min-h-[calc(100vh-65px)]">
+<!-- Side Navigation -->
+<aside class="w-64 border-r border-[#e5e7eb] dark:border-[#2d323b] bg-white dark:bg-background-dark p-6 flex flex-col justify-between">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col px-2">
+<h1 class="text-[#121417] dark:text-white text-lg font-bold leading-tight">Alex Sterling</h1>
+<p class="text-[#687182] text-xs font-medium uppercase tracking-wider">Consumer Account</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg active-nav text-primary dark:text-white font-semibold" href="#">
+<span class="material-symbols-outlined !text-xl">person</span>
+<span class="text-sm">Profile</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] dark:text-gray-400 hover:bg-[#f1f2f4] dark:hover:bg-[#1e232e] transition-all" href="#">
+<span class="material-symbols-outlined !text-xl">event_available</span>
+<span class="text-sm">Appointments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] dark:text-gray-400 hover:bg-[#f1f2f4] dark:hover:bg-[#1e232e] transition-all" href="#">
+<span class="material-symbols-outlined !text-xl">mail</span>
+<span class="text-sm">Notifications</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] dark:text-gray-400 hover:bg-[#f1f2f4] dark:hover:bg-[#1e232e] transition-all" href="#">
+<span class="material-symbols-outlined !text-xl">verified_user</span>
+<span class="text-sm">Security</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] dark:text-gray-400 hover:bg-[#f1f2f4] dark:hover:bg-[#1e232e] transition-all" href="#">
+<span class="material-symbols-outlined !text-xl">payments</span>
+<span class="text-sm">Billing</span>
+</a>
+</nav>
+</div>
+<div class="px-2">
+<button class="flex items-center gap-3 text-[#687182] hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined !text-xl">logout</span>
+<span class="text-sm font-medium">Sign Out</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto px-12 py-8 max-w-7xl">
+<!-- Breadcrumbs & Heading -->
+<div class="mb-8">
+<div class="flex items-center gap-2 mb-2">
+<a class="text-[#687182] dark:text-gray-500 text-sm font-medium hover:underline" href="#">Dashboard</a>
+<span class="text-[#687182] dark:text-gray-500 text-sm font-medium">/</span>
+<span class="text-primary dark:text-white text-sm font-semibold">Profile Settings</span>
+</div>
+<h1 class="text-4xl font-black text-[#121417] dark:text-white tracking-tight">Account Settings</h1>
+<p class="text-[#687182] dark:text-gray-400 mt-1">Update your personal details and schedule preferences.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Personal Information Section (Span 8) -->
+<section class="col-span-12 lg:col-span-8 space-y-6">
+<div class="bg-white dark:bg-[#1e232e] border border-[#e5e7eb] dark:border-[#2d323b] rounded-xl p-6">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-white">account_circle</span>
+                            Personal Information
+                        </h2>
+<div class="flex items-center gap-6 mb-8 pb-6 border-b border-[#f1f2f4] dark:border-[#2d323b]">
+<div class="relative">
+<div class="size-20 rounded-full border-2 border-primary/20 bg-cover bg-center" data-alt="Profile photo of a smiling man" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrZUe7tRRzYpZYW0mIq_KGn7D4HJ5l-lcFvNYn9AXx8H9W637Kvz08rmex6vsnhBPncl1cYzy_hTF3-D0auY-iDFR2ECfbx7CQt8E1AO2pKyHEARQz5YP-6n6eoxHPb9XTdaPZ9sBaAHOtTMq_Y3AuPO0rUm4uv8WVVTSn6rMtkPWHEIHaCSm4dH49izK9oY3m-JeFHXAms_3--Fp7uMlMDc8kvm-6ADqYk29SINuUIRfnlzIqQ673hkgYwaQXlP9HZMTLFOqTTv6Q');"></div>
+<button class="absolute -bottom-1 -right-1 size-8 bg-primary text-white rounded-full border-2 border-white dark:border-[#1e232e] flex items-center justify-center">
+<span class="material-symbols-outlined !text-sm">edit</span>
+</button>
+</div>
+<div>
+<h3 class="font-bold text-lg">Alex Sterling</h3>
+<p class="text-sm text-[#687182]">JPG or PNG. Max size 2MB.</p>
+<div class="flex gap-2 mt-2">
+<button class="text-xs font-bold px-3 py-1.5 bg-[#f1f2f4] dark:bg-[#2d323b] rounded-lg">Upload new</button>
+<button class="text-xs font-bold px-3 py-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg">Remove</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#121417] dark:text-gray-300">First Name</label>
+<input class="form-input rounded-lg border-[#e5e7eb] dark:border-[#2d323b] bg-transparent focus:border-primary focus:ring-1 focus:ring-primary dark:text-white" type="text" value="Alex"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#121417] dark:text-gray-300">Last Name</label>
+<input class="form-input rounded-lg border-[#e5e7eb] dark:border-[#2d323b] bg-transparent focus:border-primary focus:ring-1 focus:ring-primary dark:text-white" type="text" value="Sterling"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#121417] dark:text-gray-300">Email Address</label>
+<input class="form-input rounded-lg border-[#e5e7eb] dark:border-[#2d323b] bg-transparent focus:border-primary focus:ring-1 focus:ring-primary dark:text-white" type="email" value="alex.sterling@example.com"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#121417] dark:text-gray-300">Phone Number</label>
+<input class="form-input rounded-lg border-[#e5e7eb] dark:border-[#2d323b] bg-transparent focus:border-primary focus:ring-1 focus:ring-primary dark:text-white" type="tel" value="+1 (555) 000-0000"/>
+</div>
+<div class="md:col-span-2 flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#121417] dark:text-gray-300">Timezone</label>
+<select class="form-select rounded-lg border-[#e5e7eb] dark:border-[#2d323b] bg-transparent focus:border-primary focus:ring-1 focus:ring-primary dark:text-white">
+<option>(GMT-08:00) Pacific Time (US &amp; Canada)</option>
+<option>(GMT-05:00) Eastern Time (US &amp; Canada)</option>
+<option>(GMT+00:00) London</option>
+</select>
+</div>
+</div>
+<div class="mt-10 flex justify-end gap-3 border-t border-[#f1f2f4] dark:border-[#2d323b] pt-6">
+<button class="px-5 py-2.5 rounded-lg border border-[#e5e7eb] dark:border-[#2d323b] font-bold text-sm hover:bg-gray-50 dark:hover:bg-[#2d323b]">Cancel</button>
+<button class="px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-sm hover:bg-opacity-90 transition-all">Save Changes</button>
+</div>
+</div>
+<!-- Notifications (Nested in Main Flow) -->
+<div class="bg-white dark:bg-[#1e232e] border border-[#e5e7eb] dark:border-[#2d323b] rounded-xl p-6">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-white">notifications_active</span>
+                            Notification Preferences
+                        </h2>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-[#121417] dark:text-white">Appointment Reminders</p>
+<p class="text-sm text-[#687182]">Get notified 24 hours before your booking.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between border-t border-[#f1f2f4] dark:border-[#2d323b] pt-4">
+<div>
+<p class="font-bold text-[#121417] dark:text-white">Marketing Emails</p>
+<p class="text-sm text-[#687182]">Receive offers and new provider announcements.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between border-t border-[#f1f2f4] dark:border-[#2d323b] pt-4">
+<div>
+<p class="font-bold text-[#121417] dark:text-white">SMS Updates</p>
+<p class="text-sm text-[#687182]">Direct texts for last-minute cancellations or changes.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Sidebar Content (Upcoming Appointments & Security) (Span 4) -->
+<aside class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Upcoming Appointments Card -->
+<div class="bg-white dark:bg-[#1e232e] border border-[#e5e7eb] dark:border-[#2d323b] rounded-xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-bold">Upcoming</h2>
+<a class="text-xs font-bold text-primary dark:text-blue-400 hover:underline" href="#">View All</a>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Appointment 1 -->
+<div class="group relative flex items-center gap-4 p-3 rounded-lg border border-[#f1f2f4] dark:border-[#2d323b] hover:bg-[#f6f7f8] dark:hover:bg-[#252a36] transition-colors">
+<div class="size-12 rounded-lg bg-cover bg-center" data-alt="Female doctor headshot" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDmzJwD-2CS9O2FJfvbbGtMLuMWTls9UFN9s3VTuFMSOWe6IDhADZimmkUFvLuTe2l84-PP5Esuh0Z15BUHYEDIlGBs5a3tjg2ldMewGhCweo1vdLmgctNMkh-5Ta8QWbJ2ZOc_wMexFirxb8Mw4M2_1h-wiLQVwZbP8gORfXfAly1J-FmukT4i35l6Gu63f6PvW1S71pytti8889IW2x6TNwXCK1R7ZoQZ_kH5hLQXDEhzFmxOJhH17cO9vFLmJFz3lmwaod5QsFrM');"></div>
+<div class="flex-1">
+<p class="text-xs font-bold text-primary dark:text-blue-300">Sep 24, 10:00 AM</p>
+<p class="text-sm font-bold">Dr. Sarah Jenkins</p>
+<p class="text-xs text-[#687182]">General Checkup</p>
+</div>
+<button class="p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-xl">more_vert</span>
+</button>
+</div>
+<!-- Appointment 2 -->
+<div class="group relative flex items-center gap-4 p-3 rounded-lg border border-[#f1f2f4] dark:border-[#2d323b] hover:bg-[#f6f7f8] dark:hover:bg-[#252a36] transition-colors">
+<div class="size-12 rounded-lg bg-cover bg-center" data-alt="Minimalist hair salon interior" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDH48ayNziVJTwlF-PtZOPVd4dnxXjNuGHy_GOz9kHkdFipM23wB3x9qoGtxbBeYaZLtEiVk8As6qHNIBh1bXYofYEZFoFRlDQnVG6mqPf4Bt-PR73K5o8WZsU8yQFmSIat9YXULQPXNNnqjiNXN94jekb2i8rZOjxjoI61smI5ItDjqGFiw3Q5gBlg5UchG11txyXOh4sY9LICLUkqaeRBfy6JutT0mXchEgLB2Av8HOcm2EI_2bZhQ0grAFREL_Opxx2GCTHczx_m');"></div>
+<div class="flex-1">
+<p class="text-xs font-bold text-primary dark:text-blue-300">Oct 02, 2:30 PM</p>
+<p class="text-sm font-bold">The Loft Barber Shop</p>
+<p class="text-xs text-[#687182]">Haircut &amp; Beard Trim</p>
+</div>
+<button class="p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-xl">more_vert</span>
+</button>
+</div>
+</div>
+<button class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-[#e5e7eb] dark:border-[#2d323b] text-[#687182] dark:text-gray-400 text-sm font-bold flex items-center justify-center gap-2 hover:border-primary hover:text-primary dark:hover:text-white transition-all">
+<span class="material-symbols-outlined !text-lg">add</span>
+                            Book a Service
+                        </button>
+</div>
+<!-- Security Quick-links -->
+<div class="bg-primary text-white rounded-xl p-6 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 opacity-10">
+<span class="material-symbols-outlined !text-[120px]">shield</span>
+</div>
+<h2 class="text-lg font-bold mb-4 relative z-10">Security Center</h2>
+<ul class="space-y-4 relative z-10">
+<li>
+<a class="flex items-center justify-between hover:translate-x-1 transition-transform" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined !text-xl opacity-70">key</span>
+<span class="text-sm font-medium">Update Password</span>
+</div>
+<span class="material-symbols-outlined !text-sm">chevron_right</span>
+</a>
+</li>
+<li class="pt-4 border-t border-white/10">
+<a class="flex items-center justify-between hover:translate-x-1 transition-transform" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined !text-xl opacity-70">authenticator</span>
+<div class="flex flex-col">
+<span class="text-sm font-medium">Two-factor Auth</span>
+<span class="text-[10px] bg-green-500/20 text-green-400 px-1.5 rounded-full self-start">Active</span>
+</div>
+</div>
+<span class="material-symbols-outlined !text-sm">chevron_right</span>
+</a>
+</li>
+<li class="pt-4 border-t border-white/10">
+<a class="flex items-center justify-between hover:translate-x-1 transition-transform" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined !text-xl opacity-70">devices</span>
+<span class="text-sm font-medium">Active Sessions</span>
+</div>
+<span class="material-symbols-outlined !text-sm">chevron_right</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- Need Help Card -->
+<div class="bg-white dark:bg-[#1e232e] border border-[#e5e7eb] dark:border-[#2d323b] rounded-xl p-6">
+<h3 class="font-bold text-sm mb-2">Need help?</h3>
+<p class="text-xs text-[#687182] dark:text-gray-400 mb-4 leading-relaxed">Check our Help Center or contact our 24/7 support team for any issues regarding your bookings.</p>
+<button class="w-full py-2 bg-[#f1f2f4] dark:bg-[#2d323b] text-[#121417] dark:text-white text-xs font-bold rounded-lg hover:bg-gray-200 dark:hover:bg-[#353b47]">Contact Support</button>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>

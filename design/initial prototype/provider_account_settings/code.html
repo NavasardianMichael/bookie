@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Provider Account Settings - Bookie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-card {
+            @apply bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 rounded-xl p-6 transition-all;
+        }
+        .nav-item-active {
+            @apply bg-primary/10 text-primary dark:text-white border-l-4 border-primary;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-gray-100 min-h-screen">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 lg:px-20 py-3">
+<div class="max-w-[1400px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-primary text-white p-1.5 rounded-lg">
+<span class="material-symbols-outlined block text-xl">grid_view</span>
+</div>
+<h1 class="text-xl font-extrabold tracking-tight">Bookie</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold text-gray-500 hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-semibold text-gray-500 hover:text-primary transition-colors" href="#">Calendar</a>
+<a class="text-sm font-semibold text-gray-500 hover:text-primary transition-colors" href="#">Clients</a>
+<a class="text-sm font-semibold text-primary" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-[1px] bg-gray-200 dark:bg-gray-800 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold">Dr. Julianne Moore</p>
+<p class="text-[10px] text-gray-500">Premium Plan</p>
+</div>
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-primary/20" data-alt="Professional female doctor profile headshot" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCy088ZGvL9-mD-cWgqPHjUkQ6swNha0t7912EIFzVyYIk2nV7Xy2lUZ4a4rItGTnNX1WarQiWalOgxgCJzd0PSetQUmTMCg-mmyIv_cl2vAFkqarWwYoM_fQ-yXTWTJOzie3g3qHSGmm_GrDwtzvkf0tYHI6kdlo2Z6ihj4tdLIXSy6uI6S1OZOB6qTScAhQ3jlUUxrxvXSvyu1CgXo8MihENTEs9SleuAoJQyL0RiTNPInFK_VMM_j5Pc6BcQPRmSQOsLoPfRm5GL");'></div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-8 px-6 lg:px-20 py-10">
+<!-- Sidebar Navigation -->
+<aside class="w-full lg:w-64 flex flex-col gap-1 shrink-0">
+<div class="mb-6 px-3">
+<h2 class="text-2xl font-black tracking-tight">Settings</h2>
+<p class="text-sm text-gray-500">Configure your business workspace</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg nav-item-active transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px]">person</span>
+<span class="text-sm font-semibold">General Profile</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+<span class="text-sm font-semibold">Availability</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="text-sm font-semibold">Payments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+<span class="text-sm font-semibold">Security</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+<span class="text-sm font-semibold">Notifications</span>
+</a>
+<div class="h-px bg-gray-200 dark:border-gray-800 my-4 mx-3"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="text-sm font-semibold">Sign Out</span>
+</a>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 space-y-8">
+<!-- Hero Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-primary text-white p-8 rounded-2xl shadow-xl shadow-primary/10 relative overflow-hidden">
+<div class="z-10">
+<span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">Account Status: Active</span>
+<h3 class="text-3xl font-bold mb-2">Workspace Overview</h3>
+<p class="text-primary-200 text-white/70 max-w-md">Manage your professional presence and booking preferences from one unified dashboard.</p>
+</div>
+<div class="z-10 flex gap-3">
+<button class="px-6 py-2.5 bg-white text-primary font-bold text-sm rounded-lg hover:bg-gray-100 transition-colors">Preview Profile</button>
+<button class="px-6 py-2.5 bg-white/10 text-white border border-white/20 font-bold text-sm rounded-lg hover:bg-white/20 transition-colors">Share Link</button>
+</div>
+<!-- Abstract Design Element -->
+<div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/10 to-transparent pointer-events-none"></div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Availability Section -->
+<section class="bento-card col-span-1 md:col-span-2">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h4 class="text-lg font-bold">Recurring Availability</h4>
+<p class="text-sm text-gray-500">Define your standard working hours for each day of the week.</p>
+</div>
+<button class="text-sm text-primary font-bold flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm">add</span> Add Overrides
+                        </button>
+</div>
+<div class="space-y-4">
+<!-- Monday Row -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-background-dark/50 rounded-lg border border-gray-100 dark:border-gray-800 gap-4">
+<div class="flex items-center gap-4 min-w-[120px]">
+<input checked="" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-bold text-sm">Monday</span>
+</div>
+<div class="flex items-center gap-3 flex-1 justify-center sm:justify-end">
+<div class="flex items-center gap-2">
+<input class="w-24 text-center text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark rounded-md" type="text" value="09:00 AM"/>
+<span class="text-gray-400">to</span>
+<input class="w-24 text-center text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark rounded-md" type="text" value="05:00 PM"/>
+</div>
+<button class="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<!-- Tuesday Row -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-background-dark/50 rounded-lg border border-gray-100 dark:border-gray-800 gap-4">
+<div class="flex items-center gap-4 min-w-[120px]">
+<input checked="" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-bold text-sm">Tuesday</span>
+</div>
+<div class="flex items-center gap-3 flex-1 justify-center sm:justify-end">
+<div class="flex items-center gap-2">
+<input class="w-24 text-center text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark rounded-md" type="text" value="09:00 AM"/>
+<span class="text-gray-400">to</span>
+<input class="w-24 text-center text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark rounded-md" type="text" value="05:00 PM"/>
+</div>
+<button class="p-1.5 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<!-- Saturday (Closed) -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white dark:bg-background-dark rounded-lg border border-dashed border-gray-200 dark:border-gray-800 gap-4">
+<div class="flex items-center gap-4 min-w-[120px]">
+<input class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-bold text-sm text-gray-400">Saturday</span>
+</div>
+<div class="text-sm font-medium text-gray-400 italic">Unavailable</div>
+</div>
+</div>
+</section>
+<!-- Vacation Mode Card -->
+<section class="bento-card">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-amber-100 dark:bg-amber-900/30 text-amber-600 p-2 rounded-lg">
+<span class="material-symbols-outlined block">beach_access</span>
+</div>
+<h4 class="text-lg font-bold">Vacation Mode</h4>
+</div>
+<div class="space-y-4">
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-sm font-medium">Temporarily pause bookings</span>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</label>
+<div class="space-y-2 pt-2">
+<p class="text-[11px] font-bold text-gray-400 uppercase">Automatic Response</p>
+<textarea class="w-full text-sm rounded-lg border-gray-200 dark:border-gray-700 dark:bg-background-dark placeholder:text-gray-400" placeholder="I'm away on vacation and will return on..." rows="3"></textarea>
+</div>
+</div>
+</section>
+<!-- Payment Integration Card -->
+<section class="bento-card">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 p-2 rounded-lg">
+<span class="material-symbols-outlined block">account_balance_wallet</span>
+</div>
+<h4 class="text-lg font-bold">Payments</h4>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-background-dark/50 rounded-xl border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="bg-white dark:bg-gray-800 p-1 rounded border border-gray-200 dark:border-gray-700 shadow-sm">
+<span class="material-symbols-outlined text-[#635BFF]">payments</span>
+</div>
+<div>
+<p class="text-sm font-bold">Stripe Connect</p>
+<p class="text-[10px] text-green-500 font-bold uppercase">Connected</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-xs font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 transition-colors">Manage</button>
+</div>
+<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-background-dark/50 rounded-xl border border-gray-100 dark:border-gray-800 opacity-60">
+<div class="flex items-center gap-3">
+<div class="bg-white dark:bg-gray-800 p-1 rounded border border-gray-200 dark:border-gray-700 shadow-sm">
+<span class="material-symbols-outlined text-[#253B80]">account_balance</span>
+</div>
+<div>
+<p class="text-sm font-bold">PayPal Business</p>
+<p class="text-[10px] text-gray-500 font-bold uppercase">Not Linked</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-xs font-bold bg-primary text-white rounded hover:bg-primary/90 transition-colors">Connect</button>
+</div>
+</div>
+</section>
+<!-- Security Section -->
+<section class="bento-card col-span-1 md:col-span-2">
+<div class="flex items-center gap-3 mb-8">
+<div class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 p-2 rounded-lg">
+<span class="material-symbols-outlined block">lock</span>
+</div>
+<div>
+<h4 class="text-lg font-bold">Security &amp; Authentication</h4>
+<p class="text-sm text-gray-500">Protect your workspace and client data.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-4">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold">Current Password</label>
+<input class="rounded-lg border-gray-200 dark:border-gray-700 dark:bg-background-dark" placeholder="••••••••" type="password"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold">New Password</label>
+<input class="rounded-lg border-gray-200 dark:border-gray-700 dark:bg-background-dark" placeholder="Enter new password" type="password"/>
+</div>
+<button class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors">Update Password</button>
+</div>
+<div class="bg-gray-50 dark:bg-background-dark/50 p-6 rounded-xl border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-sm mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-green-500 text-lg">verified_user</span>
+                                    Two-Factor Authentication
+                                </h5>
+<p class="text-xs text-gray-500 leading-relaxed mb-4">
+                                    Add an extra layer of security to your account by requiring more than just a password to log in.
+                                </p>
+</div>
+<div class="flex items-center gap-4">
+<span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-500 text-[10px] font-bold rounded">ENABLED</span>
+<button class="text-xs font-bold text-primary hover:underline">Configuration Settings</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Global Action Bar -->
+<div class="sticky bottom-8 left-0 right-0 z-40 flex items-center justify-between p-4 bg-white/90 dark:bg-background-dark/90 backdrop-blur border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl">
+<div class="flex items-center gap-3 px-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+</span>
+<span class="text-xs font-bold text-gray-500">All changes saved automatically</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">Discard</button>
+<button class="px-8 py-2.5 bg-primary text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">Save All Changes</button>
+</div>
+</div>
+</div>
+</main>
+<footer class="max-w-[1400px] mx-auto px-6 lg:px-20 py-12 border-t border-gray-200 dark:border-gray-800 mt-10">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2 text-gray-400">
+<span class="material-symbols-outlined text-lg">grid_view</span>
+<span class="text-sm font-medium">© 2024 Bookie Scheduling Inc.</span>
+</div>
+<div class="flex gap-6">
+<a class="text-sm text-gray-500 hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-sm text-gray-500 hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-sm text-gray-500 hover:text-primary transition-colors" href="#">Help Center</a>
+</div>
+</div>
+</footer>
+</body></html>

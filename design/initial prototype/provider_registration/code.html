@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Provider Registration | Bookie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f1f2f4] dark:border-white/10 bg-white dark:bg-background-dark px-6 md:px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4 text-primary dark:text-white">
+<div class="size-6 text-primary dark:text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">calendar_today</span>
+</div>
+<h2 class="text-primary dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Bookie</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-[#121417] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Features</a>
+<a class="text-[#121417] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Pricing</a>
+<a class="text-[#121417] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Support</a>
+</div>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-all">
+<span>Sign In</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex items-center justify-center p-6">
+<div class="w-full max-w-[480px] flex flex-col gap-8">
+<!-- Headline Section -->
+<div class="text-center">
+<h1 class="text-primary dark:text-white tracking-tight text-[32px] font-bold leading-tight pb-3">Grow your business with Bookie</h1>
+<p class="text-[#687182] dark:text-gray-400 text-sm font-normal leading-normal px-4">Join thousands of service providers managing appointments with ease</p>
+</div>
+<!-- Registration Card -->
+<div class="bg-white dark:bg-background-dark/50 border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
+<!-- Social Login -->
+<div class="flex flex-col gap-4">
+<button class="w-full flex items-center justify-center gap-3 h-12 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all text-[#121417] dark:text-white font-bold text-sm">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span>Continue with Google</span>
+</button>
+<div class="relative py-4">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-gray-200 dark:border-white/10"></div>
+</div>
+<div class="relative flex justify-center text-xs uppercase">
+<span class="bg-white dark:bg-background-dark px-4 text-[#687182] dark:text-gray-500 font-medium">Or register with email</span>
+</div>
+</div>
+</div>
+<!-- Manual Form -->
+<form class="space-y-4">
+<div class="space-y-1.5">
+<label class="text-sm font-semibold text-primary dark:text-gray-200" for="business_name">Business Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">store</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:ring-primary focus:border-primary text-sm transition-all" id="business_name" placeholder="Acme Services" required="" type="text"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-sm font-semibold text-primary dark:text-gray-200" for="email">Professional Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">mail</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:ring-primary focus:border-primary text-sm transition-all" id="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-sm font-semibold text-primary dark:text-gray-200" for="phone">Phone Number (Mandatory)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">call</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:ring-primary focus:border-primary text-sm transition-all" id="phone" placeholder="+1 (555) 000-0000" required="" type="tel"/>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full h-12 bg-primary dark:bg-primary text-white rounded-lg font-bold text-base hover:bg-opacity-95 transition-all shadow-md shadow-primary/20" type="submit">
+                            Create Provider Account
+                        </button>
+</div>
+</form>
+<!-- Terms and Privacy -->
+<p class="mt-6 text-center text-xs text-[#687182] dark:text-gray-500 leading-relaxed px-2">
+                    By clicking "Create Provider Account", you agree to our 
+                    <a class="underline hover:text-primary transition-colors" href="#">Terms of Service</a> 
+                    and 
+                    <a class="underline hover:text-primary transition-colors" href="#">Privacy Policy</a>.
+                </p>
+</div>
+<!-- Footer Links -->
+<div class="text-center text-sm">
+<p class="text-[#687182] dark:text-gray-400">
+                    Already have an account? 
+                    <a class="text-primary dark:text-white font-bold hover:underline" href="#">Sign In</a>
+</p>
+</div>
+</div>
+</main>
+<!-- Page Footer -->
+<footer class="py-10 px-6 border-t border-gray-200 dark:border-white/10 mt-auto">
+<div class="max-w-[960px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2 text-primary dark:text-white opacity-60">
+<span class="material-symbols-outlined text-xl">calendar_today</span>
+<span class="text-sm font-bold">Bookie © 2023</span>
+</div>
+<div class="flex gap-6">
+<a class="text-[#687182] dark:text-gray-400 text-xs font-medium hover:text-primary transition-colors" href="#">Documentation</a>
+<a class="text-[#687182] dark:text-gray-400 text-xs font-medium hover:text-primary transition-colors" href="#">Contact Support</a>
+<a class="text-[#687182] dark:text-gray-400 text-xs font-medium hover:text-primary transition-colors" href="#">API Status</a>
+</div>
+</div>
+</footer>
+</body></html>

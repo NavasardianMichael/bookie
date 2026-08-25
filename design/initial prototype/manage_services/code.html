@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bookie - Manage Services</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#18294e",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#14171e",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-[#dddfe4] dark:border-gray-800 bg-white dark:bg-background-dark flex flex-col justify-between py-6 px-4">
+<div class="flex flex-col gap-8">
+<!-- Brand -->
+<div class="flex items-center gap-3 px-2">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">auto_stories</span>
+</div>
+<div>
+<h1 class="text-[#121417] dark:text-white text-base font-bold leading-tight">Bookie</h1>
+<p class="text-[#687182] text-xs font-normal">Provider Portal</p>
+</div>
+</div>
+<!-- Nav Items -->
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<p class="text-sm font-medium">Services</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<p class="text-sm font-medium">Appointments</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<p class="text-sm font-medium">Earnings</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium">Settings</p>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<button class="flex items-center justify-center gap-2 w-full py-2.5 border border-[#dddfe4] dark:border-gray-800 rounded-lg text-sm font-bold text-[#121417] dark:text-white bg-white dark:bg-gray-800">
+<span class="material-symbols-outlined text-sm">visibility</span>
+                    Client View
+                </button>
+<div class="flex items-center gap-3 px-2 pt-4 border-t border-[#dddfe4] dark:border-gray-800">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="Profile picture of the service provider" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD2VQ_gXxGJ5qGdNOHg_3BPwSVH50W3NrvAv02MlIfAVPPVtmawHzJEXjGTHlIgwPf7qIAVIHaU4Xtah4AgBzwzbxn1yk-naqD_TFvBGP2sH4QVLhekTS0C-52_99A2QZq47J1B2tXanUt6irlVDZHTBdX9ChvsZbSIgNtysOhRGsBGBAFEdtsyuQCQKR17qXYpIVzBrasbxlLrHLjVc0jdBOVC9jwNftjQWUcP-EOpJEryWKQzcFYH51nMsSEjVGIfPMGjbdIkC4KN");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-sm font-bold truncate dark:text-white">Alex Rivera</p>
+<p class="text-[10px] text-[#687182] truncate">Pro Plan Member</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Header -->
+<header class="flex items-center justify-between px-8 py-4 bg-white dark:bg-background-dark border-b border-[#dddfe4] dark:border-gray-800 sticky top-0 z-10">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#687182] text-xl">search</span>
+<input class="w-full bg-[#f1f2f4] dark:bg-gray-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 dark:text-white" placeholder="Search services..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 rounded-lg relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
+</button>
+<button class="p-2 text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 rounded-lg">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</div>
+</header>
+<!-- Page Body -->
+<div class="p-8 max-w-7xl mx-auto w-full">
+<!-- Page Heading Section -->
+<div class="flex flex-wrap items-end justify-between gap-6 mb-8">
+<div class="space-y-1">
+<h1 class="text-3xl font-extrabold tracking-tight text-[#121417] dark:text-white">Manage Services</h1>
+<p class="text-[#687182] dark:text-gray-400 text-base">Configure your offerings, durations, and pricing.</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined">add</span>
+                        Add New Service
+                    </button>
+</div>
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#dddfe4] dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg">
+<span class="material-symbols-outlined">layers</span>
+</div>
+<div>
+<p class="text-sm font-medium text-[#687182]">Total Services</p>
+<p class="text-2xl font-bold text-[#121417] dark:text-white">12</p>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#dddfe4] dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="p-3 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-lg">
+<span class="material-symbols-outlined">event_available</span>
+</div>
+<div>
+<p class="text-sm font-medium text-[#687182]">Active Bookings</p>
+<p class="text-2xl font-bold text-[#121417] dark:text-white">48</p>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl border border-[#dddfe4] dark:border-gray-800 shadow-sm flex items-center gap-4">
+<div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 rounded-lg">
+<span class="material-symbols-outlined">star</span>
+</div>
+<div>
+<p class="text-sm font-medium text-[#687182]">Avg. Rating</p>
+<p class="text-2xl font-bold text-[#121417] dark:text-white">4.9</p>
+</div>
+</div>
+</div>
+<!-- Tabs Navigation -->
+<div class="border-b border-[#dddfe4] dark:border-gray-800 mb-8 overflow-x-auto whitespace-nowrap">
+<div class="flex gap-8">
+<a class="pb-3 border-b-2 border-primary text-[#121417] dark:text-white font-bold text-sm" href="#">All Services</a>
+<a class="pb-3 border-b-2 border-transparent text-[#687182] hover:text-primary font-bold text-sm" href="#">Active</a>
+<a class="pb-3 border-b-2 border-transparent text-[#687182] hover:text-primary font-bold text-sm" href="#">Drafts</a>
+<a class="pb-3 border-b-2 border-transparent text-[#687182] hover:text-primary font-bold text-sm" href="#">Archived</a>
+</div>
+</div>
+<!-- Services Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Service Card 1 -->
+<div class="bg-white dark:bg-background-dark border border-[#dddfe4] dark:border-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow group flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#f1f2f4] dark:bg-gray-800 rounded-lg flex items-center justify-center text-primary dark:text-white">
+<span class="material-symbols-outlined">business_center</span>
+</div>
+<button class="text-[#687182] hover:text-[#121417] dark:hover:text-white">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h3 class="text-lg font-bold text-[#121417] dark:text-white mb-2">Strategy Consultation</h3>
+<p class="text-sm text-[#687182] dark:text-gray-400 mb-6 line-clamp-2">
+                                Deep dive into your business strategy, growth bottlenecks, and market positioning.
+                            </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-[#f1f2f4] dark:border-gray-800">
+<div class="flex gap-4">
+<div class="flex items-center gap-1 text-[#121417] dark:text-white font-semibold">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs">60m</span>
+</div>
+<div class="flex items-center gap-1 text-[#121417] dark:text-white font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="text-xs">$120.00</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold uppercase rounded tracking-wider">Active</span>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="bg-white dark:bg-background-dark border border-[#dddfe4] dark:border-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow group flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#f1f2f4] dark:bg-gray-800 rounded-lg flex items-center justify-center text-primary dark:text-white">
+<span class="material-symbols-outlined">brush</span>
+</div>
+<button class="text-[#687182] hover:text-[#121417] dark:hover:text-white">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h3 class="text-lg font-bold text-[#121417] dark:text-white mb-2">UI Design Review</h3>
+<p class="text-sm text-[#687182] dark:text-gray-400 mb-6 line-clamp-2">
+                                Professional feedback on your product's user interface and overall experience.
+                            </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-[#f1f2f4] dark:border-gray-800">
+<div class="flex gap-4">
+<div class="flex items-center gap-1 text-[#121417] dark:text-white font-semibold">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs">45m</span>
+</div>
+<div class="flex items-center gap-1 text-[#121417] dark:text-white font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="text-xs">$85.00</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold uppercase rounded tracking-wider">Active</span>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="bg-white dark:bg-background-dark border border-[#dddfe4] dark:border-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow group flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#f1f2f4] dark:bg-gray-800 rounded-lg flex items-center justify-center text-primary dark:text-white">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<button class="text-[#687182] hover:text-[#121417] dark:hover:text-white">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h3 class="text-lg font-bold text-[#121417] dark:text-white mb-2">Technical Pair Programming</h3>
+<p class="text-sm text-[#687182] dark:text-gray-400 mb-6 line-clamp-2">
+                                Hands-on coding session to help solve complex bugs or architecture issues.
+                            </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-[#f1f2f4] dark:border-gray-800">
+<div class="flex gap-4">
+<div class="flex items-center gap-1 text-[#121417] dark:text-white font-semibold">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs">90m</span>
+</div>
+<div class="flex items-center gap-1 text-[#121417] dark:text-white font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="text-xs">$150.00</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold uppercase rounded tracking-wider">Active</span>
+</div>
+</div>
+<!-- Service Card 4 (Draft) -->
+<div class="bg-white dark:bg-background-dark border border-dashed border-[#dddfe4] dark:border-gray-800 rounded-xl p-6 opacity-80 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#f1f2f4] dark:bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+<span class="material-symbols-outlined text-gray-400">mail</span>
+</div>
+<button class="text-[#687182] hover:text-[#121417] dark:hover:text-white">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<h3 class="text-lg font-bold text-[#121417] dark:text-white mb-2">Marketing Audit</h3>
+<p class="text-sm text-[#687182] dark:text-gray-400 mb-6 line-clamp-2">
+                                (Draft) Comprehensive analysis of current email and social media campaigns.
+                            </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-[#f1f2f4] dark:border-gray-800">
+<div class="flex gap-4">
+<div class="flex items-center gap-1 text-[#687182] font-semibold">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs">30m</span>
+</div>
+<div class="flex items-center gap-1 text-[#687182] font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="text-xs">$0.00</span>
+</div>
+</div>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-[10px] font-bold uppercase rounded tracking-wider">Draft</span>
+</div>
+</div>
+<!-- Add New Card CTA -->
+<button class="border-2 border-dashed border-[#dddfe4] dark:border-gray-800 rounded-xl p-6 flex flex-col items-center justify-center text-[#687182] hover:bg-[#f1f2f4] dark:hover:bg-gray-800 transition-colors group h-full min-h-[220px]">
+<div class="w-12 h-12 rounded-full border border-[#dddfe4] dark:border-gray-800 flex items-center justify-center mb-4 group-hover:bg-white dark:group-hover:bg-background-dark transition-colors">
+<span class="material-symbols-outlined">add</span>
+</div>
+<span class="text-sm font-bold">Add Another Service</span>
+</button>
+</div>
+<!-- Pagination/Load More (Subtle) -->
+<div class="mt-12 flex justify-center">
+<button class="text-sm font-bold text-[#687182] hover:text-[#121417] dark:text-gray-400 dark:hover:text-white px-4 py-2 rounded-lg transition-colors border border-[#dddfe4] dark:border-gray-800">
+                        View More Services
+                    </button>
+</div>
+</div>
+</main>
+</div>
+<!-- Right Side Modal/Slide-over Simulation (Optional but recommended for the prompt) -->
+<!-- Note: In a real implementation, this would be hidden until triggered -->
+<div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end hidden">
+<div class="w-full max-w-lg bg-white dark:bg-background-dark h-full shadow-2xl p-8 flex flex-col">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold text-[#121417] dark:text-white">Create Service</h2>
+<button class="p-2 hover:bg-[#f1f2f4] dark:hover:bg-gray-800 rounded-full">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="flex-1 flex flex-col gap-6">
+<div class="space-y-2">
+<label class="text-sm font-bold text-[#121417] dark:text-white">Service Name</label>
+<input class="w-full bg-[#f1f2f4] dark:bg-gray-800 border-none rounded-lg p-3 text-sm dark:text-white" placeholder="e.g. Weekly Mentorship Session" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-sm font-bold text-[#121417] dark:text-white">Duration (minutes)</label>
+<input class="w-full bg-[#f1f2f4] dark:bg-gray-800 border-none rounded-lg p-3 text-sm dark:text-white" type="number" value="60"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-bold text-[#121417] dark:text-white">Price (USD)</label>
+<input class="w-full bg-[#f1f2f4] dark:bg-gray-800 border-none rounded-lg p-3 text-sm dark:text-white" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-bold text-[#121417] dark:text-white">Description</label>
+<textarea class="w-full bg-[#f1f2f4] dark:bg-gray-800 border-none rounded-lg p-3 text-sm dark:text-white resize-none" placeholder="Briefly describe what your client will get..." rows="4"></textarea>
+</div>
+<div class="space-y-4 pt-4 mt-auto">
+<button class="w-full py-3 bg-primary text-white rounded-lg font-bold">Publish Service</button>
+<button class="w-full py-3 bg-[#f1f2f4] dark:bg-gray-800 text-[#121417] dark:text-white rounded-lg font-bold">Save as Draft</button>
+</div>
+</form>
+</div>
+</div>
+</body></html>
