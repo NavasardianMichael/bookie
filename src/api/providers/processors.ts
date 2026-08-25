@@ -10,8 +10,13 @@ import {
   PutProviderServiceAPI,
 } from './types'
 
+/** The shapes `services` has actually arrived in, plus the array the API may yet send. */
+type ServicesPayload = Normalized<ProviderService> | ProviderService[] | undefined
+
+const emptyServices = (): Normalized<ProviderService> => ({ allIds: [], byId: {} })
+
 function normalizeServices(services: ProviderService[] | undefined): Normalized<ProviderService> {
-  if (!services?.length) return { allIds: [], byId: {} }
+  if (!services?.length) return emptyServices()
   return services.reduce(
     (acc, service) => {
       acc.byId[service.id] = service
@@ -22,8 +27,18 @@ function normalizeServices(services: ProviderService[] | undefined): Normalized<
   )
 }
 
-function normalizeServicesFromRecord(services: Normalized<ProviderService> | undefined): Normalized<ProviderService> {
-  if (!services) return { allIds: [], byId: {} }
+/**
+ * Accepts every shape `services` can arrive in and always yields a `Normalized`.
+ *
+ * The array check is load-bearing rather than defensive padding: an array has neither
+ * `allIds` nor `byId`, so without it the function fell through to `Object.values({})`
+ * and silently returned nothing — making `normalizeServices` unreachable and dropping
+ * every service. The server currently pre-normalizes, which is the only reason that
+ * never surfaced.
+ */
+function normalizeServicesPayload(services: ServicesPayload): Normalized<ProviderService> {
+  if (!services) return emptyServices()
+  if (Array.isArray(services)) return normalizeServices(services)
   if (services.allIds?.length) return services
   return normalizeServices(Object.values(services.byId ?? {}))
 }
@@ -47,7 +62,7 @@ export const processSingleProviderResponse: GetSingleProviderAPI['processor'] = 
   const value = provider.value as SingleProvider
   return {
     ...value,
-    services: normalizeServicesFromRecord(value.services),
+    services: normalizeServicesPayload(value.services),
   }
 }
 
@@ -55,7 +70,7 @@ export const processProviderProfileResponse: GetProviderProfileAPI['processor'] 
   const value = providerProfile.value as ProviderProfile
   return {
     ...value,
-    services: normalizeServicesFromRecord(value.services),
+    services: normalizeServicesPayload(value.services),
   }
 }
 
