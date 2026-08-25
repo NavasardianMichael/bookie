@@ -1,5 +1,26 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm lint-fix)",
+      "Bash(pnpm build)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm format)",
+      "PowerShell(pnpm typecheck)",
+      "PowerShell(pnpm lint)",
+      "PowerShell(pnpm lint-fix)",
+      "PowerShell(pnpm build)",
+      "PowerShell(pnpm test)",
+      "PowerShell(pnpm test:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(npx prettier:*)"
+    ],
     "deny": [
       "Read(./.env)",
       "Read(./.env.local)",
@@ -15,6 +36,19 @@
       "Read(./**/.env.test)",
       "Read(./**/.env.staging)",
       "Read(./**/.env.*.local)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/deny-env-access.mjs\""
+          }
+        ]
+      }
     ]
   }
 }
