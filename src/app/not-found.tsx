@@ -1,7 +1,6 @@
 import { Result } from 'antd'
 import { ROUTES } from '@constants/routes'
-import AppButton from '@components/ui/AppButton'
-import AppLink from '@components/ui/AppLink'
+import AppLink from '@components/ui/bare/AppLink'
 import { PageShell } from '@components/ui/layout'
 
 export default function NotFound() {
@@ -12,11 +11,11 @@ export default function NotFound() {
         title='Page not found'
         subTitle='The page you are looking for does not exist or has moved.'
         extra={[
-          <AppLink key='home' href={ROUTES.home} className='no-underline'>
-            <AppButton type='primary'>Go home</AppButton>
+          <AppLink key='home' href={ROUTES.home} variant='button' tone='primary'>
+            Go home
           </AppLink>,
-          <AppLink key='providers' href={ROUTES.providers} className='no-underline'>
-            <AppButton>Browse providers</AppButton>
+          <AppLink key='providers' href={ROUTES.providers} variant='button'>
+            Browse providers
           </AppLink>,
         ]}
       />

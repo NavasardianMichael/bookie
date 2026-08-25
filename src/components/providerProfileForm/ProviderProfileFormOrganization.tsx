@@ -7,7 +7,7 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useOrganizationsListStore } from '@store/organizations/list/store'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import AppLink from '@components/ui/AppLink'
+import AppLink from '@components/ui/bare/AppLink'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
@@ -38,7 +38,6 @@ const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
 
   return (
     <Select
-      size='large'
       popupRender={(menu) => (
         <>
           {menu}

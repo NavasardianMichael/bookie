@@ -40,6 +40,7 @@
   --brand-primary-hover: var(--ant-color-primary-hover);
   --brand-text: var(--ant-color-text);
   --brand-text-muted: var(--ant-color-text-secondary);
+  --brand-danger: var(--ant-color-error);
   --brand-border: var(--ant-color-border);
   --brand-border-subtle: var(--ant-color-border-secondary);
   --brand-surface: var(--ant-color-bg-container);
@@ -65,7 +66,7 @@
    second level of indirection.
    ─────────────────────────────────────────────────────────────────────────── */
 @theme inline {
-  /* next/font exposes Inter as --font-app (see src/styles/fonts.ts). Pointing
+  /* next/font exposes Open Sans as --font-app (see src/styles/fonts.ts). Pointing
      Tailwind's own --font-sans at it keeps `font-sans` and Tailwind's
      --default-font-family, applied to <html> by preflight, on the app typeface. */
   --font-sans: var(--font-app), system-ui, -apple-system, sans-serif;
@@ -74,6 +75,7 @@
   --color-brand-hover: var(--brand-primary-hover);
   --color-brand-text: var(--brand-text);
   --color-brand-muted: var(--brand-text-muted);
+  --color-brand-danger: var(--brand-danger);
   --color-brand-border: var(--brand-border);
   --color-brand-border-subtle: var(--brand-border-subtle);
   --color-surface: var(--brand-surface);

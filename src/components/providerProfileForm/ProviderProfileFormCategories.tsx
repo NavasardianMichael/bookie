@@ -8,7 +8,7 @@ import { useCategoriesListStore } from '@store/categories/list/store'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import SelectSuffix from '@components/shared/SelectSuffix'
-import AppLink from '@components/ui/AppLink'
+import AppLink from '@components/ui/bare/AppLink'
 
 type Props = AppFormProps<ProviderProfileFormValues> & {
   form: FormInstance
@@ -36,7 +36,6 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
 
   return (
     <Select
-      size='large'
       mode='tags'
       suffixIcon={<SelectSuffix value={formik.values.categoryIds.length} limit={MAX_COUNT} />}
       popupRender={(menu) => (

@@ -1,7 +1,12 @@
-import Link from 'next/link'
+import { getSiteLDSchema } from '@linkedDataSchema/site'
+import type { Metadata } from 'next'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { getProvidersListAPI } from '@api/providers/main'
-import { ROUTES } from '@constants/routes'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import AppLink from '@components/ui/bare/AppLink'
+import AppParagraph from '@components/ui/bare/AppParagraph'
+import AppTitle from '@components/ui/bare/AppTitle'
+import JsonLd from '@components/ui/bare/JsonLd'
 import EmptyState from '@components/ui/EmptyState'
 import { PageShell, ResponsiveGrid, Section } from '@components/ui/layout'
 import { ProviderCard } from './providers/ProviderCard'
@@ -11,6 +16,13 @@ export const dynamic = 'force-dynamic'
 const HOME_CATEGORY_LIMIT = 8
 const HOME_PROVIDER_LIMIT = 8
 
+// The home page used to inherit the root title and description verbatim, so the
+// site's most-linked page had no copy of its own for a crawler to index.
+export const metadata: Metadata = {
+  description: 'Find providers and organizations on Bookie, then reserve a time that works.',
+  alternates: { canonical: ROUTES[ROUTE_KEYS.home] },
+}
+
 export default async function Home() {
   const [categories, providers] = await Promise.all([getCategoriesListAPI(), getProvidersListAPI()])
 
@@ -19,25 +31,23 @@ export default async function Home() {
 
   return (
     <PageShell className='flex flex-col gap-10'>
+      <JsonLd data={getSiteLDSchema()} />
+
       <section className='flex flex-col gap-5 py-4 md:py-8'>
-        <p className='text-overline text-brand-muted'>Bookie</p>
-        <h1 className='text-display text-brand-text max-w-xl'>Book care that fits your day</h1>
-        <p className='text-body max-w-prose-content'>
+        <AppParagraph size='overline'>Bookie</AppParagraph>
+        <AppTitle level='h1' size='display' className='max-w-xl'>
+          Book care that fits your day
+        </AppTitle>
+        <AppParagraph className='max-w-prose-content'>
           Find providers and organizations, then reserve a time that works.
-        </p>
+        </AppParagraph>
         <div className='flex flex-wrap gap-3'>
-          <Link
-            href={ROUTES.providers}
-            className='bg-brand hover:bg-brand-600 active:bg-brand-700 inline-flex min-h-11 items-center justify-center rounded-brand px-4 text-body-sm font-medium text-white no-underline transition-colors'
-          >
+          <AppLink href={ROUTES.providers} variant='button' tone='primary'>
             Browse providers
-          </Link>
-          <Link
-            href={ROUTES.accountTypeSelection}
-            className='border-brand-border text-brand-text hover:border-brand hover:bg-brand-50 active:bg-brand-100 inline-flex min-h-11 items-center justify-center rounded-brand border px-4 text-body-sm font-medium no-underline transition-colors'
-          >
+          </AppLink>
+          <AppLink href={ROUTES.accountTypeSelection} variant='button'>
             Sign on
-          </Link>
+          </AppLink>
         </div>
       </section>
 
@@ -45,9 +55,9 @@ export default async function Home() {
         title='Browse by category'
         actions={
           categories.allIds.length > HOME_CATEGORY_LIMIT ? (
-            <Link href={ROUTES.categories} className='text-body-sm text-brand font-medium active:opacity-70'>
+            <AppLink href={ROUTES.categories} variant='plain' className='text-body-sm text-brand font-medium'>
               View all
-            </Link>
+            </AppLink>
           ) : undefined
         }
       >
@@ -57,12 +67,9 @@ export default async function Home() {
               const category = categories.byId[categoryId!]
               return (
                 <li key={category.id}>
-                  <Link
-                    href={`${ROUTES.categories}/${category.id}`}
-                    className='border-brand-border text-brand-text hover:border-brand hover:bg-brand-50 active:bg-brand-100 inline-flex min-h-11 items-center rounded-brand border px-3 text-body-sm font-medium no-underline transition-colors'
-                  >
+                  <AppLink href={`${ROUTES.categories}/${category.id}`} variant='chip'>
                     {category.name}
-                  </Link>
+                  </AppLink>
                 </li>
               )
             })}
@@ -77,9 +84,9 @@ export default async function Home() {
         count={providerIds.length || undefined}
         actions={
           providers.allIds.length > HOME_PROVIDER_LIMIT ? (
-            <Link href={ROUTES.providers} className='text-body-sm text-brand font-medium active:opacity-70'>
+            <AppLink href={ROUTES.providers} variant='plain' className='text-body-sm text-brand font-medium'>
               View all
-            </Link>
+            </AppLink>
           ) : undefined
         }
       >
@@ -96,12 +103,9 @@ export default async function Home() {
             title='No providers yet'
             description='Providers will appear here as soon as they publish a profile.'
             action={
-              <Link
-                href={ROUTES.accountTypeSelection}
-                className='bg-brand hover:bg-brand-600 active:bg-brand-700 inline-flex min-h-11 items-center justify-center rounded-brand px-4 text-body-sm font-medium text-white no-underline transition-colors'
-              >
+              <AppLink href={ROUTES.accountTypeSelection} variant='button' tone='primary'>
                 Sign on as a provider
-              </Link>
+              </AppLink>
             }
           />
         )}

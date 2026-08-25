@@ -2,7 +2,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
 import { WeekDay } from '@interfaces/schedule'
-import { SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
+import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from './schedule'
 
 dayjs.extend(customParseFormat)
@@ -114,4 +114,43 @@ export const getSlotsForDateRange = ({
   }
 
   return slots
+}
+
+export type SlotGroup = { key: string; label: string; slots: BookingSlot[] }
+
+/** Upper bound (exclusive) of each part of the day, in hours. */
+const SLOT_GROUPS = [
+  { key: 'morning', label: 'Morning', untilHour: 12 },
+  { key: 'afternoon', label: 'Afternoon', untilHour: 17 },
+  { key: 'evening', label: 'Evening', untilHour: 24 },
+] as const
+
+/**
+ * One day's slots split into parts of the day, empty sections dropped.
+ *
+ * A day of 30-minute slots is 20+ chips; sections give the eye somewhere to land.
+ */
+export const groupSlotsByPartOfDay = (slots: BookingSlot[]): SlotGroup[] =>
+  SLOT_GROUPS.map(({ key, label, untilHour }, index) => {
+    const fromHour = index ? SLOT_GROUPS[index - 1].untilHour : 0
+    return {
+      key,
+      label,
+      slots: slots.filter((slot) => {
+        const hour = dayjs(slot.start).hour()
+        return hour >= fromHour && hour < untilHour
+      }),
+    }
+  }).filter((group) => !!group.slots.length)
+
+/** Slot counts keyed by day, for the month-view badges and the day-cell affordance. */
+export const countSlotsByDay = (slots: BookingSlot[]): Map<string, number> => {
+  const counts = new Map<string, number>()
+
+  slots.forEach((slot) => {
+    const key = dayjs(slot.start).format(DAY_KEY_FORMAT)
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  })
+
+  return counts
 }

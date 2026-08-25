@@ -1,5 +1,8 @@
 import { FC, PropsWithChildren, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
+import AppParagraph from '@components/ui/bare/AppParagraph'
+import AppText from '@components/ui/bare/AppText'
+import AppTitle, { AppTitleLevel, AppTitleSize } from '@components/ui/bare/AppTitle'
 
 export type SectionProps = PropsWithChildren<{
   title?: ReactNode
@@ -11,44 +14,31 @@ export type SectionProps = PropsWithChildren<{
   className?: string
 }>
 
-const HEADINGS = {
-  2: 'text-h2',
-  3: 'text-h3',
-  4: 'text-body font-semibold',
-} as const
+const LEVELS: Record<2 | 3 | 4, AppTitleLevel> = { 2: 'h2', 3: 'h3', 4: 'h4' }
+const SIZES: Record<2 | 3 | 4, AppTitleSize> = { 2: 'h2', 3: 'h3', 4: 'body' }
 
-const Section: FC<SectionProps> = ({
-  title,
-  count,
-  description,
-  actions,
-  headingLevel = 2,
-  className,
-  children,
-}) => {
-  const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4'
-
-  return (
-    <section className={cn('flex flex-col gap-4', className)}>
-      {(title || description || actions) && (
-        <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4'>
-          <div className='flex flex-col gap-1'>
-            {title && (
-              <Heading className={cn('text-brand-text', HEADINGS[headingLevel])}>
-                {title}
-                {count !== undefined && count !== null && (
-                  <span className='text-brand-muted ml-2 text-body-sm font-normal tnum'>{count}</span>
-                )}
-              </Heading>
-            )}
-            {description && <p className='text-body-sm'>{description}</p>}
-          </div>
-          {actions && <div className='flex shrink-0 items-center gap-2'>{actions}</div>}
+const Section: FC<SectionProps> = ({ title, count, description, actions, headingLevel = 2, className, children }) => (
+  <section className={cn('flex flex-col gap-4', className)}>
+    {(title || description || actions) && (
+      <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4'>
+        <div className='flex flex-col gap-1'>
+          {title && (
+            <AppTitle level={LEVELS[headingLevel]} size={SIZES[headingLevel]}>
+              {title}
+              {count !== undefined && count !== null && (
+                <AppText size='body-sm' tone='muted' numeric className='ml-2 font-normal'>
+                  {count}
+                </AppText>
+              )}
+            </AppTitle>
+          )}
+          {description && <AppParagraph size='body-sm'>{description}</AppParagraph>}
         </div>
-      )}
-      {children}
-    </section>
-  )
-}
+        {actions && <div className='flex shrink-0 items-center gap-2'>{actions}</div>}
+      </div>
+    )}
+    {children}
+  </section>
+)
 
 export default Section

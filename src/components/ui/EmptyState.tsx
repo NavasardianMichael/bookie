@@ -1,5 +1,6 @@
 import { FC, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
+import AppParagraph from './bare/AppParagraph'
 import { InboxIcon } from './icons'
 
 export type EmptyStateProps = {
@@ -24,8 +25,15 @@ const EmptyState: FC<EmptyStateProps> = ({ title, description, action, icon, cla
       {icon ?? <InboxIcon />}
     </span>
     <div className='flex flex-col gap-1'>
-      <p className='text-h3 text-brand-text'>{title}</p>
-      {description && <p className='text-body-sm max-w-prose-content'>{description}</p>}
+      {/* A <p>, not a heading: an empty list is not a section of the document outline. */}
+      <AppParagraph tone='default' className='text-h3'>
+        {title}
+      </AppParagraph>
+      {description && (
+        <AppParagraph size='body-sm' className='max-w-prose-content'>
+          {description}
+        </AppParagraph>
+      )}
     </div>
     {action && <div className='mt-2'>{action}</div>}
   </div>

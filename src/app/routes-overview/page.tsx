@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { OVERVIEW_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/AppLink'
+import AppLink from '@components/ui/bare/AppLink'
 import { PageHeader, PageShell } from '@components/ui/layout'
 
 const RoutesOverview = () => {

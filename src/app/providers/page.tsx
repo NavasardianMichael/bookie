@@ -1,7 +1,8 @@
 import { getProvidersListLDSchema } from '@linkedDataSchema/providers'
 import type { Metadata } from 'next'
-import serializeJavascript from 'serialize-javascript'
 import { getProvidersListAPI } from '@api/providers/main'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import JsonLd from '@components/ui/bare/JsonLd'
 import EmptyState from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid } from '@components/ui/layout'
 import { ProviderCard } from './ProviderCard'
@@ -9,26 +10,27 @@ import { ProviderCard } from './ProviderCard'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Providers List',
-  description: 'Providers List Page',
+  title: 'Providers',
+  description: 'Browse every provider on Bookie and reserve a time that works.',
+  alternates: { canonical: ROUTES[ROUTE_KEYS.providers] },
 }
 
 const Providers = async () => {
   const { allIds, byId } = await getProvidersListAPI()
-  const providersListLDSchema = getProvidersListLDSchema(allIds.map((providerId) => byId[providerId!]))
+  const providers = allIds.map((providerId) => byId[providerId!])
 
   return (
     <PageShell className='flex flex-col gap-6'>
-      <PageHeader
-        title='Providers'
-        subtitle={allIds.length ? `${allIds.length} available` : undefined}
-      />
+      <JsonLd data={getProvidersListLDSchema(providers)} />
 
-      {allIds.length ? (
+      <PageHeader title='Providers' subtitle={allIds.length ? `${allIds.length} available` : undefined} />
+
+      {providers.length ? (
         <ResponsiveGrid as='ul'>
-          {allIds.map((providerId) => (
-            <li key={providerId}>
-              <ProviderCard data={byId[providerId!]} />
+          {providers.map((provider) => (
+            <li key={provider.id}>
+              {/* h2: the page's only other heading is the PageHeader's h1. */}
+              <ProviderCard data={provider} headingLevel={2} />
             </li>
           ))}
         </ResponsiveGrid>
@@ -38,13 +40,6 @@ const Providers = async () => {
           description='Providers will appear here as soon as they publish a profile.'
         />
       )}
-
-      <script
-        type='application/ld+json'
-        dangerouslySetInnerHTML={{
-          __html: serializeJavascript(providersListLDSchema),
-        }}
-      />
     </PageShell>
   )
 }

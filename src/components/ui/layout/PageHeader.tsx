@@ -1,5 +1,7 @@
 import { FC, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
+import AppParagraph from '@components/ui/bare/AppParagraph'
+import AppTitle from '@components/ui/bare/AppTitle'
 
 export type PageHeaderProps = {
   title: ReactNode
@@ -24,8 +26,8 @@ const PageHeader: FC<PageHeaderProps> = ({ title, subtitle, meta, actions, media
 
     <div className='flex min-w-0 flex-col gap-3'>
       <div className='flex flex-col gap-1'>
-        <h1 className='text-h1 text-brand-text'>{title}</h1>
-        {subtitle && <p className='text-body-sm'>{subtitle}</p>}
+        <AppTitle level='h1'>{title}</AppTitle>
+        {subtitle && <AppParagraph size='body-sm'>{subtitle}</AppParagraph>}
       </div>
       {meta && <div className='flex flex-wrap items-center gap-2'>{meta}</div>}
       {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}

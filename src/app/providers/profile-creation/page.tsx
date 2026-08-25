@@ -5,7 +5,7 @@ import { PageHeader, PageShell } from '@components/ui/layout'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Bookie | Create Your Own Profile',
+  title: 'Create Your Own Profile',
   description: 'Fill in Profile Primary Info of your Profile',
 }
 

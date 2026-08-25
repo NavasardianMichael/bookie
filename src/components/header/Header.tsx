@@ -4,8 +4,8 @@ import Image from 'next/image'
 import { useHeaderConfig } from '@hooks/useHeaderConfig'
 import { HEADER_CTA } from '@constants/header'
 import { ROUTES } from '@constants/routes'
-import AppButton from '@components/ui/AppButton'
-import AppLink from '@components/ui/AppLink'
+import AppLink from '@components/ui/bare/AppLink'
+import AppText from '@components/ui/bare/AppText'
 import Container from '@components/ui/layout/Container'
 import { BackHistoryBtn } from './BackHistoryBtn'
 import MobileNav from './MobileNav'
@@ -22,9 +22,11 @@ export const Header = () => {
         {showBack && <BackHistoryBtn fallback={backFallback} />}
 
         {showLogo && (
-          <AppLink href={ROUTES.home} className='flex items-center gap-2 no-underline' aria-label='Bookie home'>
+          <AppLink href={ROUTES.home} variant='plain' className='flex items-center gap-2' aria-label='Bookie home'>
             <Image src='/logo.svg' alt='' width={28} height={28} priority />
-            <span className='text-h3 text-brand-text font-bold'>Bookie</span>
+            <AppText tone='default' className='text-h3 font-bold'>
+              Bookie
+            </AppText>
           </AppLink>
         )}
 
@@ -32,10 +34,8 @@ export const Header = () => {
           <>
             <div className='ml-auto hidden items-center gap-2 md:flex'>
               <NavLinks orientation='horizontal' isActive={isActive} />
-              <AppLink href={ROUTES.accountTypeSelection} className='no-underline'>
-                <AppButton type='primary' size='middle'>
-                  {HEADER_CTA.label}
-                </AppButton>
+              <AppLink href={ROUTES.accountTypeSelection} variant='button' tone='primary'>
+                {HEADER_CTA.label}
               </AppLink>
             </div>
             <div className='ml-auto md:hidden'>

@@ -1,7 +1,8 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import minMax from 'dayjs/plugin/minMax'
-import { DaySchedule, DaySchedulePart } from '@store/providers/profile/types'
+import { DaySchedule, DaySchedulePart, WeekSchedule } from '@store/providers/profile/types'
+import { WEEK_DAYS_LIST } from '@constants/schedule'
 
 /**
  * Returns the available parts (availability - breaks).
@@ -69,3 +70,13 @@ export function splitScheduleIntoParts(schedule: DaySchedule): DaySchedulePart[]
 
   return result
 }
+
+/**
+ * Whether the provider is open at all in the week.
+ *
+ * A profile created without a schedule has every day set to empty strings, so the
+ * "Working hours" section and its structured data must both be suppressed rather
+ * than render seven "Closed" rows.
+ */
+export const hasWeekScheduleHours = (weekSchedule: WeekSchedule): boolean =>
+  WEEK_DAYS_LIST.some((day) => splitScheduleIntoParts(weekSchedule[day]).length > 0)

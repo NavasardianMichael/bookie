@@ -5,8 +5,7 @@ import { MenuOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
 import { HEADER_CTA } from '@constants/header'
 import { ROUTES } from '@constants/routes'
-import AppButton from '@components/ui/AppButton'
-import AppLink from '@components/ui/AppLink'
+import AppLink from '@components/ui/bare/AppLink'
 import NavLinks from './NavLinks'
 
 type Props = {
@@ -52,10 +51,8 @@ const MobileNav: FC<Props> = ({ isActive }) => {
       >
         <div className='flex flex-col gap-4'>
           <NavLinks orientation='vertical' isActive={isActive} onNavigate={close} />
-          <AppLink href={ROUTES.accountTypeSelection} className='no-underline' onClick={close}>
-            <AppButton type='primary' className='w-full'>
-              {HEADER_CTA.label}
-            </AppButton>
+          <AppLink href={ROUTES.accountTypeSelection} variant='button' tone='primary' block onClick={close}>
+            {HEADER_CTA.label}
           </AppLink>
         </div>
       </Drawer>

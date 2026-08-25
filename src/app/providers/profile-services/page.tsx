@@ -5,7 +5,7 @@ import ProviderServices from './ProviderServices'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Bookie | Your Services',
+  title: 'Your Services',
   description: 'Create and manage the services clients can book.',
 }
 

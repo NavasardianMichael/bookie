@@ -1,5 +1,6 @@
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import type { Metadata, Viewport } from 'next'
+import { getSiteUrl } from '@helpers/url'
 import App from '@components/App'
 import '@styles/globals.css'
 import { fontSans } from '@styles/fonts'
@@ -24,22 +25,28 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bookie-sigma.vercel.app'),
-  title: 'Bookie',
+  metadataBase: new URL(getSiteUrl()),
+  // `template` is what lets child routes export a bare title. Without it a child
+  // `title` replaces this one wholesale, which is why every page used to repeat
+  // the "Bookie | " prefix by hand.
+  title: {
+    default: 'Bookie',
+    template: '%s | Bookie',
+  },
   description: 'Your Booking Platform Forever',
   manifest: '/manifest.webmanifest',
   keywords: 'Bookie, booking, appointments, calendar, schedule',
   robots: 'index, follow',
   applicationName: 'Bookie',
-  alternates: {
-    canonical: 'https://bookie-sigma.vercel.app',
-  },
+  // No `alternates.canonical` or `openGraph.url` here: metadata is inherited, so
+  // an absolute value at the root stamped the homepage URL onto every route and
+  // told crawlers each page was a duplicate of `/`. Each route declares its own.
+  //
   // Icons and the OG image come from the app/icon.tsx, app/apple-icon.tsx and
   // app/opengraph-image.tsx file conventions. Declaring `icons` or
   // `openGraph.images` here would override those generated raster assets with
   // the SVG, which most social platforms refuse to render.
   openGraph: {
-    url: 'https://bookie-sigma.vercel.app',
     type: 'website',
     title: 'Bookie',
     description:

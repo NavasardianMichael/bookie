@@ -3,6 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@helpers/cn'
 import { getInitials, resolveAssetUrl } from '@helpers/images'
+import AppParagraph from './bare/AppParagraph'
+import AppTitle, { AppTitleLevel } from './bare/AppTitle'
 
 export type EntityCardProps = {
   href?: string
@@ -12,6 +14,11 @@ export type EntityCardProps = {
   image?: string
   /** Fallback initials source when there is no image. Defaults to `title`. */
   fallbackName?: string
+  /**
+   * Must sit one step below the heading of the section holding the card, or the
+   * document outline skips a level.
+   */
+  headingLevel?: 2 | 3 | 4
   aspect?: '1/1' | '4/3' | '16/9'
   badges?: ReactNode
   footer?: ReactNode
@@ -25,6 +32,8 @@ const ASPECTS = {
   '4/3': 'aspect-[4/3]',
   '16/9': 'aspect-video',
 } as const
+
+const LEVELS: Record<2 | 3 | 4, AppTitleLevel> = { 2: 'h2', 3: 'h3', 4: 'h4' }
 
 /**
  * One card for providers, organizations, categories and services.
@@ -45,6 +54,7 @@ const EntityCard: FC<EntityCardProps> = ({
   description,
   image,
   fallbackName,
+  headingLevel = 3,
   aspect = '4/3',
   badges,
   footer,
@@ -79,11 +89,21 @@ const EntityCard: FC<EntityCardProps> = ({
 
       <div className='flex flex-1 flex-col gap-2 p-3 sm:p-4'>
         <div className='flex flex-col gap-0.5'>
-          <h3 className='text-h3 text-brand-text line-clamp-1'>{title}</h3>
-          {subtitle && <p className='text-caption line-clamp-1'>{subtitle}</p>}
+          <AppTitle level={LEVELS[headingLevel]} size='h3' className='line-clamp-1'>
+            {title}
+          </AppTitle>
+          {subtitle && (
+            <AppParagraph size='caption' className='line-clamp-1'>
+              {subtitle}
+            </AppParagraph>
+          )}
         </div>
 
-        {description && <p className='text-body-sm line-clamp-2'>{description}</p>}
+        {description && (
+          <AppParagraph size='body-sm' className='line-clamp-2'>
+            {description}
+          </AppParagraph>
+        )}
 
         {badges && <div className='relative z-2 mt-auto flex flex-wrap items-center gap-1 pt-1'>{badges}</div>}
 

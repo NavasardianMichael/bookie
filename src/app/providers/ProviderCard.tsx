@@ -5,13 +5,15 @@ import EntityCard from '@components/ui/EntityCard'
 
 type Props = {
   data: BasicProvider
+  /** Forwarded to EntityCard: must sit one level below the enclosing heading. */
+  headingLevel?: 2 | 3 | 4
 }
 
 /**
  * Server Component: it no longer needs antd's Image, so it stays off the client
  * bundle.
  */
-export const ProviderCard: FC<Props> = ({ data }) => {
+export const ProviderCard: FC<Props> = ({ data, headingLevel }) => {
   const { basic } = data
   const fullName = `${basic.firstName} ${basic.lastName}`
 
@@ -19,6 +21,7 @@ export const ProviderCard: FC<Props> = ({ data }) => {
     <EntityCard
       href={`${ROUTES.providers}/${data.id}`}
       title={fullName}
+      headingLevel={headingLevel}
       subtitle={basic.organization?.basic.name}
       description={basic.description}
       image={basic.image}

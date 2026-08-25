@@ -1,9 +1,9 @@
-import { Inter } from 'next/font/google'
+import { Open_Sans } from 'next/font/google'
 
 /**
- * Inter carries the app's numerals — times, durations, prices — so it is picked
- * for its tabular figures, tall x-height at small metadata sizes, and
- * unambiguous 1/l/I.
+ * Open Sans is the app's primary typeface. It carries the numerals — times,
+ * durations, prices — and is picked for its tall x-height at small metadata
+ * sizes and unambiguous 1/l/I.
  *
  * Applied on <html> rather than the app shell so it also covers antd portals
  * (Modal, Drawer, Select dropdowns) which render into document.body.
@@ -13,7 +13,7 @@ import { Inter } from 'next/font/google'
  * have identical specificity — so the winner would depend on stylesheet order.
  * globals.css maps Tailwind's `--font-sans` onto this instead.
  */
-export const fontSans = Inter({
+export const fontSans = Open_Sans({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-app',

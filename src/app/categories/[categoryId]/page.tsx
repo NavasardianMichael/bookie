@@ -1,8 +1,11 @@
 import { OrganizationCard } from '@app/organizations/components/OrganizationCard'
 import { ProviderCard } from '@app/providers/ProviderCard'
+import { getCategoryLDSchema } from '@linkedDataSchema/categories'
 import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import JsonLd from '@components/ui/bare/JsonLd'
 import EmptyState from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid, Section } from '@components/ui/layout'
 
@@ -21,11 +24,20 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
     id: categoryId,
   })
 
+  const description = `Browse ${category.name} providers and organizations taking bookings on Bookie.`
+
   return {
-    title: `Bookie | ${category.name}`,
-    description: `Browse ${category.name} providers and organizations`,
-    keywords: `Bookie, ${category.name}, healthcare, medical services`,
+    title: category.name,
+    description,
+    keywords: ['Bookie', category.name, 'appointments', 'booking'].join(', '),
     classification: category.name,
+    alternates: { canonical: `${ROUTES[ROUTE_KEYS.categories]}/${categoryId}` },
+    openGraph: {
+      type: 'website',
+      title: category.name,
+      description,
+      url: `${ROUTES[ROUTE_KEYS.categories]}/${categoryId}`,
+    },
   }
 }
 
@@ -40,6 +52,8 @@ const Category = async ({ params }: Props) => {
 
   return (
     <PageShell as='article' className='flex flex-col gap-8'>
+      <JsonLd data={getCategoryLDSchema(category)} />
+
       <PageHeader title={category.name} />
 
       {isEmpty && (

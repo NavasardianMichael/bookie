@@ -4,7 +4,7 @@ import { FC } from 'react'
 import { Result } from 'antd'
 import { ROUTES } from '@constants/routes'
 import AppButton from './AppButton'
-import AppLink from './AppLink'
+import AppLink from './bare/AppLink'
 
 export type ErrorStateProps = {
   title?: string
@@ -35,8 +35,8 @@ const ErrorState: FC<ErrorStateProps> = ({
           Try again
         </AppButton>
       ) : null,
-      <AppLink key='home' href={ROUTES.home} className='no-underline'>
-        <AppButton>Go home</AppButton>
+      <AppLink key='home' href={ROUTES.home} variant='button'>
+        Go home
       </AppLink>,
     ].filter(Boolean)}
   />
