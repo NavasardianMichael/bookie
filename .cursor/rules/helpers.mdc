@@ -1,0 +1,9 @@
+---
+description: Helpers reuse index — check before writing any utility
+globs: src/helpers/**
+alwaysApply: false
+---
+
+# Helpers
+
+Follow @src/helpers/CLAUDE.md. When that doc and the tree disagree, the tree wins.

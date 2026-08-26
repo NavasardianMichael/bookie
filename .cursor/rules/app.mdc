@@ -1,0 +1,9 @@
+---
+description: App Router routes — map, Server Components, loading boundaries, JSON-LD
+globs: src/app/**
+alwaysApply: false
+---
+
+# Routes
+
+Follow @src/app/CLAUDE.md. When that doc and the tree disagree, the tree wins.

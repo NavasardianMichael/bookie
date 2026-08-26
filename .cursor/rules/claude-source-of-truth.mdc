@@ -1,0 +1,19 @@
+---
+description: Claude Code files are canonical; Cursor wrappers only point at them
+alwaysApply: true
+---
+
+# Claude Code is the source of truth
+
+Do not copy Claude instruction text into Cursor files. Read the canonical file and follow it.
+
+| Need | Canonical location |
+|---|---|
+| Global conventions | `CLAUDE.md` |
+| Layer invariants | `src/*/CLAUDE.md`, `server/CLAUDE.md`, `tests/CLAUDE.md` (attached by glob rules when you edit there) |
+| Skills (`design-system`, `forms`, `new-domain`) | `.claude/skills/` — auto-discovered; do not duplicate in `.cursor/skills/` |
+| Slash workflows | `/route`, `/commit-and-push`, `/best-avoid-practices` → `.cursor/skills/` wrappers read `.claude/commands/` |
+| Hard booking / schedule / architecture reasoning | Delegate to the `architect` subagent (`.cursor/agents/architect.md` → `.claude/agents/architect.md`) |
+| Env secrets | Never read `.env*` except `*.env.example` — see `CLAUDE.md` § Env files; enforced by `.cursor/hooks/` |
+
+When a doc and the tree disagree, **the tree wins**. Fix the doc in the same change.

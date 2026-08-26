@@ -1,0 +1,9 @@
+---
+description: Test conventions — vitest layout, timezone pin, KNOWN BUG tests
+globs: tests/**
+alwaysApply: false
+---
+
+# Tests
+
+Follow @tests/CLAUDE.md. When that doc and the tree disagree, the tree wins.

@@ -1,0 +1,9 @@
+---
+description: Design tokens — invariants, traps, grep gates
+globs: src/styles/**
+alwaysApply: false
+---
+
+# Design tokens
+
+Follow @src/styles/CLAUDE.md. When that doc and the tree disagree, the tree wins.

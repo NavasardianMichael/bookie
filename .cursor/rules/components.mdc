@@ -1,0 +1,9 @@
+---
+description: Components — antd vs bare/layout, styling, forms, client/server boundary
+globs: src/components/**
+alwaysApply: false
+---
+
+# Components
+
+Follow @src/components/CLAUDE.md. When that doc and the tree disagree, the tree wins.

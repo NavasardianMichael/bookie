@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/shell-env-adapter.mjs"
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "node .cursor/hooks/deny-env-read.mjs",
+        "failClosed": true
+      }
+    ]
+  }
+}

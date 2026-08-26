@@ -1,0 +1,9 @@
+---
+description: Zustand store layer — immer/combine scaffold, entity types, selectors
+globs: src/store/**
+alwaysApply: false
+---
+
+# Store layer
+
+Follow @src/store/CLAUDE.md. When that doc and the tree disagree, the tree wins.

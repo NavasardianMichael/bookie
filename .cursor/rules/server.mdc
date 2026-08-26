@@ -1,0 +1,9 @@
+---
+description: Express/Prisma API — envelope, ESM imports, mappers
+globs: server/**
+alwaysApply: false
+---
+
+# Server
+
+Follow @server/CLAUDE.md. When that doc and the tree disagree, the tree wins.

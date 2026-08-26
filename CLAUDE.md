@@ -68,6 +68,18 @@ convention, check the table first.
 - **`design-system`** — building pages and UI: component inventory, token flow, grep gates.
 - **`forms`** — the Ant Design `Form` pattern. Formik is being removed; do not add more.
 
+## Cursor
+
+Cursor loads `.claude/skills/` and `.claude/agents/` natively — do not duplicate those
+bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
+
+| Cursor | Points at |
+|---|---|
+| `.cursor/rules/*.mdc` | Nested `CLAUDE.md` files (glob-scoped) + `.cursor/rules/claude-source-of-truth.mdc` index |
+| `.cursor/skills/` | `.claude/commands/` — `/route`, `/commit-and-push`, `/best-avoid-practices` |
+| `.cursor/agents/architect.md` | `.claude/agents/architect.md` (adds `readonly` + Opus model) |
+| `.cursor/hooks.json` | `.claude/hooks/deny-env-access.mjs` for shell; native read guard for `.env*` |
+
 ## Working rules
 
 - **Inspect before writing.** Read the existing files in the same domain and follow their
