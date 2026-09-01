@@ -111,3 +111,11 @@ export const InboxIcon = ({ className }: IconProps) => (
     <path d='M3 13.5h4.5l1.2 2.4h6.6l1.2-2.4H21v4.4a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.9Z' />
   </svg>
 )
+
+/** Stands in for a missing provider portrait. Head and shoulders, outline only. */
+export const UserIcon = ({ className }: IconProps) => (
+  <svg {...base(className ?? 'h-8 w-8')}>
+    <circle cx='12' cy='8.5' r='4' />
+    <path d='M4.5 20.2a7.5 7.5 0 0 1 15 0' />
+  </svg>
+)

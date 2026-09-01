@@ -2,7 +2,7 @@ import { FC, ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@helpers/cn'
-import { getInitials, resolveAssetUrl } from '@helpers/images'
+import { getInitials, isUploadedAsset, resolveAssetUrl } from '@helpers/images'
 import { AppParagraph } from './bare/AppParagraph'
 import { AppTitle, AppTitleLevel } from './bare/AppTitle'
 
@@ -14,6 +14,12 @@ export type EntityCardProps = {
   image?: string
   /** Fallback initials source when there is no image. Defaults to `title`. */
   fallbackName?: string
+  /**
+   * Painted centred on the brand-tinted ground when there is no real photo.
+   * Defaults to the initials. Pass a glyph that suits the entity — a person for a
+   * provider, a building for an organization — since one card serves them all.
+   */
+  placeholder?: ReactNode
   /**
    * Must sit one step below the heading of the section holding the card, or the
    * document outline skips a level.
@@ -56,6 +62,7 @@ export const EntityCard: FC<EntityCardProps> = ({
   description,
   image,
   fallbackName,
+  placeholder,
   headingLevel = 3,
   aspect = '4/3',
   badges,
@@ -64,7 +71,9 @@ export const EntityCard: FC<EntityCardProps> = ({
   actions,
   className,
 }) => {
-  const resolved = resolveAssetUrl(image)
+  // Only a real upload is a photo. `/logo.svg` is the seeded stand-in, and painting
+  // it `object-cover` in the aspect box put a stretched Bookie mark on every card.
+  const resolved = isUploadedAsset(image) ? resolveAssetUrl(image) : undefined
 
   return (
     <article
@@ -84,8 +93,12 @@ export const EntityCard: FC<EntityCardProps> = ({
             className='object-cover transition-transform duration-500 group-hover:scale-105'
           />
         ) : (
-          <span className='bg-brand-50 text-brand-400 absolute inset-0 flex items-center justify-center text-2xl font-semibold'>
-            <span aria-hidden='true'>{getInitials(fallbackName ?? title)}</span>
+          <span className='bg-brand-50 absolute inset-0 flex items-center justify-center'>
+            {placeholder ?? (
+              <span aria-hidden='true' className='text-brand-400 text-2xl font-semibold'>
+                {getInitials(fallbackName ?? title)}
+              </span>
+            )}
           </span>
         )}
       </div>

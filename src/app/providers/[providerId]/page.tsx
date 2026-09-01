@@ -9,14 +9,13 @@ import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@help
 import { generateGoogleMapsLink } from '@helpers/location'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { hasWeekScheduleHours } from '@helpers/schedule'
-import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { ContactActions } from '@components/ui/ContactActions'
-import { MapPinIcon } from '@components/ui/icons'
+import { MapPinIcon, UserIcon } from '@components/ui/icons'
 import { PageShell, Surface } from '@components/ui/layout'
 import { ProviderDetails } from './components/Details'
 import { ServicesList } from './components/ServicesList'
@@ -83,7 +82,8 @@ export default async function Provider({ params }: Props) {
   const organization = basic.organization
   const categories = basic.categories
   const fullName = `${basic.firstName} ${basic.lastName}`
-  const image = resolveAssetUrl(basic.image)
+  // Only a real upload is a portrait; the seeded `/logo.svg` gets the placeholder.
+  const image = isUploadedAsset(basic.image) ? resolveAssetUrl(basic.image) : undefined
   const phone = generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
   const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
   const mapsHref = generateGoogleMapsLink(details.location.address)
@@ -95,15 +95,13 @@ export default async function Provider({ params }: Props) {
       <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start'>
         <aside className='flex flex-col gap-6'>
           <Surface className='flex flex-col items-center text-center'>
-            {image ? (
-              <div className='ring-brand-50 relative mb-4 size-32 overflow-hidden rounded-full ring-4'>
+            <div className='ring-brand-50 bg-brand-50 relative mb-4 flex size-32 items-center justify-center overflow-hidden rounded-full ring-4'>
+              {image ? (
                 <Image src={image} alt={fullName} fill priority sizes='128px' className='object-cover' />
-              </div>
-            ) : (
-              <div className='mb-4'>
-                <AppAvatar name={fullName} size={128} />
-              </div>
-            )}
+              ) : (
+                <UserIcon className='text-brand size-16' />
+              )}
+            </div>
 
             <AppTitle level='h1' size='h2'>
               {fullName}
