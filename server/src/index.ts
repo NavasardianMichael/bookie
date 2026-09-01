@@ -1,6 +1,8 @@
 import { createApp } from './app.js'
 import { config } from './config.js'
 
+import './load-env.js'
+
 const app = createApp()
 
 app.listen(config.port, () => {

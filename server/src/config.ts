@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import 'dotenv/config'
+import './load-env.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

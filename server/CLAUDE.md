@@ -7,7 +7,7 @@ Schema and route reference: [docs/DATABASE_STRUCTURE.md](../docs/DATABASE_STRUCT
 server/
   prisma/schema.prisma, seed.ts
   src/
-    app.ts, index.ts, config.ts
+    app.ts, index.ts, config.ts, load-env.ts
     routes/       Express routers, one per resource
     services/     appointments + availability logic
     mappers/      Prisma -> frontend DTOs
@@ -37,7 +37,10 @@ The frontend's `Endpoint<>` contract in `src/interfaces/api.ts` depends on this 
 - Prisma shapes must not leak to the client — go through `src/mappers/entities.ts`.
 - `optionalAuth` runs globally; per-route protection comes from `middleware/auth.ts`.
 - Config is centralised in `src/config.ts` with defaults. Read `process.env` there, not
-  scattered through routes.
+  scattered through routes. Every module that reads `process.env` at module scope must
+  import `./load-env.js` itself — `config.ts` and `lib/prisma.ts` do. It resolves the
+  server's own env file by path, so `pnpm watch` (cwd = repo root) cannot leave Prisma
+  pointed at the Next.js env.
 
 ## Local stack
 
