@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 4141",
+    "dev": "concurrently --kill-others-on-fail -n web,api -c green,cyan \"pnpm dev:web\" \"pnpm server:dev\"",
+    "dev:web": "next dev --turbopack --port 4141",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -22,7 +23,7 @@
     "db:seed": "pnpm --filter bookie-server run db:seed",
     "db:setup": "pnpm db:migrate && pnpm db:seed",
     "server:dev": "pnpm --filter bookie-server dev",
-    "watch": "concurrently --kill-others-on-fail -n web,api -c green,cyan \"pnpm dev\" \"pnpm server:dev\"",
+    "watch": "pnpm dev",
     "cleardeps": "rm -rf node_modules",
     "cleardeps:hard": "rm -rf node_modules && rm -rf package-lock.json && rm -rf pnpm-lock.yaml && rm -rf yarn.lock"
   },

@@ -30,12 +30,10 @@ const GAPS = {
   lg: 'gap-6 md:gap-8',
 } as const
 
-const ResponsiveGrid: FC<ResponsiveGridProps> = ({
+export const ResponsiveGrid: FC<ResponsiveGridProps> = ({
   min = 'md',
   gap = 'md',
   as: Tag = 'div',
   className,
   children,
 }) => <Tag className={cn('grid', MIN_COLS[min], GAPS[gap], className)}>{children}</Tag>
-
-export default ResponsiveGrid

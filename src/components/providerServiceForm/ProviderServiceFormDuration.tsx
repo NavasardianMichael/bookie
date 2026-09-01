@@ -11,7 +11,7 @@ type Props = AppFormProps<ProviderServiceFormValues> & {
   form: FormInstance
 }
 
-const ProviderServiceFormDuration: FC<Props> = ({ formik, form }) => {
+export const ProviderServiceFormDuration: FC<Props> = ({ formik, form }) => {
   const [text, setText] = useState<string>('')
   const [options, setOptions] = useState<DefaultOptionType[]>([])
 
@@ -45,7 +45,6 @@ const ProviderServiceFormDuration: FC<Props> = ({ formik, form }) => {
     <AutoComplete
       options={options}
       onSelect={onSelect}
-      size='large'
       value={text}
       showSearch={{
         onSearch,
@@ -56,5 +55,3 @@ const ProviderServiceFormDuration: FC<Props> = ({ formik, form }) => {
     />
   )
 }
-
-export default ProviderServiceFormDuration

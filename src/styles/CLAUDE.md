@@ -37,6 +37,24 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
    (`#f6f7f8`); white is reserved for `Surface` panels and the sticky header.
 9. `--spacing-header` is `4rem` (the prototype's 64px bar). `h-header` and the
    `PageShell variant='fill'` calc both read it.
+10. **Control height is antd's own unmodified default.** `theme.ts` sets no
+    `controlHeight*`. A `CONTROL` token existed briefly and was removed: every call site
+    had to remember `size='large'` to reach it, individual antd controls (`Segmented`,
+    `Select`, `TimePicker`, …) drifted out of sync, and the app ended up with a mix of
+    40px and 48px controls. Do not reintroduce a height scale without also removing
+    every per-call-site `size='large'`.
+11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg`
+    (8/12) via `borderRadius`/`borderRadiusLG`. antd's own 6/8 reads visibly squarer
+    than every prototype screen. Two static values, no scale, no breakpoints; they feed
+    `rounded-brand-sm`/`rounded-brand`, so antd components and Tailwind surfaces move
+    together. Change them here, never at a call site.
+12. **`CSS_VAR_SCOPE` must stay on `<html>`.** antd scopes its emitted `--ant-*` block
+    to `theme.cssVar.key`; `app/layout.tsx` puts that class on `<html>` so the block
+    lands on `:root`, which is what globals.css §2 reads. Without it antd derives the
+    key from `useId()` and the only elements carrying it are antd's own components — so
+    every `bg-brand`, `rounded-brand` and `border-brand-border` in the app silently
+    resolves to nothing (transparent fills, 0 radius, default borders). This shipped
+    broken once; `tests/unit/styles/theme.spec.ts` now pins both ends.
 
 ### Why breakpoints are the one accepted duplication
 
@@ -59,8 +77,8 @@ default font size would silently desync the two.
 1. **The `!`-suffix debt cannot be fixed by import order or `@layer`.** `@import
    'tailwindcss'` puts utilities in `@layer utilities`; antd's runtime cssinjs `<style>`
    blocks are **unlayered**, and unlayered beats layered. The only durable fix is moving
-   the value into an antd token — which is what `controlHeightLG: 48` and
-   `Form.itemMarginBottom: 0` do. Current `!`-suffix count is 0; keep it there.
+   the value into an antd token — which is what `Form.itemMarginBottom: 0` does. Current
+   `!`-suffix count is 0; keep it there.
 2. **`--font-sans` collides with Tailwind v4's own default theme variable.** `:root` and
    next/font's generated class have identical specificity, so the winner would depend on
    stylesheet order. The app font is `--font-app`; `globals.css` maps `--font-sans` onto it.

@@ -4,7 +4,7 @@ import { FC } from 'react'
 import { HEADER_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
-import AppLink from '@components/ui/bare/AppLink'
+import { AppLink } from '@components/ui/bare/AppLink'
 
 type Props = {
   orientation: 'horizontal' | 'vertical'
@@ -16,7 +16,7 @@ type Props = {
  * The route list, rendered once and shared by the desktop nav and the mobile
  * drawer — previously duplicated verbatim between the two.
  */
-const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
+export const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
   const isVertical = orientation === 'vertical'
 
   return (
@@ -55,5 +55,3 @@ const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
     </nav>
   )
 }
-
-export default NavLinks

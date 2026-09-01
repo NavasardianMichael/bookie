@@ -3,10 +3,10 @@ import type { Metadata } from 'next'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { getProvidersListAPI } from '@api/providers/main'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/bare/AppLink'
-import AppTitle from '@components/ui/bare/AppTitle'
-import JsonLd from '@components/ui/bare/JsonLd'
-import EmptyState from '@components/ui/EmptyState'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { AppTitle } from '@components/ui/bare/AppTitle'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { EmptyState } from '@components/ui/EmptyState'
 import { ChipRail, PageShell, ResponsiveGrid, Section } from '@components/ui/layout'
 import { ProviderCard } from './ProviderCard'
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   alternates: { canonical: ROUTES[ROUTE_KEYS.providers] },
 }
 
-const Providers = async () => {
+export default async function Providers() {
   const [{ allIds, byId }, categories] = await Promise.all([getProvidersListAPI(), getCategoriesListAPI()])
   const providers = allIds.map((providerId) => byId[providerId!])
 
@@ -80,5 +80,3 @@ const Providers = async () => {
     </PageShell>
   )
 }
-
-export default Providers

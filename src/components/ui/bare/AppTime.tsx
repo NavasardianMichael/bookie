@@ -11,10 +11,8 @@ type Props = TimeHTMLAttributes<HTMLTimeElement> & {
  * `datetime` attribute while the page shows the human wording ("30 min",
  * "09:00 – 17:00"), so neither audience has to parse the other's format.
  */
-const AppTime: FC<PropsWithChildren<Props>> = ({ dateTime, children, className, ...props }) => (
+export const AppTime: FC<PropsWithChildren<Props>> = ({ dateTime, children, className, ...props }) => (
   <time dateTime={dateTime} className={cn('tnum', className)} {...props}>
     {children}
   </time>
 )
-
-export default AppTime

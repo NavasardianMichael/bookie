@@ -27,6 +27,28 @@ ui/           antd wrappers — client islands (AppButton, AppInput, AppFormItem
 antd wrapper there would pull antd's runtime into the client bundle of any route that
 merely wants an `AppTitle`. Import wrappers from their own path.
 
+## Exports
+
+Nothing here is a framework entry point, so the export style is always a free choice — and
+the repo preference applies without exception in this directory. Every component is a
+**named export declared inline** — `export const AppButton: FC<…> =` — and the barrels
+forward it by that name:
+
+```ts
+export { AppLink, type AppLinkTone } from './AppLink' // not `default as AppLink`
+```
+
+So `import { AppButton } from '@components/ui/AppButton'` and
+`import { AppTitle } from '@components/ui/bare'` are the same symbol under the same name
+at every call site. A default export would let each importer rename it silently, which is
+what made `ProviderProfileFormImage.tsx` export a component called
+`ProviderProfileImage`. Gates — both currently hold, keep them at zero:
+
+```bash
+grep -rn  "export default"  src/components --include=*.ts --include=*.tsx   # 0
+grep -rn  "default as"       src/components --include=*.ts                  # 0
+```
+
 ## Styling
 
 Always route `className` through `cn` (`src/helpers/cn.ts` = `twMerge(clsx(...))`).

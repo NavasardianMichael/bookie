@@ -10,14 +10,14 @@
  */
 
 export {
-  default as AppDescriptionList,
+  AppDescriptionList,
   type AppDescriptionListItem,
   type AppDescriptionListProps,
 } from './AppDescriptionList'
-export { default as AppLink, type AppLinkTone, type AppLinkVariant } from './AppLink'
-export { default as AppParagraph } from './AppParagraph'
-export { default as AppText, type AppTextTag } from './AppText'
-export { default as AppTime } from './AppTime'
-export { default as AppTitle, type AppTitleLevel, type AppTitleSize } from './AppTitle'
-export { default as JsonLd } from './JsonLd'
+export { AppLink, type AppLinkTone, type AppLinkVariant } from './AppLink'
+export { AppParagraph } from './AppParagraph'
+export { AppText, type AppTextTag } from './AppText'
+export { AppTime } from './AppTime'
+export { AppTitle, type AppTitleLevel, type AppTitleSize } from './AppTitle'
+export { JsonLd } from './JsonLd'
 export { type TextSize, type TextTone } from './typography'

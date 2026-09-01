@@ -4,11 +4,11 @@ import { useHeaderConfig } from '@hooks/useHeaderConfig'
 import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
-import AppLink from '@components/ui/bare/AppLink'
-import Container from '@components/ui/layout/Container'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { Container } from '@components/ui/layout/Container'
 import { BackHistoryBtn } from './BackHistoryBtn'
-import MobileNav from './MobileNav'
-import NavLinks from './NavLinks'
+import { MobileNav } from './MobileNav'
+import { NavLinks } from './NavLinks'
 
 export const Header = () => {
   const { showLogo, showBack, showNav, backFallback, isActive } = useHeaderConfig()

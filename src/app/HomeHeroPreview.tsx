@@ -4,7 +4,7 @@ import { CalendarIcon } from '@components/ui/icons'
  * Decorative schedule frame for the landing hero. Not a live calendar — it has
  * to paint on the server, and the real FullCalendar is a client island.
  */
-const HomeHeroPreview = () => (
+export const HomeHeroPreview = () => (
   <div className='bg-brand-50 aspect-square w-full rounded-4xl p-6 sm:p-8' aria-hidden='true'>
     <div className='border-brand-border bg-surface flex h-full flex-col gap-4 rounded-2xl border p-5 shadow-xl sm:p-6'>
       <div className='mb-2 flex items-center justify-between'>
@@ -30,5 +30,3 @@ const HomeHeroPreview = () => (
     </div>
   </div>
 )
-
-export default HomeHeroPreview

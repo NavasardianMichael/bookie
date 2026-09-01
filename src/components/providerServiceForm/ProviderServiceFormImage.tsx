@@ -6,11 +6,11 @@ import { Flex, Image, Upload } from 'antd'
 import ImgCrop, { ImgCropProps } from 'antd-img-crop'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
-import AppButton from '@components/ui/AppButton'
+import { AppButton } from '@components/ui/AppButton'
 
 type Props = AppFormProps<ProviderServiceFormValues>
 
-const ProviderServiceFormImage: React.FC<Props> = ({ formik }) => {
+export const ProviderServiceFormImage: React.FC<Props> = ({ formik }) => {
   const [previewImage, setPreviewImage] = useState(formik.values.image)
 
   const onModalOk: ImgCropProps['onModalOk'] = async (file) => {
@@ -56,10 +56,10 @@ const ProviderServiceFormImage: React.FC<Props> = ({ formik }) => {
         )}
       </Flex>
       {previewImage && (
-        <Image className='mt-6 mx-auto max-w-80 block!' alt='Profile picture' preview={false} src={previewImage} />
+        <div className='mt-6 flex justify-center'>
+          <Image className='max-w-80' alt='Profile picture' preview={false} src={previewImage} />
+        </div>
       )}
     </>
   )
 }
-
-export default ProviderServiceFormImage

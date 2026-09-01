@@ -8,23 +8,23 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
-import AppButton from '@components/ui/AppButton'
-import AppFormItem from '@components/ui/AppFormItem'
-import AppFormSection from '@components/ui/AppFormSection'
-import AppInput from '@components/ui/AppInput'
+import { AppButton } from '@components/ui/AppButton'
+import { AppFormItem } from '@components/ui/AppFormItem'
+import { AppFormSection } from '@components/ui/AppFormSection'
+import { AppInput } from '@components/ui/AppInput'
 import { processProviderProfileFormToPostPayload } from './processors'
-import ProviderProfileFormCategories from './ProviderProfileFormCategories'
-import ProviderProfileFormGallery from './ProviderProfileFormGallery'
-import ProviderProfileImage from './ProviderProfileFormImage'
-import ProviderProfileLocationInput from './ProviderProfileFormLocation'
-import ProviderProfileOrganization from './ProviderProfileFormOrganization'
-import ProviderProfileWeekSchedule from './ProviderProfileWeekSchedule'
+import { ProviderProfileFormCategories } from './ProviderProfileFormCategories'
+import { ProviderProfileFormGallery } from './ProviderProfileFormGallery'
+import { ProviderProfileImage } from './ProviderProfileFormImage'
+import { ProviderProfileLocationInput } from './ProviderProfileFormLocation'
+import { ProviderProfileOrganization } from './ProviderProfileFormOrganization'
+import { ProviderProfileWeekSchedule } from './ProviderProfileWeekSchedule'
 
 type Props = {
   initialValues?: ProviderProfileFormValues
 }
 
-const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
+export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
   const { push } = useRouter()
   const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
   const [form] = Form.useForm()
@@ -148,5 +148,3 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE
     </Form>
   )
 }
-
-export default ProviderProfileForm

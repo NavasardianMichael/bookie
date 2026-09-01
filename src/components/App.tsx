@@ -5,8 +5,8 @@ import { App as AntApp, ConfigProvider } from 'antd'
 import { antdTheme } from '@styles/theme'
 import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { Header } from './header/Header'
-import Footer from './layout/Footer'
-import SkipLink from './layout/SkipLink'
+import { Footer } from './layout/Footer'
+import { SkipLink } from './layout/SkipLink'
 
 /**
  * A single document-level scroller.
@@ -19,7 +19,7 @@ import SkipLink from './layout/SkipLink'
  * `<main>` deliberately carries no container: each page picks its own width via
  * PageShell, so an auth form can stay narrow while a card grid goes wide.
  */
-const App: FC<PropsWithChildren> = ({ children }) => (
+export const App: FC<PropsWithChildren> = ({ children }) => (
   <ConfigProvider theme={antdTheme}>
     {/* component={false} renders context only — no wrapper element to interfere
         with layout — while still enabling App.useApp() for message/modal. */}
@@ -36,5 +36,3 @@ const App: FC<PropsWithChildren> = ({ children }) => (
     </AntApp>
   </ConfigProvider>
 )
-
-export default App

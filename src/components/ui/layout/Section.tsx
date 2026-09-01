@@ -1,8 +1,8 @@
 import { FC, PropsWithChildren, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
-import AppParagraph from '@components/ui/bare/AppParagraph'
-import AppText from '@components/ui/bare/AppText'
-import AppTitle, { AppTitleLevel, AppTitleSize } from '@components/ui/bare/AppTitle'
+import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppText } from '@components/ui/bare/AppText'
+import { AppTitle, AppTitleLevel, AppTitleSize } from '@components/ui/bare/AppTitle'
 
 export type SectionProps = PropsWithChildren<{
   title?: ReactNode
@@ -17,7 +17,7 @@ export type SectionProps = PropsWithChildren<{
 const LEVELS: Record<2 | 3 | 4, AppTitleLevel> = { 2: 'h2', 3: 'h3', 4: 'h4' }
 const SIZES: Record<2 | 3 | 4, AppTitleSize> = { 2: 'h2', 3: 'h3', 4: 'body' }
 
-const Section: FC<SectionProps> = ({ title, count, description, actions, headingLevel = 2, className, children }) => (
+export const Section: FC<SectionProps> = ({ title, count, description, actions, headingLevel = 2, className, children }) => (
   <section className={cn('flex flex-col gap-4', className)}>
     {(title || description || actions) && (
       <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4'>
@@ -40,5 +40,3 @@ const Section: FC<SectionProps> = ({ title, count, description, actions, heading
     {children}
   </section>
 )
-
-export default Section

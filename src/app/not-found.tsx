@@ -1,6 +1,6 @@
 import { Result } from 'antd'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/bare/AppLink'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { PageShell } from '@components/ui/layout'
 
 export default function NotFound() {

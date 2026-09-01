@@ -3,8 +3,8 @@
 import { FC } from 'react'
 import { Result } from 'antd'
 import { ROUTES } from '@constants/routes'
-import AppButton from './AppButton'
-import AppLink from './bare/AppLink'
+import { AppButton } from './AppButton'
+import { AppLink } from './bare/AppLink'
 
 export type ErrorStateProps = {
   title?: string
@@ -14,7 +14,7 @@ export type ErrorStateProps = {
   onRetry?: () => void
 }
 
-const ErrorState: FC<ErrorStateProps> = ({
+export const ErrorState: FC<ErrorStateProps> = ({
   title = 'Something went wrong',
   description = 'We could not load this page. Please try again.',
   digest,
@@ -41,5 +41,3 @@ const ErrorState: FC<ErrorStateProps> = ({
     ].filter(Boolean)}
   />
 )
-
-export default ErrorState

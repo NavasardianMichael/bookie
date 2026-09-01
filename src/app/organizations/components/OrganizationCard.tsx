@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { ROUTES } from '@constants/routes'
-import EntityCard from '@components/ui/EntityCard'
+import { EntityCard } from '@components/ui/EntityCard'
 
 type Props = {
   data: BasicOrganization

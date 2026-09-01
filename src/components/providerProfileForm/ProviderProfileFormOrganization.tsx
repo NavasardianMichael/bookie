@@ -7,11 +7,11 @@ import { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useOrganizationsListStore } from '@store/organizations/list/store'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import AppLink from '@components/ui/bare/AppLink'
+import { AppLink } from '@components/ui/bare/AppLink'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
-const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
+export const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
   const { list } = useOrganizationsListStore()
   const inputRef = useRef<InputRef>(null)
 
@@ -56,5 +56,3 @@ const ProviderProfileOrganization: React.FC<Props> = ({ formik }) => {
     />
   )
 }
-
-export default ProviderProfileOrganization

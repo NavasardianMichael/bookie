@@ -16,7 +16,7 @@ cp .env.example .env.local
 cp server/.env.example server/.env
 
 pnpm db:up          # start Postgres (Docker required)
-pnpm watch          # Next.js :4141 + API :4142
+pnpm dev            # Next.js :4141 + API :4142
 ```
 
 `pnpm install` runs migrations and seed automatically when `server/.env` exists and Postgres is reachable. If the database is down, install still succeeds — run `pnpm db:up` then `pnpm db:setup` once.
@@ -29,9 +29,10 @@ Open [http://localhost:4141](http://localhost:4141).
 
 | Command | Description |
 | --- | --- |
-| `pnpm dev` | Next.js only (port 4141) |
+| `pnpm dev` | Next.js + API in parallel |
+| `pnpm dev:web` | Next.js only (port 4141) |
 | `pnpm server:dev` | API only (port 4142) |
-| `pnpm watch` | Both in parallel |
+| `pnpm watch` | Alias for `pnpm dev` |
 | `pnpm db:up` / `pnpm db:down` | Docker Postgres |
 | `pnpm db:migrate` | Apply migrations |
 | `pnpm db:seed` | Seed sample data |

@@ -1,8 +1,8 @@
 import { FC } from 'react'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
-import AppLink from '@components/ui/bare/AppLink'
-import AppText from '@components/ui/bare/AppText'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { AppText } from '@components/ui/bare/AppText'
 import { BookieMark } from './BookieMark'
 
 export type BrandLockupProps = {

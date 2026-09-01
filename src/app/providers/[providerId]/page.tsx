@@ -9,18 +9,18 @@ import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@help
 import { generateGoogleMapsLink } from '@helpers/location'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { hasWeekScheduleHours } from '@helpers/schedule'
-import AppAvatar from '@components/ui/AppAvatar'
-import AppLink from '@components/ui/bare/AppLink'
-import AppParagraph from '@components/ui/bare/AppParagraph'
-import AppText from '@components/ui/bare/AppText'
-import AppTitle from '@components/ui/bare/AppTitle'
-import JsonLd from '@components/ui/bare/JsonLd'
-import ContactActions from '@components/ui/ContactActions'
+import { AppAvatar } from '@components/ui/AppAvatar'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppText } from '@components/ui/bare/AppText'
+import { AppTitle } from '@components/ui/bare/AppTitle'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { ContactActions } from '@components/ui/ContactActions'
 import { MapPinIcon } from '@components/ui/icons'
 import { PageShell, Surface } from '@components/ui/layout'
-import ProviderDetails from './components/Details'
-import ServicesList from './components/ServicesList'
-import WorkingHours from './components/WorkingHours'
+import { ProviderDetails } from './components/Details'
+import { ServicesList } from './components/ServicesList'
+import { WorkingHours } from './components/WorkingHours'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,7 +74,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   }
 }
 
-const Provider = async ({ params }: Props) => {
+export default async function Provider({ params }: Props) {
   const { providerId } = await params
 
   const provider = await getSingleProviderAPI({ id: providerId })
@@ -166,6 +166,9 @@ const Provider = async ({ params }: Props) => {
             <AppTitle level='h2' size='h3' className='mb-4'>
               Location
             </AppTitle>
+            <div className='bg-surface-sunken mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-brand'>
+              <MapPinIcon className='text-brand-300 h-10 w-10' />
+            </div>
             <AppLink
               href={mapsHref}
               target='_blank'
@@ -198,7 +201,7 @@ const Provider = async ({ params }: Props) => {
         <section className='flex min-w-0 flex-col gap-6'>
           <Surface>
             <div className='mb-5'>
-              <AppTitle level='h2' size='h2'>
+              <AppTitle level='h2' size='h3'>
                 Book an appointment
               </AppTitle>
               <AppParagraph size='body-sm'>Pick a service, then a day and a time that works.</AppParagraph>
@@ -210,5 +213,3 @@ const Provider = async ({ params }: Props) => {
     </PageShell>
   )
 }
-
-export default Provider

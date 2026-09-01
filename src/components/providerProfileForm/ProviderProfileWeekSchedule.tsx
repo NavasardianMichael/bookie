@@ -11,14 +11,14 @@ import { ProviderProfileFormValues } from '@interfaces/providers'
 import { WeekDay } from '@interfaces/schedule'
 import { SCHEDULE_DISPLAY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from '@helpers/schedule'
-import AppButton from '@components/ui/AppButton'
-import AppFormItem from '@components/ui/AppFormItem'
-import AppSheet from '@components/ui/AppSheet'
+import { AppButton } from '@components/ui/AppButton'
+import { AppFormItem } from '@components/ui/AppFormItem'
+import { AppSheet } from '@components/ui/AppSheet'
 import { WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS } from './constants'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
-const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
+export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
   const [isEditScheduleModalOpened, setIsEditScheduleModalOpened] = useState(false)
   const [selectedDays, setSelectedDays] = useState<Partial<Record<WeekDay, boolean>>>({})
   const [tempAvailability, setTempAvailability] = useState<RangePickerProps['value']>([undefined, undefined])
@@ -151,7 +151,6 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
         ))}
       </Typography.Paragraph>
       <TimePicker.RangePicker
-        size='large'
         className='grow'
         use12Hours
         showNow
@@ -169,7 +168,6 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
         return (
           <Flex gap={8} key={index} align='center'>
             <TimePicker.RangePicker
-              size='large'
               className='grow'
               use12Hours
               showNow
@@ -271,5 +269,3 @@ const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
     </AppFormItem>
   )
 }
-
-export default ProviderProfileWeekSchedule

@@ -3,8 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@helpers/cn'
 import { getInitials, resolveAssetUrl } from '@helpers/images'
-import AppParagraph from './bare/AppParagraph'
-import AppTitle, { AppTitleLevel } from './bare/AppTitle'
+import { AppParagraph } from './bare/AppParagraph'
+import { AppTitle, AppTitleLevel } from './bare/AppTitle'
 
 export type EntityCardProps = {
   href?: string
@@ -49,7 +49,7 @@ const LEVELS: Record<2 | 3 | 4, AppTitleLevel> = { 2: 'h2', 3: 'h3', 4: 'h4' }
  * old CategoryCard nested buttons inside an <a>, which is invalid HTML and breaks
  * keyboard navigation, and ProviderCard's anchor excluded the cover image.
  */
-const EntityCard: FC<EntityCardProps> = ({
+export const EntityCard: FC<EntityCardProps> = ({
   href,
   title,
   subtitle,
@@ -135,5 +135,3 @@ const EntityCard: FC<EntityCardProps> = ({
     </article>
   )
 }
-
-export default EntityCard

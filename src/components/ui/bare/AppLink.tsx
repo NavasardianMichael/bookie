@@ -35,7 +35,7 @@ const BUTTON_TONES: Record<AppLinkTone, string> = {
  * `tel:`, `mailto:` and absolute URLs are not routes, so they bypass next/link —
  * the client router cannot navigate them and a prefetch attempt is wasted.
  */
-const AppLink: FC<PropsWithChildren<Props>> = ({
+export const AppLink: FC<PropsWithChildren<Props>> = ({
   href,
   variant = 'inline',
   tone = 'default',
@@ -77,5 +77,3 @@ const AppLink: FC<PropsWithChildren<Props>> = ({
     </Link>
   )
 }
-
-export default AppLink

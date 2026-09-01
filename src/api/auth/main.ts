@@ -1,4 +1,4 @@
-import axiosInstance from '@api/axiosInstance'
+import { axiosInstance } from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
 import { processGetCodeResponse } from './processors'

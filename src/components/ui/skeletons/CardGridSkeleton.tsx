@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import ResponsiveGrid, { ResponsiveGridProps } from '@components/ui/layout/ResponsiveGrid'
+import { ResponsiveGrid, ResponsiveGridProps } from '@components/ui/layout/ResponsiveGrid'
 
 type Props = {
   count?: number

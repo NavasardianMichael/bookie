@@ -2,23 +2,32 @@
 
 import React, { useCallback, useRef, useState } from 'react'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
-import { Avatar, Button, Card, Flex, Modal, Typography } from 'antd'
+import { Button, Flex, Modal, Typography } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import { useFormik } from 'formik'
+import Image from 'next/image'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
+import { formatDuration, toIsoDuration } from '@helpers/duration'
+import { resolveAssetUrl } from '@helpers/images'
 import { processProviderServiceFormToPostPayload } from '@components/providerServiceForm/processors'
-import ProviderServiceForm from '@components/providerServiceForm/ProviderServiceForm'
-import AppButton from '@components/ui/AppButton'
-import AppSheet from '@components/ui/AppSheet'
-import EmptyState from '@components/ui/EmptyState'
+import { ProviderServiceForm } from '@components/providerServiceForm/ProviderServiceForm'
+import { AppButton } from '@components/ui/AppButton'
+import { AppSheet } from '@components/ui/AppSheet'
+import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppText } from '@components/ui/bare/AppText'
+import { AppTime } from '@components/ui/bare/AppTime'
+import { AppTitle } from '@components/ui/bare/AppTitle'
+import { EmptyState } from '@components/ui/EmptyState'
+import { ScissorsIcon } from '@components/ui/icons'
+import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 
 type Props = {
   initialValues?: ProviderServiceFormValues
 }
 
-const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
+export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const { id: providerId, services, putProviderService, deleteProviderService } = useProviderProfileStore()
   const { allIds, byId } = services
   const [form] = useForm<ProviderServiceFormValues>()
@@ -94,62 +103,89 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
   )
 
   const addServiceButton = (
-    <AppButton icon={<PlusOutlined />} className='w-full' onClick={onEditServiceClick} data-provider-id={providerId}>
+    <AppButton icon={<PlusOutlined />} onClick={onEditServiceClick} data-provider-id={providerId}>
       Add service
     </AppButton>
   )
 
   return (
-    <Flex vertical justify='space-between' align='center' className='w-full' gap={16}>
+    <Flex vertical gap={16} className='w-full'>
       {allIds.length ? (
-        <Flex vertical gap='middle' className='w-full'>
-          {allIds.map((serviceId) => {
-            const service = byId[serviceId]
-            return (
-              <Card
-                key={service.id}
-                className='w-full'
-                classNames={{ body: 'p-5' }}
-                actions={[
-                  <Button
-                    type='text'
-                    icon={<EditOutlined />}
-                    key='edit'
-                    aria-label={`Edit ${service.name}`}
-                    className='min-h-11 min-w-11'
-                    onClick={onEditServiceClick}
-                    data-provider-id={providerId}
-                    data-service-id={serviceId}
-                  />,
-                  <Button
-                    type='text'
-                    icon={<DeleteOutlined />}
-                    key='delete'
-                    danger
-                    aria-label={`Delete ${service.name}`}
-                    className='min-h-11 min-w-11'
-                    onClick={onDeleteServiceClick}
-                    data-provider-id={providerId}
-                    data-service-id={serviceId}
-                  />,
-                ]}
-              >
-                <Card.Meta
-                  avatar={service.image ? <Avatar src={service.image} alt={service.name} /> : undefined}
-                  title={service.name}
-                  description={
-                    <>
-                      <p>{service.description}</p>
-                      <p>
-                        {service.price} {service.currency}
+        <>
+          <Flex justify='end'>{addServiceButton}</Flex>
+
+          <ResponsiveGrid as='ul'>
+            {allIds.map((serviceId) => {
+              const service = byId[serviceId]
+              const resolvedImage = resolveAssetUrl(service.image)
+
+              return (
+                <li
+                  key={service.id}
+                  className='border-brand-border bg-surface flex flex-col gap-3 rounded-brand border p-4 sm:p-5'
+                >
+                  <div className='flex items-start gap-3'>
+                    <div className='bg-brand-50 relative size-11 shrink-0 overflow-hidden rounded-brand-sm'>
+                      {resolvedImage ? (
+                        <Image src={resolvedImage} alt={service.name} fill sizes='44px' className='object-cover' />
+                      ) : (
+                        <span className='text-brand-400 flex h-full w-full items-center justify-center'>
+                          <ScissorsIcon className='h-5 w-5' />
+                        </span>
+                      )}
+                    </div>
+                    <div className='flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5'>
+                      <AppTitle level='h3' size='h3' className='line-clamp-1'>
+                        {service.name}
+                      </AppTitle>
+                      <p className='m-0 flex flex-wrap items-center gap-x-2'>
+                        <AppTime dateTime={toIsoDuration(service.duration)} className='text-body-sm'>
+                          {formatDuration(service.duration)}
+                        </AppTime>
+                        {service.price !== undefined && service.currency && (
+                          <>
+                            <AppText aria-hidden='true'>·</AppText>
+                            <AppText size='body-sm' tone='default' numeric className='font-semibold'>
+                              {service.price} {service.currency}
+                            </AppText>
+                          </>
+                        )}
                       </p>
-                    </>
-                  }
-                />
-              </Card>
-            )
-          })}
-        </Flex>
+                    </div>
+                  </div>
+
+                  {service.description && (
+                    <AppParagraph size='body-sm' className='line-clamp-2'>
+                      {service.description}
+                    </AppParagraph>
+                  )}
+
+                  <Flex gap={4} justify='end' className='border-brand-border mt-auto border-t pt-2'>
+                    <Button
+                      type='text'
+                      icon={<EditOutlined />}
+                      aria-label={`Edit ${service.name}`}
+                      className='min-h-11 min-w-11'
+                      onClick={onEditServiceClick}
+                      data-provider-id={providerId}
+                      data-service-id={serviceId}
+                    />
+                    <Button
+                      type='text'
+                      icon={<DeleteOutlined />}
+                      danger
+                      aria-label={`Delete ${service.name}`}
+                      className='min-h-11 min-w-11'
+                      onClick={onDeleteServiceClick}
+                      data-provider-id={providerId}
+                      data-service-id={serviceId}
+                    />
+                  </Flex>
+                </li>
+              )
+            })}
+          </ResponsiveGrid>
+        </>
       ) : (
         <EmptyState
           className='w-full'
@@ -158,8 +194,6 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
           action={addServiceButton}
         />
       )}
-
-      {!!allIds.length && addServiceButton}
 
       <AppSheet title='Service Configuration' open={editServiceModalOpened} onClose={closeEditServiceModal}>
         <ProviderServiceForm form={form} formik={formik} closeModal={closeEditServiceModal} />
@@ -185,5 +219,3 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
     </Flex>
   )
 }
-
-export default ProviderServices

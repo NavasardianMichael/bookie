@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
-import AppParagraph from '@components/ui/bare/AppParagraph'
-import AppTitle from '@components/ui/bare/AppTitle'
+import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppTitle } from '@components/ui/bare/AppTitle'
 
 export type PageHeaderProps = {
   title: ReactNode
@@ -20,7 +20,7 @@ export type PageHeaderProps = {
  * desktop puts the image to the right — no duplicated markup, no wasted column
  * on a narrow screen.
  */
-const PageHeader: FC<PageHeaderProps> = ({ title, subtitle, meta, actions, media, className }) => (
+export const PageHeader: FC<PageHeaderProps> = ({ title, subtitle, meta, actions, media, className }) => (
   <header className={cn('flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-8', className)}>
     {media && <div className='shrink-0 md:order-last'>{media}</div>}
 
@@ -34,5 +34,3 @@ const PageHeader: FC<PageHeaderProps> = ({ title, subtitle, meta, actions, media
     </div>
   </header>
 )
-
-export default PageHeader

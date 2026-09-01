@@ -2,8 +2,8 @@ import { getCategoriesListLDSchema } from '@linkedDataSchema/categories'
 import type { Metadata } from 'next'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import JsonLd from '@components/ui/bare/JsonLd'
-import EmptyState from '@components/ui/EmptyState'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { EmptyState } from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid } from '@components/ui/layout'
 import { CategoryCard } from './components/CategoryCard'
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: ROUTES[ROUTE_KEYS.categories] },
 }
 
-const Categories = async () => {
+export default async function Categories() {
   const { allIds, byId } = await getCategoriesListAPI()
   const categories = allIds.map((categoryId) => byId[categoryId!])
 
@@ -42,5 +42,3 @@ const Categories = async () => {
     </PageShell>
   )
 }
-
-export default Categories

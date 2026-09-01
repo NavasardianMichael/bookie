@@ -7,12 +7,12 @@ import ImgCrop, { ImgCropProps } from 'antd-img-crop'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import AppButton from '@components/ui/AppButton'
+import { AppButton } from '@components/ui/AppButton'
 import styles from './styles.module.css'
 
 type Props = AppFormProps<ProviderProfileFormValues>
 
-const ProviderProfileFormGallery: React.FC<Props> = ({ formik }) => {
+const ProviderProfileFormGalleryComponent: React.FC<Props> = ({ formik }) => {
   const [previewImages, setPreviewImages] = useState(formik.values.gallery as ProviderProfile['details']['gallery'])
   const [pendingDeleteImageName, setPendingDeleteImageName] = useState<string | null>(null)
 
@@ -109,4 +109,4 @@ const ProviderProfileFormGallery: React.FC<Props> = ({ formik }) => {
   )
 }
 
-export default memo(ProviderProfileFormGallery)
+export const ProviderProfileFormGallery = memo(ProviderProfileFormGalleryComponent)

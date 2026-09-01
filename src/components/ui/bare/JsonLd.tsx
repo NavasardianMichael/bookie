@@ -11,8 +11,6 @@ type Props = {
  * escaping happens once, in `serializeJsonLd`, instead of being re-derived at each
  * page that emits a graph.
  */
-const JsonLd: FC<Props> = ({ data }) => (
+export const JsonLd: FC<Props> = ({ data }) => (
   <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }} />
 )
-
-export default JsonLd

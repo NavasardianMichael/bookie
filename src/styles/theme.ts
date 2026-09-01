@@ -1,13 +1,19 @@
 import { theme, type ThemeConfig } from 'antd'
-import { BRAND, CONTROL, FONT, NEUTRAL, RADII, STATUS } from './tokens'
+import { BRAND, CSS_VAR_SCOPE, FONT, NEUTRAL, RADII, STATUS } from './tokens'
 
 export const antdTheme: ThemeConfig = {
   /**
    * CSS-variable mode. This is what lets plain CSS files (the FullCalendar
    * override) and Tailwind's `@theme` reference the palette instead of
    * re-declaring hex. antd owns the values; everyone else derives them.
+   *
+   * `key` is the class the emitted `--ant-*` block is scoped to. Without it antd
+   * derives one from `useId()`, so the only element carrying it is each antd
+   * component itself — nothing else in the tree can read the variables, and the
+   * whole globals.css alias chain resolves to nothing. `CSS_VAR_SCOPE` is put on
+   * `<html>` in `src/app/layout.tsx` so the block lands on `:root`.
    */
-  cssVar: { prefix: 'ant' },
+  cssVar: { prefix: 'ant', key: CSS_VAR_SCOPE },
   algorithm: theme.defaultAlgorithm,
 
   token: {
@@ -35,15 +41,9 @@ export const antdTheme: ThemeConfig = {
     colorError: STATUS.danger,
     colorInfo: STATUS.info,
 
+    // Control height stays antd's own default. Radius does not: see RADII.
     borderRadius: RADII.base,
     borderRadiusLG: RADII.lg,
-    borderRadiusXS: 4,
-
-    // Single source for control sizing: `size='large'` now resolves to 48px,
-    // which clears the 44px touch-target minimum and retires every `h-[56px]!`.
-    controlHeight: CONTROL.height,
-    controlHeightLG: CONTROL.heightLG,
-    controlHeightSM: CONTROL.heightSM,
 
     fontSize: FONT.base,
 
@@ -56,6 +56,5 @@ export const antdTheme: ThemeConfig = {
     // old per-item `mb-0!` was emulating.
     Form: { itemMarginBottom: 0, verticalLabelPadding: '0 0 6px' },
     Button: { fontWeight: 700, primaryShadow: 'none', defaultShadow: 'none' },
-    Card: { borderRadiusLG: RADII.lg },
   },
 }

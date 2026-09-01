@@ -5,8 +5,8 @@ import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import JsonLd from '@components/ui/bare/JsonLd'
-import EmptyState from '@components/ui/EmptyState'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { EmptyState } from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid, Section } from '@components/ui/layout'
 
 export const dynamic = 'force-dynamic'
@@ -41,7 +41,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   }
 }
 
-const Category = async ({ params }: Props) => {
+export default async function Category({ params }: Props) {
   const { categoryId } = await params
 
   const category = await getCategoryAPI({
@@ -91,5 +91,3 @@ const Category = async ({ params }: Props) => {
     </PageShell>
   )
 }
-
-export default Category

@@ -11,7 +11,7 @@ type Props = AppFormProps<ProviderServiceFormValues> & {
   form: FormInstance
 }
 
-const ProviderServiceFormCategory: React.FC<Props> = ({ formik, form }) => {
+export const ProviderServiceFormCategory: React.FC<Props> = ({ formik, form }) => {
   const { list } = useCategoriesListStore()
 
   const options: DefaultOptionType[] = useMemo(() => {
@@ -31,7 +31,6 @@ const ProviderServiceFormCategory: React.FC<Props> = ({ formik, form }) => {
 
   return (
     <Select
-      size='large'
       onChange={onOptionChange}
       value={formik.values.categoryId}
       options={options}
@@ -39,5 +38,3 @@ const ProviderServiceFormCategory: React.FC<Props> = ({ formik, form }) => {
     />
   )
 }
-
-export default ProviderServiceFormCategory

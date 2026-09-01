@@ -39,11 +39,25 @@ hardcode a path string in a component.
 ```tsx
 export const dynamic = 'force-dynamic'
 
-const Providers = async () => {
+export default async function Providers() {
   const { allIds, byId } = await getProvidersListAPI()
   …
 }
 ```
+
+**`export default` is required here** — Next.js resolves these file-convention modules by
+their default binding, so a named export breaks routing rather than merely reading oddly:
+`page`, `layout`, `loading`, `error`, `global-error`, `not-found`, `template`, `default`,
+`icon`, `apple-icon`, `opengraph-image`, `twitter-image`, `manifest`, `sitemap`, `robots`.
+Do not "fix" these into named exports.
+
+Everything else in this directory has a free choice, so it follows the repo preference for
+a named export: `HomeHeroPreview.tsx`, `[providerId]/components/*`,
+`auth/code-input/OTPCodeInput.tsx`.
+
+Where the default is required, still **declare it inline** — `export default function Page()`
+rather than `const Page = () => …` plus a trailing `export default Page`. `eslint.config.mjs`
+whitelists these file names by glob, so only a sibling component file draws the warning.
 
 `force-dynamic` is a build workaround, not a design choice — it stops `next build`
 prerendering against a missing `NEXT_PUBLIC_API_URL`. See `docs/BACKLOG.md`.

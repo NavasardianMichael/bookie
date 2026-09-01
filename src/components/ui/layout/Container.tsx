@@ -28,7 +28,7 @@ const WIDTHS: Record<ContainerWidth, string> = {
  * Without this the app runs edge-to-edge behind a flat `p-4`, which is what made
  * a text input 1800px wide on a desktop monitor.
  */
-const Container: FC<ContainerProps> = ({
+export const Container: FC<ContainerProps> = ({
   as: Tag = 'div',
   width = 'content',
   gutter = true,
@@ -37,5 +37,3 @@ const Container: FC<ContainerProps> = ({
 }) => (
   <Tag className={cn('mx-auto w-full', WIDTHS[width], gutter && 'app-gutter-x', className)}>{children}</Tag>
 )
-
-export default Container

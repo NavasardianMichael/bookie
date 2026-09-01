@@ -79,6 +79,27 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 
 ---
 
+## Design sync — three mockups still unmatched
+
+`design/initial prototype/` holds nine independently-generated mockups. The 2026-09-01
+sync pass matched the six that describe pages the app actually has (landing, explore
+providers, public provider profile, manage services, and the visual language of the
+auth/registration flow). Three describe a full dashboard shell — sidebar nav, a
+notification bell, payment/2FA panels, notification-preference toggles — that the app
+has no equivalent of at all:
+
+| Mockup | Route today |
+|---|---|
+| `provider_calendar_dashboard` | No route — nothing built |
+| `provider_account_settings` | `/providers/profile` — 9-line stub |
+| `consumer_profile_settings` | `/consumers/profile` — 9-line stub |
+
+Matching these is a feature build — a new sidebar layout primitive, a settings data
+model, and payment/2FA/session-management backend work — not a styling pass, so it was
+deliberately left out. Revisit as its own scoped task.
+
+---
+
 ## Not verifiable from the CLI
 
 Needs a real browser or device:

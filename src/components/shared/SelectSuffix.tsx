@@ -7,7 +7,7 @@ type Props = {
   Icon?: JSX.Element
 }
 
-const SelectSuffix: React.FC<Props> = ({ value, limit, Icon = <DownOutlined /> }) => {
+export const SelectSuffix: React.FC<Props> = ({ value, limit, Icon = <DownOutlined /> }) => {
   return (
     <>
       <span>
@@ -17,5 +17,3 @@ const SelectSuffix: React.FC<Props> = ({ value, limit, Icon = <DownOutlined /> }
     </>
   )
 }
-
-export default SelectSuffix

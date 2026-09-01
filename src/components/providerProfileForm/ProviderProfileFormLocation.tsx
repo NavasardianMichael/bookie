@@ -6,15 +6,15 @@ import { Button, Flex } from 'antd'
 import { FormikProps } from 'formik'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import AppFormItem from '@components/ui/AppFormItem'
-import AppInput from '@components/ui/AppInput'
+import { AppFormItem } from '@components/ui/AppFormItem'
+import { AppInput } from '@components/ui/AppInput'
 
 type Props = {
   disabled: boolean
   formik: FormikProps<ProviderProfileFormValues>
 }
 
-const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => {
+export const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => {
   const [locationInputShown, setLocationInputShown] = useState(!!formik.values.locationURL)
 
   const textareaRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
@@ -29,14 +29,14 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
     <Flex vertical gap={locationInputShown ? 16 : 0}>
       <AppFormItem name='address' label='Address' rules={textareaRequiredMaxCharsCountRuleSet}>
         <Flex vertical>
-        <AppInput
-          name='address'
-          value={formik.values.address}
-          onChange={formik.handleChange}
-          disabled={disabled}
-          autoComplete='street-address'
-          enterKeyHint='next'
-        />
+          <AppInput
+            name='address'
+            value={formik.values.address}
+            onChange={formik.handleChange}
+            disabled={disabled}
+            autoComplete='street-address'
+            enterKeyHint='next'
+          />
         </Flex>
       </AppFormItem>
 
@@ -55,7 +55,6 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
             />
             <Button
               type='text'
-              size='large'
               icon={<MinusCircleOutlined className='text-red-600' />}
               onClick={onRemoveUrlClick}
               aria-label='Remove location URL'
@@ -77,5 +76,3 @@ const ProviderProfileLocationInput: React.FC<Props> = ({ formik, disabled }) => 
     </Flex>
   )
 }
-
-export default ProviderProfileLocationInput

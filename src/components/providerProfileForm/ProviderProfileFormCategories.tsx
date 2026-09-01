@@ -7,8 +7,8 @@ import type { DefaultOptionType, SelectProps } from 'antd/es/select'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
-import SelectSuffix from '@components/shared/SelectSuffix'
-import AppLink from '@components/ui/bare/AppLink'
+import { SelectSuffix } from '@components/shared/SelectSuffix'
+import { AppLink } from '@components/ui/bare/AppLink'
 
 type Props = AppFormProps<ProviderProfileFormValues> & {
   form: FormInstance
@@ -16,7 +16,7 @@ type Props = AppFormProps<ProviderProfileFormValues> & {
 
 const MAX_COUNT = 3
 
-const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
+export const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
   const { list } = useCategoriesListStore()
 
   const options: DefaultOptionType[] = useMemo(() => {
@@ -57,5 +57,3 @@ const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
     />
   )
 }
-
-export default ProviderProfileFormCategories

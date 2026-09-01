@@ -2,9 +2,9 @@ import { FC } from 'react'
 import { WeekSchedule } from '@store/providers/profile/types'
 import { WEEK_DAYS_LIST } from '@constants/schedule'
 import { hasWeekScheduleHours, splitScheduleIntoParts } from '@helpers/schedule'
-import AppDescriptionList, { AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
-import AppText from '@components/ui/bare/AppText'
-import AppTime from '@components/ui/bare/AppTime'
+import { AppDescriptionList, AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
+import { AppText } from '@components/ui/bare/AppText'
+import { AppTime } from '@components/ui/bare/AppTime'
 
 type Props = {
   weekSchedule: WeekSchedule
@@ -21,7 +21,7 @@ type Props = {
  * of the two questions every local-business search asks — was absent from the
  * markup entirely.
  */
-const WorkingHours: FC<Props> = ({ weekSchedule, columns = 1 }) => {
+export const WorkingHours: FC<Props> = ({ weekSchedule, columns = 1 }) => {
   if (!hasWeekScheduleHours(weekSchedule)) return null
 
   const items: AppDescriptionListItem[] = WEEK_DAYS_LIST.map((day) => {
@@ -48,5 +48,3 @@ const WorkingHours: FC<Props> = ({ weekSchedule, columns = 1 }) => {
 
   return <AppDescriptionList items={items} columns={columns} />
 }
-
-export default WorkingHours

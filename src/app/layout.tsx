@@ -1,10 +1,11 @@
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import type { Metadata, Viewport } from 'next'
+import { cn } from '@helpers/cn'
 import { getSiteUrl } from '@helpers/url'
-import App from '@components/App'
+import { App } from '@components/App'
 import '@styles/globals.css'
 import { fontSans } from '@styles/fonts'
-import { BRAND } from '@styles/tokens'
+import { BRAND, CSS_VAR_SCOPE } from '@styles/tokens'
 
 /**
  * Without this export, mobile browsers render at ~980px and scale the desktop
@@ -70,7 +71,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     // The font variable goes on <html> so it also covers antd portals (Modal,
     // Drawer, Select dropdowns), which render into document.body.
-    <html lang='en' className={fontSans.variable}>
+    //
+    // CSS_VAR_SCOPE is the class antd scopes its `--ant-*` block to (see
+    // theme.ts). On <html> it puts every token on `:root`, which is what the
+    // globals.css alias block and every `bg-brand`/`rounded-brand` utility read.
+    <html lang='en' className={cn(fontSans.variable, CSS_VAR_SCOPE)}>
       <body>
         <AntdRegistry>
           <App>{children}</App>

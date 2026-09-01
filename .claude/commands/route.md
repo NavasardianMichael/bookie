@@ -34,8 +34,8 @@ import { getWidgetsListLDSchema } from '@linkedDataSchema/widgets'
 import type { Metadata } from 'next'
 import { getWidgetsListAPI } from '@api/widgets/main'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import JsonLd from '@components/ui/bare/JsonLd'
-import EmptyState from '@components/ui/EmptyState'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { EmptyState } from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid } from '@components/ui/layout'
 
 export const dynamic = 'force-dynamic'
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   alternates: { canonical: ROUTES[ROUTE_KEYS.widgets] },
 }
 
-const Widgets = async () => {
+export default async function Widgets() {
   const { allIds, byId } = await getWidgetsListAPI()
   const widgets = allIds.map((id) => byId[id!])
 
@@ -62,8 +62,6 @@ const Widgets = async () => {
     </PageShell>
   )
 }
-
-export default Widgets
 ```
 
 For a **detail** route use `generateMetadata` instead of a static `metadata`, and make
@@ -91,20 +89,24 @@ Mirror the page's own structure so the handoff costs no layout shift:
 import { PageShell } from '@components/ui/layout'
 import { CardGridSkeleton } from '@components/ui/skeletons/CardGridSkeleton'
 
-const Loading = () => (
-  <PageShell className='flex flex-col gap-6'>
-    <div className='flex flex-col gap-2'>
-      <div className='bg-surface-sunken h-8 w-48 animate-pulse rounded-brand' />
-      <div className='bg-surface-sunken h-4 w-32 animate-pulse rounded-brand' />
-    </div>
-    <CardGridSkeleton count={8} />
-  </PageShell>
-)
-
-export default Loading
+export default function Loading() {
+  return (
+    <PageShell className='flex flex-col gap-6'>
+      <div className='flex flex-col gap-2'>
+        <div className='bg-surface-sunken h-8 w-48 animate-pulse rounded-brand' />
+        <div className='bg-surface-sunken h-4 w-32 animate-pulse rounded-brand' />
+      </div>
+      <CardGridSkeleton count={8} />
+    </PageShell>
+  )
+}
 ```
 
-`CardGridSkeleton` is a **named** export and is in no barrel — import it by path.
+`page.tsx` and `loading.tsx` are Next.js file-convention modules, so they are the rare
+files that **default**-export — declared inline, as above. Any sibling component file you
+add beside them is a named export like the rest of `src/`.
+
+`CardGridSkeleton` is in no barrel — import it by path.
 
 ## Also do
 

@@ -8,7 +8,7 @@ type Props = HTMLAttributes<HTMLParagraphElement> & {
 }
 
 /** Bare `<p>` on the app type scale. Body copy defaults to the muted tone so headings keep their weight. */
-const AppParagraph: FC<PropsWithChildren<Props>> = ({
+export const AppParagraph: FC<PropsWithChildren<Props>> = ({
   size = 'body',
   tone = 'muted',
   children,
@@ -19,5 +19,3 @@ const AppParagraph: FC<PropsWithChildren<Props>> = ({
     {children}
   </p>
 )
-
-export default AppParagraph

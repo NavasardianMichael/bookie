@@ -12,12 +12,12 @@ import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
 import { processError } from '@helpers/error'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
-import AppButton from '@components/ui/AppButton'
+import { AppButton } from '@components/ui/AppButton'
 import styles from './countdown.module.css'
 
 const COUNTDOWN_DURATION = 60_000
 
-const OTPCodeInput: React.FC = () => {
+export const OTPCodeInput: React.FC = () => {
   const { replace, push } = useRouter()
   const { getCodeByPhoneNumber, validatePhoneNumberCode, error, isPending, setAuthState } = useAuthStore()
   const [code, setCode] = useState<string>('')
@@ -137,7 +137,6 @@ const OTPCodeInput: React.FC = () => {
           <Input.OTP
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
-            size='large'
             className='w-full'
             classNames={{ input: 'min-w-0 flex-1 aspect-square' }}
             inputMode='numeric'
@@ -172,5 +171,3 @@ const OTPCodeInput: React.FC = () => {
     </>
   )
 }
-
-export default OTPCodeInput

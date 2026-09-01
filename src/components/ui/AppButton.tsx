@@ -2,10 +2,8 @@ import { FC, PropsWithChildren } from 'react'
 import { Button, ButtonProps } from 'antd'
 import { cn } from '@helpers/cn'
 
-type Props = ButtonProps
+export type AppButtonProps = ButtonProps
 
-const AppButton: FC<PropsWithChildren<Props>> = ({ className, ...props }) => {
-  return <Button size='large' className={cn(className)} {...props} />
+export const AppButton: FC<PropsWithChildren<AppButtonProps>> = ({ className, ...props }) => {
+  return <Button className={cn(className)} {...props} />
 }
-
-export default AppButton

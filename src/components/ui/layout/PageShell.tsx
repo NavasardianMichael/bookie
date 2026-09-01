@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react'
 import { cn } from '@helpers/cn'
-import Container, { ContainerWidth } from './Container'
+import { Container, ContainerWidth } from './Container'
 
 export type PageShellProps = PropsWithChildren<{
   /**
@@ -17,7 +17,7 @@ export type PageShellProps = PropsWithChildren<{
   className?: string
 }>
 
-const PageShell: FC<PageShellProps> = ({ variant = 'flow', width = 'content', as, className, children }) => (
+export const PageShell: FC<PageShellProps> = ({ variant = 'flow', width = 'content', as, className, children }) => (
   <Container
     as={as}
     width={width}
@@ -30,5 +30,3 @@ const PageShell: FC<PageShellProps> = ({ variant = 'flow', width = 'content', as
     {children}
   </Container>
 )
-
-export default PageShell

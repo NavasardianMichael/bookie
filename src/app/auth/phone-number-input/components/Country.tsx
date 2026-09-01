@@ -7,7 +7,7 @@ type Props = {
   country: CountryCode
 }
 
-const Country: FC<Props> = ({ country }) => {
+export const Country: FC<Props> = ({ country }) => {
   return (
     <Flex gap={2} align='center'>
       <Flag className='h-5 w-8 mr-2' code={country} />
@@ -15,5 +15,3 @@ const Country: FC<Props> = ({ country }) => {
     </Flex>
   )
 }
-
-export default Country

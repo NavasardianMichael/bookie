@@ -2,8 +2,8 @@ import { getOrganizationsListLDSchema } from '@linkedDataSchema/organizations'
 import type { Metadata } from 'next'
 import { getOrganizationsListAPI } from '@api/organizations/main'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import JsonLd from '@components/ui/bare/JsonLd'
-import EmptyState from '@components/ui/EmptyState'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { EmptyState } from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid } from '@components/ui/layout'
 import { OrganizationCard } from './components/OrganizationCard'
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: ROUTES[ROUTE_KEYS.organizations] },
 }
 
-const Organizations = async () => {
+export default async function Organizations() {
   const { allIds, byId } = await getOrganizationsListAPI()
   const organizations = allIds.map((organizationId) => byId[organizationId!])
 
@@ -39,5 +39,3 @@ const Organizations = async () => {
     </PageShell>
   )
 }
-
-export default Organizations

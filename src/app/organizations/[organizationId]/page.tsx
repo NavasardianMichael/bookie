@@ -6,11 +6,11 @@ import { GenerateMetadata } from '@interfaces/components'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
-import AppAvatar from '@components/ui/AppAvatar'
-import AppDescriptionList, { AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
-import AppLink from '@components/ui/bare/AppLink'
-import JsonLd from '@components/ui/bare/JsonLd'
-import ContactActions from '@components/ui/ContactActions'
+import { AppAvatar } from '@components/ui/AppAvatar'
+import { AppDescriptionList, AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { JsonLd } from '@components/ui/bare/JsonLd'
+import { ContactActions } from '@components/ui/ContactActions'
 import { PageHeader, PageShell, Surface } from '@components/ui/layout'
 
 export const dynamic = 'force-dynamic'
@@ -53,7 +53,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   }
 }
 
-const Organization = async ({ params }: Props) => {
+export default async function Organization({ params }: Props) {
   const { organizationId } = await params
 
   const organization = await getOrganizationAPI({ id: organizationId })
@@ -120,5 +120,3 @@ const Organization = async ({ params }: Props) => {
     </PageShell>
   )
 }
-
-export default Organization

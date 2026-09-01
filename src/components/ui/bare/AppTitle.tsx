@@ -37,7 +37,7 @@ const SIZE_BY_LEVEL: Record<AppTitleLevel, AppTitleSize> = {
  *
  * A bare heading tag, no antd: renders in any Server Component.
  */
-const AppTitle: FC<PropsWithChildren<Props>> = ({ level = 'h1', size, children, className, ...props }) => {
+export const AppTitle: FC<PropsWithChildren<Props>> = ({ level = 'h1', size, children, className, ...props }) => {
   const TitleTag = level
 
   return (
@@ -46,5 +46,3 @@ const AppTitle: FC<PropsWithChildren<Props>> = ({ level = 'h1', size, children, 
     </TitleTag>
   )
 }
-
-export default AppTitle

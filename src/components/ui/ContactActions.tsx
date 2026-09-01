@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { cn } from '@helpers/cn'
 import { generateGoogleMapsLink } from '@helpers/location'
-import AppLink from './bare/AppLink'
+import { AppLink } from './bare/AppLink'
 import { GlobeIcon, MailIcon, MapPinIcon, PhoneIcon } from './icons'
 
 export type ContactActionsProps = {
@@ -26,7 +26,7 @@ type Action = {
  * Server-safe: real anchors styled as buttons, no antd Button — so the tel: and
  * mailto: hrefs are in the markup a crawler reads, not added at hydration.
  */
-const ContactActions: FC<ContactActionsProps> = ({ phone, address, email, website, className }) => {
+export const ContactActions: FC<ContactActionsProps> = ({ phone, address, email, website, className }) => {
   const actions: Action[] = [
     phone && { key: 'call', href: `tel:${phone}`, label: 'Call', icon: <PhoneIcon /> },
     address && {
@@ -58,5 +58,3 @@ const ContactActions: FC<ContactActionsProps> = ({ phone, address, email, websit
     </div>
   )
 }
-
-export default ContactActions

@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
-import EntityCard from '@components/ui/EntityCard'
+import { EntityCard } from '@components/ui/EntityCard'
 
 type Props = {
   data: BasicProvider
@@ -25,6 +25,7 @@ export const ProviderCard: FC<Props> = ({ data, headingLevel }) => {
       subtitle={basic.organization?.basic.name}
       description={basic.description}
       image={basic.image}
+      aspect='16/9'
       badges={
         <span className='text-caption inline-flex items-center gap-1.5'>
           <span

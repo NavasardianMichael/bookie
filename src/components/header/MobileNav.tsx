@@ -5,8 +5,8 @@ import { MenuOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
 import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/bare/AppLink'
-import NavLinks from './NavLinks'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { NavLinks } from './NavLinks'
 
 type Props = {
   isActive: (route: string) => boolean
@@ -21,7 +21,7 @@ type Props = {
  * sibling combinator while the icon bars were descendants of the label.
  * antd's Drawer provides all of it and is already in the bundle.
  */
-const MobileNav: FC<Props> = ({ isActive }) => {
+export const MobileNav: FC<Props> = ({ isActive }) => {
   const [open, setOpen] = useState(false)
 
   const close = useCallback(() => setOpen(false), [])
@@ -62,5 +62,3 @@ const MobileNav: FC<Props> = ({ isActive }) => {
     </>
   )
 }
-
-export default MobileNav

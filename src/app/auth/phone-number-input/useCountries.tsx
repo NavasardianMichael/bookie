@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { getCountries } from 'libphonenumber-js'
 import { SIGN_ON_EXCLUDED_COUNTRIES } from '@constants/countries'
-import Country from './components/Country'
+import { Country } from './components/Country'
 
 export const useCountries = () => {
   const countries = useMemo(() => getCountries(), [])

@@ -16,7 +16,7 @@ export type AppAvatarProps = {
  * The fallback is the common case today — uploaded image paths do not resolve and
  * the seed points at the logo — so it has to look deliberate rather than broken.
  */
-const AppAvatar: FC<AppAvatarProps> = ({ src, name, size = 48, shape = 'circle', className }) => {
+export const AppAvatar: FC<AppAvatarProps> = ({ src, name, size = 48, shape = 'circle', className }) => {
   const resolved = resolveAssetUrl(src)
   const radius = shape === 'circle' ? 'rounded-full' : 'rounded-brand'
 
@@ -37,5 +37,3 @@ const AppAvatar: FC<AppAvatarProps> = ({ src, name, size = 48, shape = 'circle',
     </span>
   )
 }
-
-export default AppAvatar

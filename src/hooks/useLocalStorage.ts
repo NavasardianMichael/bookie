@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-export default function useLocalStorage<T>(key: string, initialValue: T): [() => unknown, (x: T) => void, () => void] {
+export function useLocalStorage<T>(key: string, initialValue: T): [() => unknown, (x: T) => void, () => void] {
   const getStoredValue = useCallback(() => {
     try {
       const item = window.localStorage.getItem(key)

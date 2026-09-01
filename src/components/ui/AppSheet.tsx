@@ -14,7 +14,7 @@ export type AppSheetProps = PropsWithChildren<{
  * Modal on md+, bottom drawer on smaller screens. `footer={null}` — callers own
  * their actions so we never hide focusable footer buttons.
  */
-const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, children }) => {
+export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, children }) => {
   const screens = Grid.useBreakpoint()
   const isDesktop = !!screens.md
 
@@ -49,5 +49,3 @@ const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, children
     </Drawer>
   )
 }
-
-export default AppSheet

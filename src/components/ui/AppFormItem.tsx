@@ -4,7 +4,7 @@ import { cn } from '@helpers/cn'
 
 type Props = FormItemProps
 
-const AppFormItem: React.FC<Props> = ({ children, label, className, ...props }) => {
+export const AppFormItem: React.FC<Props> = ({ children, label, className, ...props }) => {
   const memoizedMessageVariables: FormItemProps['messageVariables'] = useMemo(() => {
     return { label } as Record<string, string>
   }, [label])
@@ -23,5 +23,3 @@ const AppFormItem: React.FC<Props> = ({ children, label, className, ...props }) 
     </Form.Item>
   )
 }
-
-export default AppFormItem

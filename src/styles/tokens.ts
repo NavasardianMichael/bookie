@@ -48,13 +48,29 @@ export const STATUS = {
   info: '#2563eb',
 } as const
 
-/** `base` is controls; `lg` is cards and panels; `xl` is hero frames. */
-export const RADII = { base: 8, lg: 12, xl: 16 } as const
-
-/** Drives every control height in the app, replacing the per-call-site `h-[56px]!`. */
-export const CONTROL = { height: 40, heightLG: 48, heightSM: 32 } as const
+/**
+ * Corner radius, in px. Two static values, not a scale and not responsive:
+ * `base` is controls and chips (the prototype's `rounded-lg`), `lg` is cards and
+ * panels (its `rounded-xl`). antd's own defaults are 6/8, which read visibly
+ * squarer than every prototype screen.
+ *
+ * These feed `--ant-border-radius(-lg)` -> `--brand-radius(-sm)` ->
+ * `rounded-brand(-sm)`, so both antd components and Tailwind surfaces move
+ * together from here.
+ */
+export const RADII = { base: 8, lg: 12 } as const
 
 export const FONT = { base: 16 } as const
+
+/**
+ * The class antd scopes its emitted `--ant-*` block to, fed to
+ * `ConfigProvider theme.cssVar.key` and stamped on `<html>` in `app/layout.tsx`.
+ *
+ * Both ends must agree or the block lands on a selector nothing matches, and
+ * every `var(--ant-*)` the globals.css aliases read resolves to nothing —
+ * silently flattening radii to 0 and painting brand backgrounds transparent.
+ */
+export const CSS_VAR_SCOPE = 'css-var-bookie'
 
 /**
  * antd v6's built-in screen scale (see node_modules/antd/es/theme/util/alias.js),

@@ -23,7 +23,7 @@ import { countSlotsByDay, getSlotsForDate, getSlotsForDateRange, getVisibleTimeR
 import { processError } from '@helpers/error'
 import '@styles/full-calendar-override.css'
 import { BRAND } from '@styles/tokens'
-import SlotPicker from './SlotPicker'
+import { SlotPicker } from './SlotPicker'
 import '@fullcalendar/react/skeleton.css'
 import '@fullcalendar/react/themes/classic/palette.css'
 import '@fullcalendar/react/themes/classic/theme.css'
@@ -61,7 +61,7 @@ type PickerState = {
 
 const CLOSED_PICKER: PickerState = { open: false, date: null, selectedStart: null }
 
-const ProviderCalendar = () => {
+export const ProviderCalendar = () => {
   const { basic: basicProvider, details, id: providerId, services } = useSingleProviderStore()
   const { notification } = App.useApp()
   const screens = Grid.useBreakpoint()
@@ -318,5 +318,3 @@ const ProviderCalendar = () => {
     </div>
   )
 }
-
-export default ProviderCalendar

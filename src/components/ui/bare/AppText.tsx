@@ -18,7 +18,7 @@ type Props = HTMLAttributes<HTMLElement> & {
  * therefore a client component, therefore text that only reaches the HTML through
  * hydration.
  */
-const AppText: FC<PropsWithChildren<Props>> = ({
+export const AppText: FC<PropsWithChildren<Props>> = ({
   as: Tag = 'span',
   size,
   tone,
@@ -31,5 +31,3 @@ const AppText: FC<PropsWithChildren<Props>> = ({
     {children}
   </Tag>
 )
-
-export default AppText

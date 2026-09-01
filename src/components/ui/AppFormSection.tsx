@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
-import AppText from './bare/AppText'
+import { AppText } from './bare/AppText'
 
 export type AppFormSectionProps = PropsWithChildren<{
   title: ReactNode
@@ -12,7 +12,7 @@ export type AppFormSectionProps = PropsWithChildren<{
  * Groups related form fields under a small heading. Kept antd-free so Server
  * Components can import it without pulling the client runtime.
  */
-const AppFormSection: FC<AppFormSectionProps> = ({ title, description, className, children }) => (
+export const AppFormSection: FC<AppFormSectionProps> = ({ title, description, className, children }) => (
   <fieldset className={cn('flex flex-col gap-3 border-0 p-0 m-0', className)}>
     <legend className='float-left mb-1 w-full p-0'>
       <AppText size='body' tone='default' className='font-semibold'>
@@ -27,5 +27,3 @@ const AppFormSection: FC<AppFormSectionProps> = ({ title, description, className
     <div className='flex flex-col gap-3 clear-both'>{children}</div>
   </fieldset>
 )
-
-export default AppFormSection

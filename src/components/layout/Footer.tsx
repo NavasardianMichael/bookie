@@ -1,10 +1,10 @@
 import { FC } from 'react'
 import { ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
-import AppLink from '@components/ui/bare/AppLink'
-import AppParagraph from '@components/ui/bare/AppParagraph'
-import AppText from '@components/ui/bare/AppText'
-import Container from '@components/ui/layout/Container'
+import { AppLink } from '@components/ui/bare/AppLink'
+import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppText } from '@components/ui/bare/AppText'
+import { Container } from '@components/ui/layout/Container'
 
 const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
@@ -33,7 +33,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
  * never jumps when the funnel starts. Links are real routes; prototype columns
  * that pointed at pages we do not have (Pricing, Blog, Careers) are omitted.
  */
-const Footer: FC = () => (
+export const Footer: FC = () => (
   <footer className='border-brand-border bg-surface mt-auto border-t'>
     <Container className='py-12 sm:py-16'>
       <div className='grid grid-cols-2 gap-10 md:grid-cols-4 lg:gap-8'>
@@ -68,5 +68,3 @@ const Footer: FC = () => (
     </Container>
   </footer>
 )
-
-export default Footer

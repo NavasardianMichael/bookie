@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
-import AppParagraph from './bare/AppParagraph'
+import { AppParagraph } from './bare/AppParagraph'
 import { InboxIcon } from './icons'
 
 export type EmptyStateProps = {
@@ -14,7 +14,7 @@ export type EmptyStateProps = {
 /**
  * Replaces the silently-blank regions the app renders today when a list is empty.
  */
-const EmptyState: FC<EmptyStateProps> = ({ title, description, action, icon, className }) => (
+export const EmptyState: FC<EmptyStateProps> = ({ title, description, action, icon, className }) => (
   <div
     className={cn(
       'border-brand-border bg-surface flex flex-col items-center gap-3 rounded-brand border border-dashed px-6 py-12 text-center shadow-sm',
@@ -38,5 +38,3 @@ const EmptyState: FC<EmptyStateProps> = ({ title, description, action, icon, cla
     {action && <div className='mt-2'>{action}</div>}
   </div>
 )
-
-export default EmptyState

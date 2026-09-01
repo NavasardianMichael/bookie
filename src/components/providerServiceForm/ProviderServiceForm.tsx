@@ -5,20 +5,20 @@ import { Col, Flex, Form, FormInstance, Input, InputNumber, Row, Select } from '
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
-import AppButton from '@components/ui/AppButton'
-import AppFormItem from '@components/ui/AppFormItem'
-import AppInput from '@components/ui/AppInput'
+import { AppButton } from '@components/ui/AppButton'
+import { AppFormItem } from '@components/ui/AppFormItem'
+import { AppInput } from '@components/ui/AppInput'
 import { PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE } from './constants'
-import ProviderServiceFormCategory from './ProviderServiceFormCategory'
-import ProviderServiceFormDuration from './ProviderServiceFormDuration'
-import ProviderServiceFormImage from './ProviderServiceFormImage'
+import { ProviderServiceFormCategory } from './ProviderServiceFormCategory'
+import { ProviderServiceFormDuration } from './ProviderServiceFormDuration'
+import { ProviderServiceFormImage } from './ProviderServiceFormImage'
 
 type Props = AppFormProps<ProviderServiceFormValues> & {
   form: FormInstance
   closeModal: () => void
 }
 
-const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
+export const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
@@ -78,7 +78,6 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
           <AppFormItem name='price' label='Price' rules={inputNumberPositiveRuleSet}>
             <InputNumber
               value={formik.values.price}
-              size='large'
               onChange={(value) => formik.setFieldValue('price', value)}
               className='w-full'
               disabled={formik.isSubmitting}
@@ -90,7 +89,6 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
           <AppFormItem name='currency' label='Currency'>
             <Select
               value={formik.values.currency}
-              size='large'
               onChange={(value) => formik.setFieldValue('currency', value)}
               options={PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE}
               disabled={formik.isSubmitting}
@@ -107,7 +105,6 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
       <Flex justify='end' gap={8} className='mt-4'>
         <AppButton
           variant='solid'
-          size='large'
           className='grow'
           disabled={formik.isSubmitting}
           onClick={onCancelButtonClick}
@@ -121,5 +118,3 @@ const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
     </Form>
   )
 }
-
-export default ProviderServiceForm

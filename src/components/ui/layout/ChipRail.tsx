@@ -13,7 +13,7 @@ export type ChipRailProps = PropsWithChildren<{
  * the user still needs. Touch-pan is native; the thin scrollbar is webkit-only
  * decoration.
  */
-const ChipRail: FC<ChipRailProps> = ({ className, label, children }) => (
+export const ChipRail: FC<ChipRailProps> = ({ className, label, children }) => (
   <ul
     aria-label={label}
     className={cn(
@@ -24,5 +24,3 @@ const ChipRail: FC<ChipRailProps> = ({ className, label, children }) => (
     {children}
   </ul>
 )
-
-export default ChipRail

@@ -6,9 +6,11 @@ import dayjs from 'dayjs'
 import { SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
 import { BookingSlot, groupSlotsByPartOfDay } from '@helpers/booking'
 import { cn } from '@helpers/cn'
-import AppButton from '@components/ui/AppButton'
-import AppSheet from '@components/ui/AppSheet'
-import EmptyState from '@components/ui/EmptyState'
+import { AppButton } from '@components/ui/AppButton'
+import { AppSheet } from '@components/ui/AppSheet'
+import { AppText } from '@components/ui/bare/AppText'
+import { EmptyState } from '@components/ui/EmptyState'
+import { CheckCircleIcon } from '@components/ui/icons'
 
 type Props = {
   open: boolean
@@ -30,7 +32,7 @@ type Props = {
  * pick-then-confirm: tapping a slot in the calendar used to fire the request
  * immediately, so a mis-tap was an appointment.
  */
-const SlotPicker: FC<Props> = ({
+export const SlotPicker: FC<Props> = ({
   open,
   date,
   slots,
@@ -100,14 +102,35 @@ const SlotPicker: FC<Props> = ({
 
         {!!openCount && (
           <div className='bg-surface border-brand-border-subtle sticky bottom-0 border-t pt-4'>
-            <AppButton type='primary' block disabled={!selectedStart} loading={isBooking} onClick={onConfirm}>
-              {selectedLabel ? `Book ${selectedLabel}` : 'Select a time'}
-            </AppButton>
+            <div className='bg-surface-sunken border-brand-border flex flex-col items-center gap-3 rounded-brand border border-dashed p-4 sm:flex-row sm:justify-between'>
+              <div className='flex items-center gap-3'>
+                <span className='bg-surface flex size-11 shrink-0 items-center justify-center rounded-brand-sm shadow-sm'>
+                  <CheckCircleIcon className={cn('h-5 w-5', selectedStart ? 'text-brand' : 'text-brand-300')} />
+                </span>
+                <div className='flex flex-col'>
+                  <AppText size='body-sm' tone='default' className='font-bold'>
+                    {selectedLabel ?? 'Ready to confirm?'}
+                  </AppText>
+                  {serviceLabel && (
+                    <AppText size='caption' tone='muted'>
+                      {serviceLabel}
+                    </AppText>
+                  )}
+                </div>
+              </div>
+              <AppButton
+                type='primary'
+                disabled={!selectedStart}
+                loading={isBooking}
+                onClick={onConfirm}
+                className='w-full sm:w-auto'
+              >
+                {selectedLabel ? `Book ${selectedLabel}` : 'Select a time'}
+              </AppButton>
+            </div>
           </div>
         )}
       </div>
     </AppSheet>
   )
 }
-
-export default SlotPicker

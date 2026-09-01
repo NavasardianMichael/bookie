@@ -9,8 +9,9 @@ Zustand (immer) · pnpm · Express 5 + Prisma + PostgreSQL
 ## Commands
 
 ```bash
-pnpm watch          # web :4141 + api :4142 together — the usual dev entry point
-pnpm dev            # web only, :4141 (turbopack)
+pnpm dev            # web :4141 + api :4142 together — the usual dev entry point
+pnpm watch          # alias for `pnpm dev`
+pnpm dev:web        # web only, :4141 (turbopack)
 pnpm server:dev     # api only, :4142
 
 pnpm typecheck      # verification loop, in the order that fails fastest
@@ -87,7 +88,16 @@ bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
 - **Reuse before creating.** `src/helpers/CLAUDE.md` indexes every utility; check it.
 - No `any` without an explicit justification in a comment.
 - Explicit types on parameters and return values. Strongly typed `Props` on every component.
-- Named exports, unless the surrounding file already uses default.
+- **Prefer a named export declared inline** — `export const AppButton = …` over
+  `export default AppButton` or a trailing `export { AppButton }`. A default export lets
+  each import site invent its own name for the symbol, so a rename never propagates and
+  the codebase stops being greppable; a trailing `export {}` splits the declaration from
+  the fact that it is public. Re-exporting from another module
+  (`export { AppButton } from './AppButton'`) is how barrels work and is fine.
+  **A preference, not a requirement:** when a framework or tool resolves the module *by*
+  its default binding, the default export is a contract — leave it. That covers Next.js
+  route modules (see `src/app/CLAUDE.md`), config files, and ambient `.d.ts` declarations.
+  `no-restricted-syntax` in `eslint.config.mjs` flags the free cases as a **warning**.
 - Absolute imports from `src/`. Import order is enforced — `pnpm lint-fix` sorts it.
 - Keep files small and single-purpose; split rather than append.
 - Comment only where the purpose is not obvious from the code and its naming.

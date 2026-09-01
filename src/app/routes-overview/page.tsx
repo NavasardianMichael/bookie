@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation'
 import { OVERVIEW_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
-import AppLink from '@components/ui/bare/AppLink'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { PageHeader, PageShell } from '@components/ui/layout'
 
-const RoutesOverview = () => {
+export default function RoutesOverview() {
   // Development-only index of every declared route. Several entries in ROUTES
   // have no page yet, so this must never ship.
   if (process.env.NODE_ENV === 'production') notFound()
@@ -25,5 +25,3 @@ const RoutesOverview = () => {
     </PageShell>
   )
 }
-
-export default RoutesOverview

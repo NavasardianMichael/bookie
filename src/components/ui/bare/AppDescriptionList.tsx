@@ -29,7 +29,7 @@ const COLUMNS: Record<1 | 2, string> = {
  * `gap-px` over a border-coloured background draws the hairline grid, so the rule
  * between rows never doubles up at the wrap points.
  */
-const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns = 2, className }) => {
+export const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns = 2, className }) => {
   if (!items.length) return null
 
   return (
@@ -49,5 +49,3 @@ const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns = 2, c
     </dl>
   )
 }
-
-export default AppDescriptionList

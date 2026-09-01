@@ -3,13 +3,13 @@
 import { FC, useEffect } from 'react'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { SingleProvider } from '@store/providers/single/types'
-import ProviderCalendar from './Calendar'
+import { ProviderCalendar } from './Calendar'
 
 type Props = {
   initialState: SingleProvider
 }
 
-const ProviderDetails: FC<Props> = ({ initialState }) => {
+export const ProviderDetails: FC<Props> = ({ initialState }) => {
   const providerStore = useSingleProviderStore()
 
   useEffect(() => {
@@ -24,5 +24,3 @@ const ProviderDetails: FC<Props> = ({ initialState }) => {
     </>
   )
 }
-
-export default ProviderDetails

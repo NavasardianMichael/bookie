@@ -10,13 +10,14 @@ import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { SIGN_ON_FORM_INITIAL_VALUES } from '@constants/sign-on'
 import { LOCAL_STORAGE_KEYS } from '@helpers/localStorage'
-import AppButton from '@components/ui/AppButton'
-import AppInput from '@components/ui/AppInput'
+import { AppButton } from '@components/ui/AppButton'
+import { AppInput } from '@components/ui/AppInput'
+import { PhoneIcon } from '@components/ui/icons'
 import { useCountries } from '../useCountries'
 
 type RegistrationFormValues = typeof SIGN_ON_FORM_INITIAL_VALUES
 
-const SignOnForm: React.FC = () => {
+export const SignOnForm: React.FC = () => {
   const { push } = useRouter()
   const { getCodeByPhoneNumber, isPending } = useAuthStore()
   const countries = useCountries()
@@ -88,7 +89,7 @@ const SignOnForm: React.FC = () => {
             messageVariables={{ label: 'Country Code' }}
             rules={FORM_ITEM_REQUIRED_RULE_SET}
             validateTrigger={['onChange']}
-            className='mb-0 w-[7.5rem] shrink-0'
+            className='mb-0 w-30 shrink-0'
           >
             <Select
               value={formik.values.code}
@@ -99,7 +100,6 @@ const SignOnForm: React.FC = () => {
               optionFilterProp='label'
               popupMatchSelectWidth={320}
               disabled={isPending}
-              size='large'
               aria-label='Country code'
             />
           </Form.Item>
@@ -120,6 +120,7 @@ const SignOnForm: React.FC = () => {
               inputMode='numeric'
               autoComplete='tel-national'
               enterKeyHint='send'
+              prefix={<PhoneIcon className='h-4 w-4 text-brand-muted' />}
             />
           </Form.Item>
         </Space.Compact>
@@ -131,5 +132,3 @@ const SignOnForm: React.FC = () => {
     </Form>
   )
 }
-
-export default SignOnForm

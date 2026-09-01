@@ -18,7 +18,7 @@ export const generateMetadata = async ({ params }: Props, _parent: ResolvingMeta
   }
 }
 
-const Consumer = async ({ params }: Props) => {
+export default async function Consumer({ params }: Props) {
   const { consumerId } = await params
 
   return (
@@ -27,5 +27,3 @@ const Consumer = async ({ params }: Props) => {
     </PageShell>
   )
 }
-
-export default Consumer

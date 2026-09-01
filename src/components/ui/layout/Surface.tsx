@@ -19,10 +19,8 @@ const PADDING = {
  * sidebar block is this: surface fill, hairline border, `rounded-xl`, light
  * shadow. Pages compose it; they do not re-declare those four classes.
  */
-const Surface: FC<SurfaceProps> = ({ as: Tag = 'div', padding = 'md', className, children }) => (
+export const Surface: FC<SurfaceProps> = ({ as: Tag = 'div', padding = 'md', className, children }) => (
   <Tag className={cn('bg-surface border-brand-border rounded-brand border shadow-sm', PADDING[padding], className)}>
     {children}
   </Tag>
 )
-
-export default Surface
