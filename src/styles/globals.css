@@ -45,6 +45,7 @@
   --brand-border-subtle: var(--ant-color-border-secondary);
   --brand-surface: var(--ant-color-bg-container);
   --brand-surface-sunken: var(--ant-color-bg-layout);
+  --brand-radius-sm: var(--ant-border-radius);
   --brand-radius: var(--ant-border-radius-lg);
   --brand-control-h: var(--ant-control-height-lg);
 }
@@ -54,9 +55,10 @@
 
    Declared in the `--spacing-*` namespace so one declaration serves both as a
    Tailwind utility (`h-header`) and as a variable usable inside calc().
+   Matches the prototype's 64px sticky bar.
    ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --spacing-header: 3.5rem;
+  --spacing-header: 4rem;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -66,7 +68,7 @@
    second level of indirection.
    ─────────────────────────────────────────────────────────────────────────── */
 @theme inline {
-  /* next/font exposes Open Sans as --font-app (see src/styles/fonts.ts). Pointing
+  /* next/font exposes Manrope as --font-app (see src/styles/fonts.ts). Pointing
      Tailwind's own --font-sans at it keeps `font-sans` and Tailwind's
      --default-font-family, applied to <html> by preflight, on the app typeface. */
   --font-sans: var(--font-app), system-ui, -apple-system, sans-serif;
@@ -80,6 +82,7 @@
   --color-brand-border-subtle: var(--brand-border-subtle);
   --color-surface: var(--brand-surface);
   --color-surface-sunken: var(--brand-surface-sunken);
+  --radius-brand-sm: var(--brand-radius-sm);
   --radius-brand: var(--brand-radius);
 }
 
@@ -95,7 +98,7 @@
   --color-brand-600: #33487a;
   --color-brand-700: #243662;
   --color-brand-800: #1c2b50;
-  --color-brand-900: #18294d;
+  --color-brand-900: #18294e;
   --color-brand-950: #0e1830;
 }
 
@@ -103,40 +106,41 @@
    5. Content widths -> max-w-content / max-w-prose-content / max-w-form-content
    ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --container-content: 80rem;
+  --container-content: 75rem;
   --container-prose-content: 45rem;
   --container-form-content: 40rem;
-  --container-auth-content: 26rem;
+  --container-auth-content: 30rem;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
    6. Fluid type scale
 
    Semantic steps rather than raw sizes, so a heading is declared once and
-   scales between 360px and 1280px without per-breakpoint overrides.
+   scales between 360px and 1280px without per-breakpoint overrides. Display
+   is the marketing hero (prototype text-5xl / text-7xl); h1 is page titles.
    ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --text-display: clamp(1.75rem, 1.15rem + 2.7vw, 2.75rem);
+  --text-display: clamp(2.5rem, 1.15rem + 5.5vw, 4.5rem);
   --text-display--line-height: 1.1;
-  --text-display--letter-spacing: -0.02em;
-  --text-display--font-weight: 700;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 800;
 
-  --text-h1: clamp(1.5rem, 1.15rem + 1.6vw, 2rem);
-  --text-h1--line-height: 1.18;
-  --text-h1--letter-spacing: -0.015em;
-  --text-h1--font-weight: 700;
+  --text-h1: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.025em;
+  --text-h1--font-weight: 800;
 
-  --text-h2: clamp(1.25rem, 1.06rem + 0.85vw, 1.5rem);
+  --text-h2: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
   --text-h2--line-height: 1.25;
-  --text-h2--letter-spacing: -0.01em;
-  --text-h2--font-weight: 650;
+  --text-h2--letter-spacing: -0.015em;
+  --text-h2--font-weight: 700;
 
   --text-h3: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
   --text-h3--line-height: 1.35;
-  --text-h3--font-weight: 600;
+  --text-h3--font-weight: 700;
 
   --text-body: 1rem;
-  --text-body--line-height: 1.55;
+  --text-body--line-height: 1.6;
 
   --text-body-sm: 0.875rem;
   --text-body-sm--line-height: 1.5;
@@ -144,17 +148,17 @@
   --text-caption: 0.8125rem;
   --text-caption--line-height: 1.45;
 
-  --text-overline: 0.6875rem;
+  --text-overline: 0.75rem;
   --text-overline--line-height: 1.3;
-  --text-overline--letter-spacing: 0.07em;
-  --text-overline--font-weight: 600;
+  --text-overline--letter-spacing: 0.2em;
+  --text-overline--font-weight: 700;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
    7. Base
    ─────────────────────────────────────────────────────────────────────────── */
 body {
-  background: var(--brand-surface);
+  background: var(--brand-surface-sunken);
   color: var(--brand-text);
   font-family: var(--font-app), system-ui, -apple-system, sans-serif;
   /* Suppresses the 300ms double-tap-to-zoom delay on touch devices. */
@@ -204,8 +208,8 @@ body {
 
 /** Page gutters: fluid, safe-area aware, no breakpoints needed. */
 @utility app-gutter-x {
-  padding-inline-start: max(1rem, env(safe-area-inset-left), min(4vw, 2rem));
-  padding-inline-end: max(1rem, env(safe-area-inset-right), min(4vw, 2rem));
+  padding-inline-start: max(1.5rem, env(safe-area-inset-left), min(4vw, 2.5rem));
+  padding-inline-end: max(1.5rem, env(safe-area-inset-right), min(4vw, 2.5rem));
 }
 
 @utility app-safe-t {

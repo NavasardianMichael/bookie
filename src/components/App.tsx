@@ -5,6 +5,7 @@ import { App as AntApp, ConfigProvider } from 'antd'
 import { antdTheme } from '@styles/theme'
 import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { Header } from './header/Header'
+import Footer from './layout/Footer'
 import SkipLink from './layout/SkipLink'
 
 /**
@@ -29,6 +30,7 @@ const App: FC<PropsWithChildren> = ({ children }) => (
         <main id='main' className='flex-1 app-safe-b'>
           {children}
         </main>
+        <Footer />
       </div>
       {process.env.NODE_ENV !== 'production' && <BreakpointInvariant />}
     </AntApp>

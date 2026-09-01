@@ -1,16 +1,17 @@
 import { PageShell } from '@components/ui/layout'
+import { CardGridSkeleton } from '@components/ui/skeletons/CardGridSkeleton'
 
 const Loading = () => (
-  <PageShell as='article' width='prose' className='flex flex-col gap-6'>
-    <div className='flex flex-col gap-4 md:flex-row md:items-start'>
-      <div className='bg-surface-sunken aspect-square w-full max-w-xs animate-pulse rounded-brand md:order-last md:w-40' />
-      <div className='flex flex-1 flex-col gap-3'>
-        <div className='bg-surface-sunken h-8 w-3/4 animate-pulse rounded-brand' />
-        <div className='bg-surface-sunken h-4 w-1/2 animate-pulse rounded-brand' />
-        <div className='bg-surface-sunken h-20 w-full animate-pulse rounded-brand' />
+  <PageShell as='article' className='flex flex-col gap-6'>
+    <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]'>
+      <div className='border-brand-border bg-surface flex flex-col items-center gap-4 rounded-brand border p-6 shadow-sm'>
+        <div className='bg-surface-sunken size-32 animate-pulse rounded-full' />
+        <div className='bg-surface-sunken h-7 w-40 animate-pulse rounded-brand' />
+        <div className='bg-surface-sunken h-16 w-full animate-pulse rounded-brand' />
       </div>
+      <div className='border-brand-border bg-surface min-h-80 animate-pulse rounded-brand border shadow-sm' />
     </div>
-    <div className='bg-surface-sunken h-40 w-full animate-pulse rounded-brand' />
+    <CardGridSkeleton count={3} min='sm' />
   </PageShell>
 )
 

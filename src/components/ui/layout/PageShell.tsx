@@ -22,7 +22,7 @@ const PageShell: FC<PageShellProps> = ({ variant = 'flow', width = 'content', as
     as={as}
     width={width}
     className={cn(
-      'py-4 sm:py-6 lg:py-8',
+      'py-8 sm:py-10 lg:py-12',
       variant === 'fill' && 'flex min-h-[calc(100dvh-var(--spacing-header))] flex-col',
       className
     )}

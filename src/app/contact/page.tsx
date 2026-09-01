@@ -1,8 +1,10 @@
-import { PageHeader, PageShell } from '@components/ui/layout'
+import { PageHeader, PageShell, Surface } from '@components/ui/layout'
 
 const Contact = () => (
   <PageShell width='prose'>
-    <PageHeader title='Contact' subtitle='Get in touch with the Bookie team.' />
+    <Surface>
+      <PageHeader title='Contact' subtitle='Get in touch with the Bookie team.' />
+    </Surface>
   </PageShell>
 )
 

@@ -22,7 +22,7 @@ const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
   return (
     <nav
       aria-label={isVertical ? 'Mobile navigation' : 'Main navigation'}
-      className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-1')}
+      className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-8')}
     >
       {HEADER_ROUTES.map(({ label, name }) => {
         const route = ROUTES[name]
@@ -36,11 +36,16 @@ const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
             onClick={onNavigate}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 items-center rounded-brand px-3 text-body-sm font-medium',
-              isVertical && 'min-h-12',
+              'text-body-sm font-semibold transition-colors',
+              isVertical ? 'flex min-h-12 items-center rounded-brand-sm px-3' : 'min-h-11 items-center',
               active
-                ? 'bg-brand-50 text-brand active:bg-brand-100'
-                : 'text-brand-muted hover:bg-surface-sunken hover:text-brand-text active:bg-surface-sunken'
+                ? isVertical
+                  ? 'bg-brand-50 text-brand'
+                  : 'text-brand underline decoration-2 underline-offset-4'
+                : cn(
+                    'text-brand-text hover:text-brand',
+                    isVertical && 'hover:bg-surface-sunken active:bg-surface-sunken'
+                  )
             )}
           >
             {label}

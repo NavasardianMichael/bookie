@@ -8,6 +8,7 @@ import AppTime from '@components/ui/bare/AppTime'
 
 type Props = {
   weekSchedule: WeekSchedule
+  columns?: 1 | 2
 }
 
 /**
@@ -20,7 +21,7 @@ type Props = {
  * of the two questions every local-business search asks — was absent from the
  * markup entirely.
  */
-const WorkingHours: FC<Props> = ({ weekSchedule }) => {
+const WorkingHours: FC<Props> = ({ weekSchedule, columns = 1 }) => {
   if (!hasWeekScheduleHours(weekSchedule)) return null
 
   const items: AppDescriptionListItem[] = WEEK_DAYS_LIST.map((day) => {
@@ -45,7 +46,7 @@ const WorkingHours: FC<Props> = ({ weekSchedule }) => {
     }
   })
 
-  return <AppDescriptionList items={items} />
+  return <AppDescriptionList items={items} columns={columns} />
 }
 
 export default WorkingHours

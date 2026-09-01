@@ -30,7 +30,13 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
    silently mean 1536px. There must be zero `2xl:`/`3xl:` usages.
 5. `<BreakpointInvariant/>` asserts tokens.ts ↔ globals.css ↔ antd agree, in dev only.
 6. No dark mode, ever. `color-scheme: light`, zero `dark:` classes.
-7. The app font variable is `--font-app`, never `--font-sans`.
+7. The app font variable is `--font-app`, never `--font-sans`. The face is Manrope
+   (`src/styles/fonts.ts`), matching `design/initial prototype`.
+8. Body copy is charcoal (`NEUTRAL[900]`, `#121417`); navy (`BRAND[900]`) is the brand
+   accent, not the text colour. The canvas is `colorBgLayout` / `--brand-surface-sunken`
+   (`#f6f7f8`); white is reserved for `Surface` panels and the sticky header.
+9. `--spacing-header` is `4rem` (the prototype's 64px bar). `h-header` and the
+   `PageShell variant='fill'` calc both read it.
 
 ### Why breakpoints are the one accepted duplication
 
@@ -97,6 +103,6 @@ grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/
 antd `style={{…}}` / `styles={{ slot }}` props are still design-system values, but a few
 call sites hardcode px there: `BackHistoryBtn.tsx:28`, the byte-identical `Divider`/`Space`
 pairs in `ProviderProfileFormCategories.tsx:44` and `ProviderProfileFormOrganization.tsx:44`,
-`MobileNav.tsx:50`, plus two CSS Modules. Prefer a token or a Tailwind class via
-`classNames`. `opengraph-image.tsx` and `icon.tsx` are legitimate exceptions — satori
-cannot resolve CSS variables, so they import from `tokens.ts` directly.
+plus two CSS Modules. Prefer a token or a Tailwind class via `classNames`.
+`opengraph-image.tsx` and `icon.tsx` are legitimate exceptions — satori cannot resolve
+CSS variables, so they import from `tokens.ts` directly.

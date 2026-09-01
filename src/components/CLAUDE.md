@@ -12,7 +12,7 @@ modules `"use client"`, so an antd component's text only reaches the DOM after h
 |---|---|
 | **Content** — headings, body copy, links, times, description lists, JSON-LD | **Interaction** — Button, Input, Select, Form, Modal, Drawer, Upload, TimePicker, Segmented |
 | It renders in a Server Component (`page.tsx`, `layout.tsx`) | It already lives inside a `'use client'` island |
-| Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid | antd already supplies focus trap / scroll lock / a11y |
+| Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid / Surface / ChipRail | antd already supplies focus trap / scroll lock / a11y |
 | An icon on the server → `ui/icons.tsx` | An icon in a client island → `@ant-design/icons` |
 
 ## The three tiers

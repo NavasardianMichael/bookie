@@ -1,16 +1,17 @@
 import { PropsWithChildren } from 'react'
-import { PageShell } from '@components/ui/layout'
+import { PageShell, Surface } from '@components/ui/layout'
 
 /**
  * One narrow, full-height column for the whole sign-on funnel.
  *
- * `justify-between` on phones puts the primary action at the thumb line;
- * `md:justify-center` centres the card on larger screens. `dvh` inside PageShell
- * keeps the CTA clear of the iOS URL bar.
+ * The white panel matches the prototype registration card. `dvh` inside PageShell
+ * keeps the card clear of the iOS URL bar on short phones.
  */
 const AuthLayout = ({ children }: PropsWithChildren) => (
-  <PageShell variant='fill' width='auth' className='justify-between gap-6 md:justify-center'>
-    {children}
+  <PageShell variant='fill' width='auth' className='justify-center'>
+    <Surface padding='lg' className='flex w-full flex-col gap-6'>
+      {children}
+    </Surface>
   </PageShell>
 )
 

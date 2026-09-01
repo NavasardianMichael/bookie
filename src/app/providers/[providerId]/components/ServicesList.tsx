@@ -9,6 +9,8 @@ import ResponsiveGrid from '@components/ui/layout/ResponsiveGrid'
 
 type Props = {
   services: ProviderService[]
+  /** `stack` is the compact sidebar list on the public profile. */
+  variant?: 'grid' | 'stack'
 }
 
 /**
@@ -20,8 +22,32 @@ type Props = {
  * any price, appeared in the HTML. This is the page's highest-intent content, so
  * it is also the content most worth having a crawler read.
  */
-const ServicesList: FC<Props> = ({ services }) => {
+const ServicesList: FC<Props> = ({ services, variant = 'grid' }) => {
   if (!services.length) return null
+
+  if (variant === 'stack') {
+    return (
+      <ul className='m-0 list-none divide-y divide-brand-border-subtle p-0'>
+        {services.map((service) => (
+          <li key={service.id} className='flex items-center justify-between gap-3 p-4'>
+            <div className='flex min-w-0 flex-col gap-0.5'>
+              <AppTitle level='h3' size='h3' className='line-clamp-1'>
+                {service.name}
+              </AppTitle>
+              <AppTime dateTime={toIsoDuration(service.duration)} className='text-caption'>
+                {formatDuration(service.duration)}
+              </AppTime>
+            </div>
+            {service.price !== undefined && service.currency && (
+              <AppText size='body-sm' tone='default' numeric className='shrink-0 font-bold'>
+                {service.price} {service.currency}
+              </AppText>
+            )}
+          </li>
+        ))}
+      </ul>
+    )
+  }
 
   return (
     <ResponsiveGrid as='ul' min='sm'>

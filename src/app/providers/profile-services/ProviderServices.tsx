@@ -109,6 +109,7 @@ const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SE
               <Card
                 key={service.id}
                 className='w-full'
+                classNames={{ body: 'p-5' }}
                 actions={[
                   <Button
                     type='text'

@@ -22,6 +22,8 @@ export type EntityCardProps = {
   aspect?: '1/1' | '4/3' | '16/9'
   badges?: ReactNode
   footer?: ReactNode
+  /** Visual call-to-action painted at the bottom. The stretched link still owns the click. */
+  cta?: string
   /** Rendered above the badges; keep interactive content out of here. */
   actions?: ReactNode
   className?: string
@@ -58,6 +60,7 @@ const EntityCard: FC<EntityCardProps> = ({
   aspect = '4/3',
   badges,
   footer,
+  cta,
   actions,
   className,
 }) => {
@@ -66,8 +69,8 @@ const EntityCard: FC<EntityCardProps> = ({
   return (
     <article
       className={cn(
-        'group border-brand-border bg-surface relative flex h-full flex-col overflow-hidden rounded-brand border transition-shadow',
-        href && 'hover:shadow-md focus-within:shadow-md active:scale-[0.99] active:shadow-sm',
+        'group border-brand-border bg-surface relative flex h-full flex-col overflow-hidden rounded-brand border shadow-sm transition-all',
+        href && 'hover:border-brand/50 hover:shadow-md focus-within:border-brand/50 focus-within:shadow-md active:scale-[0.99]',
         className
       )}
     >
@@ -78,22 +81,26 @@ const EntityCard: FC<EntityCardProps> = ({
             alt={title}
             fill
             sizes='(max-width: 576px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 296px'
-            className='object-cover transition-transform duration-300 group-hover:scale-[1.02]'
+            className='object-cover transition-transform duration-500 group-hover:scale-105'
           />
         ) : (
-          <span className='bg-brand-100 text-brand-700 absolute inset-0 flex items-center justify-center text-2xl font-semibold'>
+          <span className='bg-brand-50 text-brand-400 absolute inset-0 flex items-center justify-center text-2xl font-semibold'>
             <span aria-hidden='true'>{getInitials(fallbackName ?? title)}</span>
           </span>
         )}
       </div>
 
-      <div className='flex flex-1 flex-col gap-2 p-3 sm:p-4'>
+      <div className='flex flex-1 flex-col gap-2 p-5 sm:p-6'>
         <div className='flex flex-col gap-0.5'>
-          <AppTitle level={LEVELS[headingLevel]} size='h3' className='line-clamp-1'>
+          <AppTitle
+            level={LEVELS[headingLevel]}
+            size='h3'
+            className='line-clamp-1 transition-colors group-hover:text-brand'
+          >
             {title}
           </AppTitle>
           {subtitle && (
-            <AppParagraph size='caption' className='line-clamp-1'>
+            <AppParagraph size='caption' className='line-clamp-1 font-medium'>
               {subtitle}
             </AppParagraph>
           )}
@@ -105,9 +112,17 @@ const EntityCard: FC<EntityCardProps> = ({
           </AppParagraph>
         )}
 
-        {badges && <div className='relative z-2 mt-auto flex flex-wrap items-center gap-1 pt-1'>{badges}</div>}
+        {badges && <div className='relative z-2 mt-auto flex flex-wrap items-center gap-1 pt-2'>{badges}</div>}
 
         {footer && <div className='text-caption mt-auto pt-1'>{footer}</div>}
+
+        {cta && (
+          <div className='relative z-2 mt-auto pt-4'>
+            <span className='bg-brand flex h-10 items-center justify-center rounded-brand-sm text-body-sm font-bold text-white'>
+              {cta}
+            </span>
+          </div>
+        )}
 
         {actions && <div className='relative z-2 mt-auto flex items-center justify-end gap-1 pt-1'>{actions}</div>}
       </div>

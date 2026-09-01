@@ -9,9 +9,9 @@ put in it.
 
 | Route | | State |
 |---|---|---|
-| `/` | ƒ | Real — hero, categories, first providers |
-| `/providers` | ƒ | Real — list |
-| `/providers/[providerId]` | ƒ | Real — detail, calendar, booking |
+| `/` | ƒ | Real — marketing landing (hero, category rail, feature bento, providers, CTA) |
+| `/providers` | ƒ | Real — explore list with category chip rail |
+| `/providers/[providerId]` | ƒ | Real — 2-col profile + calendar booking |
 | `/providers/profile-creation` | ƒ | Real — the big profile form |
 | `/providers/profile-services` | ƒ | Real — service CRUD |
 | `/providers/profile` | ○ | **Stub** (9 lines) |

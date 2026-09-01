@@ -45,13 +45,7 @@ const AccountTypeButtons: React.FC = () => {
             onChange={(value) => formik.setFieldValue('accountType', value)}
           />
         </Form.Item>
-        <Flex vertical className='h-full w-full grow' justify='space-between'>
-          <img
-            src='/logo.svg'
-            alt='Bookie logo'
-            className='mx-auto max-h-[40vh] w-auto object-contain'
-          />
-
+        <Flex vertical gap={16} className='w-full'>
           <Flex vertical gap={8} className='w-full'>
             <Typography.Paragraph type='secondary' className='mb-0 text-center text-base'>
               Quick access — sign in with your phone number to get started.
@@ -64,7 +58,7 @@ const AccountTypeButtons: React.FC = () => {
               className='w-full'
               disabled={!formik.values.accountType}
             >
-              Sign on
+              Continue
             </AppButton>
           </Flex>
         </Flex>

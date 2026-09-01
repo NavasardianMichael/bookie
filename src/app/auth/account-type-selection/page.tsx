@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 }
 
 const AccountTypeSelection = () => (
-  <div className='flex w-full flex-1 flex-col justify-between gap-6'>
-    <div className='flex flex-col gap-1'>
-      <AppTitle level='h1'>
-        Welcome to <b>Bookie</b>
+  <div className='flex w-full flex-col gap-8'>
+    <div className='flex flex-col gap-2 text-center'>
+      <AppTitle level='h1' size='h2'>
+        Grow your business with Bookie
       </AppTitle>
       <AppParagraph>Choose who you want to sign up as.</AppParagraph>
     </div>

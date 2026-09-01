@@ -14,7 +14,7 @@ type Props = {
 export const CardGridSkeleton: FC<Props> = ({ count = 8, min }) => (
   <ResponsiveGrid min={min} aria-hidden='true'>
     {Array.from({ length: count }, (_, index) => (
-      <div key={index} className='border-brand-border overflow-hidden rounded-brand border'>
+      <div key={index} className='border-brand-border bg-surface overflow-hidden rounded-brand border shadow-sm'>
         <div className='bg-surface-sunken aspect-[4/3] animate-pulse' />
         <div className='flex flex-col gap-2 p-4'>
           <div className='bg-surface-sunken h-5 w-3/4 animate-pulse rounded' />

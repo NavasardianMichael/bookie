@@ -23,7 +23,10 @@ const Categories = async () => {
     <PageShell className='flex flex-col gap-6'>
       <JsonLd data={getCategoriesListLDSchema(categories)} />
 
-      <PageHeader title='Categories' subtitle={allIds.length ? `${allIds.length} listed` : 'Browse by specialty'} />
+      <PageHeader
+        title='Categories'
+        subtitle={allIds.length ? `${allIds.length} listed` : 'Browse by specialty'}
+      />
 
       {categories.length ? (
         <ResponsiveGrid as='ul'>

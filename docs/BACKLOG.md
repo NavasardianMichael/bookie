@@ -75,7 +75,7 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
    is set globally, so without them taps feel unregistered on custom-styled tappables.
 3. **antd `style`/`styles` px leak sites** — `BackHistoryBtn.tsx:28`, the byte-identical
    `Divider`/`Space` pairs in `ProviderProfileFormCategories.tsx:44` and
-   `ProviderProfileFormOrganization.tsx:44`, `MobileNav.tsx:50`, plus two CSS Modules.
+   `ProviderProfileFormOrganization.tsx:44`, plus two CSS Modules.
 
 ---
 
@@ -125,7 +125,7 @@ Each is a one-line reversal:
    arrow with nothing to go back to. Inverts in `getHeaderConfig` in `src/constants/header.ts`.
 2. **No mobile bottom tab bar.** `<main>` already carries `app-safe-b`, so adding one
    later is purely additive.
-3. **Open Sans has no Armenian subset.** If Armenian is a real target market, add
+3. **Manrope has no Armenian subset.** If Armenian is a real target market, add
    `Noto_Sans_Armenian` (`subsets: ['armenian']`) to `src/styles/fonts.ts` — otherwise
    Armenian text renders in a fallback face.
 

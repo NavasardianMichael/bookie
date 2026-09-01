@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 }
 
 const ProviderServicesPage = () => (
-  <PageShell width='form' className='flex flex-col gap-6'>
-    <PageHeader title='Your services' subtitle='Add at least one service so clients can book you.' />
+  <PageShell className='flex flex-col gap-6'>
+    <PageHeader title='Manage services' subtitle='Configure your offerings, durations, and pricing.' />
     <ProviderServices />
   </PageShell>
 )

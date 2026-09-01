@@ -21,13 +21,13 @@ export type PageHeaderProps = {
  * on a narrow screen.
  */
 const PageHeader: FC<PageHeaderProps> = ({ title, subtitle, meta, actions, media, className }) => (
-  <header className={cn('flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6', className)}>
+  <header className={cn('flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-8', className)}>
     {media && <div className='shrink-0 md:order-last'>{media}</div>}
 
-    <div className='flex min-w-0 flex-col gap-3'>
-      <div className='flex flex-col gap-1'>
+    <div className='flex min-w-0 flex-col gap-4'>
+      <div className='flex flex-col gap-2'>
         <AppTitle level='h1'>{title}</AppTitle>
-        {subtitle && <AppParagraph size='body-sm'>{subtitle}</AppParagraph>}
+        {subtitle && <AppParagraph>{subtitle}</AppParagraph>}
       </div>
       {meta && <div className='flex flex-wrap items-center gap-2'>{meta}</div>}
       {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}

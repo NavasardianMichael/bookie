@@ -8,16 +8,20 @@ type HeaderRoute = {
 
 /**
  * Nav destinations with real content. `contact` stays omitted until that page
- * holds something worth linking to.
+ * holds something worth linking to. Labels match the prototype's public chrome
+ * (`Explore` rather than `Providers`).
  */
 export const HEADER_ROUTES: HeaderRoute[] = [
-  { name: ROUTE_KEYS.providers, label: 'Providers' },
-  { name: ROUTE_KEYS.organizations, label: 'Organizations' },
+  { name: ROUTE_KEYS.home, label: 'Home' },
+  { name: ROUTE_KEYS.providers, label: 'Explore' },
   { name: ROUTE_KEYS.categories, label: 'Categories' },
+  { name: ROUTE_KEYS.organizations, label: 'Organizations' },
 ]
 
+export const HEADER_SIGN_IN: HeaderRoute = { name: ROUTE_KEYS.accountTypeSelection, label: 'Sign In' }
+
 /** Rendered as the header's primary call to action rather than a nav link. */
-export const HEADER_CTA: HeaderRoute = { name: ROUTE_KEYS.accountTypeSelection, label: 'Sign on' }
+export const HEADER_CTA: HeaderRoute = { name: ROUTE_KEYS.accountTypeSelection, label: 'Get Started' }
 
 export const OVERVIEW_ROUTES: HeaderRoute[] = Object.entries(ROUTES).map(([name]) => {
   return { name, label: name } as HeaderRoute

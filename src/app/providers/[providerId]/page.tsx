@@ -10,11 +10,14 @@ import { generateGoogleMapsLink } from '@helpers/location'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { hasWeekScheduleHours } from '@helpers/schedule'
 import AppAvatar from '@components/ui/AppAvatar'
-import AppDescriptionList, { AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
 import AppLink from '@components/ui/bare/AppLink'
+import AppParagraph from '@components/ui/bare/AppParagraph'
+import AppText from '@components/ui/bare/AppText'
+import AppTitle from '@components/ui/bare/AppTitle'
 import JsonLd from '@components/ui/bare/JsonLd'
 import ContactActions from '@components/ui/ContactActions'
-import { PageHeader, PageShell, Section } from '@components/ui/layout'
+import { MapPinIcon } from '@components/ui/icons'
+import { PageShell, Surface } from '@components/ui/layout'
 import ProviderDetails from './components/Details'
 import ServicesList from './components/ServicesList'
 import WorkingHours from './components/WorkingHours'
@@ -83,110 +86,127 @@ const Provider = async ({ params }: Props) => {
   const image = resolveAssetUrl(basic.image)
   const phone = generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
   const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
-
-  const detailItems: AppDescriptionListItem[] = [
-    {
-      key: 'phone',
-      label: 'Phone',
-      value: (
-        <AppLink href={`tel:${phone}`} className='tnum'>
-          {phone}
-        </AppLink>
-      ),
-    },
-    {
-      key: 'address',
-      label: 'Address',
-      value: (
-        <AppLink href={generateGoogleMapsLink(details.location.address)} target='_blank'>
-          {details.location.address}
-        </AppLink>
-      ),
-    },
-  ]
-
-  if (details.email) {
-    detailItems.push({
-      key: 'email',
-      label: 'Email',
-      value: <AppLink href={`mailto:${details.email}`}>{details.email}</AppLink>,
-    })
-  }
-
-  if (details.country) {
-    detailItems.push({ key: 'country', label: 'Country', value: details.country })
-  }
+  const mapsHref = generateGoogleMapsLink(details.location.address)
 
   return (
     <PageShell as='article' className='flex flex-col gap-6'>
       <JsonLd data={getProviderLDSchema(provider)} />
 
-      <PageHeader
-        title={fullName}
-        subtitle={basic.description}
-        media={
-          image ? (
-            // Fixed aspect box: the raw <img max-w-[160px]> in a never-wrapping
-            // row squeezed the text column to ~120px on a phone.
-            <div className='bg-surface-sunken relative aspect-[4/3] w-full overflow-hidden rounded-brand md:aspect-square md:w-40'>
-              <Image
-                src={image}
-                alt={fullName}
-                fill
-                priority
-                sizes='(max-width: 768px) 100vw, 160px'
-                className='object-cover'
-              />
-            </div>
-          ) : (
-            <AppAvatar name={fullName} size={96} shape='square' />
-          )
-        }
-        meta={
-          <>
-            {categories?.map((category) => (
-              <AppLink
-                key={category.id}
-                href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}
-                variant='chip'
-                className='min-h-9'
-              >
-                {category.name}
-              </AppLink>
-            ))}
+      <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start'>
+        <aside className='flex flex-col gap-6'>
+          <Surface className='flex flex-col items-center text-center'>
+            {image ? (
+              <div className='ring-brand-50 relative mb-4 size-32 overflow-hidden rounded-full ring-4'>
+                <Image src={image} alt={fullName} fill priority sizes='128px' className='object-cover' />
+              </div>
+            ) : (
+              <div className='mb-4'>
+                <AppAvatar name={fullName} size={128} />
+              </div>
+            )}
+
+            <AppTitle level='h1' size='h2'>
+              {fullName}
+            </AppTitle>
+
             {organization && (
               <AppLink
                 href={`${ROUTES[ROUTE_KEYS.organizations]}/${organization.id}`}
-                variant='chip'
-                className='border-brand text-brand bg-brand-50 min-h-9'
+                variant='plain'
+                className='text-body-sm text-brand-muted mt-1 font-medium hover:text-brand'
               >
                 {organization.basic.name}
               </AppLink>
             )}
-          </>
-        }
-        actions={<ContactActions phone={phone} address={details.location.address} email={details.email} />}
-      />
 
-      <Section title='Book an appointment' headingLevel={2}>
-        <ProviderDetails initialState={provider} />
-      </Section>
+            {!!categories?.length && (
+              <div className='mt-3 flex flex-wrap justify-center gap-2'>
+                {categories.map((category) => (
+                  <AppLink
+                    key={category.id}
+                    href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}
+                    variant='chip'
+                    className='h-8 min-h-8 px-3 text-caption'
+                  >
+                    {category.name}
+                  </AppLink>
+                ))}
+              </div>
+            )}
 
-      {!!serviceList.length && (
-        <Section title='Services' count={serviceList.length} headingLevel={2}>
-          <ServicesList services={serviceList} />
-        </Section>
-      )}
+            {basic.description && (
+              <AppParagraph size='body-sm' className='mt-5'>
+                {basic.description}
+              </AppParagraph>
+            )}
 
-      {hasWeekScheduleHours(details.weekSchedule) && (
-        <Section title='Working hours' headingLevel={2}>
-          <WorkingHours weekSchedule={details.weekSchedule} />
-        </Section>
-      )}
+            <ContactActions
+              phone={phone}
+              address={details.location.address}
+              email={details.email}
+              className='mt-6'
+            />
+          </Surface>
 
-      <Section title='Details' headingLevel={2}>
-        <AppDescriptionList items={detailItems} />
-      </Section>
+          {!!serviceList.length && (
+            <Surface padding='none'>
+              <div className='border-brand-border flex items-center justify-between border-b px-6 py-4'>
+                <AppTitle level='h2' size='h3'>
+                  Services
+                </AppTitle>
+                <AppText size='overline' tone='muted'>
+                  {serviceList.length} {serviceList.length === 1 ? 'option' : 'options'}
+                </AppText>
+              </div>
+              <ServicesList services={serviceList} variant='stack' />
+            </Surface>
+          )}
+
+          <Surface>
+            <AppTitle level='h2' size='h3' className='mb-4'>
+              Location
+            </AppTitle>
+            <AppLink
+              href={mapsHref}
+              target='_blank'
+              variant='plain'
+              className='text-body-sm text-brand-muted flex items-start gap-3 hover:text-brand'
+            >
+              <MapPinIcon className='mt-0.5 h-5 w-5 shrink-0' />
+              <span>
+                {details.location.address}
+                {details.country ? (
+                  <>
+                    <br />
+                    {details.country}
+                  </>
+                ) : null}
+              </span>
+            </AppLink>
+
+            {hasWeekScheduleHours(details.weekSchedule) && (
+              <div className='border-brand-border-subtle mt-6 border-t pt-5'>
+                <AppTitle level='h2' size='h3' className='mb-3'>
+                  Working hours
+                </AppTitle>
+                <WorkingHours weekSchedule={details.weekSchedule} />
+              </div>
+            )}
+          </Surface>
+        </aside>
+
+        <section className='flex min-w-0 flex-col gap-6'>
+          <Surface>
+            <div className='mb-5'>
+              <AppTitle level='h2' size='h2'>
+                Book an appointment
+              </AppTitle>
+              <AppParagraph size='body-sm'>Pick a service, then a day and a time that works.</AppParagraph>
+            </div>
+            <ProviderDetails initialState={provider} />
+          </Surface>
+        </section>
+      </div>
     </PageShell>
   )
 }

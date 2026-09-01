@@ -16,13 +16,13 @@ const VARIANTS: Record<AppLinkVariant, string> = {
   inline: 'text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand',
   plain: 'no-underline transition-colors',
   button:
-    'inline-flex min-h-11 items-center justify-center gap-2 rounded-brand px-4 text-body-sm font-medium no-underline transition-colors',
-  chip: 'border-brand-border text-brand-text hover:border-brand hover:bg-brand-50 active:bg-brand-100 inline-flex min-h-11 items-center rounded-brand border px-3 text-body-sm font-medium no-underline transition-colors',
+    'inline-flex min-h-12 items-center justify-center gap-2 rounded-brand-sm px-5 text-body-sm font-bold no-underline transition-all',
+  chip: 'border-brand-border bg-surface text-brand-text hover:border-brand inline-flex h-10 shrink-0 items-center gap-2 rounded-brand-sm border px-5 text-body-sm font-bold no-underline transition-colors',
 }
 
 const BUTTON_TONES: Record<AppLinkTone, string> = {
-  primary: 'bg-brand hover:bg-brand-600 active:bg-brand-700 text-white',
-  default: 'border-brand-border text-brand-text hover:border-brand hover:bg-brand-50 active:bg-brand-100 border',
+  primary: 'bg-brand hover:bg-brand-800 active:bg-brand-950 text-white shadow-sm hover:shadow-md',
+  default: 'border-brand-border text-brand-text hover:border-brand hover:bg-surface active:bg-brand-50 border-2',
 }
 
 /**

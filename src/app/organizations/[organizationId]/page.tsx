@@ -11,7 +11,7 @@ import AppDescriptionList, { AppDescriptionListItem } from '@components/ui/bare/
 import AppLink from '@components/ui/bare/AppLink'
 import JsonLd from '@components/ui/bare/JsonLd'
 import ContactActions from '@components/ui/ContactActions'
-import { PageHeader, PageShell } from '@components/ui/layout'
+import { PageHeader, PageShell, Surface } from '@components/ui/layout'
 
 export const dynamic = 'force-dynamic'
 
@@ -85,32 +85,34 @@ const Organization = async ({ params }: Props) => {
   ]
 
   return (
-    <PageShell as='article' width='prose' className='flex flex-col gap-6'>
+    <PageShell as='article' className='flex flex-col gap-6'>
       <JsonLd data={getOrganizationLDSchema(organization)} />
 
-      <PageHeader
-        title={basic.name}
-        subtitle={basic.description}
-        media={<AppAvatar src={details.logoUrl} name={basic.name} size={72} shape='square' />}
-        meta={basic.categories.map((category) => (
-          <AppLink
-            key={category.id}
-            href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}
-            variant='chip'
-            className='min-h-9'
-          >
-            {category.name}
-          </AppLink>
-        ))}
-        actions={
-          <ContactActions
-            phone={details.phone}
-            address={details.location.address}
-            email={details.email}
-            website={details.website}
-          />
-        }
-      />
+      <Surface>
+        <PageHeader
+          title={basic.name}
+          subtitle={basic.description}
+          media={<AppAvatar src={details.logoUrl} name={basic.name} size={72} shape='square' />}
+          meta={basic.categories.map((category) => (
+            <AppLink
+              key={category.id}
+              href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}
+              variant='chip'
+              className='h-8 min-h-8 px-3 text-caption'
+            >
+              {category.name}
+            </AppLink>
+          ))}
+          actions={
+            <ContactActions
+              phone={details.phone}
+              address={details.location.address}
+              email={details.email}
+              website={details.website}
+            />
+          }
+        />
+      </Surface>
 
       {/* A <dl> rather than antd's Descriptions: same single-column collapse below
           md, but server-rendered, so the phone and address are in the HTML. */}

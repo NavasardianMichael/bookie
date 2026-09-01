@@ -1,9 +1,9 @@
-import { Open_Sans } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 
 /**
- * Open Sans is the app's primary typeface. It carries the numerals — times,
- * durations, prices — and is picked for its tall x-height at small metadata
- * sizes and unambiguous 1/l/I.
+ * Manrope is the app's primary typeface, matching `design/initial prototype`.
+ * Geometric enough for the marketing display sizes, with a tall x-height that
+ * still holds times, durations and prices at caption size.
  *
  * Applied on <html> rather than the app shell so it also covers antd portals
  * (Modal, Drawer, Select dropdowns) which render into document.body.
@@ -13,7 +13,7 @@ import { Open_Sans } from 'next/font/google'
  * have identical specificity — so the winner would depend on stylesheet order.
  * globals.css maps Tailwind's `--font-sans` onto this instead.
  */
-export const fontSans = Open_Sans({
+export const fontSans = Manrope({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-app',

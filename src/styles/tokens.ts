@@ -6,9 +6,13 @@
  *
  *   tokens.ts -> theme.ts -> ConfigProvider (cssVar) -> :root{--ant-*}
  *             -> globals.css alias block -> @theme inline -> Tailwind utilities
+ *
+ * Palette is taken from `design/initial prototype`: navy brand, charcoal body
+ * copy, warm-gray canvas. Dark-mode tokens from those files are deliberately
+ * omitted — the app is light-only.
  */
 
-/** Brand ramp derived from #18294d (H 220, S 53%), lightness stepped, saturation eased at the light end. */
+/** Brand ramp derived from #18294e (H 221, S 53%), lightness stepped, saturation eased at the light end. */
 export const BRAND = {
   50: '#f2f5fa',
   100: '#e3e9f4',
@@ -19,22 +23,22 @@ export const BRAND = {
   600: '#33487a',
   700: '#243662',
   800: '#1c2b50',
-  900: '#18294d',
+  900: '#18294e',
   950: '#0e1830',
 } as const
 
 export const NEUTRAL = {
   0: '#ffffff',
-  50: '#f8f9fb',
-  100: '#f1f3f7',
-  200: '#e4e8ef',
+  50: '#f6f7f8',
+  100: '#f1f2f4',
+  200: '#dddfe4',
   300: '#cfd5e0',
   400: '#a3abbd',
-  500: '#767f94',
+  500: '#687182',
   600: '#5a6480',
   700: '#414a63',
   800: '#2b3245',
-  900: '#1b2030',
+  900: '#121417',
 } as const
 
 export const STATUS = {
@@ -44,7 +48,8 @@ export const STATUS = {
   info: '#2563eb',
 } as const
 
-export const RADII = { base: 8, lg: 12 } as const
+/** `base` is controls; `lg` is cards and panels; `xl` is hero frames. */
+export const RADII = { base: 8, lg: 12, xl: 16 } as const
 
 /** Drives every control height in the app, replacing the per-call-site `h-[56px]!`. */
 export const CONTROL = { height: 40, heightLG: 48, heightSM: 32 } as const

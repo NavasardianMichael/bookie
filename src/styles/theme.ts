@@ -18,13 +18,12 @@ export const antdTheme: ThemeConfig = {
     // produces garbage swatches.
     colorPrimary: BRAND[900],
     colorLink: BRAND[700],
-    colorTextBase: BRAND[900],
+    // Charcoal body copy, not navy — navy is the brand accent, not the text.
+    colorTextBase: NEUTRAL[900],
 
-    // colorTextSecondary was previously the same navy as colorTextBase, which
-    // made every `Typography type='secondary'` render with zero de-emphasis.
-    colorTextSecondary: NEUTRAL[600],
+    colorTextSecondary: NEUTRAL[500],
     colorTextTertiary: NEUTRAL[500],
-    colorTextDescription: NEUTRAL[600],
+    colorTextDescription: NEUTRAL[500],
 
     colorBorder: NEUTRAL[200],
     colorBorderSecondary: NEUTRAL[100],
@@ -38,6 +37,7 @@ export const antdTheme: ThemeConfig = {
 
     borderRadius: RADII.base,
     borderRadiusLG: RADII.lg,
+    borderRadiusXS: 4,
 
     // Single source for control sizing: `size='large'` now resolves to 48px,
     // which clears the 44px touch-target minimum and retires every `h-[56px]!`.
@@ -55,6 +55,7 @@ export const antdTheme: ThemeConfig = {
     // Form items are spaced by the parent form's flex `gap`, which is what the
     // old per-item `mb-0!` was emulating.
     Form: { itemMarginBottom: 0, verticalLabelPadding: '0 0 6px' },
-    Button: { fontWeight: 600, primaryShadow: 'none', defaultShadow: 'none' },
+    Button: { fontWeight: 700, primaryShadow: 'none', defaultShadow: 'none' },
+    Card: { borderRadiusLG: RADII.lg },
   },
 }

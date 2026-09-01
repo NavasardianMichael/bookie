@@ -34,6 +34,7 @@ export const ProviderCard: FC<Props> = ({ data, headingLevel }) => {
           {basic.available ? 'Available' : 'Fully booked'}
         </span>
       }
+      cta='View profile'
     />
   )
 }
