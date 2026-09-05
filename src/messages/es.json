@@ -20,7 +20,9 @@
     "categories": "Categorías",
     "organizations": "Organizaciones",
     "phoneNumberInput": "Iniciar sesión",
-    "accountTypeSelection": "Empezar"
+    "accountTypeSelection": "Empezar",
+    "account": "Account",
+    "accountSettings": "Account settings"
   },
   "Footer": {
     "blurb": "Una sola plataforma para encontrar servicios locales o gestionar tu agenda de reservas.",
@@ -35,5 +37,138 @@
     "createAccount": "Crear una cuenta",
     "company": "Empresa",
     "contact": "Contacto"
+  },
+  "Settings": {
+    "settings": "Settings",
+    "accountSettings": "Account Settings",
+    "consumerAccount": "Consumer Account",
+    "consumerSubtitle": "Update your personal details and preferences.",
+    "providerSubtitle": "Configure your business workspace",
+    "providerHeroTitle": "Workspace Overview",
+    "providerHeroBody": "Manage your professional presence and booking preferences from one unified dashboard.",
+    "signOut": "Sign Out",
+    "nav": {
+      "profile": "Profile",
+      "phone": "Phone",
+      "appointments": "Appointments",
+      "notifications": "Notifications",
+      "payments": "Payments",
+      "availability": "Availability",
+      "services": "Services",
+      "listing": "Listing"
+    },
+    "actions": {
+      "save": "Save Changes",
+      "discard": "Discard",
+      "saveDraft": "Save draft",
+      "publish": "Publish"
+    },
+    "profile": {
+      "personalInfo": "Personal Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "description": "Description",
+      "email": "Email Address",
+      "noAvatarHint": "Profile photo is not available for consumer accounts.",
+      "imageHint": "JPG or PNG. Max size 2MB.",
+      "upload": "Upload new",
+      "providerSubtitle": "Update the details shown on your public profile.",
+      "sendEmailCode": "Send verification code",
+      "confirmEmail": "Verify email",
+      "emailRequired": "Enter an email address first.",
+      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailVerified": "Email verified and saved.",
+      "otp": "Verification code",
+      "verifiedAt": "Verified {date}"
+    },
+    "phone": {
+      "subtitle": "Change the phone number used to sign in.",
+      "current": "Current phone number",
+      "newPhone": "New phone number",
+      "sendCode": "Send code",
+      "otp": "Verification code",
+      "confirm": "Confirm change",
+      "codeSent": "Code sent. Use 123456 in development.",
+      "updated": "Phone number updated."
+    },
+    "appointments": {
+      "title": "Appointments",
+      "subtitle": "Your upcoming bookings.",
+      "upcoming": "Upcoming",
+      "emptyTitle": "No upcoming appointments",
+      "emptyBody": "Book a service to see it here.",
+      "bookService": "Book a Service",
+      "unknownProvider": "Provider",
+      "unknownService": "Service"
+    },
+    "notifications": {
+      "subtitle": "Choose which emails you want to receive.",
+      "emailPrefs": "Notification Preferences",
+      "remindersTitle": "Appointment Reminders",
+      "remindersBody": "Get notified 24 hours before a booking.",
+      "changesTitle": "Booking Changes",
+      "changesBody": "Updates when a booking is changed or cancelled.",
+      "marketingTitle": "Marketing Emails",
+      "marketingBody": "Offers and new provider announcements.",
+      "newBookingTitle": "New Bookings",
+      "newBookingBody": "Email when a client books with you."
+    },
+    "payments": {
+      "title": "Payments",
+      "subtitle": "How you prefer to pay or get paid in person.",
+      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
+      "method": "Preferred method",
+      "reference": "Reference",
+      "referencePlaceholder": "IBAN, desk instructions, etc.",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything the other party should know",
+      "copyable": "Copyable reference",
+      "copy": "Copy",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Could not copy",
+      "methods": {
+        "cash": "Cash",
+        "card_on_site": "Card on site",
+        "bank_transfer": "Bank transfer",
+        "other": "Other"
+      }
+    },
+    "availability": {
+      "subtitle": "Define your standard working hours for each day of the week.",
+      "recurring": "Recurring Availability",
+      "recurringBody": "Open days and hours clients can book.",
+      "pauseTitle": "Accepting bookings",
+      "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
+      "to": "to",
+      "unavailable": "Unavailable",
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      }
+    },
+    "listing": {
+      "subtitle": "Control whether your public profile is visible on Explore.",
+      "pageStatus": "Page visibility",
+      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
+      "statusActive": "Account Status: Active",
+      "statusUnlisted": "Account Status: Unlisted",
+      "preview": "Preview Profile",
+      "share": "Share Link",
+      "linkCopied": "Link copied",
+      "publishPage": "Publish page",
+      "unpublish": "Unpublish page",
+      "published": "Your page is published.",
+      "unpublished": "Your page is unlisted."
+    },
+    "needHelp": {
+      "title": "Need help?",
+      "body": "Check our help resources or contact support for issues with your bookings.",
+      "cta": "Contact Support"
+    }
   }
 }

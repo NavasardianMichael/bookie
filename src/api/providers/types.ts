@@ -1,7 +1,6 @@
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
-import { BasicProvider } from '@store/providers/list/types'
-import { ProvidersListState } from '@store/providers/list/types'
+import { BasicProvider, ProvidersListState } from '@store/providers/list/types'
 import { ProviderProfile, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
@@ -20,6 +19,11 @@ export type PutProviderProfileRequestPayload = Partial<{
   weekSchedule: ProviderProfile['details']['weekSchedule']
   image: ProviderProfile['basic']['image'] | File
   gallery: (ProviderProfile['details']['gallery'][number] | File)[]
+  mode: 'draft' | 'publish' | 'listing'
+  listed: boolean
+  available: boolean
+  emailNotificationPrefs: NonNullable<ProviderProfile['details']['emailNotificationPrefs']>
+  paymentInfo: NonNullable<ProviderProfile['details']['paymentInfo']> | null
 }>
 
 export type GetProvidersListAPI = Endpoint<{
@@ -42,6 +46,8 @@ export type GetProviderProfileAPI = Endpoint<{
 
 export type PutProviderProfileAPI = Endpoint<{
   payload: PutProviderProfileRequestPayload
+  response: ProviderProfile
+  processed: ProviderProfile
 }>
 
 export type DeleteProviderServiceAPI = Endpoint<{

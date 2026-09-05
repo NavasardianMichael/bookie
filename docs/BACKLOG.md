@@ -79,24 +79,19 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 
 ---
 
-## Design sync — three mockups still unmatched
+## Design sync — one mockup still unmatched
 
 `design/initial prototype/` holds nine independently-generated mockups. The 2026-09-01
 sync pass matched the visual language of six of them; the two registration screens were
 then built field-for-field on 2026-09-05 (`/auth/consumer-registration`,
-`/auth/provider-registration`). Three describe a full dashboard shell — sidebar nav, a
-notification bell, payment/2FA panels, notification-preference toggles — that the app
-has no equivalent of at all:
+`/auth/provider-registration`). Account settings for consumer and provider landed next
+(`/consumers/profile`, `/providers/profile` + nested tabs). One dashboard mockup remains:
 
 | Mockup | Route today |
 |---|---|
 | `provider_calendar_dashboard` | No route — nothing built |
-| `provider_account_settings` | `/providers/profile` — 9-line stub |
-| `consumer_profile_settings` | `/consumers/profile` — 9-line stub |
 
-Matching these is a feature build — a new sidebar layout primitive, a settings data
-model, and payment/2FA/session-management backend work — not a styling pass, so it was
-deliberately left out. Revisit as its own scoped task.
+Matching that is a feature build (provider portal calendar), not a styling pass.
 
 ---
 

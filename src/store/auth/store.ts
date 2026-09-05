@@ -10,6 +10,9 @@ import { AuthActions, AuthState } from './types'
 const initialState: AuthState = {
   userType: null,
   profileId: null,
+  firstName: null,
+  lastName: null,
+  image: null,
   isSignedOn: false,
   phone: {
     code: 0,
@@ -53,6 +56,9 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
                 isSignedOn: true,
                 userType: result.role,
                 profileId: result.profileId,
+                firstName: result.firstName ?? null,
+                lastName: result.lastName ?? null,
+                image: result.image ?? null,
                 step: SIGN_ON_STEPS.profileCreated,
               })
               return result
@@ -64,11 +70,25 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             set({ isPending: true })
             try {
               const session = await getMeAPI()
-              set({ isSignedOn: true, userType: session.role, profileId: session.profileId })
+              set({
+                isSignedOn: true,
+                userType: session.role,
+                profileId: session.profileId,
+                firstName: session.firstName ?? null,
+                lastName: session.lastName ?? null,
+                image: session.image ?? null,
+              })
               return session
             } catch {
               // A missing or expired session is the expected answer for a guest, not a fault.
-              set({ isSignedOn: false, userType: null, profileId: null })
+              set({
+                isSignedOn: false,
+                userType: null,
+                profileId: null,
+                firstName: null,
+                lastName: null,
+                image: null,
+              })
               return null
             } finally {
               set({ isPending: false })

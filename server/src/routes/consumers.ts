@@ -21,6 +21,12 @@ import { asyncHandler, HttpError } from '../middleware/error.js'
 
 export const consumerProfileRouter = Router()
 
+const defaultNotificationPrefs = {
+  appointmentReminders: true,
+  bookingChanges: true,
+  marketing: false,
+}
+
 consumerProfileRouter.get(
   '/',
   requireConsumer,
@@ -38,6 +44,15 @@ consumerProfileRouter.get(
       ...mapConsumer(consumer),
       details: {
         favoriteProviders: consumer.favorites.map((f) => mapBasicProvider(f.provider)),
+        description: consumer.description ?? undefined,
+        emailVerifiedAt: consumer.emailVerifiedAt?.toISOString(),
+        emailNotificationPrefs: {
+          ...defaultNotificationPrefs,
+          ...(typeof consumer.emailNotificationPrefs === 'object' && consumer.emailNotificationPrefs
+            ? (consumer.emailNotificationPrefs as Record<string, boolean>)
+            : {}),
+        },
+        paymentInfo: consumer.paymentInfo ?? undefined,
       },
     })
   })
@@ -47,16 +62,34 @@ consumerProfileRouter.put(
   '/',
   requireConsumer,
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, email } = req.body ?? {}
+    const { firstName, lastName, description, emailNotificationPrefs, paymentInfo } = req.body ?? {}
+
     const consumer = await prisma.consumer.update({
       where: { id: req.session!.profileId },
       data: {
         firstName: firstName ?? undefined,
         lastName: lastName ?? undefined,
-        email: email ?? undefined,
+        description: description === undefined ? undefined : description || null,
+        emailNotificationPrefs: emailNotificationPrefs ?? undefined,
+        paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
       },
       include: { user: true },
     })
-    return ok(res, mapConsumer(consumer))
+
+    return ok(res, {
+      ...mapConsumer(consumer),
+      details: {
+        favoriteProviders: [],
+        description: consumer.description ?? undefined,
+        emailVerifiedAt: consumer.emailVerifiedAt?.toISOString(),
+        emailNotificationPrefs: {
+          ...defaultNotificationPrefs,
+          ...(typeof consumer.emailNotificationPrefs === 'object' && consumer.emailNotificationPrefs
+            ? (consumer.emailNotificationPrefs as Record<string, boolean>)
+            : {}),
+        },
+        paymentInfo: consumer.paymentInfo ?? undefined,
+      },
+    })
   })
 )

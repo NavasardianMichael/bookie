@@ -16,7 +16,7 @@ const VARIANTS: Record<AppLinkVariant, string> = {
   inline: 'text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand',
   plain: 'transition-colors hover:underline [text-underline-offset:5px]',
   button:
-    'inline-flex min-h-12 items-center justify-center gap-2 rounded-brand-sm px-5 text-body-sm font-semibold no-underline transition-all',
+    'inline-flex py-2 items-center justify-center gap-2 rounded-brand-sm px-5 text-body-sm font-semibold no-underline transition-all',
   chip: 'border-brand-border bg-surface text-brand-text hover:border-brand inline-flex h-10 shrink-0 items-center gap-2 rounded-brand-sm border px-5 text-body-sm font-bold no-underline transition-colors',
 }
 

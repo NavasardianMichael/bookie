@@ -42,11 +42,9 @@ export const antdTheme: ThemeConfig = {
     colorError: STATUS.danger,
     colorInfo: STATUS.info,
 
-    // Control height stays antd's own default. Radius does not: see RADII.
+    fontSize: FONT.base,
     borderRadius: RADII.base,
     borderRadiusLG: RADII.lg,
-
-    fontSize: FONT.base,
 
     // NOTE: no `screen*` keys, deliberately. See BREAKPOINTS in ./tokens.ts.
   },
@@ -55,7 +53,21 @@ export const antdTheme: ThemeConfig = {
     Typography: { margin: 0 },
     // Form items are spaced by the parent form's flex `gap`, which is what the
     // old per-item `mb-0!` was emulating.
-    Form: { itemMarginBottom: 0, verticalLabelPadding: '0 0 6px' },
-    Button: { fontWeight: 700, primaryShadow: 'none', defaultShadow: 'none' },
+    Form: { itemMarginBottom: 0, verticalLabelPadding: '0 0 6px', fontSize: 14 },
+    Button: {
+      fontWeight: 600,
+      primaryShadow: 'none',
+      defaultShadow: 'none',
+      paddingInline: 12,
+      paddingBlock: 6,
+    },
+    Input: { paddingBlock: 6, paddingInline: 12 },
+    Select: {
+      optionPadding: '6px 12px',
+      optionSelectedBg: BRAND[500],
+      optionActiveBg: BRAND[100],
+      optionSelectedColor: '#fff',
+    },
+    DatePicker: { paddingBlock: 6, paddingInline: 12 },
   },
 }

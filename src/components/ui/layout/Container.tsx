@@ -34,6 +34,4 @@ export const Container: FC<ContainerProps> = ({
   gutter = true,
   className,
   children,
-}) => (
-  <Tag className={cn('mx-auto w-full', WIDTHS[width], gutter && 'app-gutter-x', className)}>{children}</Tag>
-)
+}) => <Tag className={cn('mx-auto w-full', WIDTHS[width], gutter && 'app-gutter-x', className)}>{children}</Tag>

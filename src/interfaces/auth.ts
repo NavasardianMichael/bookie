@@ -65,6 +65,10 @@ export type PendingSignOn = {
 export type Session = {
   role: UserType
   profileId: string
+  firstName?: string
+  lastName?: string
+  /** Provider portrait path, when present. */
+  image?: string
 }
 
 export type LoginResult = Session & {

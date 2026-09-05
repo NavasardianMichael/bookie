@@ -41,6 +41,13 @@ after hydration.
 Segmented, AutoComplete, Tag, Flex, Divider, Space. It already gives you focus trap,
 scroll lock and a11y; don't rebuild those.
 
+**Read the prop's type before you write it.** antd 6.6.1 marks 199 props across 62
+components `@deprecated`, and TypeScript does not error on a single one — `pnpm typecheck`
+stays green while the prop breaks on the next major. Ctrl+click it, or open
+`node_modules/antd/es/<component>/index.d.ts`. v6 keeps folding flat prop families into
+one object (`showSearch={{ onSearch, filterOption, … }}`, `classNames.popup.root`,
+`styles.body`, `variant`); the full mapping is in `src/components/CLAUDE.md`.
+
 **Thin antd wrappers** (client islands): `ui/AppButton`, `ui/AppInput`, `ui/AppFormItem`,
 `ui/AppSheet`, `ui/ErrorState`.
 
@@ -129,11 +136,15 @@ grep -rnE "h-\[[0-9]+px\]" src --include=*.tsx                 # 0
 grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/styles/"   # 0
 grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)" src $CODE   # 0
 
+# deprecated antd props — full mapping in src/components/CLAUDE.md
+grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
+
 pnpm typecheck && pnpm lint && pnpm test
 ```
 
-All six return 0 today. The `--include` scoping is required — without it each pattern
+All seven return 0 today. The `--include` scoping is required — without it each pattern
 matches the docs that describe it, and the gate can never pass. `BreakpointInvariant`
 should stay silent in the dev console.
 
-The full gate list, with the reasoning behind each, is in `src/styles/CLAUDE.md`.
+The full gate list, with the reasoning behind each, is in `src/styles/CLAUDE.md` — except
+the antd deprecation gate, which is explained in `src/components/CLAUDE.md`.

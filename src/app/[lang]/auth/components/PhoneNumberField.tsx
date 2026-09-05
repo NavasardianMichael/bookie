@@ -1,10 +1,12 @@
 'use client'
 
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useEffect, useMemo } from 'react'
 import { Form, Select, Space } from 'antd'
 import type { CountryCode } from 'libphonenumber-js'
 import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
+import { useLocale } from 'next-intl'
 import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
+import { guessPhoneCountry } from '@helpers/country'
 import { AppInput } from '@components/ui/AppInput'
 import { PhoneIcon } from '@components/ui/icons'
 import { FieldLabel, FieldRequirement } from './FieldLabel'
@@ -42,8 +44,21 @@ export const PhoneNumberField: FC<Props> = ({
   disabled,
   labelClassName,
 }) => {
+  const form = Form.useFormInstance<PhoneFormValues>()
+  const locale = useLocale()
   const countries = useCountries()
   const countryCode = Form.useWatch<CountryCode | undefined>('code')
+  const allowedCountries = useMemo(() => new Set(countries.map((country) => country.value)), [countries])
+
+  // After mount so `navigator.languages` cannot disagree with the server HTML.
+  // Leaves an existing value alone — sign-in, registration, and change-phone all
+  // share this field, and change-phone may already know the current country.
+  useEffect(() => {
+    if (countryCode) return
+    const tags = typeof navigator !== 'undefined' ? [...navigator.languages, locale] : [locale]
+    const guessed = guessPhoneCountry(tags, allowedCountries)
+    if (guessed) form.setFieldValue('code', guessed)
+  }, [allowedCountries, countryCode, form, locale])
 
   const validatePhoneNumber = useCallback(
     (_: unknown, value: string) => {
@@ -75,8 +90,7 @@ export const PhoneNumberField: FC<Props> = ({
           <Select
             options={countries}
             labelRender={(option) => option.label}
-            showSearch
-            optionFilterProp='label'
+            showSearch={{ optionFilterProp: 'label' }}
             popupMatchSelectWidth={320}
             disabled={disabled}
             aria-label='Country code'

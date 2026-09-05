@@ -161,6 +161,27 @@ export default async function Provider({ params }: Props) {
               email={details.email}
               className='mt-6'
             />
+
+            {details.paymentInfo && (
+              <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>
+                <AppTitle level='h2' size='h3' className='mb-2'>
+                  Payment
+                </AppTitle>
+                <AppParagraph size='body-sm' tone='default' className='font-semibold capitalize'>
+                  {String(details.paymentInfo.method).replace(/_/g, ' ')}
+                </AppParagraph>
+                {details.paymentInfo.reference && (
+                  <AppParagraph size='body-sm' className='mt-1'>
+                    {details.paymentInfo.reference}
+                  </AppParagraph>
+                )}
+                {details.paymentInfo.notes && (
+                  <AppParagraph size='caption' className='mt-1'>
+                    {details.paymentInfo.notes}
+                  </AppParagraph>
+                )}
+              </div>
+            )}
           </Surface>
 
           {!!serviceList.length && (

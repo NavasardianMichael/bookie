@@ -12,7 +12,7 @@ modules `"use client"`, so an antd component's text only reaches the DOM after h
 |---|---|
 | **Content** — headings, body copy, links, times, description lists, JSON-LD | **Interaction** — Button, Input, Select, Form, Modal, Drawer, Upload, TimePicker, Segmented |
 | It renders in a Server Component (`page.tsx`, `layout.tsx`) | It already lives inside a `'use client'` island |
-| Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid / Surface / ChipRail | antd already supplies focus trap / scroll lock / a11y |
+| Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid / Surface / ChipRail / SettingsShell | antd already supplies focus trap / scroll lock / a11y |
 | An icon on the server → `ui/icons.tsx` | An icon in a client island → `@ant-design/icons` |
 
 ## The three tiers
@@ -26,6 +26,50 @@ ui/           antd wrappers — client islands (AppButton, AppInput, AppFormItem
 **`ui/index.ts` re-exports only `./bare` and `./layout`, deliberately.** Re-exporting an
 antd wrapper there would pull antd's runtime into the client bundle of any route that
 merely wants an `AppTitle`. Import wrappers from their own path.
+
+## antd props go stale — read the type before you use one
+
+antd 6.6.1 marks **199 props across 62 components** `@deprecated`. TypeScript does not
+error on a deprecated prop and `pnpm typecheck` stays green — the only signal is the
+strikethrough in the editor. So one lands silently, works today, and breaks on the next
+major.
+
+**Never write an antd prop from memory or from a v4/v5 example.** Ctrl+click the prop, or
+read `node_modules/antd/es/<component>/index.d.ts`, and use whatever that type says
+*today*. The component you remember is not the component installed here.
+
+The direction v6 keeps moving in is **one object prop absorbing a flat family**:
+
+| Deprecated | Current |
+|---|---|
+| `onSearch`, `filterOption`, `filterSort`, `optionFilterProp`, `searchValue`, `autoClearSearchValue` — on `Select`, `AutoComplete`, `Cascader`, `TreeSelect` | `showSearch={{ onSearch, filterOption, … }}` — the object form also *implies* `showSearch`, so drop the bare flag |
+| `dropdownClassName`, `popupClassName` | `classNames.popup.root` |
+| `dropdownStyle` | `styles.popup.root` |
+| `dropdownRender` | `popupRender` |
+| `onDropdownVisibleChange` | `onOpenChange` |
+| `dropdownMatchSelectWidth` | `popupMatchSelectWidth` |
+| `bordered` (`Select`, `Input`, `InputNumber`, `Card`, `Cascader`) | `variant` |
+| `showArrow` | now the default — hide it with `suffixIcon={null}` |
+| `<Option>` children, `Select.Option`, `dataSource` | `options` |
+| `bodyStyle`, `headStyle`, `Descriptions` `labelStyle`/`contentStyle` | `styles.*` |
+| `Modal` `destroyOnClose`, `maskClosable` | `destroyOnHidden`, `mask.closable` |
+| `Space` `direction`, `split` | `orientation`, `separator` |
+| `Divider` `type`, `orientationMargin` | `orientation`, `styles.content.margin` |
+| `Slider` `onAfterChange` | `onChangeComplete` |
+| `Spin` `tip`, `wrapperClassName` | `description`, `classNames.root` |
+
+That table is a snapshot, not the source of truth —
+`grep -rn "@deprecated" node_modules/antd/es/*/*.d.ts` is. Re-read it after any antd bump.
+
+Gate — keep at zero:
+
+```bash
+grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
+```
+
+It deliberately omits `Space direction=` and `Divider type=` — those names are legitimate
+on our own components (`NavLinks orientation`, `ConfigProvider direction`, every `type=`),
+so a grep there would only cry wolf. They stay a read-the-type check.
 
 ## Exports
 

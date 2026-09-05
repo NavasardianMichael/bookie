@@ -57,3 +57,59 @@ export async function validateOtp(phoneCode: number, phoneNumber: bigint, otp: s
 
   return { ok: true as const, userId: user.id }
 }
+
+/** Generate a fresh OTP code (dev bypass in non-production). */
+export function mintOtpCode(): string {
+  return config.nodeEnv !== 'production'
+    ? DEV_OTP
+    : String(Math.floor(100000 + Math.random() * 900000))
+}
+
+export function otpExpiry(): Date {
+  return new Date(Date.now() + config.otpTtlMs)
+}
+
+/**
+ * Store a pending phone-change OTP on the *current* user. Must not go through
+ * `issueOtp`, which upserts by the *new* number and would create a second User.
+ */
+export async function issuePendingPhoneOtp(
+  userId: string,
+  phoneCode: number,
+  phoneNumber: bigint
+): Promise<void> {
+  const code = mintOtpCode()
+  const otpHash = await hashOtp(code)
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      pendingPhoneCode: phoneCode,
+      pendingPhoneNumber: phoneNumber,
+      pendingPhoneOtpHash: otpHash,
+      pendingPhoneOtpExpiresAt: otpExpiry(),
+    },
+  })
+
+  if (config.nodeEnv !== 'production') {
+    console.log(`[OTP change-phone] user=${userId} +${phoneCode}${phoneNumber} => ${code}`)
+  }
+}
+
+export async function issuePendingEmailOtp(userId: string, email: string): Promise<void> {
+  const code = mintOtpCode()
+  const otpHash = await hashOtp(code)
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      pendingEmail: email,
+      emailOtpHash: otpHash,
+      emailOtpExpiresAt: otpExpiry(),
+    },
+  })
+
+  if (config.nodeEnv !== 'production') {
+    console.log(`[OTP change-email] user=${userId} ${email} => ${code}`)
+  }
+}

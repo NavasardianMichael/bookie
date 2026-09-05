@@ -1,3 +1,4 @@
+import { BasicProvider } from '@store/providers/list/types'
 import { ProviderProfile } from '@store/providers/profile/types'
 
 export type CreateAppointmentPayload = {
@@ -18,4 +19,13 @@ export type AppointmentResponse = {
     duration: number
   }
   status: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+  provider?: BasicProvider
+  service?: { id: string; name: string }
+  consumer?: {
+    id: string
+    basic: { firstName: string; lastName: string }
+  }
 }

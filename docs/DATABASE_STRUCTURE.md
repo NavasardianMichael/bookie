@@ -6,12 +6,12 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 
 | Model | Purpose |
 | --- | --- |
-| **User** | Phone identity (`phoneCode` + `phoneNumber`), OTP fields, optional 1:1 Consumer/Provider |
+| **User** | Phone identity (`phoneCode` + `phoneNumber`), OTP fields, pending phone/email change OTP, optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category |
-| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization |
+| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info |
 | **Service** | Bookable offering (duration, price, category) |
-| **Consumer** | Patient/client profile — `firstName` + `lastName` stored separately, optional `email`, optional `country` |
+| **Consumer** | Patient/client profile — `firstName` + `lastName`, optional `description`/`email`, email prefs + payment info |
 | **FavoriteProvider** | Consumer ↔ Provider favorites |
 | **Appointment** | Booking with status enum and overlap index |
 | **Review** | Rating 1–5 for provider and/or organization |
@@ -42,20 +42,34 @@ All JSON responses use:
 | GET | `/health` | public |
 | POST | `/identity/send-otp` | public |
 | POST | `/identity/login` | public (sets httpOnly cookie) |
-| GET | `/identity/me` | session |
+| GET | `/identity/me` | session — `{ role, profileId, firstName, lastName, image? }` |
 | POST | `/identity/logout` | session |
-| GET | `/providers`, `/providers/:id` | public |
+| POST | `/identity/change-phone/send-otp` | session |
+| POST | `/identity/change-phone/confirm` | session |
+| POST | `/identity/change-email/send-otp` | session |
+| POST | `/identity/change-email/confirm` | session |
+| GET | `/providers`, `/providers/:id` | public (`listed: true` only; owner may preview unlisted) |
 | GET | `/providers/:id/availability?date=` | public |
-| GET/PUT | `/provider-profile` | provider |
+| GET/PUT | `/provider-profile` | provider (`mode`: draft / publish / listing / live) |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider |
 | GET | `/organizations?q=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public |
-| GET | `/consumers`, `/consumers/:id` | public |
 | GET/PUT | `/consumer-profile` | consumer |
-| GET/POST/PATCH | `/appointments` | session |
+| GET/POST/PATCH | `/appointments` | session (list includes `provider` + `service`) |
+
+There is **no public consumer directory**. `GET /consumers` and `GET /consumers/:id` were removed.
 
 `GET /organizations` returns the full list; `?q=` filters by name (case-insensitive
 `contains`, capped at 20) and backs the provider registration form's Organization combobox.
+
+### Provider publish model
+
+- **`listed`** — when `false`, the provider is hidden from Explore and public detail 404s for everyone except the owner (Preview).
+- **`available`** — pause new bookings; independent of listing.
+- **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
+- **`paymentInfo`** — `{ method: 'cash'|'card_on_site'|'bank_transfer'|'other', reference?, notes? }`. Never a card PAN.
+
+Phone/email changes go through identity OTP endpoints and apply only after confirm. Pending OTP fields live on **User** — never call `issueOtp` for a phone change (that upserts a second User by the new number).
 
 ## Registration and sign-in
 
@@ -92,8 +106,9 @@ created lazily on the first OTP that verifies.
 A phone number with no account and no `userType` gets `404` — sign-in cannot silently
 create a profile of a guessed role.
 
-`GET /identity/me` returns `{ role, profileId }` from the session cookie, which is how the
-client recovers its role after a refresh (the cookie is httpOnly).
+`GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` from the
+session cookie, which is how the client recovers its role after a refresh (the cookie is
+httpOnly) and how the Header renders an avatar without a second fetch.
 
 ## Local setup
 

@@ -1,3 +1,35 @@
+import { type CountryCode,getCountries } from 'libphonenumber-js'
+
+const PHONE_COUNTRIES = new Set<string>(getCountries())
+
+/**
+ * Best-effort ISO country from BCP-47 language tags (`en-US` → `US`, `hy` → `AM`).
+ *
+ * Uses CLDR likely subtags via `Intl.Locale.maximize()`, so a bare `en` becomes US
+ * rather than being discarded. Callers pass `navigator.languages` and/or the URL
+ * locale; no geo IP. Tags that are not a libphonenumber country — or that fail
+ * `allowed` — are skipped so the next tag can win.
+ */
+export const guessPhoneCountry = (
+  languageTags: readonly string[],
+  allowed?: ReadonlySet<string>
+): CountryCode | undefined => {
+  for (const tag of languageTags) {
+    if (!tag) continue
+    try {
+      const region = new Intl.Locale(tag).maximize().region
+      if (!region) continue
+      const code = region.toUpperCase()
+      if (!PHONE_COUNTRIES.has(code)) continue
+      if (allowed && !allowed.has(code)) continue
+      return code as CountryCode
+    } catch {
+      // Malformed tag — try the next one.
+    }
+  }
+  return undefined
+}
+
 /**
  * Renders a stored country in the reader's language.
  *

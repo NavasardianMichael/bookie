@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { ok } from '../lib/api-response.js'
 import { prisma } from '../lib/prisma.js'
+import { mapBasicProvider, providerInclude } from '../mappers/entities.js'
 import { requireAuth, requireConsumer } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { createAppointment } from '../services/appointments.js'
@@ -18,7 +19,11 @@ appointmentsRouter.get(
 
     const appointments = await prisma.appointment.findMany({
       where,
-      include: { service: true, provider: true, consumer: true },
+      include: {
+        service: true,
+        provider: { include: providerInclude },
+        consumer: { include: { user: true } },
+      },
       orderBy: { startAt: 'asc' },
     })
 
@@ -39,6 +44,15 @@ appointmentsRouter.get(
         notes: a.notes ?? undefined,
         createdAt: a.createdAt.toISOString(),
         updatedAt: a.updatedAt.toISOString(),
+        provider: mapBasicProvider(a.provider),
+        service: { id: a.service.id, name: a.service.name },
+        consumer: {
+          id: a.consumer.id,
+          basic: {
+            firstName: a.consumer.firstName,
+            lastName: a.consumer.lastName,
+          },
+        },
       }))
     )
   })

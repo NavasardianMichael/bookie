@@ -43,11 +43,32 @@ export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async () => {
 }
 
 export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params) => {
-  await axiosInstance.put<APIResponse<PutProviderProfileAPI['response']>>(ENDPOINTS.putProviderProfile, params, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  })
+  const hasFile =
+    (typeof File !== 'undefined' && params.image instanceof File) ||
+    (Array.isArray(params.gallery) && params.gallery.some((g) => typeof File !== 'undefined' && g instanceof File))
+
+  const { data } = await axiosInstance.put<APIResponse<PutProviderProfileAPI['response']>>(
+    ENDPOINTS.putProviderProfile,
+    hasFile
+      ? {
+          ...params,
+          weekSchedule: params.weekSchedule ? JSON.stringify(params.weekSchedule) : undefined,
+          categoryIds: params.categoryIds ? JSON.stringify(params.categoryIds) : undefined,
+          emailNotificationPrefs: params.emailNotificationPrefs
+            ? JSON.stringify(params.emailNotificationPrefs)
+            : undefined,
+          paymentInfo: params.paymentInfo !== undefined ? JSON.stringify(params.paymentInfo) : undefined,
+        }
+      : params,
+    hasFile
+      ? {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      : undefined
+  )
+  return processProviderProfileResponse(data)
 }
 
 export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (args) => {

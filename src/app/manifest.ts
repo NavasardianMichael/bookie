@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { DEFAULT_LOCALE } from '@i18n/config'
 import { BRAND, NEUTRAL } from '@styles/tokens'
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -6,7 +7,10 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Bookie',
     short_name: 'Bookie',
     description: 'Your Booking Platform Forever',
-    start_url: '/',
+    // localePrefix is 'always', so '/' is not a document — it 307s to /<locale>.
+    // A start_url that is itself a redirect can make the browser re-enter the
+    // page after reading the manifest.
+    start_url: `/${DEFAULT_LOCALE}`,
     scope: '/',
     display: 'standalone',
     orientation: 'portrait-primary',

@@ -1,9 +1,7 @@
-import { PageHeader, PageShell } from '@components/ui/layout'
+import { ConsumerProfileForm } from './ConsumerProfileForm'
 
-export default function ConsumerProfile() {
-  return (
-    <PageShell width='form'>
-      <PageHeader title='Consumer Profile' />
-    </PageShell>
-  )
+export const dynamic = 'force-dynamic'
+
+export default function ConsumerProfilePage() {
+  return <ConsumerProfileForm />
 }

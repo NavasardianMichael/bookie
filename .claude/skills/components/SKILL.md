@@ -37,6 +37,14 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
   declaring a third-party module. Everywhere the choice is genuinely free, go named.
 - A thin antd wrapper must spread `...props` onto the real control so antd's injected
   props (e.g. `value`/`onChange` from `Form.Item`) reach it.
+- Before writing any antd prop, read its **current** type — Ctrl+click it, or open
+  `node_modules/antd/es/<component>/index.d.ts`. antd 6.6.1 marks 199 props across 62
+  components `@deprecated` and `typecheck` stays green on every one of them.
+- v6 keeps folding flat prop families into one object: search config onto
+  `showSearch={{ onSearch, filterOption, optionFilterProp, … }}`, `dropdown*` onto
+  `classNames.popup.root` / `styles.popup.root` / `popupRender` / `popupMatchSelectWidth`,
+  inline styles onto `styles.*`, `bordered` onto `variant`. The full mapping and its grep
+  gate are in `src/components/CLAUDE.md`.
 - Route every `className` through `cn` (`twMerge(clsx(...))`) — plain concatenation
   can't remove a losing class, only `twMerge` can.
 - Import a wrapper (`AppButton`, `AppInput`, `AppFormItem`, `AppSheet`, `ErrorState`)
@@ -56,6 +64,14 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
 - Don't wrap the real control in a layout element (`Flex`, a `div`) inside
   `Form.Item` — antd clones the wrapper, not the control, and `value`/`onChange`
   land on the wrong node.
+- Don't copy an antd prop from memory or from a v4/v5 snippet — `bordered`, `showArrow`,
+  `dropdownClassName`, `dropdownStyle`, `dropdownRender`, `onDropdownVisibleChange`,
+  `dropdownMatchSelectWidth`, `dataSource`, `<Option>` children, `bodyStyle`/`headStyle`,
+  `destroyOnClose`, `maskClosable`, `onAfterChange` and the bare search props are all
+  deprecated in the installed version and none of them fail typecheck.
+- Don't pass `showSearch` alongside `onSearch` / `filterOption` / `optionFilterProp` —
+  the flat props are deprecated and the object form already implies the flag:
+  `showSearch={{ optionFilterProp: 'label' }}`.
 - Don't reintroduce Formik on any form field — it fights antd's store and loses the
   submit even when it wins the render.
 - Don't re-export an antd wrapper from `ui/index.ts` — it pulls antd's client

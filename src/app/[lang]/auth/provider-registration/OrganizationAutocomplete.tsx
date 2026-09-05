@@ -73,12 +73,11 @@ export const OrganizationAutocomplete: FC<Props> = ({ value, onChange, placehold
       id={id}
       value={value?.name ?? ''}
       options={options}
-      onSearch={debouncedSearch}
+      showSearch={{ onSearch: debouncedSearch, filterOption: false }}
       onChange={handleChange}
       placeholder={placeholder}
       disabled={disabled}
       notFoundContent={isSearching ? <Spin size='small' /> : null}
-      filterOption={false}
       className='w-full'
       prefix={<BuildingIcon className='text-brand-muted h-4 w-4' />}
     />

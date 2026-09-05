@@ -15,6 +15,8 @@ What landed:
 - Explore (`/providers`): centred lead, chip rail, View-profile cards.
 - Public provider profile: 2-column bento (sidebar + calendar) stacking below `lg`.
 - Auth funnel sits in a `Surface` card.
+- Account settings (`/consumers/profile`, `/providers/profile`): sidebar + bento cards via
+  `SettingsShell`; nested tabs; no password/2FA; payments are in-person prefs only.
 
 Prototype chrome that pointed at product we do not have (search that does
-nothing, ratings, payments, a provider-portal sidebar) was not copied.
+nothing, ratings, Stripe, a notification bell) was not copied.

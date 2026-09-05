@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { appendSelectors } from '@store/appendSelectors'
+import { DEFAULT_CONSUMER_NOTIFICATION_PREFS } from '@constants/settings'
 import { ConsumerProfileActions, ConsumerProfileState } from './types'
 
 const initialState: ConsumerProfileState = {
@@ -13,6 +14,7 @@ const initialState: ConsumerProfileState = {
   },
   details: {
     favoriteProviders: [],
+    emailNotificationPrefs: { ...DEFAULT_CONSUMER_NOTIFICATION_PREFS },
   },
   isPending: false,
   error: null,

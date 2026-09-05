@@ -39,7 +39,7 @@ export const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
             aria-current={active ? 'page' : undefined}
             className={cn(
               'text-body-sm font-semibold transition-colors',
-              isVertical ? 'flex min-h-12 items-center rounded-brand-sm px-3' : 'inline-flex min-h-11 items-center',
+              isVertical ? 'flex items-center rounded-brand-sm px-3' : 'inline-flex min-h-11 items-center',
               active
                 ? isVertical
                   ? 'bg-brand-50 text-brand'

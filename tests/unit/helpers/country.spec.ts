@@ -1,5 +1,35 @@
 import { describe, expect, it } from 'vitest'
-import { getCountryName } from '@helpers/country'
+import { getCountryName, guessPhoneCountry } from '@helpers/country'
+
+describe('guessPhoneCountry', () => {
+  it('reads an explicit region subtag', () => {
+    expect(guessPhoneCountry(['en-US'])).toBe('US')
+    expect(guessPhoneCountry(['en-GB'])).toBe('GB')
+    expect(guessPhoneCountry(['pt-BR'])).toBe('BR')
+  })
+
+  // Bare language codes have no region; maximize() fills CLDR's likely subtag
+  // so `hy` still defaults the phone field to Armenia rather than staying empty.
+  it('fills a likely region for a bare language code', () => {
+    expect(guessPhoneCountry(['en'])).toBe('US')
+    expect(guessPhoneCountry(['hy'])).toBe('AM')
+    expect(guessPhoneCountry(['uk'])).toBe('UA')
+  })
+
+  it('skips a tag that is not a phone country and uses the next', () => {
+    expect(guessPhoneCountry(['xx', 'hy'])).toBe('AM')
+  })
+
+  it('skips a country the caller has filtered out', () => {
+    expect(guessPhoneCountry(['en-AC', 'hy'], new Set(['AM']))).toBe('AM')
+  })
+
+  it('is empty when nothing resolves', () => {
+    expect(guessPhoneCountry([])).toBeUndefined()
+    expect(guessPhoneCountry(['not a tag'])).toBeUndefined()
+  })
+})
+
 
 describe('getCountryName', () => {
   it('renders an ISO code in the requested language', () => {

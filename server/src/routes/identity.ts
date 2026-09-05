@@ -1,10 +1,16 @@
 import { Router } from 'express'
 import { fail, ok } from '../lib/api-response.js'
-import { issueOtp, validateOtp } from '../lib/otp.js'
+import {
+  issueOtp,
+  issuePendingEmailOtp,
+  issuePendingPhoneOtp,
+  validateOtp,
+  verifyOtp,
+} from '../lib/otp.js'
 import { prisma } from '../lib/prisma.js'
 import { clearSessionCookie, setSessionCookie } from '../lib/session.js'
 import { requireAuth } from '../middleware/auth.js'
-import { asyncHandler } from '../middleware/error.js'
+import { asyncHandler, HttpError } from '../middleware/error.js'
 
 export const identityRouter = Router()
 
@@ -165,14 +171,37 @@ identityRouter.post(
 
 /**
  * Lets the client recover its own role and profile id after a refresh — the session lives
- * in an httpOnly cookie the browser cannot read.
+ * in an httpOnly cookie the browser cannot read. Also returns display fields so the
+ * Header avatar does not need a second profile fetch.
  */
 identityRouter.get(
   '/me',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { role, profileId } = req.session!
-    return ok(res, { role, profileId })
+    const { role, profileId, userId } = req.session!
+
+    if (role === 'provider') {
+      const provider = await prisma.provider.findUnique({ where: { id: profileId } })
+      if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
+      return ok(res, {
+        role,
+        profileId,
+        userId,
+        firstName: provider.firstName,
+        lastName: provider.lastName,
+        image: provider.imageUrl ?? undefined,
+      })
+    }
+
+    const consumer = await prisma.consumer.findUnique({ where: { id: profileId } })
+    if (!consumer) throw new HttpError(404, 'Consumer profile not found', 404)
+    return ok(res, {
+      role,
+      profileId,
+      userId,
+      firstName: consumer.firstName,
+      lastName: consumer.lastName,
+    })
   })
 )
 
@@ -182,5 +211,134 @@ identityRouter.post(
   asyncHandler(async (_req, res) => {
     clearSessionCookie(res)
     return ok(res, true)
+  })
+)
+
+identityRouter.post(
+  '/change-phone/send-otp',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const phone = req.body?.phone
+    if (!phone?.code || !phone?.number) {
+      return fail(res, 'Phone code and number required')
+    }
+
+    const phoneCode = Number(phone.code)
+    const phoneNumber = BigInt(phone.number)
+
+    const taken = await prisma.user.findUnique({
+      where: { phoneCode_phoneNumber: { phoneCode, phoneNumber } },
+    })
+    if (taken && taken.id !== req.session!.userId) {
+      return fail(res, 'Phone number already in use', 409, 409)
+    }
+
+    await issuePendingPhoneOtp(req.session!.userId, phoneCode, phoneNumber)
+    return ok(res, true)
+  })
+)
+
+identityRouter.post(
+  '/change-phone/confirm',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const otp = req.body?.otp
+    if (otp === undefined) return fail(res, 'OTP required')
+
+    const user = await prisma.user.findUnique({ where: { id: req.session!.userId } })
+    if (!user?.pendingPhoneOtpHash || user.pendingPhoneCode === null || user.pendingPhoneNumber === null) {
+      return fail(res, 'Phone change not requested', 400, 400)
+    }
+    if (user.pendingPhoneOtpExpiresAt && user.pendingPhoneOtpExpiresAt < new Date()) {
+      return fail(res, 'OTP expired', 401, 401)
+    }
+
+    const valid = await verifyOtp(String(otp), user.pendingPhoneOtpHash)
+    if (!valid) return fail(res, 'Invalid OTP', 401, 401)
+
+    const phoneCode = user.pendingPhoneCode
+    const phoneNumber = user.pendingPhoneNumber
+
+    const taken = await prisma.user.findUnique({
+      where: { phoneCode_phoneNumber: { phoneCode, phoneNumber } },
+    })
+    if (taken && taken.id !== user.id) {
+      return fail(res, 'Phone number already in use', 409, 409)
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        phoneCode,
+        phoneNumber,
+        pendingPhoneCode: null,
+        pendingPhoneNumber: null,
+        pendingPhoneOtpHash: null,
+        pendingPhoneOtpExpiresAt: null,
+      },
+    })
+
+    return ok(res, {
+      phone: { code: phoneCode, number: Number(phoneNumber) },
+    })
+  })
+)
+
+identityRouter.post(
+  '/change-email/send-otp',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const email = asTrimmedString(req.body?.email)?.toLowerCase()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return fail(res, 'Valid email required')
+    }
+
+    await issuePendingEmailOtp(req.session!.userId, email)
+    return ok(res, true)
+  })
+)
+
+identityRouter.post(
+  '/change-email/confirm',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const otp = req.body?.otp
+    if (otp === undefined) return fail(res, 'OTP required')
+
+    const user = await prisma.user.findUnique({ where: { id: req.session!.userId } })
+    if (!user?.emailOtpHash || !user.pendingEmail) {
+      return fail(res, 'Email change not requested', 400, 400)
+    }
+    if (user.emailOtpExpiresAt && user.emailOtpExpiresAt < new Date()) {
+      return fail(res, 'OTP expired', 401, 401)
+    }
+
+    const valid = await verifyOtp(String(otp), user.emailOtpHash)
+    if (!valid) return fail(res, 'Invalid OTP', 401, 401)
+
+    const email = user.pendingEmail
+    const verifiedAt = new Date()
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: {
+          pendingEmail: null,
+          emailOtpHash: null,
+          emailOtpExpiresAt: null,
+        },
+      }),
+      req.session!.role === 'provider'
+        ? prisma.provider.update({
+            where: { id: req.session!.profileId },
+            data: { email, emailVerifiedAt: verifiedAt },
+          })
+        : prisma.consumer.update({
+            where: { id: req.session!.profileId },
+            data: { email, emailVerifiedAt: verifiedAt },
+          }),
+    ])
+
+    return ok(res, { email, emailVerifiedAt: verifiedAt.toISOString() })
   })
 )

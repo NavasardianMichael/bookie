@@ -7,7 +7,16 @@ import {
   processLogoutResponse,
   processValidatePhoneNumberCodeResponse,
 } from './processors'
-import { GetCodeByPhoneNumberAPI, GetMeAPI, LogoutAPI, ValidatePhoneNumberCodeAPI } from './types'
+import {
+  ChangeEmailConfirmAPI,
+  ChangeEmailSendOtpAPI,
+  ChangePhoneConfirmAPI,
+  ChangePhoneSendOtpAPI,
+  GetCodeByPhoneNumberAPI,
+  GetMeAPI,
+  LogoutAPI,
+  ValidatePhoneNumberCodeAPI,
+} from './types'
 
 export const getCodeByPhoneNumberAPI: GetCodeByPhoneNumberAPI['api'] = async (params) => {
   const { data } = await axiosInstance.post<APIResponse<GetCodeByPhoneNumberAPI['response']>>(
@@ -37,4 +46,28 @@ export const logoutAPI: LogoutAPI['api'] = async () => {
   const { data } = await axiosInstance.post<APIResponse<LogoutAPI['response']>>(ENDPOINTS.logout)
   const processedResponse = processLogoutResponse(data)
   return processedResponse
+}
+
+export const changePhoneSendOtpAPI: ChangePhoneSendOtpAPI['api'] = async (params) => {
+  await axiosInstance.post<APIResponse<ChangePhoneSendOtpAPI['response']>>(ENDPOINTS.changePhoneSendOtp, params)
+}
+
+export const changePhoneConfirmAPI: ChangePhoneConfirmAPI['api'] = async (params) => {
+  const { data } = await axiosInstance.post<APIResponse<ChangePhoneConfirmAPI['response']>>(
+    ENDPOINTS.changePhoneConfirm,
+    params
+  )
+  return data.value!
+}
+
+export const changeEmailSendOtpAPI: ChangeEmailSendOtpAPI['api'] = async (params) => {
+  await axiosInstance.post<APIResponse<ChangeEmailSendOtpAPI['response']>>(ENDPOINTS.changeEmailSendOtp, params)
+}
+
+export const changeEmailConfirmAPI: ChangeEmailConfirmAPI['api'] = async (params) => {
+  const { data } = await axiosInstance.post<APIResponse<ChangeEmailConfirmAPI['response']>>(
+    ENDPOINTS.changeEmailConfirm,
+    params
+  )
+  return data.value!
 }

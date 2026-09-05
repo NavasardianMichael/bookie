@@ -128,3 +128,52 @@ export const UserIcon = ({ className }: IconProps) => (
     <path d='M4.5 20.2a7.5 7.5 0 0 1 15 0' />
   </svg>
 )
+
+export const LogoutIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' />
+    <path d='m16 17 5-5-5-5' />
+    <path d='M21 12H9' />
+  </svg>
+)
+
+export const CreditCardIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <rect x='2.5' y='5' width='19' height='14' rx='2' />
+    <path d='M2.5 10h19M7 15h3' />
+  </svg>
+)
+
+export const ShieldIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M12 3 4.5 6.5v5.2c0 4.2 3.1 7.8 7.5 8.8 4.4-1 7.5-4.6 7.5-8.8V6.5Z' />
+  </svg>
+)
+
+export const ListIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01' />
+  </svg>
+)
+
+export const EyeIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z' />
+    <circle cx='12' cy='12' r='2.5' />
+  </svg>
+)
+
+export const CopyIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <rect x='8' y='8' width='12' height='12' rx='2' />
+    <path d='M4 16V6a2 2 0 0 1 2-2h10' />
+  </svg>
+)
+
+export const HelpIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <circle cx='12' cy='12' r='9' />
+    <path d='M9.1 9a2.9 2.9 0 1 1 4.3 2.5c-.9.5-1.4 1-1.4 2' />
+    <path d='M12 17h.01' />
+  </svg>
+)

@@ -88,6 +88,12 @@ bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
 - **Inspect before writing.** Read the existing files in the same domain and follow their
   structure and naming exactly. Do not invent a new pattern where one exists.
 - **Reuse before creating.** `src/helpers/CLAUDE.md` indexes every utility; check it.
+- **Read an antd prop's current type before you write it** — Ctrl+click it, or open
+  `node_modules/antd/es/<component>/index.d.ts`. antd 6.6.1 marks 199 props across 62
+  components `@deprecated` and TypeScript errors on none of them, so `pnpm typecheck`
+  stays green while the prop breaks on the next major. Never carry a prop over from
+  memory or a v4/v5 snippet. The deprecated→current mapping and its grep gate live in
+  `src/components/CLAUDE.md`.
 - No `any` without an explicit justification in a comment.
 - Explicit types on parameters and return values. Strongly typed `Props` on every component.
 - **Prefer a named export declared inline** — `export const AppButton = …` over

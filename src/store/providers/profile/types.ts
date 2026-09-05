@@ -5,6 +5,7 @@ import { Location, PhoneNumber } from '@interfaces/app'
 import { Normalized } from '@interfaces/commons'
 import { Plan } from '@interfaces/plans'
 import { WeekDay } from '@interfaces/schedule'
+import { PaymentInfo, ProviderDraft, ProviderEmailNotificationPrefs } from '@interfaces/settings'
 import { StateCommonProps } from '@interfaces/store'
 
 export type ProviderProfileState = StateCommonProps & ProviderProfile
@@ -25,11 +26,16 @@ export type ProviderProfile = {
     phone: PhoneNumber
     country?: string
     email?: string
+    emailVerifiedAt?: string
     gallery: GalleryItem[]
     weekSchedule: WeekSchedule
+    emailNotificationPrefs?: ProviderEmailNotificationPrefs
+    paymentInfo?: PaymentInfo
   }
   services: Normalized<ProviderService>
   personal: ProviderPersonalValues
+  listed?: boolean
+  draft?: ProviderDraft | null
 }
 
 export type GalleryItem = {

@@ -66,7 +66,7 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
   }
 }
 
-export function mapProviderDetails(provider: ProviderWithRelations) {
+export function mapProviderDetails(provider: ProviderWithRelations & { paymentInfo?: unknown }) {
   const weekSchedule =
     provider.weekSchedule && typeof provider.weekSchedule === 'object'
       ? provider.weekSchedule
@@ -85,6 +85,7 @@ export function mapProviderDetails(provider: ProviderWithRelations) {
     email: provider.email ?? undefined,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
     weekSchedule,
+    paymentInfo: provider.paymentInfo ?? undefined,
   }
 }
 
@@ -159,6 +160,7 @@ export function mapConsumer(consumer: {
   firstName: string
   lastName: string
   email: string | null
+  description?: string | null
   user: { phoneCode: number; phoneNumber: bigint }
 }) {
   return {
@@ -167,7 +169,12 @@ export function mapConsumer(consumer: {
       firstName: consumer.firstName,
       lastName: consumer.lastName,
       phoneNumber: `+${consumer.user.phoneCode}${consumer.user.phoneNumber}`,
+      phone: {
+        code: consumer.user.phoneCode,
+        number: Number(consumer.user.phoneNumber),
+      },
       email: consumer.email ?? undefined,
+      description: consumer.description ?? undefined,
     },
   }
 }

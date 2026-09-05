@@ -26,27 +26,26 @@ route. See `src/i18n/CLAUDE.md`.
 | `/` | ƒ | Real — marketing landing (hero, category rail, feature bento, providers, CTA) |
 | `/providers` | ƒ | Real — explore list with category chip rail |
 | `/providers/[providerId]` | ƒ | Real — 2-col profile + calendar booking |
-| `/providers/profile-creation` | ƒ | Real — the big profile form |
-| `/providers/profile-services` | ƒ | Real — service CRUD |
-| `/providers/profile` | ○ | **Stub** (9 lines) |
+| `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
+| `/providers/profile` (+ nested tabs) | ƒ | Real — provider account settings shell |
+| `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/organizations` | ƒ | Real — list |
 | `/organizations/[organizationId]` | ƒ | Real — detail |
 | `/categories` | ƒ | Real — list |
 | `/categories/[categoryId]` | ƒ | Real — providers in a category |
-| `/consumers/profile` | ƒ | **Stub** — the only consumer route, and it is private |
+| `/consumers/profile` (+ nested tabs) | ƒ | Real — consumer account settings (private) |
 | `/contact` | ○ | **Stub** (9 lines) |
 | `/terms`, `/privacy` | ○ | Placeholders — registration's consent notice must link somewhere real |
 | `/auth/*` | ○/ƒ | Real — see the funnel below |
 | `/routes-overview` | ○ | Dev aid; `notFound()` in production |
 
-**Consumers have no public presence, by design.** There is no directory, no detail page,
-and no API that would serve one — `GET /consumers` and `GET /consumers/:id` were removed
-because they returned every consumer's name and phone number unauthenticated. A consumer
-reads and writes only their own record via `/consumer-profile`, behind `requireConsumer`.
-`robots.ts` disallows the whole `/consumers/` subtree. Do not add a public consumer route.
-
-Stubs are deliberately kept out of `HEADER_ROUTES` (`src/constants/header.ts`) so
-navigation does not dead-end. If you make one real, add it there.
+**Account settings** live under `/consumers/profile` and `/providers/profile` (route group
+`providers/(account)` also wraps `profile-services`). Each sidebar tab is a nested route
+so Next lazy-loads the panel. Visual language follows the prototypes; deviations match
+registration: keep the global Header/Footer, no dark mode, no password/2FA/security, no
+stored card PANs, no autosave (Discard / Save, plus Save draft / Publish for providers).
+Provider `listed` hides Explore + public 404; `available` only pauses bookings. The Header
+swaps Sign In / Get Started for an avatar when `getMe()` succeeds.
 
 ## The sign-on funnel
 
@@ -158,7 +157,7 @@ layout, so the skeleton→content handoff costs no layout shift.
 | `layout.tsx` | Owns the `viewport` export — without it mobile renders at ~980px and every responsive style is invisible. Font variable goes on `<html>` so antd portals inherit it. |
 | `global-error.tsx` | Renders **outside** `ConfigProvider`, so it **cannot use antd**. Inline styles fed from `tokens.ts`. |
 | `icon.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import `tokens.ts` directly. |
-| `manifest.ts` | Generated, not a static file. Single-locale (default) — a PWA manifest is fetched without page context. |
+| `manifest.ts` | Generated, not a static file. Single-locale — `start_url` is `/<DEFAULT_LOCALE>`, not `/`, because localePrefix is always and `/` is a 307. |
 | `sitemap.ts`, `robots.ts` | App-root, locale-agnostic. The sitemap emits every indexable route × 15 locales with full `alternates`; nothing else links to `/th/categories` except its `hreflang` tag, so this is the only way those get crawled. |
 | `routes-overview/` | Guarded with `notFound()` in production. |
 

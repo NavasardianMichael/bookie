@@ -9,6 +9,9 @@ export type AuthState = StateCommonProps & {
   userType: UserType | null
   /** The consumer or provider row id behind the session, once known. */
   profileId: string | null
+  firstName: string | null
+  lastName: string | null
+  image: string | null
   step: SignOnStep
 }
 
