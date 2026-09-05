@@ -12,8 +12,11 @@ export type ConsumerService = {
 export type Consumer = {
   id: string
   basic: {
-    name: string
+    /** Stored separately from `lastName` — the DB never holds a joined name. */
+    firstName: string
+    lastName: string
     phoneNumber: string
+    email?: string
   }
   details: {
     favoriteProviders: BasicProvider[]

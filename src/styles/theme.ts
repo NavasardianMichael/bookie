@@ -17,7 +17,8 @@ export const antdTheme: ThemeConfig = {
   algorithm: theme.defaultAlgorithm,
 
   token: {
-    fontFamily: 'var(--font-app), system-ui, -apple-system, sans-serif',
+    // --font-stack appends the per-locale script face after Manrope; globals.css §4 owns it.
+    fontFamily: 'var(--font-stack)',
 
     // Seed colors must be literals: antd feeds colorPrimary to its palette
     // generator to derive Hover/Active/Bg variants, and a `var()` string

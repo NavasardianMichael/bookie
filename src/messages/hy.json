@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "Լեզու",
+    "switcherAriaLabel": "Ընտրեք լեզուն"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "Ձեր ամրագրման հարթակը՝ ընդմիշտ"
+  },
+  "Nav": {
+    "mainNavigation": "Հիմնական նավիգացիա",
+    "mobileNavigation": "Բջջային նավիգացիա",
+    "openMenu": "Բացել նավիգացիայի ընտրացանկը",
+    "menu": "Ընտրացանկ",
+    "goBack": "Հետ",
+    "homeLink": "Bookie-ի գլխավոր էջ",
+    "skipToContent": "Անցնել բովանդակությանը",
+    "home": "Գլխավոր",
+    "providers": "Դիտել",
+    "categories": "Կատեգորիաներ",
+    "organizations": "Կազմակերպություններ",
+    "phoneNumberInput": "Մուտք",
+    "accountTypeSelection": "Սկսել"
+  },
+  "Footer": {
+    "blurb": "Մեկ հարթակ՝ մոտակա ծառայությունները գտնելու կամ ձեր ամրագրումների օրացույցը վարելու համար։",
+    "rights": "© {year} Bookie։ Բոլոր իրավունքները պաշտպանված են։",
+    "platform": "Հարթակ",
+    "findProvider": "Գտնել մատուցող",
+    "categories": "Կատեգորիաներ",
+    "organizations": "Կազմակերպություններ",
+    "account": "Հաշիվ",
+    "signIn": "Մուտք",
+    "joinAsProvider": "Միանալ որպես մատուցող",
+    "createAccount": "Ստեղծել հաշիվ",
+    "company": "Ընկերություն",
+    "contact": "Կապ"
+  }
+}

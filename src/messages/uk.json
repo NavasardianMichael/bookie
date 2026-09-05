@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "Мова",
+    "switcherAriaLabel": "Виберіть мову"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "Ваша платформа бронювання назавжди"
+  },
+  "Nav": {
+    "mainNavigation": "Основна навігація",
+    "mobileNavigation": "Мобільна навігація",
+    "openMenu": "Відкрити меню навігації",
+    "menu": "Меню",
+    "goBack": "Назад",
+    "homeLink": "Головна сторінка Bookie",
+    "skipToContent": "Перейти до вмісту",
+    "home": "Головна",
+    "providers": "Огляд",
+    "categories": "Категорії",
+    "organizations": "Організації",
+    "phoneNumberInput": "Увійти",
+    "accountTypeSelection": "Почати"
+  },
+  "Footer": {
+    "blurb": "Єдина платформа, щоб знайти послуги поруч або вести власний календар бронювань.",
+    "rights": "© {year} Bookie. Усі права захищено.",
+    "platform": "Платформа",
+    "findProvider": "Знайти виконавця",
+    "categories": "Категорії",
+    "organizations": "Організації",
+    "account": "Обліковий запис",
+    "signIn": "Увійти",
+    "joinAsProvider": "Приєднатися як виконавець",
+    "createAccount": "Створити обліковий запис",
+    "company": "Компанія",
+    "contact": "Контакти"
+  }
+}

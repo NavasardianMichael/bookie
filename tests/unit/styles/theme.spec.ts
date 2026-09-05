@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { antdTheme } from '@styles/theme'
 import { CSS_VAR_SCOPE, RADII } from '@styles/tokens'
 
-const layoutSource = readFileSync(join(process.cwd(), 'src/app/layout.tsx'), 'utf8')
+const layoutSource = readFileSync(join(process.cwd(), 'src/app/[lang]/layout.tsx'), 'utf8')
 
 /**
  * antd scopes its emitted `--ant-*` block to `theme.cssVar.key`. If that key is not

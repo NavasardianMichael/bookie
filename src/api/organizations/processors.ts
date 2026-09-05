@@ -1,5 +1,10 @@
 import { BasicOrganization } from '@store/organizations/single/types'
-import { BasicOrganizationResponse, GetOrganizationAPI, GetOrganizationsListAPI } from './types'
+import {
+  BasicOrganizationResponse,
+  GetOrganizationAPI,
+  GetOrganizationsListAPI,
+  SearchOrganizationsAPI,
+} from './types'
 
 export const processOrganizationsListResponse: GetOrganizationsListAPI['processor'] = (response) => {
   return response.value.reduce(
@@ -22,4 +27,8 @@ export const processBasicOrganizationResponse = (organization: BasicOrganization
 
 export const processOrganizationResponse: GetOrganizationAPI['processor'] = (organization) => {
   return organization.value
+}
+
+export const processSearchOrganizationsResponse: SearchOrganizationsAPI['processor'] = (response) => {
+  return response.value.map(processBasicOrganizationResponse)
 }

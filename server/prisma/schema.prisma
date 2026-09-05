@@ -135,7 +135,14 @@ model Consumer {
   id        String             @id @default(uuid())
   userId    String             @unique
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
+  firstName String
+  lastName  String
+  email     String?
+  /// ISO 3166-1 alpha-2, captured from the country picked on the phone field at
+  /// registration. Nullable because every account created before this column existed
+  /// has no answer, and guessing one from the dialling code would be wrong: +1 is the
+  /// US, Canada and ~20 more. Mirrors Provider.country.
+  country   String?
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   favorites FavoriteProvider[]

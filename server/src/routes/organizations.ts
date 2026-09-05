@@ -6,12 +6,19 @@ import { asyncHandler, HttpError } from '../middleware/error.js'
 
 export const organizationsRouter = Router()
 
+/**
+ * `?q=` powers the provider registration form's Organization combobox. Without it the
+ * response is the full list, so existing callers are unaffected.
+ */
 organizationsRouter.get(
   '/',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
+    const query = typeof req.query.q === 'string' ? req.query.q.trim() : ''
     const orgs = await prisma.organization.findMany({
+      where: query ? { name: { contains: query, mode: 'insensitive' } } : undefined,
       include: { categories: { include: { category: true } } },
       orderBy: { name: 'asc' },
+      ...(query ? { take: 20 } : {}),
     })
     return ok(res, orgs.map((o) => mapBasicOrganization(o)))
   })

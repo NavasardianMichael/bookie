@@ -3,6 +3,7 @@
 import { FC, useCallback, useState } from 'react'
 import { MenuOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
+import { useTranslations } from 'next-intl'
 import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -22,6 +23,7 @@ type Props = {
  * antd's Drawer provides all of it and is already in the bundle.
  */
 export const MobileNav: FC<Props> = ({ isActive }) => {
+  const t = useTranslations('Nav')
   const [open, setOpen] = useState(false)
 
   const close = useCallback(() => setOpen(false), [])
@@ -32,7 +34,7 @@ export const MobileNav: FC<Props> = ({ isActive }) => {
       <Button
         type='text'
         className='min-h-11 min-w-11 md:hidden'
-        aria-label='Open navigation menu'
+        aria-label={t('openMenu')}
         aria-expanded={open}
         aria-controls='mobile-nav'
         icon={<MenuOutlined />}
@@ -40,7 +42,7 @@ export const MobileNav: FC<Props> = ({ isActive }) => {
       />
       <Drawer
         id='mobile-nav'
-        title='Menu'
+        title={t('menu')}
         placement='right'
         open={open}
         onClose={close}
@@ -51,11 +53,11 @@ export const MobileNav: FC<Props> = ({ isActive }) => {
       >
         <div className='flex flex-col gap-4'>
           <NavLinks orientation='vertical' isActive={isActive} onNavigate={close} />
-          <AppLink href={ROUTES[HEADER_SIGN_IN.name]} variant='button' block onClick={close}>
-            {HEADER_SIGN_IN.label}
+          <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
+            {t(HEADER_SIGN_IN)}
           </AppLink>
-          <AppLink href={ROUTES[HEADER_CTA.name]} variant='button' tone='primary' block onClick={close}>
-            {HEADER_CTA.label}
+          <AppLink href={ROUTES[HEADER_CTA]} variant='button' tone='primary' block onClick={close}>
+            {t(HEADER_CTA)}
           </AppLink>
         </div>
       </Drawer>

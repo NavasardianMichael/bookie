@@ -77,3 +77,7 @@ the render while Formik wins the submit, which is where the current form bugs co
 - `src/app/global-error.tsx` renders **outside** `ConfigProvider` and therefore cannot
   use antd at all — it uses inline styles fed from `tokens.ts`.
 - There is exactly one `ConfigProvider`, in `src/components/App.tsx`. Do not nest another.
+  It takes `locale` and `direction` alongside `theme`; both are resolved on the server and
+  passed down as props, because `App.tsx` is a client component and the locale is not in
+  the URL. `App.tsx` is also where `setDayjsLocale` is called — client-side only, since
+  dayjs's locale is a module global. See `src/i18n/CLAUDE.md`.

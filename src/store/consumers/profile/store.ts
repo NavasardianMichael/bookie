@@ -7,7 +7,8 @@ import { ConsumerProfileActions, ConsumerProfileState } from './types'
 const initialState: ConsumerProfileState = {
   id: '',
   basic: {
-    name: '',
+    firstName: '',
+    lastName: '',
     phoneNumber: '',
   },
   details: {

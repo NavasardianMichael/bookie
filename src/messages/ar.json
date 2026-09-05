@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "اللغة",
+    "switcherAriaLabel": "اختر لغة"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "منصة الحجز الخاصة بك إلى الأبد"
+  },
+  "Nav": {
+    "mainNavigation": "التنقل الرئيسي",
+    "mobileNavigation": "التنقل على الجوال",
+    "openMenu": "فتح قائمة التنقل",
+    "menu": "القائمة",
+    "goBack": "رجوع",
+    "homeLink": "الصفحة الرئيسية لـ Bookie",
+    "skipToContent": "تخطٍ إلى المحتوى",
+    "home": "الرئيسية",
+    "providers": "استكشاف",
+    "categories": "الفئات",
+    "organizations": "المؤسسات",
+    "phoneNumberInput": "تسجيل الدخول",
+    "accountTypeSelection": "ابدأ الآن"
+  },
+  "Footer": {
+    "blurb": "منصة واحدة للعثور على الخدمات القريبة منك أو لإدارة تقويم حجوزاتك.",
+    "rights": "© {year} Bookie. جميع الحقوق محفوظة.",
+    "platform": "المنصة",
+    "findProvider": "ابحث عن مُقدّم خدمة",
+    "categories": "الفئات",
+    "organizations": "المؤسسات",
+    "account": "الحساب",
+    "signIn": "تسجيل الدخول",
+    "joinAsProvider": "انضم كمُقدّم خدمة",
+    "createAccount": "إنشاء حساب",
+    "company": "الشركة",
+    "contact": "اتصل بنا"
+  }
+}

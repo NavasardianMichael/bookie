@@ -63,7 +63,6 @@ identity, so an object argument would never hit.
 - **`src/api/appointments/`** bypasses `Endpoint<>` entirely: hand-written signatures,
   inline `if (data.error) throw`, no `processors.ts`. It is the only place that inspects
   the envelope's error at the call site. Treat it as an outlier to be fixed, not a model.
-- **`src/api/auth/processors.ts`** — `processGetCodeResponse` is used for *both*
-  endpoints; `processValidatePhoneNumberCodeResponse` is exported and never imported.
 - **`src/constants/api.ts`** is a byte-identical duplicate of `paramsToQueryString` from
-  `src/helpers/api.ts`. Both are unused. Delete rather than extend.
+  `src/helpers/api.ts`. Delete it rather than extend — the `src/helpers/api.ts` copy is the
+  live one (`api/organizations/main.ts` builds the `?q=` search with it).

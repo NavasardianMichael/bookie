@@ -16,3 +16,13 @@ export type GetOrganizationAPI = Endpoint<{
   response: OrganizationResponse
   processed: Organization
 }>
+
+/**
+ * Backs the provider registration form's Organization combobox. Flat rather than
+ * normalized — the result is a transient option list, not store state.
+ */
+export type SearchOrganizationsAPI = Endpoint<{
+  payload: { query: string }
+  response: BasicOrganizationResponse[]
+  processed: BasicOrganization[]
+}>

@@ -113,6 +113,9 @@ Available token utilities: `bg-brand`, `bg-brand-{50…950}`, `text-brand`,
 
 **Never** write a hex outside `src/styles/tokens.ts`. Never add a `!` suffix — it can't
 win against antd's unlayered cssinjs anyway; move the value into an antd token instead.
+Use the **canonical** class name, not a legacy alias — Tailwind still compiles
+`break-words`, `overflow-ellipsis` and `order-none`, but they mean `wrap-break-word`,
+`text-ellipsis` and `order-0`. See `src/styles/CLAUDE.md` trap 8 for the full list.
 
 ## Before you're done
 
@@ -124,11 +127,12 @@ grep -rnoE "[a-z0-9)\]]!'" src --include=*.tsx                 # 0
 grep -rnE "\b(2xl|3xl):[a-z]" src --include=*.tsx              # 0
 grep -rnE "h-\[[0-9]+px\]" src --include=*.tsx                 # 0
 grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/styles/"   # 0
+grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)" src $CODE   # 0
 
 pnpm typecheck && pnpm lint && pnpm test
 ```
 
-All five return 0 today. The `--include` scoping is required — without it each pattern
+All six return 0 today. The `--include` scoping is required — without it each pattern
 matches the docs that describe it, and the gate can never pass. `BreakpointInvariant`
 should stay silent in the dev console.
 

@@ -1,7 +1,12 @@
 import type { NextConfig } from 'next'
+import createNextIntlPlugin from 'next-intl/plugin'
 import { ROUTES } from '@constants/routes'
 
 const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4142')
+
+// Points next-intl at the per-request config. Without the explicit path it looks
+// for `./i18n/request.ts` relative to the project root, not `./src/i18n/`.
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
   images: {
@@ -28,4 +33,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withNextIntl(nextConfig)

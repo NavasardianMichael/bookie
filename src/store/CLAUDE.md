@@ -89,8 +89,10 @@ Do not hydrate a store with props a Server Component already fetched.
 
 - **`use…StoreBase` vs `use…Base`** — list/profile stores use the first, single stores
   the second. Pick `use…StoreBase` for new code.
-- **`src/store/auth/store.ts`** leaves `isPending: true` forever if the API rejects —
-  no try/finally. Do not propagate.
+- **`src/store/auth/store.ts`** is the one store that wraps every async action in
+  `try/finally`, because `errorMiddleware` does not catch rejections and the whole sign-on
+  funnel is gated on `isPending` — leaving it `true` locked the user out of retrying. Copy
+  that shape, not the other stores'.
 - **`src/store/categories/list/store.ts`** ships **fake seed data** in `initialState`
   (`allIds: ['c-1']`). A leftover, not a pattern.
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns

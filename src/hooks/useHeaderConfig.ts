@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
-import { usePathname } from 'next/navigation'
 import { AppRouteName } from '@interfaces/routes'
+import { usePathname } from '@i18n/navigation'
 import { getHeaderConfig, type HeaderConfig } from '@constants/header'
 import { isRouteActive, matchRouteName } from '@helpers/routes'
 

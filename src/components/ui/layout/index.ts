@@ -1,3 +1,4 @@
+export { AuthCard, type AuthCardProps } from './AuthCard'
 export { ChipRail, type ChipRailProps } from './ChipRail'
 export { Container, type ContainerProps, type ContainerWidth } from './Container'
 export { PageHeader, type PageHeaderProps } from './PageHeader'

@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@i18n/navigation'
 import { cn } from '@helpers/cn'
 import { getInitials, isUploadedAsset, resolveAssetUrl } from '@helpers/images'
 import { AppParagraph } from './bare/AppParagraph'
@@ -79,7 +79,8 @@ export const EntityCard: FC<EntityCardProps> = ({
     <article
       className={cn(
         'group border-brand-border bg-surface relative flex h-full flex-col overflow-hidden rounded-brand border shadow-sm transition-all',
-        href && 'hover:border-brand/50 hover:shadow-md focus-within:border-brand/50 focus-within:shadow-md active:scale-[0.99]',
+        href &&
+          'hover:border-brand/50 hover:shadow-md focus-within:border-brand/50 focus-within:shadow-md active:scale-[0.99]',
         className
       )}
     >
@@ -130,7 +131,7 @@ export const EntityCard: FC<EntityCardProps> = ({
         {footer && <div className='text-caption mt-auto pt-1'>{footer}</div>}
 
         {cta && (
-          <div className='relative z-2 mt-auto pt-4'>
+          <div className=''>
             <span className='bg-brand flex h-10 items-center justify-center rounded-brand-sm text-body-sm font-bold text-white'>
               {cta}
             </span>

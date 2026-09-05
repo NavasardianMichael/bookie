@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "Bahasa",
+    "switcherAriaLabel": "Pilih bahasa"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "Platform pemesanan Anda selamanya"
+  },
+  "Nav": {
+    "mainNavigation": "Navigasi utama",
+    "mobileNavigation": "Navigasi seluler",
+    "openMenu": "Buka menu navigasi",
+    "menu": "Menu",
+    "goBack": "Kembali",
+    "homeLink": "Beranda Bookie",
+    "skipToContent": "Lewati ke konten",
+    "home": "Beranda",
+    "providers": "Jelajahi",
+    "categories": "Kategori",
+    "organizations": "Organisasi",
+    "phoneNumberInput": "Masuk",
+    "accountTypeSelection": "Mulai"
+  },
+  "Footer": {
+    "blurb": "Satu platform untuk menemukan layanan di sekitar Anda atau mengelola kalender pemesanan Anda.",
+    "rights": "© {year} Bookie. Seluruh hak cipta dilindungi.",
+    "platform": "Platform",
+    "findProvider": "Cari penyedia layanan",
+    "categories": "Kategori",
+    "organizations": "Organisasi",
+    "account": "Akun",
+    "signIn": "Masuk",
+    "joinAsProvider": "Gabung sebagai penyedia",
+    "createAccount": "Buat akun",
+    "company": "Perusahaan",
+    "contact": "Kontak"
+  }
+}

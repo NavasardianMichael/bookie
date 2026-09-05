@@ -70,8 +70,17 @@
 @theme inline {
   /* next/font exposes Manrope as --font-app (see src/styles/fonts.ts). Pointing
      Tailwind's own --font-sans at it keeps `font-sans` and Tailwind's
-     --default-font-family, applied to <html> by preflight, on the app typeface. */
-  --font-sans: var(--font-app), system-ui, -apple-system, sans-serif;
+     --default-font-family, applied to <html> by preflight, on the app typeface.
+
+     --font-script is the per-locale face for scripts Manrope has no glyphs for
+     (Arabic, Armenian, Thai, CJK). It sits *after* --font-app so per-glyph
+     fallback keeps Latin text in Manrope even in an Arabic UI, and it is read
+     through a var() fallback because it is undefined for the nine Latin- and
+     Cyrillic-script locales — a `:root` default would collide with next/font's
+     generated class at identical specificity, the same trap that forced
+     --font-app to exist instead of --font-sans. */
+  --font-stack: var(--font-app), var(--font-script, system-ui), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-stack);
 
   --color-brand: var(--brand-primary);
   --color-brand-hover: var(--brand-primary-hover);
@@ -160,7 +169,7 @@
 body {
   background: var(--brand-surface-sunken);
   color: var(--brand-text);
-  font-family: var(--font-app), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-stack);
   /* Suppresses the 300ms double-tap-to-zoom delay on touch devices. */
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;

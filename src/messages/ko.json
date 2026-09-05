@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "언어",
+    "switcherAriaLabel": "언어 선택"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "언제나 함께하는 예약 플랫폼"
+  },
+  "Nav": {
+    "mainNavigation": "주 내비게이션",
+    "mobileNavigation": "모바일 내비게이션",
+    "openMenu": "내비게이션 메뉴 열기",
+    "menu": "메뉴",
+    "goBack": "뒤로",
+    "homeLink": "Bookie 홈",
+    "skipToContent": "본문으로 건너뛰기",
+    "home": "홈",
+    "providers": "둘러보기",
+    "categories": "카테고리",
+    "organizations": "기관",
+    "phoneNumberInput": "로그인",
+    "accountTypeSelection": "시작하기"
+  },
+  "Footer": {
+    "blurb": "주변 서비스를 찾는 것도, 예약 일정을 관리하는 것도 하나의 플랫폼에서.",
+    "rights": "© {year} Bookie. All rights reserved.",
+    "platform": "플랫폼",
+    "findProvider": "서비스 제공자 찾기",
+    "categories": "카테고리",
+    "organizations": "기관",
+    "account": "계정",
+    "signIn": "로그인",
+    "joinAsProvider": "서비스 제공자로 참여",
+    "createAccount": "계정 만들기",
+    "company": "회사",
+    "contact": "문의하기"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "Idioma",
+    "switcherAriaLabel": "Escolha um idioma"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "Sua plataforma de agendamentos para sempre"
+  },
+  "Nav": {
+    "mainNavigation": "Navegação principal",
+    "mobileNavigation": "Navegação móvel",
+    "openMenu": "Abrir o menu de navegação",
+    "menu": "Menu",
+    "goBack": "Voltar",
+    "homeLink": "Início da Bookie",
+    "skipToContent": "Pular para o conteúdo",
+    "home": "Início",
+    "providers": "Explorar",
+    "categories": "Categorias",
+    "organizations": "Organizações",
+    "phoneNumberInput": "Entrar",
+    "accountTypeSelection": "Começar"
+  },
+  "Footer": {
+    "blurb": "Uma única plataforma para encontrar serviços locais ou gerenciar sua agenda de agendamentos.",
+    "rights": "© {year} Bookie. Todos os direitos reservados.",
+    "platform": "Plataforma",
+    "findProvider": "Encontrar um profissional",
+    "categories": "Categorias",
+    "organizations": "Organizações",
+    "account": "Conta",
+    "signIn": "Entrar",
+    "joinAsProvider": "Seja um profissional",
+    "createAccount": "Criar uma conta",
+    "company": "Empresa",
+    "contact": "Contato"
+  }
+}

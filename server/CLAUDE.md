@@ -57,3 +57,13 @@ Dev OTP is `123456` for all phones (`config.devOtpBypass`). Seeded accounts are 
 Uploads are served from the API's own origin at `/uploads`. The API returns
 root-relative paths, so the frontend must prefix them — that is what
 `src/helpers/images.ts#resolveAssetUrl` does. Do not return absolute URLs from here.
+
+## Consumers are never public
+
+`GET /consumers` and `GET /consumers/:id` used to be mounted unauthenticated and returned
+every consumer's name and phone number to anyone who asked. Nothing in the app called them.
+They are gone, and `consumersRouter` no longer exists — only `consumerProfileRouter`, behind
+`requireConsumer`, which scopes every read and write to the caller's own record.
+
+If a provider ever needs to see who booked them, that belongs on the appointment and scoped
+to that provider, not on a lookup keyed by a guessable id.

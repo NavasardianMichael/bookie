@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useHeaderConfig } from '@hooks/useHeaderConfig'
 import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
 import { ROUTES } from '@constants/routes'
@@ -11,6 +12,7 @@ import { MobileNav } from './MobileNav'
 import { NavLinks } from './NavLinks'
 
 export const Header = () => {
+  const t = useTranslations('Nav')
   const { showLogo, showBack, showNav, backFallback, isActive } = useHeaderConfig()
 
   return (
@@ -26,14 +28,14 @@ export const Header = () => {
               <NavLinks orientation='horizontal' isActive={isActive} />
               <div className='flex items-center gap-2'>
                 <AppLink
-                  href={ROUTES[HEADER_SIGN_IN.name]}
+                  href={ROUTES[HEADER_SIGN_IN]}
                   variant='plain'
                   className='inline-flex min-h-11 items-center px-4 text-body-sm font-bold'
                 >
-                  {HEADER_SIGN_IN.label}
+                  {t(HEADER_SIGN_IN)}
                 </AppLink>
-                <AppLink href={ROUTES[HEADER_CTA.name]} variant='button' tone='primary'>
-                  {HEADER_CTA.label}
+                <AppLink href={ROUTES[HEADER_CTA]} variant='button' tone='primary'>
+                  {t(HEADER_CTA)}
                 </AppLink>
               </div>
             </div>

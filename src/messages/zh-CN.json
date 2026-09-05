@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "语言",
+    "switcherAriaLabel": "选择语言"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "您永远的预约平台"
+  },
+  "Nav": {
+    "mainNavigation": "主导航",
+    "mobileNavigation": "移动端导航",
+    "openMenu": "打开导航菜单",
+    "menu": "菜单",
+    "goBack": "返回",
+    "homeLink": "Bookie 首页",
+    "skipToContent": "跳转到主要内容",
+    "home": "首页",
+    "providers": "发现",
+    "categories": "分类",
+    "organizations": "机构",
+    "phoneNumberInput": "登录",
+    "accountTypeSelection": "开始使用"
+  },
+  "Footer": {
+    "blurb": "一个平台，既能找到身边的服务，也能管理你的预约日程。",
+    "rights": "© {year} Bookie. 保留所有权利。",
+    "platform": "平台",
+    "findProvider": "寻找服务提供者",
+    "categories": "分类",
+    "organizations": "机构",
+    "account": "账户",
+    "signIn": "登录",
+    "joinAsProvider": "成为服务提供者",
+    "createAccount": "创建账户",
+    "company": "公司",
+    "contact": "联系我们"
+  }
+}

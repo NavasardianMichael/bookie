@@ -2,10 +2,10 @@
 
 import { Col, Form, Input, Row } from 'antd'
 import { useFormik } from 'formik'
-import { useRouter } from 'next/navigation'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
+import { useRouter } from '@i18n/navigation'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
 import { AppButton } from '@components/ui/AppButton'

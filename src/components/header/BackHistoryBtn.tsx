@@ -3,7 +3,8 @@
 import { FC, useCallback } from 'react'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@i18n/navigation'
 
 type Props = {
   /** Used when there is no history to pop, e.g. on a shared deep link. */
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export const BackHistoryBtn: FC<Props> = ({ fallback }) => {
+  const t = useTranslations('Nav')
   const router = useRouter()
 
   const handleBackClick = useCallback(() => {
@@ -22,7 +24,7 @@ export const BackHistoryBtn: FC<Props> = ({ fallback }) => {
   return (
     <Button
       type='text'
-      aria-label='Go back'
+      aria-label={t('goBack')}
       onClick={handleBackClick}
       className='min-h-11 min-w-11'
       icon={<ArrowLeftOutlined style={{ fontSize: 18 }} />}

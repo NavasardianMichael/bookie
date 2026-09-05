@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "Langue",
+    "switcherAriaLabel": "Choisissez une langue"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "Votre plateforme de réservation pour toujours"
+  },
+  "Nav": {
+    "mainNavigation": "Navigation principale",
+    "mobileNavigation": "Navigation mobile",
+    "openMenu": "Ouvrir le menu de navigation",
+    "menu": "Menu",
+    "goBack": "Retour",
+    "homeLink": "Accueil Bookie",
+    "skipToContent": "Aller au contenu",
+    "home": "Accueil",
+    "providers": "Explorer",
+    "categories": "Catégories",
+    "organizations": "Organisations",
+    "phoneNumberInput": "Se connecter",
+    "accountTypeSelection": "Commencer"
+  },
+  "Footer": {
+    "blurb": "Une seule plateforme pour trouver des services près de chez vous ou gérer votre agenda de réservations.",
+    "rights": "© {year} Bookie. Tous droits réservés.",
+    "platform": "Plateforme",
+    "findProvider": "Trouver un prestataire",
+    "categories": "Catégories",
+    "organizations": "Organisations",
+    "account": "Compte",
+    "signIn": "Se connecter",
+    "joinAsProvider": "Devenir prestataire",
+    "createAccount": "Créer un compte",
+    "company": "Entreprise",
+    "contact": "Contact"
+  }
+}

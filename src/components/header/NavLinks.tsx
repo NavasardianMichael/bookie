@@ -1,6 +1,7 @@
 'use client'
 
 import { FC } from 'react'
+import { useTranslations } from 'next-intl'
 import { HEADER_ROUTES } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
@@ -17,14 +18,15 @@ type Props = {
  * drawer — previously duplicated verbatim between the two.
  */
 export const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
+  const t = useTranslations('Nav')
   const isVertical = orientation === 'vertical'
 
   return (
     <nav
-      aria-label={isVertical ? 'Mobile navigation' : 'Main navigation'}
+      aria-label={isVertical ? t('mobileNavigation') : t('mainNavigation')}
       className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-8')}
     >
-      {HEADER_ROUTES.map(({ label, name }) => {
+      {HEADER_ROUTES.map((name) => {
         const route = ROUTES[name]
         const active = isActive(route)
 
@@ -37,7 +39,7 @@ export const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
             aria-current={active ? 'page' : undefined}
             className={cn(
               'text-body-sm font-semibold transition-colors',
-              isVertical ? 'flex min-h-12 items-center rounded-brand-sm px-3' : 'min-h-11 items-center',
+              isVertical ? 'flex min-h-12 items-center rounded-brand-sm px-3' : 'inline-flex min-h-11 items-center',
               active
                 ? isVertical
                   ? 'bg-brand-50 text-brand'
@@ -48,7 +50,7 @@ export const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
                   )
             )}
           >
-            {label}
+            {t(name)}
           </AppLink>
         )
       })}

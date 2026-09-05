@@ -89,6 +89,7 @@ const eslintConfig = defineConfig([
               '@hooks/',
               '@types/',
               '@interfaces/',
+              '@i18n/',
               '@constants/',
               '@helpers/',
               '@utils/',
@@ -135,6 +136,9 @@ const eslintConfig = defineConfig([
       '**/*.config.{ts,mts,mjs,js}',
       'src/app/**/{page,layout,loading,error,global-error,not-found,template,default}.{ts,tsx}',
       'src/app/**/{icon,apple-icon,opengraph-image,twitter-image,manifest,sitemap,robots}.{ts,tsx}',
+      // next-intl resolves the per-request config by its default binding, the same
+      // contract as a Next.js route module. See src/i18n/request.ts.
+      'src/i18n/request.ts',
     ],
     rules: {
       'no-restricted-syntax': [

@@ -150,12 +150,24 @@ export function mapCategoryDetail(
   }
 }
 
-export function mapConsumer(consumer: { id: string; name: string; user: { phoneCode: number; phoneNumber: bigint } }) {
+/**
+ * `firstName` and `lastName` stay separate all the way to the client — the DB never
+ * stores a joined name. Callers that need one display string join it themselves.
+ */
+export function mapConsumer(consumer: {
+  id: string
+  firstName: string
+  lastName: string
+  email: string | null
+  user: { phoneCode: number; phoneNumber: bigint }
+}) {
   return {
     id: consumer.id,
     basic: {
-      name: consumer.name,
+      firstName: consumer.firstName,
+      lastName: consumer.lastName,
       phoneNumber: `+${consumer.user.phoneCode}${consumer.user.phoneNumber}`,
+      email: consumer.email ?? undefined,
     },
   }
 }

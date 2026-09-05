@@ -4,7 +4,7 @@ Appointment booking. Next.js App Router frontend + an Express/Prisma API in `ser
 one pnpm workspace.
 
 **Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Ant Design 6 · Tailwind 4 ·
-Zustand (immer) · pnpm · Express 5 + Prisma + PostgreSQL
+Zustand (immer) · next-intl · pnpm · Express 5 + Prisma + PostgreSQL
 
 ## Commands
 
@@ -48,12 +48,14 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |
+| Locales, translations, `Accept-Language` | `src/i18n/` — see `src/i18n/CLAUDE.md`; catalogues in `src/messages/` |
 | API, DB schema, routes | `server/` — see `server/CLAUDE.md` and `docs/DATABASE_STRUCTURE.md` |
 | Tests | `tests/` — see `tests/CLAUDE.md` |
 | What's still outstanding | `docs/BACKLOG.md` |
 
-**Eight directories carry their own `CLAUDE.md`** — `src/api`, `src/app`,
-`src/components`, `src/helpers`, `src/store`, `src/styles`, `server`, `tests`. Each holds
+**Nine directories carry their own `CLAUDE.md`** — `src/api`, `src/app`,
+`src/components`, `src/helpers`, `src/i18n`, `src/store`, `src/styles`, `server`,
+`tests`. Each holds
 that layer's invariants and its known non-canonical code. They load automatically when
 you open a file in that directory, so read the relevant one before editing rather than
 inferring the pattern from neighbouring files.
@@ -159,6 +161,17 @@ is mechanically checkable.
 - Time is wall-clock `'HH:mm'` strings for schedules, local-anchored `Date` for slots.
   `dayjs` is the only time library — `temporal-polyfill` is a FullCalendar peer dep with
   zero usages in `src/`.
+- **The locale is a path segment.** Every route lives under `app/[lang]/` and every URL
+  names its language, English included. `ROUTES` stays locale-free — the prefix is added
+  by `AppLink` and `localePath()`, never written into a path constant. Use
+  `@i18n/navigation`, never `next/link` or `next/navigation`, for internal destinations.
+  See `src/i18n/CLAUDE.md`.
+- **`Accept-Language` is negotiated by us, not next-intl.** Its matcher lets an exact match
+  on a lower-preference tag beat a best-fit on a higher one, sending `pt-PT,en;q=0.9` and
+  `es-419,en;q=0.9` to English. `localeDetection` is off; do not re-enable it.
+- **`dayjs.locale()` is client-only.** It sets a module global; calling it on the server
+  lets two concurrent requests in different languages race. Server-side formatting goes
+  through next-intl's `Intl`-backed formatter.
 
 ## Env files (hard rule)
 

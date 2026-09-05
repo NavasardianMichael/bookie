@@ -98,6 +98,15 @@ export const CheckCircleIcon = ({ className }: IconProps) => (
   </svg>
 )
 
+/** Speedometer, for "fast booking" style claims. */
+export const SpeedIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M3.2 17a9.2 9.2 0 1 1 17.6 0' />
+    <path d='m15.5 8.9-3.3 4.6' />
+    <circle cx='12' cy='14.6' r='1.8' />
+  </svg>
+)
+
 export const ClockIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>
     <circle cx='12' cy='12' r='9' />

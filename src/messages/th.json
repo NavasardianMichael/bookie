@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "ภาษา",
+    "switcherAriaLabel": "เลือกภาษา"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "แพลตฟอร์มจองของคุณตลอดไป"
+  },
+  "Nav": {
+    "mainNavigation": "การนำทางหลัก",
+    "mobileNavigation": "การนำทางบนมือถือ",
+    "openMenu": "เปิดเมนูนำทาง",
+    "menu": "เมนู",
+    "goBack": "ย้อนกลับ",
+    "homeLink": "หน้าแรกของ Bookie",
+    "skipToContent": "ข้ามไปยังเนื้อหา",
+    "home": "หน้าแรก",
+    "providers": "สำรวจ",
+    "categories": "หมวดหมู่",
+    "organizations": "องค์กร",
+    "phoneNumberInput": "เข้าสู่ระบบ",
+    "accountTypeSelection": "เริ่มต้นใช้งาน"
+  },
+  "Footer": {
+    "blurb": "แพลตฟอร์มเดียวสำหรับค้นหาบริการใกล้ตัว หรือจัดการปฏิทินการจองของคุณ",
+    "rights": "© {year} Bookie สงวนลิขสิทธิ์",
+    "platform": "แพลตฟอร์ม",
+    "findProvider": "ค้นหาผู้ให้บริการ",
+    "categories": "หมวดหมู่",
+    "organizations": "องค์กร",
+    "account": "บัญชี",
+    "signIn": "เข้าสู่ระบบ",
+    "joinAsProvider": "เข้าร่วมเป็นผู้ให้บริการ",
+    "createAccount": "สร้างบัญชี",
+    "company": "บริษัท",
+    "contact": "ติดต่อเรา"
+  }
+}

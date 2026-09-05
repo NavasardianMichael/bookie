@@ -7,7 +7,7 @@ import { optionalAuth } from './middleware/auth.js'
 import { errorHandler } from './middleware/error.js'
 import { appointmentsRouter } from './routes/appointments.js'
 import { categoriesRouter } from './routes/categories.js'
-import { consumerProfileRouter,consumersRouter } from './routes/consumers.js'
+import { consumerProfileRouter } from './routes/consumers.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
@@ -36,7 +36,6 @@ export function createApp() {
   app.use('/provider-profile', providerProfileRouter)
   app.use('/organizations', organizationsRouter)
   app.use('/categories', categoriesRouter)
-  app.use('/consumers', consumersRouter)
   app.use('/consumer-profile', consumerProfileRouter)
   app.use('/appointments', appointmentsRouter)
 

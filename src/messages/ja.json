@@ -1,0 +1,39 @@
+{
+  "Language": {
+    "switcherLabel": "言語",
+    "switcherAriaLabel": "言語を選択"
+  },
+  "Common": {
+    "appName": "Bookie",
+    "tagline": "ずっと使える予約プラットフォーム"
+  },
+  "Nav": {
+    "mainNavigation": "メインナビゲーション",
+    "mobileNavigation": "モバイルナビゲーション",
+    "openMenu": "ナビゲーションメニューを開く",
+    "menu": "メニュー",
+    "goBack": "戻る",
+    "homeLink": "Bookie ホーム",
+    "skipToContent": "コンテンツへスキップ",
+    "home": "ホーム",
+    "providers": "さがす",
+    "categories": "カテゴリ",
+    "organizations": "事業者",
+    "phoneNumberInput": "ログイン",
+    "accountTypeSelection": "はじめる"
+  },
+  "Footer": {
+    "blurb": "近くのサービスを見つけるのも、予約カレンダーを管理するのも、これひとつで。",
+    "rights": "© {year} Bookie. All rights reserved.",
+    "platform": "プラットフォーム",
+    "findProvider": "提供者をさがす",
+    "categories": "カテゴリ",
+    "organizations": "事業者",
+    "account": "アカウント",
+    "signIn": "ログイン",
+    "joinAsProvider": "提供者として登録",
+    "createAccount": "アカウントを作成",
+    "company": "会社情報",
+    "contact": "お問い合わせ"
+  }
+}

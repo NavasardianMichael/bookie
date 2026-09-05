@@ -25,15 +25,16 @@ explicitly-passed `value={formik.values.x}`, and a custom child that does not sp
 | 1 | `ProviderProfileForm.tsx:88` | `categoryIds` has `required` + `min:1` rules on an antd slot nothing ever writes → **the provider profile form cannot be submitted at all** |
 | 2 | `ProviderProfileFormOrganization.tsx:36` | Writes key `organization`; payload builder reads `organizationId`. Organization selection is silently never submitted |
 | 3 | `ProviderServiceFormCategory.tsx:28` | `value.id` where `value` is a string → Formik stores `undefined` |
-| 4 | `AccountTypeButtons.tsx:39` | UI shows "Client" selected while Formik holds `provider` |
 
-Scope: `ProviderProfileForm`, `ProviderServiceForm` + 4 sub-fields,
-`phone-number-input/components/form.tsx`, `AccountTypeButtons`. See the `forms` skill for
-the target pattern.
+Scope: `ProviderProfileForm`, `ProviderServiceForm` + 4 sub-fields. See the `forms` skill
+for the target pattern, and `src/app/auth/**` for worked examples — the whole auth funnel is
+now antd-only.
 
-Also here: `OTPCodeInput.tsx:136` has a **nameless `Form.Item` outside any `<Form>`**, so
-`OTPCodeValidationRules` is dead code and the server OTP error is never surfaced through
-it. And `:85`/`:92` navigate identically on success and failure.
+**Resolved by the registration work** (2026-09-05): `AccountTypeButtons` is gone — the
+account-type screen is two links, so there is no selection state to disagree about;
+`phone-number-input/components/form.tsx` is antd-only; and `OTPCodeInput` no longer has a
+nameless `Form.Item` outside a `<Form>`, no longer navigates identically on success and
+failure, and no longer swaps the country code with the phone number on resend.
 
 ### 2. `splitScheduleIntoParts` mutates its caller's break objects
 
@@ -54,15 +55,14 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 ## Cleanup
 
 - **`src/constants/api.ts`** is a byte-identical duplicate of `paramsToQueryString` from
-  `src/helpers/api.ts`. Neither is imported anywhere. Delete both.
+  `src/helpers/api.ts`. Delete *this* one — the `helpers` copy now has a caller
+  (`api/organizations/main.ts` builds the `?q=` search with it).
 - **`src/helpers/urlSearchParams.ts`** — both functions read `window.location.search`,
   neither is referenced anywhere, returns are untyped. Delete.
 - **`src/store/categories/list/store.ts`** ships fake seed data in `initialState`
   (`allIds: ['c-1']`).
 - **`src/constants/form.ts`** — `FORM_DEFAULT_VALIDATION_MESSAGES` is never wired to
   `ConfigProvider` or any `<Form validateMessages>`.
-- **`src/api/auth/processors.ts`** — `processValidatePhoneNumberCodeResponse` is exported
-  and never imported; `processGetCodeResponse` is used for both endpoints.
 - **`use…StoreBase` vs `use…Base`** suffix drift between list and single stores.
 
 ---
@@ -82,9 +82,9 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 ## Design sync — three mockups still unmatched
 
 `design/initial prototype/` holds nine independently-generated mockups. The 2026-09-01
-sync pass matched the six that describe pages the app actually has (landing, explore
-providers, public provider profile, manage services, and the visual language of the
-auth/registration flow). Three describe a full dashboard shell — sidebar nav, a
+sync pass matched the visual language of six of them; the two registration screens were
+then built field-for-field on 2026-09-05 (`/auth/consumer-registration`,
+`/auth/provider-registration`). Three describe a full dashboard shell — sidebar nav, a
 notification bell, payment/2FA panels, notification-preference toggles — that the app
 has no equivalent of at all:
 
@@ -146,22 +146,31 @@ Each is a one-line reversal:
    arrow with nothing to go back to. Inverts in `getHeaderConfig` in `src/constants/header.ts`.
 2. **No mobile bottom tab bar.** `<main>` already carries `app-safe-b`, so adding one
    later is purely additive.
-3. **Manrope has no Armenian subset.** If Armenian is a real target market, add
-   `Noto_Sans_Armenian` (`subsets: ['armenian']`) to `src/styles/fonts.ts` — otherwise
-   Armenian text renders in a fallback face.
 
 ---
 
-## Auth — the largest real gap
+## Auth — mostly closed
 
-Carried over from the original review and still true:
+Closed by the registration work (2026-09-05):
 
-- **`axiosInstance` 401 handling is empty.** The redirect in
-  `src/api/axiosInstance.ts` is commented out. On 401 it should clear Zustand auth state
-  and redirect to `ROUTES.accountTypeSelection`, in one place.
-- **No route protection.** There is no `src/proxy.ts` (Next 16's replacement for
-  `middleware.ts`), so every protected page guards itself or doesn't.
-- **No persisted session story** beyond the httpOnly cookie the API sets.
+- **401 handling** is implemented in `src/api/axiosInstance.ts` — a browser-guarded
+  full-page redirect, which also discards every Zustand store along with the dead session.
+- **Route protection** exists: `src/proxy.ts` (Next 16 renamed Middleware to Proxy) guards
+  the provider and consumer profile areas on cookie presence. Next's own docs are explicit
+  that Proxy is not an authorization layer, so it is an optimistic check only — real
+  enforcement remains the API's `requireProvider` / `requireConsumer`.
+- **Session recovery**: `GET /identity/me` + the store's `getMe` let the client rediscover
+  its role and `profileId` after a refresh.
+
+Still open:
+
+- **No client-side session persistence.** The auth store has no `persist` middleware, so a
+  refresh needs the `getMe` round trip. That is deliberate — `persist` has no precedent in
+  this codebase — but it means a brief unauthenticated flash on protected client islands.
+- **`/auth/logout`'s "Delete Account Permanently" button still has no handler**, and there
+  is no delete-account endpoint. The store now has a `logout` action wired to
+  `POST /identity/logout`, but this page does not call it.
+- **No OTP rate limiting or attempt cap** on the server (`server/src/lib/otp.ts`).
 
 ---
 

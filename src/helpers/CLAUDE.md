@@ -22,6 +22,11 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Merge Tailwind classes | `cn` | `cn.ts` |
 | Absolute URL on the **site** origin | `absoluteUrl`, `getSiteUrl` | `url.ts` |
 | Canonical URL of an entity's page | `generateEntityUrl` | `entities.ts` |
+| Root-relative path of an entity's page (for `push`/`Link`) | `generateEntityPath` | `entities.ts` |
+| Country + national number → `{ code, number }` | `toPhoneNumber` | `registration.ts` |
+| Organization combobox value → API fields | `toOrganizationFields` | `registration.ts` |
+| Blank optional string → `undefined` | `toOptionalText` | `registration.ts` |
+| Read/write the in-flight registration | `readPendingSignOn`, `writePendingSignOn`, `clearPendingSignOn` | `localStorage.ts` |
 | Upload path → loadable URL | `resolveAssetUrl` | `images.ts` |
 | …and never root-relative (JSON-LD, OG) | `resolveAbsoluteAssetUrl` | `images.ts` |
 | Is this a real upload vs a bundled asset? | `isUploadedAsset` | `images.ts` |
@@ -29,6 +34,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Escape JSON-LD for a `<script>` | `serializeJsonLd` | `jsonLd.ts` |
 | Google Maps link from an address | `generateGoogleMapsLink` | `location.ts` |
 | Render a `{ code, number }` phone | `generateFriendlyPhoneNumber` | `phone.ts` |
+| ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
 | Subset an object | `pick`, `omit` | `commons.ts` |
@@ -54,7 +60,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Module | Why |
 |---|---|
 | `urlSearchParams.ts` | Reads `window.location`. Throws in Node. **Unused — delete it.** |
-| `localStorage.ts` | Constants only, no logic. Actual reads/writes are inlined in `src/app/auth/**` and `hooks/useLocalStorage.ts` |
+| `localStorage.ts` | Touches `window.localStorage`. Every function is SSR-guarded and `readPendingSignOn` is total — a malformed entry reads as `null` rather than throwing mid-funnel |
 | `commons.ts#sleep` | Timer |
 | `api.ts#getMockAsFakeAPI` | Unused one-line `Promise.resolve` |
 

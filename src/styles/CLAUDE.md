@@ -31,7 +31,12 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
 5. `<BreakpointInvariant/>` asserts tokens.ts ↔ globals.css ↔ antd agree, in dev only.
 6. No dark mode, ever. `color-scheme: light`, zero `dark:` classes.
 7. The app font variable is `--font-app`, never `--font-sans`. The face is Manrope
-   (`src/styles/fonts.ts`), matching `design/initial prototype`.
+   (`src/styles/fonts.ts`), matching `design/initial prototype`. Everything reads the
+   composed `--font-stack`, which appends `--font-script` — the per-locale face for the
+   six scripts Manrope has no glyphs for — *after* Manrope, so per-glyph fallback keeps
+   Latin text in Manrope inside an Arabic or CJK UI. `--font-script` is read through a
+   `var()` fallback and never given a `:root` default, for the reason in trap 2. See
+   `src/i18n/CLAUDE.md`.
 8. Body copy is charcoal (`NEUTRAL[900]`, `#121417`); navy (`BRAND[900]`) is the brand
    accent, not the text colour. The canvas is `colorBgLayout` / `--brand-surface-sunken`
    (`#f6f7f8`); white is reserved for `Surface` panels and the sticky header.
@@ -94,6 +99,15 @@ default font size would silently desync the two.
    interpolation — Tailwind v4 scans source text and will not generate an assembled class.
 7. `@theme` edits sometimes need a turbopack restart. If a breakpoint seems ignored,
    restart before debugging.
+8. **Write the canonical class name, never a legacy alias.** Tailwind still compiles the
+   old spellings, so a stale one costs nothing at build time and shows up only as an IDE
+   diagnostic — which is exactly why they accumulate. The alias table Tailwind 4.3 ships
+   (`Ko` in `tailwindcss/dist/lib.js`) is the whole list: `break-words` →
+   `wrap-break-word`, `overflow-ellipsis` → `text-ellipsis`, `order-none` → `order-0`,
+   bare `start-*`/`end-*` → `inset-s-*`/`inset-e-*`. The v3 spellings Tailwind dropped
+   outright count too: `flex-shrink-*`/`flex-grow-*` are `shrink-*`/`grow-*`, and
+   `*-opacity-N` is the `/N` opacity modifier. `AppDescriptionList.tsx:46` was the last
+   holdout; the gate below keeps it at zero.
 
 ## Grep gates
 
@@ -114,6 +128,7 @@ grep -rnoE "[a-z0-9)\]]!'" src --include=*.tsx                 # 0 — no `!` su
 grep -rnE "\b(2xl|3xl):[a-z]" src --include=*.tsx              # 0 — deleted breakpoints
 grep -rnE "h-\[[0-9]+px\]" src --include=*.tsx                 # 0 — use control tokens
 grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/styles/"   # 0
+grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)" src $CODE   # 0 — legacy class aliases
 ```
 
 ## Known leak sites
