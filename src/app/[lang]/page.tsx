@@ -168,7 +168,12 @@ export default async function Home() {
                   <AppTitle level='h3' size='h2' className={isBrand ? 'mb-3 text-white' : 'mb-3'}>
                     {feature.title}
                   </AppTitle>
-                  <p className={isBrand ? 'm-0 max-w-sm text-white/70' : 'm-0 max-w-sm'}>{feature.body}</p>
+                  <AppParagraph
+                    tone={isBrand ? 'inverse' : 'muted'}
+                    className='m-0 max-w-sm'
+                  >
+                    {feature.body}
+                  </AppParagraph>
                 </Surface>
               )
             })}
@@ -220,9 +225,9 @@ export default async function Home() {
           <AppTitle level='h2' size='display' className='text-white'>
             Ready to reclaim your time?
           </AppTitle>
-          <p className='m-0 max-w-lg text-xl leading-relaxed text-white/70'>
+          <AppParagraph tone='inverse' className='m-0 max-w-lg text-xl leading-relaxed'>
             Find a provider, pick a slot, and get on with your day — or run your own calendar on Bookie.
-          </p>
+          </AppParagraph>
           <div className='flex w-full flex-col justify-center gap-3 sm:flex-row'>
             <AppLink
               href={ROUTES.accountTypeSelection}

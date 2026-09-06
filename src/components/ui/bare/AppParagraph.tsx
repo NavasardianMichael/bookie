@@ -7,7 +7,7 @@ type Props = HTMLAttributes<HTMLParagraphElement> & {
   tone?: TextTone
 }
 
-/** Bare `<p>` on the app type scale. Body copy defaults to the muted tone so headings keep their weight. */
+/** Bare `<p>` on the app type scale. Body copy defaults to the muted tone so headings keep their weight. On `bg-brand` use `tone='inverse'`. */
 export const AppParagraph: FC<PropsWithChildren<Props>> = ({
   size = 'body',
   tone = 'muted',

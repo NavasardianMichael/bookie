@@ -6,7 +6,7 @@
  */
 
 export type TextSize = 'body' | 'body-sm' | 'caption' | 'overline'
-export type TextTone = 'default' | 'muted' | 'brand' | 'danger'
+export type TextTone = 'default' | 'muted' | 'brand' | 'danger' | 'inverse'
 
 export const TEXT_SIZES: Record<TextSize, string> = {
   body: 'text-body',
@@ -20,4 +20,5 @@ export const TEXT_TONES: Record<TextTone, string> = {
   muted: 'text-brand-muted',
   brand: 'text-brand',
   danger: 'text-brand-danger',
+  inverse: 'text-white',
 }

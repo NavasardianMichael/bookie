@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Form, Input } from 'antd'
+import { Alert, Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { Consumer } from '@store/consumers/profile/types'
@@ -14,14 +14,13 @@ import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
+import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { HelpIcon, UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
-
-const { TextArea } = Input
 
 type ProfileFormValues = {
   firstName: string
@@ -157,7 +156,7 @@ export const ConsumerProfileForm = () => {
                 {t('profile.description')}
               </FieldLabel>
               <AppFormItem name='description' messageVariables={{ label: t('profile.description') }}>
-                <TextArea id='description' rows={3} />
+                <AppTextArea id='description' rows={3} />
               </AppFormItem>
             </div>
             <div className='md:col-span-2'>

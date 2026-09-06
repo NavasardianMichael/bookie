@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "منصة الحجز الخاصة بك إلى الأبد"
+    "tagline": "منصة الحجز الخاصة بك إلى الأبد",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء",
+    "close": "إغلاق"
   },
   "Nav": {
     "mainNavigation": "التنقل الرئيسي",
     "mobileNavigation": "التنقل على الجوال",
     "openMenu": "فتح قائمة التنقل",
     "menu": "القائمة",
-    "goBack": "رجوع",
     "homeLink": "الصفحة الرئيسية لـ Bookie",
     "skipToContent": "تخطٍ إلى المحتوى",
     "home": "الرئيسية",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "حفظ ونشر"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "الأيام والساعات المتاحة للحجز. حتى 5 فترات في اليوم إذا كان لديك استراحات.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "إضافة فترة",
+      "removeRange": "إزالة"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

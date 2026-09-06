@@ -73,7 +73,7 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
    detail and list route has one.
 2. **`active:` feedback states** — only 6 usages. `-webkit-tap-highlight-color: transparent`
    is set globally, so without them taps feel unregistered on custom-styled tappables.
-3. **antd `style`/`styles` px leak sites** — `BackHistoryBtn.tsx:28`, the byte-identical
+3. **antd `style`/`styles` px leak sites** — the byte-identical
    `Divider`/`Space` pairs in `ProviderProfileFormCategories.tsx:44` and
    `ProviderProfileFormOrganization.tsx:44`, plus two CSS Modules.
 
@@ -137,8 +137,7 @@ Needs a real browser or device:
 
 Each is a one-line reversal:
 
-1. **`showLogo` defaults to `true`**, so top-level pages show the logo rather than a back
-   arrow with nothing to go back to. Inverts in `getHeaderConfig` in `src/constants/header.ts`.
+1. **`showLogo` defaults to `true`**. Inverts in `getHeaderConfig` in `src/constants/header.ts`.
 2. **No mobile bottom tab bar.** `<main>` already carries `app-safe-b`, so adding one
    later is purely additive.
 

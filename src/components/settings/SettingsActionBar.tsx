@@ -22,7 +22,7 @@ export type SettingsActionBarProps = {
 
 /**
  * Sticky bottom bar for settings forms. No autosave — explicit Discard / Save
- * (and optional Save draft / Publish for providers).
+ * (and optional Save draft / Save and publish for providers).
  */
 export const SettingsActionBar: FC<SettingsActionBarProps> = ({
   dirty = false,
@@ -34,7 +34,7 @@ export const SettingsActionBar: FC<SettingsActionBarProps> = ({
   saveLabel = 'Save Changes',
   discardLabel = 'Discard',
   saveDraftLabel = 'Save draft',
-  publishLabel = 'Publish',
+  publishLabel = 'Save and publish',
   className,
 }) => (
   <div

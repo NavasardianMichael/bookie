@@ -20,8 +20,8 @@ after hydration.
 |---|---|
 | `bare/AppTitle` | heading; `level` (outline) and `size` (visual) are **separate props** |
 | `bare/AppText` | inline text — `as`, `size`, `tone`, `numeric` |
-| `bare/AppParagraph` | `<p>`, defaults to `tone='muted'` |
-| `bare/AppLink` | the one anchor primitive; `variant='inline'\|'plain'\|'button'\|'chip'` |
+| `bare/AppParagraph` | `<p>`, defaults to `tone='muted'`; `tone='inverse'` on `bg-brand` |
+| `bare/AppLink` | the one anchor primitive; `variant='inline'\|'plain'\|'unstyled'\|'button'\|'chip'` |
 | `bare/AppTime` | `<time datetime>` + tabular numerals |
 | `bare/AppDescriptionList` | real `<dl>`; replaces antd `Descriptions` |
 | `bare/JsonLd` | the only sanctioned `dangerouslySetInnerHTML` |

@@ -37,6 +37,7 @@ export const ProviderOnboardingDone: React.FC = () => {
         href={profileId ? generateEntityPath(ROUTE_KEYS.providers, profileId) : ROUTES.providers}
         variant='button'
         tone='primary'
+        target='_blank'
       >
         View my profile
       </AppLink>

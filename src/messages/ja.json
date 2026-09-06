@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "ずっと使える予約プラットフォーム"
+    "tagline": "ずっと使える予約プラットフォーム",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "close": "閉じる"
   },
   "Nav": {
     "mainNavigation": "メインナビゲーション",
     "mobileNavigation": "モバイルナビゲーション",
     "openMenu": "ナビゲーションメニューを開く",
     "menu": "メニュー",
-    "goBack": "戻る",
     "homeLink": "Bookie ホーム",
     "skipToContent": "コンテンツへスキップ",
     "home": "ホーム",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "保存して公開"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "予約できる曜日と時間。休憩がある日は最大5つの時間帯を追加できます。",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "時間を追加",
+      "removeRange": "削除"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

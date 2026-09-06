@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { Alert, App } from 'antd'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
+import { type Locale } from '@i18n/config'
+import { localePath } from '@i18n/pathname'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
 import { absoluteUrl } from '@helpers/url'
@@ -19,6 +21,7 @@ import { Surface } from '@components/ui/layout/Surface'
 
 export const ProviderListingClient = () => {
   const t = useTranslations('Settings')
+  const locale = useLocale() as Locale
   const { message } = App.useApp()
   const profileId = useAuthStore.use.profileId()
   const [listed, setListed] = useState(true)
@@ -48,7 +51,7 @@ export const ProviderListingClient = () => {
   }
 
   const publicPath = profileId ? `${ROUTES.providers}/${profileId}` : null
-  const publicUrl = publicPath ? absoluteUrl(publicPath) : null
+  const publicUrl = publicPath ? absoluteUrl(localePath(locale, publicPath)) : null
 
   return (
     <div className='flex flex-col gap-6'>
@@ -75,7 +78,7 @@ export const ProviderListingClient = () => {
         ) : (
           <div className='flex flex-wrap gap-3'>
             {publicPath && (
-              <AppLink href={publicPath} variant='button' tone='primary'>
+              <AppLink href={publicPath} variant='button' tone='primary' target='_blank'>
                 <span className='inline-flex items-center gap-2'>
                   <EyeIcon className='h-4 w-4' />
                   {t('listing.preview')}

@@ -24,14 +24,16 @@ export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
 }
 
 /** Dedupes generateMetadata + page fetches within a single request. */
-const fetchSingleProvider = cache(async (id: string) => {
+const fetchSingleProvider = cache(async (id: string, cookie: string) => {
   const { data } = await axiosInstance.get<APIResponse<GetSingleProviderAPI['response']>>(
-    `${ENDPOINTS.getSingleProvider}/${id}`
+    `${ENDPOINTS.getSingleProvider}/${id}`,
+    cookie ? { headers: { Cookie: cookie } } : undefined
   )
   return processSingleProviderResponse(data)
 })
 
-export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) => fetchSingleProvider(args.id)
+export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) =>
+  fetchSingleProvider(args.id, args.cookie ?? '')
 
 export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProviderProfileAPI['response']>>(

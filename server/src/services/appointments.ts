@@ -69,8 +69,12 @@ export async function getProviderAvailability(providerId: string, dateStr: strin
       continue
     }
 
+    const inBreak = (day.breaks ?? []).some((brk) => {
+      if (!brk.start || !brk.end) return false
+      return overlaps(cursor, slotEnd, parseTimeOnDate(date, brk.start), parseTimeOnDate(date, brk.end))
+    })
     const booked = appointments.some((a) => overlaps(cursor, slotEnd, a.startAt, a.endAt))
-    if (!booked) {
+    if (!inBreak && !booked) {
       slots.push({ start: cursor.toISOString(), end: slotEnd.toISOString() })
     }
     cursor = addMinutes(cursor, slotMinutes)

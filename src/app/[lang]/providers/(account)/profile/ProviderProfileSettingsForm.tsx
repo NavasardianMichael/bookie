@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UploadOutlined } from '@ant-design/icons'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Form, Input, Upload } from 'antd'
+import { Alert, Form, Upload } from 'antd'
 import ImgCrop from 'antd-img-crop'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
@@ -19,6 +19,7 @@ import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
+import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -26,8 +27,6 @@ import { AppTitle } from '@components/ui/bare/AppTitle'
 import { UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
-
-const { TextArea } = Input
 
 type FormValues = {
   firstName: string
@@ -58,7 +57,6 @@ export const ProviderProfileSettingsForm = () => {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
 
   useEffect(() => {
@@ -70,13 +68,13 @@ export const ProviderProfileSettingsForm = () => {
         setPreview(typeof values.image === 'string' ? resolveAssetUrl(values.image) : undefined)
       })
       .catch((err) => setError(processError(err).message))
-      .finally(() => setLoading(false))
   }, [form])
 
-  const displayName = useMemo(() => {
-    const v = form.getFieldsValue()
-    return `${v.firstName ?? profile?.basic.firstName ?? ''} ${v.lastName ?? profile?.basic.lastName ?? ''}`.trim()
-  }, [form, profile])
+  // Watch the live fields — `getFieldsValue()` warns if it runs before `<Form form>` mounts.
+  const watchedFirstName = Form.useWatch('firstName', form)
+  const watchedLastName = Form.useWatch('lastName', form)
+  const displayName =
+    `${watchedFirstName ?? profile?.basic.firstName ?? ''} ${watchedLastName ?? profile?.basic.lastName ?? ''}`.trim()
 
   const applyResult = (data: ProviderProfile) => {
     setProfile(data)
@@ -133,8 +131,6 @@ export const ProviderProfileSettingsForm = () => {
     }
   }
 
-  if (loading) return <Surface className='min-h-64 animate-pulse' />
-
   return (
     <div className='flex flex-col gap-6'>
       <div className='bg-brand text-white relative overflow-hidden rounded-2xl p-8 shadow-lg'>
@@ -144,10 +140,18 @@ export const ProviderProfileSettingsForm = () => {
         <AppTitle level='h2' size='h2' className='text-white'>
           {t('providerHeroTitle')}
         </AppTitle>
-        <AppParagraph className='mt-2 max-w-md text-white/70'>{t('providerHeroBody')}</AppParagraph>
+        <AppParagraph tone='inverse' className='mt-2 max-w-md'>
+          {t('providerHeroBody')}
+        </AppParagraph>
         <div className='relative z-10 mt-6 flex flex-wrap gap-3'>
           {profileId && (
-            <AppLink href={`${ROUTES.providers}/${profileId}`} variant='button' tone='default'>
+            <AppLink
+              href={`${ROUTES.providers}/${profileId}`}
+              variant='button'
+              tone='default'
+              className='bg-surface text-brand hover:bg-brand-50'
+              target='_blank'
+            >
               {t('listing.preview')}
             </AppLink>
           )}
@@ -204,7 +208,7 @@ export const ProviderProfileSettingsForm = () => {
                 {t('profile.description')}
               </FieldLabel>
               <AppFormItem name='description' messageVariables={{ label: t('profile.description') }}>
-                <TextArea id='description' rows={4} />
+                <AppTextArea id='description' rows={4} />
               </AppFormItem>
             </div>
             <div className='md:col-span-2'>

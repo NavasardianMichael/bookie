@@ -42,16 +42,14 @@ export const BrandLockup: FC<BrandLockupProps> = ({ href = ROUTES.home, size = '
   return (
     <AppLink
       href={href}
-      variant='plain'
+      variant='unstyled'
       className={cn('flex items-center gap-3', className)}
       aria-label={t('homeLink')}
     >
       <span className={cn('rounded-brand-sm flex shrink-0 items-center justify-center', TILE[tone], mark.box)}>
         <BookieMark size={mark.mark} color='currentColor' />
       </span>
-      <AppText
-        className={cn('font-extrabold tracking-tight', WORDMARK[tone], size === 'md' ? 'text-xl' : 'text-lg')}
-      >
+      <AppText className={cn('font-extrabold tracking-tight', WORDMARK[tone], size === 'md' ? 'text-xl' : 'text-lg')}>
         Bookie
       </AppText>
     </AppLink>

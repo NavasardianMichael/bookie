@@ -51,7 +51,6 @@ export const LanguageSwitcher: FC = () => {
       options={OPTIONS}
       onChange={handleChange}
       loading={isPending}
-      variant='borderless'
       popupMatchSelectWidth={false}
       prefix={<GlobalOutlined aria-hidden />}
       className='min-w-44'

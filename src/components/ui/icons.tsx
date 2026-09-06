@@ -170,6 +170,14 @@ export const CopyIcon = ({ className }: IconProps) => (
   </svg>
 )
 
+/** Destructive or irreversible action — the badge on a danger confirmation. */
+export const AlertTriangleIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20.2h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z' />
+    <path d='M12 9v4M12 16.5h.01' />
+  </svg>
+)
+
 export const HelpIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>
     <circle cx='12' cy='12' r='9' />

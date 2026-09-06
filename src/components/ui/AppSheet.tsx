@@ -41,7 +41,7 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, c
       open={open}
       onClose={onClose}
       placement='bottom'
-      height='92dvh'
+      size='92dvh'
       className={className}
       destroyOnHidden
     >

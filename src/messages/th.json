@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "แพลตฟอร์มจองของคุณตลอดไป"
+    "tagline": "แพลตฟอร์มจองของคุณตลอดไป",
+    "confirm": "ยืนยัน",
+    "cancel": "ยกเลิก",
+    "close": "ปิด"
   },
   "Nav": {
     "mainNavigation": "การนำทางหลัก",
     "mobileNavigation": "การนำทางบนมือถือ",
     "openMenu": "เปิดเมนูนำทาง",
     "menu": "เมนู",
-    "goBack": "ย้อนกลับ",
     "homeLink": "หน้าแรกของ Bookie",
     "skipToContent": "ข้ามไปยังเนื้อหา",
     "home": "หน้าแรก",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "บันทึกและเผยแพร่"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "วันและเวลาที่ลูกค้าจองได้ เพิ่มได้สูงสุด 5 ช่วงต่อวันหากมีเวลาพัก",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "เพิ่มช่วงเวลา",
+      "removeRange": "ลบ"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

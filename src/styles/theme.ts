@@ -1,5 +1,19 @@
 import { theme, type ThemeConfig } from 'antd'
-import { BRAND, CSS_VAR_SCOPE, FONT, NEUTRAL, RADII, STATUS } from './tokens'
+import { BRAND, CSS_VAR_SCOPE, FONT, NEUTRAL, STATUS } from './tokens'
+
+/**
+ * Inner padding shared by every form control. Input / InputNumber / DatePicker
+ * take these as `paddingBlock` / `paddingInline`. Select and Button do not —
+ * see those blocks. Keep the derived values in lockstep so a country-code
+ * Select, its neighbour Input, and the submit Button stay the same size.
+ */
+const FIELD_PADDING_BLOCK = 6
+const FIELD_PADDING_INLINE = 12
+/** antd seed default. Select's horizontal padding is `paddingSM - lineWidth`. */
+const LINE_WIDTH = 1
+/** antd `fontHeight` at `FONT.base`: `Math.round(((size + 8) / size) * size)`. */
+const FIELD_FONT_HEIGHT = FONT.base + 8
+const FIELD_CONTROL_HEIGHT = FIELD_PADDING_BLOCK * 2 + FIELD_FONT_HEIGHT + LINE_WIDTH * 2
 
 export const antdTheme: ThemeConfig = {
   /**
@@ -42,9 +56,7 @@ export const antdTheme: ThemeConfig = {
     colorError: STATUS.danger,
     colorInfo: STATUS.info,
 
-    fontSize: FONT.base,
-    borderRadius: RADII.base,
-    borderRadiusLG: RADII.lg,
+    borderRadius: 4,
 
     // NOTE: no `screen*` keys, deliberately. See BREAKPOINTS in ./tokens.ts.
   },
@@ -55,19 +67,37 @@ export const antdTheme: ThemeConfig = {
     // old per-item `mb-0!` was emulating.
     Form: { itemMarginBottom: 0, verticalLabelPadding: '0 0 6px', fontSize: 14 },
     Button: {
-      fontWeight: 600,
+      fontWeight: 500,
+      borderRadius: 4,
       primaryShadow: 'none',
       defaultShadow: 'none',
-      paddingInline: 12,
-      paddingBlock: 6,
+      // paddingBlock is @deprecated and unused in antd 6: prepareToken hardcodes
+      // buttonPaddingVertical to 0 and sizes the button with controlHeight.
+      paddingInline: FIELD_PADDING_INLINE,
     },
-    Input: { paddingBlock: 6, paddingInline: 12 },
+    Input: { paddingBlock: FIELD_PADDING_BLOCK, paddingInline: FIELD_PADDING_INLINE },
+    InputNumber: { paddingBlock: FIELD_PADDING_BLOCK, paddingInline: FIELD_PADDING_INLINE },
+    DatePicker: {
+      paddingBlock: FIELD_PADDING_BLOCK,
+      paddingInline: FIELD_PADDING_INLINE,
+      // TimePicker shares this map. Selected hour/minute cells use
+      // `controlItemBgActive` (not optionSelectedBg). Hover is `cellHoverBg`.
+      controlItemBgActive: BRAND[900],
+      cellHoverBg: BRAND[100],
+    },
     Select: {
-      optionPadding: '6px 12px',
-      optionSelectedBg: BRAND[500],
+      optionPadding: `${FIELD_PADDING_BLOCK}px ${FIELD_PADDING_INLINE}px`,
+      // No paddingBlock/paddingInline on Select. Horizontal is `paddingSM - lineWidth`;
+      // vertical is `(controlHeight - fontHeight) / 2 - lineWidth`. These two values
+      // produce 6 / 12 — the same as Input — so Space.Compact groups line up.
+      paddingSM: FIELD_PADDING_INLINE + LINE_WIDTH,
+      controlHeight: FIELD_CONTROL_HEIGHT,
+      optionSelectedBg: BRAND[900],
+      optionSelectedColor: NEUTRAL[0],
       optionActiveBg: BRAND[100],
-      optionSelectedColor: '#fff',
+      // Selected+active uses this instead of optionSelectedBg; keep it primary
+      // or the highlighted current option paints as a pale hover chip.
+      controlItemBgActiveHover: BRAND[900],
     },
-    DatePicker: { paddingBlock: 6, paddingInline: 12 },
   },
 }

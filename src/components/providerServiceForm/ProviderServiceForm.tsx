@@ -1,24 +1,26 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { Col, Flex, Form, FormInstance, Input, InputNumber, Row, Select } from 'antd'
+import { Col, Flex, Form, InputNumber, Row, Select } from 'antd'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
+import { AppTextArea } from '@components/ui/AppTextArea'
 import { PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE } from './constants'
 import { ProviderServiceFormCategory } from './ProviderServiceFormCategory'
 import { ProviderServiceFormDuration } from './ProviderServiceFormDuration'
 import { ProviderServiceFormImage } from './ProviderServiceFormImage'
 
 type Props = AppFormProps<ProviderServiceFormValues> & {
-  form: FormInstance
+  initialValues: ProviderServiceFormValues
   closeModal: () => void
 }
 
-export const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal }) => {
+export const ProviderServiceForm: React.FC<Props> = ({ formik, initialValues, closeModal }) => {
+  const [form] = Form.useForm<ProviderServiceFormValues>()
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
@@ -32,11 +34,14 @@ export const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal 
   return (
     <Form
       form={form}
+      initialValues={initialValues}
       requiredMark={true}
       className='mt-4 flex w-full flex-col gap-4'
       layout='vertical'
       validateTrigger='onSubmit'
-      onFinish={formik.handleSubmit}
+      onFinish={() => {
+        void formik.submitForm()
+      }}
       scrollToFirstError
     >
       <AppFormItem name='name' label='Title' rules={inputTextRequiredMaxCharsCountRuleSet}>
@@ -51,7 +56,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal 
       </AppFormItem>
 
       <AppFormItem name='description' label='Description' rules={textareaMaxCharsCountRuleSet}>
-        <Input.TextArea
+        <AppTextArea
           name='description'
           value={formik.values.description}
           onChange={formik.handleChange}
@@ -80,6 +85,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal 
               value={formik.values.price}
               onChange={(value) => formik.setFieldValue('price', value)}
               className='w-full'
+              styles={{ root: { width: '100%' } }}
               disabled={formik.isSubmitting}
               inputMode='decimal'
             />
@@ -103,15 +109,10 @@ export const ProviderServiceForm: React.FC<Props> = ({ formik, form, closeModal 
       </AppFormItem>
 
       <Flex justify='end' gap={8} className='mt-4'>
-        <AppButton
-          variant='solid'
-          className='grow'
-          disabled={formik.isSubmitting}
-          onClick={onCancelButtonClick}
-        >
+        <AppButton type='default' className='grow' disabled={formik.isSubmitting} onClick={onCancelButtonClick}>
           Close
         </AppButton>
-        <AppButton type='primary' variant='solid' htmlType='submit' className='grow' loading={formik.isSubmitting}>
+        <AppButton type='primary' htmlType='submit' className='grow' loading={formik.isSubmitting}>
           Save
         </AppButton>
       </Flex>

@@ -33,7 +33,12 @@ export type GetProvidersListAPI = Endpoint<{
 }>
 
 export type GetSingleProviderAPI = Endpoint<{
-  payload: Pick<SingleProvider, 'id'>
+  /**
+   * `cookie` is transport-only: Server Components forward the incoming session
+   * so the API can recognise the owner of an unlisted profile. Never a query
+   * or body field.
+   */
+  payload: Pick<SingleProvider, 'id'> & { cookie?: string }
   response: SingleProvider
   processed: SingleProvider
 }>

@@ -2,7 +2,7 @@ import { ComponentProps, FC, PropsWithChildren } from 'react'
 import { Link } from '@i18n/navigation'
 import { cn } from '@helpers/cn'
 
-export type AppLinkVariant = 'inline' | 'plain' | 'button' | 'chip'
+export type AppLinkVariant = 'inline' | 'plain' | 'unstyled' | 'button' | 'chip'
 export type AppLinkTone = 'primary' | 'default'
 
 type Props = ComponentProps<typeof Link> & {
@@ -15,6 +15,8 @@ type Props = ComponentProps<typeof Link> & {
 const VARIANTS: Record<AppLinkVariant, string> = {
   inline: 'text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand',
   plain: 'transition-colors hover:underline [text-underline-offset:5px]',
+  unstyled:
+    'no-underline transition-colors hover:no-underline focus:no-underline active:no-underline visited:no-underline',
   button:
     'inline-flex py-2 items-center justify-center gap-2 rounded-brand-sm px-5 text-body-sm font-semibold no-underline transition-all',
   chip: 'border-brand-border bg-surface text-brand-text hover:border-brand inline-flex h-10 shrink-0 items-center gap-2 rounded-brand-sm border px-5 text-body-sm font-bold no-underline transition-colors',

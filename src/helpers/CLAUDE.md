@@ -16,6 +16,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Group slots morning/afternoon/evening | `groupSlotsByPartOfDay` | `booking.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
+| Bookable windows → availability + breaks | `rangesToDaySchedule` | `schedule.ts` |
 | Is the provider open at all this week? | `hasWeekScheduleHours` | `schedule.ts` |
 | Minutes → `"1 h 30 min"` | `formatDuration` | `duration.ts` |
 | Minutes → ISO `PT90M` (schema.org, `<time>`) | `toIsoDuration` | `duration.ts` |
@@ -53,6 +54,8 @@ Everything here is pure and framework-free unless the last column says otherwise
   while schedules are wall-clock `'HH:mm'` strings with no date and no zone.
 - **`images.ts` captures `API_ORIGIN` at module load.** It cannot be changed after import.
 - **`url.ts` re-reads `process.env` per call**, so it is safe to stub at any point.
+  In the browser `getSiteUrl` uses `window.location.origin` so share links stay
+  on the host you are actually on.
 - `errorMiddleware` (`store.ts`) is auth-only and does **not** catch rejections thrown
   inside async store actions.
 

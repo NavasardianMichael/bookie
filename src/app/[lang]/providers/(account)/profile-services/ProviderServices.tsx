@@ -2,8 +2,7 @@
 
 import React, { useCallback, useRef, useState } from 'react'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Flex, Modal, Typography } from 'antd'
-import { useForm } from 'antd/es/form/Form'
+import { Button, Flex } from 'antd'
 import { useFormik } from 'formik'
 import Image from 'next/image'
 import { useProviderProfileStore } from '@store/providers/profile/store'
@@ -14,6 +13,7 @@ import { resolveAssetUrl } from '@helpers/images'
 import { processProviderServiceFormToPostPayload } from '@components/providerServiceForm/processors'
 import { ProviderServiceForm } from '@components/providerServiceForm/ProviderServiceForm'
 import { AppButton } from '@components/ui/AppButton'
+import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -30,7 +30,7 @@ type Props = {
 export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const { id: providerId, services, putProviderService, deleteProviderService } = useProviderProfileStore()
   const { allIds, byId } = services
-  const [form] = useForm<ProviderServiceFormValues>()
+  const [editValues, setEditValues] = useState<ProviderServiceFormValues>(initialValues)
 
   const [editServiceModalOpened, setEditServiceModalOpened] = useState(false)
   const [deleteServiceModalOpened, setDeleteServiceModalOpened] = useState(false)
@@ -52,7 +52,9 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     setDeleteServiceModalOpened(false)
   }, [])
 
-  const onDeleteServiceApprove: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
+  // Deliberately unguarded: AppConfirmModal awaits this, and a rejection keeps the
+  // dialog open with the API's message rather than closing on a delete that failed.
+  const onDeleteServiceApprove = useCallback(async () => {
     const props = deleteServicePropsRef.current
     if (props) await deleteProviderService(props)
     closeDeleteServiceModal()
@@ -81,7 +83,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
 
       // "Add service" passes no serviceId. Editing loads the clicked service into
       // both stores — formik owns the values, antd owns validation — so the modal
-      // is not a blank create form.
+      // is not a blank create form. Do not call antd `setFieldsValue` here: AppSheet
+      // destroys its Form while closed, so the instance would be disconnected.
       const nextValues: ProviderServiceFormValues = service
         ? {
             id: service.id,
@@ -96,10 +99,10 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         : initialValues
 
       formik.setValues(nextValues)
-      form.setFieldsValue(nextValues)
+      setEditValues(nextValues)
       setEditServiceModalOpened(true)
     },
-    [byId, form, formik, initialValues]
+    [byId, formik, initialValues]
   )
 
   const addServiceButton = (
@@ -196,26 +199,25 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       )}
 
       <AppSheet title='Service Configuration' open={editServiceModalOpened} onClose={closeEditServiceModal}>
-        <ProviderServiceForm form={form} formik={formik} closeModal={closeEditServiceModal} />
+        {editServiceModalOpened ? (
+          <ProviderServiceForm
+            key={editValues.id ?? 'new'}
+            formik={formik}
+            initialValues={editValues}
+            closeModal={closeEditServiceModal}
+          />
+        ) : null}
       </AppSheet>
 
-      <Modal
-        title='Delete service'
+      <AppConfirmModal
+        tone='danger'
+        title='Delete this service?'
+        description='Clients will no longer be able to book it. This cannot be undone.'
+        okText='Delete'
         open={deleteServiceModalOpened}
-        onOk={onDeleteServiceApprove}
+        onConfirm={onDeleteServiceApprove}
         onCancel={closeDeleteServiceModal}
-        okText='Yes'
-        cancelText='No'
-        okButtonProps={{
-          danger: true,
-          htmlType: 'submit',
-          loading: formik.isSubmitting,
-          disabled: formik.isSubmitting,
-        }}
-        centered
-      >
-        <Typography.Paragraph>Are you sure you want to delete this service?</Typography.Paragraph>
-      </Modal>
+      />
     </Flex>
   )
 }

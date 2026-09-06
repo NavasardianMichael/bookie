@@ -12,10 +12,7 @@ type UseHeaderConfig = HeaderConfig & {
   isActive: (route: string) => boolean
 }
 
-/**
- * Single source for header state. Header and BackHistoryBtn previously each
- * called `usePathname()` and repeated the same lookup independently.
- */
+/** Single source for header chrome: logo, nav, and which destination is active. */
 export const useHeaderConfig = (): UseHeaderConfig => {
   const pathname = usePathname()
 

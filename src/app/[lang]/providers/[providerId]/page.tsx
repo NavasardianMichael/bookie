@@ -1,6 +1,10 @@
+import { cache } from 'react'
 import { getProviderLDSchema } from '@linkedDataSchema/providers'
+import { isAxiosError } from 'axios'
 import { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
 import { getSingleProviderAPI } from '@api/providers/main'
 import { ProviderProfile as ProviderProfileType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -9,6 +13,7 @@ import { consolidatedAlternates, currentLocale } from '@i18n/metadata'
 import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { getCountryName } from '@helpers/country'
+import { generateEntityPath } from '@helpers/entities'
 import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
@@ -34,9 +39,19 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
+const loadProvider = cache(async (providerId: string) => {
+  const cookie = (await cookies()).toString()
+  try {
+    return await getSingleProviderAPI({ id: providerId, cookie })
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 404) notFound()
+    throw error
+  }
+})
+
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { providerId } = await params
-  const provider = await getSingleProviderAPI({ id: providerId })
+  const provider = await loadProvider(providerId)
 
   const { basic, details } = provider
   const fullName = `${basic.firstName} ${basic.lastName}`
@@ -91,7 +106,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
 export default async function Provider({ params }: Props) {
   const { providerId } = await params
 
-  const provider = await getSingleProviderAPI({ id: providerId })
+  const provider = await loadProvider(providerId)
 
   const { basic, details, services } = provider
   const organization = basic.organization
@@ -124,28 +139,41 @@ export default async function Provider({ params }: Props) {
               {fullName}
             </AppTitle>
 
-            {organization && (
-              <AppLink
-                href={`${ROUTES[ROUTE_KEYS.organizations]}/${organization.id}`}
-                variant='plain'
-                className='text-body-sm text-brand-muted mt-1 font-medium hover:text-brand'
-              >
-                {organization.basic.name}
-              </AppLink>
-            )}
-
-            {!!categories?.length && (
-              <div className='mt-3 flex flex-wrap justify-center gap-2'>
-                {categories.map((category) => (
-                  <AppLink
-                    key={category.id}
-                    href={`${ROUTES[ROUTE_KEYS.categories]}/${category.id}`}
-                    variant='chip'
-                    className='h-8 min-h-8 px-3 text-caption'
-                  >
-                    {category.name}
-                  </AppLink>
-                ))}
+            {(organization || !!categories?.length) && (
+              <div className='mt-3 flex flex-col items-center gap-1'>
+                {organization && (
+                  <AppParagraph size='body-sm' className='m-0'>
+                    <AppText as='strong' tone='default'>
+                      Organization:{' '}
+                    </AppText>
+                    <AppLink
+                      href={generateEntityPath(ROUTE_KEYS.organizations, organization.id)}
+                      variant='plain'
+                      className='text-brand-muted hover:text-brand font-medium'
+                    >
+                      {organization.basic.name}
+                    </AppLink>
+                  </AppParagraph>
+                )}
+                {!!categories?.length && (
+                  <AppParagraph size='body-sm' className='m-0'>
+                    <AppText as='strong' tone='default'>
+                      {categories.length === 1 ? 'Category' : 'Categories'}:{' '}
+                    </AppText>
+                    {categories.map((category, index) => (
+                      <span key={category.id}>
+                        {index > 0 ? ', ' : null}
+                        <AppLink
+                          href={generateEntityPath(ROUTE_KEYS.categories, category.id)}
+                          variant='plain'
+                          className='text-brand-muted hover:text-brand font-medium'
+                        >
+                          {category.name}
+                        </AppLink>
+                      </span>
+                    ))}
+                  </AppParagraph>
+                )}
               </div>
             )}
 

@@ -2,13 +2,12 @@
 
 import { FC } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Input, Select } from 'antd'
+import { Select } from 'antd'
 import { useTranslations } from 'next-intl'
 import { PAYMENT_METHODS } from '@constants/settings'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
-
-const { TextArea } = Input
+import { AppTextArea } from '@components/ui/AppTextArea'
 
 type Props = {
   /** Prefix for nested form names, e.g. nothing or under a parent. */
@@ -51,7 +50,7 @@ export const PaymentInfoFields: FC<Props> = ({ disabled }) => {
           {t('notes')}
         </FieldLabel>
         <AppFormItem name={['paymentInfo', 'notes']} messageVariables={{ label: t('notes') }}>
-          <TextArea id='payment-notes' rows={3} disabled={disabled} placeholder={t('notesPlaceholder')} />
+          <AppTextArea id='payment-notes' rows={3} disabled={disabled} placeholder={t('notesPlaceholder')} />
         </AppFormItem>
       </div>
     </div>

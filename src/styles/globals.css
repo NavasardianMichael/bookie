@@ -116,9 +116,9 @@
    ─────────────────────────────────────────────────────────────────────────── */
 @theme {
   --container-content: 75rem;
-  --container-prose-content: 45rem;
-  --container-form-content: 40rem;
-  --container-auth-content: 30rem;
+  --container-prose-content: 55rem;
+  --container-form-content: 50rem;
+  --container-auth-content: 40rem;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -177,14 +177,36 @@ body {
 }
 
 /* Body copy is de-emphasised against headings. Without this, `body { color }`
-   paints every paragraph at full heading strength and all hierarchy is lost. */
-:where(p, li, dd) {
-  color: var(--brand-text-muted);
+   paints every paragraph at full heading strength and all hierarchy is lost.
+   `@layer base` is required: unlayered, this beat every Tailwind colour utility
+   (`text-white`, `tone='inverse'`), so secondary copy on `bg-brand` stayed
+   charcoal on navy. Utilities in `@layer utilities` win over `@layer base`.
+   `.bg-brand` descendants default to near-white so a raw `<p>` on a navy band
+   stays readable even without a tone class. */
+@layer base {
+  :where(p, li, dd):not(.ant-picker-time-panel-cell) {
+    color: var(--brand-text-muted);
+  }
+
+  .bg-brand :where(p, li, dd):not(.ant-picker-time-panel-cell) {
+    color: color-mix(in srgb, var(--brand-surface) 92%, transparent);
+  }
 }
 
 *:focus-visible {
   outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
+}
+
+/* TimePicker selected cells only paint `controlItemBgActive`. The inner cell
+   keeps `colorText`, and `--ant-color-text-light-solid` is not always emitted,
+   so the previous override resolved to nothing. `--brand-surface` is white on
+   :root. `!important` is required: antd's unlayered cssinjs is injected later
+   and would otherwise keep charcoal. */
+.ant-picker-dropdown
+  .ant-picker-time-panel-cell-selected:not(.ant-picker-time-panel-cell-disabled)
+  .ant-picker-time-panel-cell-inner {
+  color: var(--brand-surface) !important;
 }
 
 /* Keeps `scrollToFirstError` and #anchor jumps clear of the sticky header. */

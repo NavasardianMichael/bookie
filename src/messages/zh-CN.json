@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "您永远的预约平台"
+    "tagline": "您永远的预约平台",
+    "confirm": "确认",
+    "cancel": "取消",
+    "close": "关闭"
   },
   "Nav": {
     "mainNavigation": "主导航",
     "mobileNavigation": "移动端导航",
     "openMenu": "打开导航菜单",
     "menu": "菜单",
-    "goBack": "返回",
     "homeLink": "Bookie 首页",
     "skipToContent": "跳转到主要内容",
     "home": "首页",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "保存并发布"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "客户可预约的日期和时段。若有休息，每天最多 5 段。",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "添加时段",
+      "removeRange": "删除"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

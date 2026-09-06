@@ -20,12 +20,46 @@ modules `"use client"`, so an antd component's text only reaches the DOM after h
 ```
 ui/bare/      antd-free BY CONTRACT — server-renderable. Never import antd here.
 ui/layout/    antd-free page structure. Same contract.
-ui/           antd wrappers — client islands (AppButton, AppInput, AppFormItem, AppSheet, ErrorState)
+ui/           antd wrappers — client islands (AppButton, AppInput, AppTextArea, AppFormItem,
+              AppSheet, AppConfirmModal, ErrorState)
 ```
 
 **`ui/index.ts` re-exports only `./bare` and `./layout`, deliberately.** Re-exporting an
 antd wrapper there would pull antd's runtime into the client bundle of any route that
 merely wants an `AppTitle`. Import wrappers from their own path.
+
+## Dialogs — never reach for antd `Modal` directly
+
+Two wrappers own every dialog in the app. Pick by what the dialog is *for*:
+
+| The dialog is | Use | Shape |
+|---|---|---|
+| A yes/no question — delete, discard, unpublish, cancel a booking | **`ui/AppConfirmModal`** | Centred 30rem modal on every viewport |
+| A panel of content or a form the user works inside | **`ui/AppSheet`** | Modal ≥`md`, bottom Drawer below |
+
+`AppConfirmModal` takes **every** `ModalProps` and forwards it, minus the three it owns —
+`onOk` (it is `onConfirm`, which may be async), `footer` (the Confirm/Cancel pair *is* the
+component) and `title` (narrowed to required). What it adds on top of a bare `Modal`:
+
+- a tone badge — `tone='danger'` reddens the glyph and the confirm button;
+- `description` rendered through `AppParagraph`, the title through `AppTitle level='h2'`,
+  so a dialog is on the same type scale as the page behind it;
+- **an awaited `onConfirm`**: the ok button goes busy and *every* dismissal route —
+  close button, mask, Esc, Cancel — is locked until the promise settles, so a slow request
+  cannot be abandoned into "did that delete happen or not?";
+- a rejection caught, surfaced with `processError` + `message.error`, and the dialog left
+  **open**. So a call site's `onConfirm` is deliberately written without its own try/catch —
+  see `ProviderServices.tsx`.
+- `Common.confirm` / `Common.cancel` / `Common.close` defaults, so a dialog is translated
+  in all 15 locales without the call site passing `okText`.
+
+A call site that hand-rolls a `Modal` loses all six, which is what the two delete dialogs
+in this repo used to do — one of them titled `"Modal"`, both dismissible mid-request.
+Gate — `<Modal` belongs to the two wrappers and nowhere else:
+
+```bash
+grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"   # 0
+```
 
 ## antd props go stale — read the type before you use one
 
@@ -57,6 +91,7 @@ The direction v6 keeps moving in is **one object prop absorbing a flat family**:
 | `Divider` `type`, `orientationMargin` | `orientation`, `styles.content.margin` |
 | `Slider` `onAfterChange` | `onChangeComplete` |
 | `Spin` `tip`, `wrapperClassName` | `description`, `classNames.root` |
+| `Statistic.Countdown` | `Statistic.Timer type="countdown"` |
 
 That table is a snapshot, not the source of truth —
 `grep -rn "@deprecated" node_modules/antd/es/*/*.d.ts` is. Re-read it after any antd bump.
@@ -64,7 +99,7 @@ That table is a snapshot, not the source of truth —
 Gate — keep at zero:
 
 ```bash
-grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
+grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b|\bStatistic\.Countdown\b|antd/es/statistic/Countdown" src --include=*.ts --include=*.tsx   # 0
 ```
 
 It deliberately omits `Space direction=` and `Divider type=` — those names are legitimate

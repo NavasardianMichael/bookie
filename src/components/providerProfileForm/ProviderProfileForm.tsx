@@ -1,6 +1,6 @@
 'use client'
 
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
 import { useFormik } from 'formik'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -12,6 +12,7 @@ import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppFormSection } from '@components/ui/AppFormSection'
 import { AppInput } from '@components/ui/AppInput'
+import { AppTextArea } from '@components/ui/AppTextArea'
 import { processProviderProfileFormToPostPayload } from './processors'
 import { ProviderProfileFormCategories } from './ProviderProfileFormCategories'
 import { ProviderProfileFormGallery } from './ProviderProfileFormGallery'
@@ -122,7 +123,7 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
         </Row>
 
         <AppFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
-          <Input.TextArea
+          <AppTextArea
             name='description'
             value={formik.values.description}
             onChange={formik.handleChange}

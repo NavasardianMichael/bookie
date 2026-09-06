@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "Platform pemesanan Anda selamanya"
+    "tagline": "Platform pemesanan Anda selamanya",
+    "confirm": "Konfirmasi",
+    "cancel": "Batal",
+    "close": "Tutup"
   },
   "Nav": {
     "mainNavigation": "Navigasi utama",
     "mobileNavigation": "Navigasi seluler",
     "openMenu": "Buka menu navigasi",
     "menu": "Menu",
-    "goBack": "Kembali",
     "homeLink": "Beranda Bookie",
     "skipToContent": "Lewati ke konten",
     "home": "Beranda",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "Simpan dan terbitkan"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "Hari dan jam yang bisa dipesan klien. Hingga 5 rentang per hari jika ada jeda.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "Tambah jam",
+      "removeRange": "Hapus"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

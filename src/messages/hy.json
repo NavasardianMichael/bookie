@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "Ձեր ամրագրման հարթակը՝ ընդմիշտ"
+    "tagline": "Ձեր ամրագրման հարթակը՝ ընդմիշտ",
+    "confirm": "Հաստատել",
+    "cancel": "Չեղարկել",
+    "close": "Փակել"
   },
   "Nav": {
     "mainNavigation": "Հիմնական նավիգացիա",
     "mobileNavigation": "Բջջային նավիգացիա",
     "openMenu": "Բացել նավիգացիայի ընտրացանկը",
     "menu": "Ընտրացանկ",
-    "goBack": "Հետ",
     "homeLink": "Bookie-ի գլխավոր էջ",
     "skipToContent": "Անցնել բովանդակությանը",
     "home": "Գլխավոր",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "Պահել և հրապարակել"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "Օրեր և ժամեր, որոնք հաճախորդները կարող են ամրագրել։ Մինչև 5 միջակայք՝ ընդմիջումների համար։",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "Ավելացնել ժամեր",
+      "removeRange": "Հեռացնել"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

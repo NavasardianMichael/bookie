@@ -2,12 +2,13 @@
 
 import { memo, useCallback, useMemo, useState } from 'react'
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons'
-import { Flex, Image, Modal, Typography, Upload } from 'antd'
+import { Flex, Image, Upload } from 'antd'
 import ImgCrop, { ImgCropProps } from 'antd-img-crop'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { AppFormProps } from '@interfaces/forms'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { AppButton } from '@components/ui/AppButton'
+import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import styles from './styles.module.css'
 
 type Props = AppFormProps<ProviderProfileFormValues>
@@ -38,7 +39,7 @@ const ProviderProfileFormGalleryComponent: React.FC<Props> = ({ formik }) => {
     [formik]
   ) as ImgCropProps['onModalOk']
 
-  const onApproveRemovePictureClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(async () => {
+  const onApproveRemovePictureClick = useCallback(async () => {
     const newGallery = formik.values.gallery?.filter((item) => item.name !== pendingDeleteImageName)
     await formik.setFieldValue('gallery', newGallery)
     setPreviewImages((prev) => prev?.filter((item) => item.name !== pendingDeleteImageName))
@@ -92,19 +93,15 @@ const ProviderProfileFormGalleryComponent: React.FC<Props> = ({ formik }) => {
         })}
       </Flex>
 
-      <Modal
-        title='Modal'
+      <AppConfirmModal
+        tone='danger'
+        title='Delete this image?'
+        description='It will be removed from your gallery. This action cannot be undone.'
+        okText='Delete'
         open={!!pendingDeleteImageName}
-        onOk={onApproveRemovePictureClick}
+        onConfirm={onApproveRemovePictureClick}
         onCancel={hideModal}
-        okText='Yes'
-        cancelText='No'
-        okButtonProps={{ danger: true }}
-        centered
-      >
-        <Typography.Title level={5}>Are you sure you want to delete this image?</Typography.Title>
-        <p>This action cannot be undone.</p>
-      </Modal>
+      />
     </>
   )
 }

@@ -12,13 +12,12 @@ import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { Container } from '@components/ui/layout/Container'
-import { BackHistoryBtn } from './BackHistoryBtn'
 import { MobileNav } from './MobileNav'
 import { NavLinks } from './NavLinks'
 
 export const Header = () => {
   const t = useTranslations('Nav')
-  const { showLogo, showBack, showNav, backFallback, isActive } = useHeaderConfig()
+  const { showLogo, showNav, isActive } = useHeaderConfig()
   const getMe = useAuthStore.use.getMe()
   const isSignedOn = useAuthStore.use.isSignedOn()
   const userType = useAuthStore.use.userType()
@@ -37,8 +36,6 @@ export const Header = () => {
   return (
     <header className='border-brand-border bg-surface/80 sticky top-0 z-50 border-b backdrop-blur-md app-safe-t'>
       <Container className='flex h-header items-center gap-3'>
-        {showBack && <BackHistoryBtn fallback={backFallback} />}
-
         {showLogo && <BrandLockup />}
 
         {showNav && (
@@ -48,7 +45,7 @@ export const Header = () => {
               {isSignedOn ? (
                 <AppLink
                   href={accountHref}
-                  variant='plain'
+                  variant='unstyled'
                   className='inline-flex items-center gap-3'
                   aria-label={t('accountSettings')}
                 >
@@ -78,7 +75,7 @@ export const Header = () => {
             </div>
             <div className='ml-auto flex items-center gap-2 md:hidden'>
               {isSignedOn && (
-                <AppLink href={accountHref} variant='plain' aria-label={t('accountSettings')}>
+                <AppLink href={accountHref} variant='unstyled' aria-label={t('accountSettings')}>
                   <AppAvatar src={image ?? undefined} name={displayName} size={36} />
                 </AppLink>
               )}

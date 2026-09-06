@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "Your Booking Platform Forever"
+    "tagline": "Your Booking Platform Forever",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "Nav": {
     "mainNavigation": "Main navigation",
     "mobileNavigation": "Mobile navigation",
     "openMenu": "Open navigation menu",
     "menu": "Menu",
-    "goBack": "Go back",
     "homeLink": "Bookie home",
     "skipToContent": "Skip to content",
     "home": "Home",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "Save and publish"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,11 +138,13 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "Open days and hours clients can book. Add up to 5 periods on a day if you take breaks.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
       "unavailable": "Unavailable",
+      "addRange": "Add hours",
+      "removeRange": "Remove",
       "days": {
         "monday": "Monday",
         "tuesday": "Tuesday",

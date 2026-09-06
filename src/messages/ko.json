@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "언제나 함께하는 예약 플랫폼"
+    "tagline": "언제나 함께하는 예약 플랫폼",
+    "confirm": "확인",
+    "cancel": "취소",
+    "close": "닫기"
   },
   "Nav": {
     "mainNavigation": "주 내비게이션",
     "mobileNavigation": "모바일 내비게이션",
     "openMenu": "내비게이션 메뉴 열기",
     "menu": "메뉴",
-    "goBack": "뒤로",
     "homeLink": "Bookie 홈",
     "skipToContent": "본문으로 건너뛰기",
     "home": "홈",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "저장 후 게시"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "고객이 예약할 수 있는 요일과 시간. 휴식이 있으면 하루에 최대 5개 구간.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "시간 추가",
+      "removeRange": "삭제"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

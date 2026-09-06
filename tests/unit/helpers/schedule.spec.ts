@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { day, makeWeekSchedule } from '@test/setup/fixtures'
-import { hasWeekScheduleHours, splitScheduleIntoParts } from '@helpers/schedule'
+import { hasWeekScheduleHours, rangesToDaySchedule, splitScheduleIntoParts } from '@helpers/schedule'
 
 describe('splitScheduleIntoParts', () => {
   it('returns the whole availability when there are no breaks', () => {
@@ -91,6 +91,67 @@ describe('splitScheduleIntoParts', () => {
 
     expect(breaks[0].end).toBe('14:00')
     expect(breaks[0].end).not.toBe('13:30')
+  })
+})
+
+describe('rangesToDaySchedule', () => {
+  it('returns a closed day when there are no valid ranges', () => {
+    expect(rangesToDaySchedule([])).toEqual({ availability: { start: '', end: '' }, breaks: [] })
+    expect(rangesToDaySchedule([{ start: '17:00', end: '09:00' }])).toEqual({
+      availability: { start: '', end: '' },
+      breaks: []
+    })
+  })
+
+  it('stores a single window with no breaks', () => {
+    expect(rangesToDaySchedule([{ start: '09:00', end: '17:00' }])).toEqual({
+      availability: { start: '09:00', end: '17:00' },
+      breaks: [],
+    })
+  })
+
+  it('persists the gap between two windows as a break', () => {
+    expect(
+      rangesToDaySchedule([
+        { start: '09:00', end: '12:00' },
+        { start: '13:00', end: '17:00' },
+      ])
+    ).toEqual({
+      availability: { start: '09:00', end: '17:00' },
+      breaks: [{ start: '12:00', end: '13:00' }],
+    })
+  })
+
+  it('merges overlapping or touching windows', () => {
+    expect(
+      rangesToDaySchedule([
+        { start: '09:00', end: '12:00' },
+        { start: '11:30', end: '14:00' },
+        { start: '14:00', end: '17:00' },
+      ])
+    ).toEqual({
+      availability: { start: '09:00', end: '17:00' },
+      breaks: [],
+    })
+  })
+
+  it('caps at five windows', () => {
+    const ranges = [
+      { start: '08:00', end: '09:00' },
+      { start: '10:00', end: '11:00' },
+      { start: '12:00', end: '13:00' },
+      { start: '14:00', end: '15:00' },
+      { start: '16:00', end: '17:00' },
+      { start: '18:00', end: '19:00' },
+    ]
+    const result = rangesToDaySchedule(ranges)
+
+    expect(result.availability).toEqual({ start: '08:00', end: '17:00' })
+    expect(result.breaks).toHaveLength(4)
+    expect(splitScheduleIntoParts({
+      availability: { ...result.availability },
+      breaks: result.breaks.map((brk) => ({ ...brk })),
+    })).toHaveLength(5)
   })
 })
 

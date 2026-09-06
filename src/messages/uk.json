@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "Ваша платформа бронювання назавжди"
+    "tagline": "Ваша платформа бронювання назавжди",
+    "confirm": "Підтвердити",
+    "cancel": "Скасувати",
+    "close": "Закрити"
   },
   "Nav": {
     "mainNavigation": "Основна навігація",
     "mobileNavigation": "Мобільна навігація",
     "openMenu": "Відкрити меню навігації",
     "menu": "Меню",
-    "goBack": "Назад",
     "homeLink": "Головна сторінка Bookie",
     "skipToContent": "Перейти до вмісту",
     "home": "Головна",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "Зберегти та опублікувати"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "Дні та години, які клієнти можуть бронювати. До 5 проміжків на день, якщо є перерви.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "Додати години",
+      "removeRange": "Видалити"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

@@ -5,14 +5,16 @@
   },
   "Common": {
     "appName": "Bookie",
-    "tagline": "Tu plataforma de reservas para siempre"
+    "tagline": "Tu plataforma de reservas para siempre",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "close": "Cerrar"
   },
   "Nav": {
     "mainNavigation": "Navegación principal",
     "mobileNavigation": "Navegación móvil",
     "openMenu": "Abrir el menú de navegación",
     "menu": "Menú",
-    "goBack": "Volver",
     "homeLink": "Inicio de Bookie",
     "skipToContent": "Saltar al contenido",
     "home": "Inicio",
@@ -61,7 +63,7 @@
       "save": "Save Changes",
       "discard": "Discard",
       "saveDraft": "Save draft",
-      "publish": "Publish"
+      "publish": "Guardar y publicar"
     },
     "profile": {
       "personalInfo": "Personal Information",
@@ -136,7 +138,7 @@
     "availability": {
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book.",
+      "recurringBody": "Dias y horarios en los que los clientes pueden reservar. Hasta 5 periodos al dia si haces pausas.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "to": "to",
@@ -149,7 +151,9 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
-      }
+      },
+      "addRange": "Añadir horario",
+      "removeRange": "Quitar"
     },
     "listing": {
       "subtitle": "Control whether your public profile is visible on Explore.",

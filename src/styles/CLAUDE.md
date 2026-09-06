@@ -38,16 +38,24 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
    `var()` fallback and never given a `:root` default, for the reason in trap 2. See
    `src/i18n/CLAUDE.md`.
 8. Body copy is charcoal (`NEUTRAL[900]`, `#121417`); navy (`BRAND[900]`) is the brand
-   accent, not the text colour. The canvas is `colorBgLayout` / `--brand-surface-sunken`
+   accent, not the text colour. Copy *on* navy uses `tone='inverse'` (`text-white`) —
+   never `text-brand-muted` or a `text-white/N` utility fighting the default muted
+   paragraph colour. The canvas is `colorBgLayout` / `--brand-surface-sunken`
    (`#f6f7f8`); white is reserved for `Surface` panels and the sticky header.
 9. `--spacing-header` is `4rem` (the prototype's 64px bar). `h-header` and the
    `PageShell variant='fill'` calc both read it.
-10. **Control height is antd's own unmodified default.** `theme.ts` sets no
-    `controlHeight*`. A `CONTROL` token existed briefly and was removed: every call site
-    had to remember `size='large'` to reach it, individual antd controls (`Segmented`,
-    `Select`, `TimePicker`, …) drifted out of sync, and the app ended up with a mix of
-    40px and 48px controls. Do not reintroduce a height scale without also removing
-    every per-call-site `size='large'`.
+10. **Control height is antd's own unmodified default at the seed-token level.**
+    `theme.ts` sets no global `controlHeight*`. A `CONTROL` token existed briefly and
+    was removed: every call site had to remember `size='large'` to reach it, individual
+    antd controls drifted out of sync, and the app ended up with a mix of 40px and 48px
+    controls. Do not reintroduce a global height scale without also removing every
+    per-call-site `size='large'`.
+    **Select and Button are the component-level exceptions.** Select has no
+    `paddingBlock` / `paddingInline` tokens. Button's `paddingBlock` exists on the
+    type but antd 6 hardcodes vertical padding to 0 and sizes the control with
+    `controlHeight`. Both set `controlHeight` on their own `components.*` block
+    so they match Input's 6 / 12 padding (and therefore its height). Change the
+    shared `FIELD_PADDING_*` constants in `theme.ts`, not a call-site height.
 11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg`
     (8/12) via `borderRadius`/`borderRadiusLG`. antd's own 6/8 reads visibly squarer
     than every prototype screen. Two static values, no scale, no breakpoints; they feed
@@ -83,7 +91,9 @@ default font size would silently desync the two.
    'tailwindcss'` puts utilities in `@layer utilities`; antd's runtime cssinjs `<style>`
    blocks are **unlayered**, and unlayered beats layered. The only durable fix is moving
    the value into an antd token — which is what `Form.itemMarginBottom: 0` does. Current
-   `!`-suffix count is 0; keep it there.
+   `!`-suffix count is 0; keep it there. Our own muted `p`/`li`/`dd` rule is the
+   exception that *does* belong in `@layer base`: unlayered, it beat every
+   `text-white/*` on navy heroes. Do not lift it back out of the layer.
 2. **`--font-sans` collides with Tailwind v4's own default theme variable.** `:root` and
    next/font's generated class have identical specificity, so the winner would depend on
    stylesheet order. The app font is `--font-app`; `globals.css` maps `--font-sans` onto it.
@@ -134,7 +144,7 @@ grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|te
 ## Known leak sites
 
 antd `style={{…}}` / `styles={{ slot }}` props are still design-system values, but a few
-call sites hardcode px there: `BackHistoryBtn.tsx:28`, the byte-identical `Divider`/`Space`
+call sites hardcode px there: the byte-identical `Divider`/`Space`
 pairs in `ProviderProfileFormCategories.tsx:44` and `ProviderProfileFormOrganization.tsx:44`,
 plus two CSS Modules. Prefer a token or a Tailwind class via `classNames`.
 `opengraph-image.tsx` and `icon.tsx` are legitimate exceptions — satori cannot resolve

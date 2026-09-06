@@ -80,9 +80,10 @@ export const SettingsShell: FC<SettingsShellProps> = ({
               <AppLink
                 key={item.href}
                 href={item.href}
-                variant='plain'
+                variant='unstyled'
+                aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded-brand-sm px-3 py-2.5 text-body-sm font-semibold transition-colors',
+                  'flex items-center gap-3 rounded-brand-sm px-3 py-2.5 text-body-sm font-semibold',
                   active
                     ? 'bg-brand-50 text-brand border-s-4 border-brand'
                     : 'text-brand-muted hover:bg-brand-50 border-s-4 border-transparent'

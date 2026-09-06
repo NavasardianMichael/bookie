@@ -9,6 +9,7 @@ import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
 import { guessPhoneCountry } from '@helpers/country'
 import { AppInput } from '@components/ui/AppInput'
 import { PhoneIcon } from '@components/ui/icons'
+import { Country } from './Country'
 import { FieldLabel, FieldRequirement } from './FieldLabel'
 import { useCountries } from './useCountries'
 
@@ -87,10 +88,10 @@ export const PhoneNumberField: FC<Props> = ({
           validateTrigger={['onChange']}
           className='w-30 shrink-0'
         >
-          <Select
+          <Select<CountryCode>
             options={countries}
-            labelRender={(option) => option.label}
-            showSearch={{ optionFilterProp: 'label' }}
+            labelRender={(option) => <Country country={option.value as CountryCode} />}
+            showSearch={{ optionFilterProp: 'searchLabel' }}
             popupMatchSelectWidth={320}
             disabled={disabled}
             aria-label='Country code'

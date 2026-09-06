@@ -40,7 +40,7 @@ export const RegistrationHero: FC = () => (
         Time is your most valuable asset.
       </AppTitle>
 
-      <AppParagraph className='mb-10 text-lg leading-relaxed font-light text-white/80'>
+      <AppParagraph tone='inverse' className='mb-10 text-lg leading-relaxed font-light'>
         Join thousands of people who have simplified their lives by scheduling
         everything&mdash;from haircuts to home repairs&mdash;in one seamless platform.
       </AppParagraph>
@@ -52,7 +52,7 @@ export const RegistrationHero: FC = () => (
             <AppText as='strong' className='block font-semibold text-white'>
               {title}
             </AppText>
-            <AppText size='body-sm' className='text-white/60'>
+            <AppText size='body-sm' tone='inverse'>
               {detail}
             </AppText>
           </li>

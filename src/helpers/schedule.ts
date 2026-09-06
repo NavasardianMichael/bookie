@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import minMax from 'dayjs/plugin/minMax'
 import { DaySchedule, DaySchedulePart, WeekSchedule } from '@store/providers/profile/types'
-import { WEEK_DAYS_LIST } from '@constants/schedule'
+import { MAX_DAY_RANGES, WEEK_DAYS_LIST } from '@constants/schedule'
 
 /**
  * Returns the available parts (availability - breaks).
@@ -69,6 +69,46 @@ export function splitScheduleIntoParts(schedule: DaySchedule): DaySchedulePart[]
   }
 
   return result
+}
+
+const EMPTY_DAY: DaySchedule = { availability: { start: '', end: '' }, breaks: [] }
+
+/**
+ * Inverse of `splitScheduleIntoParts`: bookable windows → one outer availability
+ * plus the gaps as breaks. Overlapping or touching ranges merge. Caps at
+ * `MAX_DAY_RANGES` so a day cannot grow past what the availability UI allows.
+ */
+export const rangesToDaySchedule = (ranges: DaySchedulePart[]): DaySchedule => {
+  const valid = ranges
+    .filter((range) => range.start && range.end && range.start < range.end)
+    .sort((left, right) => left.start.localeCompare(right.start))
+
+  if (!valid.length) return { ...EMPTY_DAY, breaks: [] }
+
+  const merged: DaySchedulePart[] = []
+  valid.forEach((range) => {
+    const last = merged[merged.length - 1]
+    if (!last || range.start > last.end) {
+      merged.push({ ...range })
+      return
+    }
+    if (range.end > last.end) last.end = range.end
+  })
+
+  const capped = merged.slice(0, MAX_DAY_RANGES)
+  const first = capped[0]!
+  const last = capped[capped.length - 1]!
+  const breaks: DaySchedulePart[] = []
+
+  for (let index = 0; index < capped.length - 1; index += 1) {
+    const current = capped[index]!
+    const next = capped[index + 1]!
+    if (current.end < next.start) {
+      breaks.push({ start: current.end, end: next.start })
+    }
+  }
+
+  return { availability: { start: first.start, end: last.end }, breaks }
 }
 
 /**

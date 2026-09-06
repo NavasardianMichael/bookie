@@ -1,9 +1,9 @@
 'use client'
 
-import { MouseEventHandler, useEffect, useState } from 'react'
-import { Alert, CountdownProps, Flex, Input, Typography } from 'antd'
-import type { OTPProps } from 'antd/es/input/OTP'
-import Countdown from 'antd/es/statistic/Countdown'
+import { MouseEventHandler, useEffect, useRef, useState } from 'react'
+import type { StatisticTimerProps } from 'antd'
+import { Alert, Flex, Input, Statistic, Typography } from 'antd'
+import type { OTPProps, OTPRef } from 'antd/es/input/OTP'
 import { useAuthStore } from '@store/auth/store'
 import { PendingSignOn } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
@@ -49,6 +49,7 @@ export const OTPCodeInput: React.FC = () => {
   const [countdownValue, setCountdownValue] = useState<number>(COUNTDOWN_DURATION)
   const [countDownDeadline, setCountDownDeadline] = useState(0)
   const [pending, setPending] = useState<PendingSignOn | null>(null)
+  const otpRef = useRef<OTPRef>(null)
 
   useEffect(() => {
     const stored = readPendingSignOn()
@@ -65,6 +66,13 @@ export const OTPCodeInput: React.FC = () => {
     setCountDownDeadline(Date.now() + COUNTDOWN_DURATION)
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [replace])
+
+  // `autoFocus` is a no-op on first paint: the input is `disabled` until the
+  // pending phone is read from storage. Focus once it is actually enabled.
+  useEffect(() => {
+    if (!pending) return
+    otpRef.current?.focus()
+  }, [pending])
 
   const onOTPCodeChange: OTPProps['onChange'] = async (value) => {
     if (!pending || value.length < OTP_LENGTH) return
@@ -98,6 +106,7 @@ export const OTPCodeInput: React.FC = () => {
       // accepted one.
       setError(processError(err).message)
       setCode('')
+      otpRef.current?.focus()
     }
   }
 
@@ -108,6 +117,7 @@ export const OTPCodeInput: React.FC = () => {
     try {
       await getCodeByPhoneNumber({ phone: pending.phone })
       setCode('')
+      otpRef.current?.focus()
       setCountdownValue(COUNTDOWN_DURATION)
       setShowResendButton(false)
       setCountDownDeadline(Date.now() + COUNTDOWN_DURATION)
@@ -116,7 +126,7 @@ export const OTPCodeInput: React.FC = () => {
     }
   }
 
-  const onCountdownChange: CountdownProps['onChange'] = (value) => {
+  const onCountdownChange: StatisticTimerProps['onChange'] = (value) => {
     setCountdownValue(Number(value ?? 0))
   }
 
@@ -140,12 +150,18 @@ export const OTPCodeInput: React.FC = () => {
           Verification code
         </span>
         <Input.OTP
+          ref={otpRef}
           aria-labelledby={OTP_LABEL_ID}
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           length={OTP_LENGTH}
-          className='w-full'
-          classNames={{ input: 'min-w-0 flex-1 aspect-square' }}
+          classNames={{ input: 'min-w-0' }}
+          styles={{
+            // antd sizes each cell with `htmlSize={1}` + control height, so they
+            // render as tall rectangles. Same rem on both axes makes a square;
+            // `--brand-control-h` is the shared control token (antd LG / 40px).
+            input: { width: 'var(--brand-control-h)', height: 'var(--brand-control-h)' },
+          }}
           inputMode='numeric'
           autoComplete='one-time-code'
           onChange={onOTPCodeChange}
@@ -154,7 +170,8 @@ export const OTPCodeInput: React.FC = () => {
         />
 
         {countdownValue > 0 && (
-          <Countdown
+          <Statistic.Timer
+            type='countdown'
             value={countDownDeadline}
             onFinish={() => setShowResendButton(true)}
             onChange={onCountdownChange}
