@@ -24,8 +24,11 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
 - Check `src/components/CLAUDE.md`'s inventory and `src/helpers/CLAUDE.md` before
   writing anything new — reuse beats creating.
 - Content and structure (headings, text, links, page layout) → `ui/bare/` or
-  `ui/layout/`. Interaction (Button, Input, Form, Modal, Select) → antd. The rule is
+  `ui/layout/`. Interaction (Button, Input, Form, Select) → antd. The rule is
   `"use client"` and crawler-visible HTML, not aesthetics.
+- Dialogs are the exception to that: a yes/no question → `ui/AppConfirmModal`, a panel
+  or a form the user works inside → `ui/AppSheet`. Both take the full `ModalProps`
+  surface, so nothing is lost by going through them.
 - Explicit typed `Props` on every component; explicit types on params and return
   values.
 - **Prefer a named export declared inline** — `export const AppButton = …` over
@@ -47,9 +50,9 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
   gate are in `src/components/CLAUDE.md`.
 - Route every `className` through `cn` (`twMerge(clsx(...))`) — plain concatenation
   can't remove a losing class, only `twMerge` can.
-- Import a wrapper (`AppButton`, `AppInput`, `AppFormItem`, `AppSheet`, `ErrorState`)
-  from its own path, never through `ui/index.ts` — that barrel re-exports `bare` and
-  `layout` only.
+- Import a wrapper (`AppButton`, `AppInput`, `AppTextArea`, `AppFormItem`, `AppSheet`,
+  `AppConfirmModal`, `ErrorState`) from its own path, never through `ui/index.ts` — that
+  barrel re-exports `bare` and `layout` only.
 - A clickable card uses a stretched `<Link>` overlay, not an anchor wrapped around
   interactive children.
 - Keep files small and single-purpose; split rather than append.
@@ -74,6 +77,13 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
   `showSearch={{ optionFilterProp: 'label' }}`.
 - Don't reintroduce Formik on any form field — it fights antd's store and loses the
   submit even when it wins the render.
+- Don't hand-roll an antd `Modal` for a yes/no confirmation — use `ui/AppConfirmModal`.
+  A hand-rolled one loses the danger tone, the awaited `onConfirm` that locks every
+  dismissal route while the request is in flight, the caught rejection that keeps the
+  dialog open, and the translated Confirm/Cancel/Close defaults. Gate:
+  `grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"` → 0.
+- Don't write a call-site `try`/`catch` inside an `AppConfirmModal` `onConfirm` — the
+  modal already catches, reports via `processError`, and stays open on failure.
 - Don't re-export an antd wrapper from `ui/index.ts` — it pulls antd's client
   runtime into every route that imports anything from that barrel.
 - Don't hardcode a hex value or a magic px dimension outside `src/styles/tokens.ts`.

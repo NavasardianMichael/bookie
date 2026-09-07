@@ -37,9 +37,17 @@ after hydration.
 | `ui/EntityCard` | the one card for providers, orgs, categories, services |
 | `ui/EmptyState`, `ui/ContactActions`, `ui/AppAvatar`, `ui/icons` | server-safe |
 
-**Interaction → antd.** Button, Input, Form, Select, Modal, Drawer, Upload, TimePicker,
+**Interaction → antd.** Button, Input, Form, Select, Drawer, Upload, TimePicker,
 Segmented, AutoComplete, Tag, Flex, Divider, Space. It already gives you focus trap,
 scroll lock and a11y; don't rebuild those.
+
+**Dialogs are the exception — never `Modal` directly.** A yes/no question is
+`ui/AppConfirmModal`; a panel or a form the user works inside is `ui/AppSheet`. Both take
+the full `ModalProps` surface, so nothing is lost by going through them, and
+`AppConfirmModal` adds the parts a hand-rolled `Modal` always forgets: a danger tone, an
+awaited `onConfirm` that locks every dismissal route while the request is in flight, a
+caught rejection that keeps the dialog open, and translated Confirm/Cancel/Close defaults.
+Rule and grep gate in `src/components/CLAUDE.md`.
 
 **Read the prop's type before you write it.** antd 6.6.1 marks 199 props across 62
 components `@deprecated`, and TypeScript does not error on a single one — `pnpm typecheck`
@@ -48,8 +56,8 @@ stays green while the prop breaks on the next major. Ctrl+click it, or open
 one object (`showSearch={{ onSearch, filterOption, … }}`, `classNames.popup.root`,
 `styles.body`, `variant`); the full mapping is in `src/components/CLAUDE.md`.
 
-**Thin antd wrappers** (client islands): `ui/AppButton`, `ui/AppInput`, `ui/AppFormItem`,
-`ui/AppSheet`, `ui/ErrorState`.
+**Thin antd wrappers** (client islands): `ui/AppButton`, `ui/AppInput`, `ui/AppTextArea`,
+`ui/AppFormItem`, `ui/AppSheet`, `ui/AppConfirmModal`, `ui/ErrorState`.
 
 Import wrappers from their own path. **`ui/index.ts` re-exports only `bare` and
 `layout`** — re-exporting a wrapper there pulls antd's runtime into any route that
@@ -139,12 +147,16 @@ grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|te
 # deprecated antd props — full mapping in src/components/CLAUDE.md
 grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
 
+# dialogs go through AppConfirmModal / AppSheet — see src/components/CLAUDE.md
+grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"   # 0
+
 pnpm typecheck && pnpm lint && pnpm test
 ```
 
-All seven return 0 today. The `--include` scoping is required — without it each pattern
+All eight return 0 today. The `--include` scoping is required — without it each pattern
 matches the docs that describe it, and the gate can never pass. `BreakpointInvariant`
 should stay silent in the dev console.
 
 The full gate list, with the reasoning behind each, is in `src/styles/CLAUDE.md` — except
-the antd deprecation gate, which is explained in `src/components/CLAUDE.md`.
+the antd deprecation and raw-`Modal` gates, which are explained in
+`src/components/CLAUDE.md`.
