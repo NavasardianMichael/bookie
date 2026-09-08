@@ -50,6 +50,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |
 | Locales, translations, `Accept-Language` | `src/i18n/` — see `src/i18n/CLAUDE.md`; catalogues in `src/messages/` |
 | API, DB schema, routes | `server/` — see `server/CLAUDE.md` and `docs/DATABASE_STRUCTURE.md` |
+| Sending email | `server/src/lib/mail.ts` — the only mail client; see the `mail` skill |
 | Tests | `tests/` — see `tests/CLAUDE.md` |
 | What's still outstanding | `docs/BACKLOG.md` |
 
@@ -70,6 +71,9 @@ convention, check the table first.
   from `src/api/providers/`.
 - **`design-system`** — building pages and UI: component inventory, token flow, grep gates.
 - **`forms`** — the Ant Design `Form` pattern. Formik is being removed; do not add more.
+- **`mail`** — sending email through the external mail engine: the internal-vs-external
+  endpoint split, the request contract, and where the API key may live. Use it before
+  writing any send.
 
 ## Cursor
 

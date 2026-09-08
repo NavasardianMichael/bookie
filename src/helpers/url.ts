@@ -3,9 +3,9 @@ import { SITE_URL_FALLBACK } from '@constants/app'
 /**
  * Trailing slash stripped so `absoluteUrl` never produces a doubled separator.
  *
- * In the browser the tab's origin wins. Otherwise a missing or production
- * `NEXT_PUBLIC_SITE_URL` makes share links point at Vercel while you are on
- * localhost, and the copied URL cannot open the page you are looking at.
+ * In the browser the tab's origin wins. Otherwise a missing or wrong
+ * `NEXT_PUBLIC_SITE_URL` makes share links point at another host while you are
+ * on localhost, and the copied URL cannot open the page you are looking at.
  */
 export const getSiteUrl = (): string => {
   if (typeof window !== 'undefined' && window.location.origin) {

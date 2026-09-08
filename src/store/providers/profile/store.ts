@@ -4,6 +4,7 @@ import { immer } from 'zustand/middleware/immer'
 import {
   deleteProviderServiceAPI,
   getProviderProfileAPI,
+  postProviderServiceAPI,
   putProviderProfileAPI,
   putProviderServiceAPI,
 } from '@api/providers/main'
@@ -79,13 +80,21 @@ export const useProviderProfileStoreBase = create<ProviderProfileState & Provide
             }
           })
         },
+        // Both writes store the API's own answer rather than the payload that was sent.
+        // The response is the only thing that carries the generated id and the stored
+        // `/uploads/...` path — merging the request instead left a fresh service under a
+        // `File` object for its image and a create without its server-side id.
+        postProviderService: async (args) => {
+          const service = await postProviderServiceAPI(args)
+          set((state) => {
+            state.services.byId[service.id] = service
+            if (!state.services.allIds.includes(service.id)) state.services.allIds.push(service.id)
+          })
+        },
         putProviderService: async (args) => {
           const service = await putProviderServiceAPI(args)
           set((state) => {
-            const serviceId = service.id
-            const currentServiceState = state.services.byId[serviceId!] ?? {}
-            state.services.byId[serviceId] = { ...currentServiceState, ...args.service }
-            if (!state.services.allIds.includes(serviceId)) state.services.allIds.push(serviceId)
+            state.services.byId[service.id] = service
           })
         },
       })

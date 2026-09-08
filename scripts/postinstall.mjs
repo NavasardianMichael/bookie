@@ -11,13 +11,18 @@ import { fileURLToPath } from 'node:url'
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
+// Windows needs a shell to resolve `pnpm.cmd` — Node refuses to spawn a `.cmd` without
+// one. But Node 24 raises DEP0190 when an args array is combined with `shell: true`,
+// because the args are then concatenated rather than escaped. Every argument passed
+// below is a static literal, so pre-joining the command is equivalent and stays quiet.
+const useShell = process.platform === 'win32'
+
 function run(label, command, args, { allowFailure = false } = {}) {
   console.log(`\n[postinstall] ${label}...`)
-  const result = spawnSync(command, args, {
-    cwd: rootDir,
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  })
+  const options = { cwd: rootDir, stdio: 'inherit' }
+  const result = useShell
+    ? spawnSync([command, ...args].join(' '), { ...options, shell: true })
+    : spawnSync(command, args, options)
 
   if (result.status !== 0 && !allowFailure) {
     process.exit(result.status ?? 1)
@@ -49,8 +54,12 @@ if (!migrated) {
   process.exit(0)
 }
 
-run('Seeding database', 'pnpm', ['--filter', 'bookie-server', 'run', 'db:seed'], {
+const seeded = run('Seeding database', 'pnpm', ['--filter', 'bookie-server', 'run', 'db:seed'], {
   allowFailure: true,
 })
 
-console.log('\n[postinstall] Database setup complete.')
+console.log(
+  seeded
+    ? '\n[postinstall] Database setup complete.'
+    : '\n[postinstall] Migrations applied but seeding failed — run `pnpm db:seed` for the error.'
+)

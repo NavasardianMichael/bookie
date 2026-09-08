@@ -6,6 +6,7 @@ import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { useRouter } from '@i18n/navigation'
+import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
 import { AppButton } from '@components/ui/AppButton'
@@ -129,6 +130,7 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
             onChange={formik.handleChange}
             disabled={formik.isSubmitting}
             autoSize={{ minRows: 3, maxRows: 5 }}
+            maxLength={MAX_CHARS_FOR_TEXTAREA}
           />
         </AppFormItem>
 

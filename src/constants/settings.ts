@@ -26,12 +26,10 @@ export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
 
 export const PROVIDER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[] = [
   { route: ROUTE_KEYS.providerProfile, match: 'exact' },
-  { route: ROUTE_KEYS.providerProfilePhone },
   { route: ROUTE_KEYS.providerProfileAvailability },
   { route: ROUTE_KEYS.providerServices },
   { route: ROUTE_KEYS.providerProfileNotifications },
   { route: ROUTE_KEYS.providerProfilePayments },
-  { route: ROUTE_KEYS.providerProfileListing },
 ]
 
 export const toSettingsNavItems = (

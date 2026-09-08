@@ -12,8 +12,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 |---|---|---|
 | Bookable slots for a date / range | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
-| Calendar's visible hour window | `getVisibleTimeRange` | `booking.ts` |
-| Group slots morning/afternoon/evening | `groupSlotsByPartOfDay` | `booking.ts` |
+| Calendar's visible hour window | `getVisibleTimeRange` | `booking.ts` — **no call site**, see below |
+| Group slots morning/afternoon/evening | `groupSlotsByPartOfDay` | `booking.ts` — **no call site**, see below |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
 | Bookable windows → availability + breaks | `rangesToDaySchedule` | `schedule.ts` |
@@ -25,6 +25,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Canonical URL of an entity's page | `generateEntityUrl` | `entities.ts` |
 | Root-relative path of an entity's page (for `push`/`Link`) | `generateEntityPath` | `entities.ts` |
 | Country + national number → `{ code, number }` | `toPhoneNumber` | `registration.ts` |
+| `{ code, number }` / `+…` → country Select values | `toPhoneFormValues` | `registration.ts` |
 | Organization combobox value → API fields | `toOrganizationFields` | `registration.ts` |
 | Blank optional string → `undefined` | `toOptionalText` | `registration.ts` |
 | Read/write the in-flight registration | `readPendingSignOn`, `writePendingSignOn`, `clearPendingSignOn` | `localStorage.ts` |
@@ -35,6 +36,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Escape JSON-LD for a `<script>` | `serializeJsonLd` | `jsonLd.ts` |
 | Google Maps link from an address | `generateGoogleMapsLink` | `location.ts` |
 | Render a `{ code, number }` phone | `generateFriendlyPhoneNumber` | `phone.ts` |
+| Accepted payment methods off a `paymentInfo` column | `toPaymentMethods` | `payment.ts` |
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
@@ -58,6 +60,13 @@ Everything here is pure and framework-free unless the last column says otherwise
   on the host you are actually on.
 - `errorMiddleware` (`store.ts`) is auth-only and does **not** catch rejections thrown
   inside async store actions.
+- **`payment.ts` is the only sanctioned reader of a `paymentInfo` column.** That column is
+  opaque `Json?`, so three shapes reach the client: the current `{ methods: [...] }`, the
+  pre-migration `{ method }` that a stale `Provider.draft` overlay can still carry, and
+  `null`. `toPaymentMethods` normalises all three and drops values outside the enum, which
+  matters because the labels are looked up as `t()` keys — an unknown value would throw
+  rather than degrade. `server/src/lib/payment.ts` is its deliberate twin; `server/` is a
+  separate package with no import path into `src/`.
 
 ## Impure — treat differently
 
@@ -73,6 +82,14 @@ Everything here is pure and framework-free unless the last column says otherwise
 - **`src/constants/api.ts` is a byte-identical duplicate of `api.ts#paramsToQueryString`.**
   Neither is imported anywhere. Delete both rather than picking one.
 - `urlSearchParams.ts` — both functions unreferenced, returns untyped.
+- **`booking.ts#getVisibleTimeRange` and `booking.ts#groupSlotsByPartOfDay` have no call
+  site.** Both existed for the FullCalendar booking view the public profile used to run:
+  the first fed `slotMinTime`/`slotMaxTime`, the second sectioned the slot sheet. The
+  `public_provider_profile` rebuild has a plain month grid and a flat grid of times, so
+  neither is reachable. They stay because they are pure and specced
+  (`tests/unit/helpers/booking.spec.ts`) and the unbuilt `provider_calendar_dashboard`
+  wants `getVisibleTimeRange` back — but nothing depends on them today. See
+  `docs/BACKLOG.md`.
 
 ## Nearby, easily missed
 

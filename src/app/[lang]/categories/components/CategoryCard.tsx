@@ -22,7 +22,7 @@ export const CategoryCard: FC<Props> = ({ data, headingLevel }) => {
       href={`${ROUTES.categories}/${data.id}`}
       title={data.name}
       headingLevel={headingLevel}
-      aspect='16/9'
+      aspect={false}
       footer={counts || 'Nothing listed yet'}
     />
   )

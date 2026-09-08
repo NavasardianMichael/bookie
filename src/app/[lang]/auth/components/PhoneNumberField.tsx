@@ -22,6 +22,8 @@ type Props = {
   /** The prototypes label this differently per role. */
   label: string
   requirement?: FieldRequirement
+  /** Localised badge text; `requirement` still decides the tone. See `FieldLabel`. */
+  requirementText?: string
   placeholder?: string
   disabled?: boolean
   /** The provider prototype labels fields in navy semibold rather than charcoal bold. */
@@ -41,6 +43,7 @@ const NUMBER_INPUT_ID = 'phone-number'
 export const PhoneNumberField: FC<Props> = ({
   label,
   requirement,
+  requirementText,
   placeholder = '+1 (555) 000-0000',
   disabled,
   labelClassName,
@@ -76,7 +79,12 @@ export const PhoneNumberField: FC<Props> = ({
 
   return (
     <div className='flex flex-col gap-1.5'>
-      <FieldLabel htmlFor={NUMBER_INPUT_ID} requirement={requirement} className={labelClassName}>
+      <FieldLabel
+        htmlFor={NUMBER_INPUT_ID}
+        requirement={requirement}
+        requirementText={requirementText}
+        className={labelClassName}
+      >
         {label}
       </FieldLabel>
 

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { PaymentInfo } from '@interfaces/settings'
 import { processError } from '@helpers/error'
+import { toPaymentMethods } from '@helpers/payment'
 import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
@@ -17,7 +18,7 @@ import { Surface } from '@components/ui/layout/Surface'
 
 type FormValues = { paymentInfo: PaymentInfo }
 
-const DEFAULT: PaymentInfo = { method: 'cash', reference: '', notes: '' }
+const DEFAULT: PaymentInfo = { methods: ['cash'], reference: '', notes: '' }
 
 export const ConsumerPaymentsClient = () => {
   const t = useTranslations('Settings')
@@ -31,7 +32,10 @@ export const ConsumerPaymentsClient = () => {
   useEffect(() => {
     void getConsumerProfileAPI()
       .then((profile) => {
-        const info = profile.details.paymentInfo ?? DEFAULT
+        // Normalised, not read straight off the column: a row written before the
+        // `method` -> `methods` reshape would leave the multi-select empty.
+        const stored = profile.details.paymentInfo
+        const info: PaymentInfo = stored ? { ...stored, methods: toPaymentMethods(stored) } : DEFAULT
         setSaved(info)
         form.setFieldsValue({ paymentInfo: info })
       })

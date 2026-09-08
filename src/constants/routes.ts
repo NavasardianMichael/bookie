@@ -15,11 +15,9 @@ export const ROUTE_KEYS = {
   providerProfileCreation: 'providerProfileCreation',
   providerServices: 'providerServices',
   providerProfile: 'providerProfile',
-  providerProfilePhone: 'providerProfilePhone',
   providerProfileAvailability: 'providerProfileAvailability',
   providerProfileNotifications: 'providerProfileNotifications',
   providerProfilePayments: 'providerProfilePayments',
-  providerProfileListing: 'providerProfileListing',
 
   logout: 'logout',
   auth: 'auth',
@@ -51,11 +49,9 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfileCreation]: '/providers/profile-creation',
   [ROUTE_KEYS.providerServices]: '/providers/profile-services',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
-  [ROUTE_KEYS.providerProfilePhone]: '/providers/profile/phone',
   [ROUTE_KEYS.providerProfileAvailability]: '/providers/profile/availability',
   [ROUTE_KEYS.providerProfileNotifications]: '/providers/profile/notifications',
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
-  [ROUTE_KEYS.providerProfileListing]: '/providers/profile/listing',
 
   // Auth
   [ROUTE_KEYS.logout]: '/auth/logout',

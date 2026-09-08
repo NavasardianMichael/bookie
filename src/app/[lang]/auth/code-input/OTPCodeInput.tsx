@@ -8,9 +8,8 @@ import { useAuthStore } from '@store/auth/store'
 import { PendingSignOn } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
-import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
-import { generateEntityPath } from '@helpers/entities'
 import { processError } from '@helpers/error'
 import { clearPendingSignOn, readPendingSignOn } from '@helpers/localStorage'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
@@ -33,9 +32,9 @@ const OTP_LABEL_ID = 'otp-code-label'
  * There is no `<Form>` here on purpose — a single auto-submitting input has no form state
  * worth owning, so the error is rendered directly instead of through rules that cannot fire.
  *
- * Where it goes next comes from the login response: `role` picks consumer versus provider
- * onboarding, and `isNewUser` keeps a returning sign-in away from the "profile created"
- * screen.
+ * Where it goes next comes from the login response: `isNewUser` keeps a returning sign-in
+ * away from the "profile created" screen (providers land on account settings, consumers
+ * on the homepage); a new account still goes through `/auth/profile-created`.
  */
 export const OTPCodeInput: React.FC = () => {
   const { replace } = useRouter()
@@ -92,11 +91,7 @@ export const OTPCodeInput: React.FC = () => {
 
       // A returning user already has an account, so the success screen would be a lie.
       if (!result.isNewUser) {
-        replace(
-          result.role === USER_TYPES.provider
-            ? generateEntityPath(ROUTE_KEYS.providers, result.profileId)
-            : ROUTES.providers
-        )
+        replace(result.role === USER_TYPES.provider ? ROUTES.providerProfile : ROUTES.home)
         return
       }
 

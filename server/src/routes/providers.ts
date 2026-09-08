@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client'
+import type { Request } from 'express'
 import { Router } from 'express'
 import multer from 'multer'
 import path from 'node:path'
@@ -10,10 +12,12 @@ import {
   mapService,
   mapSingleProvider,
   providerInclude,
+  providerListInclude,
 } from '../mappers/entities.js'
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderAvailability } from '../services/appointments.js'
+import { parseProvidersListQuery, resolvePageWindow } from '../services/providerSearch.js'
 
 const upload = multer({ dest: config.uploadDir })
 
@@ -35,18 +39,37 @@ type ProviderDraft = {
 
 export const providersRouter = Router()
 
+/**
+ * The Explore list: searched, filtered, sorted and paged, always `listed: true`.
+ *
+ * `count` runs before `findMany` because the page number has to be clamped against the
+ * real total before it can become a `skip` — otherwise `?page=99` answers with an empty
+ * grid and a "1 of 4" pager. The two queries are sequential for that reason and not by
+ * oversight.
+ */
 providersRouter.get(
   '/',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
+    const { where, orderBy, page: requestedPage, perPage } = parseProvidersListQuery(req.query)
+
+    const total = await prisma.provider.count({ where })
+    const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
+
     const providers = await prisma.provider.findMany({
-      where: { listed: true },
-      include: providerInclude,
-      orderBy: { lastName: 'asc' },
+      where,
+      include: providerListInclude,
+      orderBy,
+      skip,
+      take: perPage,
     })
-    return ok(
-      res,
-      providers.map((p) => mapBasicProvider(p))
-    )
+
+    return ok(res, {
+      items: providers.map((p) => mapBasicProvider(p)),
+      total,
+      page,
+      perPage,
+      pageCount,
+    })
   })
 )
 
@@ -292,32 +315,186 @@ providerProfileRouter.put(
   })
 )
 
+/**
+ * Permanently removes the caller's public page. Appointments are a required FK
+ * with no `onDelete`, so a page with booking history is a 409 — same as services.
+ * The User row is kept when a Consumer profile still points at it.
+ */
+providerProfileRouter.delete(
+  '/',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const providerId = req.session!.profileId
+    const userId = req.session!.userId
+
+    const booked = await prisma.appointment.count({ where: { providerId } })
+    if (booked) {
+      throw new HttpError(409, 'This page has appointments booked and cannot be deleted', 409)
+    }
+
+    const consumer = await prisma.consumer.findUnique({ where: { userId }, select: { id: true } })
+
+    await prisma.$transaction(async (tx) => {
+      await tx.provider.delete({ where: { id: providerId } })
+      if (!consumer) {
+        await tx.user.delete({ where: { id: userId } })
+      }
+    })
+
+    return ok(res, true)
+  })
+)
+
+/* ------------------------------------------------------------------ *
+ * Services — a provider's own catalogue.
+ *
+ * The `:providerId` segment is redundant with the session, but it is the documented
+ * route shape (docs/DATABASE_STRUCTURE.md), so it is verified rather than trusted.
+ * ------------------------------------------------------------------ */
+
+/** The path id must be the caller's own; a mismatch is a client bug or an attempt. */
+function assertOwnProvider(req: Request): string {
+  const providerId = req.params.providerId
+  if (!providerId) throw new HttpError(400, 'Provider id is required')
+  if (req.session!.profileId !== providerId) {
+    throw new HttpError(403, 'Cannot modify another provider', 403)
+  }
+  return providerId
+}
+
+const hasField = (body: Record<string, unknown>, key: string): boolean =>
+  Object.prototype.hasOwnProperty.call(body, key)
+
+/**
+ * A service body arrives as JSON, or — when the form carries a cropped image — as
+ * multipart text fields, where every value is a string. So both readers coerce, and
+ * both distinguish three states: absent (`undefined`, leave the column alone),
+ * cleared (`null`), and set.
+ */
+function readText(body: Record<string, unknown>, key: string): string | null | undefined {
+  if (!hasField(body, key)) return undefined
+  const raw = body[key]
+  if (raw === null) return null
+  const trimmed = String(raw).trim()
+  return trimmed.length ? trimmed : null
+}
+
+function readNumber(body: Record<string, unknown>, key: string): number | null | undefined {
+  if (!hasField(body, key)) return undefined
+  const raw = body[key]
+  if (raw === null || raw === '') return null
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed)) throw new HttpError(400, `${key} must be a number`)
+  return parsed
+}
+
+const uploadedImageUrl = (req: Request): string | undefined =>
+  req.file ? `/uploads/${path.basename(req.file.path)}` : undefined
+
+function assertDuration(duration: number): void {
+  if (!Number.isInteger(duration) || duration <= 0) {
+    throw new HttpError(400, 'Duration must be a positive whole number of minutes')
+  }
+}
+
+function assertPrice(price: number | null | undefined): void {
+  if (price !== undefined && price !== null && price < 0) {
+    throw new HttpError(400, 'Price must be a positive number')
+  }
+}
+
+const CATEGORY_NAME_MAX = 40
+
+/**
+ * Resolves the service form's Category field, which is a combobox: an id means an
+ * existing (usually predefined) category was picked, a bare name means the provider
+ * typed one that may not exist yet. Matching is case-insensitive so "Hair" and "hair"
+ * do not become two Category rows. New names become Category rows so `Service.categoryId`
+ * stays a required FK — they are not auto-linked onto the provider or organization.
+ */
+async function resolveServiceCategoryId(
+  body: Record<string, unknown>,
+  required: boolean
+): Promise<string | undefined> {
+  const categoryId = readText(body, 'categoryId')
+  if (categoryId) {
+    const existing = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { id: true },
+    })
+    if (existing) return existing.id
+  }
+
+  const categoryName = readText(body, 'categoryName')
+  if (!categoryName) {
+    if (required) throw new HttpError(400, 'Service category is required')
+    return undefined
+  }
+  if (categoryName.length > CATEGORY_NAME_MAX) {
+    throw new HttpError(400, `Category name must be at most ${CATEGORY_NAME_MAX} characters`)
+  }
+
+  const matched = await prisma.category.findFirst({
+    where: { name: { equals: categoryName, mode: 'insensitive' } },
+    select: { id: true },
+  })
+  if (matched) return matched.id
+
+  try {
+    const created = await prisma.category.create({ data: { name: categoryName } })
+    return created.id
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const raced = await prisma.category.findFirst({
+        where: { name: { equals: categoryName, mode: 'insensitive' } },
+        select: { id: true },
+      })
+      if (raced) return raced.id
+    }
+    throw error
+  }
+}
+
+/** Scoped by `providerId` so one provider can never address another's service. */
+async function findOwnService(providerId: string, serviceId: string | undefined): Promise<string> {
+  if (!serviceId) throw new HttpError(400, 'Service id is required')
+  const service = await prisma.service.findFirst({
+    where: { id: serviceId, providerId },
+    select: { id: true },
+  })
+  if (!service) throw new HttpError(404, 'Service not found', 404)
+  return service.id
+}
+
 providersRouter.post(
   '/:providerId/services',
   requireProvider,
   upload.single('image'),
   asyncHandler(async (req, res) => {
-    if (req.session!.profileId !== req.params.providerId) {
-      throw new HttpError(403, 'Cannot modify another provider', 403)
-    }
+    const providerId = assertOwnProvider(req)
+    const body = req.body as Record<string, unknown>
 
-    const body = req.body as Record<string, string>
-    const file = req.file
-    const servicePayload = body.service ? JSON.parse(body.service) : body
+    const name = readText(body, 'name')
+    const categoryId = await resolveServiceCategoryId(body, true)
+    const duration = readNumber(body, 'duration')
+    const price = readNumber(body, 'price')
+
+    if (!name) throw new HttpError(400, 'Service name is required')
+    if (!categoryId) throw new HttpError(400, 'Service category is required')
+    if (duration === undefined || duration === null) throw new HttpError(400, 'Service duration is required')
+    assertDuration(duration)
+    assertPrice(price)
 
     const service = await prisma.service.create({
       data: {
-        providerId: req.params.providerId!,
-        name: servicePayload.name ?? servicePayload.Name,
-        durationMinutes: Number(servicePayload.duration ?? servicePayload.Duration ?? 30),
-        categoryId: servicePayload.categoryId ?? servicePayload.CategoryId,
-        description: servicePayload.description ?? servicePayload.Description,
-        price:
-          servicePayload.price ?? servicePayload.Price
-            ? Number(servicePayload.price ?? servicePayload.Price)
-            : undefined,
-        currency: servicePayload.currency ?? servicePayload.Currency,
-        imageUrl: file ? `/uploads/${path.basename(file.path)}` : undefined,
+        providerId,
+        name,
+        categoryId,
+        durationMinutes: duration,
+        description: readText(body, 'description') ?? null,
+        price: price ?? null,
+        currency: readText(body, 'currency') ?? null,
+        imageUrl: uploadedImageUrl(req) ?? null,
       },
     })
 
@@ -330,27 +507,40 @@ providersRouter.put(
   requireProvider,
   upload.single('image'),
   asyncHandler(async (req, res) => {
-    if (req.session!.profileId !== req.params.providerId) {
-      throw new HttpError(403, 'Cannot modify another provider', 403)
+    const providerId = assertOwnProvider(req)
+    const serviceId = await findOwnService(providerId, req.params.serviceId)
+    const body = req.body as Record<string, unknown>
+
+    const name = readText(body, 'name')
+    if (hasField(body, 'name') && !name) throw new HttpError(400, 'Service name is required')
+
+    const categoryTouched = hasField(body, 'categoryId') || hasField(body, 'categoryName')
+    const categoryId = categoryTouched ? await resolveServiceCategoryId(body, true) : undefined
+
+    const duration = readNumber(body, 'duration')
+    if (duration !== undefined) {
+      if (duration === null) throw new HttpError(400, 'Service duration is required')
+      assertDuration(duration)
     }
 
-    const body = req.body as Record<string, string>
-    const file = req.file
-    const servicePayload = body.service ? JSON.parse(body.service) : body
+    const price = readNumber(body, 'price')
+    assertPrice(price)
 
+    const imageUrl = uploadedImageUrl(req)
+
+    // Each column is written only when the payload carried its field. `durationMinutes`
+    // used to fall back to `Number(undefined ?? 30)`, so saving a service without
+    // re-entering its duration silently shortened it to 30 minutes.
     const service = await prisma.service.update({
-      where: { id: req.params.serviceId },
+      where: { id: serviceId },
       data: {
-        name: servicePayload.name ?? servicePayload.Name,
-        durationMinutes: Number(servicePayload.duration ?? servicePayload.Duration ?? 30),
-        categoryId: servicePayload.categoryId ?? servicePayload.CategoryId,
-        description: servicePayload.description ?? servicePayload.Description,
-        price:
-          servicePayload.price ?? servicePayload.Price
-            ? Number(servicePayload.price ?? servicePayload.Price)
-            : undefined,
-        currency: servicePayload.currency ?? servicePayload.Currency,
-        imageUrl: file ? `/uploads/${path.basename(file.path)}` : undefined,
+        ...(name ? { name } : {}),
+        ...(categoryId ? { categoryId } : {}),
+        ...(duration !== undefined && duration !== null ? { durationMinutes: duration } : {}),
+        ...(hasField(body, 'description') ? { description: readText(body, 'description') } : {}),
+        ...(price !== undefined ? { price } : {}),
+        ...(hasField(body, 'currency') ? { currency: readText(body, 'currency') } : {}),
+        ...(imageUrl ? { imageUrl } : {}),
       },
     })
 
@@ -362,11 +552,18 @@ providersRouter.delete(
   '/:providerId/services/:serviceId',
   requireProvider,
   asyncHandler(async (req, res) => {
-    if (req.session!.profileId !== req.params.providerId) {
-      throw new HttpError(403, 'Cannot modify another provider', 403)
+    const providerId = assertOwnProvider(req)
+    const serviceId = await findOwnService(providerId, req.params.serviceId)
+
+    // `Appointment.serviceId` is a required FK with no `onDelete`, so Postgres would
+    // reject this with a P2003 the error handler renders as a bare 500. Answer the
+    // real question instead: the service has history and cannot be removed.
+    const booked = await prisma.appointment.count({ where: { serviceId } })
+    if (booked) {
+      throw new HttpError(409, 'This service has appointments booked and cannot be deleted', 409)
     }
 
-    await prisma.service.delete({ where: { id: req.params.serviceId } })
+    await prisma.service.delete({ where: { id: serviceId } })
     return ok(res, true)
   })
 )

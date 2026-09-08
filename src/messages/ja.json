@@ -8,7 +8,8 @@
     "tagline": "ずっと使える予約プラットフォーム",
     "confirm": "確認",
     "cancel": "キャンセル",
-    "close": "閉じる"
+    "close": "閉じる",
+    "today": "今日"
   },
   "Nav": {
     "mainNavigation": "メインナビゲーション",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "予約の確認",
+    "summary": {
+      "heading": "予約内容",
+      "provider": "提供者",
+      "service": "サービス",
+      "date": "日付",
+      "time": "時間",
+      "duration": "所要時間",
+      "durationValue": "{minutes}分",
+      "price": "料金",
+      "location": "場所",
+      "accepts": "利用可能な支払い方法"
+    },
+    "guest": {
+      "heading": "お客様の情報",
+      "hint": "予約の確定に必要です。アカウントは不要です。",
+      "firstName": "名",
+      "lastName": "姓",
+      "phone": "電話番号",
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "希望する支払い方法",
+    "paymentPlaceholder": "1つ以上選択してください",
+    "notesLabel": "提供者への連絡事項",
+    "notesPlaceholder": "予約前に伝えておきたいこと",
+    "submit": "予約を確定する",
+    "requiredBadge": "必須",
+    "optionalBadge": "任意"
+  },
   "Footer": {
     "blurb": "近くのサービスを見つけるのも、予約カレンダーを管理するのも、これひとつで。",
     "rights": "© {year} Bookie. All rights reserved.",
@@ -39,6 +71,31 @@
     "createAccount": "アカウントを作成",
     "company": "会社情報",
     "contact": "お問い合わせ"
+  },
+  "Contact": {
+    "metaTitle": "お問い合わせ",
+    "metaDescription": "予約、アカウント、提供者ページについて Bookie チームにメッセージを送信します。",
+    "title": "お問い合わせ",
+    "subtitle": "Bookie チームにご連絡ください。通常、1 営業日以内に返信します。",
+    "fields": {
+      "firstName": "名",
+      "lastName": "姓",
+      "email": "返信先メールアドレス",
+      "message": "メッセージ",
+      "messagePlaceholder": "お困りの内容をお知らせください。"
+    },
+    "validation": {
+      "messageRequired": "メッセージを入力してください",
+      "messageTooLong": "文字数の上限は {max} 文字です"
+    },
+    "actions": {
+      "send": "メッセージを送信"
+    },
+    "success": {
+      "title": "メッセージを送信しました",
+      "body": "お問い合わせありがとうございます。メールアドレスをご記入いただいた場合は、そちらへ返信します。",
+      "sendAnother": "別のメッセージを送信"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "{email} に確認リンクを送信しました。リンクを開いてこのアドレスを確認してください。開発環境ではリンクが API サーバーのコンソールに出力されます。",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "電話番号",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "対応可能な支払い方法",
+      "methodsPlaceholder": "対応する支払い方法を選択してください",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "現金",
+        "card_on_site": "現地でのカード払い",
+        "bank_transfer": "銀行振込",
+        "other": "その他"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "削除"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

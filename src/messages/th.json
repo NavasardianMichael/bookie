@@ -8,7 +8,8 @@
     "tagline": "แพลตฟอร์มจองของคุณตลอดไป",
     "confirm": "ยืนยัน",
     "cancel": "ยกเลิก",
-    "close": "ปิด"
+    "close": "ปิด",
+    "today": "วันนี้"
   },
   "Nav": {
     "mainNavigation": "การนำทางหลัก",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "ยืนยันการจอง",
+    "summary": {
+      "heading": "รายละเอียดการจอง",
+      "provider": "ผู้ให้บริการ",
+      "service": "บริการ",
+      "date": "วันที่",
+      "time": "เวลา",
+      "duration": "ระยะเวลา",
+      "durationValue": "{minutes} นาที",
+      "price": "ราคา",
+      "location": "สถานที่",
+      "accepts": "วิธีชำระเงินที่รับ"
+    },
+    "guest": {
+      "heading": "ข้อมูลของคุณ",
+      "hint": "เราต้องใช้ข้อมูลนี้เพื่อยืนยันการจองของคุณ ไม่ต้องสมัครบัญชี",
+      "firstName": "ชื่อ",
+      "lastName": "นามสกุล",
+      "phone": "หมายเลขโทรศัพท์",
+      "email": "อีเมล",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "วิธีที่คุณต้องการชำระเงิน",
+    "paymentPlaceholder": "เลือกหนึ่งวิธีหรือมากกว่า",
+    "notesLabel": "หมายเหตุถึงผู้ให้บริการ",
+    "notesPlaceholder": "สิ่งที่ควรทราบก่อนการนัดหมายของคุณ",
+    "submit": "ยืนยันการจอง",
+    "requiredBadge": "จำเป็น",
+    "optionalBadge": "ไม่บังคับ"
+  },
   "Footer": {
     "blurb": "แพลตฟอร์มเดียวสำหรับค้นหาบริการใกล้ตัว หรือจัดการปฏิทินการจองของคุณ",
     "rights": "© {year} Bookie สงวนลิขสิทธิ์",
@@ -39,6 +71,31 @@
     "createAccount": "สร้างบัญชี",
     "company": "บริษัท",
     "contact": "ติดต่อเรา"
+  },
+  "Contact": {
+    "metaTitle": "ติดต่อเรา",
+    "metaDescription": "ส่งข้อความถึงทีม Bookie เกี่ยวกับการจอง บัญชีของคุณ หรือหน้าผู้ให้บริการ",
+    "title": "ติดต่อเรา",
+    "subtitle": "ติดต่อทีม Bookie เรามักตอบกลับภายในหนึ่งวันทำการ",
+    "fields": {
+      "firstName": "ชื่อ",
+      "lastName": "นามสกุล",
+      "email": "อีเมลสำหรับติดต่อกลับ",
+      "message": "ข้อความ",
+      "messagePlaceholder": "บอกเราว่าคุณต้องการความช่วยเหลือเรื่องอะไร"
+    },
+    "validation": {
+      "messageRequired": "กรุณาเขียนข้อความ",
+      "messageTooLong": "จำนวนอักขระสูงสุดคือ {max}"
+    },
+    "actions": {
+      "send": "ส่งข้อความ"
+    },
+    "success": {
+      "title": "ส่งข้อความแล้ว",
+      "body": "ขอบคุณที่ติดต่อเรา หากคุณกรอกอีเมลไว้ เราจะตอบกลับทางอีเมลนั้น",
+      "sendAnother": "ส่งข้อความอีกครั้ง"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "เราได้ส่งลิงก์ยืนยันไปที่ {email} เปิดลิงก์เพื่อยืนยันที่อยู่นี้ ในโหมดพัฒนา ลิงก์จะแสดงในคอนโซลของเซิร์ฟเวอร์ API",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "หมายเลขโทรศัพท์",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "วิธีชำระเงินที่รับ",
+      "methodsPlaceholder": "เลือกวิธีชำระเงินที่คุณรับ",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "เงินสด",
+        "card_on_site": "บัตรที่หน้าร้าน",
+        "bank_transfer": "โอนเงินผ่านธนาคาร",
+        "other": "อื่น ๆ"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "ลบ"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

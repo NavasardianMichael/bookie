@@ -118,6 +118,20 @@ default font size would silently desync the two.
    outright count too: `flex-shrink-*`/`flex-grow-*` are `shrink-*`/`grow-*`, and
    `*-opacity-N` is the `/N` opacity modifier. `AppDescriptionList.tsx:46` was the last
    holdout; the gate below keeps it at zero.
+9. **A component's tokens are not always the ones its markup reads, and our navy makes
+   that visible.** `Dropdown` renders `ant-dropdown-menu-item` and styles it in
+   `dropdown/style/index.js` off the **global** `controlItemBg*` aliases — it never
+   consults `Menu`'s `itemSelectedBg` / `itemHoverBg`, so a `components.Menu` block
+   aimed at a dropdown is dead config that typechecks. Trap 4 is why it matters here:
+   antd derives `controlItemBgActive` from `colorPrimary`, and `BRAND[900]` is dark and
+   desaturated enough that the derivation lands on mid-grey (`#868a8f`) rather than a
+   pale tint — so a selected dropdown item read as a *disabled* row. `components.Dropdown`
+   now pins the three aliases to the brand ramp.
+
+   The same rule hardcodes the selected item's colour to `colorPrimary` with no token
+   behind it, which is why that fill is `BRAND[100]` and not `BRAND[900]`: a navy fill
+   would paint navy text on navy. **Read the component's own `style/index.js` before
+   picking a token** — the type accepts every alias, so nothing warns you.
 
 ## Grep gates
 

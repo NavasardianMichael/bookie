@@ -71,10 +71,15 @@ const FEATURES = [
 ] as const
 
 export default async function Home() {
-  const [categories, providers] = await Promise.all([getCategoriesListAPI(), getProvidersListAPI()])
+  const [categories, providers] = await Promise.all([
+    getCategoriesListAPI(),
+    // The landing page shows a fixed handful, so it asks for exactly that many rather
+    // than paging the whole directory down to `HOME_PROVIDER_LIMIT` on the client.
+    getProvidersListAPI({ perPage: HOME_PROVIDER_LIMIT }),
+  ])
 
   const categoryIds = categories.allIds.slice(0, HOME_CATEGORY_LIMIT)
-  const providerIds = providers.allIds.slice(0, HOME_PROVIDER_LIMIT)
+  const providerIds = providers.list.allIds
 
   return (
     <div className='flex flex-col'>
@@ -186,7 +191,7 @@ export default async function Home() {
           <Section
             title='Top service providers'
             actions={
-              providers.allIds.length > HOME_PROVIDER_LIMIT ? (
+              providers.pagination.total > HOME_PROVIDER_LIMIT ? (
                 <AppLink href={ROUTES.providers} variant='plain' className='text-body-sm font-bold text-brand'>
                   View all
                 </AppLink>
@@ -197,7 +202,7 @@ export default async function Home() {
               <ResponsiveGrid as='ul'>
                 {providerIds.map((providerId) => (
                   <li key={providerId}>
-                    <ProviderCard data={providers.byId[providerId!]} />
+                    <ProviderCard data={providers.list.byId[providerId!]} />
                   </li>
                 ))}
               </ResponsiveGrid>

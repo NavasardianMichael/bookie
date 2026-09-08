@@ -12,7 +12,7 @@ modules `"use client"`, so an antd component's text only reaches the DOM after h
 |---|---|
 | **Content** — headings, body copy, links, times, description lists, JSON-LD | **Interaction** — Button, Input, Select, Form, Modal, Drawer, Upload, TimePicker, Segmented |
 | It renders in a Server Component (`page.tsx`, `layout.tsx`) | It already lives inside a `'use client'` island |
-| Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid / Surface / ChipRail / SettingsShell | antd already supplies focus trap / scroll lock / a11y |
+| Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid / Surface / ChipRail / Pagination / SettingsShell | antd already supplies focus trap / scroll lock / a11y |
 | An icon on the server → `ui/icons.tsx` | An icon in a client island → `@ant-design/icons` |
 
 ## The three tiers
@@ -23,6 +23,13 @@ ui/layout/    antd-free page structure. Same contract.
 ui/           antd wrappers — client islands (AppButton, AppInput, AppTextArea, AppFormItem,
               AppSheet, AppConfirmModal, ErrorState)
 ```
+
+**`layout/Pagination` is antd-free deliberately, not for want of an antd `Pagination`.**
+It renders real anchors and takes a `buildHref(page)`, so every page of a list is a URL a
+crawler can follow, the router can prefetch and a visitor can bookmark. antd's version is
+`onChange`-driven and would pull the client runtime into a route whose point is
+server-rendered HTML. Use it wherever a *public* list pages; a paged table inside an
+already-client admin island is the case for antd's.
 
 **`ui/index.ts` re-exports only `./bare` and `./layout`, deliberately.** Re-exporting an
 antd wrapper there would pull antd's runtime into the client bundle of any route that
@@ -128,6 +135,18 @@ grep -rn  "export default"  src/components --include=*.ts --include=*.tsx   # 0
 grep -rn  "default as"       src/components --include=*.ts                  # 0
 ```
 
+## A wrapper has to forward its ref
+
+`AppButton` declares `ref` explicitly, because antd's `ButtonProps` does not carry one —
+the real `Button` is a `ForwardRefExoticComponent`, so its ref lives outside the props
+type. In React 19 a ref is an ordinary prop and spreading it through is enough, but
+without the declaration the wrapper cannot be *typed* as a `Dropdown` / `Tooltip` /
+`Popover` trigger — those clone the child and need a handle on its DOM node to position
+the popup. That is why `ProviderServiceCard` reaches past `AppButton` to a raw `Button`
+for its trigger; new code does not have to.
+
+Any new antd wrapper that could plausibly be a popup trigger needs the same two lines.
+
 ## Styling
 
 Always route `className` through `cn` (`src/helpers/cn.ts` = `twMerge(clsx(...))`).
@@ -139,7 +158,7 @@ actually *removed*, which is what `twMerge` does.
 Responsive variants are a **last resort** — 36 usages exist, 27 of them `md:`, and almost
 all are a direction or visibility switch rather than a size table. Prefer fluidity:
 `clamp()` type, `app-gutter-x`, `auto-fill/minmax` grids, `dvh`. The JS counterpart is
-`Grid.useBreakpoint()`, used in exactly two places (`AppSheet`, `Calendar`).
+`Grid.useBreakpoint()`, used in exactly one place (`AppSheet`).
 
 Spacing between form fields is owned by the parent flex `gap` — `theme.ts` sets
 `Form.itemMarginBottom: 0`. Do not reintroduce `mb-*!` classes.

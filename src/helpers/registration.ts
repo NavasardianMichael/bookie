@@ -1,5 +1,5 @@
 import type { CountryCode } from 'libphonenumber-js'
-import { getCountryCallingCode } from 'libphonenumber-js'
+import { getCountryCallingCode, parsePhoneNumberFromString } from 'libphonenumber-js'
 import { PhoneNumber } from '@interfaces/app'
 import { OrganizationValue, RegistrationProfile } from '@interfaces/auth'
 
@@ -13,6 +13,20 @@ export const toPhoneNumber = (country: CountryCode, nationalNumber: string): Pho
   code: Number(getCountryCallingCode(country)),
   number: Number(nationalNumber),
 })
+
+/**
+ * Inverse of `toPhoneNumber`: the country Select needs an ISO code, not a dialling
+ * code, so `+374…` has to be parsed rather than split on the first digits.
+ */
+export const toPhoneFormValues = (
+  phone: PhoneNumber | string | undefined
+): { code: CountryCode; number: string } | undefined => {
+  if (!phone) return undefined
+  const raw = typeof phone === 'string' ? phone : `+${phone.code}${phone.number}`
+  const parsed = parsePhoneNumberFromString(raw)
+  if (!parsed?.country) return undefined
+  return { code: parsed.country, number: parsed.nationalNumber }
+}
 
 /**
  * Splits the Organization combobox value into the two fields the API distinguishes.

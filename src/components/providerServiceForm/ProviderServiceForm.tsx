@@ -1,79 +1,80 @@
 'use client'
 
-import React, { useCallback } from 'react'
-import { Col, Flex, Form, InputNumber, Row, Select } from 'antd'
+import React from 'react'
+import { Col, Flex, Form, InputNumber, Row } from 'antd'
+import type { Rule } from 'antd/es/form'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { AppFormProps } from '@interfaces/forms'
-import { ProviderServiceFormValues } from '@interfaces/services'
+import { CategoryValue, ProviderServiceFormValues } from '@interfaces/services'
+import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
-import { PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE } from './constants'
 import { ProviderServiceFormCategory } from './ProviderServiceFormCategory'
+import { ProviderServiceFormCurrency } from './ProviderServiceFormCurrency'
 import { ProviderServiceFormDuration } from './ProviderServiceFormDuration'
 import { ProviderServiceFormImage } from './ProviderServiceFormImage'
 
-type Props = AppFormProps<ProviderServiceFormValues> & {
+type Props = {
   initialValues: ProviderServiceFormValues
+  isSubmitting: boolean
+  onSubmit: (values: ProviderServiceFormValues) => void
   closeModal: () => void
 }
 
-export const ProviderServiceForm: React.FC<Props> = ({ formik, initialValues, closeModal }) => {
+/**
+ * antd's `Form` is the only owner of these values. No field carries its own
+ * `value`/`onChange`: `Field` clones each child with the store's value last, so a
+ * second binding would win the render and lose the submit.
+ */
+export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitting, onSubmit, closeModal }) => {
   const [form] = Form.useForm<ProviderServiceFormValues>()
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
   const inputNumberPositiveRuleSet = useFormItemRules('positiveNumber')
+  const currencyMaxCharsRuleSet = useFormItemRules('maxCharsForInput')
 
-  const onCancelButtonClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(() => {
-    formik.resetForm()
-    closeModal()
-  }, [closeModal, formik])
+  const categoryRules: Rule[] = [
+    {
+      validator: async (_rule, value: CategoryValue | undefined) => {
+        const name = value?.name?.trim() ?? ''
+        if (!value?.id && !name) throw new Error('Please fill in Category')
+        if (name.length > 40) throw new Error('Max count of characters is 40')
+      },
+    },
+  ]
 
   return (
-    <Form
+    <Form<ProviderServiceFormValues>
       form={form}
       initialValues={initialValues}
-      requiredMark={true}
+      requiredMark
       className='mt-4 flex w-full flex-col gap-4'
       layout='vertical'
-      validateTrigger='onSubmit'
-      onFinish={() => {
-        void formik.submitForm()
-      }}
+      onFinish={onSubmit}
       scrollToFirstError
+      disabled={isSubmitting}
     >
       <AppFormItem name='name' label='Title' rules={inputTextRequiredMaxCharsCountRuleSet}>
-        <AppInput
-          name='name'
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-          autoComplete='off'
-          enterKeyHint='next'
-        />
+        <AppInput autoComplete='off' enterKeyHint='next' />
       </AppFormItem>
 
       <AppFormItem name='description' label='Description' rules={textareaMaxCharsCountRuleSet}>
-        <AppTextArea
-          name='description'
-          value={formik.values.description}
-          onChange={formik.handleChange}
-          disabled={formik.isSubmitting}
-          autoSize={{ minRows: 3, maxRows: 5 }}
-        />
+        <AppTextArea autoSize={{ minRows: 3, maxRows: 5 }} maxLength={MAX_CHARS_FOR_TEXTAREA} />
       </AppFormItem>
 
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12}>
           <AppFormItem name='duration' label='Duration' rules={requiredRuleSet}>
-            <ProviderServiceFormDuration formik={formik} form={form} />
+            <ProviderServiceFormDuration />
           </AppFormItem>
         </Col>
         <Col xs={24} sm={12}>
-          <AppFormItem name='categoryId' label='Category'>
-            <ProviderServiceFormCategory form={form} formik={formik} />
+          {/* Combobox: pick a predefined Category or type a new name. `Service.categoryId`
+              is still a required FK — the server matches or creates the row. */}
+          <AppFormItem name='category' label='Category' rules={categoryRules} required>
+            <ProviderServiceFormCategory />
           </AppFormItem>
         </Col>
       </Row>
@@ -81,38 +82,27 @@ export const ProviderServiceForm: React.FC<Props> = ({ formik, initialValues, cl
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12}>
           <AppFormItem name='price' label='Price' rules={inputNumberPositiveRuleSet}>
-            <InputNumber
-              value={formik.values.price}
-              onChange={(value) => formik.setFieldValue('price', value)}
-              className='w-full'
-              styles={{ root: { width: '100%' } }}
-              disabled={formik.isSubmitting}
-              inputMode='decimal'
-            />
+            {/* antd sizes this from `controlWidth` (90px). That rule is unlayered, so
+                Tailwind `w-full` cannot override it — `styles.root` can. */}
+            <InputNumber min={0} inputMode='decimal' styles={{ root: { width: '100%' } }} />
           </AppFormItem>
         </Col>
         <Col xs={24} sm={12}>
-          <AppFormItem name='currency' label='Currency'>
-            <Select
-              value={formik.values.currency}
-              onChange={(value) => formik.setFieldValue('currency', value)}
-              options={PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE}
-              disabled={formik.isSubmitting}
-              className='w-full'
-            />
+          <AppFormItem name='currency' label='Currency' rules={currencyMaxCharsRuleSet}>
+            <ProviderServiceFormCurrency />
           </AppFormItem>
         </Col>
       </Row>
 
       <AppFormItem name='image' label='Image'>
-        <ProviderServiceFormImage formik={formik} />
+        <ProviderServiceFormImage />
       </AppFormItem>
 
       <Flex justify='end' gap={8} className='mt-4'>
-        <AppButton type='default' className='grow' disabled={formik.isSubmitting} onClick={onCancelButtonClick}>
+        <AppButton type='default' className='grow' onClick={closeModal}>
           Close
         </AppButton>
-        <AppButton type='primary' htmlType='submit' className='grow' loading={formik.isSubmitting}>
+        <AppButton type='primary' htmlType='submit' className='grow' loading={isSubmitting}>
           Save
         </AppButton>
       </Flex>

@@ -1,32 +1,34 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { UploadOutlined } from '@ant-design/icons'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Form, Upload } from 'antd'
-import ImgCrop from 'antd-img-crop'
+import { Alert, Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
-import { resolveAssetUrl } from '@helpers/images'
+import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
+import { ProfilePhotoField } from '@components/settings/ProfilePhotoField'
+import { ProviderPageActions } from '@components/settings/ProviderPageActions'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
-import { AppAvatar } from '@components/ui/AppAvatar'
-import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
-import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
+
+type Props = {
+  verifyEmailToken?: string
+}
 
 type FormValues = {
   firstName: string
@@ -47,17 +49,17 @@ const mergeDraft = (profile: ProviderProfile): FormValues => {
   }
 }
 
-export const ProviderProfileSettingsForm = () => {
+export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   const t = useTranslations('Settings')
   const [form] = Form.useForm<FormValues>()
   const setAuthState = useAuthStore.use.setAuthState()
   const profileId = useAuthStore.use.profileId()
   const [profile, setProfile] = useState<ProviderProfile | null>(null)
-  const [preview, setPreview] = useState<string | undefined>()
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const descriptionRules = useFormItemRules('maxCharsForTextarea')
 
   useEffect(() => {
     void getProviderProfileAPI()
@@ -65,7 +67,6 @@ export const ProviderProfileSettingsForm = () => {
         setProfile(data)
         const values = mergeDraft(data)
         form.setFieldsValue(values)
-        setPreview(typeof values.image === 'string' ? resolveAssetUrl(values.image) : undefined)
       })
       .catch((err) => setError(processError(err).message))
   }, [form])
@@ -80,7 +81,6 @@ export const ProviderProfileSettingsForm = () => {
     setProfile(data)
     const values = mergeDraft(data)
     form.setFieldsValue(values)
-    setPreview(typeof values.image === 'string' ? resolveAssetUrl(values.image) : undefined)
     setAuthState({
       firstName: data.basic.firstName,
       lastName: data.basic.lastName,
@@ -134,28 +134,25 @@ export const ProviderProfileSettingsForm = () => {
   return (
     <div className='flex flex-col gap-6'>
       <div className='bg-brand text-white relative overflow-hidden rounded-2xl p-8 shadow-lg'>
-        <AppText size='caption' className='mb-4 inline-block rounded-full bg-white/20 px-3 py-1 font-bold tracking-widest text-white uppercase'>
-          {profile?.listed === false ? t('listing.statusUnlisted') : t('listing.statusActive')}
-        </AppText>
-        <AppTitle level='h2' size='h2' className='text-white'>
-          {t('providerHeroTitle')}
-        </AppTitle>
-        <AppParagraph tone='inverse' className='mt-2 max-w-md'>
-          {t('providerHeroBody')}
-        </AppParagraph>
-        <div className='relative z-10 mt-6 flex flex-wrap gap-3'>
-          {profileId && (
-            <AppLink
-              href={`${ROUTES.providers}/${profileId}`}
-              variant='button'
-              tone='default'
-              className='bg-surface text-brand hover:bg-brand-50'
-              target='_blank'
-            >
-              {t('listing.preview')}
-            </AppLink>
-          )}
+        <div className='pe-20'>
+          <AppText size='caption' className='mb-4 inline-block rounded-full bg-white/20 px-3 py-1 font-bold tracking-widest text-white uppercase'>
+            {profile?.listed === false ? t('listing.statusUnlisted') : t('listing.statusActive')}
+          </AppText>
+          <AppTitle level='h2' size='h2' className='text-white'>
+            {t('providerHeroTitle')}
+          </AppTitle>
+          <AppParagraph tone='inverse' className='mt-2 max-w-md'>
+            {t('providerHeroBody')}
+          </AppParagraph>
         </div>
+        <ProviderPageActions
+          listed={profile?.listed !== false}
+          profileId={profile?.id ?? profileId}
+          disabled={!profile}
+          onListedChange={(listed) => {
+            setProfile((prev) => (prev ? { ...prev, listed } : prev))
+          }}
+        />
         <div className='pointer-events-none absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-white/10 to-transparent' />
       </div>
 
@@ -169,26 +166,13 @@ export const ProviderProfileSettingsForm = () => {
         </AppTitle>
 
         <Form form={form} layout='vertical' requiredMark={false} onValuesChange={() => setDirty(true)} className='flex flex-col gap-4'>
-          <div className='border-brand-border flex flex-wrap items-center gap-6 border-b pb-6'>
-            <AppAvatar src={preview} name={displayName || 'Provider'} size={80} />
-            <div className='flex flex-col gap-2'>
-              <AppParagraph size='body-sm'>{t('profile.imageHint')}</AppParagraph>
-              <ImgCrop aspect={1}>
-                <Upload
-                  maxCount={1}
-                  showUploadList={false}
-                  beforeUpload={(file) => {
-                    form.setFieldValue('image', file)
-                    setPreview(URL.createObjectURL(file))
-                    setDirty(true)
-                    return false
-                  }}
-                >
-                  <AppButton icon={<UploadOutlined />}>{t('profile.upload')}</AppButton>
-                </Upload>
-              </ImgCrop>
-            </div>
-          </div>
+          <AppFormItem name='image' hasFeedback={false}>
+            <ProfilePhotoField
+              name={displayName || 'Provider'}
+              hint={t('profile.imageHint')}
+              uploadLabel={t('profile.upload')}
+            />
+          </AppFormItem>
 
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <div className='flex flex-col gap-1.5'>
@@ -207,14 +191,34 @@ export const ProviderProfileSettingsForm = () => {
               <FieldLabel htmlFor='description' requirement='Optional'>
                 {t('profile.description')}
               </FieldLabel>
-              <AppFormItem name='description' messageVariables={{ label: t('profile.description') }}>
-                <AppTextArea id='description' rows={4} />
+              <AppFormItem name='description' rules={descriptionRules} messageVariables={{ label: t('profile.description') }}>
+                <AppTextArea id='description' rows={4} maxLength={MAX_CHARS_FOR_TEXTAREA} />
               </AppFormItem>
+            </div>
+            <div className='md:col-span-2'>
+              {profile && (
+                <ChangePhoneForm
+                  embedded
+                  currentPhone={profile.details.phone}
+                  onChanged={(phone) => {
+                    setProfile((prev) => (prev ? { ...prev, details: { ...prev.details, phone } } : prev))
+                  }}
+                />
+              )}
             </div>
             <div className='md:col-span-2'>
               <EmailVerifyField
                 currentEmail={profile?.details.email}
                 emailVerifiedAt={profile?.details.emailVerifiedAt}
+                verifyPath={ROUTES.providerProfile}
+                verifyToken={verifyEmailToken}
+                onVerified={(email, emailVerifiedAt) => {
+                  setProfile((prev) =>
+                    prev
+                      ? { ...prev, details: { ...prev.details, email, emailVerifiedAt } }
+                      : prev
+                  )
+                }}
               />
             </div>
           </div>
@@ -228,7 +232,6 @@ export const ProviderProfileSettingsForm = () => {
           if (!profile) return
           const values = mergeDraft(profile)
           form.setFieldsValue(values)
-          setPreview(typeof values.image === 'string' ? resolveAssetUrl(values.image) : undefined)
           setDirty(false)
         }}
         onSaveDraft={() => void handleSaveDraft()}

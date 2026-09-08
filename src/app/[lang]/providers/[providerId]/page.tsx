@@ -5,6 +5,7 @@ import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getSingleProviderAPI } from '@api/providers/main'
 import { ProviderProfile as ProviderProfileType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -16,6 +17,7 @@ import { getCountryName } from '@helpers/country'
 import { generateEntityPath } from '@helpers/entities'
 import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
+import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { hasWeekScheduleHours } from '@helpers/schedule'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -24,10 +26,9 @@ import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { ContactActions } from '@components/ui/ContactActions'
-import { MapPinIcon, UserIcon } from '@components/ui/icons'
+import { UserIcon } from '@components/ui/icons'
 import { PageShell, Surface } from '@components/ui/layout'
 import { ProviderDetails } from './components/Details'
-import { ServicesList } from './components/ServicesList'
 import { WorkingHours } from './components/WorkingHours'
 
 export const dynamic = 'force-dynamic'
@@ -108,17 +109,20 @@ export default async function Provider({ params }: Props) {
 
   const provider = await loadProvider(providerId)
 
-  const { basic, details, services } = provider
+  const { basic, details } = provider
   const organization = basic.organization
   const categories = basic.categories
   const fullName = `${basic.firstName} ${basic.lastName}`
   // Only a real upload is a portrait; the seeded `/logo.svg` gets the placeholder.
   const image = isUploadedAsset(basic.image) ? resolveAssetUrl(basic.image) : undefined
   const phone = generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
-  const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
   const mapsHref = generateGoogleMapsLink(details.location.address)
   // Stored as an ISO code, so it reads in whatever language the page is in.
   const countryName = getCountryName(details.country, await currentLocale())
+
+  // Server Component, so `getTranslations` rather than the `useTranslations` hook.
+  const tPayments = await getTranslations('Settings.payments')
+  const paymentMethods = toPaymentMethods(details.paymentInfo)
 
   return (
     <PageShell as='article' className='flex flex-col gap-6'>
@@ -139,7 +143,7 @@ export default async function Provider({ params }: Props) {
               {fullName}
             </AppTitle>
 
-            {(organization || !!categories?.length) && (
+            {(organization || !!categories?.length || !!details.location.address) && (
               <div className='mt-3 flex flex-col items-center gap-1'>
                 {organization && (
                   <AppParagraph size='body-sm' className='m-0'>
@@ -174,6 +178,22 @@ export default async function Provider({ params }: Props) {
                     ))}
                   </AppParagraph>
                 )}
+                {!!details.location.address && (
+                  <AppParagraph size='body-sm' className='m-0'>
+                    <AppText as='strong' tone='default'>
+                      Address:{' '}
+                    </AppText>
+                    <AppLink
+                      href={mapsHref}
+                      target='_blank'
+                      variant='plain'
+                      className='text-brand-muted hover:text-brand font-medium'
+                    >
+                      {details.location.address}
+                      {countryName ? `, ${countryName}` : null}
+                    </AppLink>
+                  </AppParagraph>
+                )}
               </div>
             )}
 
@@ -193,11 +213,15 @@ export default async function Provider({ params }: Props) {
             {details.paymentInfo && (
               <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>
                 <AppTitle level='h2' size='h3' className='mb-2'>
-                  Payment
+                  {tPayments('title')}
                 </AppTitle>
-                <AppParagraph size='body-sm' tone='default' className='font-semibold capitalize'>
-                  {String(details.paymentInfo.method).replace(/_/g, ' ')}
-                </AppParagraph>
+                {/* Translated labels, not the raw enum with its underscores swapped
+                    for spaces — that rendered English on all 15 locales. */}
+                {!!paymentMethods.length && (
+                  <AppParagraph size='body-sm' tone='default' className='font-semibold'>
+                    {paymentMethods.map((method) => tPayments(`methods.${method}`)).join(', ')}
+                  </AppParagraph>
+                )}
                 {details.paymentInfo.reference && (
                   <AppParagraph size='body-sm' className='mt-1'>
                     {details.paymentInfo.reference}
@@ -212,66 +236,23 @@ export default async function Provider({ params }: Props) {
             )}
           </Surface>
 
-          {!!serviceList.length && (
-            <Surface padding='none'>
-              <div className='border-brand-border flex items-center justify-between border-b px-6 py-4'>
-                <AppTitle level='h2' size='h3'>
-                  Services
-                </AppTitle>
-                <AppText size='overline' tone='muted'>
-                  {serviceList.length} {serviceList.length === 1 ? 'option' : 'options'}
-                </AppText>
-              </div>
-              <ServicesList services={serviceList} variant='stack' />
+          {hasWeekScheduleHours(details.weekSchedule) && (
+            <Surface>
+              <AppTitle level='h2' size='h3' className='mb-3'>
+                Working hours
+              </AppTitle>
+              <WorkingHours weekSchedule={details.weekSchedule} />
             </Surface>
           )}
-
-          <Surface>
-            <AppTitle level='h2' size='h3' className='mb-4'>
-              Location
-            </AppTitle>
-            <div className='bg-surface-sunken mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-brand'>
-              <MapPinIcon className='text-brand-300 h-10 w-10' />
-            </div>
-            <AppLink
-              href={mapsHref}
-              target='_blank'
-              variant='plain'
-              className='text-body-sm text-brand-muted flex items-start gap-3 hover:text-brand'
-            >
-              <MapPinIcon className='mt-0.5 h-5 w-5 shrink-0' />
-              <span>
-                {details.location.address}
-                {countryName ? (
-                  <>
-                    <br />
-                    {countryName}
-                  </>
-                ) : null}
-              </span>
-            </AppLink>
-
-            {hasWeekScheduleHours(details.weekSchedule) && (
-              <div className='border-brand-border-subtle mt-6 border-t pt-5'>
-                <AppTitle level='h2' size='h3' className='mb-3'>
-                  Working hours
-                </AppTitle>
-                <WorkingHours weekSchedule={details.weekSchedule} />
-              </div>
-            )}
-          </Surface>
         </aside>
 
+        {/* Booking is three stacked panels — service, day, time — all owned by
+            ProviderDetails, which holds the selection they share. */}
         <section className='flex min-w-0 flex-col gap-6'>
-          <Surface>
-            <div className='mb-5'>
-              <AppTitle level='h2' size='h3'>
-                Book an appointment
-              </AppTitle>
-              <AppParagraph size='body-sm'>Pick a service, then a day and a time that works.</AppParagraph>
-            </div>
-            <ProviderDetails initialState={provider} />
-          </Surface>
+          <AppTitle level='h2' size='h2'>
+            Book an appointment
+          </AppTitle>
+          <ProviderDetails initialState={provider} />
         </section>
       </div>
     </PageShell>

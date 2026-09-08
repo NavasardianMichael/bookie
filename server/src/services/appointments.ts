@@ -1,3 +1,4 @@
+import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
 import { HttpError } from '../middleware/error.js'
 
@@ -83,13 +84,29 @@ export async function getProviderAvailability(providerId: string, dateStr: strin
   return slots
 }
 
+/** Contact details for a booking made without an account. */
+export type GuestBooker = {
+  firstName: string
+  lastName: string
+  phoneCode: number
+  phoneNumber: bigint
+  email?: string
+}
+
 export async function createAppointment(input: {
-  consumerId: string
+  /** Exactly one of `consumerId` / `guest` — the caller decides which from the session. */
+  consumerId?: string
+  guest?: GuestBooker
   providerId: string
   serviceId: string
   startAt: Date
   notes?: string
+  paymentMethods?: string[]
 }) {
+  if (!input.consumerId && !input.guest) {
+    throw new HttpError(400, 'A booking needs either a consumer or guest details', 400)
+  }
+
   const service = await prisma.service.findFirst({
     where: { id: input.serviceId, providerId: input.providerId },
   })
@@ -113,9 +130,20 @@ export async function createAppointment(input: {
 
   const provider = await prisma.provider.findUnique({ where: { id: input.providerId } })
 
+  // The client only offers what the provider accepts; this is what makes that true
+  // rather than merely likely. A provider who has configured nothing accepts anything.
+  const accepted = toPaymentMethods(provider?.paymentInfo)
+  const requested = toPaymentMethods({ methods: input.paymentMethods ?? [] })
+  const paymentMethods = accepted.length ? requested.filter((m) => accepted.includes(m)) : requested
+
   return prisma.appointment.create({
     data: {
       consumerId: input.consumerId,
+      guestFirstName: input.guest?.firstName,
+      guestLastName: input.guest?.lastName,
+      guestPhoneCode: input.guest?.phoneCode,
+      guestPhoneNumber: input.guest?.phoneNumber,
+      guestEmail: input.guest?.email,
       providerId: input.providerId,
       serviceId: input.serviceId,
       organizationId: provider?.organizationId,
@@ -124,6 +152,7 @@ export async function createAppointment(input: {
       durationMinutes: service.durationMinutes,
       status: 'scheduled',
       notes: input.notes,
+      paymentMethods,
     },
   })
 }

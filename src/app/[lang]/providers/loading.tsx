@@ -1,14 +1,28 @@
-import { PageShell } from '@components/ui/layout'
-import { CardGridSkeleton } from '@components/ui/skeletons/CardGridSkeleton'
+import { PageShell, Section } from '@components/ui/layout'
+import { ProvidersResultsSkeleton } from './ProvidersResultsSkeleton'
 
+/**
+ * Mirrors the page's own layout: centred hero, the search field's control row, the
+ * category rail, then the same results skeleton the `<Suspense>` boundary uses — so a
+ * cold load and a re-query hand over identically.
+ */
 export default function Loading() {
   return (
-    <PageShell className='flex flex-col gap-6'>
-      <div className='flex flex-col gap-2'>
-        <div className='bg-surface-sunken h-8 w-48 animate-pulse rounded-brand' />
-        <div className='bg-surface-sunken h-4 w-32 animate-pulse rounded-brand' />
+    <PageShell className='flex flex-col gap-10'>
+      <div className='mx-auto flex w-full max-w-3xl flex-col items-center gap-6'>
+        <div className='bg-surface-sunken h-10 w-full max-w-xl animate-pulse rounded-brand' />
+        <div className='bg-surface-sunken h-10 w-full animate-pulse rounded-brand' />
       </div>
-      <CardGridSkeleton count={8} />
+
+      <Section title='Browse categories'>
+        <div className='flex gap-3 overflow-hidden'>
+          {Array.from({ length: 6 }, (_, index) => (
+            <div key={index} className='bg-surface-sunken h-10 w-28 shrink-0 animate-pulse rounded-brand-sm' />
+          ))}
+        </div>
+      </Section>
+
+      <ProvidersResultsSkeleton />
     </PageShell>
   )
 }

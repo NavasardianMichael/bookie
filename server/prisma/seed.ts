@@ -8,6 +8,7 @@ import 'dotenv/config'
 const prisma = new PrismaClient()
 
 const DEV_OTP = '123456'
+const SEED_APPOINTMENT_NOTE = 'Seed appointment'
 
 const defaultWeekSchedule = () => ({
   monday: { availability: { start: '09:00', end: '17:00' }, breaks: [] },
@@ -145,6 +146,14 @@ async function main() {
 
   const organizations = []
   for (const org of orgData) {
+    // Organization.name carries no unique constraint, so there is nothing to upsert
+    // against — without this lookup every run appends another copy of all eight.
+    const existing = await prisma.organization.findFirst({ where: { name: org.name } })
+    if (existing) {
+      organizations.push(existing)
+      continue
+    }
+
     const created = await prisma.organization.create({
       data: {
         name: org.name,
@@ -185,8 +194,12 @@ async function main() {
   for (const def of providerDefs) {
     const user = await upsertUser(374, phoneSuffix)
     phoneSuffix += BigInt(1)
-    const provider = await prisma.provider.create({
-      data: {
+    const provider = await prisma.provider.upsert({
+      where: { userId: user.id },
+      // A no-op update, like the categories and organizations above: re-running the seed
+      // must not duplicate a provider's services or overwrite edits made while developing.
+      update: {},
+      create: {
         userId: user.id,
         firstName: def.firstName,
         lastName: def.lastName,
@@ -238,8 +251,10 @@ async function main() {
   const consumers = []
   for (const def of consumerDefs) {
     const user = await upsertUser(374, def.phone)
-    const consumer = await prisma.consumer.create({
-      data: {
+    const consumer = await prisma.consumer.upsert({
+      where: { userId: user.id },
+      update: {},
+      create: {
         userId: user.id,
         firstName: def.firstName,
         lastName: def.lastName,
@@ -260,7 +275,13 @@ async function main() {
 
   const service0 = await prisma.service.findFirst({ where: { providerId: providers[0]!.id } })
 
-  if (service0) {
+  // Appointment and Review have no unique constraint to upsert against, so an existence
+  // check is what stops a second run from stacking up duplicates.
+  const seededAppointment = await prisma.appointment.findFirst({
+    where: { providerId: providers[0]!.id, notes: SEED_APPOINTMENT_NOTE },
+  })
+
+  if (service0 && !seededAppointment) {
     await prisma.appointment.create({
       data: {
         consumerId: consumers[0]!.id,
@@ -271,28 +292,40 @@ async function main() {
         endAt: tomorrowEnd,
         durationMinutes: 30,
         status: 'confirmed',
-        notes: 'Seed appointment',
+        notes: SEED_APPOINTMENT_NOTE,
       },
     })
   }
 
-  await prisma.review.create({
-    data: {
-      consumerId: consumers[0]!.id,
-      providerId: providers[0]!.id,
-      rating: 5,
-      comment: 'Excellent care and very professional.',
-    },
+  const seededProviderReview = await prisma.review.findFirst({
+    where: { consumerId: consumers[0]!.id, providerId: providers[0]!.id },
   })
 
-  await prisma.review.create({
-    data: {
-      consumerId: consumers[1]!.id,
-      organizationId: organizations[0]!.id,
-      rating: 4,
-      comment: 'Clean facility and friendly staff.',
-    },
+  if (!seededProviderReview) {
+    await prisma.review.create({
+      data: {
+        consumerId: consumers[0]!.id,
+        providerId: providers[0]!.id,
+        rating: 5,
+        comment: 'Excellent care and very professional.',
+      },
+    })
+  }
+
+  const seededOrganizationReview = await prisma.review.findFirst({
+    where: { consumerId: consumers[1]!.id, organizationId: organizations[0]!.id },
   })
+
+  if (!seededOrganizationReview) {
+    await prisma.review.create({
+      data: {
+        consumerId: consumers[1]!.id,
+        organizationId: organizations[0]!.id,
+        rating: 4,
+        comment: 'Clean facility and friendly staff.',
+      },
+    })
+  }
 
   console.log('Seed complete.')
   console.log(`Dev OTP for all seeded phones: ${DEV_OTP}`)

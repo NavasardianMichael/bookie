@@ -8,7 +8,8 @@
     "tagline": "Twoja platforma rezerwacji na zawsze",
     "confirm": "Potwierdź",
     "cancel": "Anuluj",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "today": "Dziś"
   },
   "Nav": {
     "mainNavigation": "Nawigacja główna",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "Potwierdź rezerwację",
+    "summary": {
+      "heading": "Szczegóły rezerwacji",
+      "provider": "Usługodawca",
+      "service": "Usługa",
+      "date": "Data",
+      "time": "Godzina",
+      "duration": "Czas trwania",
+      "durationValue": "{minutes} min",
+      "price": "Cena",
+      "location": "Lokalizacja",
+      "accepts": "Akceptowana płatność"
+    },
+    "guest": {
+      "heading": "Twoje dane",
+      "hint": "Potrzebujemy ich, aby potwierdzić rezerwację. Konto nie jest wymagane.",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "phone": "Numer telefonu",
+      "email": "E-mail",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "Preferowany sposób płatności",
+    "paymentPlaceholder": "Wybierz jedną lub więcej metod",
+    "notesLabel": "Uwagi dla usługodawcy",
+    "notesPlaceholder": "Wszystko, co powinien wiedzieć przed wizytą",
+    "submit": "Potwierdź rezerwację",
+    "requiredBadge": "Wymagane",
+    "optionalBadge": "Opcjonalne"
+  },
   "Footer": {
     "blurb": "Jedna platforma, aby znaleźć usługi w okolicy albo prowadzić własny kalendarz rezerwacji.",
     "rights": "© {year} Bookie. Wszelkie prawa zastrzeżone.",
@@ -39,6 +71,31 @@
     "createAccount": "Załóż konto",
     "company": "Firma",
     "contact": "Kontakt"
+  },
+  "Contact": {
+    "metaTitle": "Kontakt",
+    "metaDescription": "Wyślij wiadomość do zespołu Bookie w sprawie rezerwacji, konta lub profilu usługodawcy.",
+    "title": "Kontakt",
+    "subtitle": "Skontaktuj się z zespołem Bookie. Zwykle odpowiadamy w ciągu jednego dnia roboczego.",
+    "fields": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Adres e-mail do kontaktu",
+      "message": "Wiadomość",
+      "messagePlaceholder": "Napisz, w czym możemy pomóc."
+    },
+    "validation": {
+      "messageRequired": "Napisz wiadomość",
+      "messageTooLong": "Maksymalna liczba znaków to {max}"
+    },
+    "actions": {
+      "send": "Wyślij wiadomość"
+    },
+    "success": {
+      "title": "Wiadomość wysłana",
+      "body": "Dziękujemy za kontakt. Jeśli podano adres e-mail, odpowiemy na niego.",
+      "sendAnother": "Wyślij kolejną wiadomość"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "Wysłaliśmy link weryfikacyjny na adres {email}. Otwórz go, aby potwierdzić ten adres. W trybie deweloperskim link jest wypisywany w konsoli serwera API.",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "Numer telefonu",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "Akceptowane metody",
+      "methodsPlaceholder": "Wybierz metody, które akceptujesz",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "Gotówka",
+        "card_on_site": "Karta na miejscu",
+        "bank_transfer": "Przelew bankowy",
+        "other": "Inne"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "Usuń"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

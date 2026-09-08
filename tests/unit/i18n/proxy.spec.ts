@@ -57,6 +57,28 @@ describe('proxy — locale routing', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('location')).toBeNull()
   })
+
+  // icon.tsx / apple-icon.tsx / opengraph-image.tsx live at the app root and
+  // have no file extension, so the matcher cannot skip them. Prefixing them
+  // 307s `/icon` to `/en/icon`, which 404s — the favicon and the PWA manifest
+  // icon both fail.
+  it.each(['/icon', '/apple-icon', '/opengraph-image'])(
+    'does not locale-prefix the metadata route %s',
+    (path) => {
+      const response = proxy(request(path, { 'accept-language': 'es' }))
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('location')).toBeNull()
+    }
+  )
+
+  it('rewrites a leftover locale-prefixed metadata URL back to the app-root file', () => {
+    const response = proxy(request('/en/icon?a008412dd3ec4db5'))
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('location')).toBeNull()
+    expect(response.headers.get('x-middleware-rewrite')).toBe(`${SITE}/icon?a008412dd3ec4db5`)
+  })
 })
 
 describe('proxy — cache safety', () => {

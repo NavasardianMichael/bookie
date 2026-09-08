@@ -13,5 +13,20 @@ export const config = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   cookieName: 'bookie_session',
   otpTtlMs: 5 * 60 * 1000,
+  /** Email-verification links last a day — unlike SMS OTP they are not typed in immediately. */
+  emailVerifyTtlMs: 24 * 60 * 60 * 1000,
   devOtpBypass: '123456',
+  /**
+   * External mail engine. Read only by `lib/mail.ts` — nothing else may touch `apiKey`.
+   *
+   * An empty `apiUrl` or `apiKey` disables sending rather than throwing, which is what
+   * `.env.example` ships: local dev has no key, so the contact form still stores its
+   * message and the verification link still prints to this console.
+   */
+  mail: {
+    apiUrl: (process.env.MAIL_API_URL ?? '').replace(/\/+$/, ''),
+    apiKey: process.env.MAIL_API_KEY ?? '',
+    /** Identifies this app to the engine; must match the id registered there. */
+    appId: process.env.MAIL_APP_ID ?? 'bookie',
+  },
 }

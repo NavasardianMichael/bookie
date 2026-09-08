@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toOptionalText, toOrganizationFields, toPhoneNumber } from '@helpers/registration'
+import { toOptionalText, toOrganizationFields, toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
 
 describe('toPhoneNumber', () => {
   it('resolves a country to its numeric calling code', () => {
@@ -12,6 +12,21 @@ describe('toPhoneNumber', () => {
     expect(typeof phone.code).toBe('number')
     expect(typeof phone.number).toBe('number')
     expect(phone.code).toBe(1)
+  })
+})
+
+describe('toPhoneFormValues', () => {
+  it('recovers the ISO country and national number from the API shape', () => {
+    expect(toPhoneFormValues({ code: 374, number: 77000201 })).toEqual({ code: 'AM', number: '77000201' })
+  })
+
+  it('accepts a +prefixed string the same way', () => {
+    expect(toPhoneFormValues('+37477000201')).toEqual({ code: 'AM', number: '77000201' })
+  })
+
+  it('returns undefined when there is nothing to parse', () => {
+    expect(toPhoneFormValues(undefined)).toBeUndefined()
+    expect(toPhoneFormValues('')).toBeUndefined()
   })
 })
 

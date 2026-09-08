@@ -170,6 +170,15 @@ export const CopyIcon = ({ className }: IconProps) => (
   </svg>
 )
 
+export const TrashIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M4 7h16' />
+    <path d='M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2' />
+    <path d='M6.5 7 7.4 19a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4L17.5 7' />
+    <path d='M10 11v5M14 11v5' />
+  </svg>
+)
+
 /** Destructive or irreversible action — the badge on a danger confirmation. */
 export const AlertTriangleIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>

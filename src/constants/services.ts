@@ -8,5 +8,5 @@ export const PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES: ProviderServiceFormVa
   price: undefined,
   currency: undefined,
   image: undefined,
-  categoryId: undefined,
+  category: undefined,
 }

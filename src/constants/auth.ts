@@ -16,3 +16,6 @@ export const SIGN_ON_STEPS = {
   codeInput: 'codeInput',
   profileCreated: 'profileCreated',
 } as const
+
+/** Query param the email-verification link puts on the account profile URL. */
+export const EMAIL_VERIFY_QUERY = 'verifyEmail'

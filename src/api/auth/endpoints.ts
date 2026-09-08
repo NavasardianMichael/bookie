@@ -5,6 +5,6 @@ export const ENDPOINTS = {
   logout: '/identity/logout',
   changePhoneSendOtp: '/identity/change-phone/send-otp',
   changePhoneConfirm: '/identity/change-phone/confirm',
-  changeEmailSendOtp: '/identity/change-email/send-otp',
+  changeEmailSend: '/identity/change-email/send',
   changeEmailConfirm: '/identity/change-email/confirm',
 } as const

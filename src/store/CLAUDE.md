@@ -69,7 +69,7 @@ with `Pick`:
 export type ProviderProfile = { id; basic; details; services; personal }
 export type BasicProvider   = Pick<ProviderProfile, 'id' | 'basic'>
 export type SingleProvider  = Pick<ProviderProfile, 'id' | 'basic' | 'details' | 'services'>
-export type ProvidersListState = { list: Normalized<BasicProvider> } & StateCommonProps
+export type ProvidersListState = { list: Normalized<BasicProvider>; pagination: ProvidersListPagination } & StateCommonProps
 ```
 
 The `basic` / `details` / `services` / `personal` grouping is the house layout: `basic`
@@ -85,6 +85,13 @@ private. `Category` is flat — the exception.
 `export const dynamic = 'force-dynamic'`. Stores exist for client interactivity only.
 Do not hydrate a store with props a Server Component already fetched.
 
+**`providers/list` is the live example of that rule.** `GET /providers` is paged, so the
+slice carries a `pagination` window alongside `list` and `getProvidersList` takes an
+optional `ProvidersListQuery`. Explore does **not** use it: that page keeps its query in
+the URL and fetches on the server — see `src/app/CLAUDE.md`. The slice stays for a
+genuinely client-side provider list, and `pagination` is read back from the response
+rather than echoed, because the API clamps an out-of-range `page`.
+
 ## Known non-canonical code — do not copy
 
 - **`use…StoreBase` vs `use…Base`** — list/profile stores use the first, single stores
@@ -93,8 +100,13 @@ Do not hydrate a store with props a Server Component already fetched.
   `try/finally`, because `errorMiddleware` does not catch rejections and the whole sign-on
   funnel is gated on `isPending` — leaving it `true` locked the user out of retrying. Copy
   that shape, not the other stores'.
-- **`src/store/categories/list/store.ts`** ships **fake seed data** in `initialState`
-  (`allIds: ['c-1']`). A leftover, not a pattern.
+- **`src/store/categories/list/store.ts`** has **no loader wired to any page but
+  `profile-services`.** It used to ship fake seed data in `initialState` — one row whose
+  `allIds` entry (`'c-1'`) did not even match its own `byId` key (`'smth'`) — so every
+  category picker offered an id the API had never issued, and `Service.categoryId` is a
+  required foreign key. `initialState` is empty now, which means a page that renders a
+  category picker **must call `getCategoriesList()` itself**;
+  `ProviderProfileFormCategories` still has no page that does.
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns
   `api.setState` — it does **not** catch rejections thrown inside async actions.
 - Action return types drift between `() => void` and `() => Promise<void>` for

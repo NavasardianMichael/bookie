@@ -8,7 +8,8 @@
     "tagline": "Votre plateforme de réservation pour toujours",
     "confirm": "Confirmer",
     "cancel": "Annuler",
-    "close": "Fermer"
+    "close": "Fermer",
+    "today": "Aujourd'hui"
   },
   "Nav": {
     "mainNavigation": "Navigation principale",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "Confirmer votre réservation",
+    "summary": {
+      "heading": "Détails de la réservation",
+      "provider": "Prestataire",
+      "service": "Prestation",
+      "date": "Date",
+      "time": "Heure",
+      "duration": "Durée",
+      "durationValue": "{minutes} min",
+      "price": "Prix",
+      "location": "Lieu",
+      "accepts": "Paiement accepté"
+    },
+    "guest": {
+      "heading": "Vos coordonnées",
+      "hint": "Nous en avons besoin pour confirmer votre réservation. Aucun compte requis.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "phone": "Numéro de téléphone",
+      "email": "E-mail",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "Comment vous souhaitez payer",
+    "paymentPlaceholder": "Sélectionnez un ou plusieurs moyens",
+    "notesLabel": "Notes pour le prestataire",
+    "notesPlaceholder": "Tout ce qu'il doit savoir avant votre rendez-vous",
+    "submit": "Confirmer la réservation",
+    "requiredBadge": "Obligatoire",
+    "optionalBadge": "Facultatif"
+  },
   "Footer": {
     "blurb": "Une seule plateforme pour trouver des services près de chez vous ou gérer votre agenda de réservations.",
     "rights": "© {year} Bookie. Tous droits réservés.",
@@ -39,6 +71,31 @@
     "createAccount": "Créer un compte",
     "company": "Entreprise",
     "contact": "Contact"
+  },
+  "Contact": {
+    "metaTitle": "Contact",
+    "metaDescription": "Envoyez un message à l'équipe Bookie au sujet d'une réservation, de votre compte ou d'une fiche de prestataire.",
+    "title": "Contact",
+    "subtitle": "Contactez l'équipe Bookie. Nous répondons généralement sous un jour ouvré.",
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse e-mail de contact",
+      "message": "Message",
+      "messagePlaceholder": "Dites-nous ce dont vous avez besoin."
+    },
+    "validation": {
+      "messageRequired": "Veuillez écrire un message",
+      "messageTooLong": "Le nombre maximal de caractères est {max}"
+    },
+    "actions": {
+      "send": "Envoyer le message"
+    },
+    "success": {
+      "title": "Message envoyé",
+      "body": "Merci de nous avoir contactés. Si vous avez laissé une adresse e-mail, nous y répondrons.",
+      "sendAnother": "Envoyer un autre message"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "Nous avons envoyé un lien de vérification à {email}. Ouvrez-le pour confirmer cette adresse. En développement, le lien est affiché dans la console du serveur d'API.",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "Numéro de téléphone",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "Moyens acceptés",
+      "methodsPlaceholder": "Sélectionnez les moyens que vous acceptez",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "Espèces",
+        "card_on_site": "Carte sur place",
+        "bank_transfer": "Virement bancaire",
+        "other": "Autre"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "Retirer"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

@@ -8,7 +8,8 @@
     "tagline": "언제나 함께하는 예약 플랫폼",
     "confirm": "확인",
     "cancel": "취소",
-    "close": "닫기"
+    "close": "닫기",
+    "today": "오늘"
   },
   "Nav": {
     "mainNavigation": "주 내비게이션",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "예약 확인",
+    "summary": {
+      "heading": "예약 정보",
+      "provider": "제공자",
+      "service": "서비스",
+      "date": "날짜",
+      "time": "시간",
+      "duration": "소요 시간",
+      "durationValue": "{minutes}분",
+      "price": "가격",
+      "location": "장소",
+      "accepts": "가능한 결제 수단"
+    },
+    "guest": {
+      "heading": "고객 정보",
+      "hint": "예약 확정을 위해 필요합니다. 계정은 필요하지 않습니다.",
+      "firstName": "이름",
+      "lastName": "성",
+      "phone": "전화번호",
+      "email": "이메일",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "결제 희망 방법",
+    "paymentPlaceholder": "하나 이상 선택하세요",
+    "notesLabel": "제공자에게 전달할 내용",
+    "notesPlaceholder": "예약 전에 알아야 할 사항",
+    "submit": "예약 확정",
+    "requiredBadge": "필수",
+    "optionalBadge": "선택"
+  },
   "Footer": {
     "blurb": "주변 서비스를 찾는 것도, 예약 일정을 관리하는 것도 하나의 플랫폼에서.",
     "rights": "© {year} Bookie. All rights reserved.",
@@ -39,6 +71,31 @@
     "createAccount": "계정 만들기",
     "company": "회사",
     "contact": "문의하기"
+  },
+  "Contact": {
+    "metaTitle": "문의하기",
+    "metaDescription": "예약, 계정 또는 제공자 페이지에 관해 Bookie 팀에 메시지를 보내세요.",
+    "title": "문의하기",
+    "subtitle": "Bookie 팀에 연락하세요. 보통 영업일 기준 1일 내에 답변드립니다.",
+    "fields": {
+      "firstName": "이름",
+      "lastName": "성",
+      "email": "회신 이메일 주소",
+      "message": "메시지",
+      "messagePlaceholder": "어떤 도움이 필요한지 알려 주세요."
+    },
+    "validation": {
+      "messageRequired": "메시지를 입력해 주세요",
+      "messageTooLong": "최대 문자 수는 {max}자입니다"
+    },
+    "actions": {
+      "send": "메시지 보내기"
+    },
+    "success": {
+      "title": "메시지를 보냈습니다",
+      "body": "연락해 주셔서 감사합니다. 이메일 주소를 남기셨다면 해당 주소로 답변드립니다.",
+      "sendAnother": "다른 메시지 보내기"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "{email}(으)로 인증 링크를 보냈습니다. 링크를 열어 이 주소를 확인하세요. 개발 환경에서는 링크가 API 서버 콘솔에 출력됩니다.",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "전화번호",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "허용 결제 수단",
+      "methodsPlaceholder": "허용하는 결제 수단을 선택하세요",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "현금",
+        "card_on_site": "현장 카드 결제",
+        "bank_transfer": "계좌 이체",
+        "other": "기타"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "삭제"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

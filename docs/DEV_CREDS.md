@@ -10,12 +10,14 @@ All seeded users accept this one-time code in development:
 | --- | --- |
 | **OTP** | `123456` |
 
-The API also logs a fresh OTP to the console when you call `POST /identity/send-otp`. In dev, `123456` always works for seeded phones even after a new OTP is sent.
+- The API also logs a fresh OTP to the console when you call `POST /identity/send-otp`. In dev, `123456` always works for seeded phones even after a new OTP is sent.
+- Changing a provider email from Account → Profile sends a verification link. In development the API console prints the URL (`/providers/profile?verifyEmail=…`); there is no SMTP yet.
 
 ## Signing in through the UI
 
 Both seeded accounts sign in at **`/auth/phone-number-input`** — enter the phone, then the
-OTP. **Do not pick an account type first:** sign-in sends no `userType`, and the server reads
+OTP. After a successful code, the provider lands on `/providers/profile` and the consumer on
+`/`. **Do not pick an account type first:** sign-in sends no `userType`, and the server reads
 the role off the profile that already exists. Choosing a type starts *registration*, which is
 a different, role-specific screen.
 

@@ -4,6 +4,7 @@ import {
   processProvidersListResponse,
   processSingleProviderResponse,
 } from '@api/providers/processors'
+import { ProvidersListPagination } from '@store/providers/list/types'
 import { ProviderService } from '@store/providers/profile/types'
 import { APIResponse } from '@interfaces/api'
 
@@ -18,18 +19,44 @@ const basicProvider = (id: string) => ({
 const service = (id: string): ProviderService =>
   ({ id, name: `Service ${id}`, duration: 30, price: 10, currency: 'usd' }) as ProviderService
 
+/** The paged envelope `GET /providers` answers with. */
+const pagedProviders = (items: ReturnType<typeof basicProvider>[], window: Partial<ProvidersListPagination> = {}) => ({
+  items,
+  total: items.length,
+  page: 1,
+  perPage: 9,
+  pageCount: 1,
+  ...window,
+})
+
 describe('processProvidersListResponse', () => {
-  it('normalizes a list into byId + allIds, preserving order', () => {
+  it('normalizes the page into byId + allIds, preserving order', () => {
     const providers = [basicProvider('a'), basicProvider('b')]
 
-    expect(processProvidersListResponse(envelope(providers) as never)).toEqual({
+    expect(processProvidersListResponse(envelope(pagedProviders(providers)) as never).list).toEqual({
       allIds: ['a', 'b'],
       byId: { a: providers[0], b: providers[1] },
     })
   })
 
-  it('returns empty structures for an empty list', () => {
-    expect(processProvidersListResponse(envelope([]) as never)).toEqual({ allIds: [], byId: {} })
+  it('returns empty structures for an empty page', () => {
+    expect(processProvidersListResponse(envelope(pagedProviders([])) as never).list).toEqual({
+      allIds: [],
+      byId: {},
+    })
+  })
+
+  // The API clamps an out-of-range page, so the pager has to render the window that
+  // came back rather than the one that was asked for.
+  it('passes the served window through verbatim', () => {
+    const response = pagedProviders([basicProvider('a')], { total: 31, page: 4, perPage: 9, pageCount: 4 })
+
+    expect(processProvidersListResponse(envelope(response) as never).pagination).toEqual({
+      total: 31,
+      page: 4,
+      perPage: 9,
+      pageCount: 4,
+    })
   })
 })
 

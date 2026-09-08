@@ -8,7 +8,8 @@
     "tagline": "您永远的预约平台",
     "confirm": "确认",
     "cancel": "取消",
-    "close": "关闭"
+    "close": "关闭",
+    "today": "今天"
   },
   "Nav": {
     "mainNavigation": "主导航",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "确认您的预约",
+    "summary": {
+      "heading": "预约详情",
+      "provider": "服务提供者",
+      "service": "服务",
+      "date": "日期",
+      "time": "时间",
+      "duration": "时长",
+      "durationValue": "{minutes} 分钟",
+      "price": "价格",
+      "location": "地点",
+      "accepts": "可接受的支付方式"
+    },
+    "guest": {
+      "heading": "您的信息",
+      "hint": "我们需要这些信息来确认您的预约。无需注册账户。",
+      "firstName": "名字",
+      "lastName": "姓氏",
+      "phone": "电话号码",
+      "email": "电子邮箱",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "您希望的支付方式",
+    "paymentPlaceholder": "请选择一种或多种方式",
+    "notesLabel": "给服务提供者的备注",
+    "notesPlaceholder": "预约前需要知道的任何事项",
+    "submit": "确认预约",
+    "requiredBadge": "必填",
+    "optionalBadge": "选填"
+  },
   "Footer": {
     "blurb": "一个平台，既能找到身边的服务，也能管理你的预约日程。",
     "rights": "© {year} Bookie. 保留所有权利。",
@@ -39,6 +71,31 @@
     "createAccount": "创建账户",
     "company": "公司",
     "contact": "联系我们"
+  },
+  "Contact": {
+    "metaTitle": "联系我们",
+    "metaDescription": "就预约、账户或服务提供者主页向 Bookie 团队发送消息。",
+    "title": "联系我们",
+    "subtitle": "与 Bookie 团队取得联系。我们通常在一个工作日内回复。",
+    "fields": {
+      "firstName": "名字",
+      "lastName": "姓氏",
+      "email": "回复邮箱",
+      "message": "留言",
+      "messagePlaceholder": "请告诉我们您需要什么帮助。"
+    },
+    "validation": {
+      "messageRequired": "请填写留言",
+      "messageTooLong": "最多 {max} 个字符"
+    },
+    "actions": {
+      "send": "发送消息"
+    },
+    "success": {
+      "title": "消息已发送",
+      "body": "感谢您的来信。如果您留下了电子邮箱，我们会通过邮件回复。",
+      "sendAnother": "再发送一条消息"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "我们已向 {email} 发送验证链接。打开链接以确认此地址。在开发环境中，该链接会打印在 API 服务器控制台中。",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "电话号码",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "接受的支付方式",
+      "methodsPlaceholder": "请选择您接受的支付方式",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "现金",
+        "card_on_site": "现场刷卡",
+        "bank_transfer": "银行转账",
+        "other": "其他"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "删除"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

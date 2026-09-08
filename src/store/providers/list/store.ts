@@ -10,6 +10,12 @@ const initialState: ProvidersListState = {
     allIds: [],
     byId: {},
   },
+  pagination: {
+    total: 0,
+    page: 1,
+    perPage: 0,
+    pageCount: 1,
+  },
   isPending: false,
   error: null,
 }
@@ -35,11 +41,12 @@ export const useProvidersListStoreBase = create<ProvidersListState & ProvidersLi
             }
           })
         },
-        getProvidersList: async () => {
-          const normalizedProviders = await getProvidersListAPI()
+        getProvidersList: async (args) => {
+          const { list, pagination } = await getProvidersListAPI(args)
 
           set((state) => {
-            state.list = normalizedProviders
+            state.list = list
+            state.pagination = pagination
           })
         },
       })

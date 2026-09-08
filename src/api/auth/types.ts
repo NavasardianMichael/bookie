@@ -48,14 +48,14 @@ export type ChangePhoneConfirmAPI = Endpoint<{
   processed: { phone: PhoneNumber }
 }>
 
-export type ChangeEmailSendOtpAPI = Endpoint<{
-  payload: { email: string }
+export type ChangeEmailSendAPI = Endpoint<{
+  payload: { email: string; returnPath: string }
   response: boolean
   processed: void
 }>
 
 export type ChangeEmailConfirmAPI = Endpoint<{
-  payload: { otp: string | number }
+  payload: { token: string }
   response: { email: string; emailVerifiedAt: string }
   processed: { email: string; emailVerifiedAt: string }
 }>

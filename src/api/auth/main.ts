@@ -9,7 +9,7 @@ import {
 } from './processors'
 import {
   ChangeEmailConfirmAPI,
-  ChangeEmailSendOtpAPI,
+  ChangeEmailSendAPI,
   ChangePhoneConfirmAPI,
   ChangePhoneSendOtpAPI,
   GetCodeByPhoneNumberAPI,
@@ -60,8 +60,8 @@ export const changePhoneConfirmAPI: ChangePhoneConfirmAPI['api'] = async (params
   return data.value!
 }
 
-export const changeEmailSendOtpAPI: ChangeEmailSendOtpAPI['api'] = async (params) => {
-  await axiosInstance.post<APIResponse<ChangeEmailSendOtpAPI['response']>>(ENDPOINTS.changeEmailSendOtp, params)
+export const changeEmailSendAPI: ChangeEmailSendAPI['api'] = async (params) => {
+  await axiosInstance.post<APIResponse<ChangeEmailSendAPI['response']>>(ENDPOINTS.changeEmailSend, params)
 }
 
 export const changeEmailConfirmAPI: ChangeEmailConfirmAPI['api'] = async (params) => {

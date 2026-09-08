@@ -5,24 +5,20 @@ import { getCategoriesListAPI } from '@api/categories/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { CategoriesListActions, CategoriesListState } from './types'
 
+// Empty until `getCategoriesList` runs. This used to ship one fake row whose `allIds`
+// entry ('c-1') did not even match its own `byId` key ('smth'), so every category picker
+// offered a category id the API had never heard of — and `Service.categoryId` is a
+// required foreign key, so choosing it failed the save.
 const initialState: CategoriesListState = {
   list: {
-    allIds: ['c-1'],
-
-    byId: {
-      'c-1': {
-        id: 'smth',
-        name: 'ex',
-        organizations: [],
-        providers: [],
-      },
-    },
+    allIds: [],
+    byId: {},
   },
   isPending: false,
   error: null,
 }
 
-const useCategoriesListStoreBase = create<CategoriesListState & CategoriesListActions>()(
+export const useCategoriesListStoreBase = create<CategoriesListState & CategoriesListActions>()(
   immer(
     combine(
       initialState,

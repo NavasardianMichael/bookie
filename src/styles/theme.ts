@@ -85,6 +85,22 @@ export const antdTheme: ThemeConfig = {
       controlItemBgActive: BRAND[900],
       cellHoverBg: BRAND[100],
     },
+    // A Dropdown's menu does NOT read Menu's tokens — `dropdown/style/index.js` styles
+    // `ant-dropdown-menu-item` itself, off the global `controlItemBg*` aliases. So a
+    // `Menu: { itemSelectedBg }` block here would be dead config; these three are the
+    // ones that land.
+    //
+    // They have to be set because antd derives `controlItemBgActive` from
+    // `colorPrimary`, and our navy is dark and desaturated enough that the derivation
+    // lands on mid-grey (#868a8f) — the current sort read as a disabled row. The tint
+    // stays light rather than going navy on purpose: the same rule hardcodes the
+    // selected item's text to `colorPrimary`, which no token overrides, so a navy fill
+    // would paint navy text on navy.
+    Dropdown: {
+      controlItemBgActive: BRAND[100],
+      controlItemBgActiveHover: BRAND[200],
+      controlItemBgHover: BRAND[50],
+    },
     Select: {
       optionPadding: `${FIELD_PADDING_BLOCK}px ${FIELD_PADDING_INLINE}px`,
       // No paddingBlock/paddingInline on Select. Horizontal is `paddingSM - lineWidth`;

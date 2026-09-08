@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { axiosInstance } from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
+import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processProviderProfileResponse,
@@ -9,16 +10,22 @@ import {
   processSingleProviderResponse,
 } from './processors'
 import {
+  DeleteProviderProfileAPI,
   DeleteProviderServiceAPI,
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
+  PostProviderServiceAPI,
+  ProviderServiceRequestPayload,
   PutProviderProfileAPI,
   PutProviderServiceAPI,
 } from './types'
 
-export const getProvidersListAPI: GetProvidersListAPI['api'] = async () => {
-  const { data } = await axiosInstance.get<APIResponse<GetProvidersListAPI['response']>>(ENDPOINTS.getProvidersList)
+export const getProvidersListAPI: GetProvidersListAPI['api'] = async (query) => {
+  const queryString = paramsToQueryString({ ...query })
+  const { data } = await axiosInstance.get<APIResponse<GetProvidersListAPI['response']>>(
+    queryString ? `${ENDPOINTS.getProvidersList}?${queryString}` : ENDPOINTS.getProvidersList
+  )
   const processedResponse = processProvidersListResponse(data)
   return processedResponse
 }
@@ -73,31 +80,71 @@ export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params
   return processProviderProfileResponse(data)
 }
 
-export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (args) => {
-  await axiosInstance.delete<APIResponse<DeleteProviderServiceAPI['response']>>(
-    `${ENDPOINTS.deleteProviderService}/${args.providerId}/services/${args.serviceId}`
-  )
+export const deleteProviderProfileAPI: DeleteProviderProfileAPI['api'] = async () => {
+  await axiosInstance.delete<APIResponse<DeleteProviderProfileAPI['response']>>(ENDPOINTS.deleteProviderProfile)
 }
 
-export const putProviderServiceAPI: PutProviderServiceAPI['api'] = async (params) => {
-  const { providerId, service } = params
-  const serviceId = service.id
+/**
+ * The provider id is redundant with the session cookie, but it is in the route, so an
+ * empty one has to fail here rather than as a `/providers//services` 404 that names
+ * nothing. This fired for real: the profile store was never hydrated, so `id` was `''`.
+ */
+const assertProviderId = (providerId: string): string => {
+  if (!providerId) throw new Error('Provider profile is not loaded yet')
+  return providerId
+}
 
-  const url = serviceId
-    ? `${ENDPOINTS.putProviderService}/${providerId}/services/${serviceId}`
-    : `${ENDPOINTS.putProviderService}/${providerId}/services`
+/**
+ * A service body is sent flat, and only as multipart when it carries a cropped image.
+ *
+ * Both halves are load-bearing. Nesting it as `{ service }` under a
+ * `multipart/form-data` header made axios serialise the keys as `service[name]`, and
+ * multer does no bracket parsing — it hands those over verbatim, so the API read every
+ * field as `undefined`. And an unchanged `image` is a URL string the API has no use for:
+ * it only ever takes an image as an upload, so sending one back would be noise.
+ */
+const toServiceRequest = (service: ProviderServiceRequestPayload) => {
+  const { image, ...fields } = service
+  const isFile = typeof File !== 'undefined' && image instanceof File
 
-  const method = serviceId ? 'put' : 'post'
+  return {
+    body: isFile ? { ...fields, image } : fields,
+    config: isFile ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined,
+  }
+}
 
-  const { data } = await axiosInstance.request<APIResponse<PutProviderServiceAPI['response']>>({
-    url,
-    method,
-    data: { service },
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  })
+export const postProviderServiceAPI: PostProviderServiceAPI['api'] = async (params) => {
+  const providerId = assertProviderId(params.providerId)
+  const { body, config } = toServiceRequest(params.service)
+
+  const { data } = await axiosInstance.post<APIResponse<PostProviderServiceAPI['response']>>(
+    `${ENDPOINTS.postProviderService}/${providerId}/services`,
+    body,
+    config
+  )
 
   const processedResponse = processProviderServiceResponse(data)
   return processedResponse
+}
+
+export const putProviderServiceAPI: PutProviderServiceAPI['api'] = async (params) => {
+  const providerId = assertProviderId(params.providerId)
+  const { body, config } = toServiceRequest(params.service)
+
+  const { data } = await axiosInstance.put<APIResponse<PutProviderServiceAPI['response']>>(
+    `${ENDPOINTS.putProviderService}/${providerId}/services/${params.serviceId}`,
+    body,
+    config
+  )
+
+  const processedResponse = processProviderServiceResponse(data)
+  return processedResponse
+}
+
+export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (args) => {
+  const providerId = assertProviderId(args.providerId)
+
+  await axiosInstance.delete<APIResponse<DeleteProviderServiceAPI['response']>>(
+    `${ENDPOINTS.deleteProviderService}/${providerId}/services/${args.serviceId}`
+  )
 }

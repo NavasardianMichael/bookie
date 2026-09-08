@@ -28,10 +28,11 @@ after hydration.
 | `layout/PageShell` | per-page wrapper — `variant='flow'\|'fill'`, `width` |
 | `layout/Container` | width cap + fluid safe-area gutters |
 | `layout/Section` | titled section with count / description / actions |
-| `layout/PageHeader` | H1 + subtitle + meta + actions + media |
+| `layout/PageHeader` | H1 + subtitle + meta + actions + media; `align='center'` for a standalone page |
 | `layout/ResponsiveGrid` | self-tuning `auto-fill` grid — **no breakpoints** |
 | `layout/Surface` | white panel on the sunken canvas (border, radius, shadow) |
 | `layout/ChipRail` | horizontal overflow chip scroller |
+| `layout/Pagination` | link-based pager — `buildHref(page)`, elided window; never antd's |
 | `brand/BrandLockup` | navy mark tile + wordmark, shared by header and footer |
 | `layout/Footer` (`components/layout/Footer.tsx`) | site footer, mounted once from `App.tsx` |
 | `ui/EntityCard` | the one card for providers, orgs, categories, services |
@@ -112,7 +113,7 @@ switch direction or visibility rather than sizing a table. Reach first for:
 - `dvh` for full-height, via `PageShell variant='fill'`
 
 For a genuine JS branch use `Grid.useBreakpoint()` — currently only in `AppSheet`
-(Modal ≥md, Drawer below) and `Calendar` (slot duration).
+(Modal ≥md, Drawer below).
 
 ## Styling
 

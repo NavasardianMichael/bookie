@@ -41,6 +41,20 @@ const PROTECTED_PREFIXES = [
 
 const handleI18nRouting = createMiddleware(routing)
 
+/**
+ * App-root metadata files (`icon.tsx`, `apple-icon.tsx`, `opengraph-image.tsx`)
+ * are served at these paths with no file extension, so the matcher cannot skip
+ * them. Without this list `/icon` is treated as an unprefixed page and 307s to
+ * `/en/icon`, which is not a document — the browser then 404s the favicon and
+ * the manifest's icon download fails.
+ */
+const LOCALE_AGNOSTIC_METADATA = new Set([
+  '/icon',
+  '/apple-icon',
+  '/opengraph-image',
+  '/twitter-image',
+])
+
 /** Cookie first — an explicit choice outranks the browser's header. */
 const negotiateLocale = (request: NextRequest) => {
   const chosen = request.cookies.get(LOCALE_COOKIE)?.value
@@ -79,6 +93,14 @@ const personalizedRedirect = (target: URL) => {
 export function proxy(request: NextRequest) {
   const { locale, pathname } = splitLocaleFromPathname(request.nextUrl.pathname)
 
+  if (LOCALE_AGNOSTIC_METADATA.has(pathname)) {
+    if (!locale) return NextResponse.next()
+
+    const target = request.nextUrl.clone()
+    target.pathname = pathname
+    return NextResponse.rewrite(target)
+  }
+
   if (!locale) {
     const target = request.nextUrl.clone()
     // ROUTES.home is '/', so a bare redirect target would be '/en/' — harmless but
@@ -101,8 +123,9 @@ export function proxy(request: NextRequest) {
 
 /**
  * Every page route, since all of them now need a locale prefix. Skips Next's internals
- * and anything with a file extension, so static assets and the generated icon/OG images
- * are never redirected.
+ * and anything with a file extension (`favicon.ico`, `/manifest.webmanifest`, static
+ * assets). Generated metadata images have no extension, so they still enter this
+ * function and are passed through by `LOCALE_AGNOSTIC_METADATA` rather than prefixed.
  *
  * `matcher` is a literal: Next statically analyses it at build time and cannot resolve an
  * imported constant. Matching broadly is also what lets `PROTECTED_PREFIXES` above be the

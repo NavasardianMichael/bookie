@@ -3,6 +3,8 @@ export const ENDPOINTS = {
   getSingleProvider: '/providers',
   getProviderProfile: '/provider-profile',
   putProviderProfile: '/provider-profile',
-  deleteProviderService: '/providers',
+  deleteProviderProfile: '/provider-profile',
+  postProviderService: '/providers',
   putProviderService: '/providers',
+  deleteProviderService: '/providers',
 } as const

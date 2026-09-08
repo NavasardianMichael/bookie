@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { Consumer } from '@store/consumers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
@@ -22,6 +23,10 @@ import { HelpIcon, UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
+type Props = {
+  verifyEmailToken?: string
+}
+
 type ProfileFormValues = {
   firstName: string
   lastName: string
@@ -29,7 +34,7 @@ type ProfileFormValues = {
   email?: string
 }
 
-export const ConsumerProfileForm = () => {
+export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
   const t = useTranslations('Settings')
   const [form] = Form.useForm<ProfileFormValues>()
   const [profile, setProfile] = useState<Consumer | null>(null)
@@ -38,6 +43,7 @@ export const ConsumerProfileForm = () => {
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const descriptionRules = useFormItemRules('maxCharsForTextarea')
 
   useEffect(() => {
     let cancelled = false
@@ -155,21 +161,27 @@ export const ConsumerProfileForm = () => {
               <FieldLabel htmlFor='description' requirement='Optional'>
                 {t('profile.description')}
               </FieldLabel>
-              <AppFormItem name='description' messageVariables={{ label: t('profile.description') }}>
-                <AppTextArea id='description' rows={3} />
+              <AppFormItem
+                name='description'
+                rules={descriptionRules}
+                messageVariables={{ label: t('profile.description') }}
+              >
+                <AppTextArea id='description' rows={3} maxLength={MAX_CHARS_FOR_TEXTAREA} />
               </AppFormItem>
             </div>
             <div className='md:col-span-2'>
               <EmailVerifyField
                 currentEmail={profile?.basic.email}
                 emailVerifiedAt={profile?.details.emailVerifiedAt}
-                onVerified={(email) => {
+                verifyPath={ROUTES.consumerProfile}
+                verifyToken={verifyEmailToken}
+                onVerified={(email, emailVerifiedAt) => {
                   setProfile((prev) =>
                     prev
                       ? {
                           ...prev,
                           basic: { ...prev.basic, email },
-                          details: { ...prev.details, emailVerifiedAt: new Date().toISOString() },
+                          details: { ...prev.details, emailVerifiedAt },
                         }
                       : prev
                   )

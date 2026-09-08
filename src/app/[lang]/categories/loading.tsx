@@ -8,7 +8,7 @@ export default function Loading() {
         <div className='bg-surface-sunken h-8 w-48 animate-pulse rounded-brand' />
         <div className='bg-surface-sunken h-4 w-32 animate-pulse rounded-brand' />
       </div>
-      <CardGridSkeleton count={8} />
+      <CardGridSkeleton count={8} aspect={false} />
     </PageShell>
   )
 }

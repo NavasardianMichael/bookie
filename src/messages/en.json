@@ -8,7 +8,8 @@
     "tagline": "Your Booking Platform Forever",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "today": "Today"
   },
   "Nav": {
     "mainNavigation": "Main navigation",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "Confirm your booking",
+    "summary": {
+      "heading": "Booking details",
+      "provider": "Provider",
+      "service": "Service",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "durationValue": "{minutes} min",
+      "price": "Price",
+      "location": "Location",
+      "accepts": "Accepted payment"
+    },
+    "guest": {
+      "heading": "Your details",
+      "hint": "We need these to confirm your booking. No account required.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone number",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "How you'd like to pay",
+    "paymentPlaceholder": "Select one or more methods",
+    "notesLabel": "Notes for the provider",
+    "notesPlaceholder": "Anything they should know before your appointment",
+    "submit": "Confirm booking",
+    "requiredBadge": "Required",
+    "optionalBadge": "Optional"
+  },
   "Footer": {
     "blurb": "A single platform to find local services or run a booking calendar.",
     "rights": "© {year} Bookie. All rights reserved.",
@@ -39,6 +71,31 @@
     "createAccount": "Create an account",
     "company": "Company",
     "contact": "Contact"
+  },
+  "Contact": {
+    "metaTitle": "Contact",
+    "metaDescription": "Send the Bookie team a message about a booking, your account, or a provider listing.",
+    "title": "Contact",
+    "subtitle": "Get in touch with the Bookie team. We usually reply within one business day.",
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Contact Back Email Address",
+      "message": "Message",
+      "messagePlaceholder": "Tell us what you need help with."
+    },
+    "validation": {
+      "messageRequired": "Please write a message",
+      "messageTooLong": "Max count of characters is {max}"
+    },
+    "actions": {
+      "send": "Send Message"
+    },
+    "success": {
+      "title": "Message sent",
+      "body": "Thanks for getting in touch. If you left an email address, we will reply there.",
+      "sendAnother": "Send another message"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -75,18 +131,15 @@
       "imageHint": "JPG or PNG. Max size 2MB.",
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
-      "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
+      "sendEmailCode": "Send verification email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "We sent a verification link to {email}. Open it to confirm this address. In development the link is printed in the API server console.",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "Phone number",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "Accepted methods",
+      "methodsPlaceholder": "Select the methods you accept",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -156,18 +210,18 @@
       }
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

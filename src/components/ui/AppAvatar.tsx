@@ -30,7 +30,12 @@ export const AppAvatar: FC<AppAvatarProps> = ({ src, name, size = 48, shape = 'c
       style={{ width: size, height: size, fontSize: Math.max(12, Math.round(size * 0.36)) }}
     >
       {resolved ? (
-        <Image src={resolved} alt={name} fill sizes={`${size}px`} className='object-cover' />
+        /^(blob:|data:)/.test(resolved) ? (
+          // Cropped files are only addressable as blob URLs; next/image will not load them.
+          <img src={resolved} alt={name} className='absolute inset-0 size-full object-cover' />
+        ) : (
+          <Image key={resolved} src={resolved} alt={name} fill sizes={`${size}px`} className='object-cover' />
+        )
       ) : (
         <span aria-hidden='true'>{getInitials(name)}</span>
       )}

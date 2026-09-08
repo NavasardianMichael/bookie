@@ -8,7 +8,8 @@
     "tagline": "منصة الحجز الخاصة بك إلى الأبد",
     "confirm": "تأكيد",
     "cancel": "إلغاء",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "today": "اليوم"
   },
   "Nav": {
     "mainNavigation": "التنقل الرئيسي",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "تأكيد الحجز",
+    "summary": {
+      "heading": "تفاصيل الحجز",
+      "provider": "المقدّم",
+      "service": "الخدمة",
+      "date": "التاريخ",
+      "time": "الوقت",
+      "duration": "المدة",
+      "durationValue": "{minutes} دقيقة",
+      "price": "السعر",
+      "location": "الموقع",
+      "accepts": "طرق الدفع المقبولة"
+    },
+    "guest": {
+      "heading": "بياناتك",
+      "hint": "نحتاج هذه البيانات لتأكيد حجزك. لا حاجة لإنشاء حساب.",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "طريقة الدفع المفضلة",
+    "paymentPlaceholder": "اختر طريقة أو أكثر",
+    "notesLabel": "ملاحظات للمقدّم",
+    "notesPlaceholder": "أي شيء يجب معرفته قبل موعدك",
+    "submit": "تأكيد الحجز",
+    "requiredBadge": "مطلوب",
+    "optionalBadge": "اختياري"
+  },
   "Footer": {
     "blurb": "منصة واحدة للعثور على الخدمات القريبة منك أو لإدارة تقويم حجوزاتك.",
     "rights": "© {year} Bookie. جميع الحقوق محفوظة.",
@@ -39,6 +71,31 @@
     "createAccount": "إنشاء حساب",
     "company": "الشركة",
     "contact": "اتصل بنا"
+  },
+  "Contact": {
+    "metaTitle": "اتصل بنا",
+    "metaDescription": "أرسل رسالة إلى فريق Bookie بخصوص حجز أو حسابك أو صفحة مزوّد خدمة.",
+    "title": "اتصل بنا",
+    "subtitle": "تواصل مع فريق Bookie. نردّ عادةً في غضون يوم عمل واحد.",
+    "fields": {
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "email": "البريد الإلكتروني للتواصل",
+      "message": "الرسالة",
+      "messagePlaceholder": "أخبرنا بما تحتاج المساعدة فيه."
+    },
+    "validation": {
+      "messageRequired": "يرجى كتابة رسالة",
+      "messageTooLong": "الحد الأقصى لعدد الأحرف هو {max}"
+    },
+    "actions": {
+      "send": "إرسال الرسالة"
+    },
+    "success": {
+      "title": "تم إرسال الرسالة",
+      "body": "شكرًا لتواصلك معنا. إذا تركت بريدًا إلكترونيًا، فسنردّ عليه.",
+      "sendAnother": "إرسال رسالة أخرى"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "أرسلنا رابط تحقق إلى {email}. افتحه لتأكيد هذا العنوان. في بيئة التطوير يُطبع الرابط في وحدة تحكم خادم الـ API.",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "رقم الهاتف",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "طرق الدفع المقبولة",
+      "methodsPlaceholder": "اختر الطرق التي تقبلها",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "نقداً",
+        "card_on_site": "بطاقة في الموقع",
+        "bank_transfer": "تحويل بنكي",
+        "other": "أخرى"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "إزالة"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

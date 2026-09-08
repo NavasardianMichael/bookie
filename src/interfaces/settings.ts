@@ -4,7 +4,13 @@ import { PhoneNumber } from '@interfaces/app'
 export type PaymentMethod = 'cash' | 'card_on_site' | 'bank_transfer' | 'other'
 
 export type PaymentInfo = {
-  method: PaymentMethod
+  /**
+   * Every method the owner accepts, not a single preference — a provider may take
+   * cash *and* card on site, and the booking sheet offers exactly this set.
+   * Read it through `toPaymentMethods` (`@helpers/payment`), which also tolerates
+   * the pre-migration `{ method }` shape.
+   */
+  methods: PaymentMethod[]
   /** Copyable reference the owner types (IBAN, "pay at desk", …). */
   reference?: string
   notes?: string

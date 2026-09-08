@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { PaymentInfo } from '@interfaces/settings'
 import { processError } from '@helpers/error'
+import { toPaymentMethods } from '@helpers/payment'
 import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
@@ -17,7 +18,17 @@ import { Surface } from '@components/ui/layout/Surface'
 
 type FormValues = { paymentInfo: PaymentInfo }
 
-const DEFAULT: PaymentInfo = { method: 'cash', reference: '', notes: '' }
+const DEFAULT: PaymentInfo = { methods: ['cash'], reference: '', notes: '' }
+
+/**
+ * Draft overlay wins over the live column, and both are normalised — a `draft`
+ * written before the `method` -> `methods` reshape is JSON the migration's
+ * `UPDATE` reshapes too, but a client holding a stale copy would still send one.
+ */
+const readPaymentInfo = (profile: { draft?: { paymentInfo?: unknown } | null; details: { paymentInfo?: PaymentInfo } }) => {
+  const stored = (profile.draft?.paymentInfo as PaymentInfo | undefined) ?? profile.details.paymentInfo
+  return stored ? { ...stored, methods: toPaymentMethods(stored) } : DEFAULT
+}
 
 export const ProviderPaymentsClient = () => {
   const t = useTranslations('Settings')
@@ -31,8 +42,7 @@ export const ProviderPaymentsClient = () => {
   useEffect(() => {
     void getProviderProfileAPI()
       .then((profile) => {
-        const info =
-          (profile.draft?.paymentInfo as PaymentInfo | undefined) ?? profile.details.paymentInfo ?? DEFAULT
+        const info = readPaymentInfo(profile)
         setSaved(info)
         form.setFieldsValue({ paymentInfo: info })
       })
@@ -49,8 +59,7 @@ export const ProviderPaymentsClient = () => {
         await putProviderProfileAPI({ mode: 'publish' })
       }
       const profile = await getProviderProfileAPI()
-      const info =
-        (profile.draft?.paymentInfo as PaymentInfo | undefined) ?? profile.details.paymentInfo ?? DEFAULT
+      const info = readPaymentInfo(profile)
       setSaved(info)
       form.setFieldsValue({ paymentInfo: info })
       setDirty(false)

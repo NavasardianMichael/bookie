@@ -43,8 +43,15 @@ function normalizeServicesPayload(services: ServicesPayload): Normalized<Provide
   return normalizeServices(Object.values(services.byId ?? {}))
 }
 
+/**
+ * Splits the paged envelope into the two things the page needs: the normalized rows,
+ * and the window the API actually served. `page` is read back rather than echoed —
+ * the API clamps an out-of-range request, so the pager must render its answer.
+ */
 export const processProvidersListResponse: GetProvidersListAPI['processor'] = (response) => {
-  return response.value.reduce(
+  const { items, total, page, perPage, pageCount } = response.value
+
+  const list = items.reduce(
     (acc, provider) => {
       const item = provider as BasicProvider
       acc.byId[item.id] = item
@@ -54,8 +61,10 @@ export const processProvidersListResponse: GetProvidersListAPI['processor'] = (r
     {
       allIds: [],
       byId: {},
-    } as GetProvidersListAPI['processed']
+    } as GetProvidersListAPI['processed']['list']
   )
+
+  return { list, pagination: { total, page, perPage, pageCount } }
 }
 
 export const processSingleProviderResponse: GetSingleProviderAPI['processor'] = (provider) => {

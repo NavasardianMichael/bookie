@@ -8,7 +8,8 @@
     "tagline": "Sua plataforma de agendamentos para sempre",
     "confirm": "Confirmar",
     "cancel": "Cancelar",
-    "close": "Fechar"
+    "close": "Fechar",
+    "today": "Hoje"
   },
   "Nav": {
     "mainNavigation": "Navegação principal",
@@ -26,6 +27,37 @@
     "account": "Account",
     "accountSettings": "Account settings"
   },
+  "Booking": {
+    "confirmTitle": "Confirme seu agendamento",
+    "summary": {
+      "heading": "Detalhes do agendamento",
+      "provider": "Profissional",
+      "service": "Serviço",
+      "date": "Data",
+      "time": "Horário",
+      "duration": "Duração",
+      "durationValue": "{minutes} min",
+      "price": "Preço",
+      "location": "Local",
+      "accepts": "Pagamento aceito"
+    },
+    "guest": {
+      "heading": "Seus dados",
+      "hint": "Precisamos deles para confirmar seu agendamento. Não é necessário ter conta.",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "phone": "Número de telefone",
+      "email": "E-mail",
+      "emailPlaceholder": "you@example.com"
+    },
+    "paymentLabel": "Como você prefere pagar",
+    "paymentPlaceholder": "Selecione um ou mais métodos",
+    "notesLabel": "Observações para o profissional",
+    "notesPlaceholder": "Qualquer coisa que ele deva saber antes do atendimento",
+    "submit": "Confirmar agendamento",
+    "requiredBadge": "Obrigatório",
+    "optionalBadge": "Opcional"
+  },
   "Footer": {
     "blurb": "Uma única plataforma para encontrar serviços locais ou gerenciar sua agenda de agendamentos.",
     "rights": "© {year} Bookie. Todos os direitos reservados.",
@@ -39,6 +71,31 @@
     "createAccount": "Criar uma conta",
     "company": "Empresa",
     "contact": "Contato"
+  },
+  "Contact": {
+    "metaTitle": "Contato",
+    "metaDescription": "Envie uma mensagem para a equipe do Bookie sobre um agendamento, sua conta ou o perfil de um profissional.",
+    "title": "Contato",
+    "subtitle": "Entre em contato com a equipe do Bookie. Normalmente respondemos em um dia útil.",
+    "fields": {
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "E-mail de contato",
+      "message": "Mensagem",
+      "messagePlaceholder": "Conte para nós com o que você precisa de ajuda."
+    },
+    "validation": {
+      "messageRequired": "Escreva uma mensagem",
+      "messageTooLong": "O número máximo de caracteres é {max}"
+    },
+    "actions": {
+      "send": "Enviar mensagem"
+    },
+    "success": {
+      "title": "Mensagem enviada",
+      "body": "Obrigado pelo contato. Se você deixou um e-mail, responderemos por lá.",
+      "sendAnother": "Enviar outra mensagem"
+    }
   },
   "Settings": {
     "settings": "Settings",
@@ -56,8 +113,7 @@
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
-      "services": "Services",
-      "listing": "Listing"
+      "services": "Services"
     },
     "actions": {
       "save": "Save Changes",
@@ -76,17 +132,14 @@
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Send verification code",
-      "confirmEmail": "Verify email",
       "emailRequired": "Enter an email address first.",
-      "emailCodeSent": "Verification code sent. Use 123456 in development.",
+      "emailCodeSent": "Enviamos um link de verificação para {email}. Abra-o para confirmar este endereço. Em desenvolvimento, o link é exibido no console do servidor da API.",
       "emailVerified": "Email verified and saved.",
-      "otp": "Verification code",
       "verifiedAt": "Verified {date}"
     },
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
-      "current": "Current phone number",
-      "newPhone": "New phone number",
+      "label": "Número de telefone",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -118,8 +171,9 @@
     "payments": {
       "title": "Payments",
       "subtitle": "How you prefer to pay or get paid in person.",
-      "hint": "Never enter a card number here. This is only a preferred in-person method and an optional copyable reference.",
-      "method": "Preferred method",
+      "hint": "Never enter a card number here. These are only the in-person methods you accept, plus an optional copyable reference.",
+      "methodsLabel": "Métodos aceitos",
+      "methodsPlaceholder": "Selecione os métodos que você aceita",
       "reference": "Reference",
       "referencePlaceholder": "IBAN, desk instructions, etc.",
       "notes": "Notes",
@@ -129,10 +183,10 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy",
       "methods": {
-        "cash": "Cash",
-        "card_on_site": "Card on site",
-        "bank_transfer": "Bank transfer",
-        "other": "Other"
+        "cash": "Dinheiro",
+        "card_on_site": "Cartão no local",
+        "bank_transfer": "Transferência bancária",
+        "other": "Outro"
       }
     },
     "availability": {
@@ -156,18 +210,18 @@
       "removeRange": "Remover"
     },
     "listing": {
-      "subtitle": "Control whether your public profile is visible on Explore.",
-      "pageStatus": "Page visibility",
-      "body": "Unlisting hides you from Explore and returns 404 on your public page for everyone except you.",
       "statusActive": "Account Status: Active",
       "statusUnlisted": "Account Status: Unlisted",
       "preview": "Preview Profile",
-      "share": "Share Link",
+      "copyUrl": "Copy URL",
       "linkCopied": "Link copied",
       "publishPage": "Publish page",
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
-      "unpublished": "Your page is unlisted."
+      "unpublished": "Your page is unlisted.",
+      "deletePage": "Delete page",
+      "deleteTitle": "Delete this page?",
+      "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
     },
     "needHelp": {
       "title": "Need help?",

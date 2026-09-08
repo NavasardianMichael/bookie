@@ -103,6 +103,10 @@ Rules come from `useFormItemRules(...names)`, backed by `FORM_ITEM_RULES` in
 `src/constants/form.ts`: `required`, `maxCharsForInput` (40), `maxCharsForTextarea` (300),
 `oneItemSelectedAtLeast`, `email`, `positiveNumber`, `url`.
 
+A textarea that uses `maxCharsForTextarea` must also pass `maxLength={MAX_CHARS_FOR_TEXTAREA}`
+on `AppTextArea` — that is what draws the `12/300` crumb. `maxLength` without a matching
+rule (or the reverse) desyncs the counter from validation.
+
 It composes only — it cannot parameterise (`max: 60`) or express a custom `validator`.
 For those, write the rule array inline.
 
@@ -141,8 +145,11 @@ Two sources of truth, each authoritative for a different half. Four live consequ
 |---|---|
 | `ProviderProfileForm.tsx:88` | `categoryIds` has `required` + `min:1` on an antd slot nothing writes → **the form can never be submitted** |
 | `ProviderProfileFormOrganization.tsx:36` | Writes `organization`; the payload builder reads `organizationId`. Never submitted |
-| `ProviderServiceFormCategory.tsx:28` | `value.id` where `value` is a string → `undefined` |
-| `AccountTypeButtons.tsx:39` | Shows "Client" selected while Formik holds `provider` |
+
+`ProviderServiceFormCategory` and `AccountTypeButtons` were the other two; both are fixed.
+`src/components/providerServiceForm/` is now a **worked example of the migration** — three
+custom fields (category, duration, image) each implementing the control contract, and a
+parent that owns `isSubmitting` in local state and picks POST vs PUT off `values.id`.
 
 Removing Formik fixes all four by construction.
 
@@ -161,6 +168,23 @@ Removing Formik fixes all four by construction.
 
 Verify by actually submitting the form against a running API — for the provider profile
 form, a successful save *is* the regression test, since it cannot currently submit at all.
+
+## A control that holds a `File`
+
+`ProviderServiceFormImage` and `ProfilePhotoField` are the shape to copy. The field's value
+is a `File` between the crop and the save and the stored `/uploads/...` path afterwards, so:
+
+- widen the form-values type to `string | File`, and let the API layer decide the transport
+  — it sends JSON unless the value is really a `File`;
+- derive the preview from `value` rather than mirroring it into `useState`, and revoke the
+  blob URL when `value` moves on, or the crop leaks;
+- give `Upload` a no-op `customRequest`, so antd does not POST the file on its own.
+  **Not** `beforeUpload={() => false}`: `antd-img-crop` resolves its crop promise with
+  whatever `beforeUpload` returned and passes *that* to `onModalOk`, so `false` arrives
+  where the cropped `File` was expected and the image is silently dropped.
+- put the control in a **named** `Form.Item`. `setFieldValue('image', file)` on a name
+  with no item is dropped by `validateFields()`, so Save draft sends no file and the
+  live portrait comes back.
 
 ## Out of scope
 

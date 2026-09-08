@@ -12,6 +12,13 @@ type Props = {
    * screen bakes "(Mandatory)" into the label text instead.
    */
   requirement?: FieldRequirement
+  /**
+   * Overrides the badge's text while `requirement` still decides its tone. The
+   * registration screens are hardcoded English and pass nothing; a translated screen
+   * passes the localised word, since `FieldRequirement` is an English literal union
+   * doing double duty as the semantic flag.
+   */
+  requirementText?: string
   className?: string
 }
 
@@ -25,7 +32,7 @@ type Props = {
  * the escape hatch. That is a grep gate (`src/styles/CLAUDE.md`). Owning the label sidesteps
  * the whole problem and keeps the association explicit.
  */
-export const FieldLabel: FC<Props> = ({ htmlFor, children, requirement, className }) => (
+export const FieldLabel: FC<Props> = ({ htmlFor, children, requirement, requirementText, className }) => (
   <label
     htmlFor={htmlFor}
     className={cn('text-brand-text text-body-sm flex items-baseline justify-between gap-4 font-bold', className)}
@@ -35,7 +42,7 @@ export const FieldLabel: FC<Props> = ({ htmlFor, children, requirement, classNam
       <span
         className={cn('text-caption font-normal', requirement === 'Required' ? 'text-brand/60' : 'text-brand-muted')}
       >
-        {requirement}
+        {requirementText ?? requirement}
       </span>
     )}
   </label>

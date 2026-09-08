@@ -95,21 +95,3 @@ export async function issuePendingPhoneOtp(
     console.log(`[OTP change-phone] user=${userId} +${phoneCode}${phoneNumber} => ${code}`)
   }
 }
-
-export async function issuePendingEmailOtp(userId: string, email: string): Promise<void> {
-  const code = mintOtpCode()
-  const otpHash = await hashOtp(code)
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      pendingEmail: email,
-      emailOtpHash: otpHash,
-      emailOtpExpiresAt: otpExpiry(),
-    },
-  })
-
-  if (config.nodeEnv !== 'production') {
-    console.log(`[OTP change-email] user=${userId} ${email} => ${code}`)
-  }
-}

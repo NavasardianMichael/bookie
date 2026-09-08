@@ -58,4 +58,7 @@ Each major directory also carries its own `CLAUDE.md` with that layer's invarian
 
 - Set strong `JWT_SECRET` and production `DATABASE_URL` in `server/.env`
 - Set `CORS_ORIGIN` to your frontend URL
+- Set `NEXT_PUBLIC_SITE_URL` to the public origin serving the pages — it drives
+  `metadataBase`, canonicals and JSON-LD `@id`s, and falls back to
+  `http://localhost:4141` when unset
 - Run `pnpm db:migrate` against the production database before starting the API

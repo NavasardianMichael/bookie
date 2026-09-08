@@ -186,3 +186,16 @@ export const providerInclude = {
   services: true,
   gallery: true,
 } as const
+
+/**
+ * What a provider *card* needs, and nothing else.
+ *
+ * `providerInclude` additionally pulls `user`, every `Service` row and the whole
+ * gallery — three joins per provider that `mapBasicProvider` never reads. On a
+ * one-shot full list that was merely wasteful; on a paged, searchable Explore it
+ * would be paid on every keystroke.
+ */
+export const providerListInclude = {
+  categories: { include: { category: true } },
+  organization: { include: { categories: { include: { category: true } } } },
+} as const

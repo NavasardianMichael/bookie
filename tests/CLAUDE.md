@@ -3,7 +3,7 @@
 ```
 tests/
   unit/          pure functions — no network, no DOM, no React
-    helpers/
+    app/  components/  helpers/  i18n/  linkedDataSchema/  server/  styles/
   integration/   several units together, dependencies mocked
     api/         processors: pure APIResponse<T> -> processed
     store/       zustand actions driven headlessly, API module mocked
@@ -13,6 +13,12 @@ tests/
 
 Layout is `[test type]/[layer]`, mirroring `src/`. Test files live here, never beside
 their target. Naming is `<subject>.spec.ts`.
+
+`unit/server/` is the one layer that does not mirror `src/` — it covers `server/src/`,
+which is a separate package with **no path alias**, so those specs import by relative
+path. Only a server module with no imports of its own is reachable this way: anything
+pulling in `../config.js` needs env stubbing and does not belong here. `lib/rateLimit.ts`
+qualifies and is tested; `lib/mail.ts` does not.
 
 ```bash
 pnpm test         # unit + integration — fast, no external dependencies

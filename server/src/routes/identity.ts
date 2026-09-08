@@ -1,13 +1,16 @@
 import { Router } from 'express'
+import { config } from '../config.js'
 import { fail, ok } from '../lib/api-response.js'
 import {
-  issueOtp,
-  issuePendingEmailOtp,
-  issuePendingPhoneOtp,
-  validateOtp,
-  verifyOtp,
-} from '../lib/otp.js'
+  buildEmailVerifyUrl,
+  emailVerifyTokensMatch,
+  isAllowedEmailVerifyReturnPath,
+  issuePendingEmailVerify,
+  sendVerificationEmail,
+} from '../lib/email-verify.js'
+import { issueOtp, issuePendingPhoneOtp, validateOtp, verifyOtp } from '../lib/otp.js'
 import { prisma } from '../lib/prisma.js'
+import { asTrimmedString, isEmail } from '../lib/request.js'
 import { clearSessionCookie, setSessionCookie } from '../lib/session.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
@@ -37,12 +40,6 @@ type RegistrationProfile = {
 const asCountryCode = (value: unknown): string | undefined => {
   const trimmed = asTrimmedString(value)?.toUpperCase()
   return trimmed && /^[A-Z]{2}$/.test(trimmed) ? trimmed : undefined
-}
-
-const asTrimmedString = (value: unknown): string | undefined => {
-  if (typeof value !== 'string') return undefined
-  const trimmed = value.trim()
-  return trimmed.length ? trimmed : undefined
 }
 
 /**
@@ -285,15 +282,31 @@ identityRouter.post(
 )
 
 identityRouter.post(
-  '/change-email/send-otp',
+  '/change-email/send',
   requireAuth,
   asyncHandler(async (req, res) => {
     const email = asTrimmedString(req.body?.email)?.toLowerCase()
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || !isEmail(email)) {
       return fail(res, 'Valid email required')
     }
 
-    await issuePendingEmailOtp(req.session!.userId, email)
+    const returnPath = asTrimmedString(req.body?.returnPath)
+    const role = req.session!.role
+    if (!returnPath || !isAllowedEmailVerifyReturnPath(returnPath, role)) {
+      return fail(res, 'Invalid return path')
+    }
+
+    const token = await issuePendingEmailVerify(req.session!.userId, email)
+    const verifyUrl = buildEmailVerifyUrl(config.corsOrigin, returnPath, token)
+
+    // Reported rather than swallowed: the pending address is already stored, so a silent
+    // failure would leave the user waiting on a link that was never sent. Retrying the
+    // route re-mints the token, so a visible error is recoverable.
+    const sent = await sendVerificationEmail(email, verifyUrl)
+    if (!sent.ok) {
+      return fail(res, 'We could not send the verification email. Please try again in a moment.', 502, 502)
+    }
+
     return ok(res, true)
   })
 )
@@ -302,19 +315,20 @@ identityRouter.post(
   '/change-email/confirm',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const otp = req.body?.otp
-    if (otp === undefined) return fail(res, 'OTP required')
+    const token = asTrimmedString(req.body?.token)
+    if (!token) return fail(res, 'Verification token required')
 
     const user = await prisma.user.findUnique({ where: { id: req.session!.userId } })
     if (!user?.emailOtpHash || !user.pendingEmail) {
       return fail(res, 'Email change not requested', 400, 400)
     }
     if (user.emailOtpExpiresAt && user.emailOtpExpiresAt < new Date()) {
-      return fail(res, 'OTP expired', 401, 401)
+      return fail(res, 'Verification link expired', 401, 401)
     }
 
-    const valid = await verifyOtp(String(otp), user.emailOtpHash)
-    if (!valid) return fail(res, 'Invalid OTP', 401, 401)
+    if (!emailVerifyTokensMatch(token, user.emailOtpHash)) {
+      return fail(res, 'Invalid verification link', 401, 401)
+    }
 
     const email = user.pendingEmail
     const verifiedAt = new Date()

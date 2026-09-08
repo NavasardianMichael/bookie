@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/error.js'
 import { appointmentsRouter } from './routes/appointments.js'
 import { categoriesRouter } from './routes/categories.js'
 import { consumerProfileRouter } from './routes/consumers.js'
+import { contactRouter } from './routes/contact.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
@@ -36,6 +37,7 @@ export function createApp() {
   app.use('/provider-profile', providerProfileRouter)
   app.use('/organizations', organizationsRouter)
   app.use('/categories', categoriesRouter)
+  app.use('/contact', contactRouter)
   app.use('/consumer-profile', consumerProfileRouter)
   app.use('/appointments', appointmentsRouter)
 
