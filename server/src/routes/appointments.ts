@@ -8,6 +8,7 @@ import { mapBasicProvider, providerInclude } from '../mappers/entities.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { createAppointment, type GuestBooker } from '../services/appointments.js'
+import { BOOKING_STATUSES, isBookingStatus } from '../services/providerBookings.js'
 
 export const appointmentsRouter = Router()
 
@@ -275,10 +276,18 @@ appointmentsRouter.patch(
 
     if (!isOwner) throw new HttpError(403, 'Forbidden', 403)
 
-    const status = req.body?.status ?? 'cancelled'
+    // Narrowed against the enum rather than passed through. It used to reach Prisma
+    // unchecked, which only stayed harmless while the sole caller sent nothing at all
+    // and took the `'cancelled'` default; the provider bookings tab is the first UI
+    // that names a status, so an unknown value is now reachable from the client.
+    const requested = req.body?.status ?? 'cancelled'
+    if (!isBookingStatus(requested)) {
+      throw new HttpError(400, `status must be one of: ${BOOKING_STATUSES.join(', ')}`, 400)
+    }
+
     const updated = await prisma.appointment.update({
       where: { id: appointment.id },
-      data: { status },
+      data: { status: requested },
     })
 
     return ok(res, { id: updated.id, status: updated.status })

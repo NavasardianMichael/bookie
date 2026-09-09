@@ -2,9 +2,13 @@
 
 import { FC, useCallback, useMemo } from 'react'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
+import { WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { isOpenOnDate } from '@helpers/booking'
+import { buildMonthCells, buildWeekdayLabels } from '@helpers/calendar'
 import { cn } from '@helpers/cn'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -19,45 +23,20 @@ type Props = {
   selectedDayKey: string | null
   /** Open slots per `DAY_KEY_FORMAT` key, so a day can show whether it is bookable at all. */
   slotCountByDay: Map<string, number>
+  weekSchedule?: WeekSchedule
   /** Named in the subtitle — the date is being picked *for* a service. */
   serviceName?: string
   onSelectDay: (dayKey: string) => void
   onMonthChange: (month: Dayjs) => void
 }
 
-/** Monday-first, matching `WEEK_DAYS_LIST` and every schedule in the app. */
-const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0]
-
-type Cell = {
-  key: string
-  date: Dayjs
-  isOutside: boolean
-}
-
-const buildCells = (month: Dayjs): Cell[] => {
-  const start = month.startOf('month')
-  // dayjs `day()` is Sunday-first; shift so Monday is column 0.
-  const leading = (start.day() + 6) % 7
-  const gridStart = start.subtract(leading, 'day')
-  const total = Math.ceil((leading + month.daysInMonth()) / 7) * 7
-
-  return Array.from({ length: total }, (_, index) => {
-    const date = gridStart.add(index, 'day')
-    return { key: date.format(DAY_KEY_FORMAT), date, isOutside: !date.isSame(start, 'month') }
-  })
-}
-
 /**
  * The month grid from `public_provider_profile`: a day is picked in place and the
  * open times for it render in `BookingSlots` below.
  *
- * This replaces a FullCalendar month view whose day click opened a modal of
- * slots. Two things went wrong with that: the day and the time lived on
- * different layers, so nothing ever showed both at once, and a mis-tap on a day
- * was a dialog rather than a selection.
- *
  * A day with no open slots is `disabled` rather than hidden — an empty Tuesday is
  * information, and dropping it would reflow the grid out of its weekday columns.
+ * Disabled cells do not fire hover, so the reason tooltip wraps a span, not the button.
  *
  * Days travel as `DAY_KEY_FORMAT` strings, not `Date`s: that is already the key
  * `countSlotsByDay` returns, and it keeps date parsing to the single call site
@@ -67,14 +46,16 @@ export const BookingMonth: FC<Props> = ({
   month,
   selectedDayKey,
   slotCountByDay,
+  weekSchedule,
   serviceName,
   onSelectDay,
   onMonthChange,
 }) => {
   const t = useTranslations('Common')
-  const cells = useMemo(() => buildCells(month), [month])
+  const tBooking = useTranslations('Booking')
+  const cells = useMemo(() => buildMonthCells(month), [month])
 
-  const weekdayLabels = useMemo(() => WEEKDAY_ORDER.map((day) => ({ day, label: dayjs().day(day).format('ddd') })), [])
+  const weekdayLabels = useMemo(() => buildWeekdayLabels(), [])
 
   const today = useMemo(() => dayjs().startOf('day'), [])
   const todayKey = today.format(DAY_KEY_FORMAT)
@@ -145,21 +126,30 @@ export const BookingMonth: FC<Props> = ({
           {cells.map(({ key, date, isOutside }) => {
             const count = slotCountByDay.get(key) ?? 0
             const isPast = date.isBefore(today, 'day')
+            const isClosed = !isOpenOnDate(weekSchedule, date)
             const isSelected = key === selectedDayKey
             const isToday = date.isSame(today, 'day')
             const disabled = isOutside || isPast || !count
+            const disableReason = isOutside
+              ? undefined
+              : isPast
+                ? tBooking('dayPast')
+                : isClosed
+                  ? tBooking('dayClosed')
+                  : !count
+                    ? tBooking('dayNoSlots')
+                    : undefined
 
-            return (
+            const cell = (
               <button
-                key={key}
                 type='button'
                 data-day={key}
                 onClick={handleDayClick}
                 disabled={disabled}
                 aria-pressed={isSelected}
-                aria-label={`${date.format('dddd, D MMMM')}${count ? `, ${count} open` : ', no open times'}`}
+                aria-label={`${date.format('dddd, D MMMM')}${count ? `, ${count} open` : `, ${disableReason ?? 'no open times'}`}`}
                 className={cn(
-                  'bg-surface flex h-16 flex-col items-start gap-1 p-2 text-start transition-colors sm:h-24 sm:p-3',
+                  'bg-surface flex h-full w-full flex-col items-start gap-1 p-2 text-start transition-colors',
                   'focus-visible:ring-brand/40 focus-visible:z-1 focus-visible:ring-2 focus-visible:outline-none',
                   disabled ? 'cursor-not-allowed' : 'cursor-pointer',
                   !disabled && !isSelected && 'hover:bg-brand-50',
@@ -171,7 +161,7 @@ export const BookingMonth: FC<Props> = ({
                     'text-body-sm',
                     isSelected
                       ? 'font-bold text-white'
-                      : isOutside || isPast
+                      : disabled
                         ? 'text-brand-300'
                         : isToday
                           ? 'text-brand font-bold'
@@ -192,6 +182,12 @@ export const BookingMonth: FC<Props> = ({
                   />
                 )}
               </button>
+            )
+
+            return (
+              <Tooltip key={key} title={disableReason}>
+                <span className='flex h-16 sm:h-24'>{cell}</span>
+              </Tooltip>
             )
           })}
         </div>

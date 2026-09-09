@@ -22,7 +22,9 @@ export default function Loading() {
         </div>
       </Section>
 
-      <ProvidersResultsSkeleton />
+      <Section title='Service providers' className='gap-8'>
+        <ProvidersResultsSkeleton />
+      </Section>
     </PageShell>
   )
 }

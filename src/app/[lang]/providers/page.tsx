@@ -65,12 +65,9 @@ export default async function Providers({ searchParams }: Props) {
         <Section
           title='Browse categories'
           actions={
-            <>
-              <ProviderExploreToolbar params={params} />
-              <AppLink href={ROUTES.categories} variant='plain' className='text-body-sm text-brand ml-1 font-bold'>
-                View all
-              </AppLink>
-            </>
+            <AppLink href={ROUTES.categories} variant='plain' className='text-body-sm font-bold text-brand'>
+              View all
+            </AppLink>
           }
         >
           <ChipRail label='Categories'>
@@ -107,11 +104,17 @@ export default async function Providers({ searchParams }: Props) {
         </Section>
       )}
 
-      {/* Keyed on the query, so a new result set swaps the grid for a skeleton instead of
-          leaving the old rows on screen while the next page streams in. */}
-      <Suspense key={exploreParamsKey(params)} fallback={<ProvidersResultsSkeleton />}>
-        <ProvidersResults params={params} />
-      </Suspense>
+      {/* Heading + toolbar stay outside Suspense so a new query does not remount the
+          sort/filter sheet or jump the title. Only the grid swaps for a skeleton. */}
+      <Section
+        title='Service providers'
+        className='gap-8'
+        actions={<ProviderExploreToolbar params={params} />}
+      >
+        <Suspense key={exploreParamsKey(params)} fallback={<ProvidersResultsSkeleton />}>
+          <ProvidersResults params={params} />
+        </Suspense>
+      </Section>
     </PageShell>
   )
 }

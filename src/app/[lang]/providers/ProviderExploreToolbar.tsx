@@ -22,30 +22,36 @@ const SORT_LABELS: Record<ProvidersListSort, string> = {
   newest: 'Newest first',
 }
 
+type FilterKey = 'available' | 'openToday'
+
 /**
  * Every toggle in the sheet, so adding one is a row here rather than four edits.
  *
- * Both are single-column or single-EXISTS predicates, which is the bar a filter has to
- * clear to earn a place: rating, price and distance were left out on purpose — `Review`
- * has no aggregate column, `Service.price` mixes currencies with no conversion, and
- * `Provider.address` is free text with no geocoding. Each would be a per-row computation
- * or a wrong answer. See `docs/BACKLOG.md`.
+ * A filter has to be a single-column or single-JSON-path predicate to earn a place:
+ * rating, price and distance were left out on purpose — `Review` has no aggregate
+ * column, `Service.price` mixes currencies with no conversion, and `Provider.address`
+ * is free text with no geocoding. Each would be a per-row computation or a wrong
+ * answer. See `docs/BACKLOG.md`. Unlisted pages are excluded by the API, not by a toggle.
+ *
+ * `available` is the pause-bookings flag. `openToday` is whether today's weekday in
+ * `weekSchedule` has hours — a provider can be open today and still have paused
+ * bookings, or the reverse.
  */
-const FILTERS: { key: 'available' | 'bookable'; label: string; hint: string }[] = [
+const FILTERS: { key: FilterKey; label: string; hint: string }[] = [
   {
     key: 'available',
     label: 'Available now',
     hint: 'Hide providers who have paused new bookings.',
   },
   {
-    key: 'bookable',
-    label: 'Has bookable services',
-    hint: 'Only providers who have published at least one service.',
+    key: 'openToday',
+    label: 'Active today',
+    hint: 'Only providers whose schedule has working hours today.',
   },
 ]
 
 /**
- * Sort and Filter, as the two icon buttons beside the Browse categories heading.
+ * Sort and Filter, as the two icon buttons beside the Service providers heading.
  *
  * Both write to the URL rather than to state — the grid is a Server Component, so the
  * query string is the only channel that reaches it, and it is what makes a filtered
@@ -60,7 +66,7 @@ const FILTERS: { key: 'available' | 'bookable'; label: string; hint: string }[] 
 export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
-  const [draft, setDraft] = useState({ available: params.available, bookable: params.bookable })
+  const [draft, setDraft] = useState({ available: params.available, openToday: params.openToday })
 
   // No `useTransition` here, unlike the search field: nothing on these two controls
   // renders a pending state, because the grid's `<Suspense>` skeleton already is one.
@@ -71,7 +77,7 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   const openSheet = () => {
     // Re-seed from the URL: the visitor may have paged or changed category since the
     // last time the sheet was open, and a stale draft would silently undo that.
-    setDraft({ available: params.available, bookable: params.bookable })
+    setDraft({ available: params.available, openToday: params.openToday })
     setIsOpen(true)
   }
 
@@ -81,7 +87,7 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   }
 
   const reset = () => {
-    setDraft({ available: false, bookable: false })
+    setDraft({ available: false, openToday: false })
   }
 
   const activeCount = countActiveFilters(params)
@@ -135,7 +141,7 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
           </ul>
 
           <div className='flex justify-end gap-2'>
-            <AppButton onClick={reset} disabled={!draft.available && !draft.bookable}>
+            <AppButton onClick={reset} disabled={!draft.available && !draft.openToday}>
               Reset
             </AppButton>
             <AppButton type='primary' onClick={apply}>

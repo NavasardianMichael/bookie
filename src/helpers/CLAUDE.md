@@ -12,9 +12,12 @@ Everything here is pure and framework-free unless the last column says otherwise
 |---|---|---|
 | Bookable slots for a date / range | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
+| Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
 | Calendar's visible hour window | `getVisibleTimeRange` | `booking.ts` — **no call site**, see below |
 | Group slots morning/afternoon/evening | `groupSlotsByPartOfDay` | `booking.ts` — **no call site**, see below |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
+| Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
+| Localised weekday column headers | `buildWeekdayLabels` | `calendar.ts` — **client-only** |
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
 | Bookable windows → availability + breaks | `rangesToDaySchedule` | `schedule.ts` |
 | Is the provider open at all this week? | `hasWeekScheduleHours` | `schedule.ts` |
@@ -54,6 +57,13 @@ Everything here is pure and framework-free unless the last column says otherwise
   only clock seam in the codebase — always pass it in tests.
 - **Slots are `Date` objects anchored in local time** (`dayjs(date).startOf('day')`),
   while schedules are wall-clock `'HH:mm'` strings with no date and no zone.
+- **`calendar.ts` shares the grid maths between the two calendars, not the markup.**
+  `BookingMonth` (public booking) disables days with no open slots and refuses to page into
+  the past; `ProviderBookingsCalendar` (booking history) does neither and badges each day
+  with a count. One component covering both would be a props explosion; the cell
+  arithmetic is identical and is the part that is easy to get subtly wrong.
+  **`buildWeekdayLabels` reads `dayjs.locale()`, so it is client-only** — the locale is a
+  module global and calling it on the server races two concurrent requests.
 - **`images.ts` captures `API_ORIGIN` at module load.** It cannot be changed after import.
 - **`url.ts` re-reads `process.env` per call**, so it is safe to stub at any point.
   In the browser `getSiteUrl` uses `window.location.origin` so share links stay

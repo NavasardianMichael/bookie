@@ -1,5 +1,5 @@
 import { theme, type ThemeConfig } from 'antd'
-import { BRAND, CSS_VAR_SCOPE, FONT, NEUTRAL, STATUS } from './tokens'
+import { BRAND, CSS_VAR_SCOPE, NEUTRAL, STATUS } from './tokens'
 
 /**
  * Inner padding shared by every form control. Input / InputNumber / DatePicker
@@ -11,8 +11,12 @@ const FIELD_PADDING_BLOCK = 6
 const FIELD_PADDING_INLINE = 12
 /** antd seed default. Select's horizontal padding is `paddingSM - lineWidth`. */
 const LINE_WIDTH = 1
-/** antd `fontHeight` at `FONT.base`: `Math.round(((size + 8) / size) * size)`. */
-const FIELD_FONT_HEIGHT = FONT.base + 8
+/**
+ * antd `fontHeight` at seed `fontSize` 14 — the size controls actually use, not
+ * `FONT.base` (body copy is 16). `Math.round(((size + 8) / size) * size)`.
+ * Using 24 here made Select's derived padding 7px against Input's 6.
+ */
+const FIELD_FONT_HEIGHT = 22
 const FIELD_CONTROL_HEIGHT = FIELD_PADDING_BLOCK * 2 + FIELD_FONT_HEIGHT + LINE_WIDTH * 2
 
 export const antdTheme: ThemeConfig = {

@@ -3,11 +3,11 @@
  *
  * Mirrors `src/interfaces/settings.ts` + `src/helpers/payment.ts` on the frontend.
  * Kept as a duplicate rather than shared because `server/` is its own package with no
- * import path into `src/` — the four values are also written into every locale
+ * import path into `src/` — the three values are also written into every locale
  * catalogue, so a change here is never a one-file change.
  */
 
-export const PAYMENT_METHODS = ['cash', 'card_on_site', 'bank_transfer', 'other'] as const
+export const PAYMENT_METHODS = ['cash', 'card_on_site', 'bank_transfer'] as const
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 

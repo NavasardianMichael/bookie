@@ -189,7 +189,7 @@ export default async function Home() {
       <section className='pb-16 md:pb-24'>
         <Container>
           <Section
-            title='Top service providers'
+            title='Service providers'
             actions={
               providers.pagination.total > HOME_PROVIDER_LIMIT ? (
                 <AppLink href={ROUTES.providers} variant='plain' className='text-body-sm font-bold text-brand'>

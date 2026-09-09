@@ -24,6 +24,21 @@ ui/           antd wrappers — client islands (AppButton, AppInput, AppTextArea
               AppSheet, AppConfirmModal, ErrorState)
 ```
 
+**`bare/BarChart` is antd-free for the same reason `StatTile` is** — a page whose numbers
+are known before render should put them in the HTML, not produce them after hydration. It
+is drawn in **divs, not SVG**: a bar chart is a row of rectangles on a shared baseline,
+which CSS grid already does, and going through SVG would mean a `viewBox` and pixel
+geometry when `src/styles/CLAUDE.md` puts every magic px in `tokens.ts`. The one inline
+style in it is a bar's height, which is data rather than design.
+
+Three rules it encodes, worth not undoing: **one series means one colour** (colouring the
+tallest bar differently makes colour follow rank, so the chart repaints whenever the data
+moves and the eye reads a category that is not there); **no number on every bar** — only
+the peak is labelled, and only where the bars are wide enough; and the `sr-only` `<table>`
+under the `aria-hidden` plot is the real accessible alternative, so a screen reader gets
+the figures rather than a description of a picture of them. There is **no charting
+library** in `package.json`; do not add one for a bar chart.
+
 **`layout/Pagination` is antd-free deliberately, not for want of an antd `Pagination`.**
 It renders real anchors and takes a `buildHref(page)`, so every page of a list is a URL a
 crawler can follow, the router can prefetch and a visitor can bookmark. antd's version is

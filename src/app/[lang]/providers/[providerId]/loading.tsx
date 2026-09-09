@@ -13,9 +13,8 @@ export default function Loading() {
           <div className='border-brand-border bg-surface h-48 animate-pulse rounded-brand border shadow-sm' />
         </div>
 
-        {/* Mirrors the booking column: heading, then service / day / time panels. */}
+        {/* Mirrors the booking column: service / day / time panels. */}
         <div className='flex min-w-0 flex-col gap-6'>
-          <div className='bg-surface-sunken h-8 w-56 animate-pulse rounded-brand' />
           <div className='border-brand-border bg-surface min-h-40 animate-pulse rounded-brand border shadow-sm' />
           <div className='border-brand-border bg-surface min-h-96 animate-pulse rounded-brand border shadow-sm' />
           <div className='border-brand-border bg-surface min-h-64 animate-pulse rounded-brand border shadow-sm' />

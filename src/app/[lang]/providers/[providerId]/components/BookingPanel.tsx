@@ -8,7 +8,6 @@ import { createAppointmentAPI } from '@api/appointments/main'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { DAY_KEY_FORMAT, SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
-import { PAYMENT_METHODS } from '@constants/settings'
 import { countSlotsByDay, getSlotsForDate, getSlotsForDateRange } from '@helpers/booking'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
@@ -65,7 +64,19 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
     [details?.weekSchedule, durationMinutes, month]
   )
 
-  const slotCountByDay = useMemo(() => countSlotsByDay(monthSlots), [monthSlots])
+  const slotCountByDay = useMemo(() => {
+    const counts = countSlotsByDay(monthSlots)
+    if (!requestedStarts.length) return counts
+
+    const remaining = new Map(counts)
+    requestedStarts.forEach((iso) => {
+      const key = dayjs(iso).format(DAY_KEY_FORMAT)
+      const current = remaining.get(key)
+      if (!current) return
+      remaining.set(key, current - 1)
+    })
+    return remaining
+  }, [monthSlots, requestedStarts])
 
   /** Insertion order is chronological, so the first entry is the earliest open day. */
   const firstOpenDayKey = useMemo(() => {
@@ -125,11 +136,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const isSignedOn = useAuthStore.use.isSignedOn()
   const isAuthPending = useAuthStore.use.isPending()
 
-  /** Never offers a method the provider does not take; all four when they set none. */
-  const paymentMethodOptions = useMemo(() => {
-    const accepted = toPaymentMethods(details?.paymentInfo)
-    return accepted.length ? accepted : [...PAYMENT_METHODS]
-  }, [details?.paymentInfo])
+  /** Empty means the provider never configured a set; the picker then enables every method. */
+  const paymentMethodOptions = useMemo(() => toPaymentMethods(details?.paymentInfo), [details?.paymentInfo])
 
   const booking = useMemo<BookingSummaryData | null>(() => {
     if (!validSelectedStart) return null
@@ -229,6 +237,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         month={month}
         selectedDayKey={selectedDayKey}
         slotCountByDay={slotCountByDay}
+        weekSchedule={details?.weekSchedule}
         serviceName={service?.name}
         onSelectDay={handleSelectDay}
         onMonthChange={setMonth}
@@ -252,6 +261,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         needsGuestDetails={!isSignedOn}
         isAuthPending={isAuthPending}
         paymentMethodOptions={paymentMethodOptions}
+        paymentInfo={details?.paymentInfo}
         isBooking={isBooking}
         onClose={handleCloseConfirm}
         onSubmit={handleSubmitBooking}

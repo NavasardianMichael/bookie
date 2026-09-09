@@ -27,7 +27,7 @@ describe('toPaymentMethods', () => {
   })
 
   it('prefers methods over a leftover method when both are present', () => {
-    const both = { methods: ['cash'], method: 'other' } as unknown as PaymentInfo
+    const both = { methods: ['cash'], method: 'card_on_site' } as unknown as PaymentInfo
     expect(toPaymentMethods(both)).toEqual(['cash'])
   })
 
@@ -35,7 +35,7 @@ describe('toPaymentMethods', () => {
   // the enum never had is a real possibility — it must not reach a `t()` lookup, which
   // would throw on the missing key rather than silently degrade.
   it('drops values outside the known enum', () => {
-    const rogue = { methods: ['cash', 'crypto', ''] } as unknown as PaymentInfo
+    const rogue = { methods: ['cash', 'crypto', 'other', ''] } as unknown as PaymentInfo
     expect(toPaymentMethods(rogue)).toEqual(['cash'])
   })
 

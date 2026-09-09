@@ -1,7 +1,7 @@
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import type { SettingsNavItem } from '@components/ui/layout/SettingsShell'
 
-export const PAYMENT_METHODS = ['cash', 'card_on_site', 'bank_transfer', 'other'] as const
+export const PAYMENT_METHODS = ['cash', 'card_on_site', 'bank_transfer'] as const
 
 export const DEFAULT_CONSUMER_NOTIFICATION_PREFS = {
   appointmentReminders: true,
@@ -24,10 +24,19 @@ export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
   { route: ROUTE_KEYS.consumerProfilePayments },
 ]
 
+/**
+ * Running the business sits above configuring it: Bookings and Analytics are opened
+ * daily, the tabs around them are opened once. `match: 'exact'` on the profile home is
+ * load-bearing — `/providers/profile` is a prefix of every nested tab, so without it the
+ * Profile item lights up on all of them.
+ */
 export const PROVIDER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[] = [
   { route: ROUTE_KEYS.providerProfile, match: 'exact' },
+  { route: ROUTE_KEYS.providerProfileBookings },
+  { route: ROUTE_KEYS.providerProfileAnalytics },
   { route: ROUTE_KEYS.providerProfileAvailability },
   { route: ROUTE_KEYS.providerServices },
+  { route: ROUTE_KEYS.providerProfileSeo },
   { route: ROUTE_KEYS.providerProfileNotifications },
   { route: ROUTE_KEYS.providerProfilePayments },
 ]

@@ -54,25 +54,23 @@ limits inherited from that design:
   would apply to *all* anonymous bookings site-wide. Set it — deliberately, to the real
   hop count — before deploying behind a proxy. Affects `routes/contact.ts` equally.
 
-### 3. A provider's own bookings are invisible to them
+### 3. A provider cannot see the bookings they *made*, only the ones they received
 
-`GET /appointments` picks its `where` off `session.role` alone: provider → `providerId`,
-consumer → `consumerId`. A provider who books another provider now gets a real `Consumer`
-profile on their `User` and a properly linked appointment — but their session role is
-still `provider`, so that booking appears in no list they can open. The data is correct
-and reachable; only the read path is one-sided. Fixing it means either returning both
-sides when a `User` has both profiles, or a role switch in the UI — neither is a
-one-liner, because the consumer and provider appointment views render differently.
+Narrowed on 2026-09-09. `/providers/profile/bookings` now shows a provider every
+appointment booked **with** them, so the original framing ("a provider's own bookings are
+invisible") no longer holds. What is left is the other side of the same `where`:
 
-### 4. No price snapshot on `Appointment`
+`GET /appointments` still picks its filter off `session.role` alone — provider →
+`providerId`, consumer → `consumerId`. A provider who books *another* provider gets a real
+`Consumer` profile on their `User` and a properly linked appointment, but their session
+role is still `provider`, so that booking appears in no list they can open. The new
+workspace endpoint does not help: it is scoped to `providerId` by design.
 
-`durationMinutes` is copied off the Service at creation; `price` and `currency` are not
-stored at all. Editing a service's price therefore rewrites the price shown for bookings
-already made. The booking confirm sheet reads the live Service, so what the visitor
-agreed to is not what a later view necessarily shows. Deliberately left out of the guest
-booking work — it wants a decision about whether an appointment is a record or a view.
+The data is correct and reachable; only the read path is one-sided. Fixing it means either
+returning both sides when a `User` has both profiles, or a role switch in the UI — neither
+is a one-liner, because the consumer and provider appointment views render differently.
 
-### 5. Two slot engines that disagree
+### 4. Two slot engines that disagree
 
 `getProviderAvailability` (`server/src/services/appointments.ts`) steps a **fixed 30
 minutes** and excludes already-booked slots. The UI does not call it: `BookingPanel`
@@ -81,13 +79,13 @@ computes slots client-side from `weekSchedule` via `getSlotsForDateRange`, stepp
 current session. So the grid can offer a time the server will reject, and the `409
 "Time slot not available"` is the only real defence. One of the two should go.
 
-### 6. `no-show` vs `no_show`
+### 5. `no-show` vs `no_show`
 
 `src/interfaces/appointments.ts:5` declares `'no-show'`; the Prisma enum is `no_show`, and
 `ConsumerAppointmentsClient.tsx:36` filters on `'no_show'`. The interface is the one that
 is wrong.
 
-### 7. `FavoriteProvider` schema/DB drift
+### 6. `FavoriteProvider` schema/DB drift
 
 `prisma migrate diff` reports `[+] Added primary key on columns (consumerId, providerId)`
 against the live database. The init migration created the table with a composite **primary
@@ -95,13 +93,13 @@ key**; `schema.prisma` declares only `@@unique`. Predates all current work and i
 in practice, but it means the drift check is never clean, so a real drift has nothing to
 stand out against.
 
-### 8. `splitScheduleIntoParts` mutates its caller's break objects
+### 7. `splitScheduleIntoParts` mutates its caller's break objects
 
 `src/helpers/schedule.ts` — `[...breaks]` is a shallow copy, so `last.end = …` writes
 through into the original `DaySchedulePart`. Latent corruption under immer drafts.
 Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 
-### 9. Smaller pure-logic defects (each has a test recording current behaviour)
+### 8. Smaller pure-logic defects (each has a test recording current behaviour)
 
 - `normalizedToFlat` yields `undefined` for an `allIds` entry with no `byId` match.
 - `generateEntityUrl('home', id)` → `//<id>`, since `ROUTES.home === '/'`.
@@ -123,12 +121,16 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 - **`src/constants/form.ts`** — `FORM_DEFAULT_VALIDATION_MESSAGES` is never wired to
   `ConfigProvider` or any `<Form validateMessages>`.
 - **`use…StoreBase` vs `use…Base`** suffix drift between list and single stores.
-- **The whole `Settings` namespace is English in all 15 locales** — 98 of its keys are
+- **The whole `Settings` namespace is English in all 15 locales** — every key under it is
   byte-identical to `en.json` everywhere. `Language`, `Common`, `Nav`, `Footer` and
   `Booking` are genuinely translated; `Settings` was added English-only and never
   followed up. Every account-settings screen therefore renders English inside an
   otherwise-translated shell. The payment-method labels were translated on 2026-09-08
   because the booking sheet surfaces them to end users; the rest were left.
+  The Bookings / Analytics / SEO tabs (2026-09-09) added ~100 more keys the same way —
+  matching the documented state of the namespace rather than pretending otherwise. All of
+  it is provider-facing and behind auth, which is why it has stayed lower priority than
+  the public pages below.
 - **Validation messages are hardcoded English.** `FORM_ITEM_RULES` in
   `src/constants/form.ts` holds literal strings (`'Please fill in ${label}'`), so every
   form in the app — the translated booking sheet included — shows English on a failed
@@ -146,15 +148,19 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 3. **antd `style`/`styles` px leak sites** — the byte-identical
    `Divider`/`Space` pairs in `ProviderProfileFormCategories.tsx:44` and
    `ProviderProfileFormOrganization.tsx:44`, plus two CSS Modules.
-4. **FullCalendar has no usage left in `src/`.** The `public_provider_profile` booking
-   rebuild replaced the month/week/day view with `BookingMonth` + `BookingSlots`, which
-   are plain grids. That orphans four things: `@fullcalendar/react`, its
-   `temporal-polyfill` peer, `src/styles/full-calendar-override.css` (~100 lines, now
-   imported by nothing) and `booking.ts#getVisibleTimeRange`. **Do not rip them out
-   yet** — the unbuilt `provider_calendar_dashboard` is a week time-grid, which is the
-   one thing a hand-rolled grid is genuinely worse at, so this is a decision to take
-   with that build and not before. `booking.ts#groupSlotsByPartOfDay` is orphaned by the
-   same change and has no such future claim on it.
+4. **FullCalendar is orphaned, and the decision it was waiting on has now been taken.**
+   The `public_provider_profile` rebuild replaced the month/week/day view with
+   `BookingMonth` + `BookingSlots`, leaving `@fullcalendar/react`, its `temporal-polyfill`
+   peer, `src/styles/full-calendar-override.css` (~100 lines, imported by nothing) and
+   `booking.ts#getVisibleTimeRange` / `#groupSlotsByPartOfDay` with no call site.
+
+   This entry used to say "do not rip them out yet", because the unbuilt
+   `provider_calendar_dashboard` was a week time-grid and that is the one shape a
+   hand-rolled grid is genuinely worse at. **That build happened on 2026-09-09 and went
+   the other way**: `/providers/profile/bookings` is a month grid over a list, sharing
+   `buildMonthCells` with the public calendar, and it needs none of the four. Nothing in
+   the tree is now waiting on FullCalendar, so removing all four is unblocked — it is
+   simply out of scope for the work that unblocked it.
 
 ---
 
@@ -168,10 +174,21 @@ then built field-for-field on 2026-09-05 (`/auth/consumer-registration`,
 
 | Mockup | Route today |
 |---|---|
-| `provider_calendar_dashboard` | No route — nothing built |
+| `provider_calendar_dashboard` | `/providers/profile/bookings` + `/providers/profile/analytics` — partly matched, see below |
 
-Matching that is a feature build (provider portal calendar), not a styling pass. It is
-also what decides whether FullCalendar stays a dependency — see item 4 above.
+**Partly matched on 2026-09-09.** `/providers/profile/bookings` and
+`/providers/profile/analytics` build the mockup's substance — a month calendar that filters
+a day's clients, and the four-tile stat row `StatTile` was written for (its `stack` layout
+and `tone='brand'` variant name this prototype in their docstring). Three pieces are
+deliberately not matched:
+
+| Mockup piece | Built as | Why |
+|---|---|---|
+| Day / Week / Month segmented week time-grid | A month grid over a filtered list | A time-grid answers "what does Thursday look like hour by hour"; the request was to filter a day's clients. It is also the only shape that would have justified keeping FullCalendar — see item 4. |
+| "Today's Sessions" panel with a live current-time rule | Omitted | It is the week grid's companion, and a ticking rule is a client timer on a screen that is otherwise static. |
+| Sidebar "Accepting Bookings" toggle | Already the Profile tab's `available` control | Duplicating it into a second place is two controls writing one column. |
+
+What remains genuinely unbuilt from this mockup is the **week time-grid** itself.
 
 ---
 
@@ -288,7 +305,7 @@ Still open:
 ## Explore — the three filters that were left out
 
 `GET /providers` (2026-09-08) filters on search, category, `available` and
-has-a-service, and sorts on name / `updatedAt` / `createdAt`. Three controls the
+`openToday`, and sorts on name / `updatedAt` / `createdAt`. Three controls the
 prototype implies are **deliberately absent**, each because the data to back it cheaply
 does not exist yet. Do not add one without the column it needs:
 

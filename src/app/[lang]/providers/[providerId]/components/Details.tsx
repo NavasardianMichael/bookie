@@ -4,7 +4,6 @@ import { FC, useEffect, useMemo, useState } from 'react'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { SingleProvider } from '@store/providers/single/types'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { Surface } from '@components/ui/layout/Surface'
 import { BookingPanel } from './BookingPanel'
@@ -46,18 +45,13 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
     <>
       {!!services.length && (
         <Surface>
-          <div className='mb-5 flex flex-wrap items-end justify-between gap-2'>
-            <div>
-              <AppTitle level='h3' size='h3'>
-                Choose a service
-              </AppTitle>
-              <AppParagraph size='body-sm' className='m-0'>
-                Its duration sets the length of every slot offered below.
-              </AppParagraph>
-            </div>
-            <AppText size='overline' tone='muted'>
-              {services.length} {services.length === 1 ? 'option' : 'options'}
-            </AppText>
+          <div className='mb-5'>
+            <AppTitle level='h3' size='h3'>
+              Choose a service
+            </AppTitle>
+            <AppParagraph size='body-sm' className='m-0'>
+              Its duration sets the length of every slot offered below.
+            </AppParagraph>
           </div>
 
           <ServicePicker services={services} value={selectedServiceId} onChange={setSelectedServiceId} />

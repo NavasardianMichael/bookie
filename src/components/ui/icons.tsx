@@ -163,6 +163,29 @@ export const EyeIcon = ({ className }: IconProps) => (
   </svg>
 )
 
+export const ChartIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M3 3v16a2 2 0 0 0 2 2h16' />
+    <path d='M7 15v-3M12 15V8M17 15v-5' />
+  </svg>
+)
+
+export const SearchIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <circle cx='11' cy='11' r='7' />
+    <path d='m20 20-3.5-3.5' />
+  </svg>
+)
+
+export const ShareIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <circle cx='18' cy='5' r='2.6' />
+    <circle cx='6' cy='12' r='2.6' />
+    <circle cx='18' cy='19' r='2.6' />
+    <path d='m8.4 10.8 5.2-3.2M8.4 13.2l5.2 3.2' />
+  </svg>
+)
+
 export const CopyIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>
     <rect x='8' y='8' width='12' height='12' rx='2' />

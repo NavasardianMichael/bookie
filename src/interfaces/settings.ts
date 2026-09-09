@@ -1,7 +1,7 @@
 import { PhoneNumber } from '@interfaces/app'
 
 /** Preferred in-person payment method — never a card PAN. */
-export type PaymentMethod = 'cash' | 'card_on_site' | 'bank_transfer' | 'other'
+export type PaymentMethod = 'cash' | 'card_on_site' | 'bank_transfer'
 
 export type PaymentInfo = {
   /**

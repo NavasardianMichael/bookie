@@ -32,6 +32,22 @@ type Props = {
 
 const NUMBER_INPUT_ID = 'phone-number'
 
+// Space.Compact overlaps sibling controls by 1px; Form.Item wrappers sit between
+// these two, so the Select's end edge stays drawn against the number field.
+const compactSelectStyles = {
+  root: {
+    borderInlineEndWidth: 0,
+    borderStartEndRadius: 0,
+    borderEndEndRadius: 0,
+  },
+}
+const compactInputStyles = {
+  root: {
+    borderStartStartRadius: 0,
+    borderEndStartRadius: 0,
+  },
+}
+
 /**
  * The country-code + number pair, shared by both registration forms and by sign-in.
  *
@@ -103,6 +119,7 @@ export const PhoneNumberField: FC<Props> = ({
             popupMatchSelectWidth={320}
             disabled={disabled}
             aria-label='Country code'
+            styles={compactSelectStyles}
           />
         </Form.Item>
 
@@ -121,6 +138,7 @@ export const PhoneNumberField: FC<Props> = ({
             autoComplete='tel-national'
             enterKeyHint='next'
             prefix={<PhoneIcon className='text-brand-muted h-4 w-4' />}
+            styles={compactInputStyles}
           />
         </Form.Item>
       </Space.Compact>

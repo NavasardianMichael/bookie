@@ -9,6 +9,10 @@ const prisma = new PrismaClient()
 
 const DEV_OTP = '123456'
 const SEED_APPOINTMENT_NOTE = 'Seed appointment'
+const PHONE_CODE = 374
+const LOGIN_PROVIDER_PHONE = BigInt(99999999)
+const LOGIN_CONSUMER_PHONE = BigInt(99000000)
+const OTHER_PROVIDER_PHONE_START = BigInt(77000101)
 
 const defaultWeekSchedule = () => ({
   monday: { availability: { start: '09:00', end: '17:00' }, breaks: [] },
@@ -28,6 +32,39 @@ async function upsertUser(phoneCode: number, phoneNumber: bigint) {
     },
     create: { phoneCode, phoneNumber, otpHash },
     update: { otpHash },
+  })
+}
+
+/** Move an existing seeded profile onto a new phone so a re-run does not create a second User. */
+async function retargetSeededPhone(args: {
+  firstName: string
+  lastName: string
+  role: 'provider' | 'consumer'
+  phoneNumber: bigint
+}) {
+  const profile =
+    args.role === 'provider'
+      ? await prisma.provider.findFirst({
+          where: { firstName: args.firstName, lastName: args.lastName },
+        })
+      : await prisma.consumer.findFirst({
+          where: { firstName: args.firstName, lastName: args.lastName },
+        })
+  if (!profile) return
+
+  const user = await prisma.user.findUnique({ where: { id: profile.userId } })
+  if (!user || user.phoneNumber === args.phoneNumber) return
+
+  const taken = await prisma.user.findUnique({
+    where: {
+      phoneCode_phoneNumber: { phoneCode: PHONE_CODE, phoneNumber: args.phoneNumber },
+    },
+  })
+  if (taken && taken.id !== user.id) return
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { phoneNumber: args.phoneNumber },
   })
 }
 
@@ -188,12 +225,25 @@ async function main() {
     { firstName: 'Levon', lastName: 'Babayan', org: 7, cats: [1], plan: Plan.standard },
   ]
 
-  const providers = []
-  let phoneSuffix = BigInt(77000100)
+  await retargetSeededPhone({
+    firstName: 'Anna',
+    lastName: 'Petrosyan',
+    role: 'provider',
+    phoneNumber: LOGIN_PROVIDER_PHONE,
+  })
+  await retargetSeededPhone({
+    firstName: 'Alex',
+    lastName: 'Consumer',
+    role: 'consumer',
+    phoneNumber: LOGIN_CONSUMER_PHONE,
+  })
 
-  for (const def of providerDefs) {
-    const user = await upsertUser(374, phoneSuffix)
-    phoneSuffix += BigInt(1)
+  const providers = []
+  let phoneSuffix = OTHER_PROVIDER_PHONE_START
+
+  for (const [index, def] of providerDefs.entries()) {
+    const phoneNumber = index === 0 ? LOGIN_PROVIDER_PHONE : phoneSuffix++
+    const user = await upsertUser(PHONE_CODE, phoneNumber)
     const provider = await prisma.provider.upsert({
       where: { userId: user.id },
       // A no-op update, like the categories and organizations above: re-running the seed
@@ -210,6 +260,7 @@ async function main() {
         address: organizations[def.org]!.address,
         locationUrl: `https://maps.google.com/?q=${encodeURIComponent(organizations[def.org]!.address)}`,
         available: true,
+        listed: true,
         plan: def.plan,
         organizationId: organizations[def.org]!.id,
         weekSchedule: defaultWeekSchedule(),
@@ -242,7 +293,7 @@ async function main() {
   }
 
   const consumerDefs = [
-    { firstName: 'Alex', lastName: 'Consumer', email: 'alex@example.com', phone: BigInt(77000201) },
+    { firstName: 'Alex', lastName: 'Consumer', email: 'alex@example.com', phone: LOGIN_CONSUMER_PHONE },
     { firstName: 'Maria', lastName: 'Patient', email: 'maria@example.com', phone: BigInt(77000202) },
     { firstName: 'Sam', lastName: 'Bookings', email: null, phone: BigInt(77000203) },
     { firstName: 'Elena', lastName: 'Client', email: 'elena@example.com', phone: BigInt(77000204) },
@@ -250,7 +301,7 @@ async function main() {
 
   const consumers = []
   for (const def of consumerDefs) {
-    const user = await upsertUser(374, def.phone)
+    const user = await upsertUser(PHONE_CODE, def.phone)
     const consumer = await prisma.consumer.upsert({
       where: { userId: user.id },
       update: {},
@@ -329,8 +380,8 @@ async function main() {
 
   console.log('Seed complete.')
   console.log(`Dev OTP for all seeded phones: ${DEV_OTP}`)
-  console.log('Example provider login: phone +37477000100, userType provider')
-  console.log('Example consumer login: phone +37477000201, userType consumer')
+  console.log('Example provider login: phone +37499999999, userType provider')
+  console.log('Example consumer login: phone +37499000000, userType consumer')
 }
 
 main()

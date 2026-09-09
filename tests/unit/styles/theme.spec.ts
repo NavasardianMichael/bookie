@@ -60,11 +60,11 @@ describe('form control padding', () => {
 
   it('sizes Select so its derived selector padding matches that inner padding', () => {
     // Select has no paddingBlock/paddingInline. Horizontal is paddingSM - lineWidth;
-    // vertical is (controlHeight - fontHeight) / 2 - lineWidth. fontHeight is 24 at
-    // FONT.base 16. These two values produce 6 / 12 — the same as Input.
+    // vertical is (controlHeight - fontHeight) / 2 - lineWidth. fontHeight is 22 at
+    // seed fontSize 14. These two values produce 6 / 12 — the same as Input.
     expect(antdTheme.components?.Select).toMatchObject({
       paddingSM: 13,
-      controlHeight: 38,
+      controlHeight: 36,
       optionPadding: '6px 12px',
       optionSelectedBg: BRAND[900],
       optionSelectedColor: NEUTRAL[0],

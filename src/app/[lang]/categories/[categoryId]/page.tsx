@@ -83,7 +83,7 @@ export default async function Category({ params }: Props) {
           <ResponsiveGrid as='ul'>
             {category.providers.map((provider) => (
               <li key={provider.id}>
-                <ProviderCard data={provider} />
+                <ProviderCard data={provider} hideCategories />
               </li>
             ))}
           </ResponsiveGrid>

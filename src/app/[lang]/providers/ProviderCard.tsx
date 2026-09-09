@@ -6,6 +6,8 @@ import { UserIcon } from '@components/ui/icons'
 
 type Props = {
   data: BasicProvider
+  /** Same as OrganizationCard: the category landing page already names the specialty. */
+  hideCategories?: boolean
   /** Forwarded to EntityCard: must sit one level below the enclosing heading. */
   headingLevel?: 2 | 3 | 4
 }
@@ -14,7 +16,7 @@ type Props = {
  * Server Component: it no longer needs antd's Image, so it stays off the client
  * bundle.
  */
-export const ProviderCard: FC<Props> = ({ data, headingLevel }) => {
+export const ProviderCard: FC<Props> = ({ data, hideCategories, headingLevel }) => {
   const { basic } = data
   const fullName = `${basic.firstName} ${basic.lastName}`
 
@@ -29,13 +31,24 @@ export const ProviderCard: FC<Props> = ({ data, headingLevel }) => {
       placeholder={<UserIcon className='text-brand size-16' />}
       aspect='16/9'
       badges={
-        <span className='text-caption inline-flex items-center gap-1.5'>
-          <span
-            aria-hidden='true'
-            className={basic.available ? 'size-2 rounded-full bg-green-500' : 'bg-brand-300 size-2 rounded-full'}
-          />
-          {basic.available ? 'Available' : 'Fully booked'}
-        </span>
+        <>
+          {!hideCategories &&
+            basic.categories?.slice(0, 2).map((category) => (
+              <span
+                key={category.id}
+                className='border-brand-border text-brand-muted rounded-brand border px-1.5 py-0.5 text-caption'
+              >
+                {category.name}
+              </span>
+            ))}
+          <span className='text-caption inline-flex items-center gap-1.5'>
+            <span
+              aria-hidden='true'
+              className={basic.available ? 'size-2 rounded-full bg-green-500' : 'bg-brand-300 size-2 rounded-full'}
+            />
+            {basic.available ? 'Available' : 'Fully booked'}
+          </span>
+        </>
       }
       cta='View profile'
     />

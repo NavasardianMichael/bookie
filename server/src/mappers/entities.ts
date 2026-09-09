@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client'
 import type { Category, Organization, Provider, Service } from '@prisma/client'
 
 type ProviderWithRelations = Provider & {
@@ -114,6 +115,26 @@ export function mapSingleProvider(provider: ProviderWithRelations & { user?: { p
     basic: mapBasicProvider(provider).basic,
     details,
     services: normalized,
+    seo: mapProviderSeo(provider),
+  }
+}
+
+/**
+ * The owner's search-metadata overrides, on the **public** payload because that is
+ * where they are consumed: `generateMetadata` reads them through `getSingleProviderAPI`
+ * to decide the page's title and description. They are meta tags, so nothing here is
+ * private.
+ *
+ * Every field stays `undefined` when unset rather than becoming `''`, so a caller can
+ * tell "no override, compose the default" from "an override that happens to be empty" —
+ * the distinction the whole override model rests on.
+ */
+export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescription' | 'seoKeywords' | 'slug'>) {
+  return {
+    title: provider.seoTitle ?? undefined,
+    description: provider.seoDescription ?? undefined,
+    keywords: provider.seoKeywords ?? undefined,
+    slug: provider.slug ?? undefined,
   }
 }
 
@@ -178,6 +199,113 @@ export function mapConsumer(consumer: {
     },
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * A booking as its own provider sees it.
+ * ------------------------------------------------------------------ */
+
+type BookingWithBooker = {
+  id: string
+  startAt: Date
+  endAt: Date
+  durationMinutes: number
+  status: string
+  notes: string | null
+  paymentMethods: string[]
+  price: Prisma.Decimal | null
+  currency: string | null
+  createdAt: Date
+  serviceId: string
+  service: { id: string; name: string } | null
+  consumerId: string | null
+  consumer: { id: string; firstName: string; lastName: string; email: string | null; user: { phoneCode: number; phoneNumber: bigint } } | null
+  guestFirstName: string | null
+  guestLastName: string | null
+  guestPhoneCode: number | null
+  guestPhoneNumber: bigint | null
+  guestEmail: string | null
+}
+
+/**
+ * Whoever booked, under whichever identity they had.
+ *
+ * A signed-in booking carries a Consumer relation and a guest booking carries its own
+ * columns; exactly one is present, enforced by the `appointment_actor_present` CHECK.
+ * Flattening both into one shape here means the provider's list renders one row type
+ * rather than branching per booking.
+ *
+ * **This is the one place a consumer's phone and email reach a provider**, and it is
+ * deliberate: a day's client list that cannot be phoned is not a client list. It is
+ * reachable only from `/provider-profile/bookings`, which is scoped by session to the
+ * provider those appointments belong to — never from a lookup keyed on a guessable id.
+ * See `server/CLAUDE.md`.
+ */
+function mapBooker(booking: BookingWithBooker) {
+  if (booking.consumer) {
+    return {
+      kind: 'consumer' as const,
+      id: booking.consumer.id,
+      firstName: booking.consumer.firstName,
+      lastName: booking.consumer.lastName,
+      email: booking.consumer.email ?? undefined,
+      // `Number(...)`, as every other BigInt crossing this boundary does — JSON has no
+      // BigInt and `JSON.stringify` throws on one.
+      phone: {
+        code: booking.consumer.user.phoneCode,
+        number: Number(booking.consumer.user.phoneNumber),
+      },
+    }
+  }
+
+  return {
+    kind: 'guest' as const,
+    id: undefined,
+    firstName: booking.guestFirstName ?? '',
+    lastName: booking.guestLastName ?? '',
+    email: booking.guestEmail ?? undefined,
+    phone: {
+      code: booking.guestPhoneCode ?? 0,
+      number: Number(booking.guestPhoneNumber ?? 0),
+    },
+  }
+}
+
+export function mapProviderBooking(booking: BookingWithBooker) {
+  return {
+    id: booking.id,
+    time: {
+      startDate: booking.startAt.toISOString(),
+      endDate: booking.endAt.toISOString(),
+      duration: booking.durationMinutes,
+    },
+    status: booking.status,
+    notes: booking.notes ?? undefined,
+    paymentMethods: booking.paymentMethods,
+    // The snapshot taken at booking time, not the service's price today. Null on rows
+    // booked before the snapshot column existed and on services that carry no price.
+    price: booking.price ? Number(booking.price) : undefined,
+    currency: booking.currency ?? undefined,
+    createdAt: booking.createdAt.toISOString(),
+    service: booking.service
+      ? { id: booking.service.id, name: booking.service.name }
+      : { id: booking.serviceId, name: '' },
+    booker: mapBooker(booking),
+  }
+}
+
+/** Everything `mapProviderBooking` reads, and nothing else. */
+export const providerBookingInclude = {
+  service: { select: { id: true, name: true } },
+  consumer: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      user: { select: { phoneCode: true, phoneNumber: true } },
+    },
+  },
+} as const
 
 export const providerInclude = {
   categories: { include: { category: true } },

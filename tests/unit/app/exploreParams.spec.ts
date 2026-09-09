@@ -15,7 +15,7 @@ const DEFAULTS: ExploreParams = {
   q: '',
   categoryId: '',
   available: false,
-  bookable: false,
+  openToday: false,
   sort: 'recommended',
   page: 1,
 }
@@ -27,11 +27,11 @@ describe('parseExploreParams', () => {
         q: ' hair ',
         category: 'cat-1',
         available: 'true',
-        bookable: 'true',
+        openToday: 'true',
         sort: 'nameAsc',
         page: '3',
       })
-    ).toEqual({ q: 'hair', categoryId: 'cat-1', available: true, bookable: true, sort: 'nameAsc', page: 3 })
+    ).toEqual({ q: 'hair', categoryId: 'cat-1', available: true, openToday: true, sort: 'nameAsc', page: 3 })
   })
 
   it('falls back to defaults for an empty query', () => {
@@ -53,9 +53,9 @@ describe('parseExploreParams', () => {
   // `?available=1` is not what the builder emits, so it is not what the parser accepts —
   // one spelling, or the toggle reads as on when the URL says something else.
   it('treats any value other than "true" as off', () => {
-    expect(parseExploreParams({ available: '1', bookable: 'yes' })).toMatchObject({
+    expect(parseExploreParams({ available: '1', openToday: 'yes' })).toMatchObject({
       available: false,
-      bookable: false,
+      openToday: false,
     })
   })
 
@@ -79,7 +79,7 @@ describe('buildExploreQuery', () => {
       q: 'deep tissue',
       categoryId: 'cat-9',
       available: true,
-      bookable: true,
+      openToday: true,
       sort: 'newest',
       page: 5,
     }
@@ -95,6 +95,7 @@ describe('buildExploreQuery', () => {
     ['a category', { categoryId: 'cat-1' }],
     ['a sort', { sort: 'nameAsc' as const }],
     ['a filter', { available: true }],
+    ['open today', { openToday: true }],
   ])('resets to page 1 when %s changes', (_case, patch) => {
     expect(buildExploreQuery({ ...DEFAULTS, page: 4 }, patch)).not.toContain('page=')
   })
@@ -114,7 +115,7 @@ describe('toProvidersListQuery', () => {
       q: undefined,
       categoryId: undefined,
       available: undefined,
-      bookable: undefined,
+      openToday: undefined,
       sort: 'recommended',
       page: 1,
       perPage: PROVIDERS_PER_PAGE,
@@ -122,10 +123,13 @@ describe('toProvidersListQuery', () => {
   })
 
   it('forwards what was set', () => {
-    expect(toProvidersListQuery({ ...DEFAULTS, q: 'hair', categoryId: 'cat-1', available: true })).toMatchObject({
+    expect(
+      toProvidersListQuery({ ...DEFAULTS, q: 'hair', categoryId: 'cat-1', available: true, openToday: true })
+    ).toMatchObject({
       q: 'hair',
       categoryId: 'cat-1',
       available: true,
+      openToday: true,
     })
   })
 })
@@ -134,7 +138,7 @@ describe('activity helpers', () => {
   it('counts only the sheet toggles', () => {
     expect(countActiveFilters(DEFAULTS)).toBe(0)
     expect(countActiveFilters({ ...DEFAULTS, available: true })).toBe(1)
-    expect(countActiveFilters({ ...DEFAULTS, available: true, bookable: true })).toBe(2)
+    expect(countActiveFilters({ ...DEFAULTS, available: true, openToday: true })).toBe(2)
     // A search or a sort is not a "filter" for the badge's purposes.
     expect(countActiveFilters({ ...DEFAULTS, q: 'hair', sort: 'newest' })).toBe(0)
   })
@@ -144,7 +148,8 @@ describe('activity helpers', () => {
     ['nothing set', DEFAULTS, false],
     ['a search', { ...DEFAULTS, q: 'hair' }, true],
     ['a category', { ...DEFAULTS, categoryId: 'cat-1' }, true],
-    ['a filter', { ...DEFAULTS, bookable: true }, true],
+    ['a filter', { ...DEFAULTS, available: true }, true],
+    ['open today', { ...DEFAULTS, openToday: true }, true],
     ['only a sort', { ...DEFAULTS, sort: 'newest' as const }, false],
   ])('hasActiveExploreParams is %s -> %s', (_case, params, expected) => {
     expect(hasActiveExploreParams(params)).toBe(expected)

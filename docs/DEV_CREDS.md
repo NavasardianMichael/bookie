@@ -23,19 +23,19 @@ a different, role-specific screen.
 
 | Account | Phone | Role resolved as |
 | --- | --- | --- |
-| Provider | `+37477000100` | `provider` |
-| Consumer | `+37477000201` | `consumer` |
+| Provider | `+37499999999` | `provider` |
+| Consumer | `+37499000000` | `consumer` |
 
 ## Calling the API directly
 
 `phone` is an **object**, not a formatted string — earlier versions of this file showed
-`"phone": "+37477000100"`, which the route rejects.
+`"phone": "+37499999999"`, which the route rejects.
 
 ```jsonc
 // Sign-in — no userType, no profile.
 POST /identity/login
 {
-  "phone": { "code": 374, "number": 77000100 },
+  "phone": { "code": 374, "number": 99999999 },
   "otp": "123456"
 }
 ```

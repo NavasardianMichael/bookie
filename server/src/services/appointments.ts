@@ -150,6 +150,10 @@ export async function createAppointment(input: {
       startAt: input.startAt,
       endAt,
       durationMinutes: service.durationMinutes,
+      // Snapshotted alongside the duration, and for the same reason: what was agreed
+      // must not change when the price list does.
+      price: service.price,
+      currency: service.currency,
       status: 'scheduled',
       notes: input.notes,
       paymentMethods,

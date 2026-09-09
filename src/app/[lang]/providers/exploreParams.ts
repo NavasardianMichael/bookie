@@ -20,7 +20,7 @@ export const EXPLORE_PARAMS = {
   q: 'q',
   category: 'category',
   available: 'available',
-  bookable: 'bookable',
+  openToday: 'openToday',
   sort: 'sort',
   page: 'page',
 } as const
@@ -39,11 +39,10 @@ export type ExploreParams = {
   q: string
   categoryId: string
   available: boolean
-  bookable: boolean
+  openToday: boolean
   sort: ProvidersListSort
   page: number
 }
-
 
 /** A repeated key (`?q=a&q=b`) is a malformed URL, not two searches — take the first. */
 const first = (raw: string | string[] | undefined): string => (Array.isArray(raw) ? (raw[0] ?? '') : (raw ?? ''))
@@ -64,14 +63,14 @@ export const parseExploreParams = (raw: RawSearchParams): ExploreParams => {
     q: first(raw[EXPLORE_PARAMS.q]).trim(),
     categoryId: first(raw[EXPLORE_PARAMS.category]),
     available: first(raw[EXPLORE_PARAMS.available]) === 'true',
-    bookable: first(raw[EXPLORE_PARAMS.bookable]) === 'true',
+    openToday: first(raw[EXPLORE_PARAMS.openToday]) === 'true',
     sort: EXPLORE_SORTS.includes(sort) ? sort : DEFAULT_EXPLORE_SORT,
     page: toPage(raw[EXPLORE_PARAMS.page]),
   }
 }
 
 /** The keys that change *which* providers match, as opposed to which slice of them. */
-const RESULT_SET_KEYS = ['q', 'categoryId', 'available', 'bookable', 'sort'] as const
+const RESULT_SET_KEYS = ['q', 'categoryId', 'available', 'openToday', 'sort'] as const
 
 /**
  * Changing what matches has to send the visitor back to page 1 — being on page 4 of a
@@ -99,7 +98,7 @@ export const buildExploreQuery = (params: ExploreParams, patch: Partial<ExploreP
     [EXPLORE_PARAMS.q]: next.q || undefined,
     [EXPLORE_PARAMS.category]: next.categoryId || undefined,
     [EXPLORE_PARAMS.available]: next.available || undefined,
-    [EXPLORE_PARAMS.bookable]: next.bookable || undefined,
+    [EXPLORE_PARAMS.openToday]: next.openToday || undefined,
     [EXPLORE_PARAMS.sort]: next.sort === DEFAULT_EXPLORE_SORT ? undefined : next.sort,
     [EXPLORE_PARAMS.page]: next.page > 1 ? next.page : undefined,
   })
@@ -116,7 +115,7 @@ export const toProvidersListQuery = (params: ExploreParams): ProvidersListQuery 
   q: params.q || undefined,
   categoryId: params.categoryId || undefined,
   available: params.available || undefined,
-  bookable: params.bookable || undefined,
+  openToday: params.openToday || undefined,
   sort: params.sort,
   page: params.page,
   perPage: PROVIDERS_PER_PAGE,
@@ -130,7 +129,7 @@ export const exploreParamsKey = (params: ExploreParams): string => buildExploreQ
 
 /** Drives the "N active" badge on the filter button, and the Reset control. */
 export const countActiveFilters = (params: ExploreParams): number =>
-  Number(params.available) + Number(params.bookable)
+  Number(params.available) + Number(params.openToday)
 
 export const hasActiveExploreParams = (params: ExploreParams): boolean =>
   !!params.q || !!params.categoryId || countActiveFilters(params) > 0

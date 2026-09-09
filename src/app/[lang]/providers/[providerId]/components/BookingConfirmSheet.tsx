@@ -3,14 +3,16 @@
 import { FC } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { PhoneNumberField } from '@app/[lang]/auth/components/PhoneNumberField'
-import { Form, Select, Spin } from 'antd'
+import { Form, Spin } from 'antd'
 import type { CountryCode } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
 import { GuestBookingDetails } from '@api/appointments/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { PaymentMethod } from '@interfaces/settings'
+import { PaymentInfo, PaymentMethod } from '@interfaces/settings'
 import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
+import { PAYMENT_METHODS } from '@constants/settings'
 import { toPhoneNumber } from '@helpers/registration'
+import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
@@ -18,6 +20,7 @@ import { AppSheet } from '@components/ui/AppSheet'
 import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { BankTransferDetails } from './BankTransferDetails'
 import { BookingSummary, BookingSummaryData } from './BookingSummary'
 
 /** What the visitor filled in. `guest` is absent whenever we already know who they are. */
@@ -51,8 +54,13 @@ type Props = {
   needsGuestDetails: boolean
   /** Session still resolving. Showing the guest form here would flash it at a signed-in user. */
   isAuthPending: boolean
-  /** The methods this provider accepts; the picker never offers anything else. */
+  /**
+   * Methods this provider takes. Empty means they never configured a set, so the
+   * picker enables every method rather than disabling the whole list.
+   */
   paymentMethodOptions: PaymentMethod[]
+  /** Copyable reference and notes, shown when the visitor includes bank transfer. */
+  paymentInfo?: Pick<PaymentInfo, 'reference' | 'notes'> | null
   isBooking: boolean
   onClose: () => void
   onSubmit: (submission: BookingConfirmSubmission) => Promise<void>
@@ -77,6 +85,7 @@ export const BookingConfirmSheet: FC<Props> = ({
   needsGuestDetails,
   isAuthPending,
   paymentMethodOptions,
+  paymentInfo,
   isBooking,
   onClose,
   onSubmit,
@@ -94,6 +103,7 @@ export const BookingConfirmSheet: FC<Props> = ({
           booking={booking}
           needsGuestDetails={needsGuestDetails}
           paymentMethodOptions={paymentMethodOptions}
+          paymentInfo={paymentInfo}
           isBooking={isBooking}
           onSubmit={onSubmit}
         />
@@ -102,7 +112,10 @@ export const BookingConfirmSheet: FC<Props> = ({
   )
 }
 
-type FormProps = Pick<Props, 'needsGuestDetails' | 'paymentMethodOptions' | 'isBooking' | 'onSubmit'> & {
+type FormProps = Pick<
+  Props,
+  'needsGuestDetails' | 'paymentMethodOptions' | 'paymentInfo' | 'isBooking' | 'onSubmit'
+> & {
   booking: BookingSummaryData
 }
 
@@ -114,12 +127,14 @@ const BookingConfirmForm: FC<FormProps> = ({
   booking,
   needsGuestDetails,
   paymentMethodOptions,
+  paymentInfo,
   isBooking,
   onSubmit,
 }) => {
   const t = useTranslations('Booking')
-  const tMethods = useTranslations('Settings.payments.methods')
   const [form] = Form.useForm<FormValues>()
+  const initiallyChecked = paymentMethodOptions.length ? paymentMethodOptions : [...PAYMENT_METHODS]
+  const selectedMethods = Form.useWatch('paymentMethods', form) ?? initiallyChecked
 
   const notesRules = useFormItemRules('maxCharsForTextarea')
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
@@ -143,13 +158,16 @@ const BookingConfirmForm: FC<FormProps> = ({
   }
 
   return (
-    <Form form={form} layout='vertical' requiredMark={false} onFinish={handleFinish} scrollToFirstError className='flex w-full flex-col gap-6'>
-      <div className='flex flex-col gap-3'>
-        <AppTitle level='h3' size='body'>
-          {t('summary.heading')}
-        </AppTitle>
-        <BookingSummary {...booking} />
-      </div>
+    <Form
+      form={form}
+      layout='vertical'
+      requiredMark={false}
+      initialValues={{ paymentMethods: initiallyChecked }}
+      onFinish={handleFinish}
+      scrollToFirstError
+      className='flex w-full flex-col gap-6'
+    >
+      <BookingSummary {...booking} />
 
       {needsGuestDetails && (
         <div className='flex flex-col gap-4'>
@@ -192,11 +210,7 @@ const BookingConfirmForm: FC<FormProps> = ({
             </div>
           </div>
 
-          <PhoneNumberField
-            label={t('guest.phone')}
-            requirement='Required'
-            requirementText={t('requiredBadge')}
-          />
+          <PhoneNumberField label={t('guest.phone')} requirement='Required' requirementText={t('requiredBadge')} />
 
           <div className='flex flex-col gap-1.5'>
             <FieldLabel htmlFor='booking-email' requirement='Required' requirementText={t('requiredBadge')}>
@@ -216,21 +230,23 @@ const BookingConfirmForm: FC<FormProps> = ({
         </div>
       )}
 
-      {!!paymentMethodOptions.length && (
+      <div className='flex flex-col gap-3'>
         <div className='flex flex-col gap-1.5'>
           <FieldLabel htmlFor='booking-payment' requirement='Optional' requirementText={t('optionalBadge')}>
             {t('paymentLabel')}
           </FieldLabel>
-          <AppFormItem name='paymentMethods' messageVariables={{ label: t('paymentLabel') }}>
-            <Select
-              id='booking-payment'
-              mode='multiple'
-              placeholder={t('paymentPlaceholder')}
-              options={paymentMethodOptions.map((method) => ({ value: method, label: tMethods(method) }))}
+          <AppFormItem name='paymentMethods' hasFeedback={false} messageVariables={{ label: t('paymentLabel') }}>
+            <PaymentMethodPicker
+              htmlId='booking-payment'
+              accepted={paymentMethodOptions}
+              disabledReason={t('paymentNotAccepted')}
             />
           </AppFormItem>
         </div>
-      )}
+        {selectedMethods.includes('bank_transfer') ? (
+          <BankTransferDetails reference={paymentInfo?.reference} notes={paymentInfo?.notes} />
+        ) : null}
+      </div>
 
       <div className='flex flex-col gap-1.5'>
         <FieldLabel htmlFor='booking-notes' requirement='Optional' requirementText={t('optionalBadge')}>
@@ -249,7 +265,7 @@ const BookingConfirmForm: FC<FormProps> = ({
         </AppFormItem>
       </div>
 
-      <AppButton htmlType='submit' type='primary' size='large' loading={isBooking} className='w-full'>
+      <AppButton htmlType='submit' type='primary' loading={isBooking} className='w-full'>
         {t('submit')}
       </AppButton>
     </Form>

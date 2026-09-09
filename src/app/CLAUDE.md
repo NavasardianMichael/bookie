@@ -36,8 +36,9 @@ in intent only; the rows say `ƒ` because that is what the tree does. Calling
 | `/providers` | ƒ | Real — explore: debounced search, category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
-| `/providers/profile` (+ nested tabs) | ƒ | Real — provider account settings shell |
+| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / SEO |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
+| `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
 | `/organizations` | ƒ | Real — list |
 | `/organizations/[organizationId]` | ƒ | Real — detail |
 | `/categories` | ƒ | Real — list |
@@ -58,10 +59,69 @@ stored card PANs, no autosave (Discard / Save, plus Save draft / Publish for pro
 Provider `listed` hides Explore + public 404; `available` only pauses bookings. The Header
 swaps Sign In / Get Started for an avatar when `getMe()` succeeds.
 
+**Three of the provider tabs are not settings.** `Bookings` and `Analytics` are for running
+the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts them above the
+configuration tabs for that reason. They share the shell because a second nav and a second
+shell would be two mental models for one workspace — not because they are settings.
+
+| Tab | Route | Shape |
+|---|---|---|
+| Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list. `GET /provider-profile/bookings` |
+| Analytics | `/providers/profile/analytics` | Range presets, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
+| SEO | `/providers/profile/seo` | Title / description / keywords / vanity slug. `PATCH /provider-profile/seo` |
+
+Four decisions in there worth not undoing:
+
+1. **Bookings keeps its filter state in local component state, not the URL** — the opposite
+   of Explore, and deliberately. Explore's grid is a Server Component, so its query has to
+   survive a round-trip regardless and the address bar is free. This panel is a client
+   island that fetches for itself, so URL state would add a server round-trip to every
+   filter change in exchange for a shareable link to a page only its owner can open.
+2. **The calendar *is* the day filter.** Selecting a day narrows the list; selecting it
+   again clears. There is no separate date-range control, because two controls writing one
+   piece of state is how they come to disagree.
+3. **`loading` is derived, never set at the top of an effect.** Each panel memoizes its
+   request into an object that doubles as its identity and compares it against the last
+   fulfilled one. `react-hooks/set-state-in-effect` is an ESLint **error** here — the same
+   rule that shapes `BookingPanel` — and a derived flag cannot drift out of step with the
+   fetch the way two `setLoading` calls on separate paths can.
+4. **SEO saves live; it does not use the draft overlay** the other public-facing tabs use.
+   The draft model exists so a provider can rework the *visible* page without it going out
+   half-finished, and a title tag has no half-finished state. Running a drafted description
+   beside a live address on one screen would be the confusing part, so the whole tab is one
+   Save. See `docs/DATABASE_STRUCTURE.md`.
+
+**The vanity link is a `route.ts`, not a `page.tsx`** — and that distinction was found the
+hard way. As a page it emitted a *soft* redirect: the root layout streams first, so by the
+time `redirect()` threw, the response had already begun and Next fell back to a client-side
+navigation. HTTP 200, an empty shell, no `Location` header. That renders fine in a browser
+and is worthless to a crawler, which is the one audience a shareable link has. **Any route
+whose whole job is to redirect belongs in a Route Handler**, which returns a real
+`Response` before anything renders.
+
+It takes **no database round-trip**: `GET /providers/:idOrSlug` accepts either form, so
+`/p/<slug>` is a pure URL rewrite to `/providers/<slug>` — one hop, nothing to fail, and an
+unknown slug 404s through the detail page's own `notFound()` with the app's real
+not-found UI instead of a bare handler response. **307, never 308**, for the reason
+`personalizedRedirect` in `src/proxy.ts` already gives: a permanent redirect is cached by
+the browser and would outlive a slug change.
+
+Two URLs reaching one page is not a duplicate, because `generateMetadata` builds its
+canonical from the **resolved entity's id** rather than the route segment. `/providers/<slug>`
+and `/providers/<uuid>` both canonical to the id URL, so only one is ever indexed while the
+memorable form stays in the address bar. Taking the canonical from the segment — which the
+page did before that route accepted slugs — would give one page two canonicals.
+
+`src/proxy.ts` needed **no change** for any of this: `PROTECTED_PREFIXES` holds
+`ROUTES.providerProfile` and the guard is a prefix test, so every nested tab is already
+cookie-guarded.
+
 The public provider profile intentionally drops a few prototype pieces: no left-column
 Services list (choosing a service is only the booking picker), no map embed (the address
-links out to Maps), working hours as their own card above Location, and service cards
-with wrapping titles and no icons.
+links out to Maps), working hours as their own card above Location, service cards
+with wrapping titles and no icons, and no "Book an appointment" column heading — the
+service picker is the start of that flow. Share is an icon in the identity card's
+top-end corner rather than the prototype's full-width Share button.
 
 ### Explore's state is the query string
 
@@ -70,7 +130,7 @@ with wrapping titles and no icons.
 the two client islands patch. Nothing about this list lives in a store.
 
 ```
-/providers?q=hair&category=<id>&available=true&bookable=true&sort=nameAsc&page=3
+/providers?q=hair&category=<id>&available=true&openToday=true&sort=nameAsc&page=3
 ```
 
 Why the URL and not `useProvidersListStore`: the grid is a Server Component, so the
@@ -90,23 +150,25 @@ Five decisions worth not undoing:
    follow them. `ui/layout/Pagination` is antd-free for exactly that reason.
 3. **The search field is locally controlled and the URL is its output.** Typing cannot
    wait for `searchParams` to come back or the caret stalls, so `params.q` seeds the
-   first render only. It `replace`s rather than `push`es — a nine-character search must
-   leave one history entry, not nine — with `scroll: false`.
+   first render and is written back only when the URL changes from outside the field
+   (Clear all filters, Back). It `replace`s rather than `push`es — a nine-character
+   search must leave one history entry, not nine — with `scroll: false`.
 4. **The filter sheet is staged, the search is live.** Toggles collect into a draft and
    only *Show results* navigates, so opening the panel costs no request and two changes
    cost one. The search box is the opposite because live feedback is its whole point.
 5. **Only the results subtree suspends.** `<Suspense key={exploreParamsKey(params)}>`
    wraps `ProvidersResults` alone: the heading, search box, rail and toolbar are already
    correct for the new query, so re-rendering them would only make the controls flicker.
-   The fallback is `ProvidersResultsSkeleton`, which keeps the section heading — a bare
-   `CardGridSkeleton` there dropped it and the grid jumped on every search.
+   The heading and sort/filter controls live on the page, outside that boundary — a bare
+   `CardGridSkeleton` as the fallback is enough, because the section chrome is already on
+   screen.
 
 Where Explore deviates from `design/initial prototype/explore_service_providers`:
 
 | Prototype | Built as | Why |
 |---|---|---|
 | Search + **Location** field + Search button | One debounced search field | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button goes with the debounce. |
-| "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Browse categories* | Paired with the filter control, per the request; the label still shows from `sm` up. |
+| "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Service providers* | Paired with the filter control, per the request; the label still shows from `sm` up. |
 | Rating badge and star on every card | Omitted | No aggregate rating column exists; see `docs/BACKLOG.md`. |
 | "Next: Today, 2 PM" on every card | Omitted | One availability computation per card, per page render. |
 | `1 2 3 … 12` pager | Same, as links, elided at ±2 around the current page | Survives 200 pages as well as 12. |

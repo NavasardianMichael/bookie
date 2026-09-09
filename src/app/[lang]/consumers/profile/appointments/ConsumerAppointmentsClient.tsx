@@ -96,7 +96,7 @@ export const ConsumerAppointmentsClient = () => {
           </ul>
         )}
 
-        <AppLink href={ROUTES.providers} variant='button' tone='default' block>
+        <AppLink href={ROUTES.providers} variant='button' tone='primary' className='w-full max-w-xs'>
           {t('bookService')}
         </AppLink>
       </Surface>

@@ -128,3 +128,20 @@ They are gone, and `consumersRouter` no longer exists — only `consumerProfileR
 
 If a provider ever needs to see who booked them, that belongs on the appointment and scoped
 to that provider, not on a lookup keyed by a guessable id.
+
+### …and that is exactly what `GET /provider-profile/bookings` is
+
+It returns the booking consumer's **name, phone and email**, which `GET /appointments`
+does not. That is a deliberate widening, taken under the rule above rather than around it:
+
+- **Why it exists.** A day's client list that cannot be phoned is not a client list. Guest
+  bookings already carry the same four fields, so withholding them for signed-in consumers
+  made the provider's calendar arbitrarily less useful for their *better* customers.
+- **What bounds it.** The route is on `providerProfileRouter` behind `requireProvider`, and
+  the provider id comes off `req.session.profileId` — it is never a parameter, so there is
+  no id to tamper with and no way to aim it at another provider's calendar. The contact
+  details reach only the provider those appointments belong to.
+- **Where it is allowed to live.** `mapProviderBooking` in `mappers/entities.ts`, and
+  nowhere else. Do not add these fields to `GET /appointments`, to `mapConsumer`, or to any
+  route keyed on a consumer id. A search by name deliberately matches `guestEmail` but
+  **not** a consumer's email, so a provider cannot probe for which addresses hold accounts.

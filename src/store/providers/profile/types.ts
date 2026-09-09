@@ -41,6 +41,27 @@ export type ProviderProfile = {
   personal: ProviderPersonalValues
   listed?: boolean
   draft?: ProviderDraft | null
+  seo?: ProviderSeo
+}
+
+/**
+ * Owner-authored search metadata. Every field is an **override**: `undefined` means
+ * "no override, compose the default from the name, organization and categories", which
+ * is what `generateMetadata` on the public profile falls back to. That is why these are
+ * optional rather than empty strings — clearing one has to restore the default, not
+ * blank the tag.
+ *
+ * On `basic`/`details`/`services`/`personal`'s level rather than inside `details`
+ * because it is neither contact information nor private: these end up as public `<meta>`
+ * tags, and the public `GET /providers/:id` payload carries them for exactly that reason.
+ */
+export type ProviderSeo = {
+  title?: string
+  description?: string
+  /** Comma-joined, the shape the `<meta name="keywords">` tag wants. */
+  keywords?: string
+  /** Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL. */
+  slug?: string
 }
 
 export type GalleryItem = {

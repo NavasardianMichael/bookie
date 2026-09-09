@@ -138,6 +138,7 @@ identityRouter.post(
             country,
             organizationId: await resolveOrganizationId(registration),
             weekSchedule: {},
+            listed: false,
           },
         })
         profileId = created.id

@@ -98,7 +98,8 @@ model Provider {
   available              Boolean            @default(true)
   /// When false the provider is hidden from Explore and public detail 404s for
   /// everyone except the owner. Independent of `available` (pause bookings).
-  listed                 Boolean            @default(true)
+  /// New accounts start unlisted; they appear only after Publish page.
+  listed                 Boolean            @default(false)
   plan                   Plan               @default(free)
   organizationId         String?
   organization           Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
@@ -108,8 +109,23 @@ model Provider {
   draft                  Json?
   emailNotificationPrefs Json               @default("{}")
   /// Accepted in-person payment methods — never a card PAN.
-  /// `{ methods: ('cash'|'card_on_site'|'bank_transfer'|'other')[], reference?, notes? }`
+  /// `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], reference?, notes? }`
   paymentInfo            Json?
+  /// Owner-authored search metadata. All three are overrides: when null the public
+  /// page falls back to the values `generateMetadata` composes from name,
+  /// organization and categories, so clearing a field restores the default rather
+  /// than blanking the tag. Length-capped and sanitised in `services/providerSeo.ts`.
+  seoTitle               String?
+  seoDescription         String?
+  /// Comma-joined. Emitted as `<meta name="keywords">`, which Google ignores but
+  /// other crawlers still scrape — the same reasoning as the derived keywords it
+  /// replaces.
+  seoKeywords            String?
+  /// Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL.
+  /// ASCII-only and reserved-word checked (`services/providerSeo.ts`) — a Cyrillic
+  /// homograph would let one provider's slug impersonate another's, and an
+  /// unreserved slug could shadow a real route segment or a locale code.
+  slug                   String?            @unique
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   categories             ProviderCategory[]
@@ -174,7 +190,7 @@ model Consumer {
   country                String?
   emailNotificationPrefs Json               @default("{}")
   /// Accepted in-person payment methods — never a card PAN.
-  /// `{ methods: ('cash'|'card_on_site'|'bank_transfer'|'other')[], reference?, notes? }`
+  /// `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], reference?, notes? }`
   paymentInfo            Json?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
@@ -224,6 +240,15 @@ model Appointment {
   startAt         DateTime
   endAt           DateTime
   durationMinutes Int
+  /// Price snapshot, copied off the Service at booking time exactly as
+  /// `durationMinutes` above is. The column types mirror `Service.price` /
+  /// `Service.currency` so there is no unit conversion to get wrong.
+  ///
+  /// Without it, editing a service's price rewrites the price of every booking
+  /// already made against it — an appointment is a record of what was agreed, not
+  /// a view onto today's price list. Nullable because the Service's own price is.
+  price           Decimal?          @db.Decimal(10, 2)
+  currency        String?
   status          AppointmentStatus @default(scheduled)
   notes           String?
   /// How the booker intends to pay, narrowed at write time to what the provider

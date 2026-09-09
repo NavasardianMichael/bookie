@@ -1,30 +1,28 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Alert, App, Form } from 'antd'
+import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
+import { Alert, Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
-import { PaymentInfo } from '@interfaces/settings'
+import { PaymentMethod } from '@interfaces/settings'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
-import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
+import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
-import { AppButton } from '@components/ui/AppButton'
-import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { AppText } from '@components/ui/bare/AppText'
-import { CopyIcon, CreditCardIcon } from '@components/ui/icons'
+import { AppFormItem } from '@components/ui/AppFormItem'
+import { CreditCardIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
-type FormValues = { paymentInfo: PaymentInfo }
+type FormValues = { paymentInfo: { methods: PaymentMethod[] } }
 
-const DEFAULT: PaymentInfo = { methods: ['cash'], reference: '', notes: '' }
+const DEFAULT: FormValues['paymentInfo'] = { methods: ['cash'] }
 
 export const ConsumerPaymentsClient = () => {
   const t = useTranslations('Settings')
-  const { message } = App.useApp()
   const [form] = Form.useForm<FormValues>()
-  const [saved, setSaved] = useState<PaymentInfo>(DEFAULT)
+  const [saved, setSaved] = useState<FormValues['paymentInfo']>(DEFAULT)
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,23 +30,25 @@ export const ConsumerPaymentsClient = () => {
   useEffect(() => {
     void getConsumerProfileAPI()
       .then((profile) => {
-        // Normalised, not read straight off the column: a row written before the
-        // `method` -> `methods` reshape would leave the multi-select empty.
-        const stored = profile.details.paymentInfo
-        const info: PaymentInfo = stored ? { ...stored, methods: toPaymentMethods(stored) } : DEFAULT
-        setSaved(info)
-        form.setFieldsValue({ paymentInfo: info })
+        // Methods only — a row written when this tab still collected a reference
+        // and notes must not re-surface those fields, and the next save drops them.
+        const info = { methods: toPaymentMethods(profile.details.paymentInfo) }
+        const next = info.methods.length ? info : DEFAULT
+        setSaved(next)
+        form.setFieldsValue({ paymentInfo: next })
       })
       .catch((err) => setError(processError(err).message))
   }, [form])
 
   const handleSave = async () => {
     const values = await form.validateFields()
+    const paymentInfo = { methods: toPaymentMethods(values.paymentInfo) }
     setSaving(true)
     setError(null)
     try {
-      await putConsumerProfileAPI({ paymentInfo: values.paymentInfo })
-      setSaved(values.paymentInfo)
+      await putConsumerProfileAPI({ paymentInfo })
+      setSaved(paymentInfo)
+      form.setFieldsValue({ paymentInfo })
       setDirty(false)
     } catch (err) {
       setError(processError(err).message)
@@ -57,47 +57,29 @@ export const ConsumerPaymentsClient = () => {
     }
   }
 
-  const reference = Form.useWatch(['paymentInfo', 'reference'], form)
-
   return (
     <div className='flex flex-col gap-6'>
       <PageHeader title={t('nav.payments')} subtitle={t('payments.subtitle')} />
       {error && <Alert type='error' showIcon message={error} />}
 
       <Surface className='flex flex-col gap-6'>
-        <AppTitleWithIcon />
-        <AppParagraph size='body-sm'>{t('payments.hint')}</AppParagraph>
+        <h2 className='text-h3 flex items-center gap-2 font-bold'>
+          <CreditCardIcon className='text-brand h-5 w-5' />
+          {t('payments.title')}
+        </h2>
 
         <Form form={form} layout='vertical' onValuesChange={() => setDirty(true)} initialValues={{ paymentInfo: saved }}>
-          <PaymentInfoFields />
-        </Form>
-
-        {reference ? (
-          <div className='bg-surface-sunken border-brand-border flex items-center justify-between gap-3 rounded-brand border p-3'>
-            <div className='min-w-0'>
-              <AppText size='caption' tone='muted' className='font-bold uppercase'>
-                {t('payments.copyable')}
-              </AppText>
-              <AppParagraph className='truncate font-semibold' tone='default'>
-                {reference}
-              </AppParagraph>
-            </div>
-            <AppButton
-              type='default'
-              icon={<CopyIcon className='h-4 w-4' />}
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(reference)
-                  message.success(t('payments.copied'))
-                } catch {
-                  message.error(t('payments.copyFailed'))
-                }
-              }}
+          <div className='flex flex-col gap-1.5'>
+            <FieldLabel htmlFor='consumer-payment-methods'>{t('payments.methodsLabel')}</FieldLabel>
+            <AppFormItem
+              name={['paymentInfo', 'methods']}
+              hasFeedback={false}
+              messageVariables={{ label: t('payments.methodsLabel') }}
             >
-              {t('payments.copy')}
-            </AppButton>
+              <PaymentMethodPicker htmlId='consumer-payment-methods' />
+            </AppFormItem>
           </div>
-        ) : null}
+        </Form>
       </Surface>
 
       <SettingsActionBar
@@ -112,15 +94,5 @@ export const ConsumerPaymentsClient = () => {
         discardLabel={t('actions.discard')}
       />
     </div>
-  )
-}
-
-const AppTitleWithIcon = () => {
-  const t = useTranslations('Settings.payments')
-  return (
-    <h2 className='text-h3 flex items-center gap-2 font-bold'>
-      <CreditCardIcon className='text-brand h-5 w-5' />
-      {t('title')}
-    </h2>
   )
 }

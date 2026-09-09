@@ -9,11 +9,11 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **User** | Phone identity (`phoneCode` + `phoneNumber`), OTP fields, pending phone OTP and pending email-verify token, optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category |
-| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info |
+| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, SEO overrides + vanity `slug` |
 | **Service** | Bookable offering (duration, price, category) |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, optional `description`/`email`, email prefs + payment info |
 | **FavoriteProvider** | Consumer ↔ Provider favorites |
-| **Appointment** | Booking with status enum and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead |
+| **Appointment** | Booking with status enum and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time |
 | **Review** | Rating 1–5 for provider and/or organization |
 
 ## Relationships
@@ -48,10 +48,14 @@ All JSON responses use:
 | POST | `/identity/change-phone/confirm` | session |
 | POST | `/identity/change-email/send` | session — `{ email, returnPath }`; emails a link (dev: API console) |
 | POST | `/identity/change-email/confirm` | session — `{ token }` from the profile URL's `verifyEmail` query |
-| GET | `/providers?q=&categoryId=&available=&bookable=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below |
-| GET | `/providers/:id` | public (owner may preview unlisted) |
+| GET | `/providers?q=&categoryId=&available=&openToday=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below |
+| GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
 | GET | `/providers/:id/availability?date=` | public |
 | GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page) |
+| GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, own bookings only, see [Provider workspace](#provider-workspace) |
+| GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
+| GET | `/provider-profile/analytics?from=&to=&tz=` | provider — aggregates over own bookings |
+| PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `seoKeywords` / `slug` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
 | GET | `/organizations?q=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public |
@@ -86,12 +90,12 @@ banked silently. See the `mail` skill and `server/CLAUDE.md`.
 | `q` | free text, split on whitespace into at most 5 terms | — |
 | `categoryId` | a `Category.id` | — |
 | `available` | `true` / `1` | off |
-| `bookable` | `true` / `1` — has at least one `Service` | off |
+| `openToday` | `true` / `1` — `weekSchedule` has hours on today's weekday | off |
 | `sort` | `recommended` · `nameAsc` · `nameDesc` · `newest` | `recommended` |
 | `page` | 1-based | 1 |
 | `perPage` | 1-48 | 9 |
 
-Parsing lives in `server/src/services/providerSearch.ts`, not the route. Four things
+Parsing lives in `server/src/services/providerSearch.ts`, not the route. Five things
 about it are load-bearing:
 
 - **Every value is narrowed to a closed set.** `?sort=anything-else` resolves to
@@ -105,6 +109,13 @@ about it are load-bearing:
 - **The list uses `providerListInclude`, not `providerInclude`.** The lean one drops
   `user`, `services` and `gallery` — three joins per row that `mapBasicProvider` never
   reads, and which a searchable list would otherwise pay for on every keystroke.
+- **Unlisted pages are never returned.** That is `PUBLIC_PROVIDER_WHERE`
+  (`listed: true`), not a query flag. Category directories reuse the same predicate.
+- **`openToday` is hours on today's weekday**, not the `available` pause flag. It is a
+  JSON path on `weekSchedule.<day>.availability.start` containing `:` (so `''` and a
+  missing key miss). Remaining-slot math is deliberately not this filter — it cannot
+  stay inside `count`/`findMany` without breaking pagination. `now` is the server
+  clock; tests inject it.
 
 `Provider` carries two composite indexes for this, both prefixed by `listed` because
 every public query filters on it: `[listed, available, updatedAt]` (the `recommended`
@@ -147,15 +158,82 @@ geocoding. Each would be a per-row computation or a wrong answer. See `docs/BACK
 
 ### Provider publish model
 
-- **`listed`** — when `false`, the provider is hidden from Explore and public detail 404s for everyone except the owner (Preview). Copy URL, publish/unpublish, and delete page live on the Profile settings hero — there is no Listing sidebar tab.
+- **`listed`** — when `false`, the provider is hidden from Explore and public detail 404s for everyone except the owner (Preview). New accounts start unlisted. Copy URL, publish/unpublish, and delete page live on the Profile settings hero — there is no Listing sidebar tab.
 - **`DELETE /provider-profile`** — removes the page. `409` when appointments exist (`Appointment.providerId` has no `onDelete`). A User with no remaining Consumer profile is removed with the page.
 - **`available`** — pause new bookings; independent of listing.
 - **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
-- **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer'|'other')[], reference?, notes? }`.
+- **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], reference?, notes? }`.
   Never a card PAN. **`methods` is plural** — a provider accepts a set, not one preference,
   and the booking sheet offers exactly that set. Read it through `toPaymentMethods`
   (`src/helpers/payment.ts`, or `server/src/lib/payment.ts`), which also tolerates the
   pre-migration singular `{ method }` still possible in a stale `draft` overlay.
+  **Consumer** `paymentInfo` is methods only: the payments tab writes `{ methods }` and
+  `PUT /consumer-profile` strips `reference` / `notes` so leftover values cannot linger.
+- **SEO columns are *not* draftable.** `seoTitle`, `seoDescription`, `seoKeywords` and
+  `slug` save live through `PATCH /provider-profile/seo`, never through the `draft`
+  overlay — see [Provider workspace](#provider-workspace).
+
+## Provider workspace
+
+Three provider-only reads over a provider's own data, all on `providerProfileRouter` and
+therefore all scoped by `req.session.profileId`. **The provider id is never a parameter**,
+so none of them can be aimed at another provider's calendar.
+
+They are separate from `GET /appointments` on purpose. That route answers "what is coming
+up" for either role and has two existing callers; adding a page window would change its
+response from an array to an envelope and break both.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /provider-profile/bookings` | Paged `{ items, total, page, perPage, pageCount }`. Filters: `from`/`to`, repeatable `status`, `serviceId`, `q`. Sorts: `startDesc` (default — this is a history view), `startAsc`, `createdDesc`, `nameAsc`. Parsing lives in `services/providerBookings.ts`; every value narrows to a closed set, so a hand-edited query degrades to defaults rather than 500s. |
+| `GET /provider-profile/bookings/calendar` | `{ month, timeZone, days }` where `days` is keyed `YYYY-MM-DD` — the same key the client's grid uses — with `{ total, live }` per day. Cancelled and no-show bookings count in `total` so the grid cannot disagree with the unfiltered list. |
+| `GET /provider-profile/analytics` | Totals, the equal-length previous window, settled-only rates, a zero-filled daily series, top services, weekday/hour buckets, new-vs-returning clients, median lead time. `services/providerAnalytics.ts`. |
+
+Three things about these that are easy to get wrong:
+
+- **`tz` is a required part of the contract, not a nicety.** `startAt` is stored in UTC and
+  `Provider` has no timezone column, so bucketing by the raw instant puts an evening
+  booking on the following day for anyone east of Greenwich. The client sends
+  `Intl.DateTimeFormat().resolvedOptions().timeZone`; an unknown value falls back to UTC
+  rather than throwing.
+- **Revenue is returned per currency and never summed.** `Service.currency` is free-form
+  text, so one combined total would be a wrong number rather than a rough one.
+- **Analytics is bucketed in memory, not in SQL.** One provider's bookings over the longest
+  offered range is a few thousand narrow rows; `date_trunc … AT TIME ZONE` would be faster
+  and untestable without the DB fixtures this repo does not have. The tipping point is a
+  provider taking hundreds of bookings a day.
+
+### `PATCH /provider-profile/seo`
+
+Four columns, all **overrides**: absent means "leave it alone", `''` means "clear it back
+to the composed default", anything else is the new value. Nothing here can blank a tag —
+a cleared override restores what `generateMetadata` composes from the provider's name,
+organization and categories.
+
+Validation lives in `server/src/services/providerSeo.ts`:
+
+| Field | Rule |
+|---|---|
+| `seoTitle` | ≤ 60 code points. **Rejected, not truncated** — the field is counted live in the browser, so an over-length body is a non-browser caller, and a half-title reaches Google mid-word. |
+| `seoDescription` | ≤ 160 code points, same treatment. |
+| `seoKeywords` | ≤ 10 entries, each ≤ 40 chars, ≤ 255 joined. Stored comma-separated. |
+| all text | Line breaks become a space (never deleted — that would join two words); other control, bidi and zero-width characters are removed; `<` and `>` are refused; NFC-normalised. |
+| `slug` | 3–40 chars, `a-z0-9` with single hyphens, **ASCII only**, not UUID-shaped, not reserved, `@unique`. |
+
+The slug's three refusals each close a different hole: **ASCII-only** stops a Cyrillic
+homograph rendering as another provider's link; **not UUID-shaped** stops a provider
+claiming another's canonical `/providers/<id>` address (a UUID is hex in hyphen-separated
+groups, so it passes the character rules); **reserved** stops a slug shadowing a route
+segment or one of the 15 locale prefixes. Uniqueness is settled by the index, not the
+validator — two requests can pass validation at the same instant — and the caught `P2002`
+becomes a `409`.
+
+`/p/<slug>` is a **307 redirect** to `/providers/<slug>`, served by a Route Handler so the
+`Location` header is real rather than a streamed client-side navigation. It makes no API
+call — `GET /providers/:idOrSlug` already accepts either form. The canonical stays the
+**id** URL either way, because `generateMetadata` builds it from the resolved entity rather
+than the route segment, so the two addresses never compete in an index. Temporary rather
+than permanent because a 308 is cached by the browser and would outlive a slug change.
 
 ## Booking
 
@@ -174,6 +252,17 @@ Request body adds `notes` (trimmed, **max 300**, matching `MAX_CHARS_FOR_TEXTARE
 `paymentMethods` (narrowed server-side to what the provider accepts — the client
 offering only those is a convenience, not the guarantee), and `guest`
 (`{ firstName, lastName, phone: { code, number }, email }`, all required together).
+
+`price` and `currency` are **snapshotted** off the Service at creation, alongside
+`durationMinutes` and for the same reason: an appointment is a record of what was agreed,
+not a view onto today's price list. Without it, editing a service's price rewrote the
+price of every booking already made against it, and last quarter's revenue changed when a
+price did. Rows created before the snapshot migration were backfilled from the Service's
+price *at migration time*, which is an approximation those rows cannot be rescued from.
+
+`PATCH /appointments/:id` narrows `status` against `AppointmentStatus` before it reaches
+Prisma. It used to pass the body value straight through, which was harmless only while the
+one caller sent nothing and took the `'cancelled'` default.
 
 Other rules:
 

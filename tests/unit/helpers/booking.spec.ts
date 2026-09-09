@@ -8,6 +8,7 @@ import {
   getVisibleTimeRange,
   getWeekDay,
   groupSlotsByPartOfDay,
+  isOpenOnDate,
 } from '@helpers/booking'
 
 describe('getWeekDay', () => {
@@ -23,6 +24,22 @@ describe('getWeekDay', () => {
     ['2026-03-08', 'sunday'],
   ])('maps %s to %s', (date, expected) => {
     expect(getWeekDay(dayjs(date))).toBe(expected)
+  })
+})
+
+describe('isOpenOnDate', () => {
+  const schedule = makeWeekSchedule({ monday: day('09:00', '11:00') })
+
+  it('is true on a weekday with hours', () => {
+    expect(isOpenOnDate(schedule, MONDAY)).toBe(true)
+  })
+
+  it('is false on a closed weekday', () => {
+    expect(isOpenOnDate(schedule, TUESDAY)).toBe(false)
+  })
+
+  it('is false without a schedule', () => {
+    expect(isOpenOnDate(undefined, MONDAY)).toBe(false)
   })
 })
 

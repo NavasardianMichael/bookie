@@ -29,6 +29,7 @@ import { ContactActions } from '@components/ui/ContactActions'
 import { UserIcon } from '@components/ui/icons'
 import { PageShell, Surface } from '@components/ui/layout'
 import { ProviderDetails } from './components/Details'
+import { ProviderShareButton } from './components/ProviderShareButton'
 import { WorkingHours } from './components/WorkingHours'
 
 export const dynamic = 'force-dynamic'
@@ -54,20 +55,31 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   const { providerId } = await params
   const provider = await loadProvider(providerId)
 
-  const { basic, details } = provider
+  const { basic, details, seo } = provider
   const fullName = `${basic.firstName} ${basic.lastName}`
   const organizationName = basic.organization?.basic.name
   const categoryNames = basic.categories?.map((category) => category.name) ?? []
-  const path = `${ROUTES[ROUTE_KEYS.providers]}/${providerId}`
+  // Built from the resolved entity's id, never from the route segment: this route also
+  // serves `/providers/<slug>`, and taking the canonical from the segment would give one
+  // page two canonicals depending on which address the visitor arrived by.
+  const path = `${ROUTES[ROUTE_KEYS.providers]}/${provider.id}`
   // Only a real upload may override app/opengraph-image.tsx. The seeded
   // placeholder is an SVG, and most social platforms refuse to render one — so
   // pointing OG at it would swap a working card for a broken one.
   const ogImage = isUploadedAsset(basic.image) ? resolveAbsoluteAssetUrl(basic.image) : undefined
 
-  const title = [fullName, organizationName, categoryNames.join(', ')].filter(Boolean).join(' | ')
-  const description = organizationName
+  // Composed from what the profile carries — the fallback whenever the owner has set no
+  // override on the SEO tab. An override is only ever a whole replacement: a provider who
+  // clears the field gets this back rather than an empty tag, which is why the columns are
+  // nullable and `??` rather than `||` would be wrong on an empty string the API already
+  // normalised to null.
+  const composedTitle = [fullName, organizationName, categoryNames.join(', ')].filter(Boolean).join(' | ')
+  const composedDescription = organizationName
     ? `Book an appointment with ${fullName}, who works at ${organizationName}.`
     : `Book an appointment with ${fullName}.`
+
+  const title = seo?.title ?? composedTitle
+  const description = seo?.description ?? composedDescription
 
   return {
     title,
@@ -76,9 +88,9 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
     // string "undefined" into the keywords of every provider with no country or
     // email. Phone and email are also gone from here — a keywords tag is ignored
     // by search engines but is still scraped.
-    keywords: ['Bookie', fullName, ...categoryNames, details.country, details.location.address]
-      .filter(Boolean)
-      .join(', '),
+    keywords:
+      seo?.keywords ??
+      ['Bookie', fullName, ...categoryNames, details.country, details.location.address].filter(Boolean).join(', '),
     classification: categoryNames.join(', '),
     // Declared per route because the root layout no longer does: metadata is
     // inherited, so an absolute canonical there marked every page a duplicate of `/`.
@@ -130,7 +142,8 @@ export default async function Provider({ params }: Props) {
 
       <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start'>
         <aside className='flex flex-col gap-6'>
-          <Surface className='flex flex-col items-center text-center'>
+          <Surface className='relative flex flex-col items-center text-center'>
+            <ProviderShareButton name={fullName} />
             <div className='ring-brand-50 bg-brand-50 relative mb-4 flex size-32 items-center justify-center overflow-hidden rounded-full ring-4'>
               {image ? (
                 <Image src={image} alt={fullName} fill priority sizes='128px' className='object-cover' />
@@ -143,8 +156,14 @@ export default async function Provider({ params }: Props) {
               {fullName}
             </AppTitle>
 
+            {basic.description && (
+              <AppParagraph size='body-sm' className='mt-2'>
+                {basic.description}
+              </AppParagraph>
+            )}
+
             {(organization || !!categories?.length || !!details.location.address) && (
-              <div className='mt-3 flex flex-col items-center gap-1'>
+              <div className='mt-6 flex flex-col items-center gap-1'>
                 {organization && (
                   <AppParagraph size='body-sm' className='m-0'>
                     <AppText as='strong' tone='default'>
@@ -197,18 +216,7 @@ export default async function Provider({ params }: Props) {
               </div>
             )}
 
-            {basic.description && (
-              <AppParagraph size='body-sm' className='mt-5'>
-                {basic.description}
-              </AppParagraph>
-            )}
-
-            <ContactActions
-              phone={phone}
-              address={details.location.address}
-              email={details.email}
-              className='mt-6'
-            />
+            <ContactActions phone={phone} address={details.location.address} email={details.email} className='mt-6' />
 
             {details.paymentInfo && (
               <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>
@@ -249,9 +257,6 @@ export default async function Provider({ params }: Props) {
         {/* Booking is three stacked panels — service, day, time — all owned by
             ProviderDetails, which holds the selection they share. */}
         <section className='flex min-w-0 flex-col gap-6'>
-          <AppTitle level='h2' size='h2'>
-            Book an appointment
-          </AppTitle>
           <ProviderDetails initialState={provider} />
         </section>
       </div>

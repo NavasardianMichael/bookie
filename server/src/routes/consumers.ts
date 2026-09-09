@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { ok } from '../lib/api-response.js'
+import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
 import { mapBasicProvider, mapConsumer, providerInclude } from '../mappers/entities.js'
 import { requireConsumer } from '../middleware/auth.js'
@@ -52,7 +53,9 @@ consumerProfileRouter.get(
             ? (consumer.emailNotificationPrefs as Record<string, boolean>)
             : {}),
         },
-        paymentInfo: consumer.paymentInfo ?? undefined,
+        paymentInfo: consumer.paymentInfo
+          ? { methods: toPaymentMethods(consumer.paymentInfo) }
+          : undefined,
       },
     })
   })
@@ -71,7 +74,8 @@ consumerProfileRouter.put(
         lastName: lastName ?? undefined,
         description: description === undefined ? undefined : description || null,
         emailNotificationPrefs: emailNotificationPrefs ?? undefined,
-        paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
+        // Consumers only store preferred methods — never a reference or notes.
+        paymentInfo: paymentInfo === undefined ? undefined : { methods: toPaymentMethods(paymentInfo) },
       },
       include: { user: true },
     })
@@ -88,7 +92,9 @@ consumerProfileRouter.put(
             ? (consumer.emailNotificationPrefs as Record<string, boolean>)
             : {}),
         },
-        paymentInfo: consumer.paymentInfo ?? undefined,
+        paymentInfo: consumer.paymentInfo
+          ? { methods: toPaymentMethods(consumer.paymentInfo) }
+          : undefined,
       },
     })
   })

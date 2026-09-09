@@ -4,7 +4,7 @@ import { ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { EmptyState } from '@components/ui/EmptyState'
-import { Pagination, ResponsiveGrid, Section } from '@components/ui/layout'
+import { Pagination, ResponsiveGrid } from '@components/ui/layout'
 import { buildExploreHref, ExploreParams, hasActiveExploreParams, toProvidersListQuery } from './exploreParams'
 import { ProviderCard } from './ProviderCard'
 
@@ -15,10 +15,11 @@ type Props = {
 /**
  * The result set, split out from the page so it can suspend on its own.
  *
- * The page shell — heading, search box, category rail, toolbar — is already correct for
- * the new query before the API answers, so re-rendering it would only make the controls
- * flicker. Suspending just this subtree lets the shell stay put and the grid hand over to
- * a skeleton, which is what makes a search feel like filtering rather than a page load.
+ * The page shell — search box, category rail, results heading and toolbar — is already
+ * correct for the new query before the API answers, so re-rendering them would only make
+ * the controls flicker. Suspending just this subtree lets the shell stay put and the grid
+ * hand over to a skeleton, which is what makes a search feel like filtering rather than a
+ * page load.
  */
 export const ProvidersResults = async ({ params }: Props) => {
   const { list, pagination } = await getProvidersListAPI(toProvidersListQuery(params))
@@ -44,7 +45,7 @@ export const ProvidersResults = async ({ params }: Props) => {
   }
 
   return (
-    <Section title='Top service providers' count={pagination.total} className='gap-8'>
+    <div className='flex flex-col gap-8'>
       {/* Describes the page in view, so the graph and the markup never disagree. */}
       <JsonLd data={getProvidersListLDSchema(providers)} />
 
@@ -63,6 +64,6 @@ export const ProvidersResults = async ({ params }: Props) => {
         label='Provider pages'
         className='pt-4'
       />
-    </Section>
+    </div>
   )
 }

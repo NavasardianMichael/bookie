@@ -1,7 +1,7 @@
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { BasicProvider, ProvidersListPagination, ProvidersListState } from '@store/providers/list/types'
-import { ProviderProfile, ProviderService } from '@store/providers/profile/types'
+import { ProviderProfile, ProviderSeo, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
 
@@ -38,8 +38,8 @@ export type ProvidersListQuery = Partial<{
   categoryId: string
   /** Only providers currently taking bookings. */
   available: boolean
-  /** Only providers with at least one service, i.e. actually bookable. */
-  bookable: boolean
+  /** Only providers whose weekly schedule has hours on today's weekday. */
+  openToday: boolean
   sort: ProvidersListSort
   /** 1-based. The API clamps it to the last real page. */
   page: number
@@ -140,4 +140,29 @@ export type PutProviderServiceAPI = Endpoint<{
   }
   response: ProviderServiceResponse
   processed: ProviderService
+}>
+
+/**
+ * Search metadata and the vanity slug.
+ *
+ * A `PATCH` with three states per field, matching `ClearableField` above: an **absent**
+ * key leaves the column alone, `''` clears the override back to the composed default,
+ * and anything else is the new value. Sending only `slug` therefore cannot wipe a title
+ * the provider is not currently editing — which matters because the slug saves on its
+ * own button while the other three ride the draft/publish bar.
+ *
+ * `keywords` goes up as an array and comes back comma-joined; the tag input is the only
+ * thing that needs the list form.
+ */
+export type PatchProviderSeoPayload = Partial<{
+  seoTitle: ClearableField<string>
+  seoDescription: ClearableField<string>
+  seoKeywords: string[]
+  slug: ClearableField<string>
+}>
+
+export type PatchProviderSeoAPI = Endpoint<{
+  payload: PatchProviderSeoPayload
+  response: ProviderSeo
+  processed: ProviderSeo
 }>

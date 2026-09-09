@@ -77,19 +77,49 @@ export type ProvidersListQuery = {
   perPage: number
 }
 
-export function parseProvidersListQuery(query: RawQuery): ProvidersListQuery {
+/**
+ * What a public directory is allowed to show: a published page. Unlisted pages 404
+ * for everyone except the owner. Category routes reuse this rather than re-stating it.
+ */
+export const PUBLIC_PROVIDER_WHERE: Prisma.ProviderWhereInput = {
+  listed: true,
+}
+
+/**
+ * Sunday-first, matching `Date#getDay` and `server/src/services/appointments.ts`.
+ * The client's `getWeekDay` is Monday-first and indexes differently; both resolve
+ * to the same weekday *name* that `weekSchedule` is keyed on.
+ */
+const WEEKDAYS_SUNDAY_FIRST = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
+
+const weekdayOf = (now: Date): (typeof WEEKDAYS_SUNDAY_FIRST)[number] => WEEKDAYS_SUNDAY_FIRST[now.getDay()]!
+
+/**
+ * Today's hours live on `weekSchedule.<day>.availability.start` as `'HH:mm'`.
+ * `string_contains: ':'` is a positive check so `''` and a missing key (new
+ * accounts store `weekSchedule: {}`) do not match. This is not remaining-slot
+ * math — that cannot stay in `count`/`findMany` without breaking pagination.
+ */
+const openTodayWhere = (now: Date): Prisma.ProviderWhereInput => ({
+  weekSchedule: {
+    path: [weekdayOf(now), 'availability', 'start'],
+    string_contains: ':',
+  },
+})
+
+export function parseProvidersListQuery(query: RawQuery, now: Date = new Date()): ProvidersListQuery {
   const terms = toSearchTerms(query.q)
   const categoryId = asString(query.categoryId)
 
   return {
     where: {
-      listed: true,
-      // Terms live under `AND` so they cannot collide with the `categories` / `services`
-      // keys the category and bookable filters own.
+      ...PUBLIC_PROVIDER_WHERE,
+      // Terms live under `AND` so they cannot collide with the `categories` /
+      // `services` keys a search term owns.
       ...(terms.length ? { AND: terms.map(matchesTerm) } : {}),
       ...(categoryId ? { categories: { some: { categoryId } } } : {}),
       ...(asFlag(query.available) ? { available: true } : {}),
-      ...(asFlag(query.bookable) ? { services: { some: {} } } : {}),
+      ...(asFlag(query.openToday) ? openTodayWhere(now) : {}),
     },
     orderBy: ORDER_BY[asSort(query.sort)],
     page: asPositiveInt(query.page, 1, Number.MAX_SAFE_INTEGER),

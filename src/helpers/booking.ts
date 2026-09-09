@@ -17,6 +17,12 @@ const toMinutes = (time: string): number | undefined => {
 
 const hasAvailability = (day?: DaySchedule) => !!day?.availability.start && !!day?.availability.end
 
+/** Whether this calendar date falls on a weekday the provider has hours for. */
+export const isOpenOnDate = (weekSchedule: WeekSchedule | undefined, date: Date | Dayjs): boolean => {
+  if (!weekSchedule) return false
+  return hasAvailability(weekSchedule[getWeekDay(dayjs(date))])
+}
+
 /**
  * The visible time window for the calendar, derived from the provider's own
  * schedule and padded by an hour on each side.

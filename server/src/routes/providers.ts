@@ -8,16 +8,27 @@ import { ok } from '../lib/api-response.js'
 import { prisma } from '../lib/prisma.js'
 import {
   mapBasicProvider,
+  mapProviderBooking,
   mapProviderProfile,
+  mapProviderSeo,
   mapService,
   mapSingleProvider,
+  providerBookingInclude,
   providerInclude,
   providerListInclude,
 } from '../mappers/entities.js'
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderAvailability } from '../services/appointments.js'
+import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
+import {
+  asTimeZone,
+  countBookingsByDay,
+  monthRangeInZone,
+  parseProviderBookingsQuery,
+} from '../services/providerBookings.js'
 import { parseProvidersListQuery, resolvePageWindow } from '../services/providerSearch.js'
+import { looksLikeProviderId, parseProviderSeoBody } from '../services/providerSeo.js'
 
 const upload = multer({ dest: config.uploadDir })
 
@@ -82,11 +93,20 @@ providersRouter.get(
   })
 )
 
+/**
+ * A provider by id **or** by vanity slug.
+ *
+ * One endpoint for both so `/p/<slug>` can resolve without a second route. The two
+ * namespaces cannot collide: a slug is refused if it is UUID-shaped
+ * (`services/providerSeo.ts`), so the segment's shape decides which column to read and
+ * each lookup stays a single unique-index hit rather than an `OR` across two.
+ */
 providersRouter.get(
   '/:id',
   asyncHandler(async (req, res) => {
+    const segment = req.params.id ?? ''
     const provider = await prisma.provider.findUnique({
-      where: { id: req.params.id },
+      where: looksLikeProviderId(segment) ? { id: segment } : { slug: segment.toLowerCase() },
       include: providerInclude,
     })
     if (!provider) throw new HttpError(404, 'Provider not found', 404)
@@ -342,6 +362,145 @@ providerProfileRouter.delete(
     })
 
     return ok(res, true)
+  })
+)
+
+/* ------------------------------------------------------------------ *
+ * Workspace reads — a provider's own bookings and the numbers over them.
+ *
+ * These sit on `providerProfileRouter` rather than extending `GET /appointments`
+ * deliberately. That route answers "what is coming up" for whoever is asking and is
+ * consumed by two existing clients; adding a page window to it would change its
+ * response from an array to an envelope and break both. It also picks its `where` off
+ * the session *role*, which is the limitation `docs/BACKLOG.md` item 3 records.
+ *
+ * Here the provider id comes off `req.session.profileId` and is never a parameter, so
+ * there is no id to verify and no way to aim these at another provider's calendar.
+ * ------------------------------------------------------------------ */
+
+providerProfileRouter.get(
+  '/bookings',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const { where, orderBy, page: requestedPage, perPage } = parseProviderBookingsQuery(
+      req.session!.profileId,
+      req.query
+    )
+
+    // Counted before the page is read, for the same reason as Explore: the requested
+    // page has to be clamped against the real total before it can become a `skip`,
+    // or `?page=99` answers with an empty list and a "1 of 4" pager.
+    const total = await prisma.appointment.count({ where })
+    const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
+
+    const bookings = await prisma.appointment.findMany({
+      where,
+      include: providerBookingInclude,
+      orderBy,
+      skip,
+      take: perPage,
+    })
+
+    return ok(res, {
+      items: bookings.map(mapProviderBooking),
+      total,
+      page,
+      perPage,
+      pageCount,
+    })
+  })
+)
+
+/**
+ * Booking counts per day for one month, keyed `YYYY-MM-DD` in the caller's timezone —
+ * the same key the client's calendar grid uses for its cells, so the badges are a
+ * direct lookup with no date parsing on either side.
+ *
+ * The month is bounded in that timezone rather than UTC: for a provider east of
+ * Greenwich the first hours of the 1st are still the previous month in UTC, and those
+ * bookings would be missing from the grid whose job is to show them.
+ */
+providerProfileRouter.get(
+  '/bookings/calendar',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const timeZone = asTimeZone(req.query.tz)
+    const month = typeof req.query.month === 'string' ? req.query.month : ''
+    const range = monthRangeInZone(month, timeZone)
+    if (!range) throw new HttpError(400, 'month must be YYYY-MM', 400)
+
+    const bookings = await prisma.appointment.findMany({
+      where: {
+        providerId: req.session!.profileId,
+        startAt: { gte: range.start, lt: range.end },
+      },
+      select: { startAt: true, status: true },
+    })
+
+    return ok(res, { month, timeZone, days: countBookingsByDay(bookings, timeZone) })
+  })
+)
+
+providerProfileRouter.get(
+  '/analytics',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const timeZone = asTimeZone(req.query.tz)
+    const range = parseAnalyticsRange(req.query, new Date())
+    const providerId = req.session!.profileId
+
+    // Two reads rather than one over the union: the previous window feeds only the
+    // delta on each tile, so it is fetched with the same narrow select and bucketed by
+    // the same code instead of being special-cased inside one pass.
+    const [rows, previousRows] = await Promise.all([
+      prisma.appointment.findMany({
+        where: { providerId, startAt: { gte: range.from, lte: range.to } },
+        select: ANALYTICS_SELECT,
+      }),
+      prisma.appointment.findMany({
+        where: { providerId, startAt: { gte: range.previousFrom, lt: range.from } },
+        select: ANALYTICS_SELECT,
+      }),
+    ])
+
+    return ok(res, buildProviderAnalytics(rows, previousRows, range, timeZone))
+  })
+)
+
+/**
+ * Search metadata and the vanity slug.
+ *
+ * A `PATCH` rather than another `mode` on `PUT /provider-profile`: that handler is a
+ * multipart form reader with three body modes already, and these are four plain string
+ * columns with their own validation rules.
+ *
+ * The slug saves **live**, not into the draft overlay the other public fields use. A
+ * slug is an address rather than content — staging an address change behind a publish
+ * button is how someone ends up with a link they believe they changed.
+ */
+providerProfileRouter.patch(
+  '/seo',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const data = parseProviderSeoBody(req.body)
+    if (!Object.keys(data).length) throw new HttpError(400, 'Nothing to update', 400)
+
+    try {
+      const provider = await prisma.provider.update({
+        where: { id: req.session!.profileId },
+        data,
+        include: providerInclude,
+      })
+      return ok(res, mapProviderSeo(provider))
+    } catch (error) {
+      // Two providers can pass slug validation at the same instant; only the unique
+      // index settles it. `errorHandler` maps P2002 to a generic 409, so it is caught
+      // here to say *which* field collided.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new HttpError(409, 'That link is already taken. Please choose another.', 409)
+      }
+      throw error
+    }
   })
 )
 

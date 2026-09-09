@@ -26,7 +26,10 @@ type Props = {
 /** Inverse-surface controls on the navy workspace hero. */
 const heroSolidClassName = 'bg-surface text-brand hover:bg-brand-50'
 const heroGhostClassName = 'border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white'
-const heroIconClassName = 'text-white hover:bg-white/20 hover:text-white'
+const heroIconClassName = 'hover:bg-white/20'
+// antd paints `type="text"` with unlayered `color`, which beats Tailwind `text-white`
+// on the same node. Inline color on the button is the override that lands.
+const heroIconStyles = { root: { color: 'var(--brand-surface)' } }
 
 /**
  * Copy / publish / delete for the public provider page. These lived on a Listing
@@ -82,6 +85,7 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
           type='text'
           shape='circle'
           className={heroIconClassName}
+          styles={heroIconStyles}
           icon={<CopyIcon className='h-5 w-5' />}
           aria-label={t('listing.copyUrl')}
           disabled={disabled || !publicUrl}
@@ -90,8 +94,8 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
         <AppButton
           type='text'
           shape='circle'
-          danger
           className={heroIconClassName}
+          styles={heroIconStyles}
           icon={<TrashIcon className='h-5 w-5' />}
           aria-label={t('listing.deletePage')}
           disabled={disabled}

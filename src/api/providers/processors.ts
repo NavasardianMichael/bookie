@@ -7,6 +7,7 @@ import {
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
+  PatchProviderSeoAPI,
   PutProviderServiceAPI,
 } from './types'
 
@@ -86,3 +87,6 @@ export const processProviderProfileResponse: GetProviderProfileAPI['processor'] 
 export const processProviderServiceResponse: PutProviderServiceAPI['processor'] = (response) => {
   return response.value as PutProviderServiceAPI['processed']
 }
+
+/** `?? {}` so a provider who has never opened the SEO tab reads as "no overrides set". */
+export const processProviderSeoResponse: PatchProviderSeoAPI['processor'] = (response) => response.value ?? {}

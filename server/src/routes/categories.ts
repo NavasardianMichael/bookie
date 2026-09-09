@@ -8,8 +8,14 @@ import {
   providerInclude,
 } from '../mappers/entities.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
+import { PUBLIC_PROVIDER_WHERE } from '../services/providerSearch.js'
 
 export const categoriesRouter = Router()
+
+const publicProviderCategoryWhere = (categoryId: string) => ({
+  categoryId,
+  provider: PUBLIC_PROVIDER_WHERE,
+})
 
 categoriesRouter.get(
   '/',
@@ -22,7 +28,7 @@ categoriesRouter.get(
           include: { organization: { include: { categories: { include: { category: true } } } } },
         })
         const provLinks = await prisma.providerCategory.findMany({
-          where: { categoryId: category.id },
+          where: publicProviderCategoryWhere(category.id),
           include: { provider: { include: providerInclude } },
         })
         return mapCategoryDetail(
@@ -47,7 +53,7 @@ categoriesRouter.get(
       include: { organization: { include: { categories: { include: { category: true } } } } },
     })
     const provLinks = await prisma.providerCategory.findMany({
-      where: { categoryId: category.id },
+      where: publicProviderCategoryWhere(category.id),
       include: { provider: { include: providerInclude } },
     })
 

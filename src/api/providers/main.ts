@@ -5,6 +5,7 @@ import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processProviderProfileResponse,
+  processProviderSeoResponse,
   processProviderServiceResponse,
   processProvidersListResponse,
   processSingleProviderResponse,
@@ -15,6 +16,7 @@ import {
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
+  PatchProviderSeoAPI,
   PostProviderServiceAPI,
   ProviderServiceRequestPayload,
   PutProviderProfileAPI,
@@ -147,4 +149,18 @@ export const deleteProviderServiceAPI: DeleteProviderServiceAPI['api'] = async (
   await axiosInstance.delete<APIResponse<DeleteProviderServiceAPI['response']>>(
     `${ENDPOINTS.deleteProviderService}/${providerId}/services/${args.serviceId}`
   )
+}
+
+/**
+ * Plain JSON, not multipart: these are four string columns and there is no `File` in
+ * sight, so `toFormData`'s nested-key flattening would only be a way to lose them.
+ */
+export const patchProviderSeoAPI: PatchProviderSeoAPI['api'] = async (payload) => {
+  const { data } = await axiosInstance.patch<APIResponse<PatchProviderSeoAPI['response']>>(
+    ENDPOINTS.patchProviderSeo,
+    payload
+  )
+
+  const processedResponse = processProviderSeoResponse(data)
+  return processedResponse
 }

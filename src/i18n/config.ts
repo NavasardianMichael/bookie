@@ -7,9 +7,15 @@
  * bare language code, because a region there would be a distinction the
  * catalogues do not actually make.
  *
- * There is deliberately **no locale segment in the URL**. The locale is resolved
- * per request from the viewed provider, then the signed-in user, then a cookie,
- * then `Accept-Language`. See `resolveLocale.ts` and `src/i18n/CLAUDE.md`.
+ * **The locale is a path segment**: every route lives under `app/[lang]/` and every
+ * URL names its language, English included (`localePrefix: 'always'`). The URL is
+ * authoritative and nothing overrides it; `src/proxy.ts` negotiates a locale only for
+ * traffic that arrives *unprefixed*, from the `NEXT_LOCALE` cookie, then
+ * `Accept-Language`, then `DEFAULT_LOCALE`. See `src/i18n/CLAUDE.md`.
+ *
+ * This comment previously described the opposite — no locale in the URL, resolved per
+ * request from the viewed provider — and named a `resolveLocale.ts` that does not exist.
+ * That was the pre-`[lang]` design; the tree has been prefixed routing since.
  */
 export const LOCALES = [
   'en',

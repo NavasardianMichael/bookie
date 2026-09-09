@@ -16,8 +16,13 @@ export const ROUTE_KEYS = {
   providerServices: 'providerServices',
   providerProfile: 'providerProfile',
   providerProfileAvailability: 'providerProfileAvailability',
+  providerProfileBookings: 'providerProfileBookings',
+  providerProfileAnalytics: 'providerProfileAnalytics',
+  providerProfileSeo: 'providerProfileSeo',
   providerProfileNotifications: 'providerProfileNotifications',
   providerProfilePayments: 'providerProfilePayments',
+  /** Vanity link. `/p/<slug>` redirects to the provider's canonical profile URL. */
+  providerVanity: 'providerVanity',
 
   logout: 'logout',
   auth: 'auth',
@@ -50,8 +55,12 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerServices]: '/providers/profile-services',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
   [ROUTE_KEYS.providerProfileAvailability]: '/providers/profile/availability',
+  [ROUTE_KEYS.providerProfileBookings]: '/providers/profile/bookings',
+  [ROUTE_KEYS.providerProfileAnalytics]: '/providers/profile/analytics',
+  [ROUTE_KEYS.providerProfileSeo]: '/providers/profile/seo',
   [ROUTE_KEYS.providerProfileNotifications]: '/providers/profile/notifications',
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
+  [ROUTE_KEYS.providerVanity]: '/p',
 
   // Auth
   [ROUTE_KEYS.logout]: '/auth/logout',
