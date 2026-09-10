@@ -1,5 +1,6 @@
 import { getSiteLDSchema } from '@linkedDataSchema/site'
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { getProvidersListAPI } from '@api/providers/main'
 import { currentLocale, localizedAlternates } from '@i18n/metadata'
@@ -21,61 +22,30 @@ const HOME_CATEGORY_LIMIT = 8
 const HOME_PROVIDER_LIMIT = 6
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Home')
+
   return {
-    description: 'Find providers and organizations on Bookie, then reserve a time that works.',
+    description: t('metaDescription'),
     alternates: await localizedAlternates(ROUTES[ROUTE_KEYS.home]),
   }
 }
 
 const FEATURES = [
-  {
-    key: 'calendar',
-    span: 'md:col-span-2',
-    tone: 'light' as const,
-    icon: CalendarIcon,
-    title: 'Smart calendar',
-    body: 'Open hours, breaks and service duration become bookable slots. Collision-free, on every device.',
-  },
-  {
-    key: 'booking',
-    span: '',
-    tone: 'brand' as const,
-    icon: CheckCircleIcon,
-    title: 'Book in a few taps',
-    body: 'Pick a service, a day and a time. The provider confirms — no phone tag.',
-  },
-  {
-    key: 'services',
-    span: '',
-    tone: 'light' as const,
-    icon: ClockIcon,
-    title: 'Service menus',
-    body: 'Duration and price on every offering, so clients know exactly what they are booking.',
-  },
-  {
-    key: 'categories',
-    span: '',
-    tone: 'light' as const,
-    icon: SparkleIcon,
-    title: 'Browse by specialty',
-    body: 'From salons to clinics, find the right kind of provider without guessing.',
-  },
-  {
-    key: 'orgs',
-    span: '',
-    tone: 'light' as const,
-    icon: BuildingIcon,
-    title: 'Organizations',
-    body: 'Studios and clinics list under one roof, with the people who take bookings inside.',
-  },
+  { key: 'calendar', span: 'md:col-span-2', tone: 'light' as const, icon: CalendarIcon },
+  { key: 'booking', span: '', tone: 'brand' as const, icon: CheckCircleIcon },
+  { key: 'services', span: '', tone: 'light' as const, icon: ClockIcon },
+  { key: 'categories', span: '', tone: 'light' as const, icon: SparkleIcon },
+  { key: 'orgs', span: '', tone: 'light' as const, icon: BuildingIcon },
 ] as const
 
 export default async function Home() {
-  const [categories, providers] = await Promise.all([
+  const [categories, providers, t, tCommon] = await Promise.all([
     getCategoriesListAPI(),
     // The landing page shows a fixed handful, so it asks for exactly that many rather
     // than paging the whole directory down to `HOME_PROVIDER_LIMIT` on the client.
     getProvidersListAPI({ perPage: HOME_PROVIDER_LIMIT }),
+    getTranslations('Home'),
+    getTranslations('Common'),
   ])
 
   const categoryIds = categories.allIds.slice(0, HOME_CATEGORY_LIMIT)
@@ -90,22 +60,20 @@ export default async function Home() {
           <div className='flex flex-1 flex-col gap-8'>
             <div className='flex flex-col gap-4'>
               <AppParagraph size='overline' tone='brand'>
-                Welcome to the future of booking
+                {t('overline')}
               </AppParagraph>
               <AppTitle level='h1' size='display' className='max-w-xl'>
-                Scheduling, <span className='text-brand/40 italic'>simplified.</span>
+                {t('titleBefore')}
+                <span className='text-brand/40 italic'>{t('titleEmphasis')}</span>
               </AppTitle>
-              <AppParagraph className='max-w-lg text-lg'>
-                Book local services or manage your calendar with Bookie. One platform for providers and the people who
-                book them.
-              </AppParagraph>
+              <AppParagraph className='max-w-lg text-lg'>{t('body')}</AppParagraph>
             </div>
             <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
               <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-44 px-8'>
-                Find a provider
+                {t('findProvider')}
               </AppLink>
               <AppLink href={ROUTES.accountTypeSelection} variant='button' className='min-w-44 px-8'>
-                Join as a provider
+                {t('joinAsProvider')}
               </AppLink>
             </div>
           </div>
@@ -119,9 +87,9 @@ export default async function Home() {
         <section className='border-brand-border bg-surface border-y py-10'>
           <Container>
             <AppParagraph size='overline' className='mb-8 text-center'>
-              Browse by specialty
+              {t('browseSpecialty')}
             </AppParagraph>
-            <ChipRail label='Categories' className='justify-start sm:justify-center'>
+            <ChipRail label={t('categoriesRail')} className='justify-start sm:justify-center'>
               {categoryIds.map((categoryId) => {
                 const category = categories.byId[categoryId!]
                 return (
@@ -141,9 +109,9 @@ export default async function Home() {
         <Container>
           <div className='mb-12 flex flex-col gap-3'>
             <AppTitle level='h2' size='h1'>
-              Designed for growth
+              {t('featuresTitle')}
             </AppTitle>
-            <AppParagraph className='text-lg'>Everything you need to manage appointments in one place.</AppParagraph>
+            <AppParagraph className='text-lg'>{t('featuresSubtitle')}</AppParagraph>
           </div>
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
             {FEATURES.map((feature) => {
@@ -171,13 +139,10 @@ export default async function Home() {
                     <Icon className='h-6 w-6' />
                   </div>
                   <AppTitle level='h3' size='h2' className={isBrand ? 'mb-3 text-white' : 'mb-3'}>
-                    {feature.title}
+                    {t(`features.${feature.key}.title`)}
                   </AppTitle>
-                  <AppParagraph
-                    tone={isBrand ? 'inverse' : 'muted'}
-                    className='m-0 max-w-sm'
-                  >
-                    {feature.body}
+                  <AppParagraph tone={isBrand ? 'inverse' : 'muted'} className='m-0 max-w-sm'>
+                    {t(`features.${feature.key}.body`)}
                   </AppParagraph>
                 </Surface>
               )
@@ -189,11 +154,11 @@ export default async function Home() {
       <section className='pb-16 md:pb-24'>
         <Container>
           <Section
-            title='Service providers'
+            title={t('providersTitle')}
             actions={
               providers.pagination.total > HOME_PROVIDER_LIMIT ? (
                 <AppLink href={ROUTES.providers} variant='plain' className='text-body-sm font-bold text-brand'>
-                  View all
+                  {tCommon('viewAll')}
                 </AppLink>
               ) : undefined
             }
@@ -208,11 +173,11 @@ export default async function Home() {
               </ResponsiveGrid>
             ) : (
               <EmptyState
-                title='No providers yet'
-                description='Providers will appear here as soon as they publish a profile.'
+                title={t('emptyTitle')}
+                description={t('emptyBody')}
                 action={
                   <AppLink href={ROUTES.accountTypeSelection} variant='button' tone='primary'>
-                    Join as a provider
+                    {t('joinAsProvider')}
                   </AppLink>
                 }
               />
@@ -228,10 +193,10 @@ export default async function Home() {
         </div>
         <Container className='relative z-1 flex max-w-3xl flex-col items-center gap-8 text-center'>
           <AppTitle level='h2' size='display' className='text-white'>
-            Ready to reclaim your time?
+            {t('ctaTitle')}
           </AppTitle>
           <AppParagraph tone='inverse' className='m-0 max-w-lg text-xl leading-relaxed'>
-            Find a provider, pick a slot, and get on with your day — or run your own calendar on Bookie.
+            {t('ctaBody')}
           </AppParagraph>
           <div className='flex w-full flex-col justify-center gap-3 sm:flex-row'>
             <AppLink
@@ -239,14 +204,14 @@ export default async function Home() {
               variant='button'
               className='bg-surface text-brand hover:bg-brand-50 min-h-14 px-10 text-base'
             >
-              Get started
+              {t('getStarted')}
             </AppLink>
             <AppLink
               href={ROUTES.providers}
               variant='button'
               className='min-h-14 border-white/20 bg-white/10 px-10 text-base text-white hover:bg-white/20'
             >
-              Browse providers
+              {t('browseProviders')}
             </AppLink>
           </div>
         </Container>

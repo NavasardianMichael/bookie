@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { getTranslations } from 'next-intl/server'
 import { WeekSchedule } from '@store/providers/profile/types'
 import { WEEK_DAYS_LIST } from '@constants/schedule'
 import { hasWeekScheduleHours, splitScheduleIntoParts } from '@helpers/schedule'
@@ -21,15 +21,20 @@ type Props = {
  * of the two questions every local-business search asks — was absent from the
  * markup entirely.
  */
-export const WorkingHours: FC<Props> = ({ weekSchedule, columns = 1 }) => {
+export const WorkingHours = async ({ weekSchedule, columns = 1 }: Props) => {
   if (!hasWeekScheduleHours(weekSchedule)) return null
+
+  const [tDays, tCommon] = await Promise.all([
+    getTranslations('Settings.availability.days'),
+    getTranslations('Common'),
+  ])
 
   const items: AppDescriptionListItem[] = WEEK_DAYS_LIST.map((day) => {
     const parts = splitScheduleIntoParts(weekSchedule[day])
 
     return {
       key: day,
-      label: <span className='capitalize'>{day}</span>,
+      label: tDays(day),
       value: parts.length ? (
         <span className='flex flex-col'>
           {parts.map((part) => (
@@ -41,7 +46,7 @@ export const WorkingHours: FC<Props> = ({ weekSchedule, columns = 1 }) => {
           ))}
         </span>
       ) : (
-        <AppText tone='muted'>Closed</AppText>
+        <AppText tone='muted'>{tCommon('closed')}</AppText>
       ),
     }
   })

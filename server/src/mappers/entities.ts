@@ -67,6 +67,15 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
   }
 }
 
+/**
+ * The **public** half of a provider's detail payload.
+ *
+ * `publicEmail` is a freely-editable contact address, deliberately *not* the identity
+ * `User.email`. Keeping them apart is the point: this payload feeds `GET /providers/:id`
+ * and the JSON-LD, so emitting the identity email would publish the username half of every
+ * provider's credentials into search-indexable structured data. The identity email is
+ * emitted only by `mapProviderProfile`, for the owner.
+ */
 export function mapProviderDetails(provider: ProviderWithRelations & { paymentInfo?: unknown }) {
   const weekSchedule =
     provider.weekSchedule && typeof provider.weekSchedule === 'object'
@@ -78,27 +87,23 @@ export function mapProviderDetails(provider: ProviderWithRelations & { paymentIn
       address: provider.address,
       url: provider.locationUrl,
     },
+    // Straight off the Provider row: both columns are NOT NULL, so there is no fallback to
+    // invent. This used to be a `{ code: 0, number: 0 }` placeholder that
+    // `mapSingleProvider` overwrote from a `user` join with a hardcoded `374` default.
     phone: {
-      code: provider.userId ? 0 : 0,
-      number: 0,
+      code: provider.phoneCode,
+      number: Number(provider.phoneNumber),
     },
     country: provider.country ?? undefined,
-    email: provider.email ?? undefined,
+    publicEmail: provider.publicEmail ?? undefined,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
     weekSchedule,
     paymentInfo: provider.paymentInfo ?? undefined,
   }
 }
 
-export function mapSingleProvider(provider: ProviderWithRelations & { user?: { phoneCode: number; phoneNumber: bigint } }) {
-  const phoneCode = provider.user?.phoneCode ?? 374
-  const phoneNumber = provider.user?.phoneNumber ?? BigInt(0)
-
+export function mapSingleProvider(provider: ProviderWithRelations) {
   const details = mapProviderDetails(provider)
-  details.phone = {
-    code: phoneCode,
-    number: Number(phoneNumber),
-  }
 
   const services = provider.services ?? []
   const normalized = services.reduce(
@@ -138,10 +143,28 @@ export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescrip
   }
 }
 
-export function mapProviderProfile(provider: ProviderWithRelations & { user?: { phoneCode: number; phoneNumber: bigint } }) {
+/**
+ * A provider as its **own owner** sees it.
+ *
+ * The identity email and its verification state live here and nowhere else —
+ * `mapSingleProvider` feeds the public detail route, and `GET /providers` enumerates it.
+ *
+ * `emailVerifiedAt` used to be spliced on by `routes/providers.ts` *after* the mapper ran,
+ * which is why the public and owner payloads disagreed about whether `details` carried it.
+ * `server/CLAUDE.md` requires Prisma shapes to reach the client through this file; a route
+ * reaching past the mapper to add a field is the same leak by another route.
+ */
+export function mapProviderProfile(
+  provider: ProviderWithRelations & { user: { email: string; emailVerifiedAt: Date | null } }
+) {
   const single = mapSingleProvider(provider)
   return {
     ...single,
+    details: {
+      ...single.details,
+      email: provider.user.email,
+      emailVerifiedAt: provider.user.emailVerifiedAt?.toISOString(),
+    },
     personal: { plan: provider.plan },
   }
 }
@@ -180,21 +203,28 @@ export function mapConsumer(consumer: {
   id: string
   firstName: string
   lastName: string
-  email: string | null
+  phoneCode: number
+  phoneNumber: bigint
   description?: string | null
-  user: { phoneCode: number; phoneNumber: bigint }
+  user: { email: string }
 }) {
   return {
     id: consumer.id,
     basic: {
       firstName: consumer.firstName,
       lastName: consumer.lastName,
-      phoneNumber: `+${consumer.user.phoneCode}${consumer.user.phoneNumber}`,
+      // One representation, not two. The pre-formatted `phoneNumber: '+374…'` string this
+      // replaces existed only as a fallback for when `phone` might be absent; the columns
+      // are NOT NULL now, so it always is present and the client formats for display.
       phone: {
-        code: consumer.user.phoneCode,
-        number: Number(consumer.user.phoneNumber),
+        code: consumer.phoneCode,
+        number: Number(consumer.phoneNumber),
       },
-      email: consumer.email ?? undefined,
+      // Non-optional: a Consumer always has a User, and a User always has an identity
+      // email. A consumer's client reads `basic.email` where a provider's reads
+      // `details.email` — see `src/app/CLAUDE.md`. `emailVerifiedAt` is deliberately not
+      // here: both roles read it from `details`, so it has one home per payload.
+      email: consumer.user.email,
       description: consumer.description ?? undefined,
     },
   }
@@ -218,7 +248,14 @@ type BookingWithBooker = {
   serviceId: string
   service: { id: string; name: string } | null
   consumerId: string | null
-  consumer: { id: string; firstName: string; lastName: string; email: string | null; user: { phoneCode: number; phoneNumber: bigint } } | null
+  consumer: {
+    id: string
+    firstName: string
+    lastName: string
+    phoneCode: number
+    phoneNumber: bigint
+    user: { email: string }
+  } | null
   guestFirstName: string | null
   guestLastName: string | null
   guestPhoneCode: number | null
@@ -247,12 +284,14 @@ function mapBooker(booking: BookingWithBooker) {
       id: booking.consumer.id,
       firstName: booking.consumer.firstName,
       lastName: booking.consumer.lastName,
-      email: booking.consumer.email ?? undefined,
+      // The identity email, read through the `User` relation — a Consumer no longer holds
+      // one of its own. The phone comes off the Consumer row, which is where it moved.
+      email: booking.consumer.user.email,
       // `Number(...)`, as every other BigInt crossing this boundary does — JSON has no
       // BigInt and `JSON.stringify` throws on one.
       phone: {
-        code: booking.consumer.user.phoneCode,
-        number: Number(booking.consumer.user.phoneNumber),
+        code: booking.consumer.phoneCode,
+        number: Number(booking.consumer.phoneNumber),
       },
     }
   }
@@ -293,7 +332,12 @@ export function mapProviderBooking(booking: BookingWithBooker) {
   }
 }
 
-/** Everything `mapProviderBooking` reads, and nothing else. */
+/**
+ * Everything `mapProviderBooking` reads, and nothing else.
+ *
+ * The `user` join survives, but now for the identity **email** rather than the phone —
+ * phone moved onto the Consumer row and email moved onto User.
+ */
 export const providerBookingInclude = {
   service: { select: { id: true, name: true } },
   consumer: {
@@ -301,18 +345,32 @@ export const providerBookingInclude = {
       id: true,
       firstName: true,
       lastName: true,
-      email: true,
-      user: { select: { phoneCode: true, phoneNumber: true } },
+      phoneCode: true,
+      phoneNumber: true,
+      user: { select: { email: true } },
     },
   },
 } as const
 
+/**
+ * For the **public** provider payloads.
+ *
+ * `user` is deliberately absent: phone is on the Provider row now, and the only thing left
+ * on `User` that these payloads could reach is the identity email, which no public read may
+ * load. Three call sites lose a join as a result — the public detail route,
+ * `GET /appointments`, and a consumer's favourites.
+ */
 export const providerInclude = {
   categories: { include: { category: true } },
   organization: { include: { categories: { include: { category: true } } } },
-  user: true,
   services: true,
   gallery: true,
+} as const
+
+/** `providerInclude` plus the identity email, for the owner's own `GET /provider-profile`. */
+export const providerProfileInclude = {
+  ...providerInclude,
+  user: { select: { email: true, emailVerifiedAt: true } },
 } as const
 
 /**

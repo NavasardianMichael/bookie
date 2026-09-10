@@ -1,43 +1,63 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Alert, App, Form } from 'antd'
+import { Alert, Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { PaymentInfo } from '@interfaces/settings'
 import { processError } from '@helpers/error'
-import { toPaymentMethods } from '@helpers/payment'
+import { acceptsBankTransfer, hasPaymentShare, needsPublicShareConfirm, toPaymentMethods, toPaymentShare } from '@helpers/payment'
+import { toOptionalText } from '@helpers/registration'
+import { BankTransferDetails } from '@components/settings/BankTransferDetails'
 import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
-import { AppButton } from '@components/ui/AppButton'
+import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { AppText } from '@components/ui/bare/AppText'
-import { CopyIcon, CreditCardIcon } from '@components/ui/icons'
+import { CreditCardIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
 type FormValues = { paymentInfo: PaymentInfo }
+type PersistMode = 'draft' | 'publish'
 
-const DEFAULT: PaymentInfo = { methods: ['cash'], reference: '', notes: '' }
+const DEFAULT: PaymentInfo = { methods: ['cash'], payToNumber: '', notes: '' }
+
+const toFormValues = (info: PaymentInfo): PaymentInfo => {
+  const share = toPaymentShare(info)
+  return {
+    methods: toPaymentMethods(info),
+    payToNumber: share.payToNumber ?? '',
+    notes: share.notes ?? '',
+  }
+}
 
 /**
  * Draft overlay wins over the live column, and both are normalised — a `draft`
  * written before the `method` -> `methods` reshape is JSON the migration's
  * `UPDATE` reshapes too, but a client holding a stale copy would still send one.
  */
-const readPaymentInfo = (profile: { draft?: { paymentInfo?: unknown } | null; details: { paymentInfo?: PaymentInfo } }) => {
+const readPaymentInfo = (profile: {
+  draft?: { paymentInfo?: unknown } | null
+  details: { paymentInfo?: PaymentInfo }
+}): PaymentInfo => {
   const stored = (profile.draft?.paymentInfo as PaymentInfo | undefined) ?? profile.details.paymentInfo
-  return stored ? { ...stored, methods: toPaymentMethods(stored) } : DEFAULT
+  return stored ? toFormValues(stored) : DEFAULT
 }
+
+const toPayload = (values: PaymentInfo): PaymentInfo => ({
+  methods: toPaymentMethods(values),
+  payToNumber: toOptionalText(values.payToNumber),
+  notes: toOptionalText(values.notes),
+})
 
 export const ProviderPaymentsClient = () => {
   const t = useTranslations('Settings')
-  const { message } = App.useApp()
   const [form] = Form.useForm<FormValues>()
   const [saved, setSaved] = useState<PaymentInfo>(DEFAULT)
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pendingMode, setPendingMode] = useState<PersistMode | null>(null)
 
   useEffect(() => {
     void getProviderProfileAPI()
@@ -49,12 +69,12 @@ export const ProviderPaymentsClient = () => {
       .catch((err) => setError(processError(err).message))
   }, [form])
 
-  const persist = async (mode: 'draft' | 'publish') => {
+  const persist = async (mode: PersistMode) => {
     const values = await form.validateFields()
     setSaving(true)
     setError(null)
     try {
-      await putProviderProfileAPI({ mode: 'draft', paymentInfo: values.paymentInfo })
+      await putProviderProfileAPI({ mode: 'draft', paymentInfo: toPayload(values.paymentInfo) })
       if (mode === 'publish') {
         await putProviderProfileAPI({ mode: 'publish' })
       }
@@ -63,14 +83,39 @@ export const ProviderPaymentsClient = () => {
       setSaved(info)
       form.setFieldsValue({ paymentInfo: info })
       setDirty(false)
-    } catch (err) {
-      setError(processError(err).message)
     } finally {
       setSaving(false)
     }
   }
 
-  const reference = Form.useWatch(['paymentInfo', 'reference'], form)
+  const requestPersist = async (mode: PersistMode) => {
+    const values = await form.validateFields()
+    if (needsPublicShareConfirm(saved, values.paymentInfo)) {
+      setPendingMode(mode)
+      return
+    }
+    try {
+      await persist(mode)
+    } catch (err) {
+      setError(processError(err).message)
+    }
+  }
+
+  /**
+   * Deliberately unguarded: `AppConfirmModal` awaits this, surfaces a rejection,
+   * and stays open — catching here would hide a failed save behind a closed dialog.
+   */
+  const handleConfirmShare = async () => {
+    if (!pendingMode) return
+    await persist(pendingMode)
+    setPendingMode(null)
+  }
+
+  const payToNumber = Form.useWatch(['paymentInfo', 'payToNumber'], form)
+  const notes = Form.useWatch(['paymentInfo', 'notes'], form)
+  const methods = Form.useWatch(['paymentInfo', 'methods'], form)
+  const preview = toPaymentShare({ methods: [], payToNumber, notes })
+  const showTransferPreview = acceptsBankTransfer({ methods: methods ?? [] }) && hasPaymentShare(preview)
 
   return (
     <div className='flex flex-col gap-6'>
@@ -88,32 +133,7 @@ export const ProviderPaymentsClient = () => {
           <PaymentInfoFields />
         </Form>
 
-        {reference ? (
-          <div className='bg-surface-sunken border-brand-border flex items-center justify-between gap-3 rounded-brand border p-3'>
-            <div className='min-w-0'>
-              <AppText size='caption' tone='muted' className='font-bold uppercase'>
-                {t('payments.copyable')}
-              </AppText>
-              <AppParagraph className='truncate font-semibold' tone='default'>
-                {reference}
-              </AppParagraph>
-            </div>
-            <AppButton
-              type='default'
-              icon={<CopyIcon className='h-4 w-4' />}
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(reference)
-                  message.success(t('payments.copied'))
-                } catch {
-                  message.error(t('payments.copyFailed'))
-                }
-              }}
-            >
-              {t('payments.copy')}
-            </AppButton>
-          </div>
-        ) : null}
+        {showTransferPreview ? <BankTransferDetails {...preview} showHeading={false} /> : null}
       </Surface>
 
       <SettingsActionBar
@@ -123,11 +143,19 @@ export const ProviderPaymentsClient = () => {
           form.setFieldsValue({ paymentInfo: saved })
           setDirty(false)
         }}
-        onSaveDraft={() => void persist('draft')}
-        onPublish={() => void persist('publish')}
+        onSaveDraft={() => void requestPersist('draft')}
+        onPublish={() => void requestPersist('publish')}
         saveDraftLabel={t('actions.saveDraft')}
         publishLabel={t('actions.publish')}
         discardLabel={t('actions.discard')}
+      />
+
+      <AppConfirmModal
+        open={pendingMode !== null}
+        title={t('payments.publicShareTitle')}
+        description={t('payments.publicShareWarning')}
+        onConfirm={handleConfirmShare}
+        onCancel={() => setPendingMode(null)}
       />
     </div>
   )

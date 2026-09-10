@@ -4,6 +4,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import { App } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { useTranslations } from 'next-intl'
 import { createAppointmentAPI } from '@api/appointments/main'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
@@ -40,6 +41,7 @@ type Props = {
  * it, both visible at once alongside the service picked above.
  */
 export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
+  const t = useTranslations('Booking')
   const { basic: basicProvider, details, id: providerId, services } = useSingleProviderStore()
   const { notification } = App.useApp()
 
@@ -181,14 +183,14 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
     if (!selectedServiceId) {
       notification.warning({
-        message: 'Choose a service',
-        description: 'Select which service you want to book before picking a time.',
+        message: t('chooseServiceNotification'),
+        description: t('chooseServiceNotificationBody'),
       })
       return
     }
 
     setIsConfirmOpen(true)
-  }, [notification, providerId, selectedServiceId, validSelectedStart])
+  }, [notification, providerId, selectedServiceId, t, validSelectedStart])
 
   const handleSubmitBooking = useCallback(
     async (submission: BookingConfirmSubmission) => {
@@ -208,15 +210,16 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         setSelectedStart(null)
         setIsConfirmOpen(false)
         notification.success({
-          message: 'Appointment requested',
-          description: `${basicProvider.firstName} ${basicProvider.lastName} will confirm your ${dayjs(
-            validSelectedStart
-          ).format(`D MMMM, ${SCHEDULE_DISPLAY_FORMAT}`)} booking shortly.`,
+          message: t('requested'),
+          description: t('requestedBody', {
+            name: `${basicProvider.firstName} ${basicProvider.lastName}`,
+            when: dayjs(validSelectedStart).format(`D MMMM, ${SCHEDULE_DISPLAY_FORMAT}`),
+          }),
         })
       } catch (error) {
         // Sheet deliberately left open, so what was typed survives a failed submit —
         // a guest who lost their details to a 409 would have to retype all four fields.
-        notification.error({ message: 'Booking failed', description: processError(error).message })
+        notification.error({ message: t('failed'), description: processError(error).message })
       } finally {
         setIsBooking(false)
       }
@@ -228,6 +231,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
       providerId,
       selectedServiceId,
       validSelectedStart,
+      t,
     ]
   )
 

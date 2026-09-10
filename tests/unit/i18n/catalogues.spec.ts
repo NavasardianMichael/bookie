@@ -28,7 +28,8 @@ const placeholders = (catalogue: Catalogue): Map<string, Set<string>> => {
       if (typeof value === 'object' && value !== null) {
         walk(value, `${prefix}${key}.`)
       } else if (typeof value === 'string') {
-        const names = [...value.matchAll(/\{(\w+)/g)].map((match) => match[1] as string)
+        // `{name}` or `{count, plural, …}` — not `{no bookings}` inside an ICU clause.
+        const names = [...value.matchAll(/\{(\w+)(?:,|\})/g)].map((match) => match[1] as string)
         found.set(`${prefix}${key}`, new Set(names))
       }
     }

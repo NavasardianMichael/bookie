@@ -5,9 +5,8 @@ import { EditOutlined, MinusCircleFilled, PlusOutlined } from '@ant-design/icons
 import { Checkbox, CheckboxProps, Col, Flex, Row, TimePicker, Typography } from 'antd'
 import { RangePickerProps } from 'antd/es/date-picker'
 import { Rule } from 'antd/es/form'
+import { useTranslations } from 'next-intl'
 import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
-import { AppFormProps } from '@interfaces/forms'
-import { ProviderProfileFormValues } from '@interfaces/providers'
 import { WeekDay } from '@interfaces/schedule'
 import { SCHEDULE_DISPLAY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from '@helpers/schedule'
@@ -16,9 +15,23 @@ import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppSheet } from '@components/ui/AppSheet'
 import { WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS } from './constants'
 
-type Props = AppFormProps<ProviderProfileFormValues>
+/**
+ * Injected by `Form.Item` — see `ProviderProfileFormCategories` for why a custom control
+ * must accept both. The whole week is one form value, so the sheet edits a copy and hands
+ * the finished object back through `onChange` on confirm.
+ */
+type Props = {
+  value?: WeekSchedule
+  onChange?: (next: WeekSchedule) => void
+}
 
-export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
+export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }) => {
+  // Memoised so the fallback is not a fresh object on every render, which would change
+  // the identity every `useMemo` below depends on.
+  const schedule = useMemo(() => value ?? ({} as WeekSchedule), [value])
+  const t = useTranslations('ProfileCreation')
+  const tDays = useTranslations('Settings.availability.days')
+  const tCommon = useTranslations('Common')
   const [isEditScheduleModalOpened, setIsEditScheduleModalOpened] = useState(false)
   const [selectedDays, setSelectedDays] = useState<Partial<Record<WeekDay, boolean>>>({})
   const [tempAvailability, setTempAvailability] = useState<RangePickerProps['value']>([undefined, undefined])
@@ -52,7 +65,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
   }
 
   const onScheduleChangesConfirm = async () => {
-    const weekSchedule: WeekSchedule = { ...formik.values.weekSchedule }
+    const weekSchedule: WeekSchedule = { ...schedule }
     Object.keys(selectedDays).forEach((day) => {
       const currentDay = day as WeekDay
       if (!selectedDays[currentDay] || !tempAvailability || !tempAvailability[0] || !tempAvailability[1]) return
@@ -83,7 +96,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
       }
     })
 
-    await formik.setFieldValue('weekSchedule', weekSchedule)
+    onChange?.(weekSchedule)
     setIsEditScheduleModalOpened(false)
   }
 
@@ -116,10 +129,10 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
   }
 
   const hasFilledRanges = useMemo(() => {
-    return Object.values(formik.values.weekSchedule).some(
+    return Object.values(schedule).some(
       (daySchedule) => daySchedule.availability.start && daySchedule.availability.end
     )
-  }, [formik.values.weekSchedule])
+  }, [schedule])
 
   const areChangesComplete = useMemo(() => {
     return selectedDaysList.length > 0 && tempBreaks.every((range) => range?.[0] && range?.[1])
@@ -133,19 +146,19 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
           if (!hasFilledRanges) return new Promise((_, reject) => reject())
         },
         validateTrigger: 'onSubmit',
-        message: 'Please select at least one day and fill in the schedule.',
+        message: t('scheduleRequired'),
       },
     ]
     return result
-  }, [hasFilledRanges])
+  }, [hasFilledRanges, t])
 
   const scheduleEditor = (
     <Flex vertical gap={8}>
       <Typography.Paragraph>
         for{' '}
         {selectedDaysList.map((day, i, arr) => (
-          <Typography.Text className='capitalize' key={day}>
-            {day}
+          <Typography.Text key={day}>
+            {tDays(day)}
             {i < arr.length - 1 ? ', ' : ''}
           </Typography.Text>
         ))}
@@ -181,7 +194,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
               danger
               icon={<MinusCircleFilled />}
               type='text'
-              aria-label={`Remove break ${index + 1}`}
+              aria-label={t('removeBreak', { n: index + 1 })}
               className='min-h-11 min-w-11'
               onClick={() => onRemoveRangeClick(index)}
             />
@@ -198,16 +211,16 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
         Add break
       </AppButton>
       <Flex gap={8} justify='end' className='mt-4'>
-        <AppButton onClick={() => setIsEditScheduleModalOpened(false)}>Cancel</AppButton>
+        <AppButton onClick={() => setIsEditScheduleModalOpened(false)}>{tCommon('cancel')}</AppButton>
         <AppButton type='primary' disabled={!areChangesComplete} onClick={onScheduleChangesConfirm}>
-          Confirm
+          {tCommon('confirm')}
         </AppButton>
       </Flex>
     </Flex>
   )
 
   return (
-    <AppFormItem name='weekSchedule' label='Week Schedule' rules={rules}>
+    <AppFormItem name='weekSchedule' label={t('weekSchedule')} rules={rules}>
       <Flex vertical gap={16}>
         <Row gutter={[8, 8]}>
           {WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS.map(({ label, childFieldNames }) => {
@@ -223,7 +236,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
           {WEEK_DAYS_LIST.map((day) => {
             return (
               <Col key={day} xs={12} sm={8} lg={6}>
-                <Checkbox checked={selectedDays[day]} value={day} onChange={onDaySelected} className='capitalize'>
+                <Checkbox checked={selectedDays[day]} value={day} onChange={onDaySelected}>
                   {day}
                 </Checkbox>
               </Col>
@@ -238,7 +251,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
         )}
 
         <AppSheet
-          title='Rescheduling'
+          title={t('rescheduling')}
           open={!!isEditScheduleModalOpened}
           onClose={() => setIsEditScheduleModalOpened(false)}
         >
@@ -250,12 +263,12 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ formik }) => {
             <Typography.Text strong>Current Schedule:</Typography.Text>
             <Flex wrap='wrap' vertical gap={8}>
               {WEEK_DAYS_LIST.map((day) => {
-                const daySchedule = formik.values.weekSchedule[day]
+                const daySchedule = schedule[day]
                 const splittedSchedule = splitScheduleIntoParts(daySchedule)
 
                 return (
                   <Flex key={day} gap={4}>
-                    <Typography.Text className='font-semibold capitalize tnum'>{day}: </Typography.Text>
+                    <Typography.Text className='font-semibold tnum'>{tDays(day)}: </Typography.Text>
                     <Typography.Text className='tnum'>
                       {splittedSchedule.map((range) => `${range.start} - ${range.end}`).join(' | ') || '-'}
                     </Typography.Text>

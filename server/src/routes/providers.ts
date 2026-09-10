@@ -16,6 +16,7 @@ import {
   providerBookingInclude,
   providerInclude,
   providerListInclude,
+  providerProfileInclude,
 } from '../mappers/entities.js'
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
@@ -38,6 +39,12 @@ const defaultProviderNotificationPrefs = {
   newBooking: true,
 }
 
+/**
+ * The unpublished-edits overlay. **Deliberately has no `email` key**, and `patch` below is
+ * built by explicit per-field assignments rather than by spreading the request body — so an
+ * `email` sent to this route cannot reach the draft JSON and reappear at publish time.
+ * Do not add one: identity email changes belong to `/identity/change-email/*`.
+ */
 type ProviderDraft = {
   firstName?: string
   lastName?: string
@@ -130,7 +137,7 @@ providerProfileRouter.get(
   asyncHandler(async (req, res) => {
     const provider = await prisma.provider.findUnique({
       where: { id: req.session!.profileId },
-      include: providerInclude,
+      include: providerProfileInclude,
     })
     if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
 
@@ -140,8 +147,11 @@ providerProfileRouter.get(
       listed: provider.listed,
       draft: provider.draft ?? null,
       details: {
+        // `email` and `emailVerifiedAt` now come from `mapProviderProfile`, which reads
+        // them off the `User` relation. They used to be spliced on here, past the mapper,
+        // which is why the public and owner payloads disagreed about whether `details`
+        // carried them.
         ...mapped.details,
-        emailVerifiedAt: provider.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: {
           ...defaultProviderNotificationPrefs,
           ...(typeof provider.emailNotificationPrefs === 'object' && provider.emailNotificationPrefs
@@ -195,7 +205,7 @@ providerProfileRouter.put(
       const provider = await prisma.provider.update({
         where: { id: providerId },
         data: { listed: listedValue },
-        include: providerInclude,
+        include: providerProfileInclude,
       })
       return ok(res, {
         ...mapProviderProfile(provider),
@@ -240,8 +250,8 @@ providerProfileRouter.put(
       if (mode === 'draft') {
         const provider = await prisma.provider.update({
           where: { id: providerId },
-          data: { draft: patch },
-          include: providerInclude,
+          data: { draft: patch as Prisma.InputJsonValue },
+          include: providerProfileInclude,
         })
         return ok(res, {
           ...mapProviderProfile(provider),
@@ -260,10 +270,15 @@ providerProfileRouter.put(
           imageUrl: patch.imageUrl === undefined ? existing.imageUrl : patch.imageUrl,
           weekSchedule: (patch.weekSchedule as object | undefined) ?? existing.weekSchedule ?? undefined,
           available: patch.available ?? existing.available,
-          paymentInfo: patch.paymentInfo === undefined ? existing.paymentInfo : (patch.paymentInfo as object),
-          draft: null,
+          paymentInfo:
+            patch.paymentInfo === undefined
+              ? (existing.paymentInfo ?? Prisma.DbNull)
+              : (patch.paymentInfo as Prisma.InputJsonValue),
+          // `Prisma.DbNull` writes SQL NULL. A bare `null` is rejected for a nullable Json
+          // column, because Prisma cannot tell it from the JSON value `null`.
+          draft: Prisma.DbNull,
         },
-        include: providerInclude,
+        include: providerProfileInclude,
       })
       return ok(res, {
         ...mapProviderProfile(provider),
@@ -292,7 +307,20 @@ providerProfileRouter.put(
         firstName: body.firstName ?? body.FirstName,
         lastName: body.lastName ?? body.LastName,
         description: body.description ?? body.Description,
-        email: body.email ?? body.Email,
+        /**
+         * **`publicEmail`, never the identity email.**
+         *
+         * This line used to write `email` — the login identifier — straight from a
+         * multipart body with no verification. That was an account-takeover vector: set
+         * your email to a victim's address, then request a password reset and receive it.
+         *
+         * `publicEmail` is the published contact address the profile page and the JSON-LD
+         * render. Nothing authenticates against it, so writing it unverified is harmless.
+         * The identity email changes only through `/identity/change-email/send` +
+         * `/confirm`, which require the current password and a verified click on the new
+         * address.
+         */
+        publicEmail: body.publicEmail ?? body.PublicEmail,
         address: body.address ?? body.Address,
         locationUrl: body.locationURL ?? body.LocationURL,
         organizationId: body.organizationId ?? body.OrganizationId ?? undefined,
@@ -324,7 +352,7 @@ providerProfileRouter.put(
 
     const updated = await prisma.provider.findUnique({
       where: { id: providerId },
-      include: providerInclude,
+      include: providerProfileInclude,
     })
 
     return ok(res, {

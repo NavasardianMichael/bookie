@@ -1,55 +1,28 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { isMailConfigured, type MailResult, sendExternalMail } from './mail.js'
 import { prisma } from './prisma.js'
+import { hashUrlToken, mintUrlToken, urlTokensMatch } from './token.js'
 import { config } from '../config.js'
 
 /** Query param the verification link puts on the account profile URL. */
 export const EMAIL_VERIFY_QUERY = 'verifyEmail'
 
-export const mintEmailVerifyToken = (): string => randomBytes(32).toString('hex')
-
-export const hashEmailVerifyToken = (token: string): string => createHash('sha256').update(token).digest('hex')
-
-export const emailVerifyTokensMatch = (token: string, storedHash: string): boolean => {
-  const actual = Buffer.from(hashEmailVerifyToken(token))
-  const expected = Buffer.from(storedHash)
-  if (actual.length !== expected.length) return false
-  return timingSafeEqual(actual, expected)
-}
-
-const emailVerifyExpiry = (): Date => new Date(Date.now() + config.emailVerifyTtlMs)
+/**
+ * The token machinery now lives in `lib/token.ts` so the password-reset flow shares one
+ * implementation rather than growing a second, subtly different one. Re-exported under the
+ * original names because `routes/identity.ts` already calls them.
+ */
+export const mintEmailVerifyToken = mintUrlToken
+export const hashEmailVerifyToken = hashUrlToken
+export const emailVerifyTokensMatch = urlTokensMatch
 
 /**
- * The link must land on the caller's own settings profile, never an open redirect.
- * Locales are listed rather than matched with a regex so a ReDoS linter cannot
- * fire; keep in step with `src/i18n/config.ts` LOCALES.
+ * The return-path allowlist moved to `lib/return-path.ts` — this file imports config,
+ * Prisma and the mail client, which put the open-redirect guards out of reach of
+ * `tests/unit/server/`.
  */
-const VERIFY_LOCALES = new Set([
-  'en',
-  'es',
-  'pt-BR',
-  'fr',
-  'it',
-  'de',
-  'ar',
-  'zh-CN',
-  'ja',
-  'hy',
-  'id',
-  'ko',
-  'uk',
-  'pl',
-  'th',
-])
+export { isAllowedEmailVerifyReturnPath, isAllowedPublicReturnPath } from './return-path.js'
 
-export const isAllowedEmailVerifyReturnPath = (returnPath: string, role: 'provider' | 'consumer'): boolean => {
-  const parts = returnPath.split('/')
-  if (parts.length !== 4 || parts[0] !== '' || parts[3] !== 'profile') return false
-  const locale = parts[1]
-  const area = parts[2]
-  if (!locale || !VERIFY_LOCALES.has(locale)) return false
-  return area === (role === 'provider' ? 'providers' : 'consumers')
-}
+const emailVerifyExpiry = (): Date => new Date(Date.now() + config.emailVerifyTtlMs)
 
 export const buildEmailVerifyUrl = (origin: string, returnPath: string, token: string): string => {
   const url = new URL(returnPath, origin.endsWith('/') ? origin : `${origin}/`)
@@ -60,6 +33,16 @@ export const buildEmailVerifyUrl = (origin: string, returnPath: string, token: s
 /**
  * Stores the pending address and a hash of the one-time link token. Returns the
  * raw token so the caller can put it in the email — never persist the raw value.
+ *
+ * Issuing a new token overwrites any previous one, which is the invalidate-on-reissue that
+ * a "resend the link" button needs: the older email stops working the moment a newer one
+ * is sent.
+ *
+ * Used by **both** flows. Signup writes the address to `email` *and* `pendingEmail` (see
+ * `routes/identity.ts`), so confirming is one unconditional path — copy `pendingEmail` onto
+ * `email`, stamp `emailVerifiedAt`, clear the token — with no flow discriminator to get
+ * wrong. The `user_email_verify_token_has_pending` CHECK is what keeps a token from
+ * outliving the address it verifies.
  */
 export async function issuePendingEmailVerify(userId: string, email: string): Promise<string> {
   const token = mintEmailVerifyToken()
@@ -68,8 +51,8 @@ export async function issuePendingEmailVerify(userId: string, email: string): Pr
     where: { id: userId },
     data: {
       pendingEmail: email,
-      emailOtpHash: hashEmailVerifyToken(token),
-      emailOtpExpiresAt: emailVerifyExpiry(),
+      emailVerifyTokenHash: hashEmailVerifyToken(token),
+      emailVerifyExpiresAt: emailVerifyExpiry(),
     },
   })
 
@@ -77,8 +60,9 @@ export async function issuePendingEmailVerify(userId: string, email: string): Pr
 }
 
 /**
- * Dev has no mail key. The OTP flow logs the code; this logs the clickable URL.
- * Production must not print the token — logs get shipped.
+ * Dev ships an empty `MAIL_API_KEY`, so nothing is actually sent there — this prints the
+ * clickable URL to the API console instead, which is how a local signup gets verified.
+ * Production must not print the token: logs get shipped.
  */
 const logVerificationEmail = (to: string, verifyUrl: string): void => {
   if (config.nodeEnv === 'production') return
@@ -107,13 +91,15 @@ const verificationHtml = (verifyUrl: string): string =>
  * may ever be aimed at.
  *
  * `verifyUrl` is interpolated raw and deliberately not escaped: it is built by
- * `buildEmailVerifyUrl` from our own origin and a `returnPath` already checked by
- * `isAllowedEmailVerifyReturnPath`, so no request-body text reaches this markup.
+ * `buildEmailVerifyUrl` from our own origin and a path already checked by
+ * `isAllowedEmailVerifyReturnPath` or `isAllowedPublicReturnPath`, so no request-body text
+ * reaches this markup.
  *
- * Local dev ships an empty `MAIL_API_KEY`, so there it logs the link and reports success
- * — the same bargain the OTP flow makes. In production an unconfigured or failing engine
- * is reported, because a verification email that silently never arrives leaves the user
- * waiting on a link that does not exist.
+ * Local dev ships an empty `MAIL_API_KEY`, so there it logs the link and reports success.
+ * In production an unconfigured or failing engine is reported to the caller — but note
+ * that only `change-email/send` surfaces it. Registration deliberately swallows a send
+ * failure, because a 502 on a new address next to a 200 on an existing one turns the
+ * endpoint into an account-enumeration oracle; `resend-verification` is the recovery path.
  */
 export const sendVerificationEmail = async (to: string, verifyUrl: string): Promise<MailResult> => {
   if (!isMailConfigured()) {

@@ -1,4 +1,5 @@
 import { getProvidersListLDSchema } from '@linkedDataSchema/providers'
+import { getTranslations } from 'next-intl/server'
 import { getProvidersListAPI } from '@api/providers/main'
 import { ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -22,25 +23,26 @@ type Props = {
  * page load.
  */
 export const ProvidersResults = async ({ params }: Props) => {
-  const { list, pagination } = await getProvidersListAPI(toProvidersListQuery(params))
+  const [{ list, pagination }, t, tCommon] = await Promise.all([
+    getProvidersListAPI(toProvidersListQuery(params)),
+    getTranslations('Explore'),
+    getTranslations('Common'),
+  ])
   const providers = list.allIds.map((providerId) => list.byId[providerId!])
 
   if (!providers.length) {
     return hasActiveExploreParams(params) ? (
       <EmptyState
-        title='No providers match those filters'
-        description='Try a different search term, or clear a filter to widen the results.'
+        title={t('emptyFilteredTitle')}
+        description={t('emptyFilteredBody')}
         action={
           <AppLink href={ROUTES.providers} variant='button' tone='primary'>
-            Clear all filters
+            {t('clearFilters')}
           </AppLink>
         }
       />
     ) : (
-      <EmptyState
-        title='No providers yet'
-        description='Providers will appear here as soon as they publish a profile.'
-      />
+      <EmptyState title={t('emptyTitle')} description={t('emptyBody')} />
     )
   }
 
@@ -61,7 +63,10 @@ export const ProvidersResults = async ({ params }: Props) => {
         page={pagination.page}
         pageCount={pagination.pageCount}
         buildHref={(page) => buildExploreHref(params, { page })}
-        label='Provider pages'
+        label={t('pagesLabel')}
+        previousLabel={tCommon('previousPage')}
+        nextLabel={tCommon('nextPage')}
+        pageLabel={(page) => tCommon('pageNumber', { page })}
         className='pt-4'
       />
     </div>

@@ -63,15 +63,17 @@ than a surprise failure. Each names its entry in `docs/BACKLOG.md`. When you fix
 underlying defect, rewrite the test to assert the correct behaviour and remove the
 backlog entry — do not delete the test.
 
-Currently: `splitScheduleIntoParts` mutating its caller's breaks, `normalizedToFlat`
-yielding `undefined`, duplicate ids surviving a normalize round-trip,
-`generateEntityUrl('home', …)` doubling the slash, and `processError(null)` throwing.
+**Currently: none.** All five went green on 2026-09-11 — `splitScheduleIntoParts`
+mutating its caller's breaks, `normalizedToFlat` yielding `undefined`, duplicate ids
+surviving a normalize round-trip, `generateEntityUrl('home', …)` doubling the slash, and
+`processError(null)` throwing. Each test was rewritten to assert the fixed behaviour
+rather than deleted, so the defect cannot come back unnoticed.
 
 ## What is worth testing here
 
 Pure logic where being wrong is expensive and invisible: `booking.ts`, `schedule.ts`,
 `duration.ts`, `routes.ts`, `images.ts`, `url.ts`, `commons.ts`, `error.ts`, `jsonLd.ts`,
-the `linkedDataSchema/` builders, and every `api/*/processors.ts`.
+the `linkedDataSchema/` builders, `pwa.ts` (the worker must stay network-only), and every `api/*/processors.ts`.
 
 Not worth testing: `cn.ts` (tests `clsx` + `tailwind-merge`, not us), thin antd wrappers,
 `localStorage.ts` (constants only, no logic).

@@ -11,7 +11,9 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { PaymentInfo, PaymentMethod } from '@interfaces/settings'
 import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { PAYMENT_METHODS } from '@constants/settings'
+import { toPaymentShare } from '@helpers/payment'
 import { toPhoneNumber } from '@helpers/registration'
+import { BankTransferDetails } from '@components/settings/BankTransferDetails'
 import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
@@ -20,7 +22,6 @@ import { AppSheet } from '@components/ui/AppSheet'
 import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
-import { BankTransferDetails } from './BankTransferDetails'
 import { BookingSummary, BookingSummaryData } from './BookingSummary'
 
 /** What the visitor filled in. `guest` is absent whenever we already know who they are. */
@@ -59,8 +60,8 @@ type Props = {
    * picker enables every method rather than disabling the whole list.
    */
   paymentMethodOptions: PaymentMethod[]
-  /** Copyable reference and notes, shown when the visitor includes bank transfer. */
-  paymentInfo?: Pick<PaymentInfo, 'reference' | 'notes'> | null
+  /** Copyable pay-to details, shown when the visitor includes bank transfer. */
+  paymentInfo?: PaymentInfo | null
   isBooking: boolean
   onClose: () => void
   onSubmit: (submission: BookingConfirmSubmission) => Promise<void>
@@ -244,7 +245,7 @@ const BookingConfirmForm: FC<FormProps> = ({
           </AppFormItem>
         </div>
         {selectedMethods.includes('bank_transfer') ? (
-          <BankTransferDetails reference={paymentInfo?.reference} notes={paymentInfo?.notes} />
+          <BankTransferDetails {...toPaymentShare(paymentInfo)} />
         ) : null}
       </div>
 

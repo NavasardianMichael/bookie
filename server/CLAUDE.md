@@ -89,8 +89,13 @@ pnpm db:setup                         # migrate + seed
 pnpm watch                            # web :4141 + api :4142
 ```
 
-Dev OTP is `123456` for all phones (`config.devOtpBypass`). Seeded accounts are in
+Every seeded account signs in with the password `bookie-dev-1234`, hashed by
+`lib/password.ts` exactly as registration does. Emails and the rest are in
 [docs/DEV_CREDS.md](../docs/DEV_CREDS.md).
+
+Google sign-in stays disabled until `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` /
+`GOOGLE_REDIRECT_URI` are set; `GET /health` reports `{ google: false }` and
+`GET /identity/google` redirects back with `?error=google_unavailable` rather than failing.
 
 Uploads are served from the API's own origin at `/uploads`. The API returns
 root-relative paths, so the frontend must prefix them — that is what

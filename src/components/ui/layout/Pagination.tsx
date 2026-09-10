@@ -11,6 +11,9 @@ export type PaginationProps = {
   buildHref: (page: number) => string
   /** Accessible name, since a page may carry more than one pager. */
   label: string
+  previousLabel?: string
+  nextLabel?: string
+  pageLabel?: (page: number) => string
   className?: string
 }
 
@@ -69,12 +72,21 @@ const Step: FC<{ href?: string; label: string; children: ReactNode }> = ({ href,
     </span>
   )
 
-export const Pagination: FC<PaginationProps> = ({ page, pageCount, buildHref, label, className }) => {
+export const Pagination: FC<PaginationProps> = ({
+  page,
+  pageCount,
+  buildHref,
+  label,
+  previousLabel = 'Previous page',
+  nextLabel = 'Next page',
+  pageLabel = (entry) => `Page ${entry}`,
+  className,
+}) => {
   if (pageCount <= 1) return null
 
   return (
     <nav aria-label={label} className={cn('flex items-center justify-center gap-2 sm:gap-4', className)}>
-      <Step href={page > 1 ? buildHref(page - 1) : undefined} label='Previous page'>
+      <Step href={page > 1 ? buildHref(page - 1) : undefined} label={previousLabel}>
         <svg
           viewBox='0 0 24 24'
           fill='none'
@@ -111,7 +123,7 @@ export const Pagination: FC<PaginationProps> = ({ page, pageCount, buildHref, la
                 <AppLink
                   href={buildHref(entry)}
                   variant='unstyled'
-                  aria-label={`Page ${entry}`}
+                  aria-label={pageLabel(entry)}
                   className={cn(CELL, 'text-brand-text hover:bg-brand-50 tnum')}
                 >
                   {entry}
@@ -122,7 +134,7 @@ export const Pagination: FC<PaginationProps> = ({ page, pageCount, buildHref, la
         )}
       </ul>
 
-      <Step href={page < pageCount ? buildHref(page + 1) : undefined} label='Next page'>
+      <Step href={page < pageCount ? buildHref(page + 1) : undefined} label={nextLabel}>
         <svg
           viewBox='0 0 24 24'
           fill='none'

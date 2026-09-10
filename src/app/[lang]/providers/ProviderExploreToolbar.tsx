@@ -3,6 +3,7 @@
 import { FC, useState } from 'react'
 import { FilterOutlined, SortAscendingOutlined } from '@ant-design/icons'
 import { Badge, Dropdown, MenuProps, Switch } from 'antd'
+import { useTranslations } from 'next-intl'
 import { ProvidersListSort } from '@api/providers/types'
 import { useRouter } from '@i18n/navigation'
 import { AppButton } from '@components/ui/AppButton'
@@ -13,13 +14,6 @@ import { buildExploreHref, countActiveFilters, ExploreParams } from './explorePa
 
 type Props = {
   params: ExploreParams
-}
-
-const SORT_LABELS: Record<ProvidersListSort, string> = {
-  recommended: 'Recommended',
-  nameAsc: 'Name A–Z',
-  nameDesc: 'Name Z–A',
-  newest: 'Newest first',
 }
 
 type FilterKey = 'available' | 'openToday'
@@ -37,18 +31,12 @@ type FilterKey = 'available' | 'openToday'
  * `weekSchedule` has hours — a provider can be open today and still have paused
  * bookings, or the reverse.
  */
-const FILTERS: { key: FilterKey; label: string; hint: string }[] = [
-  {
-    key: 'available',
-    label: 'Available now',
-    hint: 'Hide providers who have paused new bookings.',
-  },
-  {
-    key: 'openToday',
-    label: 'Active today',
-    hint: 'Only providers whose schedule has working hours today.',
-  },
+const FILTERS: { key: FilterKey; labelKey: 'availableNow' | 'activeToday'; hintKey: 'availableNowHint' | 'activeTodayHint' }[] = [
+  { key: 'available', labelKey: 'availableNow', hintKey: 'availableNowHint' },
+  { key: 'openToday', labelKey: 'activeToday', hintKey: 'activeTodayHint' },
 ]
+
+const SORT_KEYS: ProvidersListSort[] = ['recommended', 'nameAsc', 'nameDesc', 'newest']
 
 /**
  * Sort and Filter, as the two icon buttons beside the Service providers heading.
@@ -64,6 +52,7 @@ const FILTERS: { key: FilterKey; label: string; hint: string }[] = [
  * feedback is the point.
  */
 export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
+  const t = useTranslations('Explore')
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState({ available: params.available, openToday: params.openToday })
@@ -95,9 +84,9 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   const sortMenu: MenuProps = {
     selectable: true,
     selectedKeys: [params.sort],
-    items: (Object.keys(SORT_LABELS) as ProvidersListSort[]).map((sort) => ({
+    items: SORT_KEYS.map((sort) => ({
       key: sort,
-      label: SORT_LABELS[sort],
+      label: t(`sort.${sort}`),
     })),
     onClick: ({ key }) => go({ sort: key as ProvidersListSort }),
   }
@@ -105,21 +94,21 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   return (
     <>
       <Dropdown menu={sortMenu} trigger={['click']} placement='bottomRight'>
-        <AppButton icon={<SortAscendingOutlined />} aria-label={`Sort: ${SORT_LABELS[params.sort]}`}>
+        <AppButton icon={<SortAscendingOutlined />} aria-label={t('sortAria', { sort: t(`sort.${params.sort}`) })}>
           <AppText size='body-sm' className='hidden font-medium sm:inline'>
-            {SORT_LABELS[params.sort]}
+            {t(`sort.${params.sort}`)}
           </AppText>
         </AppButton>
       </Dropdown>
 
       <Badge count={activeCount} size='small' offset={[-2, 2]}>
-        <AppButton icon={<FilterOutlined />} onClick={openSheet} aria-label='Filter providers' />
+        <AppButton icon={<FilterOutlined />} onClick={openSheet} aria-label={t('filterAria')} />
       </Badge>
 
-      <AppSheet open={isOpen} onClose={() => setIsOpen(false)} title='Filters'>
+      <AppSheet open={isOpen} onClose={() => setIsOpen(false)} title={t('filtersTitle')}>
         <div className='flex flex-col gap-6'>
           <ul className='m-0 flex list-none flex-col gap-4 p-0'>
-            {FILTERS.map(({ key, label, hint }) => (
+            {FILTERS.map(({ key, labelKey, hintKey }) => (
               <li key={key} className='flex items-start justify-between gap-4'>
                 {/* A div, not a span: AppParagraph is a <p>, which cannot sit in phrasing
                     content. The <label> makes the name and the hint a hit target for the
@@ -127,9 +116,9 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
                     thumb-sized miss on a phone. */}
                 <div className='flex flex-col gap-0.5'>
                   <label htmlFor={`filter-${key}`} className='w-fit cursor-pointer font-semibold'>
-                    <AppText size='body-sm'>{label}</AppText>
+                    <AppText size='body-sm'>{t(labelKey)}</AppText>
                   </label>
-                  <AppParagraph size='caption'>{hint}</AppParagraph>
+                  <AppParagraph size='caption'>{t(hintKey)}</AppParagraph>
                 </div>
                 <Switch
                   id={`filter-${key}`}
@@ -142,10 +131,10 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
 
           <div className='flex justify-end gap-2'>
             <AppButton onClick={reset} disabled={!draft.available && !draft.openToday}>
-              Reset
+              {t('reset')}
             </AppButton>
             <AppButton type='primary' onClick={apply}>
-              Show results
+              {t('showResults')}
             </AppButton>
           </div>
         </div>

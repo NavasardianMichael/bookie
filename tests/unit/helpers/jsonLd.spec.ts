@@ -84,9 +84,10 @@ describe('processError', () => {
     expect(processError(axiosError)).toEqual({ code: -1, message: 'Network Error' })
   })
 
-  // Every async action funnels rejections through here, so the one input that makes it
-  // throw instead of returning an AppError is worth pinning. See docs/BACKLOG.md.
-  it.each([null, undefined])('KNOWN BUG: throws on %o instead of returning an AppError', (input) => {
-    expect(() => processError(input)).toThrow(TypeError)
+  // Every async action funnels rejections through here, so this must never throw a second
+  // error of its own — that replaces the real failure with a crash inside the handler
+  // meant to report it. `throw 'nope'` and a bare `Promise.reject()` both land here.
+  it.each([null, undefined, 'nope', 42, {}])('returns an AppError for %o rather than throwing', (input) => {
+    expect(processError(input)).toEqual({ code: -1, message: 'An unknown error occurred' })
   })
 })

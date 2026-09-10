@@ -1,5 +1,6 @@
 import { getOrganizationsListLDSchema } from '@linkedDataSchema/organizations'
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { getOrganizationsListAPI } from '@api/organizations/main'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
@@ -11,22 +12,31 @@ import { OrganizationCard } from './components/OrganizationCard'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Organizations')
+
   return {
-    title: 'Organizations',
-    description: 'Browse the clinics, salons and studios taking bookings on Bookie.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
     alternates: await localizedAlternates(ROUTES[ROUTE_KEYS.organizations]),
   }
 }
 
 export default async function Organizations() {
-  const { allIds, byId } = await getOrganizationsListAPI()
+  const [{ allIds, byId }, t, tCommon] = await Promise.all([
+    getOrganizationsListAPI(),
+    getTranslations('Organizations'),
+    getTranslations('Common'),
+  ])
   const organizations = allIds.map((organizationId) => byId[organizationId!])
 
   return (
     <PageShell className='flex flex-col gap-6'>
       <JsonLd data={getOrganizationsListLDSchema(organizations)} />
 
-      <PageHeader title='Organizations' subtitle={allIds.length ? `${allIds.length} listed` : undefined} />
+      <PageHeader
+        title={t('title')}
+        subtitle={allIds.length ? tCommon('listed', { count: allIds.length }) : undefined}
+      />
 
       {organizations.length ? (
         <ResponsiveGrid as='ul'>
@@ -37,7 +47,7 @@ export default async function Organizations() {
           ))}
         </ResponsiveGrid>
       ) : (
-        <EmptyState title='No organizations yet' description='Organizations will appear here once they are added.' />
+        <EmptyState title={t('emptyTitle')} description={t('emptyBody')} />
       )}
     </PageShell>
   )

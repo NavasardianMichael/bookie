@@ -89,7 +89,7 @@ export const BookingMonth: FC<Props> = ({
             {month.format('MMMM YYYY')}
           </AppTitle>
           <AppParagraph size='body-sm' className='m-0'>
-            {serviceName ? `Pick a date for your ${serviceName}` : 'Pick a date to see the open times'}
+            {serviceName ? tBooking('pickDateForService', { service: serviceName }) : tBooking('pickDate')}
           </AppParagraph>
         </div>
 
@@ -99,11 +99,11 @@ export const BookingMonth: FC<Props> = ({
           </AppButton>
           <AppButton
             icon={<LeftOutlined />}
-            aria-label='Previous month'
+            aria-label={t('previousMonth')}
             disabled={!canGoBack}
             onClick={handlePrev}
           />
-          <AppButton icon={<RightOutlined />} aria-label='Next month' onClick={handleNext} />
+          <AppButton icon={<RightOutlined />} aria-label={t('nextMonth')} onClick={handleNext} />
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export const BookingMonth: FC<Props> = ({
             between cells, without a border on every one of the 35+ cells. */}
         <div
           role='group'
-          aria-label='Choose a date'
+          aria-label={tBooking('chooseDate')}
           className='border-brand-border-subtle bg-brand-border-subtle grid grid-cols-7 gap-px overflow-hidden rounded-brand border'
         >
           {weekdayLabels.map(({ day, label }) => (
@@ -147,7 +147,7 @@ export const BookingMonth: FC<Props> = ({
                 onClick={handleDayClick}
                 disabled={disabled}
                 aria-pressed={isSelected}
-                aria-label={`${date.format('dddd, D MMMM')}${count ? `, ${count} open` : `, ${disableReason ?? 'no open times'}`}`}
+                aria-label={`${date.format('dddd, D MMMM')}${count ? `, ${tBooking('openCount', { count })}` : `, ${disableReason ?? tBooking('noOpenTimesShort')}`}`}
                 className={cn(
                   'bg-surface flex h-full w-full flex-col items-start gap-1 p-2 text-start transition-colors',
                   'focus-visible:ring-brand/40 focus-visible:z-1 focus-visible:ring-2 focus-visible:outline-none',
@@ -174,7 +174,7 @@ export const BookingMonth: FC<Props> = ({
                 {!disabled && (
                   <span
                     aria-hidden
-                    title={`${count} open`}
+                    title={tBooking('openCount', { count })}
                     className={cn(
                       'mt-auto h-1 w-full shrink-0 rounded-full',
                       isSelected ? 'bg-white/40' : 'bg-brand-200'

@@ -6,7 +6,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 
 | Model | Purpose |
 | --- | --- |
-| **User** | Phone identity (`phoneCode` + `phoneNumber`), OTP fields, pending phone OTP and pending email-verify token, optional 1:1 Consumer/Provider |
+| **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category |
 | **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, SEO overrides + vanity `slug` |
@@ -40,14 +40,23 @@ All JSON responses use:
 | Method | Path | Auth |
 | --- | --- | --- |
 | GET | `/health` | public |
-| POST | `/identity/send-otp` | public |
+| POST | `/identity/register` | public — email + password + role; **does not sign in**, mails a verification link |
 | POST | `/identity/login` | public (sets httpOnly cookie) |
+| POST | `/identity/verify-email` | public — `{ token }`; copies `pendingEmail` onto `email` |
+| POST | `/identity/resend-verification` | public — re-mints the link, invalidating the previous one |
+| POST | `/identity/forgot-password` | public — always answers the same, to avoid an enumeration oracle |
+| POST | `/identity/reset-password` | public — `{ token, password }`; bumps `tokenVersion` |
+| POST | `/identity/change-password` | session |
 | GET | `/identity/me` | session — `{ role, profileId, firstName, lastName, image? }` |
 | POST | `/identity/logout` | session |
-| POST | `/identity/change-phone/send-otp` | session |
-| POST | `/identity/change-phone/confirm` | session |
+| PATCH | `/identity/phone` | session — phone is profile data now, not identity |
 | POST | `/identity/change-email/send` | session — `{ email, returnPath }`; emails a link (dev: API console) |
-| POST | `/identity/change-email/confirm` | session — `{ token }` from the profile URL's `verifyEmail` query |
+| POST | `/identity/change-email/confirm` | session — same handler as `/verify-email` |
+| DELETE | `/identity/account` | session |
+| GET | `/identity/google` | public — starts the OAuth flow (`intent`, `role`, `returnPath`) |
+| GET | `/identity/google/callback` | public — Google returns here; **redirects**, never JSON |
+| GET | `/identity/google/pending` | pending cookie — prefill for the completion form |
+| POST | `/identity/google/complete` | pending cookie — creates the account and signs in |
 | GET | `/providers?q=&categoryId=&available=&openToday=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below |
 | GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
 | GET | `/providers/:id/availability?date=` | public |
@@ -162,13 +171,18 @@ geocoding. Each would be a per-row computation or a wrong answer. See `docs/BACK
 - **`DELETE /provider-profile`** — removes the page. `409` when appointments exist (`Appointment.providerId` has no `onDelete`). A User with no remaining Consumer profile is removed with the page.
 - **`available`** — pause new bookings; independent of listing.
 - **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
-- **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], reference?, notes? }`.
-  Never a card PAN. **`methods` is plural** — a provider accepts a set, not one preference,
-  and the booking sheet offers exactly that set. Read it through `toPaymentMethods`
+- **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], payToNumber?, notes? }`.
+  **`methods` is plural** — a provider accepts a set, not one preference, and the booking
+  sheet offers exactly that set. `payToNumber` is a provider-authored card or account
+  number published on the public profile and the booking sheet; saving a new or changed
+  value is confirmed in a dialog. Anyone who opens the page can copy it. Leftover
+  `cardNumber` / `accountNumber` / `reference` keys are still read as that number by
+  `toPaymentShare`. Read methods through `toPaymentMethods`
   (`src/helpers/payment.ts`, or `server/src/lib/payment.ts`), which also tolerates the
   pre-migration singular `{ method }` still possible in a stale `draft` overlay.
   **Consumer** `paymentInfo` is methods only: the payments tab writes `{ methods }` and
-  `PUT /consumer-profile` strips `reference` / `notes` so leftover values cannot linger.
+  `PUT /consumer-profile` strips `payToNumber` / `cardNumber` / `accountNumber` / `notes` /
+  `reference` so leftover values cannot linger.
 - **SEO columns are *not* draftable.** `seoTitle`, `seoDescription`, `seoKeywords` and
   `slug` save live through `PATCH /provider-profile/seo`, never through the `draft`
   overlay — see [Provider workspace](#provider-workspace).
@@ -278,26 +292,30 @@ Other rules:
   *optional* relation to `SetNull`, which would quietly turn a deleted consumer's
   appointments into guest bookings carrying no guest details.
 
-Phone changes go through identity OTP endpoints and apply only after confirm. Email changes send a one-time link to the account profile (`?verifyEmail=` token); the hashed token lives on **User**. Never call `issueOtp` for a phone change (that upserts a second User by the new number).
+Phone is **profile data, not identity** — `PATCH /identity/phone` writes it straight to the
+caller's own profile with no confirmation step, because there is nothing to confirm: it is
+never verified and has no unique constraint. Email changes send a one-time link; the hashed
+token lives on **User**, and confirming runs the same handler as signup verification.
 
 ## Registration and sign-in
 
-**`POST /identity/login` is both.** There is no separate register endpoint — the account is
-created lazily on the first OTP that verifies.
+**Registration and sign-in are separate routes.** `POST /identity/register` creates the
+account and mails a verification link; it **does not sign anyone in**, because an unverified
+account cannot hold a session — `middleware/auth.ts` re-checks that on every authenticated
+request, not only at login.
 
 ```jsonc
-// Request. `phone` is an object, never a formatted string.
+// POST /identity/register
 {
+  "role": "provider",                 // or "consumer"; `userType` is accepted as an alias
+  "email": "alex@company.com",
+  "password": "a-strong-password",
+  // Mandatory, and an object. Profile data — never verified, never unique.
   "phone": { "code": 374, "number": 77000201 },
-  "otp": "123456",
-  // Sent by a registration form. OMITTED at sign-in, where the server reads the role off
-  // whichever profile already exists (provider wins if a user somehow has both).
-  "userType": "provider",
-  // Applied ON CREATE ONLY — a returning user's profile is never overwritten.
   "profile": {
     "firstName": "Alex",
     "lastName": "Morgan",
-    "email": "alex@company.com",
+    "country": "AM",                  // ISO 3166-1 alpha-2; not derivable from phone.code
     // Provider only, mutually exclusive: an id links an existing organization, a name
     // matches one case-insensitively or creates it.
     "organizationId": "…",
@@ -306,14 +324,44 @@ created lazily on the first OTP that verifies.
 }
 ```
 
+**Every branch answers `{ "value": true }`.** A taken address, a new one, even a failed
+send — all identical. A `409` for a taken address would turn the route into an oracle for
+which addresses hold accounts, so the owner is told in their own inbox instead. An
+**unverified** row is overwritten rather than refused: nobody can sign in to it, so it is
+not yet an identity anyone owns.
+
 ```jsonc
-// Response value. `role` decides which onboarding the frontend enters; `isNewUser`
-// distinguishes a fresh account from a returning sign-in.
-{ "role": "provider", "profileId": "…", "isNewUser": true }
+// POST /identity/login  ->  sets the httpOnly cookie
+{ "email": "alex@company.com", "password": "a-strong-password" }
+// value: { role, profileId, userId, firstName, lastName, image? }
 ```
 
-A phone number with no account and no `userType` gets `404` — sign-in cannot silently
-create a profile of a guessed role.
+Failures carry a stable application `code` from `AUTH_ERROR` (`4001` invalid credentials,
+`4002` unverified, `4006` Google-only account, …) rather than the HTTP status this codebase
+otherwise puts there — the client has to *react* differently to some of them, and
+string-matching a message is not a contract. Mirrored in `src/api/auth/types.ts`.
+
+### Google
+
+`GET /identity/google` starts the flow and `GET /identity/google/callback` finishes it.
+Both **redirect**; they never answer JSON, so failures come back as `?error=<code>` from
+`GOOGLE_ERROR` for the web app to translate.
+
+- **State and PKCE live in a signed cookie** (`lib/oauth-state.ts`), because passport's own
+  state stores all need `express-session` and this server has none. Without it passport
+  falls through to `NullStore` — no nonce, no PKCE, and a callback that accepts any
+  attacker-supplied `code`.
+- **`email_verified` is checked** before any account is touched.
+- A **verified** account on that address is *not* auto-linked — `google_account_exists`.
+  Linking is an explicit action from settings, where a live session proves ownership.
+- An **unverified** account on that address *is* claimed, and `tokenVersion` is bumped.
+- A brand-new identity is parked in a short-lived cookie and sent to
+  `/auth/complete-registration`, because Google supplies neither a role nor a phone and
+  both profile tables need them. Nothing is written until `POST /identity/google/complete`.
+
+`GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` from the
+session cookie, which is how the client recovers its role after a refresh (the cookie is
+httpOnly) and how the Header renders an avatar without a second fetch.
 
 `GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` from the
 session cookie, which is how the client recovers its role after a refresh (the cookie is
@@ -327,7 +375,8 @@ httpOnly) and how the Header renders an avatar without a second fetch.
 4. Run API + web: `pnpm watch`
 5. Frontend env: copy `.env.example` → `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:4142`
 
-**Dev login:** see [DEV_CREDS.md](DEV_CREDS.md) for seeded provider/consumer phones and OTP.
+**Dev login:** see [DEV_CREDS.md](DEV_CREDS.md) for the seeded provider/consumer emails and
+the shared development password.
 
 ## Project layout
 

@@ -20,11 +20,13 @@ export const metadata: Metadata = {
  * panel on the left, form on the right, collapsing to form-only below `lg`.
  *
  * `padded={false}` opts out of `PageShell`'s gutters so the navy panel paints to the
- * viewport edge — the one screen in the funnel that is not a centred card.
+ * viewport edge — the one screen in the funnel that is not a centred card. The global
+ * header is off here (`header.ts`), so this is `min-h-dvh` rather than the fill
+ * variant, which subtracts header height. `app-safe-t` covers the notch the header used to.
  */
 export default function ConsumerRegistration() {
   return (
-    <PageShell variant='fill' width='full' padded={false} className='lg:flex-row'>
+    <PageShell width='full' padded={false} className='flex min-h-dvh flex-col app-safe-t lg:flex-row'>
       <RegistrationHero />
 
       <div className='flex flex-1 items-center justify-center px-6 py-12 lg:px-24'>

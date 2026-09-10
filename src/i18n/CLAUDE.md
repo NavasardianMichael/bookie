@@ -3,6 +3,9 @@
 15 locales, `next-intl` with **prefixed routing**: every route lives under `app/[lang]/`
 and every URL names its language (`/en/providers`, `/es/providers`). Message catalogues
 live in `src/messages/<locale>.json`, one file per locale, `en.json` is the source of truth.
+Non-auth namespaces: `Language`, `Common`, `Nav`, `Booking`, `Footer`, `Contact`, `Settings`,
+`Home`, `Explore`, `Categories`, `Organizations`, `Provider`, `Legal`, `Services`,
+`ProfileCreation`, `Errors`. Auth screens still hardcode copy.
 
 ```
 en · es · pt-BR · fr · it · de · ar · zh-CN · ja · hy · id · ko · uk · pl · th

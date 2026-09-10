@@ -105,6 +105,7 @@ The direction v6 keeps moving in is **one object prop absorbing a flat family**:
 | `onDropdownVisibleChange` | `onOpenChange` |
 | `dropdownMatchSelectWidth` | `popupMatchSelectWidth` |
 | `bordered` (`Select`, `Input`, `InputNumber`, `Card`, `Cascader`) | `variant` |
+| `addonBefore`, `addonAfter` (`Input`) | `Space.Compact` with the addon as a sibling; a named `Form.Item` must still wrap the real input (or a control-contract field that forwards `value`/`onChange`) |
 | `showArrow` | now the default — hide it with `suffixIcon={null}` |
 | `<Option>` children, `Select.Option`, `dataSource` | `options` |
 | `bodyStyle`, `headStyle`, `Descriptions` `labelStyle`/`contentStyle` | `styles.*` |
@@ -121,7 +122,7 @@ That table is a snapshot, not the source of truth —
 Gate — keep at zero:
 
 ```bash
-grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b|\bStatistic\.Countdown\b|antd/es/statistic/Countdown" src --include=*.ts --include=*.tsx   # 0
+grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName|addonBefore|addonAfter)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b|\bStatistic\.Countdown\b|antd/es/statistic/Countdown" src --include=*.ts --include=*.tsx   # 0
 ```
 
 It deliberately omits `Space direction=` and `Divider type=` — those names are legitimate
@@ -181,8 +182,9 @@ Spacing between form fields is owned by the parent flex `gap` — `theme.ts` set
 ## Forms
 
 Ant Design `Form` is the single source of truth for form state **and** validation. See
-the `forms` skill. Formik must not be reintroduced — the two stores fight, and antd wins
-the render while Formik wins the submit, which is where the current form bugs come from.
+the `forms` skill. Formik was removed on 2026-09-11 and must not be reintroduced — the
+two stores fight, antd wins the render while Formik wins the submit, and that split is
+where every form bug this repo has had came from.
 
 ## Client/server boundary
 

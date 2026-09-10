@@ -1,15 +1,16 @@
 ---
 name: forms
-description: Build or edit a form in this repo. Ant Design Form is the single source of truth for form state and validation; Formik is legacy and being removed. Covers the control contract custom field components must implement, validation rules via useFormItemRules, and the four live bugs the old dual-binding causes. Use for any work on ProviderProfileForm, ProviderServiceForm, the auth forms, or any new form.
+description: Build or edit a form in this repo. Ant Design Form is the single source of truth for form state and validation; Formik has been removed. Covers the control contract custom field components must implement, validation rules via useFormItemRules, and why the old dual binding broke. Use for any work on ProviderProfileForm, ProviderServiceForm, the auth forms, or any new form.
 ---
 
 # Forms
 
-**Ant Design `Form` owns form state and validation. Do not add Formik.**
+**Ant Design `Form` owns form state and validation. Formik is gone — do not add it back.**
 
-Some components still carry the old Formik + antd dual binding. That is not a style
-preference being cleaned up — it is actively broken, and the migration is tracked in
-`docs/BACKLOG.md`. Read *Why the dual binding breaks* below before touching one.
+Every form in `src/` is antd-only as of 2026-09-11; `formik` is not a dependency and
+`src/interfaces/forms.ts` no longer exists. *Why the dual binding breaks* below is kept
+because it explains the failure mode, and because it is what a reviewer needs when someone
+proposes a second form library.
 
 ## The pattern
 
@@ -139,19 +140,24 @@ named `Form.Item`:
 - **Formik wins the submit**, because `onFinish={formik.handleSubmit}` ignores the values
   antd hands it
 
-Two sources of truth, each authoritative for a different half. Four live consequences:
+Two sources of truth, each authoritative for a different half. That produced four real
+bugs, all now fixed by construction — they are worth knowing because **each was invisible**:
+no type error, no validation error, no failed request.
 
 | Where | Effect |
 |---|---|
-| `ProviderProfileForm.tsx:88` | `categoryIds` has `required` + `min:1` on an antd slot nothing writes → **the form can never be submitted** |
-| `ProviderProfileFormOrganization.tsx:36` | Writes `organization`; the payload builder reads `organizationId`. Never submitted |
+| `ProviderProfileForm` | `categoryIds` carried `required` + `min:1` on an antd slot nothing wrote → **the form could not be submitted at all** |
+| `ProviderProfileFormOrganization` | Wrote `organization`; the payload builder read `organizationId`, so the selection was silently never submitted |
+| `ProviderServiceFormCategory` | Read `value.id` off a string and stored `undefined` |
+| `AccountTypeButtons` | Gone — the account-type screen is two links, so there is no selection state to disagree about |
 
-`ProviderServiceFormCategory` and `AccountTypeButtons` were the other two; both are fixed.
-`src/components/providerServiceForm/` is now a **worked example of the migration** — three
-custom fields (category, duration, image) each implementing the control contract, and a
-parent that owns `isSubmitting` in local state and picks POST vs PUT off `values.id`.
+Two worked examples to copy: `src/components/providerServiceForm/` (three custom fields, a
+parent that picks POST vs PUT off `values.id`) and `src/components/providerProfileForm/`
+(six custom fields, including two that hold `File`s and one that owns the whole week
+schedule).
 
-Removing Formik fixes all four by construction.
+Field-name drift is the one that survives a refactor, so it is pinned by a test rather than
+a comment — see `tests/unit/components/providerProfileForm.processors.spec.ts`.
 
 ## Migrating a form
 
@@ -162,12 +168,14 @@ Removing Formik fixes all four by construction.
    `formik` and `form` props.
 5. `onFinish={handleFinish}` where `handleFinish(values)` uses its argument.
 6. Replace `formik.isSubmitting` with local state or the store's `isPending`.
-7. Delete the now-unused `AppFormProps<T>` import from `src/interfaces/forms.ts`.
-8. Check field names line up end to end: `Form.Item name` → the values key → what the
-   processor in `processors.ts` reads. Bug #2 is exactly this drift.
+7. Check field names line up end to end: `Form.Item name` → the values key → what the
+   processor in `processors.ts` reads. Bug #2 was exactly this drift, and nothing in the
+   type system catches it — add a processor test.
+8. Derive previews from `value`; never mirror into state inside an effect.
+   `react-hooks/set-state-in-effect` is an **error** here.
 
-Verify by actually submitting the form against a running API — for the provider profile
-form, a successful save *is* the regression test, since it cannot currently submit at all.
+Verify by actually submitting against a running API. `pnpm typecheck` cannot see any of
+these failure modes.
 
 ## A control that holds a `File`
 

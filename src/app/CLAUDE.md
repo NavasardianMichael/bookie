@@ -8,8 +8,8 @@ put in it.
 The root layout is `src/app/[lang]/layout.tsx`, so the paths below are all really
 `/[lang]/…` — `/en/providers`, `/es/providers`, one URL per language. Only these stay at
 the app root, because they are locale-agnostic documents or must sit beside the root
-layout: `global-error.tsx`, `icon.tsx`, `apple-icon.tsx`, `opengraph-image.tsx`,
-`manifest.ts`, `sitemap.ts`, `robots.ts`, `favicon.ico`.
+layout: `global-error.tsx`, `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx`,
+`manifest.ts`, `sw.js/route.ts`, `sitemap.ts`, `robots.ts`, `favicon.ico`.
 
 **Write paths without the locale.** `ROUTES` is locale-free and `AppLink` adds the prefix;
 `localePath()` (`@i18n/pathname`) does it for raw URL strings. A page's `alternates` come
@@ -55,9 +55,12 @@ so Next lazy-loads the panel. Provider phone change lives in the Profile tab's P
 Information block, not a sidebar item; listing controls (copy URL, publish/unpublish,
 delete page) live on that tab's hero, not a Listing sidebar item. Consumers still have `/consumers/profile/phone`. Visual language follows the prototypes; deviations match
 registration: keep the global Header/Footer, no dark mode, no password/2FA/security, no
-stored card PANs, no autosave (Discard / Save, plus Save draft / Publish for providers).
-Provider `listed` hides Explore + public 404; `available` only pauses bookings. The Header
-swaps Sign In / Get Started for an avatar when `getMe()` succeeds.
+autosave (Discard / Save, plus Save draft / Publish for providers). Providers may
+publish their own card or account number on the public page after confirming a
+save dialog that those details will be public;
+the app never collects a *client's* card. Provider `listed` hides Explore + public 404;
+`available` only pauses bookings. The Header swaps Sign In / Get Started for an avatar
+when `getMe()` succeeds.
 
 **Three of the provider tabs are not settings.** `Bookings` and `Analytics` are for running
 the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts them above the
@@ -210,6 +213,15 @@ Three things not to undo here:
 
 ## The sign-on funnel
 
+> **⚠ This funnel no longer works against the API, and is the next thing to rebuild.**
+> Everything below still describes the screens in the tree accurately — they are phone +
+> OTP. The server moved to **email + password + Google** on 2026-09-10
+> (`20260910000000_email_password_identity`), which deleted `/identity/send-otp` and made
+> `/identity/login` take `{ email, password }`. So these screens render, and then fail on
+> submit. Do not extend them; rebuild against the routes in `docs/DATABASE_STRUCTURE.md`.
+> The gap is itemised in `docs/BACKLOG.md` under *The web app's auth funnel does not match
+> the API*.
+
 **Registration is role-specific and sign-in is not.** Which form you open decides the role,
 exactly as `design/initial prototype/{consumer,provider}_registration` have it — there is no
 account-type toggle inside a form.
@@ -264,7 +276,7 @@ Each of these is a decision, not an oversight — do not "fix" them back:
 | Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height | `src/styles/CLAUDE.md` invariant 10, and `h-[NNpx]` is a grep gate. |
 | `text-5xl` hero headline | `AppTitle size='h1'` | The fluid scale's `display` step is 72px at `lg`, too large for a half-width panel; `h1` caps at 40px. |
 | Terms / Privacy as `href="#"` | Real `/terms` and `/privacy` placeholder routes | A dead anchor in a consent notice is worse than a page saying the document is not published. |
-| Own header + footer per mockup | The app's global chrome | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`, not duplicated. |
+| Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. |
 
 Labels are rendered by `FieldLabel` with an explicit `htmlFor`, **not** antd's
 `Form.Item label`. antd puts its label in an `inline-flex` element sized to its content, so
@@ -345,10 +357,11 @@ layout, so the skeleton→content handoff costs no layout shift.
 
 | File | Why |
 |---|---|
-| `layout.tsx` | Owns the `viewport` export — without it mobile renders at ~980px and every responsive style is invisible. Font variable goes on `<html>` so antd portals inherit it. |
+| `layout.tsx` | Owns the `viewport` export — without it mobile renders at ~980px and every responsive style is invisible. Font variable goes on `<html>` so antd portals inherit it. `appleWebApp` is the iOS home-screen complement to `manifest.ts`. |
 | `global-error.tsx` | Renders **outside** `ConfigProvider`, so it **cannot use antd**. Inline styles fed from `tokens.ts`. |
-| `icon.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import `tokens.ts` directly. Served at `/icon` etc. with no file extension; `src/proxy.ts` must not locale-prefix those paths. |
-| `manifest.ts` | Generated, not a static file. Single-locale — `start_url` is `/<DEFAULT_LOCALE>`, not `/`, because localePrefix is always and `/` is a 307. |
+| `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import from `tokens.ts` (via `BookieAppIcon` for the icons). Served at `/icon` etc. with no file extension; `src/proxy.ts` must not locale-prefix those paths. `/icon-maskable` is a Route Handler rather than a metadata file convention, because Next only recognises `icon` / `apple-icon`. |
+| `manifest.ts` | Generated, not a static file. Single-locale — `start_url` and shortcuts are `/<DEFAULT_LOCALE>…`, not `/`, because localePrefix is always and `/` is a 307. `id` stays `'/'` so a later start_url change does not install a second app. No `orientation` lock — that would pin a desktop/tablet install to portrait. |
+| `sw.js/route.ts` | Service worker. Network-only for navigations (booking HTML and the API must not be cached); failed navigations get an inlined offline document from `src/helpers/pwa.ts`. Registered in production only by `ServiceWorkerRegistrar`. `/sw.js` has an extension, so the proxy matcher never sees it. |
 | `sitemap.ts`, `robots.ts` | App-root, locale-agnostic. The sitemap emits every indexable route × 15 locales with full `alternates`; nothing else links to `/th/categories` except its `hreflang` tag, so this is the only way those get crawled. |
 | `routes-overview/` | Guarded with `notFound()` in production. |
 

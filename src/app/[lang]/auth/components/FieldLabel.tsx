@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { cn } from '@helpers/cn'
 
 export type FieldRequirement = 'Required' | 'Optional'
@@ -19,6 +19,8 @@ type Props = {
    * doing double duty as the semantic flag.
    */
   requirementText?: string
+  /** Sits beside the title, outside the `<label>` so a control does not steal the click. */
+  action?: ReactNode
   className?: string
 }
 
@@ -32,18 +34,34 @@ type Props = {
  * the escape hatch. That is a grep gate (`src/styles/CLAUDE.md`). Owning the label sidesteps
  * the whole problem and keeps the association explicit.
  */
-export const FieldLabel: FC<Props> = ({ htmlFor, children, requirement, requirementText, className }) => (
-  <label
-    htmlFor={htmlFor}
-    className={cn('text-brand-text text-body-sm flex items-baseline justify-between gap-4 font-bold', className)}
-  >
-    <span>{children}</span>
-    {requirement && (
-      <span
-        className={cn('text-caption font-normal', requirement === 'Required' ? 'text-brand/60' : 'text-brand-muted')}
+export const FieldLabel: FC<Props> = ({ htmlFor, children, requirement, requirementText, className, action }) => {
+  const badge = requirement ? (
+    <span className={cn('text-caption font-normal', requirement === 'Required' ? 'text-brand/60' : 'text-brand-muted')}>
+      {requirementText ?? requirement}
+    </span>
+  ) : null
+
+  if (!action) {
+    return (
+      <label
+        htmlFor={htmlFor}
+        className={cn('text-brand-text text-body-sm flex items-baseline justify-between gap-4 font-bold', className)}
       >
-        {requirementText ?? requirement}
+        <span>{children}</span>
+        {badge}
+      </label>
+    )
+  }
+
+  return (
+    <div className={cn('flex items-center justify-between gap-4', className)}>
+      <span className='flex min-w-0 items-center gap-0.5'>
+        <label htmlFor={htmlFor} className='text-brand-text text-body-sm font-bold'>
+          {children}
+        </label>
+        {action}
       </span>
-    )}
-  </label>
-)
+      {badge}
+    </div>
+  )
+}

@@ -58,27 +58,32 @@ describe('normalizedToFlat', () => {
     expect(normalizedToFlat(flatToNormalized(items))).toEqual(items)
   })
 
-  // Callers must guard. `getProviderLDSchema` does (`.filter(Boolean)`);
-  // `useCategoriesList` does not. See docs/BACKLOG.md.
-  it('KNOWN BUG: yields undefined for an id with no byId entry', () => {
+  // The signature says `T[]`, so a dangling id is dropped rather than yielded as a hole
+  // every caller has to guard. `useCategoriesList` never did, and rendered a blank card.
+  it('drops an id with no byId entry', () => {
     const result = normalizedToFlat<Item>({ allIds: ['a', 'ghost'], byId: { a: { id: 'a', name: 'A' } } })
 
-    expect(result).toHaveLength(2)
-    expect(result[1]).toBeUndefined()
+    expect(result).toEqual([{ id: 'a', name: 'A' }])
   })
 
-  // A duplicate id keeps both allIds entries while byId holds only the last write,
-  // so the round trip is not lossless.
-  it('KNOWN BUG: duplicate ids survive in allIds but collapse in byId', () => {
+  it('preserves allIds order rather than byId insertion order', () => {
+    const result = normalizedToFlat<Item>({
+      allIds: ['b', 'a'],
+      byId: { a: { id: 'a', name: 'A' }, b: { id: 'b', name: 'B' } },
+    })
+
+    expect(result.map((item) => item.id)).toEqual(['b', 'a'])
+  })
+
+  // A duplicate id used to keep both `allIds` entries while `byId` held only the last
+  // write, so the entity rendered twice — and React saw two children with one key.
+  it('collapses a duplicate id to a single entry, keeping the last write', () => {
     const normalized = flatToNormalized<Item>([
       { id: 'a', name: 'first' },
       { id: 'a', name: 'second' },
     ])
 
-    expect(normalized.allIds).toEqual(['a', 'a'])
-    expect(normalizedToFlat(normalized)).toEqual([
-      { id: 'a', name: 'second' },
-      { id: 'a', name: 'second' },
-    ])
+    expect(normalized.allIds).toEqual(['a'])
+    expect(normalizedToFlat(normalized)).toEqual([{ id: 'a', name: 'second' }])
   })
 })

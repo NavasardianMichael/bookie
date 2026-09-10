@@ -5,9 +5,7 @@ import {
   countSlotsByDay,
   getSlotsForDate,
   getSlotsForDateRange,
-  getVisibleTimeRange,
   getWeekDay,
-  groupSlotsByPartOfDay,
   isOpenOnDate,
 } from '@helpers/booking'
 
@@ -40,43 +38,6 @@ describe('isOpenOnDate', () => {
 
   it('is false without a schedule', () => {
     expect(isOpenOnDate(undefined, MONDAY)).toBe(false)
-  })
-})
-
-describe('getVisibleTimeRange', () => {
-  const FALLBACK = { min: '09:00:00', max: '18:00:00' }
-
-  it('pads the widest range in the week by an hour each side', () => {
-    const schedule = makeWeekSchedule({
-      monday: day('10:00', '16:00'),
-      thursday: day('09:00', '17:00'),
-    })
-
-    expect(getVisibleTimeRange(schedule)).toEqual({ min: '08:00:00', max: '18:00:00' })
-  })
-
-  it('clamps to the start of the day rather than going negative', () => {
-    expect(getVisibleTimeRange(makeWeekSchedule({ monday: day('00:30', '12:00') })).min).toBe('00:00:00')
-  })
-
-  it('clamps to 24:00 rather than overflowing', () => {
-    expect(getVisibleTimeRange(makeWeekSchedule({ monday: day('09:00', '23:30') })).max).toBe('24:00:00')
-  })
-
-  it('falls back when the schedule is undefined', () => {
-    expect(getVisibleTimeRange(undefined)).toEqual(FALLBACK)
-  })
-
-  it('falls back when every day is closed', () => {
-    expect(getVisibleTimeRange(makeWeekSchedule())).toEqual(FALLBACK)
-  })
-
-  it('falls back when a day has a start but no end', () => {
-    expect(getVisibleTimeRange(makeWeekSchedule({ monday: day('09:00', '') }))).toEqual(FALLBACK)
-  })
-
-  it('falls back on times that fail strict HH:mm parsing', () => {
-    expect(getVisibleTimeRange(makeWeekSchedule({ monday: day('9am', 'noon') }))).toEqual(FALLBACK)
   })
 })
 
@@ -180,30 +141,6 @@ describe('getSlotsForDateRange', () => {
         now: LONG_AGO,
       })
     ).toEqual([])
-  })
-})
-
-describe('groupSlotsByPartOfDay', () => {
-  const slotAt = (iso: string) => ({ start: new Date(iso), end: new Date(iso) })
-
-  it('buckets by hour and drops empty groups', () => {
-    const groups = groupSlotsByPartOfDay([slotAt('2026-03-02T09:00:00Z'), slotAt('2026-03-02T18:00:00Z')])
-
-    expect(groups.map((group) => group.key)).toEqual(['morning', 'evening'])
-  })
-
-  it.each([
-    ['2026-03-02T11:59:00Z', 'morning'],
-    ['2026-03-02T12:00:00Z', 'afternoon'],
-    ['2026-03-02T16:59:00Z', 'afternoon'],
-    ['2026-03-02T17:00:00Z', 'evening'],
-  ])('puts %s in %s', (iso, expected) => {
-    const [group] = groupSlotsByPartOfDay([slotAt(iso)])
-    expect(group.key).toBe(expected)
-  })
-
-  it('returns nothing for no slots', () => {
-    expect(groupSlotsByPartOfDay([])).toEqual([])
   })
 })
 

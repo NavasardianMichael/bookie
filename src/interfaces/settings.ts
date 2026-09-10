@@ -1,6 +1,6 @@
 import { PhoneNumber } from '@interfaces/app'
 
-/** Preferred in-person payment method — never a card PAN. */
+/** Preferred in-person payment method. */
 export type PaymentMethod = 'cash' | 'card_on_site' | 'bank_transfer'
 
 export type PaymentInfo = {
@@ -11,8 +11,13 @@ export type PaymentInfo = {
    * the pre-migration `{ method }` shape.
    */
   methods: PaymentMethod[]
-  /** Copyable reference the owner types (IBAN, "pay at desk", …). */
-  reference?: string
+  /**
+   * Provider-authored pay-to number (card or bank account). Published on the
+   * public profile and in the booking sheet; saving a new or changed value is
+   * confirmed in a dialog. Split `cardNumber` / `accountNumber` and a leftover
+   * `reference` are still read by `toPaymentShare`.
+   */
+  payToNumber?: string
   notes?: string
 }
 

@@ -44,7 +44,7 @@ Open [http://localhost:4141](http://localhost:4141).
 
 | | |
 | --- | --- |
-| [docs/DEV_CREDS.md](./docs/DEV_CREDS.md) | Local login credentials (OTP, seeded phones) |
+| [docs/DEV_CREDS.md](./docs/DEV_CREDS.md) | Local login credentials (seeded emails + dev password) |
 | [docs/DATABASE_STRUCTURE.md](./docs/DATABASE_STRUCTURE.md) | Schema, API envelope, routes |
 | [docs/BACKLOG.md](./docs/BACKLOG.md) | Known defects and outstanding work |
 | [docs/history/](./docs/history/) | Completed work, kept for the reasoning |

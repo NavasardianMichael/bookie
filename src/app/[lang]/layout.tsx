@@ -44,14 +44,26 @@ export const metadata: Metadata = {
   keywords: 'Bookie, booking, appointments, calendar, schedule',
   robots: 'index, follow',
   applicationName: 'Bookie',
+  appleWebApp: {
+    capable: true,
+    title: 'Bookie',
+    // Header is a light surface, so iOS keeps a light status bar with dark text.
+    statusBarStyle: 'default',
+  },
+  // Next emits `mobile-web-app-capable` from `appleWebApp.capable`. Older iOS
+  // still reads the apple-prefixed name, and without it "Add to Home Screen"
+  // opened a browser tab instead of standalone.
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+  },
   // No `alternates.canonical` or `openGraph.url` here: metadata is inherited, so
   // an absolute value at the root stamped the homepage URL onto every route and
   // told crawlers each page was a duplicate of `/`. Each route declares its own.
   //
-  // Icons and the OG image come from the app/icon.tsx, app/apple-icon.tsx and
-  // app/opengraph-image.tsx file conventions. Declaring `icons` or
-  // `openGraph.images` here would override those generated raster assets with
-  // the SVG, which most social platforms refuse to render.
+  // Icons and the OG image come from the app/icon.tsx, app/apple-icon.tsx,
+  // app/icon-maskable/route.tsx and app/opengraph-image.tsx file conventions.
+  // Declaring `icons` or `openGraph.images` here would override those generated
+  // raster assets with the SVG, which most social platforms refuse to render.
   openGraph: {
     type: 'website',
     title: 'Bookie',

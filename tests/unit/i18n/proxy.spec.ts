@@ -62,7 +62,7 @@ describe('proxy — locale routing', () => {
   // have no file extension, so the matcher cannot skip them. Prefixing them
   // 307s `/icon` to `/en/icon`, which 404s — the favicon and the PWA manifest
   // icon both fail.
-  it.each(['/icon', '/apple-icon', '/opengraph-image'])(
+  it.each(['/icon', '/icon-maskable', '/apple-icon', '/opengraph-image'])(
     'does not locale-prefix the metadata route %s',
     (path) => {
       const response = proxy(request(path, { 'accept-language': 'es' }))

@@ -19,23 +19,29 @@ export function splitScheduleIntoParts(schedule: DaySchedule): DaySchedulePart[]
   const availabilityStart = dayjs(availability.start, 'HH:mm')
   const availabilityEnd = dayjs(availability.end, 'HH:mm')
 
-  // Sort breaks and merge overlapping ones
+  // Sort breaks and merge overlapping ones.
+  //
+  // Each break is **copied** into the accumulator, not pushed by reference. `[...breaks]`
+  // is only a shallow copy, so the objects inside it still belong to the caller — and the
+  // merge below assigns `last.end`, which would write straight through into the schedule
+  // that was passed in. Under an immer draft that is a frozen-object throw; everywhere
+  // else it is silent corruption of the caller's state.
   const mergedBreaks = [...breaks]
     .sort((a, b) => dayjs(a.start, 'HH:mm').diff(dayjs(b.start, 'HH:mm')))
     .reduce<DaySchedulePart[]>((acc, brk) => {
       const last = acc[acc.length - 1]
-      if (!last) return [brk]
+      if (!last) return [{ ...brk }]
 
       const lastEnd = dayjs(last.end, 'HH:mm')
       const brkStart = dayjs(brk.start, 'HH:mm')
       const brkEnd = dayjs(brk.end, 'HH:mm')
 
       if (brkStart.isBefore(lastEnd)) {
-        // Overlapping → merge into last
+        // Overlapping → merge into last, which is ours to mutate.
         last.end = dayjs.max(lastEnd, brkEnd).format('HH:mm')
         return acc
       }
-      acc.push(brk)
+      acc.push({ ...brk })
       return acc
     }, [])
 

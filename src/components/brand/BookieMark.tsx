@@ -6,7 +6,7 @@ type Props = {
 /**
  * The Bookie glyph, matching public/logo.svg. Kept as inline JSX rather than a
  * file import so it can be rendered by `next/og` (satori) for the generated
- * favicon, apple-icon and OG image.
+ * favicon, apple-icon, maskable PWA icon and OG image.
  */
 export const BookieMark = ({ size = 40, color = 'currentColor' }: Props) => (
   <svg width={size} height={size} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'>

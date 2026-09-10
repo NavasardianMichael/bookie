@@ -28,8 +28,9 @@ type Props = {
 }
 
 /**
- * Checkbox list of every payment method. Disabled checkboxes do not fire hover,
- * so the tooltip wraps a span, not the control.
+ * Checkbox group of every payment method. Items sit on one row and wrap when the
+ * row is too narrow. Disabled checkboxes do not fire hover, so the tooltip wraps
+ * a span, not the control.
  */
 export const PaymentMethodPicker: FC<Props> = ({
   htmlId,
@@ -54,7 +55,7 @@ export const PaymentMethodPicker: FC<Props> = ({
         value={checked}
         onChange={handleChange}
         disabled={disabled}
-        className='flex flex-col gap-2'
+        className='flex flex-wrap items-center gap-x-4 gap-y-2'
       >
         {PAYMENT_METHODS.map((method) => {
           const isAccepted = acceptedSet.has(method)

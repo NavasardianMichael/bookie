@@ -43,9 +43,9 @@ const DEFAULT_CONFIG: HeaderConfig = {
  */
 const HEADER_CONFIG_OVERRIDES: Partial<Record<AppRouteName, Partial<HeaderConfig>>> = {
   [ROUTE_KEYS.accountTypeSelection]: { showNav: false },
-  // The consumer registration screen is a full-bleed split panel that carries its own
-  // branding, so the header keeps the mark and drops the public nav.
-  [ROUTE_KEYS.consumerRegistration]: { showNav: false },
+  // Full-bleed split with its own BrandLockup. A content-width header would sit the
+  // mark between the two columns; hiding both logo and nav drops the bar entirely.
+  [ROUTE_KEYS.consumerRegistration]: { showLogo: false, showNav: false },
   [ROUTE_KEYS.phoneNumberInput]: { showNav: false },
   [ROUTE_KEYS.codeInput]: { showNav: false },
   [ROUTE_KEYS.profileCreated]: { showNav: false },

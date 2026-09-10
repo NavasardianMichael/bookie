@@ -26,12 +26,16 @@ export const Header = () => {
   const image = useAuthStore.use.image()
 
   useEffect(() => {
+    if (!showLogo && !showNav) return
     void getMe()
-  }, [getMe])
+  }, [getMe, showLogo, showNav])
 
   const displayName = [firstName, lastName].filter(Boolean).join(' ') || t('account')
   const accountHref =
     userType === USER_TYPES.provider ? ROUTES.providerProfile : ROUTES.consumerProfile
+
+  // Consumer registration hides both; an empty bar would still steal header height.
+  if (!showLogo && !showNav) return null
 
   return (
     <header className='border-brand-border bg-surface/80 sticky top-0 z-50 border-b backdrop-blur-md app-safe-t'>

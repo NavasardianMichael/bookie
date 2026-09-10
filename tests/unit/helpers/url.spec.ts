@@ -37,9 +37,9 @@ describe('generateEntityUrl', () => {
     expect(generateEntityUrl('providers', 'abc')).toBe(`${getSiteUrl()}/providers/abc`)
   })
 
-  // ROUTES.home is '/', so the template produces '//<id>'. Every other route is fine.
-  // See docs/BACKLOG.md.
-  it('KNOWN BUG: doubles the slash for the home route', () => {
-    expect(generateEntityUrl('home', 'abc')).toBe(`${getSiteUrl()}//abc`)
+  // `ROUTES.home` is '/', so the template used to produce '//<id>' — and a leading `//`
+  // reads as a protocol-relative URL rather than a path.
+  it('does not double the slash for the home route', () => {
+    expect(generateEntityUrl('home', 'abc')).toBe(`${getSiteUrl()}/abc`)
   })
 })

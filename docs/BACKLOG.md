@@ -14,31 +14,17 @@ the radio group). Phase 7 is done except for the items listed below.
 
 ## Correctness
 
-### 1. Forms: remove Formik, Ant Design `Form` becomes the single source of truth
+### 1. ~~Forms: remove Formik~~ — done 2026-09-11
 
-The dual-binding is not untidy, it is broken. antd's store value **overrides** an
-explicitly-passed `value={formik.values.x}`, and a custom child that does not spread
-`...props` silently drops antd's injected `value`/`onChange`. Four live bugs:
+`formik` is no longer a dependency and `src/interfaces/forms.ts` is gone. The seven files
+in `src/components/providerProfileForm/` are antd-only, each custom field implements the
+`value`/`onChange` control contract, and both live bugs are fixed by construction:
+`categoryIds` is now written by the slot its rules validate (the form was previously
+**impossible to submit**), and the organization select writes `organizationId` — the key
+the payload builder actually reads. Pinned by
+`tests/unit/components/providerProfileForm.processors.spec.ts`.
 
-| # | Where | Effect |
-|---|---|---|
-| 1 | `ProviderProfileForm.tsx:88` | `categoryIds` has `required` + `min:1` rules on an antd slot nothing ever writes → **the provider profile form cannot be submitted at all** |
-| 2 | `ProviderProfileFormOrganization.tsx:36` | Writes key `organization`; payload builder reads `organizationId`. Organization selection is silently never submitted |
-
-Scope: `ProviderProfileForm` + `ProviderProfileFormCategories` / `…Organization`. See the
-`forms` skill for the target pattern, and `src/app/auth/**` for worked examples — the whole
-auth funnel is now antd-only.
-
-**Resolved by the provider services work** (2026-09-07): `ProviderServiceForm` and its three
-sub-fields are antd-only, so bug 3 (`ProviderServiceFormCategory` reading `value.id` off a
-string and storing `undefined`) is gone by construction — each field now implements the
-`value`/`onChange` control contract. `ProviderServices.tsx` no longer imports Formik.
-
-**Resolved by the registration work** (2026-09-05): `AccountTypeButtons` is gone — the
-account-type screen is two links, so there is no selection state to disagree about;
-`phone-number-input/components/form.tsx` is antd-only; and `OTPCodeInput` no longer has a
-nameless `Form.Item` outside a `<Form>`, no longer navigates identically on success and
-failure, and no longer swaps the country code with the phone number on resend.
+The only remaining mentions of Formik in `src/` are comments recording that it is gone.
 
 ### 2. The booking rate limit is per-process, and `req.ip` is untrusted
 
@@ -70,7 +56,42 @@ The data is correct and reachable; only the read path is one-sided. Fixing it me
 returning both sides when a `User` has both profiles, or a role switch in the UI — neither
 is a one-liner, because the consumer and provider appointment views render differently.
 
-### 4. Two slot engines that disagree
+### 4. `tsc -p server` does not catch a wrong Prisma field name
+
+Found on 2026-09-11, the hard way. `prisma.consumer.upsert({ create: { …, publicEmail } })`
+**typechecks clean** even though `Consumer` has no such column — Prisma types `create` as
+`XOR<CreateInput, UncheckedCreateInput>`, and TypeScript's excess-property check against
+that union does not fire. It failed at runtime instead, as a
+`PrismaClientValidationError` on the first `pnpm db:seed`.
+
+So the documented `typecheck → lint → test → build` loop gives **false confidence for
+query payloads**: a misnamed field in any `create`/`update`/`where` reaches production
+unless something executes that query. Nothing in `pnpm test` touches a database
+(`tests/CLAUDE.md` keeps the suite dependency-free), so nothing does.
+
+Two compounding traps found alongside it:
+
+- **A stale generated client silently changes what typechecks.** `prisma generate` had not
+  run since the schema last changed, so an *earlier* run of `tsc -p server` was checking
+  against a client with different columns. Run `prisma generate` before trusting a server
+  typecheck after any schema edit.
+- The real gate for the seed is **running it**. `pnpm db:setup` belongs in any change that
+  touches `schema.prisma` or `seed.ts`.
+
+### 5. ~~Seeded organizations are duplicated 7×~~ — done 2026-09-11
+
+Fixed by the `20260911000000_dedupe_organizations` migration, which collapses each name
+onto its earliest row, moves the union of categories onto the survivor, and repoints
+`Provider` / `Appointment` / `Review` before deleting the rest. Verified on a database
+carrying the duplicates: 56 rows → 8, no orphaned providers, category links intact. A
+no-op on a clean database.
+
+Deliberately **not** paired with a `@@unique` on `Organization.name` — two real clinics in
+different cities may legitimately share one, so that is a product decision. Both paths that
+produced the duplicates are already closed (the seed's `findFirst`, and
+`resolveOrganizationId`'s case-insensitive match).
+
+### 6. Two slot engines that disagree
 
 `getProviderAvailability` (`server/src/services/appointments.ts`) steps a **fixed 30
 minutes** and excludes already-booked slots. The UI does not call it: `BookingPanel`
@@ -79,13 +100,14 @@ computes slots client-side from `weekSchedule` via `getSlotsForDateRange`, stepp
 current session. So the grid can offer a time the server will reject, and the `409
 "Time slot not available"` is the only real defence. One of the two should go.
 
-### 5. `no-show` vs `no_show`
+### 7. ~~`no-show` vs `no_show`~~ — done 2026-09-11
 
-`src/interfaces/appointments.ts:5` declares `'no-show'`; the Prisma enum is `no_show`, and
-`ConsumerAppointmentsClient.tsx:36` filters on `'no_show'`. The interface is the one that
-is wrong.
+`src/interfaces/appointments.ts` was the only place declaring the hyphenated form, and it
+had **no importers at all** — the live types moved to `src/api/appointments/types.ts`,
+where `BOOKING_STATUSES` already matches the Prisma enum. The dead file is deleted rather
+than corrected, so the drift cannot come back through it.
 
-### 6. `FavoriteProvider` schema/DB drift
+### 8. `FavoriteProvider` schema/DB drift
 
 `prisma migrate diff` reports `[+] Added primary key on columns (consumerId, providerId)`
 against the live database. The init migration created the table with a composite **primary
@@ -93,31 +115,40 @@ key**; `schema.prisma` declares only `@@unique`. Predates all current work and i
 in practice, but it means the drift check is never clean, so a real drift has nothing to
 stand out against.
 
-### 7. `splitScheduleIntoParts` mutates its caller's break objects
+### 9. ~~`splitScheduleIntoParts` mutates its caller's break objects~~ — done 2026-09-11
 
-`src/helpers/schedule.ts` — `[...breaks]` is a shallow copy, so `last.end = …` writes
-through into the original `DaySchedulePart`. Latent corruption under immer drafts.
-Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
+Each break is copied into the accumulator now, so the merge cannot write through into the
+caller's schedule. Its test asserts the input is left untouched, that overlapping breaks
+still merge, and that two calls on the same array agree.
 
-### 8. Smaller pure-logic defects (each has a test recording current behaviour)
+### 10. ~~Smaller pure-logic defects~~ — done 2026-09-11
 
-- `normalizedToFlat` yields `undefined` for an `allIds` entry with no `byId` match.
-- `generateEntityUrl('home', id)` → `//<id>`, since `ROUTES.home === '/'`.
-- `processError(null)` throws `TypeError` instead of returning an `AppError`.
-- `booking.ts` parses `'HH:mm'` strictly; `schedule.ts` parses the same format
-  non-strictly. Malformed input behaves differently between the two.
+All five are fixed and their `KNOWN BUG:` tests rewritten to assert the correct behaviour:
+
+- `normalizedToFlat` drops an `allIds` entry with no `byId` match instead of yielding
+  `undefined`, so its `T[]` signature stops lying.
+- `flatToNormalized` appends a duplicate id once, so a round trip is lossless and React
+  no longer sees two children with one key.
+- `generateEntityPath` strips a trailing slash, so `generateEntityUrl('home', id)` is
+  `/<id>` rather than `//<id>` — a protocol-relative URL, not merely an ugly one.
+- `processError` uses `error?.message`, so `processError(null)` returns an `AppError`
+  instead of throwing a `TypeError` from inside the app's last error handler.
+- `splitScheduleIntoParts` copies each break into its accumulator, so it no longer writes
+  through into the caller's own objects.
+
+Still open from the original list: `booking.ts` parses `'HH:mm'` strictly while
+`schedule.ts` parses it non-strictly, so malformed input behaves differently between them.
 
 ---
 
 ## Cleanup
 
-- **`src/constants/api.ts`** is a byte-identical duplicate of `paramsToQueryString` from
-  `src/helpers/api.ts`. Delete *this* one — the `helpers` copy now has a caller
-  (`api/organizations/main.ts` builds the `?q=` search with it).
-- **`src/helpers/urlSearchParams.ts`** — both functions read `window.location.search`,
-  neither is referenced anywhere, returns are untyped. Delete.
-- **`src/store/categories/list/store.ts`** ships fake seed data in `initialState`
-  (`allIds: ['c-1']`).
+- ~~**`src/constants/api.ts`** duplicate of `paramsToQueryString`~~ — deleted 2026-09-11;
+  the `src/helpers/api.ts` copy is the live one.
+- ~~**`src/helpers/urlSearchParams.ts`**~~ — deleted 2026-09-11, unreferenced and untyped.
+- ~~**`bcryptjs` is a dead dependency.**~~ Removed 2026-09-11 along with
+  `@types/bcryptjs`; it hashed the OTP and went with `lib/otp.ts`. The only remaining
+  mentions are two comments in `lib/password.ts` contrasting argon2 with it.
 - **`src/constants/form.ts`** — `FORM_DEFAULT_VALIDATION_MESSAGES` is never wired to
   `ConfigProvider` or any `<Form validateMessages>`.
 - **`use…StoreBase` vs `use…Base`** suffix drift between list and single stores.
@@ -141,26 +172,19 @@ Pinned by a regression test in `tests/unit/helpers/schedule.spec.ts`.
 
 ## UI — remaining Phase 7
 
-1. **`src/app/organizations/[organizationId]/loading.tsx` is missing.** Every other
-   detail and list route has one.
+1. ~~**`organizations/[organizationId]/loading.tsx` is missing.**~~ Added 2026-09-11,
+   mirroring the detail page's own shape (Surface + PageHeader over the `<dl>`) so the
+   handoff costs no layout shift. Every detail and list route has one now.
 2. **`active:` feedback states** — only 6 usages. `-webkit-tap-highlight-color: transparent`
    is set globally, so without them taps feel unregistered on custom-styled tappables.
-3. **antd `style`/`styles` px leak sites** — the byte-identical
-   `Divider`/`Space` pairs in `ProviderProfileFormCategories.tsx:44` and
-   `ProviderProfileFormOrganization.tsx:44`, plus two CSS Modules.
-4. **FullCalendar is orphaned, and the decision it was waiting on has now been taken.**
-   The `public_provider_profile` rebuild replaced the month/week/day view with
-   `BookingMonth` + `BookingSlots`, leaving `@fullcalendar/react`, its `temporal-polyfill`
-   peer, `src/styles/full-calendar-override.css` (~100 lines, imported by nothing) and
-   `booking.ts#getVisibleTimeRange` / `#groupSlotsByPartOfDay` with no call site.
-
-   This entry used to say "do not rip them out yet", because the unbuilt
-   `provider_calendar_dashboard` was a week time-grid and that is the one shape a
-   hand-rolled grid is genuinely worse at. **That build happened on 2026-09-09 and went
-   the other way**: `/providers/profile/bookings` is a month grid over a list, sharing
-   `buildMonthCells` with the public calendar, and it needs none of the four. Nothing in
-   the tree is now waiting on FullCalendar, so removing all four is unblocked — it is
-   simply out of scope for the work that unblocked it.
+3. **antd `style`/`styles` px leak sites** — the `Divider`/`Space` pairs in the two
+   provider-profile selects were replaced with Tailwind utilities during the Formik
+   removal (2026-09-11). **Two CSS Modules still leak**, and are what is left of this item.
+4. ~~**FullCalendar is orphaned.**~~ Removed 2026-09-11, now that
+   `/providers/profile/bookings` has shipped as a month grid and nothing is waiting on it:
+   `@fullcalendar/react` and its `temporal-polyfill` peer are out of `package.json`,
+   `src/styles/full-calendar-override.css` is deleted, and `booking.ts#getVisibleTimeRange`
+   / `#groupSlotsByPartOfDay` are gone along with their tests.
 
 ---
 
@@ -278,10 +302,32 @@ Still open:
 - **No client-side session persistence.** The auth store has no `persist` middleware, so a
   refresh needs the `getMe` round trip. That is deliberate — `persist` has no precedent in
   this codebase — but it means a brief unauthenticated flash on protected client islands.
-- **`/auth/logout`'s "Delete Account Permanently" button still has no handler**, and there
-  is no delete-account endpoint. The store now has a `logout` action wired to
-  `POST /identity/logout`, but this page does not call it.
-- **No OTP rate limiting or attempt cap** on the server (`server/src/lib/otp.ts`).
+- **`/auth/logout`'s "Delete Account Permanently" button still has no handler.**
+  `DELETE /identity/account` now exists, so this is only a wiring job.
+
+### The web app's auth funnel does not match the API — nothing can sign in
+
+**This is the blocking one.** The server moved to email + password + Google
+(`20260910000000_email_password_identity`, deliberately destructive: it dropped phone
+identity and every existing account). The web app was never migrated with it, so the two
+halves no longer meet:
+
+| The web app still has | The API now has |
+|---|---|
+| `/auth/phone-number-input`, `/auth/code-input` (OTP) | `POST /identity/register` + `POST /identity/login` (email + password) |
+| `getCodeByPhoneNumber` → `/identity/send-otp` | route deleted; `lib/otp.ts` deleted with it |
+| `validatePhoneNumberCode` → `/identity/login` with `{ phone, otp }` | `/identity/login` takes `{ email, password }` |
+| `changePhoneSendOtp` / `changePhoneConfirm` | `PATCH /identity/phone` — no confirmation step; phone is profile data now |
+| no Google anything | `GET /identity/google` + callback + `/complete` |
+| no such routes | needs `/auth/sign-in`, `/auth/verify-email`, `/auth/reset-password`, `/auth/callback`, `/auth/complete-registration` — all five are already allow-listed in `lib/return-path.ts` and are where the API's emails and redirects point |
+
+`src/api/auth/*`, the auth store, every screen under `src/app/[lang]/auth/`, and the
+`Booking`-style copy in all 15 catalogues need rebuilding. Until then the funnel in
+`src/app/CLAUDE.md` describes screens that cannot authenticate against this API.
+
+Everything server-side is finished and verified: `pnpm typecheck`, `npx tsc -p server`,
+lint, 478 tests and `pnpm build` are all clean, and the API boots and serves
+`/identity/google` correctly with credentials absent.
 
 ---
 

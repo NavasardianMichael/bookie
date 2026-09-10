@@ -1,68 +1,98 @@
 # Development credentials
 
-Use these accounts for local testing against a seeded database (`pnpm db:setup` or `pnpm install` with Postgres running).
+Use these accounts for local testing against a seeded database (`pnpm db:setup`, or
+`pnpm install` with Postgres running).
 
-## OTP
+## Password
 
-All seeded users accept this one-time code in development:
+Every seeded account shares one password, hashed by `server/src/lib/password.ts` — the same
+argon2id path `POST /identity/register` uses, so a seeded account is indistinguishable from
+a registered one.
 
 | Field | Value |
 | --- | --- |
-| **OTP** | `123456` |
+| **Password** | `bookie-dev-1234` |
 
-- The API also logs a fresh OTP to the console when you call `POST /identity/send-otp`. In dev, `123456` always works for seeded phones even after a new OTP is sent.
-- Changing a provider email from Account → Profile sends a verification link. In development the API console prints the URL (`/providers/profile?verifyEmail=…`); there is no SMTP yet.
+Seeded accounts are created **already verified** (`emailVerifiedAt` is stamped).
+`middleware/auth.ts` refuses a session for an unverified account on every authenticated
+request, so without that stamp a seeded user could log in and then fail every call after it.
 
 ## Signing in through the UI
 
-Both seeded accounts sign in at **`/auth/phone-number-input`** — enter the phone, then the
-OTP. After a successful code, the provider lands on `/providers/profile` and the consumer on
-`/`. **Do not pick an account type first:** sign-in sends no `userType`, and the server reads
-the role off the profile that already exists. Choosing a type starts *registration*, which is
-a different, role-specific screen.
+Both accounts sign in at **`/auth/sign-in`** — email, then password. There is no account-type
+choice: the role is read off whichever profile the account already has, and a user holding
+both resolves to **provider**. Picking a type starts *registration*, which is a different
+screen.
 
-| Account | Phone | Role resolved as |
+| Account | Email | Role resolved as |
 | --- | --- | --- |
-| Provider | `+37499999999` | `provider` |
-| Consumer | `+37499000000` | `consumer` |
+| Provider | `anna.petrosyan@bookie.am` | `provider` |
+| Consumer | `alex.consumer@bookie.am` | `consumer` |
+
+Every other seeded provider follows the same `firstname.lastname@bookie.am` shape — for
+example `david.hakobyan@bookie.am`.
+
+## Emails in development
+
+There is no SMTP locally. `MAIL_API_KEY` ships empty in `server/.env.example`, so
+`lib/mail.ts` prints instead of sending and the flow still completes:
+
+- **Verification link** — printed to the API console. Registration does *not* sign you in;
+  an unverified account cannot hold a session, so the funnel continues from that link.
+- **Password reset**, **email-change** and the notice mails behave the same way.
+
+A seeded account never needs any of this — it is verified already.
+
+## Google sign-in
+
+Disabled unless `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `GOOGLE_REDIRECT_URI` are
+all set. `GET /health` reports `{ "google": false }` when it is off, which is what the web
+app checks before rendering the button; `GET /identity/google` redirects back with
+`?error=google_unavailable` rather than failing.
+
+Filling those in is optional for local work — email/password covers the whole funnel.
 
 ## Calling the API directly
 
-`phone` is an **object**, not a formatted string — earlier versions of this file showed
-`"phone": "+37499999999"`, which the route rejects.
-
 ```jsonc
-// Sign-in — no userType, no profile.
+// Sign-in.
 POST /identity/login
-{
-  "phone": { "code": 374, "number": 99999999 },
-  "otp": "123456"
-}
+{ "email": "anna.petrosyan@bookie.am", "password": "bookie-dev-1234" }
 ```
 
 ```jsonc
-// Registration — userType and profile are applied on create only.
-POST /identity/login
+// Registration. Does not sign you in — it mails a verification link.
+// `phone` is an object and is mandatory, but it is profile data now, not identity:
+// it is never verified and has no unique constraint.
+POST /identity/register
 {
-  "phone": { "code": 374, "number": 77000999 },
-  "otp": "123456",
-  "userType": "provider",
+  "role": "provider",
+  "email": "alex@company.com",
+  "password": "a-strong-password",
+  "phone": { "code": 374, "number": 77000201 },
   "profile": {
     "firstName": "Alex",
     "lastName": "Morgan",
-    "email": "alex@company.com",
+    "country": "AM",
     "organizationName": "Acme Services"
   }
 }
 ```
 
-Both return `{ "role": …, "profileId": …, "isNewUser": … }` and set the `bookie_session`
-cookie. See [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md) for the full contract.
+Login returns `{ role, profileId, userId, firstName, lastName, image? }` and sets the
+`bookie_session` cookie. See [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md) for the full
+route list.
 
 ## Notes
 
-- `userType` is only needed when **creating** an account. Sending it for an existing user of
-  the other role would create a second profile for that same phone number.
-- A phone number with no account and no `userType` returns `404` rather than inventing a profile.
-- These credentials are for **local development only**. Do not use `123456` or weak JWT secrets in production.
-- If login fails, ensure Postgres is seeded: `pnpm db:up` then `pnpm db:setup`.
+- **Email is the identity**, stored `citext` so the unique index is case-insensitive in the
+  database rather than only in whichever route remembered to lowercase.
+- **Phone moved onto the profiles** (`Provider.phoneCode`/`phoneNumber`, and the same on
+  `Consumer`). It is mandatory at registration, never verified, and deliberately **not**
+  unique — a clinic line shared by four providers is ordinary.
+- The seed is re-runnable (`pnpm install` re-seeds), and re-hashes the password on every
+  run, so changing `DEV_PASSWORD` in `server/prisma/seed.ts` takes effect on an existing
+  database.
+- These credentials are **local development only**. Never ship `bookie-dev-1234` or a weak
+  `JWT_SECRET`.
+- If login fails, check Postgres is up and seeded: `pnpm db:up` then `pnpm db:setup`.

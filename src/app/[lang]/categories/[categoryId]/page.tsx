@@ -1,6 +1,7 @@
 import { OrganizationCard } from '@app/[lang]/organizations/components/OrganizationCard'
 import { ProviderCard } from '@app/[lang]/providers/ProviderCard'
 import { getCategoryLDSchema } from '@linkedDataSchema/categories'
+import { getTranslations } from 'next-intl/server'
 import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -21,11 +22,9 @@ type Props = {
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const { categoryId } = await params
-  const category = await getCategoryAPI({
-    id: categoryId,
-  })
+  const [category, t] = await Promise.all([getCategoryAPI({ id: categoryId }), getTranslations('Categories')])
 
-  const description = `Browse ${category.name} providers and organizations taking bookings on Bookie.`
+  const description = t('detailMetaDescription', { name: category.name })
 
   return {
     title: category.name,
@@ -45,9 +44,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
 export default async function Category({ params }: Props) {
   const { categoryId } = await params
 
-  const category = await getCategoryAPI({
-    id: categoryId,
-  })
+  const [category, t] = await Promise.all([getCategoryAPI({ id: categoryId }), getTranslations('Categories')])
 
   const isEmpty = !category.organizations.length && !category.providers.length
 
@@ -58,16 +55,13 @@ export default async function Category({ params }: Props) {
       <PageHeader title={category.name} />
 
       {isEmpty && (
-        <EmptyState
-          title='Nothing here yet'
-          description={`No providers or organizations are listed under ${category.name} so far.`}
-        />
+        <EmptyState title={t('emptyDetailTitle')} description={t('emptyDetailBody', { name: category.name })} />
       )}
 
       {/* The same cards render through the same grid as the list pages — they used
           to stack full-width here and sit at 1/8 width on /providers. */}
       {!!category.organizations.length && (
-        <Section title='Organizations' count={category.organizations.length}>
+        <Section title={t('organizations')} count={category.organizations.length}>
           <ResponsiveGrid as='ul'>
             {category.organizations.map((organization) => (
               <li key={organization.id}>
@@ -79,7 +73,7 @@ export default async function Category({ params }: Props) {
       )}
 
       {!!category.providers.length && (
-        <Section title='Providers' count={category.providers.length}>
+        <Section title={t('providers')} count={category.providers.length}>
           <ResponsiveGrid as='ul'>
             {category.providers.map((provider) => (
               <li key={provider.id}>

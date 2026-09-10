@@ -11,9 +11,14 @@ export const processError = (e: unknown): AppError => {
       message: error.response.data.error.message,
     }
   }
-  // Otherwise setting custom error with actual message
+  // Otherwise setting custom error with actual message.
+  //
+  // `error?.message` rather than `error.message`: this is the app's last line of error
+  // handling, reached from every `catch`, and `processError(null)` used to throw a
+  // `TypeError` of its own — replacing the real failure with a crash inside the handler
+  // meant to report it. A thrown non-Error (`throw 'nope'`) lands here the same way.
   return {
     code: -1,
-    message: error.message ?? 'An unknown error occurred',
+    message: error?.message ?? 'An unknown error occurred',
   }
 }

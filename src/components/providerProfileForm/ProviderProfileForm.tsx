@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { Col, Form, Row } from 'antd'
-import { useFormik } from 'formik'
+import { useTranslations } from 'next-intl'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
@@ -9,6 +10,7 @@ import { useRouter } from '@i18n/navigation'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
+import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppFormSection } from '@components/ui/AppFormSection'
@@ -26,10 +28,24 @@ type Props = {
   initialValues?: ProviderProfileFormValues
 }
 
+/**
+ * Ant Design `Form` owns every value here.
+ *
+ * This form used to carry a Formik binding alongside antd, and the two disagreed by
+ * construction: antd's store value wins the render, while `onFinish={formik.handleSubmit}`
+ * ignored the values antd handed it. Two consequences were live — `categoryIds` carried
+ * `required` + `min: 1` rules on a slot nothing ever wrote, so the form **could not be
+ * submitted at all**, and the organization field wrote a key the payload builder never
+ * read. Both are gone by construction now: one store, and every custom field implements
+ * the `value`/`onChange` control contract. Do not reintroduce Formik.
+ */
 export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
+  const t = useTranslations('ProfileCreation')
   const { push } = useRouter()
   const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<ProviderProfileFormValues>()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const emailMaxCharsCountRuleSet = useFormItemRules('email', 'maxCharsForInput')
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
@@ -37,79 +53,69 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
   const oneItemSelectedAtLeastRuleSet = useFormItemRules('required', 'oneItemSelectedAtLeast')
 
-  const formik = useFormik<typeof initialValues>({
-    initialValues,
-    validateOnChange: false,
-    onSubmit: async (values) => {
-      const payload = processProviderProfileFormToPostPayload(values)
-      await putProviderProfileData(payload)
+  /** `values` comes from antd, which is now the only place they live. */
+  const handleFinish = async (values: ProviderProfileFormValues) => {
+    setIsSubmitting(true)
+    setError(null)
+    try {
+      await putProviderProfileData(processProviderProfileFormToPostPayload(values))
       push(ROUTES.providerServices)
-    },
-  })
+    } catch (err) {
+      setError(processError(err).message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <Form
       form={form}
-      requiredMark={true}
+      initialValues={initialValues}
+      requiredMark
       className='relative flex w-full flex-col gap-6 pb-24 md:pb-0'
       layout='vertical'
-      validateTrigger='onSubmit'
-      onFinish={formik.handleSubmit}
+      onFinish={handleFinish}
       scrollToFirstError
     >
-      <AppFormSection title='About you'>
+      <AppFormSection title={t('aboutYou')}>
         <Row gutter={[16, 0]}>
           <Col xs={24} md={12}>
-            <AppFormItem name='firstName' label='First Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
-              <AppInput
-                name='firstName'
-                value={formik.values.firstName}
-                onChange={formik.handleChange}
-                disabled={formik.isSubmitting}
-                autoComplete='given-name'
-                enterKeyHint='next'
-              />
+            <AppFormItem name='firstName' label={t('firstName')} rules={inputTextRequiredMaxCharsCountRuleSet}>
+              <AppInput disabled={isSubmitting} autoComplete='given-name' enterKeyHint='next' />
             </AppFormItem>
           </Col>
           <Col xs={24} md={12}>
-            <AppFormItem name='lastName' label='Last Name' rules={inputTextRequiredMaxCharsCountRuleSet}>
-              <AppInput
-                name='lastName'
-                value={formik.values.lastName}
-                onChange={formik.handleChange}
-                disabled={formik.isSubmitting}
-                autoComplete='family-name'
-                enterKeyHint='next'
-              />
+            <AppFormItem name='lastName' label={t('lastName')} rules={inputTextRequiredMaxCharsCountRuleSet}>
+              <AppInput disabled={isSubmitting} autoComplete='family-name' enterKeyHint='next' />
             </AppFormItem>
           </Col>
         </Row>
       </AppFormSection>
 
-      <AppFormSection title='What you do'>
-        <AppFormItem name='categoryIds' label='Categories' rules={oneItemSelectedAtLeastRuleSet}>
-          <ProviderProfileFormCategories form={form} formik={formik} />
+      <AppFormSection title={t('whatYouDo')}>
+        <AppFormItem name='categoryIds' label={t('categories')} rules={oneItemSelectedAtLeastRuleSet}>
+          <ProviderProfileFormCategories disabled={isSubmitting} />
         </AppFormItem>
       </AppFormSection>
 
-      <AppFormSection title='Where'>
-        <ProviderProfileLocationInput formik={formik} disabled={formik.isSubmitting} />
+      <AppFormSection title={t('where')}>
+        {/* Deliberately not wrapped in a named `Form.Item` — it renders its own. */}
+        <ProviderProfileLocationInput disabled={isSubmitting} />
       </AppFormSection>
 
-      <AppFormSection title='When you work'>
-        <ProviderProfileWeekSchedule formik={formik} />
+      <AppFormSection title={t('whenYouWork')}>
+        <AppFormItem name='weekSchedule'>
+          <ProviderProfileWeekSchedule />
+        </AppFormItem>
       </AppFormSection>
 
-      <AppFormSection title='Optional'>
+      <AppFormSection title={t('optional')}>
         <Row gutter={[16, 0]}>
           <Col xs={24} md={12}>
-            <AppFormItem name='email' label='Email' rules={emailMaxCharsCountRuleSet}>
+            <AppFormItem name='email' label={t('email')} rules={emailMaxCharsCountRuleSet}>
               <AppInput
-                name='email'
                 type='email'
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                disabled={formik.isSubmitting}
+                disabled={isSubmitting}
                 autoComplete='email'
                 inputMode='email'
                 enterKeyHint='next'
@@ -117,35 +123,36 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
             </AppFormItem>
           </Col>
           <Col xs={24} md={12}>
-            <AppFormItem name='organization' label='Organization' rules={inputTextMaxCharsCountRuleSet}>
-              <ProviderProfileOrganization formik={formik} />
+            {/* `organizationId`, not `organization` — the name has to match the values key
+                the payload builder reads, or the selection is silently never submitted. */}
+            <AppFormItem name='organizationId' label={t('organization')} rules={inputTextMaxCharsCountRuleSet}>
+              <ProviderProfileOrganization disabled={isSubmitting} />
             </AppFormItem>
           </Col>
         </Row>
 
-        <AppFormItem name='description' label='Notes' rules={textareaMaxCharsCountRuleSet}>
-          <AppTextArea
-            name='description'
-            value={formik.values.description}
-            onChange={formik.handleChange}
-            disabled={formik.isSubmitting}
-            autoSize={{ minRows: 3, maxRows: 5 }}
-            maxLength={MAX_CHARS_FOR_TEXTAREA}
-          />
+        <AppFormItem name='description' label={t('notes')} rules={textareaMaxCharsCountRuleSet}>
+          <AppTextArea disabled={isSubmitting} autoSize={{ minRows: 3, maxRows: 5 }} maxLength={MAX_CHARS_FOR_TEXTAREA} />
         </AppFormItem>
 
-        <AppFormItem name='image' label='Image'>
-          <ProviderProfileImage formik={formik} />
+        <AppFormItem name='image' label={t('image')}>
+          <ProviderProfileImage disabled={isSubmitting} />
         </AppFormItem>
 
-        <AppFormItem name='gallery' label='Gallery'>
-          <ProviderProfileFormGallery formik={formik} />
+        <AppFormItem name='gallery' label={t('gallery')}>
+          <ProviderProfileFormGallery disabled={isSubmitting} />
         </AppFormItem>
       </AppFormSection>
 
+      {error && (
+        <div role='alert' className='text-body-sm text-red-600'>
+          {error}
+        </div>
+      )}
+
       <div className='app-safe-b border-brand-border bg-surface sticky bottom-0 z-10 -mx-4 border-t px-4 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0'>
-        <AppButton type='primary' variant='solid' htmlType='submit' className='w-full' loading={formik.isSubmitting}>
-          Proceed to Services
+        <AppButton type='primary' variant='solid' htmlType='submit' className='w-full' loading={isSubmitting}>
+          {t('proceed')}
         </AppButton>
       </div>
     </Form>

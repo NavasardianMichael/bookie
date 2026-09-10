@@ -10,16 +10,34 @@ export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/**
+ * `allIds` order, resolved through `byId`.
+ *
+ * Entries with no `byId` match are **dropped**, not yielded as `undefined`. The signature
+ * says `T[]`, and it used to lie: an id left in `allIds` after its entry was deleted
+ * produced a hole that every caller had to guard. `getProviderLDSchema` remembered to;
+ * `useCategoriesList` did not, so a stale id rendered a blank card.
+ */
 export const normalizedToFlat = <T extends { id: string }>(data: Normalized<T>): T[] => {
-  return data.allIds.map((itemId) => data.byId[itemId])
+  return data.allIds.reduce<T[]>((acc, itemId) => {
+    const item = data.byId[itemId]
+    if (item) acc.push(item)
+    return acc
+  }, [])
 }
 
+/**
+ * A duplicate id writes `byId` once and appends to `allIds` **once**, so the round trip
+ * stays lossless. It used to append twice while `byId` kept only the last write, which
+ * rendered the same entity twice — and React then saw two children with one key.
+ */
 export const flatToNormalized = <T extends { id: string }>(data: T[]): Normalized<T> => {
   return data.reduce(
     (acc, item) => {
       if (!item.id) return acc
+      const isNew = !(item.id in acc.byId)
       acc.byId[item.id as T['id']] = item
-      acc.allIds.push(item.id)
+      if (isNew) acc.allIds.push(item.id)
       return acc
     },
     {

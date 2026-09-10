@@ -25,7 +25,8 @@ pnpm db:setup       # migrate + seed
 ```
 
 **There is no CI.** `typecheck → lint → test → build` is the only guard; run it before
-declaring anything done. Dev OTP is `123456`; seeded accounts are in `docs/DEV_CREDS.md`.
+declaring anything done. Every seeded account uses the password `bookie-dev-1234`; the
+emails are in `docs/DEV_CREDS.md`.
 
 ## Path alias
 
@@ -47,6 +48,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
+| PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |
 | Locales, translations, `Accept-Language` | `src/i18n/` — see `src/i18n/CLAUDE.md`; catalogues in `src/messages/` |
 | API, DB schema, routes | `server/` — see `server/CLAUDE.md` and `docs/DATABASE_STRUCTURE.md` |
@@ -70,7 +72,8 @@ convention, check the table first.
 - **`new-domain`** — scaffold an API module + store slice. Use it instead of hand-copying
   from `src/api/providers/`.
 - **`design-system`** — building pages and UI: component inventory, token flow, grep gates.
-- **`forms`** — the Ant Design `Form` pattern. Formik is being removed; do not add more.
+- **`forms`** — the Ant Design `Form` pattern, and the control contract a custom field
+  must implement. Formik is **gone**; do not reintroduce it.
 - **`mail`** — sending email through the external mail engine: the internal-vs-external
   endpoint split, the request contract, and where the API key may live. Use it before
   writing any send.
@@ -126,7 +129,7 @@ bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
 - Introducing a new pattern without precedent
 - Duplicating existing functionality
 - Reading or printing `.env*` files (except `*.env.example`)
-- Adding new Formik usage
+- Reintroducing Formik (removed 2026-09-11)
 
 ## Keeping the docs current
 
@@ -167,7 +170,8 @@ is mechanically checkable.
 - **antd v6 marks ~292 modules `"use client"`.** That is why `src/components/ui/bare/`
   exists and why `ui/index.ts` re-exports only antd-free primitives.
 - **A hex or magic px belongs in `src/styles/tokens.ts` and nowhere else.**
-- **Ant Design `Form` owns form state and validation.** Formik is legacy.
+- **Ant Design `Form` owns form state and validation.** Formik was removed on
+  2026-09-11 and is no longer a dependency.
 - Time is wall-clock `'HH:mm'` strings for schedules, local-anchored `Date` for slots.
   `dayjs` is the only time library — `temporal-polyfill` is a FullCalendar peer dep with
   zero usages in `src/`.

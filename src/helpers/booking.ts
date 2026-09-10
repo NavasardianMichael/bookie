@@ -23,34 +23,6 @@ export const isOpenOnDate = (weekSchedule: WeekSchedule | undefined, date: Date 
   return hasAvailability(weekSchedule[getWeekDay(dayjs(date))])
 }
 
-/**
- * The visible time window for the calendar, derived from the provider's own
- * schedule and padded by an hour on each side.
- *
- * The calendar previously ran 00:00–24:00 at a 30-minute step: 48 rows, of which
- * roughly two thirds were guaranteed empty.
- */
-export const getVisibleTimeRange = (weekSchedule?: WeekSchedule): { min: string; max: string } => {
-  const FALLBACK = { min: '09:00:00', max: '18:00:00' }
-  if (!weekSchedule) return FALLBACK
-
-  const days = Object.values(weekSchedule).filter(hasAvailability)
-  if (!days.length) return FALLBACK
-
-  const starts = days.map((day) => toMinutes(day.availability.start)).filter((v): v is number => v !== undefined)
-  const ends = days.map((day) => toMinutes(day.availability.end)).filter((v): v is number => v !== undefined)
-  if (!starts.length || !ends.length) return FALLBACK
-
-  const pad = 60
-  const minMinutes = Math.max(0, Math.min(...starts) - pad)
-  const maxMinutes = Math.min(24 * 60, Math.max(...ends) + pad)
-
-  const format = (minutes: number) =>
-    `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}:00`
-
-  return maxMinutes > minMinutes ? { min: format(minMinutes), max: format(maxMinutes) } : FALLBACK
-}
-
 export type BookingSlot = { start: Date; end: Date }
 
 /**
@@ -121,33 +93,6 @@ export const getSlotsForDateRange = ({
 
   return slots
 }
-
-export type SlotGroup = { key: string; label: string; slots: BookingSlot[] }
-
-/** Upper bound (exclusive) of each part of the day, in hours. */
-const SLOT_GROUPS = [
-  { key: 'morning', label: 'Morning', untilHour: 12 },
-  { key: 'afternoon', label: 'Afternoon', untilHour: 17 },
-  { key: 'evening', label: 'Evening', untilHour: 24 },
-] as const
-
-/**
- * One day's slots split into parts of the day, empty sections dropped.
- *
- * A day of 30-minute slots is 20+ chips; sections give the eye somewhere to land.
- */
-export const groupSlotsByPartOfDay = (slots: BookingSlot[]): SlotGroup[] =>
-  SLOT_GROUPS.map(({ key, label, untilHour }, index) => {
-    const fromHour = index ? SLOT_GROUPS[index - 1].untilHour : 0
-    return {
-      key,
-      label,
-      slots: slots.filter((slot) => {
-        const hour = dayjs(slot.start).hour()
-        return hour >= fromHour && hour < untilHour
-      }),
-    }
-  }).filter((group) => !!group.slots.length)
 
 /** Slot counts keyed by day, for the month-view badges and the day-cell affordance. */
 export const countSlotsByDay = (slots: BookingSlot[]): Map<string, number> => {

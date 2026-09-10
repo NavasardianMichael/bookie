@@ -10,6 +10,7 @@ import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { Header } from './header/Header'
 import { Footer } from './layout/Footer'
 import { SkipLink } from './layout/SkipLink'
+import { ServiceWorkerRegistrar } from './pwa/ServiceWorkerRegistrar'
 
 /**
  * A single document-level scroller.
@@ -42,6 +43,7 @@ export const App: FC<AppProps> = ({ antdLocale, children, direction, locale }) =
           with layout — while still enabling App.useApp() for message/modal. */}
       <AntApp component={false}>
         <SkipLink />
+        <ServiceWorkerRegistrar />
         <div className='flex min-h-dvh flex-col'>
           <Header />
           <main id='main' className='flex-1 app-safe-b'>

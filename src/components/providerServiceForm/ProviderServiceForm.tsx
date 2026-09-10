@@ -3,6 +3,7 @@
 import React from 'react'
 import { Col, Flex, Form, InputNumber, Row } from 'antd'
 import type { Rule } from 'antd/es/form'
+import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { CategoryValue, ProviderServiceFormValues } from '@interfaces/services'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
@@ -28,6 +29,9 @@ type Props = {
  * second binding would win the render and lose the submit.
  */
 export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitting, onSubmit, closeModal }) => {
+  const t = useTranslations('Services')
+  const tCommon = useTranslations('Common')
+  const tActions = useTranslations('Settings.actions')
   const [form] = Form.useForm<ProviderServiceFormValues>()
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
@@ -56,24 +60,24 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
       scrollToFirstError
       disabled={isSubmitting}
     >
-      <AppFormItem name='name' label='Title' rules={inputTextRequiredMaxCharsCountRuleSet}>
+      <AppFormItem name='name' label={t('formTitle')} rules={inputTextRequiredMaxCharsCountRuleSet}>
         <AppInput autoComplete='off' enterKeyHint='next' />
       </AppFormItem>
 
-      <AppFormItem name='description' label='Description' rules={textareaMaxCharsCountRuleSet}>
+      <AppFormItem name='description' label={t('formDescription')} rules={textareaMaxCharsCountRuleSet}>
         <AppTextArea autoSize={{ minRows: 3, maxRows: 5 }} maxLength={MAX_CHARS_FOR_TEXTAREA} />
       </AppFormItem>
 
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12}>
-          <AppFormItem name='duration' label='Duration' rules={requiredRuleSet}>
+          <AppFormItem name='duration' label={t('formDuration')} rules={requiredRuleSet}>
             <ProviderServiceFormDuration />
           </AppFormItem>
         </Col>
         <Col xs={24} sm={12}>
           {/* Combobox: pick a predefined Category or type a new name. `Service.categoryId`
               is still a required FK — the server matches or creates the row. */}
-          <AppFormItem name='category' label='Category' rules={categoryRules} required>
+          <AppFormItem name='category' label={t('formCategory')} rules={categoryRules} required>
             <ProviderServiceFormCategory />
           </AppFormItem>
         </Col>
@@ -81,29 +85,29 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
 
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12}>
-          <AppFormItem name='price' label='Price' rules={inputNumberPositiveRuleSet}>
+          <AppFormItem name='price' label={t('formPrice')} rules={inputNumberPositiveRuleSet}>
             {/* antd sizes this from `controlWidth` (90px). That rule is unlayered, so
                 Tailwind `w-full` cannot override it — `styles.root` can. */}
             <InputNumber min={0} inputMode='decimal' styles={{ root: { width: '100%' } }} />
           </AppFormItem>
         </Col>
         <Col xs={24} sm={12}>
-          <AppFormItem name='currency' label='Currency' rules={currencyMaxCharsRuleSet}>
+          <AppFormItem name='currency' label={t('formCurrency')} rules={currencyMaxCharsRuleSet}>
             <ProviderServiceFormCurrency />
           </AppFormItem>
         </Col>
       </Row>
 
-      <AppFormItem name='image' label='Image'>
+      <AppFormItem name='image' label={t('formImage')}>
         <ProviderServiceFormImage />
       </AppFormItem>
 
       <Flex justify='end' gap={8} className='mt-4'>
         <AppButton type='default' className='grow' onClick={closeModal}>
-          Close
+          {tCommon('close')}
         </AppButton>
         <AppButton type='primary' htmlType='submit' className='grow' loading={isSubmitting}>
-          Save
+          {tActions('save')}
         </AppButton>
       </Flex>
     </Form>

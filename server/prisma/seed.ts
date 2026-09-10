@@ -1,5 +1,5 @@
 import { Plan, PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { hashPassword } from '../src/lib/password.js'
 
 // Run directly via tsx, so it does not go through src/config.ts and has to load
 // the env file itself — otherwise DATABASE_URL is undefined.
@@ -7,9 +7,20 @@ import 'dotenv/config'
 
 const prisma = new PrismaClient()
 
-const DEV_OTP = '123456'
+/**
+ * One password for every seeded account. Identity is now an email and an argon2 hash, so
+ * the seed hashes exactly like `POST /identity/register` does — via `lib/password.ts`,
+ * never a second hasher, or a seeded account would be one `verifyPassword` could not
+ * recognise. Documented in `docs/DEV_CREDS.md`.
+ */
+const DEV_PASSWORD = 'bookie-dev-1234'
 const SEED_APPOINTMENT_NOTE = 'Seed appointment'
 const PHONE_CODE = 374
+
+/**
+ * Phone is no longer identity — it is an unverified contact field on each profile, with no
+ * unique constraint. These are just plausible distinct numbers; nothing keys off them.
+ */
 const LOGIN_PROVIDER_PHONE = BigInt(99999999)
 const LOGIN_CONSUMER_PHONE = BigInt(99000000)
 const OTHER_PROVIDER_PHONE_START = BigInt(77000101)
@@ -24,49 +35,29 @@ const defaultWeekSchedule = () => ({
   sunday: { availability: { start: '', end: '' }, breaks: [] },
 })
 
-async function upsertUser(phoneCode: number, phoneNumber: bigint) {
-  const otpHash = await bcrypt.hash(DEV_OTP, 10)
+/**
+ * A seeded account, ready to sign in with.
+ *
+ * `emailVerifiedAt` is stamped because `middleware/auth.ts` refuses a session for an
+ * unverified account on **every** authenticated request — an unstamped seed would create
+ * accounts that exist, accept the right password, and then fail every call after login.
+ *
+ * `upsert` on `email`, which is the unique key now, so the seed stays re-runnable (it runs
+ * on every `pnpm install`). The password is re-hashed on update so changing `DEV_PASSWORD`
+ * takes effect on an existing database.
+ */
+async function upsertUser(email: string) {
+  const passwordHash = await hashPassword(DEV_PASSWORD)
   return prisma.user.upsert({
-    where: {
-      phoneCode_phoneNumber: { phoneCode, phoneNumber },
-    },
-    create: { phoneCode, phoneNumber, otpHash },
-    update: { otpHash },
+    where: { email },
+    create: { email, passwordHash, authProvider: 'local', emailVerifiedAt: new Date() },
+    update: { passwordHash, emailVerifiedAt: new Date() },
   })
 }
 
-/** Move an existing seeded profile onto a new phone so a re-run does not create a second User. */
-async function retargetSeededPhone(args: {
-  firstName: string
-  lastName: string
-  role: 'provider' | 'consumer'
-  phoneNumber: bigint
-}) {
-  const profile =
-    args.role === 'provider'
-      ? await prisma.provider.findFirst({
-          where: { firstName: args.firstName, lastName: args.lastName },
-        })
-      : await prisma.consumer.findFirst({
-          where: { firstName: args.firstName, lastName: args.lastName },
-        })
-  if (!profile) return
-
-  const user = await prisma.user.findUnique({ where: { id: profile.userId } })
-  if (!user || user.phoneNumber === args.phoneNumber) return
-
-  const taken = await prisma.user.findUnique({
-    where: {
-      phoneCode_phoneNumber: { phoneCode: PHONE_CODE, phoneNumber: args.phoneNumber },
-    },
-  })
-  if (taken && taken.id !== user.id) return
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { phoneNumber: args.phoneNumber },
-  })
-}
+/** `anna.petrosyan@bookie.am` — the identity address, distinct from a profile's public one. */
+const seedEmail = (firstName: string, lastName: string): string =>
+  `${firstName.toLowerCase()}.${lastName.toLowerCase()}@bookie.am`
 
 async function main() {
   console.log('Seeding database...')
@@ -225,25 +216,12 @@ async function main() {
     { firstName: 'Levon', lastName: 'Babayan', org: 7, cats: [1], plan: Plan.standard },
   ]
 
-  await retargetSeededPhone({
-    firstName: 'Anna',
-    lastName: 'Petrosyan',
-    role: 'provider',
-    phoneNumber: LOGIN_PROVIDER_PHONE,
-  })
-  await retargetSeededPhone({
-    firstName: 'Alex',
-    lastName: 'Consumer',
-    role: 'consumer',
-    phoneNumber: LOGIN_CONSUMER_PHONE,
-  })
-
   const providers = []
   let phoneSuffix = OTHER_PROVIDER_PHONE_START
 
   for (const [index, def] of providerDefs.entries()) {
     const phoneNumber = index === 0 ? LOGIN_PROVIDER_PHONE : phoneSuffix++
-    const user = await upsertUser(PHONE_CODE, phoneNumber)
+    const user = await upsertUser(seedEmail(def.firstName, def.lastName))
     const provider = await prisma.provider.upsert({
       where: { userId: user.id },
       // A no-op update, like the categories and organizations above: re-running the seed
@@ -255,7 +233,12 @@ async function main() {
         lastName: def.lastName,
         description: `${def.firstName} ${def.lastName} — experienced specialist.`,
         imageUrl: '/logo.svg',
-        email: `${def.firstName.toLowerCase()}.${def.lastName.toLowerCase()}@bookie.am`,
+        phoneCode: PHONE_CODE,
+        phoneNumber,
+        // The *published* contact address, deliberately the same string as the identity
+        // email here but a different column — one is shown on the public profile, the
+        // other is what the account authenticates against.
+        publicEmail: seedEmail(def.firstName, def.lastName),
         country: 'AM',
         address: organizations[def.org]!.address,
         locationUrl: `https://maps.google.com/?q=${encodeURIComponent(organizations[def.org]!.address)}`,
@@ -292,16 +275,21 @@ async function main() {
     providers.push(provider)
   }
 
+  /**
+   * No email field: a consumer has no *published* address. `Provider.publicEmail` exists
+   * because a provider's page shows one; a consumer's only address is the identity
+   * `User.email`, which `seedEmail` derives from the name below.
+   */
   const consumerDefs = [
-    { firstName: 'Alex', lastName: 'Consumer', email: 'alex@example.com', phone: LOGIN_CONSUMER_PHONE },
-    { firstName: 'Maria', lastName: 'Patient', email: 'maria@example.com', phone: BigInt(77000202) },
-    { firstName: 'Sam', lastName: 'Bookings', email: null, phone: BigInt(77000203) },
-    { firstName: 'Elena', lastName: 'Client', email: 'elena@example.com', phone: BigInt(77000204) },
+    { firstName: 'Alex', lastName: 'Consumer', phone: LOGIN_CONSUMER_PHONE },
+    { firstName: 'Maria', lastName: 'Patient', phone: BigInt(77000202) },
+    { firstName: 'Sam', lastName: 'Bookings', phone: BigInt(77000203) },
+    { firstName: 'Elena', lastName: 'Client', phone: BigInt(77000204) },
   ]
 
   const consumers = []
   for (const def of consumerDefs) {
-    const user = await upsertUser(PHONE_CODE, def.phone)
+    const user = await upsertUser(seedEmail(def.firstName, def.lastName))
     const consumer = await prisma.consumer.upsert({
       where: { userId: user.id },
       update: {},
@@ -309,7 +297,9 @@ async function main() {
         userId: user.id,
         firstName: def.firstName,
         lastName: def.lastName,
-        email: def.email,
+        phoneCode: PHONE_CODE,
+        phoneNumber: def.phone,
+        country: 'AM',
         favorites: {
           create: [{ providerId: providers[0]!.id }],
         },
@@ -379,9 +369,9 @@ async function main() {
   }
 
   console.log('Seed complete.')
-  console.log(`Dev OTP for all seeded phones: ${DEV_OTP}`)
-  console.log('Example provider login: phone +37499999999, userType provider')
-  console.log('Example consumer login: phone +37499000000, userType consumer')
+  console.log(`Password for every seeded account: ${DEV_PASSWORD}`)
+  console.log('Example provider login: anna.petrosyan@bookie.am')
+  console.log('Example consumer login: alex.consumer@bookie.am')
 }
 
 main()

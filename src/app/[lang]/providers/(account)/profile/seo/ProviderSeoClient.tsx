@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, App, Form, Select } from 'antd'
+import { FC, useCallback, useEffect, useState } from 'react'
+import type { InputProps } from 'antd'
+import { Alert, App, Form, Select, Space } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, patchProviderSeoAPI } from '@api/providers/main'
 import { ProviderSeo } from '@store/providers/profile/types'
@@ -55,6 +56,23 @@ type FormValues = {
 }
 
 const EMPTY: FormValues = { seoTitle: '', seoDescription: '', seoKeywords: [], slug: '' }
+
+/**
+ * Vanity-slug field. antd 6 replaced `addonBefore` with `Space.Compact`, and Compact
+ * cannot sit as the direct child of a named `Form.Item` — antd would land `value` /
+ * `onChange` on the wrapper. This implements the control contract and forwards those
+ * props to the real input.
+ */
+type SlugInputProps = Omit<InputProps, 'addonBefore' | 'addonAfter'> & {
+  urlPrefix: string
+}
+
+const SlugInput: FC<SlugInputProps> = ({ urlPrefix, ...props }) => (
+  <Space.Compact className='w-full'>
+    <AppInput disabled value={urlPrefix} styles={{ root: { width: 'auto', flex: 'none' } }} />
+    <AppInput {...props} />
+  </Space.Compact>
+)
 
 const toFormValues = (seo: ProviderSeo | undefined): FormValues => ({
   seoTitle: seo?.title ?? '',
@@ -292,10 +310,10 @@ export const ProviderSeoClient = () => {
               },
             ]}
           >
-            <AppInput
+            <SlugInput
+              urlPrefix={`${getSiteUrl()}${localePath(activeLocale, ROUTES.providerVanity)}/`}
               placeholder={t('slugPlaceholder')}
               maxLength={MAX_SLUG}
-              addonBefore={`${getSiteUrl()}${localePath(activeLocale, ROUTES.providerVanity)}/`}
             />
           </AppFormItem>
 

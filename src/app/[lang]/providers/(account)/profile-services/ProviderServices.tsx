@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { Alert, Tabs } from 'antd'
+import { useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
@@ -36,6 +37,7 @@ const isPriced = (price: number | undefined): boolean => typeof price === 'numbe
 const CLOSED_STATUSES = ['cancelled', 'completed', 'no_show']
 
 export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
+  const t = useTranslations('Services')
   const {
     id: providerId,
     services,
@@ -190,7 +192,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
 
   const addServiceButton = (
     <AppButton type='primary' icon={<PlusOutlined />} onClick={onAddServiceClick}>
-      Add new service
+      {t('addNew')}
     </AppButton>
   )
 
@@ -198,17 +200,17 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     const priced = serviceList.filter((service) => isPriced(service.price)).length
 
     return [
-      { key: FILTERS.all, label: `All services (${serviceList.length})` },
-      { key: FILTERS.active, label: `Active (${priced})` },
-      { key: FILTERS.incomplete, label: `Incomplete (${serviceList.length - priced})` },
+      { key: FILTERS.all, label: t('tabAll', { count: serviceList.length }) },
+      { key: FILTERS.active, label: t('tabActive', { count: priced }) },
+      { key: FILTERS.incomplete, label: t('tabIncomplete', { count: serviceList.length - priced }) },
     ]
-  }, [serviceList])
+  }, [serviceList, t])
 
   return (
     <div className='flex w-full flex-col gap-8'>
       <PageHeader
-        title='Manage services'
-        subtitle='Configure your offerings, durations, and pricing.'
+        title={t('title')}
+        subtitle={t('subtitle')}
         actions={addServiceButton}
       />
 
@@ -218,20 +220,20 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         <StatTile
           layout='row'
           icon={<ListIcon className='h-5 w-5' />}
-          label='Total services'
+          label={t('statTotal')}
           value={isLoading ? '—' : serviceList.length}
         />
         <StatTile
           layout='row'
           icon={<CalendarIcon className='h-5 w-5' />}
-          label='Upcoming bookings'
+          label={t('statUpcoming')}
           value={upcomingCount ?? '—'}
         />
         <StatTile
           layout='row'
           icon={<ClockIcon className='h-5 w-5' />}
-          label='Average duration'
-          value={averageDuration ? `${averageDuration} min` : '—'}
+          label={t('statDuration')}
+          value={averageDuration ? t('durationValue', { minutes: averageDuration }) : '—'}
         />
       </ResponsiveGrid>
 
@@ -270,7 +272,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                     <PlusOutlined />
                   </span>
                   <AppText size='body-sm' className='font-bold'>
-                    Add another service
+                    {t('addAnother')}
                   </AppText>
                 </button>
               </li>
@@ -278,25 +280,21 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           ) : (
             <EmptyState
               className='w-full'
-              title={filter === FILTERS.active ? 'No priced services' : 'Nothing incomplete'}
-              description={
-                filter === FILTERS.active
-                  ? 'Add a price to a service and it shows up here as bookable.'
-                  : 'Every service has a price set.'
-              }
+              title={filter === FILTERS.active ? t('emptyPricedTitle') : t('emptyIncompleteTitle')}
+              description={filter === FILTERS.active ? t('emptyPricedBody') : t('emptyIncompleteBody')}
             />
           )}
         </div>
       ) : (
         <EmptyState
           className='w-full'
-          title='No services yet'
-          description='Add the services clients can book with you.'
+          title={t('emptyTitle')}
+          description={t('emptyBody')}
           action={addServiceButton}
         />
       )}
 
-      <AppSheet title='Service Configuration' open={editServiceModalOpened} onClose={closeEditServiceModal}>
+      <AppSheet title={t('sheetTitle')} open={editServiceModalOpened} onClose={closeEditServiceModal}>
         {editServiceModalOpened ? (
           <>
             {formError && <Alert type='error' showIcon message={formError} />}
@@ -313,9 +311,9 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
 
       <AppConfirmModal
         tone='danger'
-        title='Delete this service?'
-        description='Clients will no longer be able to book it. This cannot be undone.'
-        okText='Delete'
+        title={t('deleteTitle')}
+        description={t('deleteBody')}
+        okText={t('delete')}
         open={deleteServiceModalOpened}
         onConfirm={onDeleteServiceApprove}
         onCancel={closeDeleteServiceModal}

@@ -42,14 +42,15 @@ const PROTECTED_PREFIXES = [
 const handleI18nRouting = createMiddleware(routing)
 
 /**
- * App-root metadata files (`icon.tsx`, `apple-icon.tsx`, `opengraph-image.tsx`)
- * are served at these paths with no file extension, so the matcher cannot skip
- * them. Without this list `/icon` is treated as an unprefixed page and 307s to
- * `/en/icon`, which is not a document — the browser then 404s the favicon and
- * the manifest's icon download fails.
+ * App-root metadata files (`icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`,
+ * `opengraph-image.tsx`) are served at these paths with no file extension, so the
+ * matcher cannot skip them. Without this list `/icon` is treated as an unprefixed
+ * page and 307s to `/en/icon`, which is not a document — the browser then 404s the
+ * favicon and the manifest's icon download fails.
  */
 const LOCALE_AGNOSTIC_METADATA = new Set([
   '/icon',
+  '/icon-maskable',
   '/apple-icon',
   '/opengraph-image',
   '/twitter-image',
@@ -123,8 +124,8 @@ export function proxy(request: NextRequest) {
 
 /**
  * Every page route, since all of them now need a locale prefix. Skips Next's internals
- * and anything with a file extension (`favicon.ico`, `/manifest.webmanifest`, static
- * assets). Generated metadata images have no extension, so they still enter this
+ * and anything with a file extension (`favicon.ico`, `/manifest.webmanifest`, `/sw.js`,
+ * static assets). Generated metadata images have no extension, so they still enter this
  * function and are passed through by `LOCALE_AGNOSTIC_METADATA` rather than prefixed.
  *
  * `matcher` is a literal: Next statically analyses it at build time and cannot resolve an

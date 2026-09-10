@@ -58,7 +58,7 @@ export const SettingsActionBar: FC<SettingsActionBarProps> = ({
         </AppButton>
       )}
       {onPublish && (
-        <AppButton type='primary' onClick={onPublish} loading={saving}>
+        <AppButton type='primary' onClick={onPublish} loading={saving} disabled={!dirty}>
           {publishLabel}
         </AppButton>
       )}

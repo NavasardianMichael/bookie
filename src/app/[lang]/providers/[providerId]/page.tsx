@@ -17,9 +17,10 @@ import { getCountryName } from '@helpers/country'
 import { generateEntityPath } from '@helpers/entities'
 import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
-import { toPaymentMethods } from '@helpers/payment'
+import { acceptsBankTransfer, hasPaymentShare, toPaymentMethods, toPaymentShare } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { hasWeekScheduleHours } from '@helpers/schedule'
+import { BankTransferDetails } from '@components/settings/BankTransferDetails'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -53,7 +54,7 @@ const loadProvider = cache(async (providerId: string) => {
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { providerId } = await params
-  const provider = await loadProvider(providerId)
+  const [provider, tProvider] = await Promise.all([loadProvider(providerId), getTranslations('Provider')])
 
   const { basic, details, seo } = provider
   const fullName = `${basic.firstName} ${basic.lastName}`
@@ -75,8 +76,8 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   // normalised to null.
   const composedTitle = [fullName, organizationName, categoryNames.join(', ')].filter(Boolean).join(' | ')
   const composedDescription = organizationName
-    ? `Book an appointment with ${fullName}, who works at ${organizationName}.`
-    : `Book an appointment with ${fullName}.`
+    ? tProvider('fallbackWithOrganization', { name: fullName, organization: organizationName })
+    : tProvider('fallbackDescription', { name: fullName })
 
   const title = seo?.title ?? composedTitle
   const description = seo?.description ?? composedDescription
@@ -132,9 +133,15 @@ export default async function Provider({ params }: Props) {
   // Stored as an ISO code, so it reads in whatever language the page is in.
   const countryName = getCountryName(details.country, await currentLocale())
 
-  // Server Component, so `getTranslations` rather than the `useTranslations` hook.
-  const tPayments = await getTranslations('Settings.payments')
+  const [tPayments, tCommon, tProvider] = await Promise.all([
+    getTranslations('Settings.payments'),
+    getTranslations('Common'),
+    getTranslations('Provider'),
+  ])
   const paymentMethods = toPaymentMethods(details.paymentInfo)
+  const paymentShare = toPaymentShare(details.paymentInfo)
+  const showTransferDetails = acceptsBankTransfer(details.paymentInfo) && hasPaymentShare(paymentShare)
+  const showPayments = !!paymentMethods.length || showTransferDetails
 
   return (
     <PageShell as='article' className='flex flex-col gap-6'>
@@ -167,7 +174,7 @@ export default async function Provider({ params }: Props) {
                 {organization && (
                   <AppParagraph size='body-sm' className='m-0'>
                     <AppText as='strong' tone='default'>
-                      Organization:{' '}
+                      {tCommon('organization')}:{' '}
                     </AppText>
                     <AppLink
                       href={generateEntityPath(ROUTE_KEYS.organizations, organization.id)}
@@ -181,7 +188,7 @@ export default async function Provider({ params }: Props) {
                 {!!categories?.length && (
                   <AppParagraph size='body-sm' className='m-0'>
                     <AppText as='strong' tone='default'>
-                      {categories.length === 1 ? 'Category' : 'Categories'}:{' '}
+                      {categories.length === 1 ? tCommon('category') : tCommon('categories')}:{' '}
                     </AppText>
                     {categories.map((category, index) => (
                       <span key={category.id}>
@@ -200,7 +207,7 @@ export default async function Provider({ params }: Props) {
                 {!!details.location.address && (
                   <AppParagraph size='body-sm' className='m-0'>
                     <AppText as='strong' tone='default'>
-                      Address:{' '}
+                      {tCommon('address')}:{' '}
                     </AppText>
                     <AppLink
                       href={mapsHref}
@@ -218,7 +225,7 @@ export default async function Provider({ params }: Props) {
 
             <ContactActions phone={phone} address={details.location.address} email={details.email} className='mt-6' />
 
-            {details.paymentInfo && (
+            {showPayments && (
               <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>
                 <AppTitle level='h2' size='h3' className='mb-2'>
                   {tPayments('title')}
@@ -230,16 +237,11 @@ export default async function Provider({ params }: Props) {
                     {paymentMethods.map((method) => tPayments(`methods.${method}`)).join(', ')}
                   </AppParagraph>
                 )}
-                {details.paymentInfo.reference && (
-                  <AppParagraph size='body-sm' className='mt-1'>
-                    {details.paymentInfo.reference}
-                  </AppParagraph>
-                )}
-                {details.paymentInfo.notes && (
-                  <AppParagraph size='caption' className='mt-1'>
-                    {details.paymentInfo.notes}
-                  </AppParagraph>
-                )}
+                {showTransferDetails ? (
+                  <div className='mt-3'>
+                    <BankTransferDetails {...paymentShare} showHeading={false} />
+                  </div>
+                ) : null}
               </div>
             )}
           </Surface>
@@ -247,7 +249,7 @@ export default async function Provider({ params }: Props) {
           {hasWeekScheduleHours(details.weekSchedule) && (
             <Surface>
               <AppTitle level='h2' size='h3' className='mb-3'>
-                Working hours
+                {tProvider('workingHours')}
               </AppTitle>
               <WorkingHours weekSchedule={details.weekSchedule} />
             </Surface>

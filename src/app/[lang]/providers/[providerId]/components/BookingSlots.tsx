@@ -2,6 +2,7 @@
 
 import { FC, useCallback, useMemo } from 'react'
 import dayjs from 'dayjs'
+import { useTranslations } from 'next-intl'
 import { SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
 import { BookingSlot } from '@helpers/booking'
 import { cn } from '@helpers/cn'
@@ -47,6 +48,7 @@ export const BookingSlots: FC<Props> = ({
   onSelect,
   onConfirm,
 }) => {
+  const t = useTranslations('Booking')
   const handleSelect = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       const { start } = event.currentTarget.dataset
@@ -71,29 +73,23 @@ export const BookingSlots: FC<Props> = ({
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div className='min-w-0'>
           <AppTitle level='h3' size='h3'>
-            Available times
+            {t('availableTimes')}
           </AppTitle>
           <AppParagraph size='body-sm' className='m-0'>
-            {date ? dayjs(date).format('dddd, D MMMM') : 'No date picked yet'}
+            {date ? dayjs(date).format('dddd, D MMMM') : t('noDatePicked')}
           </AppParagraph>
         </div>
 
         <AppText size='body-sm' tone='muted' className='flex shrink-0 items-center gap-2'>
           <ClockIcon aria-hidden className='h-4 w-4' />
-          Local time
+          {t('localTime')}
         </AppText>
       </div>
 
       {!date ? (
-        <EmptyState
-          title='Pick a date first'
-          description='Choose a day in the calendar above and its open times show up here.'
-        />
+        <EmptyState title={t('pickDateFirst')} description={t('pickDateFirstBody')} />
       ) : !slots.length ? (
-        <EmptyState
-          title='No open times on this day'
-          description='Try another day — days with availability are the ones you can select.'
-        />
+        <EmptyState title={t('noOpenTimes')} description={t('noOpenTimesBody')} />
       ) : (
         <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
           {slots.map((slot) => {
@@ -142,10 +138,10 @@ export const BookingSlots: FC<Props> = ({
             </span>
             <div className='min-w-0'>
               <AppTitle level='h4' size='body'>
-                {selectedStart ? 'Ready to confirm?' : 'Pick a time'}
+                {selectedStart ? t('readyToConfirm') : t('pickATime')}
               </AppTitle>
               <AppParagraph size='body-sm' className='m-0'>
-                {summary ?? 'Choose one of the times above to continue.'}
+                {summary ?? t('pickATimeHint')}
               </AppParagraph>
             </div>
           </div>
@@ -160,7 +156,7 @@ export const BookingSlots: FC<Props> = ({
             onClick={onConfirm}
             className='w-full md:w-auto'
           >
-            Book now
+            {t('bookNow')}
           </AppButton>
         </div>
       )}

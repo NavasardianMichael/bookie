@@ -3,6 +3,7 @@
 import { FC, useMemo } from 'react'
 import { AutoComplete } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
+import { useTranslations } from 'next-intl'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { CategoryValue } from '@interfaces/services'
 
@@ -31,6 +32,7 @@ const matchesQuery = (input: string, option?: DefaultOptionType): boolean => {
  * drop the link, and an exact typed name does not create a duplicate.
  */
 export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabled, id }) => {
+  const t = useTranslations('Services')
   const list = useCategoriesListStore.use.list()
 
   const options: DefaultOptionType[] = useMemo(
@@ -57,7 +59,7 @@ export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabl
       onChange={handleChange}
       options={options}
       disabled={disabled}
-      placeholder='Type or pick a category'
+      placeholder={t('categoryPlaceholder')}
       allowClear
       showSearch={{ filterOption: matchesQuery }}
       className='w-full'

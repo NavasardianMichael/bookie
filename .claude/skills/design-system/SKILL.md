@@ -146,7 +146,7 @@ grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/
 grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)" src $CODE   # 0
 
 # deprecated antd props — full mapping in src/components/CLAUDE.md
-grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
+grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName|addonBefore|addonAfter)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
 
 # dialogs go through AppConfirmModal / AppSheet — see src/components/CLAUDE.md
 grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"   # 0

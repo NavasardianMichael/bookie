@@ -53,3 +53,7 @@ server/uploads/*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editors
+.vs/
+.idea/

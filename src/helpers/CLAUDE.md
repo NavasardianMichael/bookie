@@ -13,8 +13,6 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Bookable slots for a date / range | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
-| Calendar's visible hour window | `getVisibleTimeRange` | `booking.ts` — **no call site**, see below |
-| Group slots morning/afternoon/evening | `groupSlotsByPartOfDay` | `booking.ts` — **no call site**, see below |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
 | Localised weekday column headers | `buildWeekdayLabels` | `calendar.ts` — **client-only** |
@@ -37,9 +35,11 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Is this a real upload vs a bundled asset? | `isUploadedAsset` | `images.ts` |
 | Avatar initials fallback | `getInitials` | `images.ts` |
 | Escape JSON-LD for a `<script>` | `serializeJsonLd` | `jsonLd.ts` |
+| Service worker script + offline document | `buildServiceWorkerScript`, `buildOfflineDocument` | `pwa.ts` |
 | Google Maps link from an address | `generateGoogleMapsLink` | `location.ts` |
 | Render a `{ code, number }` phone | `generateFriendlyPhoneNumber` | `phone.ts` |
 | Accepted payment methods off a `paymentInfo` column | `toPaymentMethods` | `payment.ts` |
+| Copyable card/account number and notes a provider publishes | `toPaymentShare`, `hasPaymentShare`, `acceptsBankTransfer`, `needsPublicShareConfirm` | `payment.ts` |
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
@@ -70,36 +70,44 @@ Everything here is pure and framework-free unless the last column says otherwise
   on the host you are actually on.
 - `errorMiddleware` (`store.ts`) is auth-only and does **not** catch rejections thrown
   inside async store actions.
+- **`pwa.ts` builds a network-only service worker.** Failed navigations get an inlined
+  offline document; HTML pages and the API are never cached. A stale slot list is worse
+  than an offline screen. Do not add a cache-first or stale-while-revalidate strategy
+  there without a specific, non-booking asset in mind.
 - **`payment.ts` is the only sanctioned reader of a `paymentInfo` column.** That column is
-  opaque `Json?`, so three shapes reach the client: the current `{ methods: [...] }`, the
-  pre-migration `{ method }` that a stale `Provider.draft` overlay can still carry, and
-  `null`. `toPaymentMethods` normalises all three and drops values outside the enum, which
-  matters because the labels are looked up as `t()` keys — an unknown value would throw
-  rather than degrade. `server/src/lib/payment.ts` is its deliberate twin; `server/` is a
-  separate package with no import path into `src/`.
+  opaque `Json?`, so several shapes reach the client: the current `{ methods, payToNumber?,
+  notes? }`, leftover `{ cardNumber, accountNumber }` from the two-field shape, a leftover
+  `{ reference }` from the original single-field shape, the pre-migration `{ method }` that
+  a stale `Provider.draft` overlay can still carry, and `null`. `toPaymentMethods`
+  normalises the method set and drops values outside the enum, which matters because the
+  labels are looked up as `t()` keys — an unknown value would throw rather than degrade.
+  `toPaymentShare` reads the copyable pay-to number, joining leftover split fields and
+  treating `reference` as that number. It is public only when `bank_transfer` is selected
+  (`acceptsBankTransfer`). `needsPublicShareConfirm` is true only when that number will go
+  public *and* differs from the saved value (including newly ticking bank transfer with a
+  number already filled), which is what gates the save dialog. `server/src/lib/payment.ts`
+  is the methods twin; `server/` is a separate package with no import path into `src/`.
 
 ## Impure — treat differently
 
 | Module | Why |
 |---|---|
-| `urlSearchParams.ts` | Reads `window.location`. Throws in Node. **Unused — delete it.** |
 | `localStorage.ts` | Touches `window.localStorage`. Every function is SSR-guarded and `readPendingSignOn` is total — a malformed entry reads as `null` rather than throwing mid-funnel |
 | `commons.ts#sleep` | Timer |
 | `api.ts#getMockAsFakeAPI` | Unused one-line `Promise.resolve` |
 
 ## Dead code — do not extend
 
-- **`src/constants/api.ts` is a byte-identical duplicate of `api.ts#paramsToQueryString`.**
-  Neither is imported anywhere. Delete both rather than picking one.
-- `urlSearchParams.ts` — both functions unreferenced, returns untyped.
-- **`booking.ts#getVisibleTimeRange` and `booking.ts#groupSlotsByPartOfDay` have no call
-  site.** Both existed for the FullCalendar booking view the public profile used to run:
-  the first fed `slotMinTime`/`slotMaxTime`, the second sectioned the slot sheet. The
-  `public_provider_profile` rebuild has a plain month grid and a flat grid of times, so
-  neither is reachable. They stay because they are pure and specced
-  (`tests/unit/helpers/booking.spec.ts`) and the unbuilt `provider_calendar_dashboard`
-  wants `getVisibleTimeRange` back — but nothing depends on them today. See
-  `docs/BACKLOG.md`.
+**Currently: none.** The three long-standing entries here were cleared on 2026-09-11 —
+`src/constants/api.ts` (a byte-identical duplicate of `api.ts#paramsToQueryString`, which
+now has real callers in `api/organizations/main.ts` and `api/appointments/main.ts`),
+`urlSearchParams.ts`, and `booking.ts#getVisibleTimeRange` / `#groupSlotsByPartOfDay`.
+
+The last two went with FullCalendar itself. They existed for the booking view the public
+profile used to run — the first fed `slotMinTime`/`slotMaxTime`, the second sectioned the
+slot sheet — and were kept on the theory that the unbuilt `provider_calendar_dashboard`
+would want them back. That dashboard shipped in 2026-09-09 as a month grid over a list and
+needed neither, so the theory expired and they went.
 
 ## Nearby, easily missed
 

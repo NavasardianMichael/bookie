@@ -1,6 +1,7 @@
 'use client'
 
 import { FC, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
@@ -27,6 +28,7 @@ type Props = {
  * heading; a heading inside `<label>` is invalid HTML.
  */
 export const ServicePicker: FC<Props> = ({ services, value, onChange }) => {
+  const t = useTranslations('Booking')
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
     [onChange]
@@ -34,7 +36,7 @@ export const ServicePicker: FC<Props> = ({ services, value, onChange }) => {
 
   return (
     <fieldset className='m-0 min-w-0 border-0 p-0'>
-      <legend className='sr-only'>Service</legend>
+      <legend className='sr-only'>{t('legend')}</legend>
 
       <ResponsiveGrid as='ul' min='sm' gap='sm' className='m-0 list-none p-0'>
         {services.map((service) => {

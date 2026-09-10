@@ -2,58 +2,62 @@
 
 import { useMemo } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
-import { Button, Divider, FormInstance, Select, Space } from 'antd'
-import type { DefaultOptionType, SelectProps } from 'antd/es/select'
+import { Button, Divider, Select, Space } from 'antd'
+import type { DefaultOptionType } from 'antd/es/select'
 import { useCategoriesListStore } from '@store/categories/list/store'
-import { AppFormProps } from '@interfaces/forms'
-import { ProviderProfileFormValues } from '@interfaces/providers'
+import { Category } from '@store/categories/single/types'
 import { SelectSuffix } from '@components/shared/SelectSuffix'
 import { AppLink } from '@components/ui/bare/AppLink'
 
-type Props = AppFormProps<ProviderProfileFormValues> & {
-  form: FormInstance
+/**
+ * `value` and `onChange` are **injected by `Form.Item`** — they are not passed by the
+ * parent. A component used as the direct child of a named `Form.Item` must accept both, or
+ * antd's injected props land nowhere and the store slot for `categoryIds` is never written.
+ * That is exactly what broke this field before: the rules said `required` + `min: 1` on a
+ * slot nothing ever wrote, so the profile form could not be submitted at all.
+ */
+type Props = {
+  value?: Category['id'][]
+  onChange?: (next: Category['id'][]) => void
+  disabled?: boolean
 }
 
 const MAX_COUNT = 3
 
-export const ProviderProfileFormCategories: React.FC<Props> = ({ formik, form }) => {
+export const ProviderProfileFormCategories: React.FC<Props> = ({ value = [], onChange, disabled }) => {
   const { list } = useCategoriesListStore()
 
-  const options: DefaultOptionType[] = useMemo(() => {
-    return list.allIds.map((categoryId) => {
-      const category = list.byId[categoryId]
-      return {
-        value: category.id,
-        label: category.name,
-      }
-    })
-  }, [list.allIds, list.byId])
-
-  const onOptionChange: SelectProps['onChange'] = async (ids) => {
-    await formik.setFieldValue('categoryIds', ids)
-    form.validateFields(['categoryIds'])
-  }
+  const options: DefaultOptionType[] = useMemo(
+    () =>
+      list.allIds.map((categoryId) => {
+        const category = list.byId[categoryId]
+        return { value: category.id, label: category.name }
+      }),
+    [list.allIds, list.byId]
+  )
 
   return (
     <Select
       mode='tags'
-      suffixIcon={<SelectSuffix value={formik.values.categoryIds.length} limit={MAX_COUNT} />}
+      // No manual `form.validateFields` any more: `AppFormItem` sets
+      // `validateTrigger='onChange'`, so writing through `onChange` revalidates on its own.
+      value={value}
+      onChange={onChange}
+      suffixIcon={<SelectSuffix value={value.length} limit={MAX_COUNT} />}
       popupRender={(menu) => (
         <>
           {menu}
-          <Divider style={{ margin: '8px 0' }} />
-          <Space style={{ padding: '0 8px 4px' }}>
+          <Divider className='my-2' />
+          <Space className='px-2 pb-1'>
             <Button type='text' icon={<PlusOutlined />}>
               <AppLink href={'/'}>Create a new category</AppLink>
             </Button>
           </Space>
         </>
       )}
-      onChange={onOptionChange}
-      value={formik.values.categoryIds}
       options={options}
       maxCount={MAX_COUNT}
-      disabled={formik.isSubmitting}
+      disabled={disabled}
     />
   )
 }

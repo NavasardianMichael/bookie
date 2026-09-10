@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { generateEntityPath } from '@helpers/entities'
@@ -21,6 +22,7 @@ import { Surface } from '@components/ui/layout'
  * back to the explore list rather than rendering a broken URL.
  */
 export const ProviderOnboardingDone: React.FC = () => {
+  const t = useTranslations('Services')
   const profileId = useAuthStore.use.profileId()
   const getMe = useAuthStore.use.getMe()
 
@@ -31,7 +33,7 @@ export const ProviderOnboardingDone: React.FC = () => {
   return (
     <Surface padding='md' className='flex flex-col items-center gap-3 text-center'>
       <AppParagraph size='body-sm' className='m-0'>
-        Finished setting up? Your profile is live — see what clients see.
+        {t('onboardingDone')}
       </AppParagraph>
       <AppLink
         href={profileId ? generateEntityPath(ROUTE_KEYS.providers, profileId) : ROUTES.providers}
@@ -39,7 +41,7 @@ export const ProviderOnboardingDone: React.FC = () => {
         tone='primary'
         target='_blank'
       >
-        View my profile
+        {t('viewProfile')}
       </AppLink>
     </Surface>
   )

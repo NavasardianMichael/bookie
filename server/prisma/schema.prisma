@@ -22,28 +22,79 @@ enum AppointmentStatus {
   no_show
 }
 
-model User {
-  id                       String    @id @default(uuid())
-  phoneCode                Int
-  phoneNumber              BigInt
-  otpHash                  String?
-  otpExpiresAt             DateTime?
-  /// Pending phone change — OTP is stored on the *current* user, never via
-  /// `issueOtp` which would upsert a second User row for the new number.
-  pendingPhoneCode         Int?
-  pendingPhoneNumber       BigInt?
-  pendingPhoneOtpHash      String?
-  pendingPhoneOtpExpiresAt DateTime?
-  pendingEmail             String?
-  /// SHA-256 of the email-verification link token (not a 6-digit OTP).
-  emailOtpHash             String?
-  emailOtpExpiresAt        DateTime?
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
-  consumer                 Consumer?
-  provider                 Provider?
+/// How an account was created. **Not an authorisation input** — a `local` account that
+/// later links Google authenticates either way. It exists so a password attempt against a
+/// passwordless account can be reasoned about, never so a route can branch on trust.
+enum AuthProvider {
+  local
+  google
+}
 
-  @@unique([phoneCode, phoneNumber])
+model User {
+  id                         String       @id @default(uuid())
+
+  /// The identity. `citext`, so the unique index is case-insensitive **in the database**
+  /// rather than only in whichever route remembered to lowercase. Routes here call Prisma
+  /// directly with no repository layer, and there are four write paths (register, the
+  /// Google callback, change-email confirm, and the seed) — citext is what makes a writer
+  /// that forgets harmless instead of the cause of a second account. Writers still
+  /// normalise to lowercase so what is stored is canonical.
+  email                      String       @unique @db.Citext
+
+  /// Null until the address is confirmed. An unverified account cannot hold a session —
+  /// checked in `middleware/auth.ts` on every authenticated request, not only at login, so
+  /// one missing guard in a new auth route cannot defeat the rule.
+  emailVerifiedAt            DateTime?
+
+  /// argon2id, `m=65536,t=3,p=4` (`lib/password.ts`). Null for a Google-only account,
+  /// which has no password to check. `user_credential_present` keeps a row from having
+  /// neither this nor `googleId`.
+  passwordHash               String?
+
+  /// Google's `sub` claim, never the email — Google emails change, `sub` does not. Unique
+  /// so one Google identity cannot be claimed by two accounts.
+  googleId                   String?      @unique
+  authProvider               AuthProvider @default(local)
+
+  /// Session revocation without Redis. `middleware/auth.ts` compares this against the JWT
+  /// claim, which is the only thing that makes a stateless 7-day cookie revocable. Bumped
+  /// by password reset, password change, email change, "sign out everywhere", the Google
+  /// claim of an unverified account, and account delete. **Not** by ordinary logout —
+  /// signing out on a laptop must not sign out a phone.
+  tokenVersion               Int          @default(0)
+
+  /// Per-account credential-stuffing brake. Read for free on the login lookup, written
+  /// only on a failed attempt. In Postgres rather than `lib/rateLimit.ts` because an
+  /// in-memory counter resets on every deploy and is not shared across instances — the two
+  /// properties that matter most for exactly this control. A rolling window, not a
+  /// lockout: with no admin surface, a permanent lock is a support ticket and a DoS aimed
+  /// at the victim rather than the attacker.
+  failedLoginCount           Int          @default(0)
+  failedLoginWindowStartedAt DateTime?
+
+  /// The address awaiting confirmation. Registration writes the signup address to *both*
+  /// `email` and here, so confirm is one unconditional path — copy `pendingEmail` onto
+  /// `email`, stamp `emailVerifiedAt`, clear the token — shared by signup verification and
+  /// change-email alike. There is no flow discriminator to get wrong.
+  pendingEmail               String?      @db.Citext
+
+  /// SHA-256 of the verification link token (32 random bytes), never the token itself.
+  /// **Unique, not merely indexed**: the link is clicked with no session, so the row can
+  /// only be found by hash — unique turns that into a `findUnique`. 32 random bytes cannot
+  /// collide, and Postgres permits any number of NULLs in a unique index.
+  emailVerifyTokenHash       String?      @unique
+  emailVerifyExpiresAt       DateTime?
+
+  /// Same pattern, same reason, for the password-reset link. One live token per user:
+  /// issuing a new one overwrites the old, which is the invalidate-on-reissue a reset flow
+  /// wants anyway.
+  passwordResetTokenHash     String?      @unique
+  passwordResetExpiresAt     DateTime?
+
+  createdAt                  DateTime     @default(now())
+  updatedAt                  DateTime     @updatedAt
+  consumer                   Consumer?
+  provider                   Provider?
 }
 
 model Category {
@@ -90,8 +141,30 @@ model Provider {
   lastName               String
   description            String?
   imageUrl               String?
-  email                  String?
-  emailVerifiedAt        DateTime?
+
+  /// Contact phone. Mandatory at registration and **never verified** — it is not identity
+  /// any more, so nothing depends on it being reachable.
+  ///
+  /// On the profile rather than on `User` because the two profiles publish it differently:
+  /// `mapProviderDetails` puts a provider's number on the *public* `GET /providers/:id`
+  /// payload, while a consumer's reaches only the provider they booked. One shared column
+  /// on `User` published the personal number of anyone holding both profiles.
+  ///
+  /// Deliberately **not** unique. A clinic reception line shared by four providers, or a
+  /// household sharing a mobile, is ordinary — the old `@@unique` existed only because
+  /// phone *was* the identity. A unique constraint on an unverified field would also
+  /// reintroduce an enumeration oracle.
+  phoneCode              Int
+  phoneNumber            BigInt
+
+  /// A **published** contact address, distinct from the identity `User.email`. Unverified,
+  /// non-unique, and writable straight from `PUT /provider-profile` — which is precisely
+  /// why it exists: that route used to write the identity email with no verification, so a
+  /// provider could set it to a victim's address and then request a password reset.
+  /// Setting *this* to someone else's address achieves nothing, because nothing
+  /// authenticates against it. Mirrors `Organization.email`.
+  publicEmail            String?
+
   country                String?
   address                String             @default("")
   locationUrl            String             @default("")
@@ -108,8 +181,9 @@ model Provider {
   /// available, paymentInfo. Publish copies these onto the live columns.
   draft                  Json?
   emailNotificationPrefs Json               @default("{}")
-  /// Accepted in-person payment methods — never a card PAN.
-  /// `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], reference?, notes? }`
+  /// Accepted in-person payment methods, plus optional `{ payToNumber?, notes? }`
+  /// that the public profile and booking sheet publish. Saving a new or changed
+  /// number is confirmed in a dialog. `{ methods: ('cash'|'card_on_site'|'bank_transfer')[] }`
   paymentInfo            Json?
   /// Owner-authored search metadata. All three are overrides: when null the public
   /// page falls back to the values `generateMetadata` composes from name,
@@ -181,16 +255,25 @@ model Consumer {
   firstName              String
   lastName               String
   description            String?
-  email                  String?
-  emailVerifiedAt        DateTime?
+
+  /// As `Provider.phoneCode`/`phoneNumber`, minus the publication: a consumer's number
+  /// reaches only the provider they booked, through `mapProviderBooking`. Mandatory at
+  /// registration, never verified, not unique.
+  ///
+  /// `resolveConsumerId` in `routes/appointments.ts` creates a Consumer on the fly for a
+  /// provider who books, and copies these off the Provider row alongside `country` — the
+  /// only source it has.
+  phoneCode              Int
+  phoneNumber            BigInt
+
   /// ISO 3166-1 alpha-2, captured from the country picked on the phone field at
-  /// registration. Nullable because every account created before this column existed
-  /// has no answer, and guessing one from the dialling code would be wrong: +1 is the
-  /// US, Canada and ~20 more. Mirrors Provider.country.
+  /// registration. Nullable because guessing one from the dialling code would be wrong:
+  /// +1 is the US, Canada and ~20 more. Mirrors Provider.country, and now sits on the same
+  /// row as the phone it was picked beside, so the two can no longer diverge.
   country                String?
   emailNotificationPrefs Json               @default("{}")
-  /// Accepted in-person payment methods — never a card PAN.
-  /// `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], reference?, notes? }`
+  /// Preferred in-person methods only — `{ methods: [...] }`. Card/account numbers
+  /// belong on the provider, not here.
   paymentInfo            Json?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
@@ -225,6 +308,12 @@ model Appointment {
   /// Contact details for a booking made without an account. Only ever written when
   /// `consumerId` is null; a request carrying a session has its identity read off
   /// the session and these ignored.
+  ///
+  /// `guestEmail` is required by the `appointment_actor_present` CHECK, not merely
+  /// validated in `parseGuest` — accounts are keyed on email now, so it is the only
+  /// well-defined handle for recognising a guest who later registers. Nothing reconciles
+  /// them today (see the note in `routes/appointments.ts`); the constraint is what would
+  /// make it possible.
   guestFirstName   String?
   guestLastName    String?
   guestPhoneCode   Int?

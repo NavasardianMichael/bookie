@@ -77,11 +77,11 @@ describe('splitScheduleIntoParts', () => {
     ])
   })
 
-  // Regression: `[...breaks]` is a SHALLOW copy, so the merge step's `last.end = …`
-  // writes through into the caller's own break objects. Latent corruption under immer
-  // drafts, and the reason a second call with the same array can differ from the first.
-  // See docs/BACKLOG.md. Update this test when the mutation is fixed.
-  it('KNOWN BUG: mutates the caller’s break objects when merging', () => {
+  // `[...breaks]` is only a SHALLOW copy, so the merge step's `last.end = …` used to write
+  // through into the caller's own break objects — a frozen-object throw under an immer
+  // draft, and silent corruption everywhere else. Fixed by copying each break into the
+  // accumulator; this pins that the input is left alone.
+  it('leaves the caller’s break objects untouched when merging', () => {
     const breaks = [
       { start: '12:00', end: '13:30' },
       { start: '13:00', end: '14:00' },
@@ -89,8 +89,38 @@ describe('splitScheduleIntoParts', () => {
 
     splitScheduleIntoParts(day('09:00', '18:00', breaks))
 
-    expect(breaks[0].end).toBe('14:00')
-    expect(breaks[0].end).not.toBe('13:30')
+    expect(breaks).toEqual([
+      { start: '12:00', end: '13:30' },
+      { start: '13:00', end: '14:00' },
+    ])
+  })
+
+  // The merge itself must still happen — the fix copies the input, it does not stop
+  // overlapping breaks from collapsing into one.
+  it('still merges overlapping breaks into a single gap', () => {
+    const parts = splitScheduleIntoParts(
+      day('09:00', '18:00', [
+        { start: '12:00', end: '13:30' },
+        { start: '13:00', end: '14:00' },
+      ])
+    )
+
+    expect(parts).toEqual([
+      { start: '09:00', end: '12:00' },
+      { start: '14:00', end: '18:00' },
+    ])
+  })
+
+  // Calling twice with the same array used to differ, because the first call rewrote the
+  // input the second one then read.
+  it('is repeatable against the same input array', () => {
+    const breaks = [
+      { start: '12:00', end: '13:30' },
+      { start: '13:00', end: '14:00' },
+    ]
+    const schedule = day('09:00', '18:00', breaks)
+
+    expect(splitScheduleIntoParts(schedule)).toEqual(splitScheduleIntoParts(schedule))
   })
 })
 

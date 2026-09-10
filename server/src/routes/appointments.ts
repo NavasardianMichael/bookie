@@ -5,7 +5,7 @@ import { createRateLimiter } from '../lib/rateLimit.js'
 import { asBoundedString, asTrimmedString, isEmail } from '../lib/request.js'
 import type { SessionPayload } from '../lib/session.js'
 import { mapBasicProvider, providerInclude } from '../mappers/entities.js'
-import { requireAuth } from '../middleware/auth.js'
+import { hasSessionCookie, requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { createAppointment, type GuestBooker } from '../services/appointments.js'
 import { BOOKING_STATUSES, isBookingStatus } from '../services/providerBookings.js'
@@ -49,8 +49,17 @@ const parseNotes = (notes: unknown): string | undefined => {
 
 /**
  * The minimum needed to actually deliver the service to someone with no account.
- * Phone mirrors `User.phoneCode`/`phoneNumber` so a guest who later registers on the
- * same number is recognisable.
+ *
+ * **Nothing reconciles a guest with an account today.** An earlier version of this comment
+ * claimed the phone mirrored `User.phoneCode`/`phoneNumber` "so a guest who later registers
+ * on the same number is recognisable" — no code ever did that, and phone is not identity
+ * any more, so it never will. `guestEmail` is the handle if it is ever built (accounts are
+ * keyed on email, and `services/providerAnalytics.ts` already groups repeat guests by it),
+ * which is why the `appointment_actor_present` CHECK now requires it.
+ *
+ * If it *is* built, it must run when an address is **verified**, never at registration —
+ * otherwise anyone could register with a stranger's address and inherit their booking
+ * history. Tracked in `docs/BACKLOG.md`.
  */
 const parseGuest = (guest: unknown): GuestBooker => {
   const { firstName, lastName, phone, email } = (guest ?? {}) as {
@@ -82,11 +91,15 @@ const parseGuest = (guest: unknown): GuestBooker => {
 /**
  * The Consumer id to book against for a signed-in caller.
  *
- * A consumer session already names one. Any other role belongs to a `User` that has
- * verified this phone number by OTP, so a Consumer profile is created on it rather
- * than sending a verified user down the guest path — that is what keeps the booking in
- * their appointment history. Seeded from the provider profile so the row is never the
- * server's placeholder name.
+ * A consumer session already names one. Any other role belongs to a `User` whose email is
+ * verified — an unverified account cannot hold a session at all — so a Consumer profile is
+ * created on it rather than sending a signed-in user down the guest path. That is what
+ * keeps the booking in their own appointment history.
+ *
+ * Phone and country are copied off the Provider row because that is the only place this
+ * person's answers exist. **No email is copied**: it lives on the shared `User`, which is
+ * the whole point of moving it there — the two profiles can no longer disagree about the
+ * account's address.
  */
 const resolveConsumerId = async (session: SessionPayload): Promise<string> => {
   if (session.role === 'consumer') return session.profileId
@@ -95,13 +108,19 @@ const resolveConsumerId = async (session: SessionPayload): Promise<string> => {
   if (existing) return existing.id
 
   const provider = await prisma.provider.findUnique({ where: { userId: session.userId } })
+  // `phoneCode`/`phoneNumber` are NOT NULL on Consumer, so there is nothing to fall back to
+  // — the old `provider?.firstName ?? 'New'` placeholder cannot cover a missing phone. A
+  // provider session whose Provider row is gone is a 409 rather than a Prisma error.
+  if (!provider) throw new HttpError(409, 'No profile to book from', 409)
+
   const created = await prisma.consumer.create({
     data: {
       userId: session.userId,
-      firstName: provider?.firstName ?? 'New',
-      lastName: provider?.lastName ?? 'Consumer',
-      email: provider?.email,
-      country: provider?.country,
+      firstName: provider.firstName,
+      lastName: provider.lastName,
+      phoneCode: provider.phoneCode,
+      phoneNumber: provider.phoneNumber,
+      country: provider.country,
     },
   })
   return created.id
@@ -194,11 +213,14 @@ appointmentsRouter.get(
  * Anyone can be a consumer, so the only question is whether we know who is booking:
  *
  * - a consumer session books as itself;
- * - any other session belongs to a phone-verified user, so it gets a Consumer profile
- *   created on that same `User` and books as a real account, keeping its history;
- * - no session books as a guest, carrying its contact details on the appointment.
+ * - any other session belongs to a user whose email is verified, so it gets a Consumer
+ *   profile created on that same `User` and books as a real account, keeping its history;
+ * - **no session at all books as a guest**, carrying its contact details on the
+ *   appointment. Guest booking is a first-class path here and stays completely public.
  *
- * `optionalAuth` is mounted globally in `app.ts`, so `req.session` is already resolved.
+ * `optionalAuth` is mounted globally in `app.ts`, so `req.session` is already resolved —
+ * and, since it now validates `tokenVersion`, a revoked cookie leaves it unset. That case
+ * must not be mistaken for a guest; see the 401 below.
  */
 appointmentsRouter.post(
   '/',
@@ -210,6 +232,18 @@ appointmentsRouter.post(
 
     const start = new Date(startAt)
     if (Number.isNaN(start.getTime())) throw new HttpError(400, 'Invalid startAt', 400)
+
+    /**
+     * A cookie that `optionalAuth` declined to honour — revoked by a password reset, or
+     * belonging to a deleted account. Falling through to the guest branch would answer
+     * "guest.firstName required" to someone who believes they are signed in, so this is a
+     * 401 instead, which the axios layer already turns into a re-authentication.
+     *
+     * A request with **no** cookie is a genuine guest and is untouched by this.
+     */
+    if (!req.session && hasSessionCookie(req)) {
+      throw new HttpError(401, 'Your session has expired. Please sign in again.', 401)
+    }
 
     // A provider cannot book their own service — the appointment would name the same
     // person on both sides and occupy a slot in their own calendar.

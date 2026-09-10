@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
@@ -15,9 +16,11 @@ import { ProvidersResultsSkeleton } from './ProvidersResultsSkeleton'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Explore')
+
   return {
-    title: 'Explore providers',
-    description: 'Browse every provider on Bookie and reserve a time that works.',
+    title: t('metaTitle'),
+    description: t('metaDescription'),
     // Self-canonical to the bare path, which is also what de-duplicates the filtered
     // and paged views: `?q=hair&page=3` canonicals to `/en/providers`, so a subset of
     // the same rows never becomes its own index entry. See `src/i18n/CLAUDE.md`.
@@ -44,33 +47,35 @@ type Props = {
  */
 export default async function Providers({ searchParams }: Props) {
   const params = parseExploreParams(await searchParams)
-  const categories = await getCategoriesListAPI()
+  const [categories, t, tCommon] = await Promise.all([
+    getCategoriesListAPI(),
+    getTranslations('Explore'),
+    getTranslations('Common'),
+  ])
 
   return (
     <PageShell className='flex flex-col gap-10'>
       <header className='mx-auto flex w-full max-w-3xl flex-col items-center gap-6 text-center'>
         <AppTitle level='h1'>
-          Find and book <span className='text-brand italic'>top-rated</span> professionals.
+          {t('titleBefore')}
+          <span className='text-brand italic'>{t('titleEmphasis')}</span>
+          {t('titleAfter')}
         </AppTitle>
         <div className='w-full'>
-          <ProviderSearchField
-            params={params}
-            label='Search providers'
-            placeholder='What service are you looking for?'
-          />
+          <ProviderSearchField params={params} label={t('searchLabel')} placeholder={t('searchPlaceholder')} />
         </div>
       </header>
 
       {!!categories.allIds.length && (
         <Section
-          title='Browse categories'
+          title={t('browseCategories')}
           actions={
             <AppLink href={ROUTES.categories} variant='plain' className='text-body-sm font-bold text-brand'>
-              View all
+              {tCommon('viewAll')}
             </AppLink>
           }
         >
-          <ChipRail label='Categories'>
+          <ChipRail label={t('categoriesRail')}>
             <li className='shrink-0'>
               <AppLink
                 href={buildExploreHref(params, { categoryId: '' })}
@@ -78,7 +83,7 @@ export default async function Providers({ searchParams }: Props) {
                 aria-current={params.categoryId ? undefined : 'true'}
                 className={params.categoryId ? undefined : 'bg-brand border-brand text-white hover:text-white'}
               >
-                All services
+                {t('allServices')}
               </AppLink>
             </li>
             {categories.allIds.map((categoryId) => {
@@ -106,11 +111,7 @@ export default async function Providers({ searchParams }: Props) {
 
       {/* Heading + toolbar stay outside Suspense so a new query does not remount the
           sort/filter sheet or jump the title. Only the grid swaps for a skeleton. */}
-      <Section
-        title='Service providers'
-        className='gap-8'
-        actions={<ProviderExploreToolbar params={params} />}
-      >
+      <Section title={t('providersTitle')} className='gap-8' actions={<ProviderExploreToolbar params={params} />}>
         <Suspense key={exploreParamsKey(params)} fallback={<ProvidersResultsSkeleton />}>
           <ProvidersResults params={params} />
         </Suspense>

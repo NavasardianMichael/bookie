@@ -35,7 +35,9 @@ consumerProfileRouter.get(
     const consumer = await prisma.consumer.findUnique({
       where: { id: req.session!.profileId },
       include: {
-        user: true,
+        // Narrowed from `user: true`: `mapConsumer` needs the identity email and the
+        // route needs its verification state. There is no reason to load the password hash.
+        user: { select: { email: true, emailVerifiedAt: true } },
         favorites: { include: { provider: { include: providerInclude } } },
       },
     })
@@ -46,7 +48,7 @@ consumerProfileRouter.get(
       details: {
         favoriteProviders: consumer.favorites.map((f) => mapBasicProvider(f.provider)),
         description: consumer.description ?? undefined,
-        emailVerifiedAt: consumer.emailVerifiedAt?.toISOString(),
+        emailVerifiedAt: consumer.user.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: {
           ...defaultNotificationPrefs,
           ...(typeof consumer.emailNotificationPrefs === 'object' && consumer.emailNotificationPrefs
@@ -74,10 +76,10 @@ consumerProfileRouter.put(
         lastName: lastName ?? undefined,
         description: description === undefined ? undefined : description || null,
         emailNotificationPrefs: emailNotificationPrefs ?? undefined,
-        // Consumers only store preferred methods — never a reference or notes.
+        // Consumers only store preferred methods — never a pay-to number or notes.
         paymentInfo: paymentInfo === undefined ? undefined : { methods: toPaymentMethods(paymentInfo) },
       },
-      include: { user: true },
+      include: { user: { select: { email: true, emailVerifiedAt: true } } },
     })
 
     return ok(res, {
@@ -85,7 +87,7 @@ consumerProfileRouter.put(
       details: {
         favoriteProviders: [],
         description: consumer.description ?? undefined,
-        emailVerifiedAt: consumer.emailVerifiedAt?.toISOString(),
+        emailVerifiedAt: consumer.user.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: {
           ...defaultNotificationPrefs,
           ...(typeof consumer.emailNotificationPrefs === 'object' && consumer.emailNotificationPrefs

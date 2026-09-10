@@ -1,5 +1,6 @@
 import { getOrganizationLDSchema } from '@linkedDataSchema/organizations'
 import { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { getOrganizationAPI } from '@api/organizations/main'
 import { Organization as OrganizationType } from '@store/organizations/single/types'
 import { GenerateMetadata } from '@interfaces/components'
@@ -26,7 +27,10 @@ type Props = {
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { organizationId } = await params
-  const organization = await getOrganizationAPI({ id: organizationId })
+  const [organization, t] = await Promise.all([
+    getOrganizationAPI({ id: organizationId }),
+    getTranslations('Organizations'),
+  ])
 
   const { basic, details } = organization
   const categoryNames = basic.categories.map((category) => category.name)
@@ -35,7 +39,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   const ogImage = isUploadedAsset(details.logoUrl) ? resolveAbsoluteAssetUrl(details.logoUrl) : undefined
 
   const title = [basic.name, categoryNames.join(', ')].filter(Boolean).join(' | ')
-  const description = basic.description || `Book an appointment at ${basic.name}.`
+  const description = basic.description || t('fallbackDescription', { name: basic.name })
 
   return {
     title,
@@ -58,34 +62,37 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
 export default async function Organization({ params }: Props) {
   const { organizationId } = await params
 
-  const organization = await getOrganizationAPI({ id: organizationId })
+  const [organization, tCommon] = await Promise.all([
+    getOrganizationAPI({ id: organizationId }),
+    getTranslations('Common'),
+  ])
 
   const { basic, details } = organization
   // Stored as an ISO code, so it reads in whatever language the page is in.
   const locale = await currentLocale()
 
   const detailItems: AppDescriptionListItem[] = [
-    { key: 'phone', label: 'Phone', value: <AppLink href={`tel:${details.phone}`}>{details.phone}</AppLink> },
+    { key: 'phone', label: tCommon('phone'), value: <AppLink href={`tel:${details.phone}`}>{details.phone}</AppLink> },
     {
       key: 'address',
-      label: 'Address',
+      label: tCommon('address'),
       value: (
         <AppLink href={generateGoogleMapsLink(details.location.address)} target='_blank'>
           {details.location.address}
         </AppLink>
       ),
     },
-    { key: 'email', label: 'Email', value: <AppLink href={`mailto:${details.email}`}>{details.email}</AppLink> },
+    { key: 'email', label: tCommon('email'), value: <AppLink href={`mailto:${details.email}`}>{details.email}</AppLink> },
     {
       key: 'website',
-      label: 'Website',
+      label: tCommon('website'),
       value: (
         <AppLink href={details.website} target='_blank'>
           {details.website}
         </AppLink>
       ),
     },
-    { key: 'country', label: 'Country', value: getCountryName(details.country, locale) },
+    { key: 'country', label: tCommon('country'), value: getCountryName(details.country, locale) },
   ]
 
   return (

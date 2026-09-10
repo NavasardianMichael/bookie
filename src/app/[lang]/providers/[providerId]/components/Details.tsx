@@ -1,6 +1,7 @@
 'use client'
 
 import { FC, useEffect, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { SingleProvider } from '@store/providers/single/types'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -27,6 +28,7 @@ type Props = {
  * paint it is still empty, and a list read from it would flash in.
  */
 export const ProviderDetails: FC<Props> = ({ initialState }) => {
+  const t = useTranslations('Booking')
   const providerStore = useSingleProviderStore()
 
   const services = useMemo(
@@ -47,10 +49,10 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
         <Surface>
           <div className='mb-5'>
             <AppTitle level='h3' size='h3'>
-              Choose a service
+              {t('chooseService')}
             </AppTitle>
             <AppParagraph size='body-sm' className='m-0'>
-              Its duration sets the length of every slot offered below.
+              {t('chooseServiceHint')}
             </AppParagraph>
           </div>
 

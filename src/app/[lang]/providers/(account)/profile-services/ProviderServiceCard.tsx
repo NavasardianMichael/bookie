@@ -4,6 +4,7 @@ import { FC, useCallback, useMemo } from 'react'
 import { DeleteOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Tag } from 'antd'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
@@ -35,6 +36,7 @@ const MENU_KEYS = { edit: 'edit', delete: 'delete' } as const
  * buttons reads as a toolbar rather than a catalogue.
  */
 export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDelete }) => {
+  const t = useTranslations('Services')
   const resolvedImage = resolveAssetUrl(service.image)
 
   const handleMenuClick = useCallback(
@@ -47,10 +49,10 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
 
   const items = useMemo(
     () => [
-      { key: MENU_KEYS.edit, icon: <EditOutlined />, label: 'Edit service' },
-      { key: MENU_KEYS.delete, icon: <DeleteOutlined />, label: 'Delete service', danger: true },
+      { key: MENU_KEYS.edit, icon: <EditOutlined />, label: t('edit') },
+      { key: MENU_KEYS.delete, icon: <DeleteOutlined />, label: t('deleteService'), danger: true },
     ],
-    []
+    [t]
   )
 
   return (
@@ -79,7 +81,7 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
             <Button
               type='text'
               icon={<MoreOutlined />}
-              aria-label={`Actions for ${service.name}`}
+              aria-label={t('actionsFor', { name: service.name })}
               className='min-h-11 min-w-11'
             />
           </Dropdown>
@@ -95,7 +97,7 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
           </AppParagraph>
         ) : (
           <AppParagraph size='body-sm' className='m-0 line-clamp-2 italic'>
-            No description yet.
+            {t('noDescription')}
           </AppParagraph>
         )}
       </div>
@@ -112,13 +114,13 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
           <span className={cn('flex items-center gap-1.5 font-semibold', !isPriced && 'text-brand-muted')}>
             <CreditCardIcon aria-hidden className='h-4 w-4' />
             <AppText size='caption' tone={isPriced ? 'default' : 'muted'} numeric>
-              {isPriced ? `${service.price} ${service.currency ?? ''}`.trim() : 'No price'}
+              {isPriced ? `${service.price} ${service.currency ?? ''}`.trim() : t('noPrice')}
             </AppText>
           </span>
         </div>
 
         <Tag color={isPriced ? 'success' : undefined} className='m-0 uppercase'>
-          {isPriced ? 'Active' : 'Incomplete'}
+          {isPriced ? t('active') : t('incomplete')}
         </Tag>
       </div>
     </li>
