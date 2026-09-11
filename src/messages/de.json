@@ -43,10 +43,110 @@
     "providers": "Entdecken",
     "categories": "Kategorien",
     "organizations": "Organisationen",
-    "phoneNumberInput": "Anmelden",
+    "signIn": "Anmelden",
     "accountTypeSelection": "Loslegen",
     "account": "Konto",
     "accountSettings": "Kontoeinstellungen"
+  },
+  "Auth": {
+    "continueWithGoogle": "Mit Google fortfahren",
+    "orWithEmail": "oder mit E-Mail",
+    "backToSignIn": "Zurück zur Anmeldung",
+    "termsLead": "Mit der Erstellung eines Kontos akzeptieren Sie unsere",
+    "roles": {
+      "consumer": "Ich buche einen Service",
+      "provider": "Ich biete einen Service an"
+    },
+    "fields": {
+      "email": "E-Mail",
+      "emailPlaceholder": "name@beispiel.de",
+      "professionalEmail": "Geschäftliche E-Mail",
+      "password": "Passwort",
+      "passwordPlaceholder": "Ihr Passwort",
+      "choosePasswordPlaceholder": "Mindestens 8 Zeichen",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "firstName": "Vorname",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Nachname",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Telefonnummer",
+      "phoneMandatory": "Telefonnummer (Pflichtfeld)",
+      "mobileNumber": "Mobilnummer",
+      "organization": "Organisation"
+    },
+    "validation": {
+      "passwordTooShort": "Das Passwort muss mindestens {min} Zeichen lang sein",
+      "passwordTooLong": "Das Passwort darf höchstens {max} Zeichen lang sein",
+      "passwordsDoNotMatch": "Die beiden Passwörter stimmen nicht überein",
+      "organizationRequired": "Bitte geben Sie eine Organisation an",
+      "passwordRequired": "Bitte geben Sie ein Passwort ein",
+      "passwordNeedsLetterAndNumber": "Das Passwort muss mindestens einen Buchstaben und eine Ziffer enthalten",
+      "passwordContainsEmail": "Das Passwort darf Ihre E-Mail-Adresse nicht enthalten"
+    },
+    "signIn": {
+      "title": "Willkommen zurück",
+      "subtitle": "Melden Sie sich an, um Ihre Buchungen zu verwalten.",
+      "submit": "Anmelden",
+      "forgotPassword": "Passwort vergessen?",
+      "noAccount": "Neu bei Bookie?",
+      "createAccount": "Konto erstellen",
+      "resendVerification": "Bestätigungslink erneut senden",
+      "verificationResent": "Gesendet. Sehen Sie in Ihrem Posteingang nach."
+    },
+    "consumerRegistration": {
+      "submit": "Konto erstellen"
+    },
+    "providerRegistration": {
+      "submit": "Anbieterkonto erstellen"
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, um ein neues Passwort zu wählen.",
+      "submit": "Link senden",
+      "sentTitle": "Sehen Sie in Ihrem Posteingang nach",
+      "sentBody": "Falls ein Konto mit dieser Adresse existiert, ist ein Link zum Zurücksetzen unterwegs."
+    },
+    "resetPassword": {
+      "title": "Neues Passwort wählen",
+      "subtitle": "Wählen Sie mindestens {min} Zeichen.",
+      "submit": "Neues Passwort speichern",
+      "doneTitle": "Passwort aktualisiert",
+      "doneBody": "Alle angemeldeten Geräte wurden abgemeldet. Melden Sie sich mit Ihrem neuen Passwort erneut an.",
+      "invalidTitle": "Dieser Link ist ungültig",
+      "invalidBody": "Er ist möglicherweise abgelaufen oder wurde bereits verwendet. Fordern Sie einen neuen an.",
+      "requestNew": "Neuen Link anfordern"
+    },
+    "verifyEmail": {
+      "verifying": "E-Mail wird bestätigt …",
+      "doneTitle": "E-Mail bestätigt",
+      "doneBody": "Ihr Konto ist bereit. Melden Sie sich an, um loszulegen.",
+      "signInNow": "Anmelden",
+      "failedTitle": "Wir konnten diese E-Mail nicht bestätigen",
+      "failedBody": "Der Link ist möglicherweise abgelaufen oder wurde bereits verwendet. Melden Sie sich an, um einen neuen anzufordern."
+    },
+    "callback": {
+      "signingIn": "Sie werden angemeldet …"
+    },
+    "completeRegistration": {
+      "title": "Einrichtung abschließen",
+      "subtitle": "Angemeldet als {email}. Wir benötigen noch zwei Angaben, bevor Sie buchen können.",
+      "roleLabel": "Wie werden Sie Bookie nutzen?",
+      "submit": "Fertigstellen"
+    },
+    "googleErrors": {
+      "generic": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut.",
+      "google_unavailable": "Die Google-Anmeldung ist derzeit nicht verfügbar. Nutzen Sie stattdessen E-Mail und Passwort.",
+      "google_denied": "Sie haben die Google-Anmeldung abgebrochen.",
+      "google_state_missing": "Dieser Anmeldeversuch ist abgelaufen. Bitte versuchen Sie es erneut.",
+      "google_state_mismatch": "Dieser Anmeldeversuch konnte nicht überprüft werden. Bitte versuchen Sie es erneut.",
+      "google_exchange_failed": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut.",
+      "google_email_unverified": "Google hat diese E-Mail-Adresse nicht bestätigt, daher können wir Sie damit nicht anmelden.",
+      "google_account_exists": "Diese E-Mail-Adresse wird bereits verwendet. Melden Sie sich mit Ihrem Passwort an und verknüpfen Sie Google in den Einstellungen.",
+      "google_account_mismatch": "Dieses Google-Konto ist bereits mit einem anderen Bookie-Konto verknüpft.",
+      "google_already_linked": "Ihr Konto ist bereits mit Google verknüpft.",
+      "google_unauthorized": "Melden Sie sich zuerst an und verknüpfen Sie Google dann in den Einstellungen."
+    }
   },
   "Booking": {
     "confirmTitle": "Buchung bestätigen",

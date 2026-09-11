@@ -136,27 +136,19 @@ Use the **canonical** class name, not a legacy alias — Tailwind still compiles
 ## Before you're done
 
 ```bash
-CODE="--include=*.ts --include=*.tsx --include=*.css"
-
-grep -rn  "dark:" src $CODE                                    # 0
-grep -rnoE "[a-z0-9)\]]!'" src --include=*.tsx                 # 0
-grep -rnE "\b(2xl|3xl):[a-z]" src --include=*.tsx              # 0
-grep -rnE "h-\[[0-9]+px\]" src --include=*.tsx                 # 0
-grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/styles/"   # 0
-grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)" src $CODE   # 0
-
-# deprecated antd props — full mapping in src/components/CLAUDE.md
-grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName|addonBefore|addonAfter)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b" src --include=*.ts --include=*.tsx   # 0
-
-# dialogs go through AppConfirmModal / AppSheet — see src/components/CLAUDE.md
-grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"   # 0
-
-pnpm typecheck && pnpm lint && pnpm test
+pnpm verify
 ```
 
-All eight return 0 today. The `--include` scoping is required — without it each pattern
-matches the docs that describe it, and the gate can never pass. `BreakpointInvariant`
-should stay silent in the dev console.
+That runs the twelve design-system and export-style gates (`pnpm gates` →
+`scripts/gates.mjs`) alongside typecheck, lint, test and build. What each gate checks and
+why is tabulated in `src/styles/CLAUDE.md`; the deprecated-antd-prop mapping is in
+`src/components/CLAUDE.md`.
+
+Do not hand-write these greps any more. They lived here as a copy, that copy drifted — it
+was missing `Statistic.Countdown` — and one of them never worked at all. The script is the
+source of truth.
+
+`BreakpointInvariant` should stay silent in the dev console.
 
 The full gate list, with the reasoning behind each, is in `src/styles/CLAUDE.md` — except
 the antd deprecation and raw-`Modal` gates, which are explained in

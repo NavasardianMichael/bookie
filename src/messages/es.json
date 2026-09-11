@@ -43,10 +43,110 @@
     "providers": "Explorar",
     "categories": "Categorías",
     "organizations": "Organizaciones",
-    "phoneNumberInput": "Iniciar sesión",
+    "signIn": "Iniciar sesión",
     "accountTypeSelection": "Empezar",
     "account": "Cuenta",
     "accountSettings": "Ajustes de la cuenta"
+  },
+  "Auth": {
+    "continueWithGoogle": "Continuar con Google",
+    "orWithEmail": "o con correo electrónico",
+    "backToSignIn": "Volver al inicio de sesión",
+    "termsLead": "Al crear una cuenta aceptas nuestros",
+    "roles": {
+      "consumer": "Quiero reservar un servicio",
+      "provider": "Ofrezco un servicio"
+    },
+    "fields": {
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "professionalEmail": "Correo profesional",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Tu contraseña",
+      "choosePasswordPlaceholder": "Al menos 8 caracteres",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Apellidos",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Número de teléfono",
+      "phoneMandatory": "Número de teléfono (obligatorio)",
+      "mobileNumber": "Número de móvil",
+      "organization": "Organización"
+    },
+    "validation": {
+      "passwordTooShort": "La contraseña debe tener al menos {min} caracteres",
+      "passwordTooLong": "La contraseña no puede superar los {max} caracteres",
+      "passwordsDoNotMatch": "Las dos contraseñas no coinciden",
+      "organizationRequired": "Indica una organización",
+      "passwordRequired": "Introduce una contraseña",
+      "passwordNeedsLetterAndNumber": "La contraseña debe contener al menos una letra y un número",
+      "passwordContainsEmail": "La contraseña no puede contener tu correo electrónico"
+    },
+    "signIn": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión para gestionar tus reservas.",
+      "submit": "Iniciar sesión",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿Nuevo en Bookie?",
+      "createAccount": "Crear una cuenta",
+      "resendVerification": "Reenviar el enlace de verificación",
+      "verificationResent": "Enviado. Revisa tu bandeja de entrada."
+    },
+    "consumerRegistration": {
+      "submit": "Crear cuenta"
+    },
+    "providerRegistration": {
+      "submit": "Crear cuenta de profesional"
+    },
+    "forgotPassword": {
+      "title": "Restablecer tu contraseña",
+      "subtitle": "Introduce tu correo y te enviaremos un enlace para elegir una nueva contraseña.",
+      "submit": "Enviar enlace",
+      "sentTitle": "Revisa tu correo",
+      "sentBody": "Si existe una cuenta con esa dirección, el enlace para restablecer la contraseña está en camino."
+    },
+    "resetPassword": {
+      "title": "Elige una nueva contraseña",
+      "subtitle": "Usa al menos {min} caracteres.",
+      "submit": "Guardar nueva contraseña",
+      "doneTitle": "Contraseña actualizada",
+      "doneBody": "Se ha cerrado la sesión en todos los dispositivos. Inicia sesión de nuevo con tu nueva contraseña.",
+      "invalidTitle": "Este enlace no es válido",
+      "invalidBody": "Puede haber caducado o haberse usado ya. Solicita uno nuevo para continuar.",
+      "requestNew": "Solicitar un enlace nuevo"
+    },
+    "verifyEmail": {
+      "verifying": "Confirmando tu correo…",
+      "doneTitle": "Correo confirmado",
+      "doneBody": "Tu cuenta está lista. Inicia sesión para empezar.",
+      "signInNow": "Iniciar sesión",
+      "failedTitle": "No hemos podido confirmar este correo",
+      "failedBody": "El enlace puede haber caducado o haberse usado ya. Inicia sesión para solicitar uno nuevo."
+    },
+    "callback": {
+      "signingIn": "Iniciando sesión…"
+    },
+    "completeRegistration": {
+      "title": "Termina de configurar tu cuenta",
+      "subtitle": "Sesión iniciada como {email}. Necesitamos dos datos más antes de que puedas reservar.",
+      "roleLabel": "¿Cómo vas a usar Bookie?",
+      "submit": "Finalizar"
+    },
+    "googleErrors": {
+      "generic": "El inicio de sesión con Google no se completó. Inténtalo de nuevo.",
+      "google_unavailable": "El inicio de sesión con Google no está disponible ahora. Usa tu correo y contraseña.",
+      "google_denied": "Has cancelado el inicio de sesión con Google.",
+      "google_state_missing": "Ese intento de inicio de sesión ha caducado. Inténtalo de nuevo.",
+      "google_state_mismatch": "No se ha podido verificar ese intento de inicio de sesión. Inténtalo de nuevo.",
+      "google_exchange_failed": "El inicio de sesión con Google no se completó. Inténtalo de nuevo.",
+      "google_email_unverified": "Google no ha confirmado esa dirección de correo, así que no podemos usarla para iniciar tu sesión.",
+      "google_account_exists": "Ya existe una cuenta con ese correo. Inicia sesión con tu contraseña y vincula Google desde los ajustes.",
+      "google_account_mismatch": "Esa cuenta de Google ya está vinculada a otra cuenta de Bookie.",
+      "google_already_linked": "Tu cuenta ya está vinculada a Google.",
+      "google_unauthorized": "Inicia sesión primero y vincula Google desde los ajustes."
+    }
   },
   "Booking": {
     "confirmTitle": "Confirma tu reserva",

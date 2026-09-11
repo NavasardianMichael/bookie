@@ -36,9 +36,12 @@ Open [http://localhost:4141](http://localhost:4141).
 | `pnpm db:up` / `pnpm db:down` | Docker Postgres |
 | `pnpm db:migrate` | Apply migrations |
 | `pnpm db:seed` | Seed sample data |
-| `pnpm lint` | ESLint |
+| `pnpm verify` | **The full guard** — typecheck (web + server), gates, lint, test, build |
+| `pnpm lint` | ESLint (`--max-warnings 0`) |
 | `pnpm lint-fix` | ESLint with auto-fix (imports, etc.) |
-| `pnpm typecheck` | TypeScript |
+| `pnpm typecheck` | TypeScript — web only, the root tsconfig excludes `server/` |
+| `pnpm typecheck:server` | TypeScript for the API package |
+| `pnpm gates` | Design-system + export-style grep gates |
 
 ## Documentation
 

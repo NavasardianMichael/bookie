@@ -106,6 +106,20 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // Repo tooling: the gate runner walks `src/`, the PostToolUse hook lints the one file
+    // the harness just wrote. Every path is derived from the repo root or from the hook
+    // payload, which is validated against the root before use — there is no user input
+    // and no request in either. `detect-non-literal-fs-filename` is aimed at traversal
+    // from untrusted input, so here it only fires on the whole point of the file.
+    files: ['scripts/**/*.mjs', '.claude/hooks/**/*.mjs', '.cursor/hooks/**/*.mjs'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      'security/detect-non-literal-fs-filename': 'off',
+    },
+  },
+  {
     files: ['tests/**/*.ts', '*.config.{ts,mts}'],
     languageOptions: {
       globals: globals.node,

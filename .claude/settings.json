@@ -1,6 +1,12 @@
 {
   "permissions": {
     "allow": [
+      "Bash(pnpm verify)",
+      "Bash(pnpm gates)",
+      "Bash(pnpm typecheck:server)",
+      "PowerShell(pnpm verify)",
+      "PowerShell(pnpm gates)",
+      "PowerShell(pnpm typecheck:server)",
       "Bash(pnpm typecheck)",
       "Bash(pnpm lint)",
       "Bash(pnpm lint-fix)",
@@ -46,6 +52,17 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/deny-env-access.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/eslint-fix.mjs\""
           }
         ]
       }

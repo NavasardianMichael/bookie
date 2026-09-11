@@ -122,7 +122,7 @@ add beside them is a named export like the rest of `src/`.
 ## Verify
 
 ```bash
-pnpm typecheck && pnpm lint-fix && pnpm build
+pnpm verify
 ```
 
 `pnpm build` matters here specifically — a Server Component importing something

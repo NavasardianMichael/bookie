@@ -81,7 +81,7 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
   A hand-rolled one loses the danger tone, the awaited `onConfirm` that locks every
   dismissal route while the request is in flight, the caught rejection that keeps the
   dialog open, and the translated Confirm/Cancel/Close defaults. Gate:
-  `grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"` → 0.
+  enforced by `pnpm gates`.
 - Don't write a call-site `try`/`catch` inside an `AppConfirmModal` `onConfirm` — the
   modal already catches, reports via `processError`, and stays open on failure.
 - Don't re-export an antd wrapper from `ui/index.ts` — it pulls antd's client

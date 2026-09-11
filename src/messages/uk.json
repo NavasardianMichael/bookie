@@ -43,10 +43,110 @@
     "providers": "Огляд",
     "categories": "Категорії",
     "organizations": "Організації",
-    "phoneNumberInput": "Увійти",
+    "signIn": "Увійти",
     "accountTypeSelection": "Почати",
     "account": "Обліковий запис",
     "accountSettings": "Налаштування облікового запису"
+  },
+  "Auth": {
+    "continueWithGoogle": "Продовжити з Google",
+    "orWithEmail": "або електронною поштою",
+    "backToSignIn": "Повернутися до входу",
+    "termsLead": "Створюючи обліковий запис, ви погоджуєтесь із нашими",
+    "roles": {
+      "consumer": "Я бронюю послугу",
+      "provider": "Я надаю послугу"
+    },
+    "fields": {
+      "email": "Електронна пошта",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "Робоча електронна пошта",
+      "password": "Пароль",
+      "passwordPlaceholder": "Ваш пароль",
+      "choosePasswordPlaceholder": "Щонайменше 8 символів",
+      "newPassword": "Новий пароль",
+      "confirmPassword": "Підтвердьте пароль",
+      "firstName": "Ім'я",
+      "firstNamePlaceholder": "Алекс",
+      "lastName": "Прізвище",
+      "lastNamePlaceholder": "Морган",
+      "phone": "Номер телефону",
+      "phoneMandatory": "Номер телефону (обов'язково)",
+      "mobileNumber": "Номер мобільного",
+      "organization": "Організація"
+    },
+    "validation": {
+      "passwordTooShort": "Пароль має містити щонайменше {min} символів",
+      "passwordTooLong": "Пароль не може перевищувати {max} символів",
+      "passwordsDoNotMatch": "Паролі не збігаються",
+      "organizationRequired": "Будь ласка, вкажіть організацію",
+      "passwordRequired": "Будь ласка, введіть пароль",
+      "passwordNeedsLetterAndNumber": "Пароль має містити щонайменше одну літеру та одну цифру",
+      "passwordContainsEmail": "Пароль не повинен містити вашу електронну адресу"
+    },
+    "signIn": {
+      "title": "З поверненням",
+      "subtitle": "Увійдіть, щоб керувати своїми бронюваннями.",
+      "submit": "Увійти",
+      "forgotPassword": "Забули пароль?",
+      "noAccount": "Уперше на Bookie?",
+      "createAccount": "Створити обліковий запис",
+      "resendVerification": "Надіслати посилання ще раз",
+      "verificationResent": "Надіслано. Перевірте вашу пошту."
+    },
+    "consumerRegistration": {
+      "submit": "Створити обліковий запис"
+    },
+    "providerRegistration": {
+      "submit": "Створити обліковий запис виконавця"
+    },
+    "forgotPassword": {
+      "title": "Скинути пароль",
+      "subtitle": "Введіть свою електронну пошту, і ми надішлемо посилання для створення нового пароля.",
+      "submit": "Надіслати посилання",
+      "sentTitle": "Перевірте вашу пошту",
+      "sentBody": "Якщо обліковий запис із такою адресою існує, посилання для скидання вже надіслано."
+    },
+    "resetPassword": {
+      "title": "Створіть новий пароль",
+      "subtitle": "Використайте щонайменше {min} символів.",
+      "submit": "Зберегти новий пароль",
+      "doneTitle": "Пароль оновлено",
+      "doneBody": "Усі пристрої було відключено. Увійдіть знову з новим паролем.",
+      "invalidTitle": "Це посилання недійсне",
+      "invalidBody": "Можливо, термін дії минув або його вже використано. Запросіть нове, щоб продовжити.",
+      "requestNew": "Запросити нове посилання"
+    },
+    "verifyEmail": {
+      "verifying": "Підтверджуємо вашу пошту…",
+      "doneTitle": "Пошту підтверджено",
+      "doneBody": "Ваш обліковий запис готовий. Увійдіть, щоб почати.",
+      "signInNow": "Увійти",
+      "failedTitle": "Не вдалося підтвердити цю адресу",
+      "failedBody": "Термін дії посилання міг минути або його вже використано. Увійдіть, щоб запросити нове."
+    },
+    "callback": {
+      "signingIn": "Виконуємо вхід…"
+    },
+    "completeRegistration": {
+      "title": "Завершіть налаштування",
+      "subtitle": "Ви увійшли як {email}. Потрібні ще два дані, перш ніж ви зможете бронювати.",
+      "roleLabel": "Як ви користуватиметесь Bookie?",
+      "submit": "Завершити"
+    },
+    "googleErrors": {
+      "generic": "Вхід через Google не завершено. Спробуйте ще раз.",
+      "google_unavailable": "Вхід через Google зараз недоступний. Скористайтесь поштою та паролем.",
+      "google_denied": "Ви скасували вхід через Google.",
+      "google_state_missing": "Термін дії цієї спроби входу минув. Спробуйте ще раз.",
+      "google_state_mismatch": "Не вдалося перевірити цю спробу входу. Спробуйте ще раз.",
+      "google_exchange_failed": "Вхід через Google не завершено. Спробуйте ще раз.",
+      "google_email_unverified": "Google не підтвердив цю адресу, тому ми не можемо використати її для входу.",
+      "google_account_exists": "Обліковий запис із такою поштою вже існує. Увійдіть з паролем, а потім приєднайте Google у налаштуваннях.",
+      "google_account_mismatch": "Цей обліковий запис Google уже приєднано до іншого облікового запису Bookie.",
+      "google_already_linked": "Ваш обліковий запис уже приєднано до Google.",
+      "google_unauthorized": "Спершу увійдіть, а потім приєднайте Google у налаштуваннях."
+    }
   },
   "Booking": {
     "confirmTitle": "Підтвердьте бронювання",

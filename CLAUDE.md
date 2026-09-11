@@ -14,7 +14,10 @@ pnpm watch          # alias for `pnpm dev`
 pnpm dev:web        # web only, :4141 (turbopack)
 pnpm server:dev     # api only, :4142
 
-pnpm typecheck      # verification loop, in the order that fails fastest
+pnpm verify         # the whole guard, in the order that fails fastest — run this
+pnpm typecheck      # web only; the root tsconfig excludes server/
+pnpm typecheck:server
+pnpm gates          # design-system + export-style grep gates (scripts/gates.mjs)
 pnpm lint           # `pnpm lint-fix` for the simple-import-sort churn
 pnpm test           # unit + integration (vitest)
 pnpm build
@@ -24,9 +27,13 @@ pnpm db:up          # Postgres via Docker Desktop
 pnpm db:setup       # migrate + seed
 ```
 
-**There is no CI.** `typecheck → lint → test → build` is the only guard; run it before
-declaring anything done. Every seeded account uses the password `bookie-dev-1234`; the
-emails are in `docs/DEV_CREDS.md`.
+**There is no CI.** `pnpm verify` is the only guard — `typecheck → typecheck:server →
+gates → lint → test → build`, ~25s end to end — so run it before declaring anything done.
+Prefer it over running the steps individually: it is the only spelling that covers
+`server/` (the root `tsconfig.json` excludes it) and the grep gates.
+
+Every seeded account uses the password `bookie-dev-1234`; the emails are in
+`docs/DEV_CREDS.md`.
 
 ## Path alias
 

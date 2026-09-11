@@ -135,25 +135,35 @@ default font size would silently desync the two.
 
 ## Grep gates
 
-All of these return **0** today. Re-run after any change here.
-
-Every gate is scoped to code file types. That is deliberate: without `--include`, each
-pattern matches this very file and the gate can never pass. Some also match explanatory
-comments in `theme.ts` / `tokens.ts` / `globals.css`, which is why the `!`-suffix and
-`h-[NNpx]` gates are `.tsx`-only.
-
 ```bash
-CODE="--include=*.ts --include=*.tsx --include=*.css"
-
-grep -rn  "dark:" src $CODE                                    # 0, permanently
-grep -rn  "combineClassNames" src $CODE                        # 0
-grep -rn  "bookie-blue\|bookie-gray" src $CODE                 # 0
-grep -rnoE "[a-z0-9)\]]!'" src --include=*.tsx                 # 0 — no `!` suffixes
-grep -rnE "\b(2xl|3xl):[a-z]" src --include=*.tsx              # 0 — deleted breakpoints
-grep -rnE "h-\[[0-9]+px\]" src --include=*.tsx                 # 0 — use control tokens
-grep -rnE "#[0-9a-fA-F]{3,8}" src --include=*.ts --include=*.tsx | grep -v "src/styles/"   # 0
-grep -rnE "(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)" src $CODE   # 0 — legacy class aliases
+pnpm gates      # also runs inside `pnpm verify`
 ```
+
+The gates live in **`scripts/gates.mjs`**, which is the source of truth. They used to be
+prose here, in `src/components/CLAUDE.md` and in the `design-system` skill — three copies,
+none of them executable, and they had already drifted apart. Add a new gate to the script;
+this section explains *why* each exists, not how it is spelled.
+
+| Gate | Why |
+|---|---|
+| no `dark:` variants | One light theme, permanently |
+| no `combineClassNames` | Superseded by `cn()` |
+| no `bookie-blue` / `bookie-gray` | Colours come from `tokens.ts` |
+| no `!` class suffixes | Move the value into an antd token instead |
+| no `2xl:` / `3xl:` | Both scales were deleted |
+| no `h-[NNpx]` | Use the control-height tokens |
+| no hex outside `src/styles/` | A hex belongs in `tokens.ts` and nowhere else |
+| no legacy Tailwind aliases | They still compile but mean something else — trap 8 |
+
+Each gate is scoped by file extension. That is load-bearing: unscoped, every pattern
+matches the docs describing it and the gate can never pass. It is also why the script sits
+in `scripts/` rather than under `src/`.
+
+**One gate was silently broken for as long as it existed.** The `!`-suffix one-liner used
+a POSIX bracket expression that treats a backslash as a literal backslash rather than an
+escape, so it only ever matched a `!` directly after a `]` — never `block!`. It reported 0
+while five real suffixes sat in `providerProfileForm/`. Those five are baselined in the
+script's `allow` list with a pointer to `docs/BACKLOG.md`; a sixth fails the gate.
 
 ## Known leak sites
 

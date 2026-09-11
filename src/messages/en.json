@@ -43,10 +43,110 @@
     "providers": "Explore",
     "categories": "Categories",
     "organizations": "Organizations",
-    "phoneNumberInput": "Sign In",
+    "signIn": "Sign In",
     "accountTypeSelection": "Get Started",
     "account": "Account",
     "accountSettings": "Account settings"
+  },
+  "Auth": {
+    "continueWithGoogle": "Continue with Google",
+    "orWithEmail": "or with email",
+    "backToSignIn": "Back to sign in",
+    "termsLead": "By creating an account you agree to our",
+    "roles": {
+      "consumer": "Booking a service",
+      "provider": "Offering a service"
+    },
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "Professional email",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "choosePasswordPlaceholder": "At least 8 characters",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "firstName": "First name",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Phone number",
+      "phoneMandatory": "Phone number (mandatory)",
+      "mobileNumber": "Mobile number",
+      "organization": "Organization"
+    },
+    "validation": {
+      "passwordTooShort": "Password must be at least {min} characters",
+      "passwordTooLong": "Password must be {max} characters or fewer",
+      "passwordsDoNotMatch": "The two passwords do not match",
+      "organizationRequired": "Please fill in Organization",
+      "passwordRequired": "Please enter a password",
+      "passwordNeedsLetterAndNumber": "Password must contain at least one letter and one number",
+      "passwordContainsEmail": "Password must not contain your email address"
+    },
+    "signIn": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to manage your bookings.",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "New to Bookie?",
+      "createAccount": "Create an account",
+      "resendVerification": "Resend the verification link",
+      "verificationResent": "Sent. Check your inbox."
+    },
+    "consumerRegistration": {
+      "submit": "Create account"
+    },
+    "providerRegistration": {
+      "submit": "Create provider account"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we will send you a link to choose a new password.",
+      "submit": "Send reset link",
+      "sentTitle": "Check your email",
+      "sentBody": "If an account exists for that address, a password reset link is on its way."
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "subtitle": "Pick something at least {min} characters long.",
+      "submit": "Save new password",
+      "doneTitle": "Password updated",
+      "doneBody": "Every device signed in to this account has been signed out. Sign in again with your new password.",
+      "invalidTitle": "This link is not valid",
+      "invalidBody": "It may have expired or already been used. Request a new one to continue.",
+      "requestNew": "Request a new link"
+    },
+    "verifyEmail": {
+      "verifying": "Confirming your email…",
+      "doneTitle": "Email confirmed",
+      "doneBody": "Your account is ready. Sign in to get started.",
+      "signInNow": "Sign in",
+      "failedTitle": "We could not confirm this email",
+      "failedBody": "The link may have expired or already been used. Sign in to request a new one."
+    },
+    "callback": {
+      "signingIn": "Signing you in…"
+    },
+    "completeRegistration": {
+      "title": "Finish setting up",
+      "subtitle": "Signed in as {email}. We need two more things before you can book.",
+      "roleLabel": "How will you use Bookie?",
+      "submit": "Finish"
+    },
+    "googleErrors": {
+      "generic": "Google sign-in did not complete. Please try again.",
+      "google_unavailable": "Google sign-in is not available right now. Use your email and password instead.",
+      "google_denied": "You cancelled Google sign-in.",
+      "google_state_missing": "That sign-in attempt expired. Please try again.",
+      "google_state_mismatch": "That sign-in attempt could not be verified. Please try again.",
+      "google_exchange_failed": "Google sign-in did not complete. Please try again.",
+      "google_email_unverified": "Google has not confirmed that email address, so we cannot use it to sign you in.",
+      "google_account_exists": "An account already uses that email. Sign in with your password, then link Google from your settings.",
+      "google_account_mismatch": "That Google account is already linked to a different Bookie account.",
+      "google_already_linked": "Your account is already linked to Google.",
+      "google_unauthorized": "Sign in first, then link Google from your settings."
+    }
   },
   "Booking": {
     "confirmTitle": "Confirm your booking",

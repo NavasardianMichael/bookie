@@ -17,10 +17,11 @@ export const HEADER_ROUTES: AppRouteName[] = [
 ]
 
 /**
- * Sign in and sign up are separate destinations: a returning user needs only a phone and
- * an OTP, while registration is role-specific and starts at the account-type chooser.
+ * Sign in and sign up are separate destinations: a returning user gives an email and a
+ * password (or uses Google), while registration is role-specific and starts at the
+ * account-type chooser.
  */
-export const HEADER_SIGN_IN: AppRouteName = ROUTE_KEYS.phoneNumberInput
+export const HEADER_SIGN_IN: AppRouteName = ROUTE_KEYS.signIn
 
 /** Rendered as the header's primary call to action rather than a nav link. */
 export const HEADER_CTA: AppRouteName = ROUTE_KEYS.accountTypeSelection
@@ -46,9 +47,12 @@ const HEADER_CONFIG_OVERRIDES: Partial<Record<AppRouteName, Partial<HeaderConfig
   // Full-bleed split with its own BrandLockup. A content-width header would sit the
   // mark between the two columns; hiding both logo and nav drops the bar entirely.
   [ROUTE_KEYS.consumerRegistration]: { showLogo: false, showNav: false },
-  [ROUTE_KEYS.phoneNumberInput]: { showNav: false },
-  [ROUTE_KEYS.codeInput]: { showNav: false },
-  [ROUTE_KEYS.profileCreated]: { showNav: false },
+  [ROUTE_KEYS.signIn]: { showNav: false },
+  [ROUTE_KEYS.forgotPassword]: { showNav: false },
+  [ROUTE_KEYS.resetPassword]: { showNav: false },
+  [ROUTE_KEYS.verifyEmail]: { showNav: false },
+  [ROUTE_KEYS.authCallback]: { showNav: false },
+  [ROUTE_KEYS.completeRegistration]: { showNav: false },
   [ROUTE_KEYS.logout]: { showNav: false },
 }
 

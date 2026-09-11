@@ -213,45 +213,60 @@ Three things not to undo here:
 
 ## The sign-on funnel
 
-> **⚠ This funnel no longer works against the API, and is the next thing to rebuild.**
-> Everything below still describes the screens in the tree accurately — they are phone +
-> OTP. The server moved to **email + password + Google** on 2026-09-10
-> (`20260910000000_email_password_identity`), which deleted `/identity/send-otp` and made
-> `/identity/login` take `{ email, password }`. So these screens render, and then fail on
-> submit. Do not extend them; rebuild against the routes in `docs/DATABASE_STRUCTURE.md`.
-> The gap is itemised in `docs/BACKLOG.md` under *The web app's auth funnel does not match
-> the API*.
+**Identity is an email and a password, or Google.** Phone/OTP was removed on 2026-09-11,
+the client half of the migration the API took on 2026-09-10. There is no
+`/auth/phone-number-input`, no `/auth/code-input`, and no `pendingSignOn` draft in
+`localStorage` — registration is one screen and creates the account outright.
 
 **Registration is role-specific and sign-in is not.** Which form you open decides the role,
 exactly as `design/initial prototype/{consumer,provider}_registration` have it — there is no
-account-type toggle inside a form.
+account-type toggle inside a form. The one exception is the Google completion screen, which
+*must* ask, because Google supplies no role.
 
 ```
 /auth/account-type-selection      two links, no form state
-   ├─→ /auth/consumer-registration   split screen: first/last name, mobile, optional email
-   └─→ /auth/provider-registration   card: organization combobox, first/last name, email, phone
+   ├─→ /auth/consumer-registration   split screen: name, email, password, mobile
+   └─→ /auth/provider-registration   card: organization, name, email, password, phone
                     │
-        /auth/code-input            OTP — shared with sign-in
-                    │
-        /auth/profile-created       role-aware CTA
-        ├─ consumer → /providers
-        └─ provider → /providers/profile-creation → profile-services → /providers/[id]
+                    ▼  POST /identity/register — mails a link, does NOT sign in
+        /auth/verify-email          ?token= → confirms, then → /auth/sign-in
 
-/auth/phone-number-input          sign-in for a returning user: phone → OTP
-        ├─ consumer → /
-        └─ provider → /providers/profile
+/auth/sign-in                     email + password, or Continue with Google
+   ├─ consumer → /
+   ├─ provider → /providers/profile
+   └─ /auth/forgot-password → (email) → /auth/reset-password?token=
+
+Google:  [any screen] → API /identity/google → Google → API callback
+   ├─ known account      → /auth/callback          → getMe() → role decides
+   └─ first time         → /auth/complete-registration  (role + phone) → signed in
 ```
 
-Three things that are easy to get wrong here:
+Five things that are easy to get wrong here:
 
-1. **No account is created until the OTP verifies.** A registration form writes a
-   `pendingSignOn` record (`src/helpers/localStorage.ts`) and the OTP screen replays it into
-   `POST /identity/login`. Nothing hits the API before then.
-2. **The OTP screen must not navigate on failure.** It used to `replace(profileCreated)` from
-   both the success path and the `catch`, so a wrong code reached the success screen.
-3. **`/auth/layout.tsx` is a pass-through.** The funnel's white card is `AuthCard`
+1. **Registering does not sign you in.** An unverified account cannot hold a session —
+   `middleware/auth.ts` re-checks that on *every* authenticated request, not just at login —
+   so the funnel continues from the recipient's inbox. A form that navigates into the app
+   after `register()` is a bug.
+2. **Every anti-enumeration response looks identical.** `register` and `forgot-password`
+   answer `{ value: true }` for a taken address, a new one, and a failed send alike. Do not
+   branch the UI on them: "we sent it" versus "no such account" rebuilds the oracle the
+   routes were written to remove.
+3. **`?error=` on `/auth/sign-in` is the Google failure channel.** The API's callback is a
+   browser navigation and cannot answer JSON, so it redirects back with a `GOOGLE_ERROR`
+   code. The copy lives in `Auth.googleErrors.*`, and the page reads the param in the
+   **Server Component** — `next/navigation` is a grep gate and `@i18n/navigation` exposes no
+   `useSearchParams`.
+4. **The Google button is a full-page navigation, never a fetch.** The flow is a chain of
+   top-level redirects and the API sets its cookie on its own origin part way through; an
+   XHR would follow it invisibly and leave the browser holding no session.
+5. **`/auth/layout.tsx` is a pass-through.** The funnel's white card is `AuthCard`
    (`@components/ui/layout`), which each step opts into. It cannot live in the layout because
    Next nested layouts compose rather than replace, and the consumer split screen has no card.
+
+Password rules are mirrored client-side by `usePasswordRules` (`src/hooks/`), which matches
+`server/src/lib/password.ts` **rule for rule**. A partial mirror is worse than none: the
+first version checked only length, so a password the server rejects for having no digit
+passed validation and came back as an error the form had never warned about.
 
 `src/proxy.ts` guards the signed-in areas on cookie presence only — Next's docs are explicit
 that Proxy is not an authorization layer, so real enforcement stays in the API's
@@ -268,10 +283,10 @@ Each of these is a decision, not an oversight — do not "fix" them back:
 
 | Mockup | Built as | Why |
 |---|---|---|
-| Google sign-up button + "Or register with…" divider | Omitted, both | No OAuth exists in the app or server. The divider's only job was separating social from manual entry, so it goes with the button. |
+| Google sign-up button + "Or register with…" divider | **Built, both** | Reversed on 2026-09-11. The mockup was right and the original note ("no OAuth exists") expired when the API gained it — `GoogleButton` sits above the divider on both registration screens and on sign-in. |
 | One free-text phone input | Country `Select` + number, joined by `Space.Compact` | A single field cannot be validated against a country's numbering plan. `libphonenumber-js` needs the country. |
 | Provider "Business Name" free text | Organization combobox (debounced `?q=` search) | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text still creates one. |
-| Consumer: mobile + email only | First/last name added | `Consumer.firstName`/`lastName` are non-null, and the mockup left no way to fill them — every consumer would have rendered as the server's "New Consumer". |
+| Consumer: mobile + **optional** email | First/last name added; email now **required** | Names because `Consumer.firstName`/`lastName` are non-null and the mockup left no way to fill them. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
 | Provider: 3 fields | First/last name added alongside Organization | Same reason: `Provider.firstName`/`lastName` are non-null and were being filled with "New Provider". |
 | Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height | `src/styles/CLAUDE.md` invariant 10, and `h-[NNpx]` is a grep gate. |
 | `text-5xl` hero headline | `AppTitle size='h1'` | The fluid scale's `display` step is 72px at `lg`, too large for a half-width panel; `h1` caps at 40px. |
@@ -331,8 +346,7 @@ their default binding, so a named export breaks routing rather than merely readi
 Do not "fix" these into named exports.
 
 Everything else in this directory has a free choice, so it follows the repo preference for
-a named export: `HomeHeroPreview.tsx`, `[providerId]/components/*`,
-`auth/code-input/OTPCodeInput.tsx`.
+a named export: `HomeHeroPreview.tsx`, `[providerId]/components/*`, `auth/sign-in/SignInForm.tsx`.
 
 Where the default is required, still **declare it inline** — `export default function Page()`
 rather than `const Page = () => …` plus a trailing `export default Page`. `eslint.config.mjs`

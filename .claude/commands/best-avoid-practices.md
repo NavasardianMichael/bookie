@@ -110,7 +110,9 @@ documentation. Say which you chose and why.
 
 ## 7. Verify and report
 
-- If you changed code, run `pnpm typecheck && pnpm lint && pnpm test`.
+- If you changed code, run `pnpm verify`.
+- If the rule is mechanically greppable, add it to `scripts/gates.mjs` rather than only
+  writing it down — `pnpm gates` is what makes a rule enforced instead of aspirational.
 - Re-run any gate you added and confirm the number.
 - Report: what the rule now says, which file it went in, how the codebase measured
   against it, and whether anything still violates it.

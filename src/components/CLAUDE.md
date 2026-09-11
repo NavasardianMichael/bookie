@@ -79,9 +79,8 @@ A call site that hand-rolls a `Modal` loses all six, which is what the two delet
 in this repo used to do — one of them titled `"Modal"`, both dismissible mid-request.
 Gate — `<Modal` belongs to the two wrappers and nowhere else:
 
-```bash
-grep -rn "<Modal" src --include=*.tsx | grep -v "src/components/ui/App"   # 0
-```
+Enforced by `pnpm gates` (`scripts/gates.mjs`) — `<Modal` belongs to the two wrappers
+and nowhere else.
 
 ## antd props go stale — read the type before you use one
 
@@ -119,11 +118,8 @@ The direction v6 keeps moving in is **one object prop absorbing a flat family**:
 That table is a snapshot, not the source of truth —
 `grep -rn "@deprecated" node_modules/antd/es/*/*.d.ts` is. Re-read it after any antd bump.
 
-Gate — keep at zero:
-
-```bash
-grep -rnE "\b(bordered|showArrow|dropdown(ClassName|Style|Render|MatchSelectWidth)|onDropdownVisibleChange|popupClassName|dataSource|autoClearSearchValue|optionFilterProp|filterSort|filterOption|searchValue|onSearch|bodyStyle|headStyle|onAfterChange|orientationMargin|destroyOnClose|maskClosable|wrapperClassName|addonBefore|addonAfter)=|\b(Select|AutoComplete|TreeSelect|Cascader)\.(Option|OptGroup)\b|\bStatistic\.Countdown\b|antd/es/statistic/Countdown" src --include=*.ts --include=*.tsx   # 0
-```
+Enforced by `pnpm gates` — the prop list lives in `scripts/gates.mjs`. Add a name there
+when a new deprecation lands, not to a grep in a doc.
 
 It deliberately omits `Space direction=` and `Divider type=` — those names are legitimate
 on our own components (`NavLinks orientation`, `ConfigProvider direction`, every `type=`),
@@ -146,10 +142,7 @@ at every call site. A default export would let each importer rename it silently,
 what made `ProviderProfileFormImage.tsx` export a component called
 `ProviderProfileImage`. Gates — both currently hold, keep them at zero:
 
-```bash
-grep -rn  "export default"  src/components --include=*.ts --include=*.tsx   # 0
-grep -rn  "default as"       src/components --include=*.ts                  # 0
-```
+Both are enforced by `pnpm gates`.
 
 ## A wrapper has to forward its ref
 

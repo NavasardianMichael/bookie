@@ -43,10 +43,110 @@
     "providers": "استكشاف",
     "categories": "الفئات",
     "organizations": "المؤسسات",
-    "phoneNumberInput": "تسجيل الدخول",
+    "signIn": "تسجيل الدخول",
     "accountTypeSelection": "ابدأ الآن",
     "account": "الحساب",
     "accountSettings": "إعدادات الحساب"
+  },
+  "Auth": {
+    "continueWithGoogle": "المتابعة باستخدام Google",
+    "orWithEmail": "أو بالبريد الإلكتروني",
+    "backToSignIn": "العودة إلى تسجيل الدخول",
+    "termsLead": "بإنشاء حساب فإنك توافق على",
+    "roles": {
+      "consumer": "أحجز خدمة",
+      "provider": "أقدّم خدمة"
+    },
+    "fields": {
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "البريد الإلكتروني المهني",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "كلمة المرور الخاصة بك",
+      "choosePasswordPlaceholder": "8 أحرف على الأقل",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "firstName": "الاسم الأول",
+      "firstNamePlaceholder": "أليكس",
+      "lastName": "اسم العائلة",
+      "lastNamePlaceholder": "مورغان",
+      "phone": "رقم الهاتف",
+      "phoneMandatory": "رقم الهاتف (إلزامي)",
+      "mobileNumber": "رقم الجوال",
+      "organization": "المؤسسة"
+    },
+    "validation": {
+      "passwordTooShort": "يجب أن تتكون كلمة المرور من {min} أحرف على الأقل",
+      "passwordTooLong": "يجب ألا تتجاوز كلمة المرور {max} حرفاً",
+      "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+      "organizationRequired": "يرجى إدخال المؤسسة",
+      "passwordRequired": "يرجى إدخال كلمة مرور",
+      "passwordNeedsLetterAndNumber": "يجب أن تحتوي كلمة المرور على حرف واحد ورقم واحد على الأقل",
+      "passwordContainsEmail": "يجب ألا تحتوي كلمة المرور على عنوان بريدك الإلكتروني"
+    },
+    "signIn": {
+      "title": "مرحباً بعودتك",
+      "subtitle": "سجّل الدخول لإدارة حجوزاتك.",
+      "submit": "تسجيل الدخول",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "noAccount": "جديد في Bookie؟",
+      "createAccount": "إنشاء حساب",
+      "resendVerification": "إعادة إرسال رابط التحقق",
+      "verificationResent": "تم الإرسال. تفقّد بريدك الوارد."
+    },
+    "consumerRegistration": {
+      "submit": "إنشاء حساب"
+    },
+    "providerRegistration": {
+      "submit": "إنشاء حساب مقدّم خدمة"
+    },
+    "forgotPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابطاً لاختيار كلمة مرور جديدة.",
+      "submit": "إرسال الرابط",
+      "sentTitle": "تفقّد بريدك الإلكتروني",
+      "sentBody": "إذا كان هناك حساب بهذا العنوان، فرابط إعادة التعيين في طريقه إليك."
+    },
+    "resetPassword": {
+      "title": "اختر كلمة مرور جديدة",
+      "subtitle": "اختر ما لا يقل عن {min} أحرف.",
+      "submit": "حفظ كلمة المرور الجديدة",
+      "doneTitle": "تم تحديث كلمة المرور",
+      "doneBody": "تم تسجيل الخروج من جميع الأجهزة. سجّل الدخول مجدداً بكلمة المرور الجديدة.",
+      "invalidTitle": "هذا الرابط غير صالح",
+      "invalidBody": "ربما انتهت صلاحيته أو تم استخدامه من قبل. اطلب رابطاً جديداً للمتابعة.",
+      "requestNew": "طلب رابط جديد"
+    },
+    "verifyEmail": {
+      "verifying": "جارٍ تأكيد بريدك الإلكتروني…",
+      "doneTitle": "تم تأكيد البريد الإلكتروني",
+      "doneBody": "حسابك جاهز. سجّل الدخول للبدء.",
+      "signInNow": "تسجيل الدخول",
+      "failedTitle": "تعذّر تأكيد هذا البريد الإلكتروني",
+      "failedBody": "ربما انتهت صلاحية الرابط أو تم استخدامه. سجّل الدخول لطلب رابط جديد."
+    },
+    "callback": {
+      "signingIn": "جارٍ تسجيل دخولك…"
+    },
+    "completeRegistration": {
+      "title": "أكمل الإعداد",
+      "subtitle": "تم تسجيل الدخول باسم {email}. نحتاج إلى معلومتين إضافيتين قبل أن تتمكن من الحجز.",
+      "roleLabel": "كيف ستستخدم Bookie؟",
+      "submit": "إنهاء"
+    },
+    "googleErrors": {
+      "generic": "لم يكتمل تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى.",
+      "google_unavailable": "تسجيل الدخول عبر Google غير متاح حالياً. استخدم بريدك الإلكتروني وكلمة المرور.",
+      "google_denied": "لقد ألغيت تسجيل الدخول عبر Google.",
+      "google_state_missing": "انتهت صلاحية محاولة تسجيل الدخول هذه. يرجى المحاولة مرة أخرى.",
+      "google_state_mismatch": "تعذّر التحقق من محاولة تسجيل الدخول هذه. يرجى المحاولة مرة أخرى.",
+      "google_exchange_failed": "لم يكتمل تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى.",
+      "google_email_unverified": "لم يؤكد Google عنوان البريد الإلكتروني هذا، لذا لا يمكننا استخدامه لتسجيل دخولك.",
+      "google_account_exists": "هناك حساب يستخدم هذا البريد الإلكتروني بالفعل. سجّل الدخول بكلمة المرور ثم اربط Google من الإعدادات.",
+      "google_account_mismatch": "حساب Google هذا مرتبط بالفعل بحساب Bookie آخر.",
+      "google_already_linked": "حسابك مرتبط بالفعل بـ Google.",
+      "google_unauthorized": "سجّل الدخول أولاً، ثم اربط Google من الإعدادات."
+    }
   },
   "Booking": {
     "confirmTitle": "تأكيد الحجز",

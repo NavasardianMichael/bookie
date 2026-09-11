@@ -43,10 +43,110 @@
     "providers": "Explorar",
     "categories": "Categorias",
     "organizations": "Organizações",
-    "phoneNumberInput": "Entrar",
+    "signIn": "Entrar",
     "accountTypeSelection": "Começar",
     "account": "Conta",
     "accountSettings": "Configurações da conta"
+  },
+  "Auth": {
+    "continueWithGoogle": "Continuar com o Google",
+    "orWithEmail": "ou com e-mail",
+    "backToSignIn": "Voltar para o login",
+    "termsLead": "Ao criar uma conta você aceita nossos",
+    "roles": {
+      "consumer": "Quero agendar um serviço",
+      "provider": "Ofereço um serviço"
+    },
+    "fields": {
+      "email": "E-mail",
+      "emailPlaceholder": "voce@exemplo.com",
+      "professionalEmail": "E-mail profissional",
+      "password": "Senha",
+      "passwordPlaceholder": "Sua senha",
+      "choosePasswordPlaceholder": "Pelo menos 8 caracteres",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirmar senha",
+      "firstName": "Nome",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Sobrenome",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Número de telefone",
+      "phoneMandatory": "Número de telefone (obrigatório)",
+      "mobileNumber": "Número de celular",
+      "organization": "Organização"
+    },
+    "validation": {
+      "passwordTooShort": "A senha deve ter pelo menos {min} caracteres",
+      "passwordTooLong": "A senha não pode ter mais de {max} caracteres",
+      "passwordsDoNotMatch": "As duas senhas não coincidem",
+      "organizationRequired": "Informe uma organização",
+      "passwordRequired": "Informe uma senha",
+      "passwordNeedsLetterAndNumber": "A senha deve conter pelo menos uma letra e um número",
+      "passwordContainsEmail": "A senha não pode conter seu e-mail"
+    },
+    "signIn": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Entre para gerenciar seus agendamentos.",
+      "submit": "Entrar",
+      "forgotPassword": "Esqueceu a senha?",
+      "noAccount": "Novo no Bookie?",
+      "createAccount": "Criar uma conta",
+      "resendVerification": "Reenviar o link de verificação",
+      "verificationResent": "Enviado. Confira sua caixa de entrada."
+    },
+    "consumerRegistration": {
+      "submit": "Criar conta"
+    },
+    "providerRegistration": {
+      "submit": "Criar conta de profissional"
+    },
+    "forgotPassword": {
+      "title": "Redefinir sua senha",
+      "subtitle": "Informe seu e-mail e enviaremos um link para escolher uma nova senha.",
+      "submit": "Enviar link",
+      "sentTitle": "Confira seu e-mail",
+      "sentBody": "Se existir uma conta com esse endereço, o link de redefinição está a caminho."
+    },
+    "resetPassword": {
+      "title": "Escolha uma nova senha",
+      "subtitle": "Use pelo menos {min} caracteres.",
+      "submit": "Salvar nova senha",
+      "doneTitle": "Senha atualizada",
+      "doneBody": "Todos os dispositivos conectados foram desconectados. Entre novamente com sua nova senha.",
+      "invalidTitle": "Este link não é válido",
+      "invalidBody": "Ele pode ter expirado ou já ter sido usado. Solicite um novo para continuar.",
+      "requestNew": "Solicitar um novo link"
+    },
+    "verifyEmail": {
+      "verifying": "Confirmando seu e-mail…",
+      "doneTitle": "E-mail confirmado",
+      "doneBody": "Sua conta está pronta. Entre para começar.",
+      "signInNow": "Entrar",
+      "failedTitle": "Não conseguimos confirmar este e-mail",
+      "failedBody": "O link pode ter expirado ou já ter sido usado. Entre para solicitar um novo."
+    },
+    "callback": {
+      "signingIn": "Entrando…"
+    },
+    "completeRegistration": {
+      "title": "Conclua a configuração",
+      "subtitle": "Conectado como {email}. Precisamos de mais dois dados antes de você agendar.",
+      "roleLabel": "Como você vai usar o Bookie?",
+      "submit": "Concluir"
+    },
+    "googleErrors": {
+      "generic": "O login com Google não foi concluído. Tente novamente.",
+      "google_unavailable": "O login com Google não está disponível agora. Use seu e-mail e senha.",
+      "google_denied": "Você cancelou o login com Google.",
+      "google_state_missing": "Essa tentativa de login expirou. Tente novamente.",
+      "google_state_mismatch": "Não foi possível verificar essa tentativa de login. Tente novamente.",
+      "google_exchange_failed": "O login com Google não foi concluído. Tente novamente.",
+      "google_email_unverified": "O Google não confirmou esse endereço de e-mail, então não podemos usá-lo para conectar você.",
+      "google_account_exists": "Já existe uma conta com esse e-mail. Entre com sua senha e vincule o Google nas configurações.",
+      "google_account_mismatch": "Essa conta do Google já está vinculada a outra conta do Bookie.",
+      "google_already_linked": "Sua conta já está vinculada ao Google.",
+      "google_unauthorized": "Entre primeiro e vincule o Google nas configurações."
+    }
   },
   "Booking": {
     "confirmTitle": "Confirme seu agendamento",

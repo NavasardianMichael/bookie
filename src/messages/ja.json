@@ -43,10 +43,110 @@
     "providers": "さがす",
     "categories": "カテゴリ",
     "organizations": "事業者",
-    "phoneNumberInput": "ログイン",
+    "signIn": "ログイン",
     "accountTypeSelection": "はじめる",
     "account": "アカウント",
     "accountSettings": "アカウント設定"
+  },
+  "Auth": {
+    "continueWithGoogle": "Google で続行",
+    "orWithEmail": "またはメールで",
+    "backToSignIn": "ログインに戻る",
+    "termsLead": "アカウントを作成すると、以下に同意したものとみなされます",
+    "roles": {
+      "consumer": "サービスを予約する",
+      "provider": "サービスを提供する"
+    },
+    "fields": {
+      "email": "メールアドレス",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "仕事用メールアドレス",
+      "password": "パスワード",
+      "passwordPlaceholder": "パスワード",
+      "choosePasswordPlaceholder": "8 文字以上",
+      "newPassword": "新しいパスワード",
+      "confirmPassword": "パスワードの確認",
+      "firstName": "名",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "姓",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "電話番号",
+      "phoneMandatory": "電話番号（必須）",
+      "mobileNumber": "携帯電話番号",
+      "organization": "組織"
+    },
+    "validation": {
+      "passwordTooShort": "パスワードは {min} 文字以上で入力してください",
+      "passwordTooLong": "パスワードは {max} 文字以内で入力してください",
+      "passwordsDoNotMatch": "パスワードが一致しません",
+      "organizationRequired": "組織を入力してください",
+      "passwordRequired": "パスワードを入力してください",
+      "passwordNeedsLetterAndNumber": "パスワードには英字と数字をそれぞれ 1 文字以上含めてください",
+      "passwordContainsEmail": "パスワードにメールアドレスを含めることはできません"
+    },
+    "signIn": {
+      "title": "おかえりなさい",
+      "subtitle": "ログインして予約を管理しましょう。",
+      "submit": "ログイン",
+      "forgotPassword": "パスワードをお忘れですか？",
+      "noAccount": "Bookie は初めてですか？",
+      "createAccount": "アカウントを作成",
+      "resendVerification": "確認リンクを再送信",
+      "verificationResent": "送信しました。受信トレイをご確認ください。"
+    },
+    "consumerRegistration": {
+      "submit": "アカウントを作成"
+    },
+    "providerRegistration": {
+      "submit": "提供者アカウントを作成"
+    },
+    "forgotPassword": {
+      "title": "パスワードの再設定",
+      "subtitle": "メールアドレスを入力すると、新しいパスワードを設定するリンクをお送りします。",
+      "submit": "リンクを送信",
+      "sentTitle": "メールをご確認ください",
+      "sentBody": "そのアドレスのアカウントが存在する場合、再設定用のリンクを送信しました。"
+    },
+    "resetPassword": {
+      "title": "新しいパスワードを設定",
+      "subtitle": "{min} 文字以上で設定してください。",
+      "submit": "新しいパスワードを保存",
+      "doneTitle": "パスワードを更新しました",
+      "doneBody": "ログイン中のすべての端末からログアウトしました。新しいパスワードで再度ログインしてください。",
+      "invalidTitle": "このリンクは無効です",
+      "invalidBody": "有効期限が切れたか、すでに使用された可能性があります。新しいリンクを申請してください。",
+      "requestNew": "新しいリンクを申請"
+    },
+    "verifyEmail": {
+      "verifying": "メールアドレスを確認しています…",
+      "doneTitle": "メールアドレスを確認しました",
+      "doneBody": "アカウントの準備ができました。ログインして始めましょう。",
+      "signInNow": "ログイン",
+      "failedTitle": "このメールアドレスを確認できませんでした",
+      "failedBody": "リンクの有効期限が切れたか、すでに使用された可能性があります。ログインして新しいリンクを申請してください。"
+    },
+    "callback": {
+      "signingIn": "ログインしています…"
+    },
+    "completeRegistration": {
+      "title": "設定を完了する",
+      "subtitle": "{email} でログインしています。予約の前にあと 2 点お聞きします。",
+      "roleLabel": "Bookie をどのように利用しますか？",
+      "submit": "完了"
+    },
+    "googleErrors": {
+      "generic": "Google ログインが完了しませんでした。もう一度お試しください。",
+      "google_unavailable": "Google ログインは現在ご利用いただけません。メールアドレスとパスワードをご利用ください。",
+      "google_denied": "Google ログインをキャンセルしました。",
+      "google_state_missing": "このログインの試行は期限切れです。もう一度お試しください。",
+      "google_state_mismatch": "このログインの試行を検証できませんでした。もう一度お試しください。",
+      "google_exchange_failed": "Google ログインが完了しませんでした。もう一度お試しください。",
+      "google_email_unverified": "Google がそのメールアドレスを確認していないため、ログインには使用できません。",
+      "google_account_exists": "そのメールアドレスは既に使われています。パスワードでログインし、設定から Google を連携してください。",
+      "google_account_mismatch": "その Google アカウントは別の Bookie アカウントに連携済みです。",
+      "google_already_linked": "お客様のアカウントは既に Google と連携しています。",
+      "google_unauthorized": "先にログインし、設定から Google を連携してください。"
+    }
   },
   "Booking": {
     "confirmTitle": "予約の確認",

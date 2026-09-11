@@ -64,7 +64,7 @@ Found on 2026-09-11, the hard way. `prisma.consumer.upsert({ create: { …, publ
 that union does not fire. It failed at runtime instead, as a
 `PrismaClientValidationError` on the first `pnpm db:seed`.
 
-So the documented `typecheck → lint → test → build` loop gives **false confidence for
+So `pnpm verify` gives **false confidence for
 query payloads**: a misnamed field in any `create`/`update`/`where` reaches production
 unless something executes that query. Nothing in `pnpm test` touches a database
 (`tests/CLAUDE.md` keeps the suite dependency-free), so nothing does.
@@ -138,6 +138,33 @@ All five are fixed and their `KNOWN BUG:` tests rewritten to assert the correct 
 
 Still open from the original list: `booking.ts` parses `'HH:mm'` strictly while
 `schedule.ts` parses it non-strictly, so malformed input behaves differently between them.
+
+---
+
+### 11. The `!`-suffix gate never ran
+
+Found 2026-09-11 while moving the grep gates into `scripts/gates.mjs`. The documented
+one-liner was `grep -rnoE "[a-z0-9)\]]!'"`. In a POSIX bracket expression a backslash is a
+literal backslash, not an escape, so the set parsed as *a-z, 0-9, `)`, and a literal
+backslash* — followed by a *literal* `]` — it matched only a `!` sitting directly after a `]`, never `block!`. It
+reported 0 for as long as it existed, and `src/styles/CLAUDE.md` recorded that 0 as proof
+the rule held.
+
+Five real `!` suffixes were hiding behind it, all in `src/components/providerProfileForm/`:
+
+| File | Class |
+|---|---|
+| `ProviderProfileFormGallery.tsx:99` | `mt-4!` |
+| `ProviderProfileFormGallery.tsx:103` | `rounded-tr-lg! rounded-tl-lg! block!` |
+| `ProviderProfileFormGallery.tsx:110` | `rounded-tr-none! rounded-tl-none!` |
+| `ProviderProfileFormImage.tsx:78` | `block!` |
+| `ProviderProfileFormOrganization.tsx:54` | `pl-0!` |
+
+Each overrides an antd internal, so removing one is a visual change that cannot be
+verified from the CLI — which is why they are **baselined**, not deleted: they sit in the
+`allow` list in `scripts/gates.mjs`, each naming this entry, and a sixth suffix fails the
+gate. Fixing them means moving the value into an antd token (`src/styles/CLAUDE.md`) and
+checking each of the three screens in a browser.
 
 ---
 
@@ -242,18 +269,17 @@ Needs a real browser or device:
 
 ## Infrastructure
 
-- **No CI workflow.** There is no `.github/` directory at all. A GitHub Actions workflow
-  running `typecheck + lint + test + build` is the only thing that would enforce the
-  design-system grep gates or catch a `'use client'` regression automatically — the
-  Husky pre-commit hook only runs `eslint --fix` on staged files.
-- **`pnpm typecheck` does not cover `server/`.** The root `tsconfig.json` lists `server` in
-  its `exclude`, so nothing in the documented `typecheck → lint → test → build` loop ever
-  typechecks the API. `npx tsc -p server` reports **5 errors** today, all in
-  `server/src/routes/providers.ts` (lines 201, 205, 221, 222, 227): `ProviderDraft` and the
-  `draft` / `paymentInfo` JSON columns do not satisfy Prisma's `InputJsonValue` (which
-  rejects `null` — that needs `Prisma.DbNull`), and the mapper is handed a provider selected
-  without its `categories` / `organization` relations. Fix those, then add a server
-  typecheck to the loop, or the API keeps drifting unchecked.
+- **No CI workflow.** There is no `.github/` directory at all. Now that `pnpm verify` is
+  one command that needs no database and no secrets, a workflow is about 25 lines:
+  `pnpm install --frozen-lockfile && pnpm verify`. Until it exists, the gates and the
+  server typecheck run only when someone remembers — the Husky pre-commit hook still only
+  runs `eslint --fix` on staged files.
+- ~~**`pnpm typecheck` does not cover `server/`.**~~ — done 2026-09-11. The five
+  `InputJsonValue` errors this entry listed in `server/src/routes/providers.ts` were
+  already fixed by the email/password identity work; `tsc -p server` exits 0. The gap that
+  remained was that nothing ran it. `pnpm typecheck:server` now exists and `pnpm verify`
+  runs it second, so the API cannot drift unchecked again. The root `tsconfig.json` still
+  excludes `server/` — that is correct, the two packages have different `module` settings.
 - **A stale `.next/types/validator.ts` breaks `pnpm typecheck`.** It still resolves
   `providers/profile` and `providers/profile-services` at their pre-`613a8a8` paths, before
   they moved into the `(account)` route group — both URLs still work, only the generated
@@ -266,8 +292,9 @@ Needs a real browser or device:
   a plain `create` would only surface as a `P2002` in someone's install log, or, for the
   models with no unique constraint, as silent row growth. An integration test that seeds
   twice and compares counts needs DB fixtures this repo does not have yet.
-- **No `.gitattributes`.** Every git command warns `LF will be replaced by CRLF`.
-  One line — `* text=auto eol=lf` — removes the noise permanently.
+- ~~**No `.gitattributes`.**~~ — added 2026-09-11, `* text=auto eol=lf`. Seven files had
+  been committed with CRLF against ~500 with LF; `git add --renormalize .` folded them in
+  as part of the same change, so the warning is gone rather than merely suppressed.
 - **E2E is scaffolded, not written.** `tests/e2e/smoke.spec.ts` proves the harness runs;
   the auth OTP flow, booking slot selection, and provider profile edit are the specs worth
   having, and they need `pnpm db:up && pnpm db:setup && pnpm watch` first.
@@ -305,31 +332,29 @@ Still open:
 - **`/auth/logout`'s "Delete Account Permanently" button still has no handler.**
   `DELETE /identity/account` now exists, so this is only a wiring job.
 
-### The web app's auth funnel does not match the API — nothing can sign in
+### ~~The web app's auth funnel does not match the API~~ — done 2026-09-11
 
-**This is the blocking one.** The server moved to email + password + Google
-(`20260910000000_email_password_identity`, deliberately destructive: it dropped phone
-identity and every existing account). The web app was never migrated with it, so the two
-halves no longer meet:
+The client half of the email/password + Google migration shipped. `/auth/sign-in`,
+`/auth/forgot-password`, `/auth/reset-password`, `/auth/verify-email`, `/auth/callback` and
+`/auth/complete-registration` exist; `src/api/auth/*` and the auth store speak the new
+contract; both registration screens collect an email and a password and offer Google; and
+`phone-number-input`, `code-input`, `profile-created` and `src/helpers/localStorage.ts` are
+deleted. The seven entry points that pointed at the OTP screen — Header, Footer, three
+landing CTAs, `proxy.ts`, `axiosInstance`'s 401 redirect, `AccountSettingsLayout` and the
+PWA manifest shortcut — all point at `/auth/sign-in`.
 
-| The web app still has | The API now has |
-|---|---|
-| `/auth/phone-number-input`, `/auth/code-input` (OTP) | `POST /identity/register` + `POST /identity/login` (email + password) |
-| `getCodeByPhoneNumber` → `/identity/send-otp` | route deleted; `lib/otp.ts` deleted with it |
-| `validatePhoneNumberCode` → `/identity/login` with `{ phone, otp }` | `/identity/login` takes `{ email, password }` |
-| `changePhoneSendOtp` / `changePhoneConfirm` | `PATCH /identity/phone` — no confirmation step; phone is profile data now |
-| no Google anything | `GET /identity/google` + callback + `/complete` |
-| no such routes | needs `/auth/sign-in`, `/auth/verify-email`, `/auth/reset-password`, `/auth/callback`, `/auth/complete-registration` — all five are already allow-listed in `lib/return-path.ts` and are where the API's emails and redirects point |
+Verified live against the running API: sign-in returns a session, registration answers
+`{ value: true }` with **no `Set-Cookie`**, an unverified account is refused with code
+`4002`, `forgot-password` answers identically for known and unknown addresses, and
+`PATCH /identity/phone` writes without an OTP. `Auth` is translated in all 15 catalogues.
 
-`src/api/auth/*`, the auth store, every screen under `src/app/[lang]/auth/`, and the
-`Booking`-style copy in all 15 catalogues need rebuilding. Until then the funnel in
-`src/app/CLAUDE.md` describes screens that cannot authenticate against this API.
+One thing found while wiring it, worth remembering: the client password rules originally
+checked only length, while `validatePassword` on the server also requires a letter **and** a
+digit and forbids the email's local part. A password the server rejected therefore passed
+client validation and failed on submit with a message the form had never shown.
+`usePasswordRules` (`src/hooks/`) now mirrors the policy rule for rule — **a partial mirror
+is worse than none**.
 
-Everything server-side is finished and verified: `pnpm typecheck`, `npx tsc -p server`,
-lint, 478 tests and `pnpm build` are all clean, and the API boots and serves
-`/identity/google` correctly with credentials absent.
-
----
 
 ## Smaller, carried over
 

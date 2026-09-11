@@ -21,7 +21,7 @@ const FOOTER_COLUMNS: { titleKey: string; links: { href: string; labelKey: strin
   {
     titleKey: 'account',
     links: [
-      { href: ROUTES.phoneNumberInput, labelKey: 'signIn' },
+      { href: ROUTES.signIn, labelKey: 'signIn' },
       { href: ROUTES.providerRegistration, labelKey: 'joinAsProvider' },
       { href: ROUTES.consumerRegistration, labelKey: 'createAccount' },
     ],

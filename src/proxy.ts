@@ -115,7 +115,7 @@ export function proxy(request: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
   if (isProtected && !request.cookies.get(SESSION_COOKIE)) {
     const target = request.nextUrl.clone()
-    target.pathname = `/${locale}${ROUTES.phoneNumberInput}`
+    target.pathname = `/${locale}${ROUTES.signIn}`
     return personalizedRedirect(target)
   }
 

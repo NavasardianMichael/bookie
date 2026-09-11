@@ -49,7 +49,7 @@ export const AccountSettingsLayout: FC<Props> = ({
       const session = isSignedOn && userType ? { role: userType } : await getMe()
       if (cancelled) return
       if (!session) {
-        replace(ROUTES.phoneNumberInput)
+        replace(ROUTES.signIn)
         return
       }
       if (session.role !== accountRole) {

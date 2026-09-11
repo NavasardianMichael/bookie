@@ -11,6 +11,11 @@
         "command": "node .cursor/hooks/deny-env-read.mjs",
         "failClosed": true
       }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/eslint-fix-adapter.mjs"
+      }
     ]
   }
 }

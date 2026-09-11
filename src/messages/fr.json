@@ -43,10 +43,110 @@
     "providers": "Explorer",
     "categories": "Catégories",
     "organizations": "Organisations",
-    "phoneNumberInput": "Se connecter",
+    "signIn": "Se connecter",
     "accountTypeSelection": "Commencer",
     "account": "Compte",
     "accountSettings": "Paramètres du compte"
+  },
+  "Auth": {
+    "continueWithGoogle": "Continuer avec Google",
+    "orWithEmail": "ou avec un e-mail",
+    "backToSignIn": "Retour à la connexion",
+    "termsLead": "En créant un compte, vous acceptez nos",
+    "roles": {
+      "consumer": "Je réserve une prestation",
+      "provider": "Je propose une prestation"
+    },
+    "fields": {
+      "email": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "professionalEmail": "E-mail professionnel",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Votre mot de passe",
+      "choosePasswordPlaceholder": "Au moins 8 caractères",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Numéro de téléphone",
+      "phoneMandatory": "Numéro de téléphone (obligatoire)",
+      "mobileNumber": "Numéro de mobile",
+      "organization": "Organisation"
+    },
+    "validation": {
+      "passwordTooShort": "Le mot de passe doit comporter au moins {min} caractères",
+      "passwordTooLong": "Le mot de passe ne peut pas dépasser {max} caractères",
+      "passwordsDoNotMatch": "Les deux mots de passe ne correspondent pas",
+      "organizationRequired": "Veuillez renseigner une organisation",
+      "passwordRequired": "Veuillez saisir un mot de passe",
+      "passwordNeedsLetterAndNumber": "Le mot de passe doit contenir au moins une lettre et un chiffre",
+      "passwordContainsEmail": "Le mot de passe ne doit pas contenir votre adresse e-mail"
+    },
+    "signIn": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous pour gérer vos réservations.",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Nouveau sur Bookie ?",
+      "createAccount": "Créer un compte",
+      "resendVerification": "Renvoyer le lien de vérification",
+      "verificationResent": "Envoyé. Consultez votre boîte de réception."
+    },
+    "consumerRegistration": {
+      "submit": "Créer un compte"
+    },
+    "providerRegistration": {
+      "submit": "Créer un compte prestataire"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Saisissez votre e-mail et nous vous enverrons un lien pour choisir un nouveau mot de passe.",
+      "submit": "Envoyer le lien",
+      "sentTitle": "Consultez votre boîte mail",
+      "sentBody": "Si un compte existe pour cette adresse, un lien de réinitialisation est en route."
+    },
+    "resetPassword": {
+      "title": "Choisir un nouveau mot de passe",
+      "subtitle": "Choisissez au moins {min} caractères.",
+      "submit": "Enregistrer le nouveau mot de passe",
+      "doneTitle": "Mot de passe mis à jour",
+      "doneBody": "Tous les appareils connectés ont été déconnectés. Reconnectez-vous avec votre nouveau mot de passe.",
+      "invalidTitle": "Ce lien n’est pas valide",
+      "invalidBody": "Il a peut-être expiré ou déjà été utilisé. Demandez-en un nouveau pour continuer.",
+      "requestNew": "Demander un nouveau lien"
+    },
+    "verifyEmail": {
+      "verifying": "Confirmation de votre e-mail…",
+      "doneTitle": "E-mail confirmé",
+      "doneBody": "Votre compte est prêt. Connectez-vous pour commencer.",
+      "signInNow": "Se connecter",
+      "failedTitle": "Nous n’avons pas pu confirmer cet e-mail",
+      "failedBody": "Le lien a peut-être expiré ou déjà été utilisé. Connectez-vous pour en demander un nouveau."
+    },
+    "callback": {
+      "signingIn": "Connexion en cours…"
+    },
+    "completeRegistration": {
+      "title": "Terminer la configuration",
+      "subtitle": "Connecté en tant que {email}. Il nous manque deux informations avant que vous puissiez réserver.",
+      "roleLabel": "Comment allez-vous utiliser Bookie ?",
+      "submit": "Terminer"
+    },
+    "googleErrors": {
+      "generic": "La connexion Google n’a pas abouti. Veuillez réessayer.",
+      "google_unavailable": "La connexion Google n’est pas disponible pour le moment. Utilisez votre e-mail et votre mot de passe.",
+      "google_denied": "Vous avez annulé la connexion Google.",
+      "google_state_missing": "Cette tentative de connexion a expiré. Veuillez réessayer.",
+      "google_state_mismatch": "Cette tentative de connexion n’a pas pu être vérifiée. Veuillez réessayer.",
+      "google_exchange_failed": "La connexion Google n’a pas abouti. Veuillez réessayer.",
+      "google_email_unverified": "Google n’a pas confirmé cette adresse e-mail, nous ne pouvons donc pas l’utiliser pour vous connecter.",
+      "google_account_exists": "Un compte utilise déjà cet e-mail. Connectez-vous avec votre mot de passe, puis liez Google depuis vos paramètres.",
+      "google_account_mismatch": "Ce compte Google est déjà lié à un autre compte Bookie.",
+      "google_already_linked": "Votre compte est déjà lié à Google.",
+      "google_unauthorized": "Connectez-vous d’abord, puis liez Google depuis vos paramètres."
+    }
   },
   "Booking": {
     "confirmTitle": "Confirmer votre réservation",

@@ -37,6 +37,6 @@ describe('web app manifest', () => {
     const urls = webManifest.shortcuts?.map((shortcut) => shortcut.url) ?? []
 
     expect(urls).toContain(localePath(DEFAULT_LOCALE, ROUTES.providers))
-    expect(urls).toContain(localePath(DEFAULT_LOCALE, ROUTES.phoneNumberInput))
+    expect(urls).toContain(localePath(DEFAULT_LOCALE, ROUTES.signIn))
   })
 })

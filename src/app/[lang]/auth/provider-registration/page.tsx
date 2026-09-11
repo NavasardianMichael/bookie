@@ -41,7 +41,7 @@ export default function ProviderRegistration() {
 
         <AppParagraph size='body-sm' className='text-center'>
           Already have an account?{' '}
-          <AppLink href={ROUTES.phoneNumberInput} className='text-brand font-bold'>
+          <AppLink href={ROUTES.signIn} className='text-brand font-bold'>
             Sign In
           </AppLink>
         </AppParagraph>

@@ -29,9 +29,14 @@ export const ROUTE_KEYS = {
   accountTypeSelection: 'accountTypeSelection',
   consumerRegistration: 'consumerRegistration',
   providerRegistration: 'providerRegistration',
-  phoneNumberInput: 'phoneNumberInput',
-  codeInput: 'codeInput',
-  profileCreated: 'profileCreated',
+  signIn: 'signIn',
+  forgotPassword: 'forgotPassword',
+  resetPassword: 'resetPassword',
+  verifyEmail: 'verifyEmail',
+  /** Where Google's callback lands the browser once the API has set the session cookie. */
+  authCallback: 'authCallback',
+  /** Google supplies no role or phone, so a first-time Google user finishes here. */
+  completeRegistration: 'completeRegistration',
 
   routesOverview: 'routesOverview',
 } as const
@@ -68,9 +73,12 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.accountTypeSelection]: '/auth/account-type-selection',
   [ROUTE_KEYS.consumerRegistration]: '/auth/consumer-registration',
   [ROUTE_KEYS.providerRegistration]: '/auth/provider-registration',
-  [ROUTE_KEYS.phoneNumberInput]: '/auth/phone-number-input',
-  [ROUTE_KEYS.codeInput]: '/auth/code-input',
-  [ROUTE_KEYS.profileCreated]: '/auth/profile-created',
+  [ROUTE_KEYS.signIn]: '/auth/sign-in',
+  [ROUTE_KEYS.forgotPassword]: '/auth/forgot-password',
+  [ROUTE_KEYS.resetPassword]: '/auth/reset-password',
+  [ROUTE_KEYS.verifyEmail]: '/auth/verify-email',
+  [ROUTE_KEYS.authCallback]: '/auth/callback',
+  [ROUTE_KEYS.completeRegistration]: '/auth/complete-registration',
 
   // Temporary
   [ROUTE_KEYS.routesOverview]: '/routes-overview',

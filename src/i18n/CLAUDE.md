@@ -110,14 +110,14 @@ before the next-preferred tag is tried — and gets all three right. Pinned by
 
 ### Grep gates
 
-Both return **0**. The first is the one that matters: a raw `next/link` produces an
+Both are enforced by `pnpm gates` (`scripts/gates.mjs`), at `.ts` and `.tsx` alike. The
+first is the one that matters: a raw `next/link` produces an
 unprefixed href, which costs a proxy redirect on every click and briefly drops the
 locale. It caught `EntityCard.tsx` — every provider, category and organization card on the
 site — the day it was written.
 
 ```bash
-grep -rn "from 'next/link'" src --include=*.tsx                        # 0
-grep -rn "from 'next/navigation'" src --include=*.tsx | grep -v notFound  # 0 — use @i18n/navigation
+pnpm gates      # also runs inside `pnpm verify`
 ```
 
 `notFound` and `redirect` from `next/navigation` are fine in Server Components that are

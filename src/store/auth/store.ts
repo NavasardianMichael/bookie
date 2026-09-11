@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { getCodeByPhoneNumberAPI, getMeAPI, logoutAPI, validatePhoneNumberCodeAPI } from '@api/auth/main'
+import { completeGoogleAPI, getMeAPI, loginAPI, logoutAPI, registerAPI } from '@api/auth/main'
 import { appendSelectors } from '@store/appendSelectors'
+import { Session } from '@interfaces/auth'
 import { SIGN_ON_STEPS } from '@constants/auth'
 import { errorMiddleware } from '@helpers/store'
 import { AuthActions, AuthState } from './types'
@@ -13,15 +14,23 @@ const initialState: AuthState = {
   firstName: null,
   lastName: null,
   image: null,
+  email: null,
   isSignedOn: false,
-  phone: {
-    code: 0,
-    number: 0,
-  },
   step: SIGN_ON_STEPS.accountTypeSelection,
   error: null,
   isPending: false,
 }
+
+/** One shape for every path that ends in a live session, so none of them can drift. */
+const signedOn = (session: Session): Partial<AuthState> => ({
+  isSignedOn: true,
+  userType: session.role,
+  profileId: session.profileId,
+  firstName: session.firstName ?? null,
+  lastName: session.lastName ?? null,
+  image: session.image ?? null,
+  email: session.email ?? null,
+})
 
 export const useAuthStoreBase = create<AuthState & AuthActions>()(
   immer(
@@ -40,28 +49,33 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
           // Every action below resets `isPending` in a `finally`. Without it a rejected
           // request leaves the whole funnel's buttons disabled forever — `errorMiddleware`
           // only reassigns `api.setState` and does not catch rejections thrown in here.
-          getCodeByPhoneNumber: async (payload) => {
-            set({ phone: payload.phone, isPending: true, error: null })
+          register: async (payload) => {
+            set({ isPending: true, error: null })
             try {
-              await getCodeByPhoneNumberAPI(payload)
+              await registerAPI(payload)
+              // Deliberately no `signedOn` here: registration mails a link and returns
+              // `true` whether or not the address was already taken.
+              set({ step: SIGN_ON_STEPS.verifyEmail })
             } finally {
               set({ isPending: false })
             }
           },
-          validatePhoneNumberCode: async (payload) => {
+          login: async (payload) => {
             set({ isPending: true, error: null })
             try {
-              const result = await validatePhoneNumberCodeAPI(payload)
-              set({
-                isSignedOn: true,
-                userType: result.role,
-                profileId: result.profileId,
-                firstName: result.firstName ?? null,
-                lastName: result.lastName ?? null,
-                image: result.image ?? null,
-                step: SIGN_ON_STEPS.profileCreated,
-              })
-              return result
+              const session = await loginAPI(payload)
+              set(signedOn(session))
+              return session
+            } finally {
+              set({ isPending: false })
+            }
+          },
+          completeGoogle: async (payload) => {
+            set({ isPending: true, error: null })
+            try {
+              const session = await completeGoogleAPI(payload)
+              set(signedOn(session))
+              return session
             } finally {
               set({ isPending: false })
             }
@@ -70,14 +84,7 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             set({ isPending: true })
             try {
               const session = await getMeAPI()
-              set({
-                isSignedOn: true,
-                userType: session.role,
-                profileId: session.profileId,
-                firstName: session.firstName ?? null,
-                lastName: session.lastName ?? null,
-                image: session.image ?? null,
-              })
+              set(signedOn(session))
               return session
             } catch {
               // A missing or expired session is the expected answer for a guest, not a fault.
@@ -88,6 +95,7 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
                 firstName: null,
                 lastName: null,
                 image: null,
+                email: null,
               })
               return null
             } finally {

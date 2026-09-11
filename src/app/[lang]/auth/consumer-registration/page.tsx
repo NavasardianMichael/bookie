@@ -42,7 +42,7 @@ export default function ConsumerRegistration() {
 
           <AppParagraph size='body-sm' className='mt-8 text-center'>
             Already have an account?{' '}
-            <AppLink href={ROUTES.phoneNumberInput} className='text-brand font-bold'>
+            <AppLink href={ROUTES.signIn} className='text-brand font-bold'>
               Log in
             </AppLink>
           </AppParagraph>

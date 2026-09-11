@@ -173,4 +173,9 @@ export const ensureGoogleStrategy = (): boolean => {
 /** `passport.initialize()` only — no `passport.session()`, since there is no session store. */
 export const passportInitialize = () => passport.initialize()
 
-export { passport }
+/**
+ * Re-exported from the package rather than through a local `export { passport }`, so the
+ * export is declared where it is public (eslint `no-restricted-syntax`). Same singleton
+ * the `passport.use(...)` calls above configure.
+ */
+export { default as passport } from 'passport'

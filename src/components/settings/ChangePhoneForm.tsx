@@ -2,16 +2,15 @@
 
 import { FC, useEffect, useState } from 'react'
 import { PhoneFormValues, PhoneNumberField } from '@app/[lang]/auth/components/PhoneNumberField'
-import { Alert, Form, Input } from 'antd'
+import { Alert, Form } from 'antd'
 import type { CountryCode } from 'libphonenumber-js'
 import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
-import { changePhoneConfirmAPI, changePhoneSendOtpAPI } from '@api/auth/main'
+import { changePhoneAPI } from '@api/auth/main'
 import { PhoneNumber } from '@interfaces/app'
 import { processError } from '@helpers/error'
 import { toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
-import { AppText } from '@components/ui/bare/AppText'
 import { Surface } from '@components/ui/layout/Surface'
 
 type Props = {
@@ -38,24 +37,28 @@ const isSamePhone = (current: PhoneNumber | string | undefined, next: PhoneNumbe
 }
 
 /**
- * In-account phone change via OTP. Does not route through `/auth/code-input`.
+ * In-account phone change — one field and a save.
  *
- * When `embedded`, this must not render a `<form>` — it already sits inside the
- * profile Form, and a nested form tag (or a submit button) would steal the parent.
+ * **No OTP, and nothing to confirm.** Phone stopped being identity in the email/password
+ * migration: it is now unverified contact data on the profile, with no unique constraint,
+ * so `PATCH /identity/phone` writes it directly. The send-code/enter-code pair this used to
+ * run verified nothing that mattered and only stood between the user and a corrected number.
+ *
+ * When `embedded`, this must not render a `<form>` — it already sits inside the profile
+ * Form, and a nested form tag (or a submit button) would steal the parent.
  */
 export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded = false }) => {
   const t = useTranslations('Settings.phone')
+  const tActions = useTranslations('Settings.actions')
   const [form] = Form.useForm<PhoneFormValues>()
-  const [otpSent, setOtpSent] = useState(false)
-  const [otp, setOtp] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+
   const typedCode = Form.useWatch('code', form)
   const typedNumber = Form.useWatch('number', form)
-  const typedPhone =
-    typedCode && typedNumber?.trim() ? toPhoneNumber(typedCode, typedNumber.trim()) : undefined
-  const canSend = Boolean(
+  const typedPhone = typedCode && typedNumber?.trim() ? toPhoneNumber(typedCode, typedNumber.trim()) : undefined
+  const canSave = Boolean(
     typedPhone && isValidTypedPhone(typedCode, typedNumber) && !isSamePhone(currentPhone, typedPhone)
   )
 
@@ -65,9 +68,10 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
     form.setFieldsValue(values)
   }, [currentPhone, form])
 
-  const handleSend = async () => {
+  const handleSave = async () => {
     setError(null)
     setSuccess(null)
+
     let values: PhoneFormValues
     try {
       values = await form.validateFields()
@@ -77,26 +81,8 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
 
     setPending(true)
     try {
-      const phone = toPhoneNumber(values.code!, values.number)
-      await changePhoneSendOtpAPI({ phone })
-      setOtpSent(true)
-      setSuccess(t('codeSent'))
-    } catch (err) {
-      setError(processError(err).message)
-    } finally {
-      setPending(false)
-    }
-  }
-
-  const handleConfirm = async () => {
-    setError(null)
-    setSuccess(null)
-    setPending(true)
-    try {
-      const result = await changePhoneConfirmAPI({ otp })
+      const result = await changePhoneAPI({ phone: toPhoneNumber(values.code!, values.number) })
       setSuccess(t('updated'))
-      setOtpSent(false)
-      setOtp('')
       const next = toPhoneFormValues(result.phone)
       if (next) form.setFieldsValue(next)
       onChanged?.(result.phone)
@@ -121,30 +107,16 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
         requiredMark={false}
       >
         <PhoneNumberField label={t('label')} />
-        {!otpSent ? (
-          <AppButton
-            type='default'
-            htmlType='button'
-            onClick={() => void handleSend()}
-            loading={pending}
-            disabled={!canSend}
-            className='self-start'
-          >
-            {t('sendCode')}
-          </AppButton>
-        ) : (
-          <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
-            <div className='flex min-w-0 flex-1 flex-col gap-1.5'>
-              <AppText size='body-sm' className='font-bold'>
-                {t('otp')}
-              </AppText>
-              <Input.OTP length={6} value={otp} onChange={setOtp} disabled={pending} />
-            </div>
-            <AppButton type='primary' onClick={handleConfirm} loading={pending} disabled={otp.length < 6}>
-              {t('confirm')}
-            </AppButton>
-          </div>
-        )}
+        <AppButton
+          type='default'
+          htmlType='button'
+          onClick={() => void handleSave()}
+          loading={pending}
+          disabled={!canSave}
+          className='self-start'
+        >
+          {tActions('save')}
+        </AppButton>
       </Form>
     </>
   )

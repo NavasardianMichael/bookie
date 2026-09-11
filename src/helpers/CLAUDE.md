@@ -29,7 +29,6 @@ Everything here is pure and framework-free unless the last column says otherwise
 | `{ code, number }` / `+…` → country Select values | `toPhoneFormValues` | `registration.ts` |
 | Organization combobox value → API fields | `toOrganizationFields` | `registration.ts` |
 | Blank optional string → `undefined` | `toOptionalText` | `registration.ts` |
-| Read/write the in-flight registration | `readPendingSignOn`, `writePendingSignOn`, `clearPendingSignOn` | `localStorage.ts` |
 | Upload path → loadable URL | `resolveAssetUrl` | `images.ts` |
 | …and never root-relative (JSON-LD, OG) | `resolveAbsoluteAssetUrl` | `images.ts` |
 | Is this a real upload vs a bundled asset? | `isUploadedAsset` | `images.ts` |
@@ -46,6 +45,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
 | Subset an object | `pick`, `omit` | `commons.ts` |
 | Turn an unknown throw into an `AppError` | `processError` | `error.ts` |
+| Check a password against the shared policy | `checkPasswordPolicy` | `password.ts` |
 
 ## Things to know before using them
 
@@ -70,6 +70,14 @@ Everything here is pure and framework-free unless the last column says otherwise
   on the host you are actually on.
 - `errorMiddleware` (`store.ts`) is auth-only and does **not** catch rejections thrown
   inside async store actions.
+- **`password.ts` mirrors `server/src/lib/password.ts#validatePassword` and must stay in
+  step.** It returns a failure *reason* rather than a message, so the copy lives in the
+  locale catalogues and `usePasswordRules` (`src/hooks/`) maps it. The server module cannot
+  be imported from `tests/` — `@node-rs/argon2`'s `Algorithm` is an ambient const enum that
+  `isolatedModules` refuses — so the cases in `tests/unit/helpers/password.spec.ts` mirror
+  it rather than call it. **A partial mirror is worse than none:** the auth screens first
+  checked only length, so a password the server rejected passed client validation and failed
+  on submit with a message the form had never shown.
 - **`pwa.ts` builds a network-only service worker.** Failed navigations get an inlined
   offline document; HTML pages and the API are never cached. A stale slot list is worse
   than an offline screen. Do not add a cache-first or stale-while-revalidate strategy
@@ -92,7 +100,6 @@ Everything here is pure and framework-free unless the last column says otherwise
 
 | Module | Why |
 |---|---|
-| `localStorage.ts` | Touches `window.localStorage`. Every function is SSR-guarded and `readPendingSignOn` is total — a malformed entry reads as `null` rather than throwing mid-funnel |
 | `commons.ts#sleep` | Timer |
 | `api.ts#getMockAsFakeAPI` | Unused one-line `Promise.resolve` |
 

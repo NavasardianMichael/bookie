@@ -43,10 +43,110 @@
     "providers": "Przeglądaj",
     "categories": "Kategorie",
     "organizations": "Organizacje",
-    "phoneNumberInput": "Zaloguj się",
+    "signIn": "Zaloguj się",
     "accountTypeSelection": "Zacznij",
     "account": "Konto",
     "accountSettings": "Ustawienia konta"
+  },
+  "Auth": {
+    "continueWithGoogle": "Kontynuuj z Google",
+    "orWithEmail": "lub e-mailem",
+    "backToSignIn": "Wróć do logowania",
+    "termsLead": "Tworząc konto, akceptujesz nasze",
+    "roles": {
+      "consumer": "Rezerwuję usługę",
+      "provider": "Oferuję usługę"
+    },
+    "fields": {
+      "email": "E-mail",
+      "emailPlaceholder": "ty@przyklad.pl",
+      "professionalEmail": "Służbowy e-mail",
+      "password": "Hasło",
+      "passwordPlaceholder": "Twoje hasło",
+      "choosePasswordPlaceholder": "Co najmniej 8 znaków",
+      "newPassword": "Nowe hasło",
+      "confirmPassword": "Potwierdź hasło",
+      "firstName": "Imię",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Nazwisko",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Numer telefonu",
+      "phoneMandatory": "Numer telefonu (wymagany)",
+      "mobileNumber": "Numer komórki",
+      "organization": "Organizacja"
+    },
+    "validation": {
+      "passwordTooShort": "Hasło musi mieć co najmniej {min} znaków",
+      "passwordTooLong": "Hasło nie może przekraczać {max} znaków",
+      "passwordsDoNotMatch": "Hasła nie są takie same",
+      "organizationRequired": "Podaj organizację",
+      "passwordRequired": "Wprowadź hasło",
+      "passwordNeedsLetterAndNumber": "Hasło musi zawierać co najmniej jedną literę i jedną cyfrę",
+      "passwordContainsEmail": "Hasło nie może zawierać Twojego adresu e-mail"
+    },
+    "signIn": {
+      "title": "Witaj ponownie",
+      "subtitle": "Zaloguj się, aby zarządzać rezerwacjami.",
+      "submit": "Zaloguj się",
+      "forgotPassword": "Nie pamiętasz hasła?",
+      "noAccount": "Pierwszy raz w Bookie?",
+      "createAccount": "Utwórz konto",
+      "resendVerification": "Wyślij link weryfikacyjny ponownie",
+      "verificationResent": "Wysłano. Sprawdź skrzynkę odbiorczą."
+    },
+    "consumerRegistration": {
+      "submit": "Utwórz konto"
+    },
+    "providerRegistration": {
+      "submit": "Utwórz konto usługodawcy"
+    },
+    "forgotPassword": {
+      "title": "Zresetuj hasło",
+      "subtitle": "Podaj swój e-mail, a wyślemy link do ustawienia nowego hasła.",
+      "submit": "Wyślij link",
+      "sentTitle": "Sprawdź swoją pocztę",
+      "sentBody": "Jeśli konto z tym adresem istnieje, link do zresetowania hasła jest już w drodze."
+    },
+    "resetPassword": {
+      "title": "Ustaw nowe hasło",
+      "subtitle": "Użyj co najmniej {min} znaków.",
+      "submit": "Zapisz nowe hasło",
+      "doneTitle": "Hasło zaktualizowane",
+      "doneBody": "Wszystkie zalogowane urządzenia zostały wylogowane. Zaloguj się ponownie nowym hasłem.",
+      "invalidTitle": "Ten link jest nieprawidłowy",
+      "invalidBody": "Mógł wygasnąć lub zostać już użyty. Poproś o nowy, aby kontynuować.",
+      "requestNew": "Poproś o nowy link"
+    },
+    "verifyEmail": {
+      "verifying": "Potwierdzamy Twój e-mail…",
+      "doneTitle": "E-mail potwierdzony",
+      "doneBody": "Twoje konto jest gotowe. Zaloguj się, aby zacząć.",
+      "signInNow": "Zaloguj się",
+      "failedTitle": "Nie udało się potwierdzić tego e-maila",
+      "failedBody": "Link mógł wygasnąć lub zostać już użyty. Zaloguj się, aby poprosić o nowy."
+    },
+    "callback": {
+      "signingIn": "Logujemy Cię…"
+    },
+    "completeRegistration": {
+      "title": "Dokończ konfigurację",
+      "subtitle": "Zalogowano jako {email}. Potrzebujemy jeszcze dwóch informacji, zanim zarezerwujesz.",
+      "roleLabel": "Jak będziesz korzystać z Bookie?",
+      "submit": "Zakończ"
+    },
+    "googleErrors": {
+      "generic": "Logowanie przez Google nie powiodło się. Spróbuj ponownie.",
+      "google_unavailable": "Logowanie przez Google jest teraz niedostępne. Użyj e-maila i hasła.",
+      "google_denied": "Anulowano logowanie przez Google.",
+      "google_state_missing": "Ta próba logowania wygasła. Spróbuj ponownie.",
+      "google_state_mismatch": "Nie udało się zweryfikować tej próby logowania. Spróbuj ponownie.",
+      "google_exchange_failed": "Logowanie przez Google nie powiodło się. Spróbuj ponownie.",
+      "google_email_unverified": "Google nie potwierdził tego adresu e-mail, więc nie możemy go użyć do zalogowania.",
+      "google_account_exists": "Konto z tym adresem już istnieje. Zaloguj się hasłem, a następnie połącz Google w ustawieniach.",
+      "google_account_mismatch": "To konto Google jest już połączone z innym kontem Bookie.",
+      "google_already_linked": "Twoje konto jest już połączone z Google.",
+      "google_unauthorized": "Najpierw się zaloguj, a potem połącz Google w ustawieniach."
+    }
   },
   "Booking": {
     "confirmTitle": "Potwierdź rezerwację",

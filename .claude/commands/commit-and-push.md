@@ -21,7 +21,7 @@ and push.
 
 1. **Look at what you're committing.** `git status` and `git diff` (plus
    `git diff --staged` if anything is staged). Never commit blind.
-2. **Verify.** Run `pnpm typecheck && pnpm lint && pnpm test`. If any fails, **stop and
+2. **Verify.** Run `pnpm verify`. If it fails, **stop and
    report** — do not commit broken work, and do not "fix" it by narrowing what you commit
    unless the user asks.
 3. **Group if needed.** If the diff spans clearly unrelated concerns, propose splitting

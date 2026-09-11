@@ -30,7 +30,7 @@ the anti-pattern this repo already has one instance of.
 4. `src/api/<domain>/processors.ts` — unwrap `.value`, normalize if it's a list.
 5. `src/api/<domain>/main.ts` — the axios calls.
 6. `src/store/<domain>/<slice>/store.ts` — the `create + immer + combine` scaffold.
-7. `pnpm typecheck && pnpm lint-fix`.
+7. `pnpm verify`.
 
 ## The five things people get wrong
 
@@ -86,7 +86,7 @@ full list, but the load-bearing ones:
 ## Before you're done
 
 ```bash
-pnpm typecheck && pnpm lint-fix && pnpm test
+pnpm verify
 ```
 
 If the domain is user-facing, add unit tests for its processors under

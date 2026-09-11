@@ -43,10 +43,110 @@
     "providers": "สำรวจ",
     "categories": "หมวดหมู่",
     "organizations": "องค์กร",
-    "phoneNumberInput": "เข้าสู่ระบบ",
+    "signIn": "เข้าสู่ระบบ",
     "accountTypeSelection": "เริ่มต้นใช้งาน",
     "account": "บัญชี",
     "accountSettings": "การตั้งค่าบัญชี"
+  },
+  "Auth": {
+    "continueWithGoogle": "ดำเนินการต่อด้วย Google",
+    "orWithEmail": "หรือด้วยอีเมล",
+    "backToSignIn": "กลับไปที่การเข้าสู่ระบบ",
+    "termsLead": "การสร้างบัญชีถือว่าคุณยอมรับ",
+    "roles": {
+      "consumer": "ฉันต้องการจองบริการ",
+      "provider": "ฉันให้บริการ"
+    },
+    "fields": {
+      "email": "อีเมล",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "อีเมลสำหรับงาน",
+      "password": "รหัสผ่าน",
+      "passwordPlaceholder": "รหัสผ่านของคุณ",
+      "choosePasswordPlaceholder": "อย่างน้อย 8 ตัวอักษร",
+      "newPassword": "รหัสผ่านใหม่",
+      "confirmPassword": "ยืนยันรหัสผ่าน",
+      "firstName": "ชื่อ",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "นามสกุล",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "หมายเลขโทรศัพท์",
+      "phoneMandatory": "หมายเลขโทรศัพท์ (จำเป็น)",
+      "mobileNumber": "หมายเลขมือถือ",
+      "organization": "องค์กร"
+    },
+    "validation": {
+      "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย {min} ตัวอักษร",
+      "passwordTooLong": "รหัสผ่านต้องไม่เกิน {max} ตัวอักษร",
+      "passwordsDoNotMatch": "รหัสผ่านทั้งสองไม่ตรงกัน",
+      "organizationRequired": "กรุณากรอกองค์กร",
+      "passwordRequired": "กรุณากรอกรหัสผ่าน",
+      "passwordNeedsLetterAndNumber": "รหัสผ่านต้องมีตัวอักษรอย่างน้อยหนึ่งตัวและตัวเลขอย่างน้อยหนึ่งตัว",
+      "passwordContainsEmail": "รหัสผ่านต้องไม่มีที่อยู่อีเมลของคุณ"
+    },
+    "signIn": {
+      "title": "ยินดีต้อนรับกลับมา",
+      "subtitle": "เข้าสู่ระบบเพื่อจัดการการจองของคุณ",
+      "submit": "เข้าสู่ระบบ",
+      "forgotPassword": "ลืมรหัสผ่าน?",
+      "noAccount": "เพิ่งเริ่มใช้ Bookie?",
+      "createAccount": "สร้างบัญชี",
+      "resendVerification": "ส่งลิงก์ยืนยันอีกครั้ง",
+      "verificationResent": "ส่งแล้ว ตรวจสอบกล่องจดหมายของคุณ"
+    },
+    "consumerRegistration": {
+      "submit": "สร้างบัญชี"
+    },
+    "providerRegistration": {
+      "submit": "สร้างบัญชีผู้ให้บริการ"
+    },
+    "forgotPassword": {
+      "title": "ตั้งรหัสผ่านใหม่",
+      "subtitle": "กรอกอีเมลของคุณ แล้วเราจะส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ให้",
+      "submit": "ส่งลิงก์",
+      "sentTitle": "ตรวจสอบอีเมลของคุณ",
+      "sentBody": "หากมีบัญชีที่ใช้อีเมลนี้อยู่ ลิงก์สำหรับตั้งรหัสผ่านใหม่กำลังถูกส่งไป"
+    },
+    "resetPassword": {
+      "title": "เลือกรหัสผ่านใหม่",
+      "subtitle": "ใช้อย่างน้อย {min} ตัวอักษร",
+      "submit": "บันทึกรหัสผ่านใหม่",
+      "doneTitle": "อัปเดตรหัสผ่านแล้ว",
+      "doneBody": "อุปกรณ์ทั้งหมดที่เข้าสู่ระบบอยู่ถูกออกจากระบบแล้ว กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่",
+      "invalidTitle": "ลิงก์นี้ไม่ถูกต้อง",
+      "invalidBody": "ลิงก์อาจหมดอายุหรือถูกใช้ไปแล้ว กรุณาขอลิงก์ใหม่เพื่อดำเนินการต่อ",
+      "requestNew": "ขอลิงก์ใหม่"
+    },
+    "verifyEmail": {
+      "verifying": "กำลังยืนยันอีเมลของคุณ…",
+      "doneTitle": "ยืนยันอีเมลแล้ว",
+      "doneBody": "บัญชีของคุณพร้อมแล้ว เข้าสู่ระบบเพื่อเริ่มต้น",
+      "signInNow": "เข้าสู่ระบบ",
+      "failedTitle": "เราไม่สามารถยืนยันอีเมลนี้ได้",
+      "failedBody": "ลิงก์อาจหมดอายุหรือถูกใช้ไปแล้ว เข้าสู่ระบบเพื่อขอลิงก์ใหม่"
+    },
+    "callback": {
+      "signingIn": "กำลังเข้าสู่ระบบ…"
+    },
+    "completeRegistration": {
+      "title": "ตั้งค่าให้เสร็จสิ้น",
+      "subtitle": "เข้าสู่ระบบในชื่อ {email} เราต้องการข้อมูลอีกสองอย่างก่อนที่คุณจะจองได้",
+      "roleLabel": "คุณจะใช้ Bookie อย่างไร",
+      "submit": "เสร็จสิ้น"
+    },
+    "googleErrors": {
+      "generic": "การเข้าสู่ระบบด้วย Google ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      "google_unavailable": "ขณะนี้ไม่สามารถเข้าสู่ระบบด้วย Google ได้ กรุณาใช้อีเมลและรหัสผ่านแทน",
+      "google_denied": "คุณได้ยกเลิกการเข้าสู่ระบบด้วย Google",
+      "google_state_missing": "ความพยายามเข้าสู่ระบบนี้หมดอายุแล้ว กรุณาลองอีกครั้ง",
+      "google_state_mismatch": "ไม่สามารถตรวจสอบความพยายามเข้าสู่ระบบนี้ได้ กรุณาลองอีกครั้ง",
+      "google_exchange_failed": "การเข้าสู่ระบบด้วย Google ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      "google_email_unverified": "Google ยังไม่ได้ยืนยันอีเมลนั้น เราจึงไม่สามารถใช้เข้าสู่ระบบให้คุณได้",
+      "google_account_exists": "มีบัญชีที่ใช้อีเมลนี้อยู่แล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่าน แล้วเชื่อมต่อ Google จากการตั้งค่า",
+      "google_account_mismatch": "บัญชี Google นี้เชื่อมต่อกับบัญชี Bookie อื่นอยู่แล้ว",
+      "google_already_linked": "บัญชีของคุณเชื่อมต่อกับ Google อยู่แล้ว",
+      "google_unauthorized": "กรุณาเข้าสู่ระบบก่อน แล้วเชื่อมต่อ Google จากการตั้งค่า"
+    }
   },
   "Booking": {
     "confirmTitle": "ยืนยันการจอง",

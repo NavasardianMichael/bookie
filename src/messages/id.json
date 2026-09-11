@@ -43,10 +43,110 @@
     "providers": "Jelajahi",
     "categories": "Kategori",
     "organizations": "Organisasi",
-    "phoneNumberInput": "Masuk",
+    "signIn": "Masuk",
     "accountTypeSelection": "Mulai",
     "account": "Akun",
     "accountSettings": "Pengaturan akun"
+  },
+  "Auth": {
+    "continueWithGoogle": "Lanjutkan dengan Google",
+    "orWithEmail": "atau dengan email",
+    "backToSignIn": "Kembali ke masuk",
+    "termsLead": "Dengan membuat akun, Anda menyetujui",
+    "roles": {
+      "consumer": "Saya memesan layanan",
+      "provider": "Saya menawarkan layanan"
+    },
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "anda@contoh.com",
+      "professionalEmail": "Email profesional",
+      "password": "Kata sandi",
+      "passwordPlaceholder": "Kata sandi Anda",
+      "choosePasswordPlaceholder": "Minimal 8 karakter",
+      "newPassword": "Kata sandi baru",
+      "confirmPassword": "Konfirmasi kata sandi",
+      "firstName": "Nama depan",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "Nama belakang",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "Nomor telepon",
+      "phoneMandatory": "Nomor telepon (wajib)",
+      "mobileNumber": "Nomor ponsel",
+      "organization": "Organisasi"
+    },
+    "validation": {
+      "passwordTooShort": "Kata sandi minimal {min} karakter",
+      "passwordTooLong": "Kata sandi maksimal {max} karakter",
+      "passwordsDoNotMatch": "Kedua kata sandi tidak cocok",
+      "organizationRequired": "Silakan isi Organisasi",
+      "passwordRequired": "Masukkan kata sandi",
+      "passwordNeedsLetterAndNumber": "Kata sandi harus memuat setidaknya satu huruf dan satu angka",
+      "passwordContainsEmail": "Kata sandi tidak boleh memuat alamat email Anda"
+    },
+    "signIn": {
+      "title": "Selamat datang kembali",
+      "subtitle": "Masuk untuk mengelola pemesanan Anda.",
+      "submit": "Masuk",
+      "forgotPassword": "Lupa kata sandi?",
+      "noAccount": "Baru di Bookie?",
+      "createAccount": "Buat akun",
+      "resendVerification": "Kirim ulang tautan verifikasi",
+      "verificationResent": "Terkirim. Periksa kotak masuk Anda."
+    },
+    "consumerRegistration": {
+      "submit": "Buat akun"
+    },
+    "providerRegistration": {
+      "submit": "Buat akun penyedia"
+    },
+    "forgotPassword": {
+      "title": "Atur ulang kata sandi",
+      "subtitle": "Masukkan email Anda dan kami akan mengirim tautan untuk memilih kata sandi baru.",
+      "submit": "Kirim tautan",
+      "sentTitle": "Periksa email Anda",
+      "sentBody": "Jika ada akun dengan alamat tersebut, tautan atur ulang sedang dikirim."
+    },
+    "resetPassword": {
+      "title": "Pilih kata sandi baru",
+      "subtitle": "Gunakan minimal {min} karakter.",
+      "submit": "Simpan kata sandi baru",
+      "doneTitle": "Kata sandi diperbarui",
+      "doneBody": "Semua perangkat yang masuk telah dikeluarkan. Masuk lagi dengan kata sandi baru Anda.",
+      "invalidTitle": "Tautan ini tidak valid",
+      "invalidBody": "Mungkin sudah kedaluwarsa atau telah digunakan. Minta yang baru untuk melanjutkan.",
+      "requestNew": "Minta tautan baru"
+    },
+    "verifyEmail": {
+      "verifying": "Mengonfirmasi email Anda…",
+      "doneTitle": "Email dikonfirmasi",
+      "doneBody": "Akun Anda siap. Masuk untuk memulai.",
+      "signInNow": "Masuk",
+      "failedTitle": "Kami tidak dapat mengonfirmasi email ini",
+      "failedBody": "Tautan mungkin kedaluwarsa atau telah digunakan. Masuk untuk meminta yang baru."
+    },
+    "callback": {
+      "signingIn": "Sedang memasukkan Anda…"
+    },
+    "completeRegistration": {
+      "title": "Selesaikan penyiapan",
+      "subtitle": "Masuk sebagai {email}. Kami perlu dua hal lagi sebelum Anda dapat memesan.",
+      "roleLabel": "Bagaimana Anda akan menggunakan Bookie?",
+      "submit": "Selesai"
+    },
+    "googleErrors": {
+      "generic": "Masuk dengan Google tidak selesai. Silakan coba lagi.",
+      "google_unavailable": "Masuk dengan Google tidak tersedia saat ini. Gunakan email dan kata sandi Anda.",
+      "google_denied": "Anda membatalkan masuk dengan Google.",
+      "google_state_missing": "Percobaan masuk itu telah kedaluwarsa. Silakan coba lagi.",
+      "google_state_mismatch": "Percobaan masuk itu tidak dapat diverifikasi. Silakan coba lagi.",
+      "google_exchange_failed": "Masuk dengan Google tidak selesai. Silakan coba lagi.",
+      "google_email_unverified": "Google belum mengonfirmasi alamat email itu, jadi kami tidak dapat menggunakannya untuk memasukkan Anda.",
+      "google_account_exists": "Sebuah akun sudah menggunakan email itu. Masuk dengan kata sandi Anda, lalu hubungkan Google dari pengaturan.",
+      "google_account_mismatch": "Akun Google itu sudah terhubung ke akun Bookie lain.",
+      "google_already_linked": "Akun Anda sudah terhubung dengan Google.",
+      "google_unauthorized": "Masuk dulu, lalu hubungkan Google dari pengaturan."
+    }
   },
   "Booking": {
     "confirmTitle": "Konfirmasi pemesanan Anda",

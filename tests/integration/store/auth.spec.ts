@@ -2,26 +2,37 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Must be hoisted above the store import — the store imports the API module eagerly.
 vi.mock('@api/auth/main', () => ({
-  getCodeByPhoneNumberAPI: vi.fn(),
-  validatePhoneNumberCodeAPI: vi.fn(),
+  registerAPI: vi.fn(),
+  loginAPI: vi.fn(),
+  completeGoogleAPI: vi.fn(),
   getMeAPI: vi.fn(),
   logoutAPI: vi.fn(),
 }))
 
-const { getCodeByPhoneNumberAPI, validatePhoneNumberCodeAPI, getMeAPI, logoutAPI } = await import('@api/auth/main')
+const { registerAPI, loginAPI, completeGoogleAPI, getMeAPI, logoutAPI } = await import('@api/auth/main')
 const { useAuthStoreBase } = await import('@store/auth/store')
 
 const EMPTY = {
   userType: null,
   profileId: null,
+  firstName: null,
+  lastName: null,
+  image: null,
+  email: null,
   isSignedOn: false,
-  phone: { code: 0, number: 0 },
   step: 'accountTypeSelection',
   error: null,
   isPending: false,
 }
 
-const PHONE = { code: 374, number: 77000201 }
+const REGISTRATION = {
+  role: 'consumer' as const,
+  email: 'alex@example.com',
+  password: 'a-strong-password',
+  phone: { code: 374, number: 77000201 },
+  profile: { firstName: 'Alex', lastName: 'Morgan' },
+  locale: 'en',
+}
 
 describe('auth store', () => {
   beforeEach(() => {
@@ -29,52 +40,75 @@ describe('auth store', () => {
     useAuthStoreBase.setState(EMPTY as never)
   })
 
-  it('records the phone the code was sent to', async () => {
-    vi.mocked(getCodeByPhoneNumberAPI).mockResolvedValue(undefined as never)
+  /**
+   * Registration mails a link and returns `true` whether or not the address was already
+   * taken, so treating it as a sign-in would both be wrong and leak which addresses exist.
+   */
+  it('register does not sign anyone in', async () => {
+    vi.mocked(registerAPI).mockResolvedValue(undefined as never)
 
-    await useAuthStoreBase.getState().getCodeByPhoneNumber({ phone: PHONE })
+    await useAuthStoreBase.getState().register(REGISTRATION)
 
-    expect(useAuthStoreBase.getState().phone).toEqual(PHONE)
+    expect(useAuthStoreBase.getState().isSignedOn).toBe(false)
+    expect(useAuthStoreBase.getState().step).toBe('verifyEmail')
     expect(useAuthStoreBase.getState().isPending).toBe(false)
   })
 
   // The whole funnel's buttons are gated on isPending. Leaving it true on a rejection —
   // which is what this store used to do, having no try/finally — locks the user out of
   // retrying without a reload.
-  it('resets isPending when sending the code fails', async () => {
-    vi.mocked(getCodeByPhoneNumberAPI).mockRejectedValue(new Error('network'))
+  it('resets isPending when registration fails', async () => {
+    vi.mocked(registerAPI).mockRejectedValue(new Error('network'))
 
-    await expect(useAuthStoreBase.getState().getCodeByPhoneNumber({ phone: PHONE })).rejects.toThrow('network')
+    await expect(useAuthStoreBase.getState().register(REGISTRATION)).rejects.toThrow('network')
     expect(useAuthStoreBase.getState().isPending).toBe(false)
   })
 
-  it('records role and profileId from the login verdict', async () => {
-    vi.mocked(validatePhoneNumberCodeAPI).mockResolvedValue({
+  it('login records the session', async () => {
+    vi.mocked(loginAPI).mockResolvedValue({
       role: 'provider',
       profileId: 'p-1',
-      isNewUser: true,
+      firstName: 'Anna',
+      email: 'anna@bookie.am',
     } as never)
 
-    const result = await useAuthStoreBase.getState().validatePhoneNumberCode({ phone: PHONE, otp: 123456 })
+    const session = await useAuthStoreBase.getState().login({ email: 'anna@bookie.am', password: 'pw' })
 
-    expect(result).toEqual({ role: 'provider', profileId: 'p-1', isNewUser: true })
+    expect(session.role).toBe('provider')
     expect(useAuthStoreBase.getState().userType).toBe('provider')
     expect(useAuthStoreBase.getState().profileId).toBe('p-1')
+    expect(useAuthStoreBase.getState().email).toBe('anna@bookie.am')
     expect(useAuthStoreBase.getState().isSignedOn).toBe(true)
   })
 
-  // The OTP screen must be able to tell a rejected code from an accepted one — it used to
-  // navigate to the success screen either way.
-  it('propagates an invalid OTP and stays signed out', async () => {
-    vi.mocked(validatePhoneNumberCodeAPI).mockRejectedValue(new Error('Invalid OTP'))
+  // Sign-in must be able to tell a rejected credential from an accepted one, and must not
+  // half-apply a session on the way.
+  it('propagates bad credentials and stays signed out', async () => {
+    vi.mocked(loginAPI).mockRejectedValue(new Error('Invalid email or password'))
 
     await expect(
-      useAuthStoreBase.getState().validatePhoneNumberCode({ phone: PHONE, otp: 111111 })
-    ).rejects.toThrow('Invalid OTP')
+      useAuthStoreBase.getState().login({ email: 'anna@bookie.am', password: 'wrong' })
+    ).rejects.toThrow('Invalid email or password')
 
     expect(useAuthStoreBase.getState().isSignedOn).toBe(false)
     expect(useAuthStoreBase.getState().userType).toBeNull()
     expect(useAuthStoreBase.getState().isPending).toBe(false)
+  })
+
+  // The one path that creates an account *and* signs in, because Google already verified
+  // the address — there is no link to wait for.
+  it('completeGoogle signs the new account in', async () => {
+    vi.mocked(completeGoogleAPI).mockResolvedValue({ role: 'consumer', profileId: 'c-7' } as never)
+
+    const session = await useAuthStoreBase.getState().completeGoogle({
+      role: 'consumer',
+      phone: { code: 374, number: 77000201 },
+      profile: { firstName: 'Alex', lastName: 'Morgan' },
+    })
+
+    expect(session.profileId).toBe('c-7')
+    expect(useAuthStoreBase.getState().isSignedOn).toBe(true)
+    expect(useAuthStoreBase.getState().userType).toBe('consumer')
   })
 
   it('getMe hydrates the session after a refresh', async () => {

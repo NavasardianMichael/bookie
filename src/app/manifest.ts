@@ -46,7 +46,7 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         name: 'Sign in',
         short_name: 'Sign in',
-        url: localePath(DEFAULT_LOCALE, ROUTES.phoneNumberInput),
+        url: localePath(DEFAULT_LOCALE, ROUTES.signIn),
         icons: [{ src: '/icon', sizes: '512x512', type: 'image/png' }],
       },
     ],

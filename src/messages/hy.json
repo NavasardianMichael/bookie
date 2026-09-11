@@ -43,10 +43,110 @@
     "providers": "Դիտել",
     "categories": "Կատեգորիաներ",
     "organizations": "Կազմակերպություններ",
-    "phoneNumberInput": "Մուտք",
+    "signIn": "Մուտք",
     "accountTypeSelection": "Սկսել",
     "account": "Հաշիվ",
     "accountSettings": "Հաշվի կարգավորումներ"
+  },
+  "Auth": {
+    "continueWithGoogle": "Շարունակել Google-ով",
+    "orWithEmail": "կամ էլ. փոստով",
+    "backToSignIn": "Վերադառնալ մուտքին",
+    "termsLead": "Հաշիվ ստեղծելով՝ դուք ընդունում եք մեր",
+    "roles": {
+      "consumer": "Ամրագրում եմ ծառայություն",
+      "provider": "Առաջարկում եմ ծառայություն"
+    },
+    "fields": {
+      "email": "Էլ. փոստ",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "Աշխատանքային էլ. փոստ",
+      "password": "Գաղտնաբառ",
+      "passwordPlaceholder": "Ձեր գաղտնաբառը",
+      "choosePasswordPlaceholder": "Առնվազն 8 նիշ",
+      "newPassword": "Նոր գաղտնաբառ",
+      "confirmPassword": "Հաստատել գաղտնաբառը",
+      "firstName": "Անուն",
+      "firstNamePlaceholder": "Ալեքս",
+      "lastName": "Ազգանուն",
+      "lastNamePlaceholder": "Մորգան",
+      "phone": "Հեռախոսահամար",
+      "phoneMandatory": "Հեռախոսահամար (պարտադիր)",
+      "mobileNumber": "Բջջային համար",
+      "organization": "Կազմակերպություն"
+    },
+    "validation": {
+      "passwordTooShort": "Գաղտնաբառը պետք է լինի առնվազն {min} նիշ",
+      "passwordTooLong": "Գաղտնաբառը չպետք է գերազանցի {max} նիշը",
+      "passwordsDoNotMatch": "Երկու գաղտնաբառերը չեն համընկնում",
+      "organizationRequired": "Խնդրում ենք լրացնել կազմակերպությունը",
+      "passwordRequired": "Խնդրում ենք մուտքագրել գաղտնաբառ",
+      "passwordNeedsLetterAndNumber": "Գաղտնաբառը պետք է պարունակի առնվազն մեկ տառ և մեկ թիվ",
+      "passwordContainsEmail": "Գաղտնաբառը չպետք է պարունակի ձեր էլ. փոստի հասցեն"
+    },
+    "signIn": {
+      "title": "Բարի վերադարձ",
+      "subtitle": "Մուտք գործեք՝ ձեր ամրագրումները կառավարելու համար։",
+      "submit": "Մուտք գործել",
+      "forgotPassword": "Մոռացե՞լ եք գաղտնաբառը",
+      "noAccount": "Նո՞ր եք Bookie-ում",
+      "createAccount": "Ստեղծել հաշիվ",
+      "resendVerification": "Կրկին ուղարկել հաստատման հղումը",
+      "verificationResent": "Ուղարկվեց։ Ստուգեք ձեր փոստարկղը։"
+    },
+    "consumerRegistration": {
+      "submit": "Ստեղծել հաշիվ"
+    },
+    "providerRegistration": {
+      "submit": "Ստեղծել մատակարարի հաշիվ"
+    },
+    "forgotPassword": {
+      "title": "Վերականգնել գաղտնաբառը",
+      "subtitle": "Մուտքագրեք ձեր էլ. փոստը, և մենք կուղարկենք նոր գաղտնաբառ ընտրելու հղում։",
+      "submit": "Ուղարկել հղումը",
+      "sentTitle": "Ստուգեք ձեր էլ. փոստը",
+      "sentBody": "Եթե այդ հասցեով հաշիվ գոյություն ունի, վերականգնման հղումն ուղարկվել է։"
+    },
+    "resetPassword": {
+      "title": "Ընտրեք նոր գաղտնաբառ",
+      "subtitle": "Ընտրեք առնվազն {min} նիշ։",
+      "submit": "Պահպանել նոր գաղտնաբառը",
+      "doneTitle": "Գաղտնաբառը թարմացվեց",
+      "doneBody": "Բոլոր սարքերից ելք է կատարվել։ Մուտք գործեք նոր գաղտնաբառով։",
+      "invalidTitle": "Այս հղումը վավեր չէ",
+      "invalidBody": "Հնարավոր է՝ ժամկետն անցել է կամ արդեն օգտագործվել է։ Հայցեք նորը՝ շարունակելու համար։",
+      "requestNew": "Հայցել նոր հղում"
+    },
+    "verifyEmail": {
+      "verifying": "Հաստատվում է ձեր էլ. փոստը…",
+      "doneTitle": "Էլ. փոստը հաստատվեց",
+      "doneBody": "Ձեր հաշիվը պատրաստ է։ Մուտք գործեք՝ սկսելու համար։",
+      "signInNow": "Մուտք գործել",
+      "failedTitle": "Չհաջողվեց հաստատել այս էլ. փոստը",
+      "failedBody": "Հղման ժամկետը կարող է անցած լինել կամ արդեն օգտագործված։ Մուտք գործեք՝ նորը հայցելու համար։"
+    },
+    "callback": {
+      "signingIn": "Մուտք եք գործում…"
+    },
+    "completeRegistration": {
+      "title": "Ավարտեք կարգավորումը",
+      "subtitle": "Մուտք եք գործել որպես {email}։ Ամրագրելուց առաջ ևս երկու տվյալ է անհրաժեշտ։",
+      "roleLabel": "Ինչպե՞ս եք օգտագործելու Bookie-ն",
+      "submit": "Ավարտել"
+    },
+    "googleErrors": {
+      "generic": "Google-ով մուտքը չավարտվեց։ Խնդրում ենք կրկին փորձել։",
+      "google_unavailable": "Google-ով մուտքն այս պահին հասանելի չէ։ Օգտագործեք ձեր էլ. փոստը և գաղտնաբառը։",
+      "google_denied": "Դուք չեղարկեցիք Google-ով մուտքը։",
+      "google_state_missing": "Մուտքի այս փորձի ժամկետն անցել է։ Խնդրում ենք կրկին փորձել։",
+      "google_state_mismatch": "Չհաջողվեց ստուգել մուտքի այս փորձը։ Խնդրում ենք կրկին փորձել։",
+      "google_exchange_failed": "Google-ով մուտքը չավարտվեց։ Խնդրում ենք կրկին փորձել։",
+      "google_email_unverified": "Google-ը չի հաստատել այդ էլ. փոստի հասցեն, ուստի չենք կարող այն օգտագործել ձեզ մուտք գործելու համար։",
+      "google_account_exists": "Այդ էլ. փոստն արդեն օգտագործվում է։ Մուտք գործեք գաղտնաբառով, ապա կապեք Google-ը կարգավորումներից։",
+      "google_account_mismatch": "Այդ Google հաշիվն արդեն կապված է Bookie-ի մեկ այլ հաշվի հետ։",
+      "google_already_linked": "Ձեր հաշիվն արդեն կապված է Google-ի հետ։",
+      "google_unauthorized": "Նախ մուտք գործեք, ապա կապեք Google-ը կարգավորումներից։"
+    }
   },
   "Booking": {
     "confirmTitle": "Հաստատեք ձեր ամրագրումը",

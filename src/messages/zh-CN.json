@@ -43,10 +43,110 @@
     "providers": "发现",
     "categories": "分类",
     "organizations": "机构",
-    "phoneNumberInput": "登录",
+    "signIn": "登录",
     "accountTypeSelection": "开始使用",
     "account": "账户",
     "accountSettings": "账户设置"
+  },
+  "Auth": {
+    "continueWithGoogle": "使用 Google 继续",
+    "orWithEmail": "或使用邮箱",
+    "backToSignIn": "返回登录",
+    "termsLead": "创建账户即表示您同意我们的",
+    "roles": {
+      "consumer": "我要预约服务",
+      "provider": "我提供服务"
+    },
+    "fields": {
+      "email": "电子邮箱",
+      "emailPlaceholder": "you@example.com",
+      "professionalEmail": "工作邮箱",
+      "password": "密码",
+      "passwordPlaceholder": "您的密码",
+      "choosePasswordPlaceholder": "至少 8 个字符",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "firstName": "名字",
+      "firstNamePlaceholder": "Alex",
+      "lastName": "姓氏",
+      "lastNamePlaceholder": "Morgan",
+      "phone": "电话号码",
+      "phoneMandatory": "电话号码（必填）",
+      "mobileNumber": "手机号码",
+      "organization": "机构"
+    },
+    "validation": {
+      "passwordTooShort": "密码至少需要 {min} 个字符",
+      "passwordTooLong": "密码不能超过 {max} 个字符",
+      "passwordsDoNotMatch": "两次输入的密码不一致",
+      "organizationRequired": "请填写机构",
+      "passwordRequired": "请输入密码",
+      "passwordNeedsLetterAndNumber": "密码必须包含至少一个字母和一个数字",
+      "passwordContainsEmail": "密码不能包含您的邮箱地址"
+    },
+    "signIn": {
+      "title": "欢迎回来",
+      "subtitle": "登录以管理您的预约。",
+      "submit": "登录",
+      "forgotPassword": "忘记密码？",
+      "noAccount": "第一次使用 Bookie？",
+      "createAccount": "创建账户",
+      "resendVerification": "重新发送验证链接",
+      "verificationResent": "已发送，请查收邮件。"
+    },
+    "consumerRegistration": {
+      "submit": "创建账户"
+    },
+    "providerRegistration": {
+      "submit": "创建服务提供者账户"
+    },
+    "forgotPassword": {
+      "title": "重置密码",
+      "subtitle": "输入您的邮箱，我们会发送一个链接供您设置新密码。",
+      "submit": "发送链接",
+      "sentTitle": "请查收邮件",
+      "sentBody": "如果该邮箱对应的账户存在，重置密码的链接已在发送途中。"
+    },
+    "resetPassword": {
+      "title": "设置新密码",
+      "subtitle": "请至少使用 {min} 个字符。",
+      "submit": "保存新密码",
+      "doneTitle": "密码已更新",
+      "doneBody": "所有已登录的设备都已退出。请使用新密码重新登录。",
+      "invalidTitle": "此链接无效",
+      "invalidBody": "它可能已过期或已被使用。请重新申请一个以继续。",
+      "requestNew": "申请新链接"
+    },
+    "verifyEmail": {
+      "verifying": "正在确认您的邮箱…",
+      "doneTitle": "邮箱已确认",
+      "doneBody": "您的账户已就绪。登录即可开始。",
+      "signInNow": "登录",
+      "failedTitle": "我们无法确认此邮箱",
+      "failedBody": "链接可能已过期或已被使用。请登录以重新申请。"
+    },
+    "callback": {
+      "signingIn": "正在为您登录…"
+    },
+    "completeRegistration": {
+      "title": "完成设置",
+      "subtitle": "已以 {email} 登录。在预约之前，我们还需要两项信息。",
+      "roleLabel": "您将如何使用 Bookie？",
+      "submit": "完成"
+    },
+    "googleErrors": {
+      "generic": "Google 登录未完成，请重试。",
+      "google_unavailable": "Google 登录暂时不可用。请改用邮箱和密码。",
+      "google_denied": "您取消了 Google 登录。",
+      "google_state_missing": "该登录尝试已过期，请重试。",
+      "google_state_mismatch": "无法验证该登录尝试，请重试。",
+      "google_exchange_failed": "Google 登录未完成，请重试。",
+      "google_email_unverified": "Google 尚未确认该邮箱地址，因此我们无法用它为您登录。",
+      "google_account_exists": "该邮箱已被某个账户使用。请用密码登录，然后在设置中关联 Google。",
+      "google_account_mismatch": "该 Google 账户已关联到另一个 Bookie 账户。",
+      "google_already_linked": "您的账户已关联 Google。",
+      "google_unauthorized": "请先登录，然后在设置中关联 Google。"
+    }
   },
   "Booking": {
     "confirmTitle": "确认您的预约",

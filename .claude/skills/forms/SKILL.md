@@ -111,6 +111,14 @@ rule (or the reverse) desyncs the counter from validation.
 It composes only — it cannot parameterise (`max: 60`) or express a custom `validator`.
 For those, write the rule array inline.
 
+**When a rule set mirrors a server policy, extract it.** `usePasswordRules`
+(`src/hooks/usePasswordRules.ts`) exists because the auth screens originally checked only
+the password's length while `validatePassword` on the server also requires a letter **and**
+a digit and forbids the email's local part — so a password the server rejected passed
+client validation, submitted, and returned an error the form had never warned about. **A
+partial mirror is worse than none.** One hook, matching the server rule for rule, is the
+shape to copy for any other policy that lives on both sides.
+
 The `required` message uses `${label}`, an antd `messageVariables` template. It resolves
 because `AppFormItem` injects `messageVariables={{ label }}`. **A raw `Form.Item` must
 supply that itself**, which is why the phone form hand-writes
