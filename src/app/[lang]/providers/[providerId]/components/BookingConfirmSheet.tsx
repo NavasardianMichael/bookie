@@ -23,11 +23,10 @@ import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppSheet } from '@components/ui/AppSheet'
 import { AppTextArea } from '@components/ui/AppTextArea'
-import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
-import { CopyableLinkValue } from '@components/ui/CopyableLinkValue'
 import { CheckCircleIcon, InfoIcon } from '@components/ui/icons'
+import { BookingShareActions } from './BookingShareActions'
 import { BookingSummary, BookingSummaryData } from './BookingSummary'
 
 /** What the visitor filled in. `guest` is absent whenever we already know who they are. */
@@ -41,6 +40,7 @@ export type BookingCreated = {
   manageToken: string
   emailSent: boolean
   emailedTo?: string
+  paymentMethods: PaymentMethod[]
 }
 
 type FormValues = {
@@ -137,10 +137,11 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
   const locale = useLocale() as Locale
   const managePath = generateEntityPath(ROUTE_KEYS.bookingManage, created.manageToken)
   const manageUrl = absoluteUrl(localePath(locale, managePath))
+  const summary = { ...booking, paymentMethods: created.paymentMethods }
 
   return (
     <div className='flex w-full flex-col gap-6'>
-      <div className='flex items-start gap-3'>
+      <div className='flex gap-3'>
         <span
           aria-hidden
           className='bg-brand-100 text-brand flex size-12 shrink-0 items-center justify-center rounded-brand-sm'
@@ -159,18 +160,9 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
         </div>
       </div>
 
-      <BookingSummary {...booking} />
+      <BookingSummary {...summary} />
 
-      <div className='flex flex-col gap-1.5'>
-        <AppTitle level='h4' size='body'>
-          {t('manageLinkLabel')}
-        </AppTitle>
-        <CopyableLinkValue href={manageUrl} text={manageUrl} copyLabel={t('copyManageLink')} />
-      </div>
-
-      <AppLink href={managePath} variant='button' tone='primary'>
-        {t('viewBooking')}
-      </AppLink>
+      <BookingShareActions manageUrl={manageUrl} booking={summary} />
     </div>
   )
 }
@@ -229,7 +221,7 @@ const BookingConfirmForm: FC<FormProps> = ({
       scrollToFirstError
       className='flex w-full flex-col gap-6'
     >
-      <BookingSummary {...booking} />
+      <BookingSummary {...booking} paymentMethods={selectedMethods} />
 
       {needsGuestDetails && (
         <div className='flex flex-col gap-4'>
@@ -334,9 +326,7 @@ const BookingConfirmForm: FC<FormProps> = ({
             />
           </AppFormItem>
         </div>
-        {selectedMethods.includes('bank_transfer') ? (
-          <BankTransferDetails {...toPaymentShare(paymentInfo)} />
-        ) : null}
+        {selectedMethods.includes('bank_transfer') ? <BankTransferDetails {...toPaymentShare(paymentInfo)} /> : null}
       </div>
 
       <div className='flex flex-col gap-1.5'>

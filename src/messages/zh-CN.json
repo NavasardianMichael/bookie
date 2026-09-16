@@ -162,7 +162,7 @@
       "location": "地点",
       "copyLocation": "复制地址",
       "copyPhone": "复制电话号码",
-      "accepts": "可接受的支付方式"
+      "preferredPayment": "首选付款方式"
     },
     "guest": {
       "heading": "您的信息",
@@ -213,9 +213,6 @@
     "failed": "预约失败",
     "confirmedTitle": "预约已确认",
     "emailSent": "我们已将详情发送至 {email}。",
-    "manageLinkLabel": "你的预约链接",
-    "copyManageLink": "复制预约链接",
-    "viewBooking": "查看预约",
     "cancel": "取消预约",
     "cancelConfirmTitle": "取消此预约？",
     "cancelConfirmBody": "该时段将重新开放。此操作无法撤销。",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "你的预约",
     "manageSubtitle": "查看、取消或改期。",
     "manageNotFoundTitle": "未找到预约",
-    "manageNotFoundBody": "此链接无效，或预约已不存在。"
+    "manageNotFoundBody": "此链接无效，或预约已不存在。",
+    "shareBooking": "分享预约",
+    "shareBookingTitle": "与{name}的预约",
+    "copyBookingUrl": "复制预约链接",
+    "copyBookingDetails": "复制预约详情",
+    "generateQr": "生成二维码",
+    "downloadQr": "下载二维码",
+    "shareQr": "分享二维码",
+    "qrAlt": "此预约的二维码"
   },
   "Footer": {
     "blurb": "一个平台，既能找到身边的服务，也能管理您的预约日程。",
@@ -412,6 +417,10 @@
       "unpublish": "下架主页",
       "published": "您的主页已发布。",
       "unpublished": "您的主页未上架。",
+      "publishTitle": "发布此主页？",
+      "publishBody": "您的主页将出现在发现中，任何有链接的人都可以查看并预约。",
+      "unpublishTitle": "下架此主页？",
+      "unpublishBody": "您的主页将从发现中移除，访客将无法再看到公开页面。现有预约会保留。您可以随时重新发布。",
       "deletePage": "删除主页",
       "deleteTitle": "删除此主页？",
       "deleteBody": "这将永久移除您的公开主页和服务。存在预约时无法删除。您将被登出。"
@@ -473,8 +482,10 @@
       "title": "数据分析",
       "subtitle": "您的预约情况一览。",
       "range": "{days, plural, =365 {12 个月} other {# 天}}",
+      "rangeAll": "全部",
       "emptyTitle": "暂无可衡量的数据",
       "emptyBody": "在此期间产生预约后，相关数据会显示在这里。",
+      "listTitle": "此时间段的预约",
       "statBookings": "预约数",
       "statRevenue": "收入",
       "statCompletion": "已完成",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {以及另外 # 种货币} other {以及另外 # 种货币}}",
       "multiCurrencyTitle": "您的服务采用多种货币定价",
       "chartPerDay": "每日预约",
-      "chartPerDayCaption": "过去 {days} 天，按您本地时间统计。",
+      "chartPerDayCaption": "过去 {days} 天及即将到来的预约，按您本地时间统计。",
+      "chartPerDayCaptionAll": "全部预约（含即将到来），按您本地时间统计。",
       "chartDayLabel": "日期",
       "chartWeekday": "最忙的日子",
       "chartWeekdayCaption": "已完成的预约，按星期分布。",

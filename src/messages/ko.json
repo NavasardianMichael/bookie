@@ -162,7 +162,7 @@
       "location": "장소",
       "copyLocation": "주소 복사",
       "copyPhone": "전화번호 복사",
-      "accepts": "가능한 결제 수단"
+      "preferredPayment": "선호 결제 수단"
     },
     "guest": {
       "heading": "고객 정보",
@@ -213,9 +213,6 @@
     "failed": "예약에 실패했어요",
     "confirmedTitle": "예약이 확정되었어요",
     "emailSent": "세부 정보를 {email}(으)로 보냈어요.",
-    "manageLinkLabel": "예약 링크",
-    "copyManageLink": "예약 링크 복사",
-    "viewBooking": "예약 보기",
     "cancel": "예약 취소",
     "cancelConfirmTitle": "이 예약을 취소할까요?",
     "cancelConfirmBody": "해당 시간이 다시 열립니다. 이 작업은 되돌릴 수 없어요.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "내 예약",
     "manageSubtitle": "확인하고, 취소하거나, 다른 시간을 고르세요.",
     "manageNotFoundTitle": "예약을 찾을 수 없어요",
-    "manageNotFoundBody": "이 링크가 유효하지 않거나 예약이 더 이상 없어요."
+    "manageNotFoundBody": "이 링크가 유효하지 않거나 예약이 더 이상 없어요.",
+    "shareBooking": "예약 공유",
+    "shareBookingTitle": "{name} 예약",
+    "copyBookingUrl": "예약 URL 복사",
+    "copyBookingDetails": "예약 상세 복사",
+    "generateQr": "QR 생성",
+    "downloadQr": "QR 다운로드",
+    "shareQr": "QR 공유",
+    "qrAlt": "이 예약의 QR 코드"
   },
   "Footer": {
     "blurb": "주변 서비스를 찾는 것도, 예약 일정을 관리하는 것도 하나의 플랫폼에서.",
@@ -412,6 +417,10 @@
       "unpublish": "게시 중단",
       "published": "페이지가 게시되었어요.",
       "unpublished": "페이지가 비공개예요.",
+      "publishTitle": "이 페이지를 게시할까요?",
+      "publishBody": "프로필이 둘러보기에 나타나고, 링크가 있는 사람은 누구나 보고 예약할 수 있어요.",
+      "unpublishTitle": "이 페이지 게시를 중단할까요?",
+      "unpublishBody": "프로필이 둘러보기에서 사라지고 방문자는 공개 페이지를 볼 수 없어요. 기존 예약은 유지돼요. 언제든 다시 게시할 수 있어요.",
       "deletePage": "페이지 삭제",
       "deleteTitle": "이 페이지를 삭제할까요?",
       "deleteBody": "공개 프로필과 서비스가 영구적으로 삭제돼요. 예약이 남아 있으면 삭제할 수 없어요. 로그아웃돼요."
@@ -473,8 +482,10 @@
       "title": "분석",
       "subtitle": "예약 현황을 확인하세요.",
       "range": "{days, plural, =365 {12개월} other {#일}}",
+      "rangeAll": "전체",
       "emptyTitle": "아직 측정할 데이터가 없어요",
       "emptyBody": "이 기간에 예약이 생기면 여기에 수치가 표시돼요.",
+      "listTitle": "이 기간의 예약",
       "statBookings": "예약 수",
       "statRevenue": "매출",
       "statCompletion": "완료",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {및 다른 통화 #개} other {및 다른 통화 #개}}",
       "multiCurrencyTitle": "서비스 가격이 여러 통화로 설정되어 있어요",
       "chartPerDay": "일별 예약",
-      "chartPerDayCaption": "최근 {days}일간, 현지 시간 기준.",
+      "chartPerDayCaption": "최근 {days}일과 예정된 예약, 현지 시간 기준.",
+      "chartPerDayCaptionAll": "모든 예약(예정 포함), 현지 시간 기준.",
       "chartDayLabel": "날짜",
       "chartWeekday": "가장 바쁜 요일",
       "chartWeekdayCaption": "진행된 예약을 요일별로 표시.",

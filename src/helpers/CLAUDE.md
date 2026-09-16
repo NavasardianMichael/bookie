@@ -15,6 +15,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | Consumer appointments tab: upcoming + search/status/sort | `filterAndSortConsumerAppointments` | `consumerAppointments.ts` |
+| Booking details list + copy-as-text | `buildBookingSummaryFields`, `formatBookingSummaryPlainText` | `bookingSummary.ts` |
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
 | Localised weekday column headers | `buildWeekdayLabels` | `calendar.ts` — **client-only** |
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
@@ -48,6 +49,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
 | Subset an object | `pick`, `omit` | `commons.ts` |
 | Turn an unknown throw into an `AppError` | `processError` | `error.ts` |
+| PNG data URL of a string (booking QR) | `toQrDataUrl` | `qr.ts` |
 | Check a password against the shared policy | `checkPasswordPolicy` | `password.ts` |
 
 ## Things to know before using them
@@ -58,6 +60,10 @@ Everything here is pure and framework-free unless the last column says otherwise
   module, extend it yourself.
 - **`getSlotsForDate` / `getSlotsForDateRange` take an injectable `now`.** That is the
   only clock seam in the codebase — always pass it in tests.
+- **`bookingSummary.ts` formats dates with dayjs.** Slot tests pin TZ to UTC; this
+  helper is the same, so copy-as-text cannot drift from the details list.
+- **`qr.ts#toQrDataUrl` is on-demand.** Call it from a click (`BookingShareActions`),
+  never at module load — the PNG is not cheap and there is nothing useful to encode yet.
 - **Slots are `Date` objects anchored in local time** (`dayjs(date).startOf('day')`),
   while schedules are wall-clock `'HH:mm'` strings with no date and no zone.
 - **`calendar.ts` shares the grid maths between the two calendars, not the markup.**
@@ -68,6 +74,10 @@ Everything here is pure and framework-free unless the last column says otherwise
   **`buildWeekdayLabels` reads `dayjs.locale()`, so it is client-only** — the locale is a
   module global and calling it on the server races two concurrent requests.
 - **`images.ts` captures `API_ORIGIN` at module load.** It cannot be changed after import.
+  Next 16's image optimizer also refuses a loopback API origin as a private IP even
+  when `remotePatterns` matches; `next.config.ts` sets `dangerouslyAllowLocalIP`
+  when the API host is loopback. Without that, every uploaded avatar 400s through
+  `/_next/image` after Save draft.
 - **`url.ts` re-reads `process.env` per call**, so it is safe to stub at any point.
   In the browser `getSiteUrl` uses `window.location.origin` so share links stay
   on the host you are actually on.

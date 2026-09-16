@@ -16,6 +16,8 @@ type Props = {
   name: string
   hint: string
   uploadLabel: string
+  /** Injected by the wrapping `Form.Item` when the parent form is disabled. */
+  disabled?: boolean
 }
 
 /**
@@ -29,7 +31,7 @@ type Props = {
  * `beforeUpload={() => false}`: ImgCrop resolves its crop promise with that `false`
  * and the File never lands on `onChange`.
  */
-export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uploadLabel }) => {
+export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uploadLabel, disabled }) => {
   const isFile = typeof File !== 'undefined' && value instanceof File
   const previewUrl = useMemo(
     () => (isFile ? URL.createObjectURL(value) : resolveAssetUrl(typeof value === 'string' ? value : undefined)),
@@ -58,8 +60,10 @@ export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uplo
       <div className='flex flex-col gap-2'>
         <AppParagraph size='body-sm'>{hint}</AppParagraph>
         <ImgCrop aspect={1} onModalOk={onModalOk}>
-          <Upload maxCount={1} showUploadList={false} customRequest={() => undefined}>
-            <AppButton icon={<UploadOutlined />}>{uploadLabel}</AppButton>
+          <Upload disabled={disabled} maxCount={1} showUploadList={false} customRequest={() => undefined}>
+            <AppButton icon={<UploadOutlined />} disabled={disabled}>
+              {uploadLabel}
+            </AppButton>
           </Upload>
         </ImgCrop>
       </div>

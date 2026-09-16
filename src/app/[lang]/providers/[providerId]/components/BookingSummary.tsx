@@ -1,27 +1,40 @@
 'use client'
 
 import { FC, useMemo } from 'react'
-import dayjs from 'dayjs'
 import { useTranslations } from 'next-intl'
-import { PaymentMethod } from '@interfaces/settings'
-import { SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
+import {
+  type BookingSummaryData,
+  type BookingSummaryField,
+  buildBookingSummaryFields,
+} from '@helpers/bookingSummary'
 import { generateGoogleMapsLink } from '@helpers/location'
 import { AppDescriptionList, AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
 import { CopyableLinkValue } from '@components/ui/CopyableLinkValue'
 
-export type BookingSummaryData = {
-  providerName: string
-  serviceName?: string
-  serviceDescription?: string
-  /** ISO start of the picked slot. */
-  startISO: string
-  durationMinutes: number
-  /** Pre-formatted, e.g. `70 USD`. Absent when the service carries no price. */
-  price?: string
-  address?: string
-  /** Display form, e.g. `+374 77 123456`. Absent when the provider has no number. */
-  phone?: string
-  acceptedPaymentMethods: PaymentMethod[]
+export type { BookingSummaryData } from '@helpers/bookingSummary'
+
+export const useBookingSummaryFields = (data: BookingSummaryData): BookingSummaryField[] => {
+  const t = useTranslations('Booking')
+  const tCommon = useTranslations('Common')
+  const tMethods = useTranslations('Settings.payments.methods')
+
+  return useMemo(
+    () =>
+      buildBookingSummaryFields(data, {
+        provider: t('summary.provider'),
+        service: t('summary.service'),
+        date: t('summary.date'),
+        time: t('summary.time'),
+        duration: t('summary.duration'),
+        durationValue: (minutes) => t('summary.durationValue', { minutes }),
+        price: t('summary.price'),
+        location: t('summary.location'),
+        phone: tCommon('phone'),
+        preferredPayment: t('summary.preferredPayment'),
+        paymentMethod: (method) => tMethods(method),
+      }),
+    [data, t, tCommon, tMethods]
+  )
 }
 
 /**
@@ -32,97 +45,47 @@ export type BookingSummaryData = {
  * enough to check one — it named no provider, no duration, no end time and no address.
  *
  * A real `<dl>` via `AppDescriptionList` rather than stacked paragraphs, so each label
- * is bound to its value in the markup.
+ * is bound to its value in the markup. Rows come from `buildBookingSummaryFields` so
+ * "Copy booking details" pastes the same fields this list shows.
  */
-export const BookingSummary: FC<BookingSummaryData> = ({
-  providerName,
-  serviceName,
-  serviceDescription,
-  startISO,
-  durationMinutes,
-  price,
-  address,
-  phone,
-  acceptedPaymentMethods,
-}) => {
+export const BookingSummary: FC<BookingSummaryData> = (data) => {
   const t = useTranslations('Booking')
-  const tCommon = useTranslations('Common')
-  const tMethods = useTranslations('Settings.payments.methods')
+  const fields = useBookingSummaryFields(data)
 
-  const items = useMemo<AppDescriptionListItem[]>(() => {
-    const start = dayjs(startISO)
-    // Derived, never stored: the API recomputes `endAt` off the service's own
-    // duration, so showing anything else here would be a second source of truth.
-    const end = start.add(durationMinutes, 'minute')
-
-    const rows: (AppDescriptionListItem | null)[] = [
-      { key: 'provider', label: t('summary.provider'), value: providerName },
-      serviceName
-        ? {
-            key: 'service',
-            label: t('summary.service'),
-            value: serviceDescription ? `${serviceName} — ${serviceDescription}` : serviceName,
-          }
-        : null,
-      { key: 'date', label: t('summary.date'), value: start.format('dddd, D MMMM YYYY') },
-      {
-        key: 'time',
-        label: t('summary.time'),
-        value: `${start.format(SCHEDULE_DISPLAY_FORMAT)} – ${end.format(SCHEDULE_DISPLAY_FORMAT)}`,
-      },
-      { key: 'duration', label: t('summary.duration'), value: t('summary.durationValue', { minutes: durationMinutes }) },
-      price ? { key: 'price', label: t('summary.price'), value: price } : null,
-      address
-        ? {
-            key: 'location',
-            label: t('summary.location'),
+  const items = useMemo<AppDescriptionListItem[]>(
+    () =>
+      fields.map((field) => {
+        if (field.key === 'location' && data.address) {
+          return {
+            key: field.key,
+            label: field.label,
             value: (
               <CopyableLinkValue
-                href={generateGoogleMapsLink(address)}
-                text={address}
+                href={generateGoogleMapsLink(data.address)}
+                text={data.address}
                 copyLabel={t('summary.copyLocation')}
                 openInNewTab
               />
             ),
           }
-        : null,
-      phone
-        ? {
-            key: 'phone',
-            label: tCommon('phone'),
+        }
+        if (field.key === 'phone' && data.phone) {
+          return {
+            key: field.key,
+            label: field.label,
             value: (
               <CopyableLinkValue
-                href={`tel:${phone.replace(/\s/g, '')}`}
-                text={phone}
+                href={`tel:${data.phone.replace(/\s/g, '')}`}
+                text={data.phone}
                 copyLabel={t('summary.copyPhone')}
               />
             ),
           }
-        : null,
-      acceptedPaymentMethods.length
-        ? {
-            key: 'payment',
-            label: t('summary.accepts'),
-            value: acceptedPaymentMethods.map((method) => tMethods(method)).join(', '),
-          }
-        : null,
-    ]
-
-    return rows.filter((row): row is AppDescriptionListItem => row !== null)
-  }, [
-    acceptedPaymentMethods,
-    address,
-    durationMinutes,
-    phone,
-    price,
-    providerName,
-    serviceDescription,
-    serviceName,
-    startISO,
-    t,
-    tCommon,
-    tMethods,
-  ])
+        }
+        return { key: field.key, label: field.label, value: field.text }
+      }),
+    [data.address, data.phone, fields, t]
+  )
 
   return <AppDescriptionList items={items} columns={1} />
 }

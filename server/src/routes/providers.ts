@@ -480,15 +480,21 @@ providerProfileRouter.get(
     // Two reads rather than one over the union: the previous window feeds only the
     // delta on each tile, so it is fetched with the same narrow select and bucketed by
     // the same code instead of being special-cased inside one pass.
+    //
+    // No `lte: range.to` on the current window: a preset is how far back to look, and
+    // upcoming bookings after now still belong on this dashboard. All (`unbounded`)
+    // drops the lower bound too. Previous-period deltas stay a past-only comparison.
     const [rows, previousRows] = await Promise.all([
       prisma.appointment.findMany({
-        where: { providerId, startAt: { gte: range.from, lte: range.to } },
+        where: range.unbounded ? { providerId } : { providerId, startAt: { gte: range.from } },
         select: ANALYTICS_SELECT,
       }),
-      prisma.appointment.findMany({
-        where: { providerId, startAt: { gte: range.previousFrom, lt: range.from } },
-        select: ANALYTICS_SELECT,
-      }),
+      range.unbounded
+        ? Promise.resolve([])
+        : prisma.appointment.findMany({
+            where: { providerId, startAt: { gte: range.previousFrom, lt: range.from } },
+            select: ANALYTICS_SELECT,
+          }),
     ])
 
     return ok(res, buildProviderAnalytics(rows, previousRows, range, timeZone))

@@ -162,7 +162,7 @@
       "location": "Lokasi",
       "copyLocation": "Salin alamat",
       "copyPhone": "Salin nomor telepon",
-      "accepts": "Pembayaran yang diterima"
+      "preferredPayment": "Pembayaran pilihan"
     },
     "guest": {
       "heading": "Data Anda",
@@ -213,9 +213,6 @@
     "failed": "Pemesanan gagal",
     "confirmedTitle": "Pemesanan dikonfirmasi",
     "emailSent": "Kami telah mengirim detail ke {email}.",
-    "manageLinkLabel": "Tautan pemesanan Anda",
-    "copyManageLink": "Salin tautan pemesanan",
-    "viewBooking": "Lihat pemesanan",
     "cancel": "Batalkan pemesanan",
     "cancelConfirmTitle": "Batalkan pemesanan ini?",
     "cancelConfirmBody": "Slot akan tersedia lagi. Ini tidak dapat dibatalkan.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Pemesanan Anda",
     "manageSubtitle": "Lihat, batalkan, atau pilih waktu baru.",
     "manageNotFoundTitle": "Pemesanan tidak ditemukan",
-    "manageNotFoundBody": "Tautan ini tidak valid atau pemesanan sudah tidak ada."
+    "manageNotFoundBody": "Tautan ini tidak valid atau pemesanan sudah tidak ada.",
+    "shareBooking": "Bagikan pemesanan",
+    "shareBookingTitle": "Pemesanan dengan {name}",
+    "copyBookingUrl": "Salin URL pemesanan",
+    "copyBookingDetails": "Salin detail pemesanan",
+    "generateQr": "Buat QR",
+    "downloadQr": "Unduh QR",
+    "shareQr": "Bagikan QR",
+    "qrAlt": "Kode QR pemesanan ini"
   },
   "Footer": {
     "blurb": "Satu platform untuk menemukan layanan di sekitar Anda atau mengelola kalender pemesanan Anda.",
@@ -412,6 +417,10 @@
       "unpublish": "Batal terbitkan halaman",
       "published": "Halaman Anda telah diterbitkan.",
       "unpublished": "Halaman Anda tidak terdaftar.",
+      "publishTitle": "Terbitkan halaman ini?",
+      "publishBody": "Profil Anda akan muncul di Jelajahi, dan siapa pun yang punya tautan dapat melihatnya dan memesan.",
+      "unpublishTitle": "Batal terbitkan halaman ini?",
+      "unpublishBody": "Profil Anda akan keluar dari Jelajahi dan pengunjung tidak lagi melihat halaman publik Anda. Janji temu yang ada tetap ada. Anda dapat menerbitkan lagi kapan saja.",
       "deletePage": "Hapus halaman",
       "deleteTitle": "Hapus halaman ini?",
       "deleteBody": "Ini menghapus profil publik dan layanan Anda secara permanen. Janji temu yang ada menghalangi penghapusan. Anda akan keluar."
@@ -473,8 +482,10 @@
       "title": "Analitik",
       "subtitle": "Bagaimana perkembangan pemesanan Anda.",
       "range": "{days, plural, =365 {12 bulan} other {# hari}}",
+      "rangeAll": "Semua",
       "emptyTitle": "Belum ada yang bisa diukur",
       "emptyBody": "Setelah Anda memiliki pemesanan dalam periode ini, angka Anda akan muncul di sini.",
+      "listTitle": "Pemesanan pada periode ini",
       "statBookings": "Pemesanan",
       "statRevenue": "Pendapatan",
       "statCompletion": "Selesai",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {dan # mata uang lain} other {dan # mata uang lain}}",
       "multiCurrencyTitle": "Layanan Anda dihargai dalam lebih dari satu mata uang",
       "chartPerDay": "Pemesanan per hari",
-      "chartPerDayCaption": "Selama {days} hari terakhir, dalam waktu setempat Anda.",
+      "chartPerDayCaption": "{days} hari terakhir dan pemesanan mendatang, dalam waktu setempat Anda.",
+      "chartPerDayCaptionAll": "Semua pemesanan, termasuk yang mendatang, dalam waktu setempat Anda.",
       "chartDayLabel": "Hari",
       "chartWeekday": "Hari tersibuk",
       "chartWeekdayCaption": "Pemesanan yang terlaksana, per hari dalam seminggu.",

@@ -162,7 +162,7 @@
       "location": "الموقع",
       "copyLocation": "نسخ العنوان",
       "copyPhone": "نسخ رقم الهاتف",
-      "accepts": "طرق الدفع المقبولة"
+      "preferredPayment": "طريقة الدفع المفضلة"
     },
     "guest": {
       "heading": "بياناتك",
@@ -213,9 +213,6 @@
     "failed": "تعذّر الحجز",
     "confirmedTitle": "تم تأكيد الحجز",
     "emailSent": "أرسلنا التفاصيل إلى {email}.",
-    "manageLinkLabel": "رابط حجزك",
-    "copyManageLink": "نسخ رابط الحجز",
-    "viewBooking": "عرض الحجز",
     "cancel": "إلغاء الحجز",
     "cancelConfirmTitle": "إلغاء هذا الحجز؟",
     "cancelConfirmBody": "سيصبح الموعد متاحًا مجددًا. لا يمكن التراجع عن ذلك.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "حجزك",
     "manageSubtitle": "اعرض أو ألغِ أو اختر وقتًا جديدًا.",
     "manageNotFoundTitle": "الحجز غير موجود",
-    "manageNotFoundBody": "هذا الرابط غير صالح أو لم يعد الحجز موجودًا."
+    "manageNotFoundBody": "هذا الرابط غير صالح أو لم يعد الحجز موجودًا.",
+    "shareBooking": "مشاركة الحجز",
+    "shareBookingTitle": "حجز مع {name}",
+    "copyBookingUrl": "نسخ رابط الحجز",
+    "copyBookingDetails": "نسخ تفاصيل الحجز",
+    "generateQr": "إنشاء رمز QR",
+    "downloadQr": "تنزيل رمز QR",
+    "shareQr": "مشاركة رمز QR",
+    "qrAlt": "رمز QR لهذا الحجز"
   },
   "Footer": {
     "blurb": "منصة واحدة للعثور على الخدمات القريبة منك أو لإدارة تقويم حجوزاتك.",
@@ -412,6 +417,10 @@
       "unpublish": "إلغاء نشر الصفحة",
       "published": "صفحتك منشورة.",
       "unpublished": "صفحتك غير مُدرجة.",
+      "publishTitle": "نشر هذه الصفحة؟",
+      "publishBody": "سيظهر ملفك في استكشاف، ويمكن لأي شخص لديه الرابط رؤيته وحجز موعد.",
+      "unpublishTitle": "إلغاء نشر هذه الصفحة؟",
+      "unpublishBody": "سيغادر ملفك استكشاف ولن يرى الزوار صفحتك العامة بعد الآن. تبقى المواعيد الحالية. يمكنك النشر مرة أخرى في أي وقت.",
       "deletePage": "حذف الصفحة",
       "deleteTitle": "حذف هذه الصفحة؟",
       "deleteBody": "يؤدي هذا إلى إزالة ملفك الشخصي العام وخدماتك بشكل دائم. المواعيد القائمة تمنع الحذف. سيتم تسجيل خروجك."
@@ -473,8 +482,10 @@
       "title": "التحليلات",
       "subtitle": "كيف تسير حجوزاتك.",
       "range": "{days, plural, =365 {12 شهرًا} zero {# أيام} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}",
+      "rangeAll": "الكل",
       "emptyTitle": "لا شيء لقياسه بعد",
       "emptyBody": "بمجرد أن يكون لديك حجوزات في هذه الفترة، ستظهر أرقامك هنا.",
+      "listTitle": "الحجوزات في هذه الفترة",
       "statBookings": "الحجوزات",
       "statRevenue": "الإيرادات",
       "statCompletion": "مكتملة",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, zero {ولا عملة أخرى} one {وعملة أخرى واحدة} two {وعملتان أخريان} few {و# عملات أخرى} many {و# عملة أخرى} other {و# عملة أخرى}}",
       "multiCurrencyTitle": "خدماتك مُسعّرة بأكثر من عملة واحدة",
       "chartPerDay": "الحجوزات في اليوم",
-      "chartPerDayCaption": "خلال آخر {days} يومًا، بالتوقيت المحلي.",
+      "chartPerDayCaption": "آخر {days} يومًا والحجوزات القادمة، بالتوقيت المحلي.",
+      "chartPerDayCaptionAll": "كل الحجوزات، بما فيها القادمة، بالتوقيت المحلي.",
       "chartDayLabel": "اليوم",
       "chartWeekday": "أكثر الأيام ازدحامًا",
       "chartWeekdayCaption": "الحجوزات التي تمت، حسب يوم الأسبوع.",

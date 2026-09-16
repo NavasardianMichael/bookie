@@ -162,7 +162,7 @@
       "location": "Local",
       "copyLocation": "Copiar endereço",
       "copyPhone": "Copiar número de telefone",
-      "accepts": "Pagamento aceito"
+      "preferredPayment": "Pagamento preferido"
     },
     "guest": {
       "heading": "Seus dados",
@@ -213,9 +213,6 @@
     "failed": "Não foi possível agendar",
     "confirmedTitle": "Agendamento confirmado",
     "emailSent": "Enviamos os detalhes para {email}.",
-    "manageLinkLabel": "Seu link de agendamento",
-    "copyManageLink": "Copiar link do agendamento",
-    "viewBooking": "Ver agendamento",
     "cancel": "Cancelar agendamento",
     "cancelConfirmTitle": "Cancelar este agendamento?",
     "cancelConfirmBody": "O horário ficará livre de novo. Isso não pode ser desfeito.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Seu agendamento",
     "manageSubtitle": "Veja, cancele ou escolha outro horário.",
     "manageNotFoundTitle": "Agendamento não encontrado",
-    "manageNotFoundBody": "Este link é inválido ou o agendamento não existe mais."
+    "manageNotFoundBody": "Este link é inválido ou o agendamento não existe mais.",
+    "shareBooking": "Compartilhar agendamento",
+    "shareBookingTitle": "Agendamento com {name}",
+    "copyBookingUrl": "Copiar URL do agendamento",
+    "copyBookingDetails": "Copiar detalhes do agendamento",
+    "generateQr": "Gerar QR",
+    "downloadQr": "Baixar QR",
+    "shareQr": "Compartilhar QR",
+    "qrAlt": "QR code deste agendamento"
   },
   "Footer": {
     "blurb": "Uma única plataforma para encontrar serviços locais ou gerenciar sua agenda de agendamentos.",
@@ -412,6 +417,10 @@
       "unpublish": "Despublicar página",
       "published": "Sua página está publicada.",
       "unpublished": "Sua página não está publicada.",
+      "publishTitle": "Publicar esta página?",
+      "publishBody": "Seu perfil aparecerá em Explorar, e qualquer pessoa com o link poderá vê-lo e agendar.",
+      "unpublishTitle": "Despublicar esta página?",
+      "unpublishBody": "Seu perfil sairá de Explorar e os visitantes não verão mais sua página pública. Os agendamentos existentes permanecem. Você pode publicar de novo a qualquer momento.",
       "deletePage": "Excluir página",
       "deleteTitle": "Excluir esta página?",
       "deleteBody": "Isso remove permanentemente seu perfil público e seus serviços. Agendamentos existentes impedem a exclusão. Sua sessão será encerrada."
@@ -473,8 +482,10 @@
       "title": "Análises",
       "subtitle": "Como andam os seus agendamentos.",
       "range": "{days, plural, =365 {12 meses} other {# dias}}",
+      "rangeAll": "Todas",
       "emptyTitle": "Nada para medir ainda",
       "emptyBody": "Quando você tiver agendamentos neste período, seus números aparecerão aqui.",
+      "listTitle": "Agendamentos neste período",
       "statBookings": "Agendamentos",
       "statRevenue": "Receita",
       "statCompletion": "Concluídos",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {e mais # moeda} other {e mais # moedas}}",
       "multiCurrencyTitle": "Seus serviços têm preço em mais de uma moeda",
       "chartPerDay": "Agendamentos por dia",
-      "chartPerDayCaption": "Nos últimos {days} dias, no seu horário local.",
+      "chartPerDayCaption": "Últimos {days} dias e agendamentos futuros, no seu horário local.",
+      "chartPerDayCaptionAll": "Todos os agendamentos, inclusive os futuros, no seu horário local.",
       "chartDayLabel": "Dia",
       "chartWeekday": "Dias mais movimentados",
       "chartWeekdayCaption": "Agendamentos que ocorreram, por dia da semana.",

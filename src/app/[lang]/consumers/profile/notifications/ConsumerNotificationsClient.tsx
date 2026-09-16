@@ -76,6 +76,7 @@ export const ConsumerNotificationsClient = () => {
           <Form
             form={form}
             initialValues={saved}
+            disabled={saving}
             onValuesChange={() => setDirty(true)}
             className='flex flex-col gap-0'
           >
@@ -99,7 +100,7 @@ export const ConsumerNotificationsClient = () => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={saving ? 'save' : null}
         onDiscard={() => {
           form.setFieldsValue(saved)
           setDirty(false)

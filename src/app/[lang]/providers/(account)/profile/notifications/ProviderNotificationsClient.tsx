@@ -73,7 +73,7 @@ export const ProviderNotificationsClient = () => {
           {t('notifications.emailPrefs')}
         </AppTitle>
 
-        <Form form={form} initialValues={saved} onValuesChange={() => setDirty(true)}>
+        <Form form={form} initialValues={saved} disabled={saving} onValuesChange={() => setDirty(true)}>
           {ROWS.map((row, index) => (
             <div
               key={row.key}
@@ -93,7 +93,7 @@ export const ProviderNotificationsClient = () => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={saving ? 'save' : null}
         onDiscard={() => {
           form.setFieldsValue(saved)
           setDirty(false)

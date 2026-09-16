@@ -13,7 +13,15 @@ modules `"use client"`, so an antd component's text only reaches the DOM after h
 | **Content** — headings, body copy, links, times, description lists, JSON-LD | **Interaction** — Button, Input, Select, Form, Modal, Drawer, Upload, TimePicker, Segmented |
 | It renders in a Server Component (`page.tsx`, `layout.tsx`) | It already lives inside a `'use client'` island |
 | Page structure — Container / PageShell / Section / PageHeader / ResponsiveGrid / Surface / ChipRail / Pagination / SettingsShell | antd already supplies focus trap / scroll lock / a11y |
-| An icon on the server → `ui/icons.tsx` | An icon in a client island → `@ant-design/icons` |
+| An icon that must paint in a Server Component, or that antd does not have | An icon in a `'use client'` island → `@ant-design/icons` first |
+
+**Icons — try `@ant-design/icons` first.** `@ant-design/icons` uses `createContext`, so a
+Server Component that imports it fails at **build** time — that is the only reason
+`ui/icons.tsx` exists. When adding or editing a component, look up the antd name
+(`FlagOutlined`, `CommentOutlined`, `PlusOutlined`, …) before drawing a path. Use
+`ui/icons.tsx` only when the glyph must be in the HTML a crawler sees, or when antd has
+nothing close (`StarIcon`'s fill, for the `RatingStars` clip). `ReviewCardActions` is
+the current client model: `CommentOutlined` / `FlagOutlined` on a `'use client'` island.
 
 ## The three tiers
 
@@ -55,9 +63,9 @@ width above 100%, painting a sixth star's worth of gold past the end of the row.
 colour is `--color-rating`, a token of its own — deliberately not `STATUS.warning`, which
 is the same amber and means something else entirely (see `src/styles/CLAUDE.md`).
 
-`StarIcon` and `FlagIcon` in `ui/icons.tsx` are its glyphs. `StarIcon` is drawn as a
-**fill**, unlike every other icon there, which are strokes: the clip that produces a
-partial star would otherwise cut through a visible outline mid-glyph.
+`StarIcon` in `ui/icons.tsx` is its glyph. It is drawn as a **fill**, unlike every
+other icon there, which are strokes: the clip that produces a partial star would
+otherwise cut through a visible outline mid-glyph.
 
 **`layout/Pagination` is antd-free deliberately, not for want of an antd `Pagination`.**
 It renders real anchors and takes a `buildHref(page)`, so every page of a list is a URL a
@@ -214,3 +222,11 @@ where every form bug this repo has had came from.
   passed down as props, because `App.tsx` is a client component and the locale is not in
   the URL. `App.tsx` is also where `setDayjsLocale` is called — client-side only, since
   dayjs's locale is a module global. See `src/i18n/CLAUDE.md`.
+
+## Known non-canonical code — do not copy
+
+- **Client islands still importing `ui/icons.tsx`.** The table above says
+  `@ant-design/icons` on a `'use client'` file, and `ReviewCardActions` now does that.
+  Most other client islands still pull `MailIcon` / `LockIcon` / `CopyIcon` / … from
+  `ui/icons.tsx` so the stroke matches the server set. That is leftover matching, not
+  a reason to add another glyph. A new icon on a client island is an antd import.

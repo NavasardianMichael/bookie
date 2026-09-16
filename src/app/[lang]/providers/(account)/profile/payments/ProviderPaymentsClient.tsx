@@ -10,7 +10,7 @@ import { acceptsBankTransfer, hasPaymentShare, needsPublicShareConfirm, toPaymen
 import { toOptionalText } from '@helpers/registration'
 import { BankTransferDetails } from '@components/settings/BankTransferDetails'
 import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
-import { SettingsActionBar } from '@components/settings/SettingsActionBar'
+import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { CreditCardIcon } from '@components/ui/icons'
@@ -55,7 +55,7 @@ export const ProviderPaymentsClient = () => {
   const [form] = Form.useForm<FormValues>()
   const [saved, setSaved] = useState<PaymentInfo>(DEFAULT)
   const [dirty, setDirty] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pendingMode, setPendingMode] = useState<PersistMode | null>(null)
 
@@ -71,7 +71,7 @@ export const ProviderPaymentsClient = () => {
 
   const persist = async (mode: PersistMode) => {
     const values = await form.validateFields()
-    setSaving(true)
+    setPendingAction(mode)
     setError(null)
     try {
       await putProviderProfileAPI({ mode: 'draft', paymentInfo: toPayload(values.paymentInfo) })
@@ -84,7 +84,7 @@ export const ProviderPaymentsClient = () => {
       form.setFieldsValue({ paymentInfo: info })
       setDirty(false)
     } finally {
-      setSaving(false)
+      setPendingAction(null)
     }
   }
 
@@ -129,8 +129,14 @@ export const ProviderPaymentsClient = () => {
         </h2>
         <AppParagraph size='body-sm'>{t('payments.hint')}</AppParagraph>
 
-        <Form form={form} layout='vertical' onValuesChange={() => setDirty(true)} initialValues={{ paymentInfo: saved }}>
-          <PaymentInfoFields />
+        <Form
+          form={form}
+          layout='vertical'
+          disabled={pendingAction !== null}
+          onValuesChange={() => setDirty(true)}
+          initialValues={{ paymentInfo: saved }}
+        >
+          <PaymentInfoFields disabled={pendingAction !== null} />
         </Form>
 
         {showTransferPreview ? <BankTransferDetails {...preview} showHeading={false} /> : null}
@@ -138,7 +144,7 @@ export const ProviderPaymentsClient = () => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={pendingAction}
         onDiscard={() => {
           form.setFieldsValue({ paymentInfo: saved })
           setDirty(false)

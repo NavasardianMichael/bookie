@@ -159,13 +159,12 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
       price: servicePrice,
       address: details?.location?.address,
       phone,
-      acceptedPaymentMethods: toPaymentMethods(details?.paymentInfo),
+      paymentMethods: [],
     }
   }, [
     basicProvider.firstName,
     basicProvider.lastName,
     details?.location?.address,
-    details?.paymentInfo,
     durationMinutes,
     phone,
     service?.description,
@@ -225,6 +224,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
             manageToken: result.manageToken,
             emailSent: Boolean(result.emailSent),
             emailedTo: submission.guest?.email ?? accountEmail ?? undefined,
+            paymentMethods: submission.paymentMethods ?? [],
           })
         }
       } catch (error) {

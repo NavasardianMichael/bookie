@@ -58,6 +58,9 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
 - Keep files small and single-purpose; split rather than append.
 - Comment only the non-obvious why — a hidden constraint or a workaround — never what
   the code already says through naming.
+- Icons: `@ant-design/icons` first on a `'use client'` island. `ui/icons.tsx` only when
+  the glyph must paint in a Server Component or antd has no close match. Look the antd
+  name up before drawing a path.
 
 ## Avoid patterns
 
@@ -92,7 +95,10 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
 - Don't nest a button or link inside an `<a>` — invalid HTML that breaks keyboard
   navigation; use a stretched link over inert content instead.
 - Don't import `@ant-design/icons` in a Server Component — it's client-only and
-  fails at build time; use `ui/icons.tsx` for server-safe icons.
+  fails at build time; use `ui/icons.tsx` for those glyphs.
+- Don't add a custom SVG to `ui/icons.tsx` for a client island, and don't copy
+  `MailIcon` / `LockIcon` from there into new client code — look up `@ant-design/icons`
+  first (`FlagOutlined`, `CommentOutlined`, …).
 - Don't reach for a responsive breakpoint variant first — prefer `clamp()` type,
   `app-gutter-x`, and `auto-fill`/`minmax` grids before adding a `md:`-style class.
 - Don't use `any` without an explicit justification comment, and don't mix UI, API,

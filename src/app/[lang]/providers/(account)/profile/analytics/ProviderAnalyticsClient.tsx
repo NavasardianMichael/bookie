@@ -15,10 +15,11 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { Surface } from '@components/ui/layout/Surface'
 import { StatTile } from '@components/ui/StatTile'
+import { AnalyticsBookingsList } from './AnalyticsBookingsList'
 
 const RANGE_DAYS = [7, 30, 90, 365] as const
 
-type RangeDays = (typeof RANGE_DAYS)[number]
+type RangePreset = 'all' | `${(typeof RANGE_DAYS)[number]}`
 
 /**
  * The provider's numbers over a chosen window.
@@ -37,7 +38,7 @@ export const ProviderAnalyticsClient = () => {
   const t = useTranslations('Settings.analytics')
   const format = useFormatter()
 
-  const [rangeDays, setRangeDays] = useState<RangeDays>(30)
+  const [preset, setPreset] = useState<RangePreset>('30')
   const [data, setData] = useState<ProviderAnalytics | null>(null)
   const [serviceNames, setServiceNames] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
@@ -47,11 +48,18 @@ export const ProviderAnalyticsClient = () => {
    * `loading` is derived rather than set at the top of the effect
    * (`react-hooks/set-state-in-effect` is an error here), and the clock is read once per
    * range change rather than on every render.
+   *
+   * All sends `all: true` and no bounds. Numbered presets still send `to: now` so the
+   * previous-period delta has a length; the API does not cut off upcoming bookings at
+   * that `to`.
    */
   const range = useMemo(() => {
+    if (preset === 'all') return { all: true as const }
     const to = dayjs()
-    return { from: to.subtract(rangeDays, 'day').toISOString(), to: to.toISOString() }
-  }, [rangeDays])
+    return { from: to.subtract(Number(preset), 'day').toISOString(), to: to.toISOString() }
+  }, [preset])
+
+  const rangeDays = preset === 'all' ? null : Number(preset)
 
   const [fulfilled, setFulfilled] = useState<object | null>(null)
   const loading = fulfilled !== range
@@ -156,10 +164,13 @@ export const ProviderAnalyticsClient = () => {
         title={t('title')}
         subtitle={t('subtitle')}
         actions={
-          <Segmented<RangeDays>
-            value={rangeDays}
-            onChange={setRangeDays}
-            options={RANGE_DAYS.map((days) => ({ value: days, label: t('range', { days }) }))}
+          <Segmented<RangePreset>
+            value={preset}
+            onChange={setPreset}
+            options={[
+              { value: 'all', label: t('rangeAll') },
+              ...RANGE_DAYS.map((days) => ({ value: String(days) as RangePreset, label: t('range', { days }) })),
+            ]}
           />
         }
       />
@@ -217,7 +228,9 @@ export const ProviderAnalyticsClient = () => {
           <Surface>
             <BarChart
               title={t('chartPerDay')}
-              caption={t('chartPerDayCaption', { days: rangeDays })}
+              caption={
+                rangeDays === null ? t('chartPerDayCaptionAll') : t('chartPerDayCaption', { days: rangeDays })
+              }
               data={seriesData}
               emptyLabel={t('chartEmpty')}
               valueLabel={t('chartDayLabel')}
@@ -299,6 +312,8 @@ export const ProviderAnalyticsClient = () => {
               </AppText>
             </Surface>
           </div>
+
+          <AnalyticsBookingsList key={preset} from={'from' in range ? range.from : undefined} />
         </>
       )}
     </div>

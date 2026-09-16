@@ -18,6 +18,7 @@ type Props = {
   onChanged?: (phone: PhoneNumber) => void
   /** Skip the outer Surface when the form already sits inside Personal Information. */
   embedded?: boolean
+  disabled?: boolean
 }
 
 const isValidTypedPhone = (code: CountryCode | undefined, number: string | undefined): boolean => {
@@ -47,7 +48,7 @@ const isSamePhone = (current: PhoneNumber | string | undefined, next: PhoneNumbe
  * When `embedded`, this must not render a `<form>` — it already sits inside the profile
  * Form, and a nested form tag (or a submit button) would steal the parent.
  */
-export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded = false }) => {
+export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded = false, disabled }) => {
   const t = useTranslations('Settings.phone')
   const tActions = useTranslations('Settings.actions')
   const [form] = Form.useForm<PhoneFormValues>()
@@ -69,6 +70,7 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
   }, [currentPhone, form])
 
   const handleSave = async () => {
+    if (disabled) return
     setError(null)
     setSuccess(null)
 
@@ -102,17 +104,18 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
         form={form}
         layout='vertical'
         component={embedded ? false : undefined}
+        disabled={disabled}
         initialValues={toPhoneFormValues(currentPhone)}
         className='flex flex-col gap-3'
         requiredMark={false}
       >
-        <PhoneNumberField label={t('label')} />
+        <PhoneNumberField label={t('label')} disabled={disabled} />
         <AppButton
           type='default'
           htmlType='button'
           onClick={() => void handleSave()}
           loading={pending}
-          disabled={!canSave}
+          disabled={!canSave || disabled}
           className='self-start'
         >
           {tActions('save')}

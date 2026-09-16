@@ -15,7 +15,7 @@ import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
 import { ProfilePhotoField } from '@components/settings/ProfilePhotoField'
 import { ProviderPageActions } from '@components/settings/ProviderPageActions'
-import { SettingsActionBar } from '@components/settings/SettingsActionBar'
+import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
@@ -56,7 +56,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   const profileId = useAuthStore.use.profileId()
   const [profile, setProfile] = useState<ProviderProfile | null>(null)
   const [dirty, setDirty] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
   const [error, setError] = useState<string | null>(null)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const descriptionRules = useFormItemRules('maxCharsForTextarea')
@@ -91,7 +91,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
 
   const handleSaveDraft = async () => {
     const values = await form.validateFields()
-    setSaving(true)
+    setPendingAction('draft')
     setError(null)
     try {
       const data = await putProviderProfileAPI({
@@ -105,13 +105,13 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     } catch (err) {
       setError(processError(err).message)
     } finally {
-      setSaving(false)
+      setPendingAction(null)
     }
   }
 
   const handlePublish = async () => {
     const values = await form.validateFields()
-    setSaving(true)
+    setPendingAction('publish')
     setError(null)
     try {
       // Ensure draft has latest fields, then publish.
@@ -127,7 +127,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     } catch (err) {
       setError(processError(err).message)
     } finally {
-      setSaving(false)
+      setPendingAction(null)
     }
   }
 
@@ -148,7 +148,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         <ProviderPageActions
           listed={profile?.listed !== false}
           profileId={profile?.id ?? profileId}
-          disabled={!profile}
+          disabled={!profile || pendingAction !== null}
           onListedChange={(listed) => {
             setProfile((prev) => (prev ? { ...prev, listed } : prev))
           }}
@@ -165,7 +165,14 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
           {t('profile.personalInfo')}
         </AppTitle>
 
-        <Form form={form} layout='vertical' requiredMark={false} onValuesChange={() => setDirty(true)} className='flex flex-col gap-4'>
+        <Form
+          form={form}
+          layout='vertical'
+          requiredMark={false}
+          disabled={pendingAction !== null}
+          onValuesChange={() => setDirty(true)}
+          className='flex flex-col gap-4'
+        >
           <AppFormItem name='image' hasFeedback={false}>
             <ProfilePhotoField
               name={displayName || 'Provider'}
@@ -199,6 +206,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
               {profile && (
                 <ChangePhoneForm
                   embedded
+                  disabled={pendingAction !== null}
                   currentPhone={profile.details.phone}
                   onChanged={(phone) => {
                     setProfile((prev) => (prev ? { ...prev, details: { ...prev.details, phone } } : prev))
@@ -211,6 +219,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 currentEmail={profile?.details.email}
                 verifyPath={ROUTES.providerProfile}
                 verifyToken={verifyEmailToken}
+                disabled={pendingAction !== null}
                 onVerified={(email, emailVerifiedAt) => {
                   setProfile((prev) =>
                     prev
@@ -226,7 +235,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={pendingAction}
         onDiscard={() => {
           if (!profile) return
           const values = mergeDraft(profile)

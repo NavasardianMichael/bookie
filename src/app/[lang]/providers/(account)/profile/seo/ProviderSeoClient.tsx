@@ -192,6 +192,7 @@ export const ProviderSeoClient = () => {
         form={form}
         layout='vertical'
         initialValues={EMPTY}
+        disabled={saving}
         onValuesChange={() => setDirty(true)}
         className='flex flex-col gap-6'
       >
@@ -354,7 +355,7 @@ export const ProviderSeoClient = () => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={saving ? 'save' : null}
         onDiscard={() => {
           form.setFieldsValue(saved)
           setDirty(false)

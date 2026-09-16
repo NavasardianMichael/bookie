@@ -162,7 +162,7 @@
       "location": "Lieu",
       "copyLocation": "Copier l'adresse",
       "copyPhone": "Copier le numéro de téléphone",
-      "accepts": "Paiement accepté"
+      "preferredPayment": "Paiement préféré"
     },
     "guest": {
       "heading": "Vos coordonnées",
@@ -213,9 +213,6 @@
     "failed": "La réservation a échoué",
     "confirmedTitle": "Réservation confirmée",
     "emailSent": "Nous avons envoyé les détails à {email}.",
-    "manageLinkLabel": "Votre lien de réservation",
-    "copyManageLink": "Copier le lien de réservation",
-    "viewBooking": "Voir la réservation",
     "cancel": "Annuler la réservation",
     "cancelConfirmTitle": "Annuler cette réservation ?",
     "cancelConfirmBody": "Le créneau sera de nouveau libre. Cette action est irréversible.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Votre réservation",
     "manageSubtitle": "Consultez, annulez ou choisissez un autre horaire.",
     "manageNotFoundTitle": "Réservation introuvable",
-    "manageNotFoundBody": "Ce lien n’est pas valide ou la réservation n’existe plus."
+    "manageNotFoundBody": "Ce lien n’est pas valide ou la réservation n’existe plus.",
+    "shareBooking": "Partager la réservation",
+    "shareBookingTitle": "Réservation avec {name}",
+    "copyBookingUrl": "Copier l’URL de la réservation",
+    "copyBookingDetails": "Copier les détails de la réservation",
+    "generateQr": "Générer le QR",
+    "downloadQr": "Télécharger le QR",
+    "shareQr": "Partager le QR",
+    "qrAlt": "Code QR de cette réservation"
   },
   "Footer": {
     "blurb": "Une seule plateforme pour trouver des services près de chez vous ou gérer votre agenda de réservations.",
@@ -412,6 +417,10 @@
       "unpublish": "Dépublier la page",
       "published": "Votre page est publiée.",
       "unpublished": "Votre page n'est pas publiée.",
+      "publishTitle": "Publier cette page ?",
+      "publishBody": "Votre profil apparaîtra dans Explorer, et quiconque dispose du lien pourra le voir et réserver.",
+      "unpublishTitle": "Dépublier cette page ?",
+      "unpublishBody": "Votre profil quittera Explorer et les visiteurs ne verront plus votre page publique. Les rendez-vous existants sont conservés. Vous pourrez republier à tout moment.",
       "deletePage": "Supprimer la page",
       "deleteTitle": "Supprimer cette page ?",
       "deleteBody": "Cela supprime définitivement votre profil public et vos prestations. Les rendez-vous existants empêchent la suppression. Vous serez déconnecté."
@@ -473,8 +482,10 @@
       "title": "Statistiques",
       "subtitle": "Comment se portent vos réservations.",
       "range": "{days, plural, =365 {12 mois} other {# jours}}",
+      "rangeAll": "Toutes",
       "emptyTitle": "Rien à mesurer pour l'instant",
       "emptyBody": "Une fois que vous aurez des réservations sur cette période, vos chiffres apparaîtront ici.",
+      "listTitle": "Réservations sur cette période",
       "statBookings": "Réservations",
       "statRevenue": "Chiffre d'affaires",
       "statCompletion": "Terminées",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {et # autre devise} other {et # autres devises}}",
       "multiCurrencyTitle": "Vos prestations sont facturées dans plus d'une devise",
       "chartPerDay": "Réservations par jour",
-      "chartPerDayCaption": "Sur les {days} derniers jours, à votre heure locale.",
+      "chartPerDayCaption": "Les {days} derniers jours et les réservations à venir, à votre heure locale.",
+      "chartPerDayCaptionAll": "Toutes les réservations, y compris à venir, à votre heure locale.",
       "chartDayLabel": "Jour",
       "chartWeekday": "Jours les plus chargés",
       "chartWeekdayCaption": "Réservations qui ont eu lieu, par jour de la semaine.",

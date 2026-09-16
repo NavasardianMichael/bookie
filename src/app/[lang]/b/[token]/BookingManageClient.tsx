@@ -2,6 +2,7 @@
 
 import { FC, useCallback, useMemo, useState } from 'react'
 import { BookingMonth } from '@app/[lang]/providers/[providerId]/components/BookingMonth'
+import { BookingShareActions } from '@app/[lang]/providers/[providerId]/components/BookingShareActions'
 import { BookingSlots } from '@app/[lang]/providers/[providerId]/components/BookingSlots'
 import { BookingSummary, BookingSummaryData } from '@app/[lang]/providers/[providerId]/components/BookingSummary'
 import { ServicePicker } from '@app/[lang]/providers/[providerId]/components/ServicePicker'
@@ -11,9 +12,14 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useLocale, useTranslations } from 'next-intl'
 import { patchManagedAppointmentAPI } from '@api/appointments/main'
 import { BookingStatus, ManagedAppointmentPayload } from '@api/appointments/types'
+import { Locale } from '@i18n/config'
+import { localePath } from '@i18n/pathname'
+import { ROUTE_KEYS } from '@constants/routes'
 import { DAY_KEY_FORMAT, SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
 import { countSlotsByDay, getSlotsForDate, getSlotsForDateRange } from '@helpers/booking'
+import { generateEntityPath } from '@helpers/entities'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { absoluteUrl } from '@helpers/url'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -43,7 +49,7 @@ type Props = {
 export const BookingManageClient: FC<Props> = ({ token, initial }) => {
   const t = useTranslations('Booking')
   const tStatus = useTranslations('Settings.bookings.status')
-  const locale = useLocale()
+  const locale = useLocale() as Locale
   const { notification } = App.useApp()
 
   const [payload, setPayload] = useState(initial)
@@ -129,7 +135,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
       price: bookedPrice,
       address: details?.location?.address,
       phone,
-      acceptedPaymentMethods: appointment.paymentMethods ?? [],
+      paymentMethods: appointment.paymentMethods ?? [],
     }
   }, [
     appointment.currency,
@@ -221,6 +227,11 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
         ) : null}
 
         <BookingSummary {...summary} />
+
+        <BookingShareActions
+          manageUrl={absoluteUrl(localePath(locale, generateEntityPath(ROUTE_KEYS.bookingManage, token)))}
+          booking={summary}
+        />
 
         {canEdit && !isEditing ? (
           <div className='flex flex-wrap gap-3'>

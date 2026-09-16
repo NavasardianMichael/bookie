@@ -162,7 +162,7 @@
       "location": "場所",
       "copyLocation": "住所をコピー",
       "copyPhone": "電話番号をコピー",
-      "accepts": "利用可能な支払い方法"
+      "preferredPayment": "希望する支払い方法"
     },
     "guest": {
       "heading": "お客様の情報",
@@ -213,9 +213,6 @@
     "failed": "予約に失敗しました",
     "confirmedTitle": "予約が確定しました",
     "emailSent": "詳細を {email} に送信しました。",
-    "manageLinkLabel": "予約リンク",
-    "copyManageLink": "予約リンクをコピー",
-    "viewBooking": "予約を見る",
     "cancel": "予約をキャンセル",
     "cancelConfirmTitle": "この予約をキャンセルしますか？",
     "cancelConfirmBody": "枠は再び空きます。この操作は取り消せません。",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "あなたの予約",
     "manageSubtitle": "確認、キャンセル、または時間の変更ができます。",
     "manageNotFoundTitle": "予約が見つかりません",
-    "manageNotFoundBody": "このリンクは無効か、予約はもう存在しません。"
+    "manageNotFoundBody": "このリンクは無効か、予約はもう存在しません。",
+    "shareBooking": "予約を共有",
+    "shareBookingTitle": "{name}との予約",
+    "copyBookingUrl": "予約URLをコピー",
+    "copyBookingDetails": "予約内容をコピー",
+    "generateQr": "QRを生成",
+    "downloadQr": "QRをダウンロード",
+    "shareQr": "QRを共有",
+    "qrAlt": "この予約のQRコード"
   },
   "Footer": {
     "blurb": "近くのサービスを見つけるのも、予約カレンダーを管理するのも、これひとつで。",
@@ -412,6 +417,10 @@
       "unpublish": "公開を停止",
       "published": "ページを公開しました。",
       "unpublished": "ページは非公開です。",
+      "publishTitle": "このページを公開しますか？",
+      "publishBody": "プロフィールが「さがす」に表示され、リンクを知っている人は誰でも閲覧して予約できます。",
+      "unpublishTitle": "このページの公開を停止しますか？",
+      "unpublishBody": "プロフィールは「さがす」から外れ、訪問者は公開ページを見られなくなります。既存の予約はそのままです。いつでも再公開できます。",
       "deletePage": "ページを削除",
       "deleteTitle": "このページを削除しますか？",
       "deleteBody": "公開プロフィールとサービスが完全に削除されます。既存の予約がある場合は削除できません。ログアウトされます。"
@@ -473,8 +482,10 @@
       "title": "分析",
       "subtitle": "予約の状況を確認できます。",
       "range": "{days, plural, =365 {12 か月} other {# 日間}}",
+      "rangeAll": "すべて",
       "emptyTitle": "まだ計測できるデータがありません",
       "emptyBody": "この期間に予約が入るとここに数値が表示されます。",
+      "listTitle": "この期間の予約",
       "statBookings": "予約数",
       "statRevenue": "売上",
       "statCompletion": "完了",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {ほか # 通貨} other {ほか # 通貨}}",
       "multiCurrencyTitle": "サービスが複数の通貨で価格設定されています",
       "chartPerDay": "日別の予約",
-      "chartPerDayCaption": "過去 {days} 日間、現地時間で表示。",
+      "chartPerDayCaption": "過去 {days} 日間と今後の予約、現地時間で表示。",
+      "chartPerDayCaptionAll": "すべての予約（今後の予約を含む）、現地時間で表示。",
       "chartDayLabel": "日",
       "chartWeekday": "忙しい曜日",
       "chartWeekdayCaption": "実施された予約を曜日別に表示。",

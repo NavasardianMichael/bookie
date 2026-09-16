@@ -1,7 +1,8 @@
 'use client'
 
 import { FC, useState } from 'react'
-import { Alert, App } from 'antd'
+import { CommentOutlined, FlagOutlined } from '@ant-design/icons'
+import { Alert, App, Tooltip } from 'antd'
 import { useTranslations } from 'next-intl'
 import { deleteReviewAPI, postReviewReplyAPI, postReviewReportAPI, putReviewAPI } from '@api/reviews/main'
 import { Review } from '@store/reviews/list/types'
@@ -10,7 +11,6 @@ import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
-import { FlagIcon } from '@components/ui/icons'
 import { ReviewForm, ReviewFormValues } from './ReviewForm'
 import { ReviewTextForm, ReviewTextFormValues } from './ReviewTextForm'
 
@@ -116,17 +116,25 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
       {isProviderOwner && (
         <>
           {!review.reply && (
-            <AppButton size='small' type='text' onClick={() => setOpen('reply')}>
-              {t('reply')}
-            </AppButton>
+            <Tooltip title={t('reply')}>
+              <AppButton
+                size='small'
+                type='text'
+                icon={<CommentOutlined />}
+                aria-label={t('reply')}
+                onClick={() => setOpen('reply')}
+              />
+            </Tooltip>
           )}
-          <AppButton
-            size='small'
-            type='text'
-            icon={<FlagIcon className='h-4 w-4' />}
-            aria-label={t('report')}
-            onClick={() => setOpen('report')}
-          />
+          <Tooltip title={t('report')}>
+            <AppButton
+              size='small'
+              type='text'
+              icon={<FlagOutlined />}
+              aria-label={t('report')}
+              onClick={() => setOpen('report')}
+            />
+          </Tooltip>
         </>
       )}
 

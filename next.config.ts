@@ -3,6 +3,8 @@ import createNextIntlPlugin from 'next-intl/plugin'
 import { ROUTES } from '@constants/routes'
 
 const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9004')
+const apiIsLoopback =
+  apiUrl.hostname === 'localhost' || apiUrl.hostname === '127.0.0.1' || apiUrl.hostname === '::1'
 
 // Points next-intl at the per-request config. Without the explicit path it looks
 // for `./i18n/request.ts` relative to the project root, not `./src/i18n/`.
@@ -26,6 +28,11 @@ const nextConfig: NextConfig = {
         pathname: '/uploads/**',
       },
     ],
+    // Next 16 still 400s a matching remotePattern when the hostname resolves to a
+    // private IP (SSRF guard). Local uploads live on localhost:9004, so the
+    // optimizer breaks every avatar until we opt in. Production points at a
+    // public API host, so this stays off there.
+    dangerouslyAllowLocalIP: apiIsLoopback,
     formats: ['image/avif', 'image/webp'],
   },
   async redirects() {

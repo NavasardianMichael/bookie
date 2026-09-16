@@ -133,6 +133,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         form={form}
         layout='vertical'
         requiredMark={false}
+        disabled={saving}
         onValuesChange={() => setDirty(true)}
         className='flex flex-col gap-6'
       >
@@ -169,6 +170,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
               {profile && (
                 <ChangePhoneForm
                   embedded
+                  disabled={saving}
                   currentPhone={profile.basic.phone ?? profile.basic.phoneNumber}
                   onChanged={(phone) => {
                     setProfile((prev) => (prev ? { ...prev, basic: { ...prev.basic, phone } } : prev))
@@ -181,6 +183,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
                 currentEmail={profile?.basic.email}
                 verifyPath={ROUTES.consumerProfile}
                 verifyToken={verifyEmailToken}
+                disabled={saving}
                 onVerified={(email, emailVerifiedAt) => {
                   setProfile((prev) =>
                     prev
@@ -229,7 +232,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={saving ? 'save' : null}
         onDiscard={handleDiscard}
         onSave={() => void handleSave()}
         saveLabel={t('actions.save')}

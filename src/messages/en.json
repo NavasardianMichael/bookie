@@ -162,7 +162,7 @@
       "location": "Location",
       "copyLocation": "Copy address",
       "copyPhone": "Copy phone number",
-      "accepts": "Accepted payment"
+      "preferredPayment": "Preferred payment"
     },
     "guest": {
       "heading": "Your details",
@@ -213,9 +213,6 @@
     "failed": "Booking failed",
     "confirmedTitle": "Booking confirmed",
     "emailSent": "We've sent the details to {email}.",
-    "manageLinkLabel": "Your booking link",
-    "copyManageLink": "Copy booking link",
-    "viewBooking": "View booking",
     "cancel": "Cancel booking",
     "cancelConfirmTitle": "Cancel this booking?",
     "cancelConfirmBody": "The slot will open up again. This cannot be undone.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Your booking",
     "manageSubtitle": "View, cancel, or pick a new time.",
     "manageNotFoundTitle": "Booking not found",
-    "manageNotFoundBody": "This link is invalid or the booking no longer exists."
+    "manageNotFoundBody": "This link is invalid or the booking no longer exists.",
+    "shareBooking": "Share booking",
+    "shareBookingTitle": "Booking with {name}",
+    "copyBookingUrl": "Copy booking url",
+    "copyBookingDetails": "Copy booking details",
+    "generateQr": "Generate QR",
+    "downloadQr": "Download QR",
+    "shareQr": "Share QR",
+    "qrAlt": "QR code for this booking"
   },
   "Footer": {
     "blurb": "A single platform to find local services or run a booking calendar.",
@@ -412,6 +417,10 @@
       "unpublish": "Unpublish page",
       "published": "Your page is published.",
       "unpublished": "Your page is unlisted.",
+      "publishTitle": "Publish this page?",
+      "publishBody": "Your profile will appear in Explore, and anyone with the link can see it and book you.",
+      "unpublishTitle": "Unpublish this page?",
+      "unpublishBody": "Your profile will leave Explore and visitors will no longer see your public page. Existing appointments stay. You can publish again anytime.",
       "deletePage": "Delete page",
       "deleteTitle": "Delete this page?",
       "deleteBody": "This permanently removes your public profile and services. Existing appointments block deletion. You will be signed out."
@@ -473,8 +482,10 @@
       "title": "Analytics",
       "subtitle": "How your bookings are going.",
       "range": "{days, plural, =365 {12 months} other {# days}}",
+      "rangeAll": "All",
       "emptyTitle": "Nothing to measure yet",
       "emptyBody": "Once you have bookings in this period, your numbers appear here.",
+      "listTitle": "Bookings in this period",
       "statBookings": "Bookings",
       "statRevenue": "Revenue",
       "statCompletion": "Completed",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {and # other currency} other {and # other currencies}}",
       "multiCurrencyTitle": "Your services are priced in more than one currency",
       "chartPerDay": "Bookings per day",
-      "chartPerDayCaption": "Over the last {days} days, in your local time.",
+      "chartPerDayCaption": "Last {days} days and upcoming bookings, in your local time.",
+      "chartPerDayCaptionAll": "Every booking, including upcoming, in your local time.",
       "chartDayLabel": "Day",
       "chartWeekday": "Busiest days",
       "chartWeekdayCaption": "Bookings that went ahead, by day of the week.",

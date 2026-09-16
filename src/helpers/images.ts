@@ -7,6 +7,10 @@ const UPLOADS_PREFIX = '/uploads/'
  * The API returns root-relative upload paths (`/uploads/<file>`) but serves those
  * files from its own origin. Left alone, the Next app requests them from itself
  * and gets a 404, so every provider image silently fails.
+ *
+ * Prefixing is not enough on its own in local dev: Next 16's image optimizer
+ * then refuses `localhost` as a private IP (SSRF guard) unless
+ * `images.dangerouslyAllowLocalIP` is on — see `next.config.ts`.
  */
 export const resolveAssetUrl = (src?: string): string | undefined => {
   if (!src) return undefined

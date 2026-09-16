@@ -1,9 +1,13 @@
 /**
- * Small inline icon set for Server Components.
+ * Small inline icon set for **Server Components**.
  *
- * `@ant-design/icons` pulls in React context and is therefore client-only, so a
- * server-rendered component that imports it fails at build time. Use antd icons
- * inside client components and these anywhere else.
+ * `@ant-design/icons` uses `createContext` and is client-only — importing it from a
+ * Server Component fails at **build** time. That is the only reason this file exists.
+ *
+ * **Look up `@ant-design/icons` first** (`FlagOutlined`, `CommentOutlined`, `MailOutlined`,
+ * …). Add a glyph here only when the icon must paint in the HTML a crawler sees, or
+ * when antd has nothing close (`StarIcon`'s fill, for the `RatingStars` clip). A
+ * `'use client'` island that wants a new icon does not belong here.
  */
 
 type IconProps = {
@@ -244,13 +248,5 @@ export const InfoIcon = ({ className }: IconProps) => (
 export const StarIcon = ({ className }: IconProps) => (
   <svg {...base(className)} fill='currentColor' stroke='none'>
     <path d='M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45-5.8-3.05-5.8 3.05 1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z' />
-  </svg>
-)
-
-/** The report-this control on a review. An outlined flag, so it reads as reportable. */
-export const FlagIcon = ({ className }: IconProps) => (
-  <svg {...base(className)}>
-    <path d='M5 21V4.5' />
-    <path d='M5 5.2h10.5a1 1 0 0 1 .8 1.6l-1.9 2.4 1.9 2.4a1 1 0 0 1-.8 1.6H5' />
   </svg>
 )

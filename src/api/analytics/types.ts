@@ -65,6 +65,8 @@ export type ProviderAnalyticsQuery = {
   /** ISO instants. Omitted means the API's default window. */
   from?: string
   to?: string
+  /** Every booking, including upcoming. Ignores `from` / `to`. */
+  all?: boolean
 }
 
 export type GetProviderAnalyticsAPI = Endpoint<{

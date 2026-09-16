@@ -162,7 +162,7 @@
       "location": "Lokalizacja",
       "copyLocation": "Kopiuj adres",
       "copyPhone": "Kopiuj numer telefonu",
-      "accepts": "Akceptowana płatność"
+      "preferredPayment": "Preferowana płatność"
     },
     "guest": {
       "heading": "Twoje dane",
@@ -213,9 +213,6 @@
     "failed": "Rezerwacja nie powiodła się",
     "confirmedTitle": "Rezerwacja potwierdzona",
     "emailSent": "Wysłaliśmy szczegóły na {email}.",
-    "manageLinkLabel": "Twój link do rezerwacji",
-    "copyManageLink": "Kopiuj link rezerwacji",
-    "viewBooking": "Zobacz rezerwację",
     "cancel": "Anuluj rezerwację",
     "cancelConfirmTitle": "Anulować tę rezerwację?",
     "cancelConfirmBody": "Termin znów będzie wolny. Tej operacji nie można cofnąć.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Twoja rezerwacja",
     "manageSubtitle": "Zobacz, anuluj lub wybierz inną godzinę.",
     "manageNotFoundTitle": "Nie znaleziono rezerwacji",
-    "manageNotFoundBody": "Ten link jest nieprawidłowy albo rezerwacja już nie istnieje."
+    "manageNotFoundBody": "Ten link jest nieprawidłowy albo rezerwacja już nie istnieje.",
+    "shareBooking": "Udostępnij rezerwację",
+    "shareBookingTitle": "Rezerwacja u {name}",
+    "copyBookingUrl": "Kopiuj URL rezerwacji",
+    "copyBookingDetails": "Kopiuj szczegóły rezerwacji",
+    "generateQr": "Wygeneruj QR",
+    "downloadQr": "Pobierz QR",
+    "shareQr": "Udostępnij QR",
+    "qrAlt": "Kod QR tej rezerwacji"
   },
   "Footer": {
     "blurb": "Jedna platforma, aby znaleźć usługi w okolicy albo prowadzić własny kalendarz rezerwacji.",
@@ -412,6 +417,10 @@
       "unpublish": "Cofnij publikację strony",
       "published": "Twoja strona jest opublikowana.",
       "unpublished": "Twoja strona jest niepublikowana.",
+      "publishTitle": "Opublikować tę stronę?",
+      "publishBody": "Twój profil pojawi się w Przeglądaj, a każdy z linkiem będzie mógł go zobaczyć i zarezerwować wizytę.",
+      "unpublishTitle": "Cofnąć publikację tej strony?",
+      "unpublishBody": "Twój profil zniknie z Przeglądaj, a odwiedzający nie zobaczą już Twojej publicznej strony. Istniejące wizyty pozostaną. Możesz opublikować ponownie w każdej chwili.",
       "deletePage": "Usuń stronę",
       "deleteTitle": "Usunąć tę stronę?",
       "deleteBody": "To trwale usunie Twój publiczny profil i usługi. Istniejące wizyty blokują usunięcie. Zostaniesz wylogowany."
@@ -473,8 +482,10 @@
       "title": "Statystyki",
       "subtitle": "Jak idą Twoje rezerwacje.",
       "range": "{days, plural, =365 {12 miesięcy} one {# dzień} few {# dni} many {# dni} other {# dni}}",
+      "rangeAll": "Wszystkie",
       "emptyTitle": "Nie ma jeszcze czego mierzyć",
       "emptyBody": "Gdy w tym okresie pojawią się rezerwacje, Twoje liczby wyświetlą się tutaj.",
+      "listTitle": "Rezerwacje w tym okresie",
       "statBookings": "Rezerwacje",
       "statRevenue": "Przychód",
       "statCompletion": "Zakończone",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {i # inna waluta} few {i # inne waluty} many {i # innych walut} other {i # innych walut}}",
       "multiCurrencyTitle": "Twoje usługi są wycenione w więcej niż jednej walucie",
       "chartPerDay": "Rezerwacje dziennie",
-      "chartPerDayCaption": "W ciągu ostatnich {days} dni, w Twoim czasie lokalnym.",
+      "chartPerDayCaption": "Ostatnie {days} dni i nadchodzące rezerwacje, w Twoim czasie lokalnym.",
+      "chartPerDayCaptionAll": "Wszystkie rezerwacje, także nadchodzące, w Twoim czasie lokalnym.",
       "chartDayLabel": "Dzień",
       "chartWeekday": "Najbardziej zajęte dni",
       "chartWeekdayCaption": "Rezerwacje, które się odbyły, według dnia tygodnia.",

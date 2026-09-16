@@ -123,7 +123,8 @@ default font size would silently desync the two.
    stylesheet order. The app font is `--font-app`; `globals.css` maps `--font-sans` onto it.
 3. **`@ant-design/icons` is client-only** (it uses `createContext`). A Server Component
    importing it fails at **build** time, not runtime. Server-safe inline SVGs live in
-   `src/components/ui/icons.tsx`.
+   `src/components/ui/icons.tsx`. In a `'use client'` island, import from
+   `@ant-design/icons` instead of adding a path there — see `src/components/CLAUDE.md`.
 4. **antd seed colours must be literal hex.** `colorPrimary` is fed to antd's palette
    generator to derive Hover/Active/Bg variants; a `var()` string produces garbage swatches.
 5. **Tailwind v4 tree-shakes unused `@theme` variables.** `--text-h1`, `--breakpoint-xxl`

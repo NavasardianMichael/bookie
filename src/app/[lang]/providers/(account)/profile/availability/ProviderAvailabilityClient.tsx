@@ -12,7 +12,7 @@ import { WeekDay } from '@interfaces/schedule'
 import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { processError } from '@helpers/error'
 import { rangesToDaySchedule, splitScheduleIntoParts } from '@helpers/schedule'
-import { SettingsActionBar } from '@components/settings/SettingsActionBar'
+import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -160,7 +160,7 @@ export const ProviderAvailabilityClient = () => {
   const [form] = Form.useForm<FormValues>()
   const [saved, setSaved] = useState<FormValues | null>(null)
   const [dirty, setDirty] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -175,7 +175,7 @@ export const ProviderAvailabilityClient = () => {
 
   const persist = async (mode: 'draft' | 'publish') => {
     const values = form.getFieldsValue(true)
-    setSaving(true)
+    setPendingAction(mode)
     setError(null)
     try {
       const weekSchedule = formToWeekSchedule(values.days)
@@ -192,7 +192,7 @@ export const ProviderAvailabilityClient = () => {
     } catch (err) {
       setError(processError(err).message)
     } finally {
-      setSaving(false)
+      setPendingAction(null)
     }
   }
 
@@ -213,6 +213,7 @@ export const ProviderAvailabilityClient = () => {
         ) : (
           <Form
             form={form}
+            disabled={pendingAction !== null}
             onValuesChange={(changed) => {
               setDirty(true)
               const days = changed.days as Partial<Record<WeekDay, DayForm>> | undefined
@@ -246,7 +247,7 @@ export const ProviderAvailabilityClient = () => {
 
       <SettingsActionBar
         dirty={dirty}
-        saving={saving}
+        pendingAction={pendingAction}
         onDiscard={() => {
           if (!saved) return
           form.setFieldsValue(saved)

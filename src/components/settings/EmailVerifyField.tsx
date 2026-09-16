@@ -93,6 +93,7 @@ export const EmailVerifyField: FC<Props> = ({
   }, [form, name, onVerified, replace, t, verifyPath, verifyToken])
 
   const handleSend = async () => {
+    if (disabled) return
     setError(null)
     setSuccess(null)
     const email = String(form.getFieldValue(name) ?? '').trim()

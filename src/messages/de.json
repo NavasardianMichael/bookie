@@ -162,7 +162,7 @@
       "location": "Ort",
       "copyLocation": "Adresse kopieren",
       "copyPhone": "Telefonnummer kopieren",
-      "accepts": "Akzeptierte Zahlung"
+      "preferredPayment": "Bevorzugte Zahlung"
     },
     "guest": {
       "heading": "Ihre Daten",
@@ -213,9 +213,6 @@
     "failed": "Buchung fehlgeschlagen",
     "confirmedTitle": "Buchung bestätigt",
     "emailSent": "Wir haben die Details an {email} gesendet.",
-    "manageLinkLabel": "Dein Buchungslink",
-    "copyManageLink": "Buchungslink kopieren",
-    "viewBooking": "Buchung ansehen",
     "cancel": "Buchung stornieren",
     "cancelConfirmTitle": "Diese Buchung stornieren?",
     "cancelConfirmBody": "Der Termin wird wieder frei. Das lässt sich nicht rückgängig machen.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Deine Buchung",
     "manageSubtitle": "Ansehen, stornieren oder eine neue Zeit wählen.",
     "manageNotFoundTitle": "Buchung nicht gefunden",
-    "manageNotFoundBody": "Dieser Link ist ungültig oder die Buchung existiert nicht mehr."
+    "manageNotFoundBody": "Dieser Link ist ungültig oder die Buchung existiert nicht mehr.",
+    "shareBooking": "Buchung teilen",
+    "shareBookingTitle": "Buchung bei {name}",
+    "copyBookingUrl": "Buchungs-URL kopieren",
+    "copyBookingDetails": "Buchungsdetails kopieren",
+    "generateQr": "QR erzeugen",
+    "downloadQr": "QR herunterladen",
+    "shareQr": "QR teilen",
+    "qrAlt": "QR-Code für diese Buchung"
   },
   "Footer": {
     "blurb": "Eine Plattform, um Dienstleistungen in der Nähe zu finden oder den eigenen Buchungskalender zu führen.",
@@ -412,6 +417,10 @@
       "unpublish": "Seite offline nehmen",
       "published": "Ihre Seite ist veröffentlicht.",
       "unpublished": "Ihre Seite ist nicht gelistet.",
+      "publishTitle": "Diese Seite veröffentlichen?",
+      "publishBody": "Ihr Profil erscheint unter Entdecken, und jeder mit dem Link kann es sehen und buchen.",
+      "unpublishTitle": "Diese Seite offline nehmen?",
+      "unpublishBody": "Ihr Profil verschwindet aus Entdecken und Besucher sehen Ihre öffentliche Seite nicht mehr. Bestehende Termine bleiben. Sie können jederzeit wieder veröffentlichen.",
       "deletePage": "Seite löschen",
       "deleteTitle": "Diese Seite löschen?",
       "deleteBody": "Dies entfernt Ihr öffentliches Profil und Ihre Leistungen dauerhaft. Bestehende Termine verhindern das Löschen. Sie werden abgemeldet."
@@ -473,8 +482,10 @@
       "title": "Statistiken",
       "subtitle": "Wie es mit Ihren Buchungen läuft.",
       "range": "{days, plural, =365 {12 Monate} other {# Tage}}",
+      "rangeAll": "Alle",
       "emptyTitle": "Noch nichts zu messen",
       "emptyBody": "Sobald Sie in diesem Zeitraum Buchungen haben, erscheinen Ihre Zahlen hier.",
+      "listTitle": "Buchungen in diesem Zeitraum",
       "statBookings": "Buchungen",
       "statRevenue": "Umsatz",
       "statCompletion": "Abgeschlossen",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {und # weitere Währung} other {und # weitere Währungen}}",
       "multiCurrencyTitle": "Ihre Leistungen sind in mehreren Währungen ausgezeichnet",
       "chartPerDay": "Buchungen pro Tag",
-      "chartPerDayCaption": "In den letzten {days} Tagen, in Ihrer Ortszeit.",
+      "chartPerDayCaption": "Letzte {days} Tage und bevorstehende Buchungen, in Ihrer Ortszeit.",
+      "chartPerDayCaptionAll": "Alle Buchungen, auch bevorstehende, in Ihrer Ortszeit.",
       "chartDayLabel": "Tag",
       "chartWeekday": "Beschäftigste Tage",
       "chartWeekdayCaption": "Erfolgte Buchungen, nach Wochentag.",

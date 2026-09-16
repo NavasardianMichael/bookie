@@ -162,7 +162,7 @@
       "location": "Ubicación",
       "copyLocation": "Copiar dirección",
       "copyPhone": "Copiar número de teléfono",
-      "accepts": "Pago aceptado"
+      "preferredPayment": "Pago preferido"
     },
     "guest": {
       "heading": "Tus datos",
@@ -213,9 +213,6 @@
     "failed": "No se pudo reservar",
     "confirmedTitle": "Reserva confirmada",
     "emailSent": "Hemos enviado los detalles a {email}.",
-    "manageLinkLabel": "Tu enlace de reserva",
-    "copyManageLink": "Copiar enlace de reserva",
-    "viewBooking": "Ver reserva",
     "cancel": "Cancelar reserva",
     "cancelConfirmTitle": "¿Cancelar esta reserva?",
     "cancelConfirmBody": "El horario volverá a estar libre. Esto no se puede deshacer.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "Tu reserva",
     "manageSubtitle": "Consulta, cancela o elige otro horario.",
     "manageNotFoundTitle": "Reserva no encontrada",
-    "manageNotFoundBody": "Este enlace no es válido o la reserva ya no existe."
+    "manageNotFoundBody": "Este enlace no es válido o la reserva ya no existe.",
+    "shareBooking": "Compartir reserva",
+    "shareBookingTitle": "Reserva con {name}",
+    "copyBookingUrl": "Copiar URL de la reserva",
+    "copyBookingDetails": "Copiar detalles de la reserva",
+    "generateQr": "Generar QR",
+    "downloadQr": "Descargar QR",
+    "shareQr": "Compartir QR",
+    "qrAlt": "Código QR de esta reserva"
   },
   "Footer": {
     "blurb": "Una sola plataforma para encontrar servicios locales o gestionar tu agenda de reservas.",
@@ -412,6 +417,10 @@
       "unpublish": "Despublicar página",
       "published": "Tu página está publicada.",
       "unpublished": "Tu página no está publicada.",
+      "publishTitle": "¿Publicar esta página?",
+      "publishBody": "Tu perfil aparecerá en Explorar, y cualquiera con el enlace podrá verlo y reservar.",
+      "unpublishTitle": "¿Despublicar esta página?",
+      "unpublishBody": "Tu perfil saldrá de Explorar y los visitantes ya no verán tu página pública. Las citas existentes se mantienen. Puedes volver a publicar cuando quieras.",
       "deletePage": "Eliminar página",
       "deleteTitle": "¿Eliminar esta página?",
       "deleteBody": "Se eliminarán de forma permanente tu perfil público y tus servicios. Las citas existentes impiden eliminar la página. Se cerrará tu sesión."
@@ -473,8 +482,10 @@
       "title": "Analíticas",
       "subtitle": "Cómo van tus reservas.",
       "range": "{days, plural, =365 {12 meses} other {# días}}",
+      "rangeAll": "Todas",
       "emptyTitle": "Aún no hay nada que medir",
       "emptyBody": "Cuando tengas reservas en este periodo, tus cifras aparecerán aquí.",
+      "listTitle": "Reservas en este periodo",
       "statBookings": "Reservas",
       "statRevenue": "Ingresos",
       "statCompletion": "Completadas",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {y # moneda más} other {y # monedas más}}",
       "multiCurrencyTitle": "Tus servicios tienen precio en más de una moneda",
       "chartPerDay": "Reservas por día",
-      "chartPerDayCaption": "En los últimos {days} días, en tu hora local.",
+      "chartPerDayCaption": "Últimos {days} días y reservas próximas, en tu hora local.",
+      "chartPerDayCaptionAll": "Todas las reservas, incluidas las próximas, en tu hora local.",
       "chartDayLabel": "Día",
       "chartWeekday": "Días con más reservas",
       "chartWeekdayCaption": "Reservas que se han realizado, por día de la semana.",

@@ -70,7 +70,7 @@ All JSON responses use:
 | GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page) |
 | GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, own bookings only, see [Provider workspace](#provider-workspace) |
 | GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
-| GET | `/provider-profile/analytics?from=&to=&tz=` | provider — aggregates over own bookings |
+| GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound) |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `seoKeywords` / `slug` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
 | GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
@@ -250,7 +250,7 @@ response from an array to an envelope and break both.
 |---|---|
 | `GET /provider-profile/bookings` | Paged `{ items, total, page, perPage, pageCount }`. Filters: `from`/`to`, repeatable `status`, `serviceId`, `q`. Sorts: `startDesc` (default — this is a history view), `startAsc`, `createdDesc`, `nameAsc`. Parsing lives in `services/providerBookings.ts`; every value narrows to a closed set, so a hand-edited query degrades to defaults rather than 500s. |
 | `GET /provider-profile/bookings/calendar` | `{ month, timeZone, days }` where `days` is keyed `YYYY-MM-DD` — the same key the client's grid uses — with `{ total, live }` per day. Cancelled and no-show bookings count in `total` so the grid cannot disagree with the unfiltered list. |
-| `GET /provider-profile/analytics` | Totals, the equal-length previous window, settled-only rates, a zero-filled daily series, top services, weekday/hour buckets, new-vs-returning clients, median lead time. `services/providerAnalytics.ts`. |
+| `GET /provider-profile/analytics` | Totals, the equal-length previous window, settled-only rates, a zero-filled daily series, top services, weekday/hour buckets, new-vs-returning clients, median lead time. A numbered `from`/`to` is how far *back* to look — upcoming `startAt` after `to` still counts. `all=true` drops the lower bound too (no previous-period delta). `services/providerAnalytics.ts`. |
 
 Three things about these that are easy to get wrong:
 

@@ -82,7 +82,7 @@ shell would be two mental models for one workspace — not because they are sett
 | Tab | Route | Shape |
 |---|---|---|
 | Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list. `GET /provider-profile/bookings` |
-| Analytics | `/providers/profile/analytics` | Range presets, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
+| Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series, a search/sort/paged list of bookings in the window (upcoming included). `GET /provider-profile/analytics` + `GET /provider-profile/bookings` |
 | SEO | `/providers/profile/seo` | Title / description / keywords / vanity slug. `PATCH /provider-profile/seo` |
 
 Four decisions in there worth not undoing:
@@ -203,7 +203,7 @@ then `BookingPanel`, which is `BookingMonth` over `BookingSlots`:
 | `ServicePicker` | What? | Native radios in labels; everything inside a label is phrasing content, so a service name is a `<strong>`, not a heading |
 | `BookingMonth` | Which day? | Month grid, Monday-first. A day with no open slots is `disabled`, not hidden |
 | `BookingSlots` | Which time? | Every open time in one flat grid — no paging, no "view more". "Book now" **opens the sheet**; it does not book |
-| `BookingConfirmSheet` | Confirm, annotate, identify | `BookingSummary` (a real `<dl>`) + notes + payment methods, plus name/phone/email when the visitor is anonymous |
+| `BookingConfirmSheet` | Confirm, annotate, identify | `BookingSummary` (a real `<dl>` of the pick, including preferred payment) + notes + payment methods, plus name/phone/email when the visitor is anonymous. After create, share / copy URL / copy details / generate QR replace the old manage-link + View booking CTA |
 
 Three things not to undo here:
 

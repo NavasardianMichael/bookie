@@ -162,7 +162,7 @@
       "location": "Luogo",
       "copyLocation": "Copia indirizzo",
       "copyPhone": "Copia numero di telefono",
-      "accepts": "Pagamento accettato"
+      "preferredPayment": "Pagamento preferito"
     },
     "guest": {
       "heading": "I tuoi dati",
@@ -213,9 +213,6 @@
     "failed": "Prenotazione non riuscita",
     "confirmedTitle": "Prenotazione confermata",
     "emailSent": "Abbiamo inviato i dettagli a {email}.",
-    "manageLinkLabel": "Il tuo link di prenotazione",
-    "copyManageLink": "Copia link della prenotazione",
-    "viewBooking": "Vedi prenotazione",
     "cancel": "Annulla prenotazione",
     "cancelConfirmTitle": "Annullare questa prenotazione?",
     "cancelConfirmBody": "Lo slot tornerà libero. L’operazione non si può annullare.",
@@ -230,7 +227,15 @@
     "manageMetaTitle": "La tua prenotazione",
     "manageSubtitle": "Visualizza, annulla o scegli un altro orario.",
     "manageNotFoundTitle": "Prenotazione non trovata",
-    "manageNotFoundBody": "Questo link non è valido o la prenotazione non esiste più."
+    "manageNotFoundBody": "Questo link non è valido o la prenotazione non esiste più.",
+    "shareBooking": "Condividi prenotazione",
+    "shareBookingTitle": "Prenotazione con {name}",
+    "copyBookingUrl": "Copia URL della prenotazione",
+    "copyBookingDetails": "Copia dettagli della prenotazione",
+    "generateQr": "Genera QR",
+    "downloadQr": "Scarica QR",
+    "shareQr": "Condividi QR",
+    "qrAlt": "Codice QR di questa prenotazione"
   },
   "Footer": {
     "blurb": "Un’unica piattaforma per trovare servizi nella tua zona o gestire la tua agenda di prenotazioni.",
@@ -412,6 +417,10 @@
       "unpublish": "Rimuovi dalla pubblicazione",
       "published": "La tua pagina è pubblicata.",
       "unpublished": "La tua pagina non è pubblicata.",
+      "publishTitle": "Pubblicare questa pagina?",
+      "publishBody": "Il tuo profilo apparirà in Esplora, e chiunque abbia il link potrà vederlo e prenotare.",
+      "unpublishTitle": "Rimuovere questa pagina dalla pubblicazione?",
+      "unpublishBody": "Il tuo profilo uscirà da Esplora e i visitatori non vedranno più la pagina pubblica. Gli appuntamenti esistenti restano. Potrai pubblicare di nuovo in qualsiasi momento.",
       "deletePage": "Elimina pagina",
       "deleteTitle": "Eliminare questa pagina?",
       "deleteBody": "Questo rimuove definitivamente il tuo profilo pubblico e i tuoi servizi. Gli appuntamenti esistenti impediscono l'eliminazione. Verrai disconnesso."
@@ -473,8 +482,10 @@
       "title": "Statistiche",
       "subtitle": "Come stanno andando le tue prenotazioni.",
       "range": "{days, plural, =365 {12 mesi} other {# giorni}}",
+      "rangeAll": "Tutte",
       "emptyTitle": "Ancora nulla da misurare",
       "emptyBody": "Quando avrai prenotazioni in questo periodo, i tuoi numeri appariranno qui.",
+      "listTitle": "Prenotazioni in questo periodo",
       "statBookings": "Prenotazioni",
       "statRevenue": "Fatturato",
       "statCompletion": "Completate",
@@ -486,7 +497,8 @@
       "moreCurrencies": "{count, plural, one {e # altra valuta} other {e # altre valute}}",
       "multiCurrencyTitle": "I tuoi servizi hanno prezzi in più di una valuta",
       "chartPerDay": "Prenotazioni al giorno",
-      "chartPerDayCaption": "Negli ultimi {days} giorni, nel tuo orario locale.",
+      "chartPerDayCaption": "Ultimi {days} giorni e prenotazioni future, nel tuo orario locale.",
+      "chartPerDayCaptionAll": "Tutte le prenotazioni, comprese quelle future, nel tuo orario locale.",
       "chartDayLabel": "Giorno",
       "chartWeekday": "Giorni più intensi",
       "chartWeekdayCaption": "Prenotazioni effettuate, per giorno della settimana.",

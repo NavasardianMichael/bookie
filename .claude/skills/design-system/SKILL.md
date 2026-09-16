@@ -36,11 +36,18 @@ after hydration.
 | `brand/BrandLockup` | navy mark tile + wordmark, shared by header and footer |
 | `layout/Footer` (`components/layout/Footer.tsx`) | site footer, mounted once from `App.tsx` |
 | `ui/EntityCard` | the one card for providers, orgs, categories, services |
-| `ui/EmptyState`, `ui/ContactActions`, `ui/AppAvatar`, `ui/icons` | server-safe |
+| `ui/EmptyState`, `ui/ContactActions`, `ui/AppAvatar` | server-safe |
+| `ui/icons` | Server Component glyphs only. A `'use client'` island uses `@ant-design/icons` |
 
 **Interaction → antd.** Button, Input, Form, Select, Drawer, Upload, TimePicker,
 Segmented, AutoComplete, Tag, Flex, Divider, Space. It already gives you focus trap,
 scroll lock and a11y; don't rebuild those.
+
+**Icons → `@ant-design/icons` first**, on any `'use client'` island. `ui/icons.tsx` is
+only for glyphs that must paint in a Server Component (antd's icon package is
+client-only and fails the build) or that antd does not have. Look up `FlagOutlined` /
+`CommentOutlined` / `PlusOutlined` before drawing an SVG. Rule and the client-island
+drift list: `src/components/CLAUDE.md`.
 
 **Dialogs are the exception — never `Modal` directly.** A yes/no question is
 `ui/AppConfirmModal`; a panel or a form the user works inside is `ui/AppSheet`. Both take

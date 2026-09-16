@@ -36,6 +36,7 @@ describe('parseAnalyticsRange', () => {
     const range = parseAnalyticsRange({}, NOW)
     expect(range.to).toEqual(NOW)
     expect(range.from).toEqual(new Date(NOW.getTime() - 30 * DAY_MS))
+    expect(range.unbounded).toBe(false)
   })
 
   it('gives the previous window the same length, immediately before', () => {
@@ -56,6 +57,15 @@ describe('parseAnalyticsRange', () => {
   it('caps how far back a hand-edited range can ask for', () => {
     const decade = parseAnalyticsRange({ from: '2016-01-01T00:00:00Z' }, NOW)
     expect(decade.from).toEqual(new Date(NOW.getTime() - 30 * DAY_MS))
+  })
+
+  it('treats all as unbounded, ignoring from and to', () => {
+    const range = parseAnalyticsRange(
+      { all: 'true', from: '2026-09-01T00:00:00Z', to: '2026-09-08T00:00:00Z' },
+      NOW
+    )
+    expect(range.unbounded).toBe(true)
+    expect(range.to).toEqual(NOW)
   })
 })
 
@@ -141,6 +151,34 @@ describe('series', () => {
     const days = series.map((point) => point.day)
     expect(days).toEqual([...days].sort())
     expect(new Set(days).size).toBe(days.length)
+  })
+
+  it('extends the series forward so an upcoming booking is a bar, not only a total', () => {
+    const upcoming = new Date('2026-09-20T09:00:00Z')
+    const result = build([row({ startAt: upcoming, status: 'scheduled' })])
+    expect(result.totals.bookings).toBe(1)
+    expect(result.series.find((point) => point.day === '2026-09-20')).toEqual({
+      day: '2026-09-20',
+      bookings: 1,
+      completed: 0,
+    })
+  })
+
+  it('on All, paints from the earliest booking through the latest, including upcoming', () => {
+    const range = parseAnalyticsRange({ all: 'true' }, NOW)
+    const result = buildProviderAnalytics(
+      [
+        row({ startAt: new Date('2026-07-15T09:00:00Z') }),
+        row({ startAt: new Date('2026-10-01T09:00:00Z'), status: 'scheduled' }),
+      ],
+      [],
+      range,
+      'UTC'
+    )
+    expect(result.totals.bookings).toBe(2)
+    expect(result.previous.bookings).toBe(0)
+    expect(result.series.find((point) => point.day === '2026-07-15')?.bookings).toBe(1)
+    expect(result.series.find((point) => point.day === '2026-10-01')?.bookings).toBe(1)
   })
 
   it('crosses a DST transition without dropping or repeating a day', () => {

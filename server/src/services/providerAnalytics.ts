@@ -15,15 +15,23 @@ import { dayKeyInZone, zoneOffsetMs } from './providerBookings.js'
  *
  * **Bucketed in memory, not in SQL.** `date_trunc(... AT TIME ZONE ...)` would be faster
  * and would need a live database to test, which this repo has no fixtures for. One
- * provider's bookings over the longest offered range (12 months) is a few thousand rows
+ * provider's bookings — including All, which has no lower bound — is a few thousand rows
  * at most, selected down to seven columns. The tipping point is somewhere around a
  * provider taking hundreds of bookings a day; past that this wants the raw query and the
  * DB-backed test suite `docs/BACKLOG.md` already asks for.
+ *
+ * **Upcoming bookings count.** A preset is how far *back* to look, not a cutoff at now.
+ * All drops that lower bound too. The daily series extends forward to cover them, capped
+ * so a booking years out cannot paint a decade of empty bars.
  */
 
 /** What the range presets on the page resolve to. Clamped so a hand-edited value cannot ask for a decade. */
 const MAX_RANGE_DAYS = 366
 const DEFAULT_RANGE_DAYS = 30
+/** Upcoming days the daily series will extend into; farther bookings still count in the totals. */
+const FUTURE_SERIES_DAYS = 366
+/** Longest daily series All (or a preset plus upcoming) is allowed to paint. */
+const MAX_SERIES_DAYS = 732
 
 /** Counted as revenue and as a delivered appointment. */
 const COMPLETED: readonly string[] = ['completed']
@@ -66,10 +74,18 @@ export type AnalyticsRow = {
 export type AnalyticsRange = {
   /** Inclusive. */
   from: Date
-  /** Exclusive, so the last day of the range cannot fall through a truncated bound. */
+  /**
+   * The end of the *past* window — usually now. Upcoming bookings after this still
+   * count in the totals; the daily series extends forward to cover them.
+   */
   to: Date
   /** The equal-length window immediately before `from`, for the delta on each tile. */
   previousFrom: Date
+  /**
+   * All bookings, with no lower bound on `startAt`. Previous-period deltas are empty
+   * because there is no earlier window of equal length to compare with.
+   */
+  unbounded: boolean
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -83,14 +99,32 @@ const asDate = (raw: unknown): Date | undefined => {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed
 }
 
+const isAllQuery = (raw: unknown): boolean => {
+  const value = asString(raw).trim().toLowerCase()
+  return value === 'true' || value === '1' || value === 'all'
+}
+
 /**
  * The window to report on, plus the equal-length window before it.
  *
  * `now` is a parameter rather than a `new Date()` call inside, which is the one clock
  * seam convention this codebase holds to (`src/helpers/booking.ts` does the same) and
  * the only reason the tests below can be deterministic.
+ *
+ * Presets bound how far *back* to look; they do not cut off upcoming bookings. `all`
+ * drops the lower bound as well, so every appointment the provider has ever taken
+ * (and every one still ahead) is in the totals.
  */
 export function parseAnalyticsRange(query: Record<string, unknown>, now: Date): AnalyticsRange {
+  if (isAllQuery(query.all)) {
+    return {
+      from: new Date(0),
+      to: now,
+      previousFrom: new Date(0),
+      unbounded: true,
+    }
+  }
+
   const to = asDate(query.to) ?? now
   const requestedFrom = asDate(query.from)
 
@@ -107,7 +141,34 @@ export function parseAnalyticsRange(query: Record<string, unknown>, now: Date): 
     from,
     to,
     previousFrom: new Date(from.getTime() - (to.getTime() - from.getTime())),
+    unbounded: false,
   }
+}
+
+/**
+ * Days the chart actually paints. Totals may include bookings outside this window
+ * (All, or an upcoming date past the series cap) so a decade of history cannot
+ * become a decade of one-pixel bars.
+ */
+const seriesBounds = (rows: AnalyticsRow[], range: AnalyticsRange): { from: Date; to: Date } => {
+  const latest = rows.reduce((max, row) => (row.startAt > max ? row.startAt : max), range.to)
+  const futureCap = new Date(range.to.getTime() + FUTURE_SERIES_DAYS * DAY_MS)
+
+  if (range.unbounded) {
+    if (!rows.length) {
+      return { from: new Date(range.to.getTime() - DEFAULT_RANGE_DAYS * DAY_MS), to: range.to }
+    }
+    const earliest = rows.reduce((min, row) => (row.startAt < min ? row.startAt : min), range.to)
+    let from = earliest
+    const to = latest
+    if (to.getTime() - from.getTime() > MAX_SERIES_DAYS * DAY_MS) {
+      from = new Date(to.getTime() - MAX_SERIES_DAYS * DAY_MS)
+    }
+    return { from, to }
+  }
+
+  const to = latest > range.to ? (latest < futureCap ? latest : futureCap) : range.to
+  return { from: range.from, to }
 }
 
 export type CurrencyTotal = { currency: string; total: number }
@@ -208,9 +269,10 @@ const ratesOf = (totals: AnalyticsTotals): AnalyticsRates => {
 const dayKeysBetween = (from: Date, to: Date, timeZone: string): string[] => {
   const keys = new Set<string>()
   const halfDay = DAY_MS / 2
-  // Bounds the loop against a nonsense range that slipped past `parseAnalyticsRange`;
+  // Bounds the loop against a nonsense range that slipped past `seriesBounds`;
   // the range cap itself is enforced there, not here.
-  const maxSteps = MAX_RANGE_DAYS * 2 + 4
+  const spanDays = Math.max(1, Math.ceil((to.getTime() - from.getTime()) / DAY_MS))
+  const maxSteps = Math.min(spanDays, MAX_SERIES_DAYS) * 2 + 8
 
   let cursor = from.getTime()
   for (let step = 0; cursor <= to.getTime() && step < maxSteps; step += 1) {
@@ -288,13 +350,15 @@ export function buildProviderAnalytics(
     if (lead >= 0) leadTimes.push(lead)
   })
 
+  const bounds = seriesBounds(rows, range)
+
   return {
     range: { from: range.from.toISOString(), to: range.to.toISOString() },
     timeZone,
     totals,
     previous: totalsOf(previousRows),
     rates: ratesOf(totals),
-    series: dayKeysBetween(range.from, range.to, timeZone).map((day) => ({
+    series: dayKeysBetween(bounds.from, bounds.to, timeZone).map((day) => ({
       day,
       bookings: perDay.get(day)?.bookings ?? 0,
       completed: perDay.get(day)?.completed ?? 0,

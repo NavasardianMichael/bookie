@@ -9,12 +9,13 @@ import { type Locale } from '@i18n/config'
 import { useRouter } from '@i18n/navigation'
 import { localePath } from '@i18n/pathname'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
 import { absoluteUrl } from '@helpers/url'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { CopyIcon, EyeIcon, TrashIcon } from '@components/ui/icons'
+
+type ListingAction = 'publish' | 'unpublish'
 
 type Props = {
   listed: boolean
@@ -42,23 +43,20 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
   const { message } = App.useApp()
   const { push } = useRouter()
   const logout = useAuthStore.use.logout()
-  const [saving, setSaving] = useState(false)
+  const [listingAction, setListingAction] = useState<ListingAction | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   const publicPath = profileId ? `${ROUTES.providers}/${profileId}` : null
   const publicUrl = publicPath ? absoluteUrl(localePath(locale, publicPath)) : null
 
-  const setListing = async (next: boolean) => {
-    setSaving(true)
-    try {
-      const data = await putProviderProfileAPI({ mode: 'listing', listed: next })
-      onListedChange(data.listed !== false)
-      message.success(next ? t('listing.published') : t('listing.unpublished'))
-    } catch (err) {
-      message.error(processError(err).message)
-    } finally {
-      setSaving(false)
-    }
+  // AppConfirmModal awaits this and keeps the dialog open on rejection.
+  const onConfirmListing = async () => {
+    if (!listingAction) return
+    const next = listingAction === 'publish'
+    const data = await putProviderProfileAPI({ mode: 'listing', listed: next })
+    onListedChange(data.listed !== false)
+    message.success(next ? t('listing.published') : t('listing.unpublished'))
+    setListingAction(null)
   }
 
   const copyUrl = async () => {
@@ -115,9 +113,8 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
           <AppButton
             type='default'
             className={heroGhostClassName}
-            loading={saving}
             disabled={disabled}
-            onClick={() => void setListing(false)}
+            onClick={() => setListingAction('unpublish')}
           >
             {t('listing.unpublish')}
           </AppButton>
@@ -125,14 +122,22 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
           <AppButton
             type='default'
             className={heroGhostClassName}
-            loading={saving}
             disabled={disabled}
-            onClick={() => void setListing(true)}
+            onClick={() => setListingAction('publish')}
           >
             {t('listing.publishPage')}
           </AppButton>
         )}
       </div>
+      <AppConfirmModal
+        tone={listingAction === 'unpublish' ? 'danger' : 'default'}
+        title={listingAction === 'unpublish' ? t('listing.unpublishTitle') : t('listing.publishTitle')}
+        description={listingAction === 'unpublish' ? t('listing.unpublishBody') : t('listing.publishBody')}
+        okText={listingAction === 'unpublish' ? t('listing.unpublish') : t('listing.publishPage')}
+        open={listingAction !== null}
+        onConfirm={onConfirmListing}
+        onCancel={() => setListingAction(null)}
+      />
       <AppConfirmModal
         tone='danger'
         title={t('listing.deleteTitle')}

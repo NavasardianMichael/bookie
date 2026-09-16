@@ -248,7 +248,9 @@ sudo systemctl restart bookie-web                     # same shape for api
 
 - **Changing `NEXT_PUBLIC_API_URL` or `NEXT_PUBLIC_SITE_URL` requires a rebuild.** They are
   inlined, and `next.config.ts` derives `images.remotePatterns` from the API URL — get it
-  wrong and `next/image` silently refuses every uploaded avatar.
+  wrong and `next/image` silently refuses every uploaded avatar. Next 16 also 400s a
+  matching pattern when the hostname resolves to a private IP; `dangerouslyAllowLocalIP`
+  is therefore on only while that URL is loopback, and stays off in production.
 - **Never put `proxy_cache` on the web host.** `src/proxy.ts` answers unprefixed and guarded
   requests with personalised 307s carrying `Vary: Accept-Language, Cookie` and
   `Cache-Control: no-store`. Caching them pins one visitor's language onto everyone.
