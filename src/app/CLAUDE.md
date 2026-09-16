@@ -27,10 +27,10 @@ route. See `src/i18n/CLAUDE.md`.
 `manifest`, `sitemap`, `robots`, `favicon`, `_not-found`, `_global-error`).
 
 Two things are required together, and `generateStaticParams` alone is not enough:
-`generateStaticParams` in the root layout, **and `setRequestLocale(lang)`** from
-`next-intl/server` in the root layout and in every page that is to prerender — including
-its `generateMetadata`. Without the second call, next-intl resolves the locale by reading
-`headers()`, which is a dynamic API, and the route falls back to `ƒ`.
+`generateStaticParams` in the root layout, **and `i18n/request.ts` reading `lang()` from
+`next/root-params`**. That is what keeps next-intl off `headers()`, a dynamic API that
+would force every route back to `ƒ`. Do **not** call `setRequestLocale` — it is
+deprecated; the locale already comes from the `[lang]` root param.
 
 A page that reads `searchParams` can never be static, which is why `/auth/sign-in`,
 `/auth/reset-password` and `/auth/verify-email` stay `ƒ` while the rest of the funnel does
@@ -381,6 +381,12 @@ and what blocks each — is the rendering roadmap in
 interactivity. `useSingleProviderStore` is the counter-example, not the model.
 
 **`params` is a Promise** in this Next version — `const { providerId } = await params`.
+Type it as `params: Promise<{ lang: string }>` (plus any other segments) only when the
+page actually uses a segment. Do **not** take `params` just to feed the locale to
+next-intl — that is `lang()` in `i18n/request.ts`. Do **not** use the generated
+`PageProps<'/…'>` / `LayoutProps<'/…'>` globals: they only exist after `next dev` or
+`next build` writes `.next/types`, so `pnpm typecheck` on a clean tree (CI) cannot see
+them.
 
 **Single-entity fetches must go through the `React.cache`-wrapped getter**, or
 `generateMetadata` and the page body each make their own HTTP call.

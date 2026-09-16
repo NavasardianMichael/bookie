@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
 import { ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -35,10 +34,7 @@ const ACCOUNT_TYPES = [
   },
 ]
 
-export default async function AccountTypeSelection({ params }: PageProps<'/[lang]/auth/account-type-selection'>) {
-  const { lang } = await params
-  setRequestLocale(lang)
-
+export default function AccountTypeSelection() {
   return (
     <AuthCard className='gap-8'>
       <div className='flex flex-col gap-2 text-center'>

@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -22,10 +21,7 @@ export const metadata: Metadata = {
  * `Surface padding='lg'` is already the prototype's card — white fill, hairline border,
  * 12px radius, `shadow-sm` — and `width='auth'` is its 480px column.
  */
-export default async function ProviderRegistration({ params }: PageProps<'/[lang]/auth/provider-registration'>) {
-  const { lang } = await params
-  setRequestLocale(lang)
-
+export default function ProviderRegistration() {
   return (
     <PageShell variant='fill' width='auth' className='justify-center'>
       <div className='flex w-full flex-col gap-8'>

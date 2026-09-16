@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
 import { AuthCard } from '@components/ui/layout'
 import { ForgotPasswordForm } from './ForgotPasswordForm'
 
@@ -10,10 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default async function ForgotPassword({ params }: PageProps<'/[lang]/auth/forgot-password'>) {
-  const { lang } = await params
-  setRequestLocale(lang)
-
+export default function ForgotPassword() {
   return (
     <AuthCard>
       <ForgotPasswordForm />

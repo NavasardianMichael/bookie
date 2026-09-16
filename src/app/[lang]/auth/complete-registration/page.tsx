@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
 import { AuthCard } from '@components/ui/layout'
 import { CompleteRegistrationForm } from './CompleteRegistrationForm'
 
@@ -10,10 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default async function CompleteRegistration({ params }: PageProps<'/[lang]/auth/complete-registration'>) {
-  const { lang } = await params
-  setRequestLocale(lang)
-
+export default function CompleteRegistration() {
   return (
     <AuthCard>
       <CompleteRegistrationForm />

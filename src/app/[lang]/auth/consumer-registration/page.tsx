@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -25,10 +24,7 @@ export const metadata: Metadata = {
  * header is off here (`header.ts`), so this is `min-h-dvh` rather than the fill
  * variant, which subtracts header height. `app-safe-t` covers the notch the header used to.
  */
-export default async function ConsumerRegistration({ params }: PageProps<'/[lang]/auth/consumer-registration'>) {
-  const { lang } = await params
-  setRequestLocale(lang)
-
+export default function ConsumerRegistration() {
   return (
     <PageShell width='full' padded={false} className='flex min-h-dvh flex-col app-safe-t lg:flex-row'>
       <RegistrationHero />

@@ -111,22 +111,22 @@ The first deploy creates the release directories and starts both services.
 
 **Secrets** (Settings → Secrets and variables → Actions → Secrets):
 
-| Name | Value |
-|---|---|
-| `SSH_HOST` | server hostname or IP |
-| `SSH_USER` | `michael` |
-| `SSH_KEY` | private half of the deploy key (full PEM) |
-| `SSH_PORT` | optional, defaults to 22 |
-| `APP_DIR` | `/home/michael/apps/bookie` |
-| `ENV_API_BASE64` | see below |
+| Name             | Value                                     |
+| ---------------- | ----------------------------------------- |
+| `SSH_HOST`       | server hostname or IP                     |
+| `SSH_USER`       | `michael`                                 |
+| `SSH_KEY`        | private half of the deploy key (full PEM) |
+| `SSH_PORT`       | optional, defaults to 22                  |
+| `APP_DIR`        | `/home/michael/apps/bookie`               |
+| `ENV_API_BASE64` | see below                                 |
 
-**Variables** (same page → Variables tab) — these are *not* secrets: both are inlined into
+**Variables** (same page → Variables tab) — these are _not_ secrets: both are inlined into
 the browser bundle at build time, so they are public by construction.
 
-| Name | Value |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | `https://api.bookie.mnavasardian.com` |
-| `NEXT_PUBLIC_SITE_URL` | `https://bookie.mnavasardian.com` |
+| Name                   | Value                                 |
+| ---------------------- | ------------------------------------- |
+| `NEXT_PUBLIC_API_URL`  | `https://api.bookie.mnavasardian.com` |
+| `NEXT_PUBLIC_SITE_URL` | `https://bookie.mnavasardian.com`     |
 
 `ENV_API_BASE64` holds `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `MAIL_*` and
 `GOOGLE_*` — the keys are documented in `server/.env.example`. Do **not** put `NODE_ENV`,
@@ -141,10 +141,10 @@ this app never talks to Google from the browser).
 Three values must match character for character or sign-in breaks in ways that look
 unrelated to each other:
 
-| | must equal |
-|---|---|
-| `CORS_ORIGIN` | the `NEXT_PUBLIC_SITE_URL` variable — `requireSameOrigin` compares them |
-| `GOOGLE_REDIRECT_URI` | an Authorized redirect URI on the Google client, on the `api.` host |
+|                       | must equal                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `CORS_ORIGIN`         | the `NEXT_PUBLIC_SITE_URL` variable — `requireSameOrigin` compares them                                                           |
+| `GOOGLE_REDIRECT_URI` | an Authorized redirect URI on the Google client, on the `api.` host                                                               |
 | `NEXT_PUBLIC_API_URL` | the API origin — `next.config.ts` derives `images.remotePatterns` from it, so a wrong value silently breaks every uploaded avatar |
 
 ```bash
@@ -166,9 +166,9 @@ sync by hand.
 
 ## The workflows
 
-| | |
-|---|---|
-| `ci.yml` | PR → master. `pnpm install` then typecheck · typecheck:server · gates · lint · test · build · build:api. Named per step so the failing gate is obvious. |
+|              |                                                                                                                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ci.yml`     | PR → master. `pnpm install` then typecheck · typecheck:server · gates · lint · test · build · build:api. Named per step so the failing gate is obvious.                              |
 | `deploy.yml` | Push to `master` (or manual **Run workflow**). `changes` decides which side deploys, `verify` runs the non-build gates, `build-web` and `build-api` run in parallel, `deploy` ships. |
 
 `deploy.yml` deploys **API first**, the reverse of a static-SPA pipeline: bookie's pages
@@ -197,11 +197,11 @@ engines) are fetched for the host's own platform rather than the runner's.
 
 Bookie claims three, all bound to loopback — nothing is exposed but 80/443 through nginx:
 
-| Port | What | Declared in |
-|---|---|---|
-| 7004 | Next | `bookie-web.service` (`Environment=PORT`), `bookie.mnavasardian.com.conf` (`proxy_pass`), `deploy.yml` (`WEB_PORT`, health check) |
-| 9004 | Express | `bookie-api.service` (via the deploy's env file), `api.bookie.mnavasardian.com.conf`, `deploy.yml` (`API_PORT`) |
-| 5004 | Postgres | `docker-compose.prod.yml` (`ports:`), and `DATABASE_URL` inside `ENV_API_BASE64` |
+| Port | What     | Declared in                                                                                                                       |
+| ---- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 7004 | Next     | `bookie-web.service` (`Environment=PORT`), `bookie.mnavasardian.com.conf` (`proxy_pass`), `deploy.yml` (`WEB_PORT`, health check) |
+| 9004 | Express  | `bookie-api.service` (via the deploy's env file), `api.bookie.mnavasardian.com.conf`, `deploy.yml` (`API_PORT`)                   |
+| 5004 | Postgres | `docker-compose.prod.yml` (`ports:`), and `DATABASE_URL` inside `ENV_API_BASE64`                                                  |
 
 On a host shared with other apps, check before the first deploy:
 
@@ -265,22 +265,23 @@ sudo systemctl restart bookie-web                     # same shape for api
 **Done:** 11 routes under `[lang]` prerender to static HTML, one copy per locale — 176
 prerendered routes in the `prerender-manifest`, up from 9. That is `/terms`, `/privacy`,
 `/contact`, `/routes-overview` and the seven `/auth/*` steps that do not read
-`searchParams`. The enabling change was `setRequestLocale(lang)` from `next-intl/server`
-in the root layout and in each of those pages (and their `generateMetadata`); without it
-next-intl resolves the locale through `headers()`, a dynamic API, and the route stays `ƒ`.
+`searchParams`. The enabling change is `i18n/request.ts` reading `lang()` from
+`next/root-params`, together with `generateStaticParams` in the root layout; without
+that, next-intl resolves the locale through `headers()`, a dynamic API, and the route
+stays `ƒ`. Do not reintroduce `setRequestLocale` — it is deprecated.
 
 Static pages are still served by the Node process, not off disk — nginx proxies every HTML
 request. They are simply near-free to serve now: no API call, no render.
 
 **Remaining**, in the order I would take them:
 
-| Route group | Now | Target | Blocker |
-|---|---|---|---|
-| `/`, `/categories`, `/organizations` | `ƒ` | ISR, short TTL | none — `export const revalidate` |
-| `/providers/[id]`, `/categories/[id]`, `/organizations/[id]` | `ƒ` | PPR: static shell, streamed availability | needs `revalidateTag` from the API on provider update |
-| `/auth/sign-in`, `/auth/reset-password`, `/auth/verify-email` | `ƒ` | stays `ƒ` | read `searchParams` — dynamic by definition |
-| `/providers` (explore) | `ƒ` | stays `ƒ` | reads `searchParams` |
-| `/providers/profile*`, `/consumers/profile*` | `ƒ` | stays `ƒ` | per-user, cookie-gated |
+| Route group                                                   | Now | Target                                   | Blocker                                               |
+| ------------------------------------------------------------- | --- | ---------------------------------------- | ----------------------------------------------------- |
+| `/`, `/categories`, `/organizations`                          | `ƒ` | ISR, short TTL                           | none — `export const revalidate`                      |
+| `/providers/[id]`, `/categories/[id]`, `/organizations/[id]`  | `ƒ` | PPR: static shell, streamed availability | needs `revalidateTag` from the API on provider update |
+| `/auth/sign-in`, `/auth/reset-password`, `/auth/verify-email` | `ƒ` | stays `ƒ`                                | read `searchParams` — dynamic by definition           |
+| `/providers` (explore)                                        | `ƒ` | stays `ƒ`                                | reads `searchParams`                                  |
+| `/providers/profile*`, `/consumers/profile*`                  | `ƒ` | stays `ƒ`                                | per-user, cookie-gated                                |
 
 The lever for the detail pages is `cacheComponents: true`, a stable top-level config in
 Next 16 that makes Partial Prerendering the App Router default — a prerendered shell served

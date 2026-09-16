@@ -31,7 +31,8 @@ What it gives you:
    Component or server utility can `await lang()` with no prop drilling. `currentLocale()`
    in `metadata.ts` wraps it.
 2. **Static rendering.** `generateStaticParams` in the root layout prerenders all 15
-   locales — 309 pages at last build, against 20 before.
+   locales. `i18n/request.ts` reads `lang()` from `next/root-params`, so next-intl never
+   falls back to `headers()` and `setRequestLocale` is not used (it is deprecated).
 3. **Real `hreflang`.** `localizedAlternates()` emits all 15 plus `x-default` on every
    indexable page.
 
