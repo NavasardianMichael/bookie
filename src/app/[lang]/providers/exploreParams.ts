@@ -28,7 +28,7 @@ export const EXPLORE_PARAMS = {
 /** Matches `PROVIDERS_PAGE_SIZE` in `server/src/services/providerSearch.ts`. */
 export const PROVIDERS_PER_PAGE = 9
 
-export const EXPLORE_SORTS: ProvidersListSort[] = ['recommended', 'nameAsc', 'nameDesc', 'newest']
+export const EXPLORE_SORTS: ProvidersListSort[] = ['recommended', 'topRated', 'nameAsc', 'nameDesc', 'newest']
 
 export const DEFAULT_EXPLORE_SORT: ProvidersListSort = 'recommended'
 

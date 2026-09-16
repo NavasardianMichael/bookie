@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# Verifies a server is ready for the first deploy. Read-only — changes nothing.
+#
+#   bash preflight.sh /home/michael/apps/bookie
+#
+# Run it as the deploy user (michael), not as root: several checks are about what
+# THAT user can do, and root would pass them spuriously.
+set -uo pipefail
+
+APP_DIR="${1:-/home/michael/apps/bookie}"
+WEB_PORT="${WEB_PORT:-7004}"
+API_PORT="${API_PORT:-9004}"
+DB_PORT="${DB_PORT:-5004}"
+
+pass=0 fail=0
+ok()   { echo "  ok    $1"; pass=$((pass + 1)); }
+bad()  { echo "  FAIL  $1"; fail=$((fail + 1)); }
+note() { echo "        $1"; }
+
+echo ""
+echo "Preflight for $APP_DIR (as $(whoami))"
+echo ""
+
+echo "Toolchain"
+# Keep in sync with NODE_VERSION in .github/workflows/deploy.yml.
+BUILD_MAJOR=24
+if command -v node >/dev/null; then
+  v=$(node -v)
+  major=${v#v}; major=${major%%.*}
+  if [ "$major" -lt 20 ] 2>/dev/null; then
+    bad "node $v is too old — next requires >=20.9.0"
+  elif [ "$major" = "$BUILD_MAJOR" ]; then
+    ok "node $v at $(command -v node) — matches the CI build"
+  else
+    ok "node $v at $(command -v node)"
+    note "CI builds on Node $BUILD_MAJOR. Everything native here is N-API, so this works,"
+    note "but matching majors removes a class of surprise — align one side."
+    case $((major % 2)) in
+      1) note "Node $major is an odd-numbered line: Current, never LTS. Prefer 24 LTS in production." ;;
+    esac
+  fi
+else bad "node not on PATH"; fi
+
+command -v pnpm >/dev/null && ok "pnpm $(pnpm --version)" || {
+  bad "pnpm not on PATH"
+  note "the API release installs its dependencies on this host: corepack prepare pnpm@10.28.2 --activate"
+}
+command -v curl >/dev/null && ok "curl" || bad "curl missing — the deploy health check needs it"
+command -v docker >/dev/null && ok "docker" || bad "docker missing"
+
+echo ""
+echo "Directories"
+for d in "$APP_DIR/web/releases" "$APP_DIR/api/releases" "$APP_DIR/shared/uploads" "$APP_DIR/db"; do
+  [ -d "$d" ] && ok "$d" || bad "$d missing"
+done
+[ -w "$APP_DIR/shared/uploads" ] && ok "shared/uploads writable" || bad "shared/uploads not writable by $(whoami)"
+
+echo ""
+echo "Database"
+if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx bookie-postgres-prod; then
+  ok "bookie-postgres-prod running"
+  # Informational, never a failure: the 20260910000000_email_password_identity
+  # migration runs `CREATE EXTENSION IF NOT EXISTS citext`, so it is expected to
+  # be absent until the first deploy has migrated.
+  if docker exec bookie-postgres-prod psql -U "${POSTGRES_USER:-bookie}" -d "${POSTGRES_DB:-bookie}" \
+       -tAc "select 1 from pg_extension where extname='citext'" 2>/dev/null | grep -q 1; then
+    ok "citext extension present"
+  else
+    note "citext not present yet — the first migration creates it"
+  fi
+  if docker exec bookie-postgres-prod psql -U "${POSTGRES_USER:-bookie}" -d "${POSTGRES_DB:-bookie}" \
+       -tAc 'select 1' >/dev/null 2>&1; then
+    ok "postgres accepts the configured user/database"
+  else
+    bad "cannot connect as ${POSTGRES_USER:-bookie} to ${POSTGRES_DB:-bookie}"
+    note "POSTGRES_USER/POSTGRES_DB in \$APP_DIR/db/.env must match DATABASE_URL"
+  fi
+else
+  bad "bookie-postgres-prod not running"
+fi
+# Loopback-only is the intended posture; a 0.0.0.0 publish would expose Postgres.
+if docker port bookie-postgres-prod 5432 2>/dev/null | grep -q '^127.0.0.1:'; then
+  ok "postgres published on loopback only"
+elif docker port bookie-postgres-prod 5432 >/dev/null 2>&1; then
+  bad "postgres is published on all interfaces — bind it to 127.0.0.1"
+fi
+
+echo ""
+echo "systemd"
+for unit in bookie-web bookie-api; do
+  if systemctl list-unit-files 2>/dev/null | grep -q "^$unit.service"; then
+    ok "$unit installed"
+    systemctl is-enabled --quiet "$unit" && ok "$unit enabled" || bad "$unit not enabled"
+    exec_path=$(systemctl show "$unit" -p ExecStart --value 2>/dev/null | grep -oE '/[^ ]*/node' | head -1)
+    if [ -n "$exec_path" ] && [ ! -x "$exec_path" ]; then
+      bad "$unit ExecStart points at $exec_path which is not executable"
+    fi
+  else
+    bad "$unit not installed"
+  fi
+done
+
+echo ""
+echo "Permissions"
+if sudo -n systemctl restart bookie-api >/dev/null 2>&1; then
+  ok "passwordless systemctl restart works"
+else
+  # A unit that fails to start still proves sudo worked; distinguish the two.
+  if sudo -n true 2>/dev/null; then
+    note "sudo works; restart failed — expected before the first release exists"
+    ok "passwordless sudo available"
+  else
+    bad "no passwordless sudo for systemctl restart"
+    note "check /etc/sudoers.d/bookie-deploy and that the path matches $(command -v systemctl)"
+  fi
+fi
+
+echo ""
+echo "nginx"
+command -v nginx >/dev/null && ok "nginx installed" || bad "nginx missing"
+if sudo -n nginx -t >/dev/null 2>&1; then ok "nginx config valid"; else note "could not run nginx -t (needs root) — run: sudo nginx -t"; fi
+
+echo ""
+echo "Ports"
+# Matters on a shared host: other apps and their containers claim ports too, and a
+# clash surfaces as "port is already allocated" mid-deploy, or as nginx proxying to
+# somebody else's service. `holder` needs root to name the process; without it we
+# can still tell occupied from free.
+listening() {
+  if command -v ss >/dev/null; then ss -ltnH 2>/dev/null; else netstat -ltn 2>/dev/null; fi
+}
+holder() {
+  sudo -n ss -ltnp 2>/dev/null | grep -E "[:.]$1[[:space:]]" | grep -oE 'users:\(\("[^"]+"' | head -1 | tr -d '"' | sed 's/users:((//'
+}
+port_owner_is_ours() {
+  # bookie-web / bookie-api holding their own port is expected on a redeploy.
+  systemctl is-active --quiet "$1" 2>/dev/null
+}
+
+check_port() {
+  local port="$1" what="$2" unit="${3:-}"
+  if listening | grep -qE "[:.]$port[[:space:]]"; then
+    if [ -n "$unit" ] && port_owner_is_ours "$unit"; then
+      ok "$port ($what) held by $unit — already deployed"
+    else
+      local who; who=$(holder "$port")
+      bad "$port ($what) is already in use${who:+ by $who}"
+      note "either stop it, or move bookie off $port — see docs/DEPLOYMENT.md 'Changing a port'"
+    fi
+  else
+    ok "$port ($what) free"
+  fi
+}
+
+check_port "$WEB_PORT" "web"      bookie-web
+check_port "$API_PORT" "api"      bookie-api
+check_port "$DB_PORT"  "postgres" ""
+
+if command -v docker >/dev/null; then
+  echo ""
+  echo "  published container ports on this host:"
+  docker ps --format '    {{.Names}}\t{{.Ports}}' 2>/dev/null || true
+fi
+
+echo ""
+echo "$pass passed, $fail failed"
+[ "$fail" -eq 0 ] || echo "Fix the failures above before deploying; see docs/DEPLOYMENT.md"
+exit $([ "$fail" -eq 0 ] && echo 0 || echo 1)

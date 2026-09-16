@@ -2,17 +2,20 @@
 
 import { FC } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { PhoneNumberField } from '@app/[lang]/auth/components/PhoneNumberField'
-import { Form, Spin } from 'antd'
-import type { CountryCode } from 'libphonenumber-js'
-import { useTranslations } from 'next-intl'
+import { Form, Spin, Tooltip } from 'antd'
+import { useLocale, useTranslations } from 'next-intl'
 import { GuestBookingDetails } from '@api/appointments/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { PaymentInfo, PaymentMethod } from '@interfaces/settings'
+import { Locale } from '@i18n/config'
+import { localePath } from '@i18n/pathname'
 import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
+import { ROUTE_KEYS } from '@constants/routes'
 import { PAYMENT_METHODS } from '@constants/settings'
+import { generateEntityPath } from '@helpers/entities'
 import { toPaymentShare } from '@helpers/payment'
-import { toPhoneNumber } from '@helpers/registration'
+import { toGuestPhoneNumber } from '@helpers/phone'
+import { absoluteUrl } from '@helpers/url'
 import { BankTransferDetails } from '@components/settings/BankTransferDetails'
 import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
 import { AppButton } from '@components/ui/AppButton'
@@ -20,8 +23,11 @@ import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppSheet } from '@components/ui/AppSheet'
 import { AppTextArea } from '@components/ui/AppTextArea'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { CopyableLinkValue } from '@components/ui/CopyableLinkValue'
+import { CheckCircleIcon, InfoIcon } from '@components/ui/icons'
 import { BookingSummary, BookingSummaryData } from './BookingSummary'
 
 /** What the visitor filled in. `guest` is absent whenever we already know who they are. */
@@ -31,18 +37,19 @@ export type BookingConfirmSubmission = {
   guest?: GuestBookingDetails
 }
 
-/**
- * Root-level `code`/`number` are not a style choice: `PhoneNumberField` reads them off
- * the form instance by those exact names, so nesting them would silently break it.
- */
+export type BookingCreated = {
+  manageToken: string
+  emailSent: boolean
+  emailedTo?: string
+}
+
 type FormValues = {
   notes?: string
   paymentMethods?: PaymentMethod[]
   firstName?: string
   lastName?: string
   email?: string
-  code?: CountryCode
-  number?: string
+  phone?: string
 }
 
 type Props = {
@@ -63,6 +70,7 @@ type Props = {
   /** Copyable pay-to details, shown when the visitor includes bank transfer. */
   paymentInfo?: PaymentInfo | null
   isBooking: boolean
+  created?: BookingCreated | null
   onClose: () => void
   onSubmit: (submission: BookingConfirmSubmission) => Promise<void>
 }
@@ -79,6 +87,9 @@ type Props = {
  * works inside, not a yes/no question — `AppConfirmModal` is the other half of that
  * split. It sets `destroyOnHidden`, so the inner form unmounts on close and the next
  * open starts with neither stale values nor stale validation errors.
+ *
+ * After a successful book the sheet title is omitted: the check + heading in the
+ * body is the confirmation, and repeating it in the chrome was noise.
  */
 export const BookingConfirmSheet: FC<Props> = ({
   open,
@@ -88,14 +99,17 @@ export const BookingConfirmSheet: FC<Props> = ({
   paymentMethodOptions,
   paymentInfo,
   isBooking,
+  created,
   onClose,
   onSubmit,
 }) => {
   const t = useTranslations('Booking')
 
   return (
-    <AppSheet open={open} onClose={onClose} title={t('confirmTitle')}>
-      {isAuthPending || !booking ? (
+    <AppSheet open={open} onClose={onClose} title={created ? undefined : t('confirmTitle')}>
+      {created && booking ? (
+        <BookingConfirmSuccess booking={booking} created={created} />
+      ) : isAuthPending || !booking ? (
         <div className='flex justify-center py-10'>
           <Spin />
         </div>
@@ -110,6 +124,54 @@ export const BookingConfirmSheet: FC<Props> = ({
         />
       )}
     </AppSheet>
+  )
+}
+
+type SuccessProps = {
+  booking: BookingSummaryData
+  created: BookingCreated
+}
+
+const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
+  const t = useTranslations('Booking')
+  const locale = useLocale() as Locale
+  const managePath = generateEntityPath(ROUTE_KEYS.bookingManage, created.manageToken)
+  const manageUrl = absoluteUrl(localePath(locale, managePath))
+
+  return (
+    <div className='flex w-full flex-col gap-6'>
+      <div className='flex items-start gap-3'>
+        <span
+          aria-hidden
+          className='bg-brand-100 text-brand flex size-12 shrink-0 items-center justify-center rounded-brand-sm'
+        >
+          <CheckCircleIcon className='h-6 w-6' />
+        </span>
+        <div className='min-w-0'>
+          <AppTitle level='h3' size='h3'>
+            {t('confirmedTitle')}
+          </AppTitle>
+          {created.emailSent && created.emailedTo ? (
+            <AppParagraph size='body-sm' className='m-0'>
+              {t('emailSent', { email: created.emailedTo })}
+            </AppParagraph>
+          ) : null}
+        </div>
+      </div>
+
+      <BookingSummary {...booking} />
+
+      <div className='flex flex-col gap-1.5'>
+        <AppTitle level='h4' size='body'>
+          {t('manageLinkLabel')}
+        </AppTitle>
+        <CopyableLinkValue href={manageUrl} text={manageUrl} copyLabel={t('copyManageLink')} />
+      </div>
+
+      <AppLink href={managePath} variant='button' tone='primary'>
+        {t('viewBooking')}
+      </AppLink>
+    </div>
   )
 }
 
@@ -139,7 +201,8 @@ const BookingConfirmForm: FC<FormProps> = ({
 
   const notesRules = useFormItemRules('maxCharsForTextarea')
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
-  const emailRules = useFormItemRules('required', 'email')
+  const phoneRules = useFormItemRules('required')
+  const emailRules = useFormItemRules('email')
 
   const handleFinish = async (values: FormValues) => {
     await onSubmit({
@@ -149,10 +212,8 @@ const BookingConfirmForm: FC<FormProps> = ({
         ? {
             firstName: values.firstName!,
             lastName: values.lastName!,
-            // The field holds an ISO country plus a national number; the API wants a
-            // dialling code plus digits, which is exactly what `toPhoneNumber` does.
-            phone: toPhoneNumber(values.code!, values.number!),
-            email: values.email!,
+            phone: toGuestPhoneNumber(values.phone!),
+            email: values.email?.trim() || undefined,
           }
         : undefined,
     })
@@ -183,7 +244,7 @@ const BookingConfirmForm: FC<FormProps> = ({
 
           <div className='grid gap-4 sm:grid-cols-2'>
             <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='booking-first-name' requirement='Required' requirementText={t('requiredBadge')}>
+              <FieldLabel htmlFor='booking-first-name' requirement='Required'>
                 {t('guest.firstName')}
               </FieldLabel>
               <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('guest.firstName') }}>
@@ -197,7 +258,7 @@ const BookingConfirmForm: FC<FormProps> = ({
             </div>
 
             <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='booking-last-name' requirement='Required' requirementText={t('requiredBadge')}>
+              <FieldLabel htmlFor='booking-last-name' requirement='Required'>
                 {t('guest.lastName')}
               </FieldLabel>
               <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('guest.lastName') }}>
@@ -211,10 +272,39 @@ const BookingConfirmForm: FC<FormProps> = ({
             </div>
           </div>
 
-          <PhoneNumberField label={t('guest.phone')} requirement='Required' requirementText={t('requiredBadge')} />
+          <div className='flex flex-col gap-1.5'>
+            <FieldLabel htmlFor='booking-phone' requirement='Required'>
+              {t('guest.phone')}
+            </FieldLabel>
+            <AppFormItem name='phone' rules={phoneRules} messageVariables={{ label: t('guest.phone') }}>
+              <AppInput
+                id='booking-phone'
+                type='tel'
+                inputMode='tel'
+                autoComplete='tel'
+                enterKeyHint='next'
+                maxLength={MAX_CHARS_FOR_INPUT}
+              />
+            </AppFormItem>
+          </div>
 
           <div className='flex flex-col gap-1.5'>
-            <FieldLabel htmlFor='booking-email' requirement='Required' requirementText={t('requiredBadge')}>
+            <FieldLabel
+              htmlFor='booking-email'
+              requirement='Optional'
+              action={
+                <Tooltip title={t('guest.emailHint')} trigger={['hover', 'focus', 'click']}>
+                  <AppButton
+                    type='text'
+                    shape='circle'
+                    size='small'
+                    icon={<InfoIcon className='h-4 w-4' />}
+                    aria-label={t('guest.emailHintLabel')}
+                    className='text-brand-muted'
+                  />
+                </Tooltip>
+              }
+            >
               {t('guest.email')}
             </FieldLabel>
             <AppFormItem name='email' rules={emailRules} messageVariables={{ label: t('guest.email') }}>
@@ -233,7 +323,7 @@ const BookingConfirmForm: FC<FormProps> = ({
 
       <div className='flex flex-col gap-3'>
         <div className='flex flex-col gap-1.5'>
-          <FieldLabel htmlFor='booking-payment' requirement='Optional' requirementText={t('optionalBadge')}>
+          <FieldLabel htmlFor='booking-payment' requirement='Optional'>
             {t('paymentLabel')}
           </FieldLabel>
           <AppFormItem name='paymentMethods' hasFeedback={false} messageVariables={{ label: t('paymentLabel') }}>
@@ -250,7 +340,7 @@ const BookingConfirmForm: FC<FormProps> = ({
       </div>
 
       <div className='flex flex-col gap-1.5'>
-        <FieldLabel htmlFor='booking-notes' requirement='Optional' requirementText={t('optionalBadge')}>
+        <FieldLabel htmlFor='booking-notes' requirement='Optional'>
           {t('notesLabel')}
         </FieldLabel>
         {/* `maxLength` and the `maxCharsForTextarea` rule are a pair — `AppTextArea`

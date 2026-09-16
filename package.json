@@ -2,9 +2,13 @@
   "name": "bookie",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "concurrently --kill-others-on-fail -n web,api -c green,cyan \"pnpm dev:web\" \"pnpm server:dev\"",
-    "dev:web": "next dev --turbopack --port 4141",
+    "dev:web": "next dev --turbopack --port 7004",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
@@ -13,6 +17,8 @@
     "typecheck": "tsc --noEmit",
     "typecheck:server": "pnpm --filter bookie-server exec tsc --noEmit",
     "gates": "node scripts/gates.mjs",
+    "build:api": "pnpm --filter bookie-server build && node scripts/build-api-release.mjs",
+    "env:base64": "node scripts/env-to-base64.mjs",
     "verify": "pnpm typecheck && pnpm typecheck:server && pnpm gates && pnpm lint && pnpm test && pnpm build",
     "test": "vitest run",
     "test:watch": "vitest",

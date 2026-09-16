@@ -17,7 +17,7 @@ import { NavLinks } from './NavLinks'
 
 export const Header = () => {
   const t = useTranslations('Nav')
-  const { showLogo, showNav, isActive } = useHeaderConfig()
+  const { showLogo, showNav, navRoutes, isActive } = useHeaderConfig()
   const getMe = useAuthStore.use.getMe()
   const isSignedOn = useAuthStore.use.isSignedOn()
   const userType = useAuthStore.use.userType()
@@ -45,7 +45,7 @@ export const Header = () => {
         {showNav && (
           <>
             <div className='ml-auto hidden items-center gap-8 md:flex'>
-              <NavLinks orientation='horizontal' isActive={isActive} />
+              <NavLinks routes={navRoutes} orientation='horizontal' isActive={isActive} />
               {isSignedOn ? (
                 <AppLink
                   href={accountHref}
@@ -83,7 +83,7 @@ export const Header = () => {
                   <AppAvatar src={image ?? undefined} name={displayName} size={36} />
                 </AppLink>
               )}
-              <MobileNav isActive={isActive} />
+              <MobileNav routes={navRoutes} isActive={isActive} />
             </div>
           </>
         )}

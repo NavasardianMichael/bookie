@@ -55,7 +55,7 @@ const ProviderProfileForm: React.FC<Props> = ({ initialValues = DEFAULTS }) => {
 }
 ```
 
-Four things to notice:
+Five things to notice:
 
 1. **No `value` / `onChange` on the field.** antd injects them. Passing your own is the
    root of every bug below — antd's store value *overrides* yours.
@@ -64,6 +64,8 @@ Four things to notice:
 3. **`onFinish` receives the values.** Use its argument. Don't reach for another store.
 4. **Spacing comes from the parent flex `gap`** — `theme.ts` sets `Form.itemMarginBottom: 0`.
    Never add `mb-*!` classes.
+5. **No `size='large'`** on fields or the submit button. antd's default is the app size;
+   the remaining exceptions are listed in `src/styles/CLAUDE.md` invariant 10.
 
 ## Custom field components must implement the control contract
 
@@ -119,10 +121,16 @@ client validation, submitted, and returned an error the form had never warned ab
 partial mirror is worse than none.** One hook, matching the server rule for rule, is the
 shape to copy for any other policy that lives on both sides.
 
-The `required` message uses `${label}`, an antd `messageVariables` template. It resolves
-because `AppFormItem` injects `messageVariables={{ label }}`. **A raw `Form.Item` must
-supply that itself**, which is why the phone form hand-writes
-`messageVariables={{ label: 'Country Code' }}`.
+The `required` catalogue string is `Validation.required` with next-intl's `{label}`.
+`useFormItemRules` fills that with the literal `'${label}'` so antd's `messageVariables`
+can still substitute the field name. Do **not** put a raw `${label}` in the JSON —
+next-intl treats `{label}` as ICU and would strip it before antd sees it.
+
+It resolves because call sites pass `messageVariables={{ label }}` (and `AppFormItem`
+injects `{ label }` from its own `label` prop, overwritten when the caller supplies one).
+**A raw `Form.Item` / a `FieldLabel` sibling must supply that itself**, which is why the
+phone form hand-writes `messageVariables={{ label: 'Country Code' }}`. Do not put a
+literal English `message` on a translated screen.
 
 Two gotchas:
 
@@ -130,8 +138,8 @@ Two gotchas:
   overrides `<Form validateTrigger='onSubmit'>`.** Field-level always wins
   (`mergedValidateTrigger = validateTrigger ?? fieldContext.validateTrigger`). Setting it
   on `<Form>` is inert; set it per field or change `AppFormItem`.
-- `useFormItemRules` memoises on an **empty dep array**, with an eslint-disable. Fine for
-  literal call sites; a dynamic one silently returns stale rules.
+- `useFormItemRules` memoises on the translator. Fine for literal call sites; a dynamic
+  rule-name list silently returns stale rules.
 
 ## Reset
 

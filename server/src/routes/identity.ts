@@ -37,6 +37,7 @@ import { clearSessionCookie, setSessionCookie } from '../lib/session.js'
 import { hashUrlToken, urlTokensMatch } from '../lib/token.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
+import { recomputeProviderRating } from '../services/reviews.js'
 
 export const identityRouter = Router()
 
@@ -1031,8 +1032,40 @@ identityRouter.delete(
       }
     }
 
+    /**
+     * Whose scores the cascade is about to invalidate.
+     *
+     * `Review.consumerId` cascades from Consumer (it had to — as `Restrict` it would have
+     * blocked this delete outright for anyone who had reviewed), so the rows vanish with
+     * the account and `Provider.ratingSum` / `ratingCount` would keep counting reviews
+     * that no longer exist. Collected *before* the delete because afterwards there is
+     * nothing left to read them off.
+     *
+     * Usually empty: the appointment pre-count above already refuses most consumers who
+     * have reviewed anything, since a review requires a past appointment. The reviews
+     * that reach here are ones whose appointment was never recorded — the seeded rows,
+     * and anything a future guest-review path leaves behind.
+     */
+    const ratedProviderIds = user.consumer
+      ? (
+          await prisma.review.findMany({
+            where: { consumerId: user.consumer.id, providerId: { not: null } },
+            select: { providerId: true },
+            distinct: ['providerId'],
+          })
+        ).map((review) => review.providerId!)
+      : []
+
     // Provider, Consumer and their children all cascade from User.
     await prisma.user.delete({ where: { id: user.id } })
+
+    // After the delete, so the aggregate is taken over what actually survives. Not in a
+    // transaction with it: the account is gone either way, and failing the request over a
+    // stale average would tell someone their deletion did not happen when it did.
+    for (const providerId of ratedProviderIds) {
+      await recomputeProviderRating(prisma, providerId)
+    }
+
     clearSessionCookie(res)
     return ok(res, true)
   })

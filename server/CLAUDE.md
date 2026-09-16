@@ -13,7 +13,7 @@ server/
     services/     appointments + availability logic, Explore's provider query
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
-    lib/          api-response, email-verify, mail, otp, prisma, rateLimit, request, session
+    lib/          api-response, booking-mail, email-verify, mail, password, prisma, rateLimit, request, session, token
 ```
 
 ## The response envelope is non-negotiable
@@ -72,7 +72,9 @@ this file loads whenever you touch `server/`:
 - **An unconfigured engine is normal in dev and an outage in production.** `.env.example`
   ships an empty `MAIL_API_KEY`, so `isMailConfigured()` is false locally; log and succeed
   there, `503` in production. `MailResult` never throws, so an ignored return value is a
-  silently dropped email.
+  silently dropped email. Booking confirmation and reschedule notify (`lib/booking-mail.ts`)
+  **must** ignore a failure: the appointment is already saved; create returns
+  `emailSent: false`, reschedule still `200`.
 
 **Contact messages are not persisted, deliberately.** `POST /contact` validates,
 honeypots, rate-limits and forwards — there is no `ContactMessage` table. The admin inbox
@@ -80,18 +82,68 @@ is the system of record; a table would duplicate it, hold name/email/free-text P
 retention policy, and never be read while there is no admin surface. That is also why the
 route reports a failed send instead of banking the message silently.
 
+**Review reports *are* persisted, and the difference is the reader.** `POST /reviews/:id/report`
+writes a `ReviewReport` row *and* emails us. That is not a change of heart about the rule
+above — it is the rule applied to a case where its premise no longer holds. The argument
+against a `ContactMessage` table turned on there being no admin surface to read it;
+`/admin/reviews` is that surface, and it has to know which reports are still open. So the
+email is the alert and the row is the queue.
+
+Two consequences follow, and both are the opposite of `contact.ts`:
+
+- **A failed send does not fail the request.** The row is already committed and the queue
+  already has it, so `lib/review-mail.ts` logs and returns `void` — there is no outcome a
+  caller should branch on. Contact surfaces its failure because it has nothing to fall
+  back on. Same bargain `lib/booking-mail.ts` makes with a confirmed booking.
+- **The rate limiter is keyed on the provider id, not the IP.** The route is
+  authenticated, so there is a stable identity to count against — and that identity is
+  exactly what is being abused when someone tries to bury a page's reviews under reports.
+  An IP key would let one provider spend everyone else's budget from a shared network.
+
+## `/admin/*` — the one admin surface
+
+`routes/admin.ts`, behind `requireAdmin` (`middleware/auth.ts`). Three routes, all about
+moderating reviews: list reports, hide/restore a review, close a report.
+
+- **Admin is not a role.** `SessionPayload.role` is only `consumer | provider`; an admin
+  signs in with whichever account they already have and is recognised by their identity
+  email appearing in `config.adminEmails` (`ADMIN_EMAILS`, comma-separated). The email is
+  re-read from the `User` row per request, so removing someone takes effect on their next
+  request rather than when their 7-day cookie expires. A column would have meant a
+  `SessionPayload` change and a claim that grants access without a second look at the
+  database.
+- **An empty allowlist admits nobody**, checked explicitly rather than relying on
+  `[].includes()` — true today, one refactor away from not being.
+- **It answers 404, never 403.** A 403 confirms the surface exists and that the account
+  merely lacks the grant, which is the first useful thing to learn before attacking it.
+  `/routes-overview` excludes the route for the same reason (`src/constants/header.ts`).
+- **Hiding is a `hiddenAt` timestamp, never a delete**, and it recomputes the provider's
+  aggregate in the same transaction — a review removed for abuse must stop dragging the
+  score it was written to damage, and a wrongly hidden one has to be restorable.
+
+## Production
+
+`pnpm build` (tsc) emits `dist/`, and production runs `node dist/src/index.js` — not `tsx`,
+which is a dev-only dependency. `scripts/build-api-release.mjs` turns `dist/` + `prisma/`
+into a standalone single-package release that installs its own dependencies on the host;
+its header explains why the API cannot ship as a workspace slice. `app.ts` sets
+`trust proxy` to 1 for the single nginx hop, and `HOST=127.0.0.1` keeps the listener off
+every public interface. Procedure: [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md).
+
 ## Local stack
 
 ```bash
 cp server/.env.example server/.env   # placeholders; matches docker-compose creds
 pnpm db:up                            # needs Docker Desktop
 pnpm db:setup                         # migrate + seed
-pnpm watch                            # web :4141 + api :4142
+pnpm watch                            # web :7004 + api :9004
 ```
 
-Every seeded account signs in with the password `bookie-dev-1234`, hashed by
+Every **local** seeded account signs in with the password `bookie-dev-1234`, hashed by
 `lib/password.ts` exactly as registration does. Emails and the rest are in
-[docs/DEV_CREDS.md](../docs/DEV_CREDS.md).
+[docs/DEV_CREDS.md](../docs/DEV_CREDS.md). The seed also creates one Google-only consumer
+(`gohar.nazaryan@bookie.am`) with an email and a fake `googleId` and no password — email
+is required on that row too.
 
 Google sign-in stays disabled until `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` /
 `GOOGLE_REDIRECT_URI` are set; `GET /health` reports `{ google: false }` and
@@ -109,10 +161,16 @@ Every write in `prisma/seed.ts` has to tolerate that:
 
 | Model | What makes it re-runnable |
 |---|---|
-| User, Category | `upsert` on a unique key (`phoneCode_phoneNumber`, `name`) |
+| User, Category | `upsert` on a unique key (`email`, `name`) |
 | Provider, Consumer | `upsert` on `userId`, with `update: {}` |
 | Organization | `findFirst` on `name` — that column has **no** unique constraint |
 | Appointment, Review | `findFirst` on the identifying columns — neither has a unique key |
+
+`Review` seeding is a `reviewDefs[]` loop guarded by `findFirst` on the consumer/provider
+pair, and the seed ends by calling `recomputeProviderRating` for every provider. That last
+step is unconditional on purpose: the migration backfills the aggregates once, but a
+developer who edits `reviewDefs` or deletes a row by hand needs the four denormalised
+columns to follow, and one aggregate per provider on a seed run costs nothing.
 
 Reach for `upsert` only where a unique constraint actually exists; the other three models
 have none, so a plain `create` is what duplicates them. `update: {}` is deliberate — a

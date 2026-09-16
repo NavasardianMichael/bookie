@@ -28,6 +28,10 @@ const COLUMNS: Record<1 | 2, string> = {
  *
  * `gap-px` over a border-coloured background draws the hairline grid, so the rule
  * between rows never doubles up at the wrap points.
+ *
+ * `grow` on the `<dd>` is what lets a value lay itself out against the row's far
+ * edge — `CopyableLinkValue` puts its copy button there. Plain text values are
+ * start-aligned either way, so it changes nothing for them.
  */
 export const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns = 2, className }) => {
   if (!items.length) return null
@@ -43,7 +47,7 @@ export const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns
       {items.map(({ key, label, value }) => (
         <div key={key} className='bg-surface flex flex-col gap-0.5 p-3 sm:flex-row sm:gap-4'>
           <dt className='text-body-sm text-brand-muted shrink-0 sm:w-28'>{label}</dt>
-          <dd className='text-body-sm text-brand-text min-w-0 wrap-break-word'>{value}</dd>
+          <dd className='text-body-sm text-brand-text min-w-0 grow wrap-break-word'>{value}</dd>
         </div>
       ))}
     </dl>

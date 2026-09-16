@@ -13,6 +13,7 @@
     "share": "Udostępnij",
     "linkCopied": "Skopiowano link",
     "copyFailed": "Nie udało się skopiować",
+    "copied": "Skopiowano do schowka",
     "viewAll": "Zobacz wszystkie",
     "goHome": "Strona główna",
     "tryAgain": "Spróbuj ponownie",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} min",
       "price": "Cena",
       "location": "Lokalizacja",
+      "copyLocation": "Kopiuj adres",
+      "copyPhone": "Kopiuj numer telefonu",
       "accepts": "Akceptowana płatność"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Nazwisko",
       "phone": "Numer telefonu",
       "email": "E-mail",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Bez adresu e-mail nie otrzymasz przypomnień o rezerwacji, powiadomień o zmianach ani odwołaniu.",
+      "emailHintLabel": "Dlaczego prosimy o e-mail"
     },
     "paymentLabel": "Preferowany sposób płatności",
     "paymentPlaceholder": "Wybierz jedną lub więcej metod",
@@ -182,8 +187,6 @@
     "notesLabel": "Uwagi dla usługodawcy",
     "notesPlaceholder": "Wszystko, co powinien wiedzieć przed wizytą",
     "submit": "Potwierdź rezerwację",
-    "requiredBadge": "Wymagane",
-    "optionalBadge": "Opcjonalne",
     "chooseService": "Wybierz usługę",
     "chooseServiceHint": "Jej czas trwania określa długość każdej godziny proponowanej poniżej.",
     "chooseServiceNotification": "Wybierz usługę",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "brak wolnych godzin",
     "requested": "Wizyta zgłoszona",
     "requestedBody": "{name} wkrótce potwierdzi Twoją rezerwację na {when}.",
-    "failed": "Rezerwacja nie powiodła się"
+    "failed": "Rezerwacja nie powiodła się",
+    "confirmedTitle": "Rezerwacja potwierdzona",
+    "emailSent": "Wysłaliśmy szczegóły na {email}.",
+    "manageLinkLabel": "Twój link do rezerwacji",
+    "copyManageLink": "Kopiuj link rezerwacji",
+    "viewBooking": "Zobacz rezerwację",
+    "cancel": "Anuluj rezerwację",
+    "cancelConfirmTitle": "Anulować tę rezerwację?",
+    "cancelConfirmBody": "Termin znów będzie wolny. Tej operacji nie można cofnąć.",
+    "cancelledNotice": "Ta rezerwacja jest anulowana.",
+    "edit": "Zmień godzinę",
+    "confirmNewTime": "Potwierdź nową godzinę",
+    "stopEditing": "Wróć do rezerwacji",
+    "rescheduleConfirmTitle": "Zmienić na tę godzinę?",
+    "rescheduleConfirmBody": "Rezerwacja zostanie przeniesiona na {when}.",
+    "rescheduled": "Rezerwacja zaktualizowana",
+    "cannotEdit": "Tej rezerwacji nie można już zmienić.",
+    "manageMetaTitle": "Twoja rezerwacja",
+    "manageSubtitle": "Zobacz, anuluj lub wybierz inną godzinę.",
+    "manageNotFoundTitle": "Nie znaleziono rezerwacji",
+    "manageNotFoundBody": "Ten link jest nieprawidłowy albo rezerwacja już nie istnieje."
   },
   "Footer": {
     "blurb": "Jedna platforma, aby znaleźć usługi w okolicy albo prowadzić własny kalendarz rezerwacji.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG lub PNG. Maksymalny rozmiar 2 MB.",
       "upload": "Prześlij nowe",
       "providerSubtitle": "Zaktualizuj dane widoczne na Twoim publicznym profilu.",
-      "sendEmailCode": "Wyślij e-mail weryfikacyjny",
+      "sendEmailCode": "Zresetuj e-mail",
       "emailRequired": "Najpierw wpisz adres e-mail.",
       "emailCodeSent": "Wysłaliśmy link weryfikacyjny na adres {email}. Otwórz go, aby potwierdzić ten adres. W trybie deweloperskim link jest wypisywany w konsoli serwera API.",
       "emailVerified": "E-mail potwierdzony i zapisany.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Wizyty",
-      "subtitle": "Twoje nadchodzące rezerwacje.",
+      "subtitle": "Wyszukuj, filtruj i zarządzaj rezerwacjami.",
       "upcoming": "Nadchodzące",
       "emptyTitle": "Brak nadchodzących wizyt",
       "emptyBody": "Zarezerwuj usługę, aby zobaczyć ją tutaj.",
       "bookService": "Zarezerwuj usługę",
       "unknownProvider": "Usługodawca",
-      "unknownService": "Usługa"
+      "unknownService": "Usługa",
+      "edit": "Edytuj",
+      "cancel": "Anuluj",
+      "searchPlaceholder": "Szukaj według specjalisty lub usługi",
+      "searchLabel": "Szukaj wizyt",
+      "statusPlaceholder": "Dowolny status",
+      "statusLabel": "Filtruj według statusu",
+      "sortLabel": "Sortuj wizyty",
+      "sort": {
+        "startDesc": "Najnowsze najpierw",
+        "startAsc": "Najstarsze najpierw",
+        "createdDesc": "Ostatnio zarezerwowane",
+        "nameAsc": "Nazwa specjalisty (A-Z)"
+      },
+      "clearFilters": "Wyczyść filtry",
+      "emptyFilteredTitle": "Nic nie pasuje do tych filtrów",
+      "emptyFilteredBody": "Spróbuj innego statusu lub frazy."
     },
     "notifications": {
       "subtitle": "Wybierz, które e-maile chcesz otrzymywać.",
@@ -571,7 +610,8 @@
       "recommended": "Polecane",
       "nameAsc": "Nazwa A–Z",
       "nameDesc": "Nazwa Z–A",
-      "newest": "Najnowsze najpierw"
+      "newest": "Najnowsze najpierw",
+      "topRated": "Najlepiej oceniane"
     },
     "availableNow": "Dostępni teraz",
     "availableNowHint": "Ukryj usługodawców, którzy wstrzymali nowe rezerwacje.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Godziny pracy",
     "fallbackWithOrganization": "Zarezerwuj wizytę u {name}, pracującego w {organization}.",
-    "fallbackDescription": "Zarezerwuj wizytę u {name}."
+    "fallbackDescription": "Zarezerwuj wizytę u {name}.",
+    "reviews": {
+      "title": "Opinie",
+      "count": "{count, plural, one {# opinia} other {# opinii}}",
+      "empty": "Brak opinii",
+      "emptyHint": "Opinie pojawią się tutaj po odbytej wizycie.",
+      "write": "Napisz opinię",
+      "signInPrompt": "Zaloguj się, aby dodać opinię",
+      "edit": "Edytuj",
+      "editTitle": "Edytuj swoją opinię",
+      "remove": "Usuń",
+      "removeTitle": "Usunąć twoją opinię?",
+      "removeDescription": "Twoja ocena i komentarz zostaną trwale usunięte.",
+      "report": "Zgłoś",
+      "reportTitle": "Zgłoś tę opinię",
+      "reportDescription": "Napisz, co jest z nią nie tak. Czytamy każde zgłoszenie i usuwamy opinie łamiące nasze zasady.",
+      "reportLabel": "Na czym polega problem?",
+      "reportSubmit": "Wyślij zgłoszenie",
+      "reportSent": "Dziękujemy — sprawdzimy to.",
+      "reply": "Odpowiedz",
+      "replyTitle": "Odpowiedz na tę opinię",
+      "replyLabel": "Twoja odpowiedź",
+      "replySubmit": "Opublikuj odpowiedź",
+      "replyFrom": "Odpowiedź usługodawcy",
+      "formTitle": "Oceń swoją wizytę",
+      "ratingLabel": "Twoja ocena",
+      "ratingRequired": "Wybierz ocenę",
+      "commentLabel": "Twój komentarz",
+      "commentPlaceholder": "Co poszło dobrze? Co można poprawić?",
+      "submit": "Opublikuj opinię",
+      "save": "Zapisz zmiany",
+      "edited": "Edytowano",
+      "ratingAria": "Ocena {rating} na 5",
+      "summaryAria": "{rating} na 5, z {count} opinii",
+      "starCount": "{count, plural, one {# gwiazdka} other {# gwiazdek}}",
+      "pagesLabel": "Strony opinii",
+      "loadError": "Nie udało się wczytać opinii. Spróbuj ponownie."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Regulamin",
@@ -692,11 +769,40 @@
     "workingDays": "Dni pracy",
     "weekend": "Weekend"
   },
+  "Validation": {
+    "required": "Wypełnij {label}",
+    "maxCharsForInput": "Maksymalnie {max} znaków",
+    "maxCharsForTextarea": "Maksymalnie {max} znaków",
+    "oneItemSelectedAtLeast": "Wybierz co najmniej jeden element",
+    "email": "Nieprawidłowy e-mail",
+    "positiveNumber": "Musi być liczbą dodatnią",
+    "url": "Nieprawidłowy adres URL"
+  },
   "Errors": {
     "notFoundTitle": "Nie znaleziono strony",
     "notFoundBody": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
     "title": "Coś poszło nie tak",
     "body": "Nie udało nam się załadować tej strony. Spróbuj ponownie.",
     "reference": "Numer referencyjny: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Moderacja opinii",
+    "metaDescription": "Zgłoszone opinie oczekujące na decyzję.",
+    "title": "Zgłoszone opinie",
+    "empty": "Nic do sprawdzenia",
+    "emptyHint": "Tu trafiają zgłoszenia od usługodawców.",
+    "statusOpen": "Otwarte",
+    "statusResolved": "Rozpatrzone",
+    "statusDismissed": "Odrzucone",
+    "filterLabel": "Status",
+    "reason": "Powód",
+    "reportedBy": "Zgłoszone przez {name}",
+    "hide": "Ukryj opinię",
+    "restore": "Przywróć opinię",
+    "hidden": "Ukryta",
+    "resolve": "Uznaj i zamknij",
+    "dismiss": "Odrzuć zgłoszenie",
+    "actionError": "Nie udało się. Spróbuj ponownie.",
+    "pagesLabel": "Strony zgłoszeń"
   }
 }

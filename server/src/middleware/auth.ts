@@ -108,3 +108,39 @@ const requireRole = (role: 'provider' | 'consumer', message: string): RequestHan
 
 export const requireProvider = requireRole('provider', 'Provider access required')
 export const requireConsumer = requireRole('consumer', 'Consumer access required')
+
+/**
+ * `/admin/*`. Orthogonal to role: an admin holds an ordinary consumer or provider session
+ * and is recognised by their identity email appearing in `config.adminEmails`.
+ *
+ * Deliberately **not** built on `requireRole` — an admin is not a third role, and making
+ * one would mean a `SessionPayload` change, a cookie migration, and a claim that grants
+ * access without a second look at the database. The email is re-read per request, from
+ * the row, so removing someone from the allowlist takes effect on their next request
+ * rather than when their 7-day cookie expires.
+ *
+ * The 404 is not politeness. `/admin` answering 403 to a signed-in non-admin confirms the
+ * surface exists and that the account merely lacks the grant, which is the first thing
+ * worth knowing before attacking it. A non-admin is told the same thing a crawler is.
+ */
+export const requireAdmin: RequestHandler = async (req, res, next) => {
+  const session = await authenticate(req)
+  if (!session) return fail(res, 'Not found', 404, 404)
+
+  // An empty allowlist admits nobody. Without this an unset `ADMIN_EMAILS` would make
+  // `.includes()` on an empty array the only thing standing between any signed-in user
+  // and the moderation tools — true today, and one refactor away from not being.
+  if (!config.adminEmails.length) return fail(res, 'Not found', 404, 404)
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { email: true },
+  })
+
+  if (!user || !config.adminEmails.includes(user.email.toLowerCase())) {
+    return fail(res, 'Not found', 404, 404)
+  }
+
+  req.session = session
+  next()
+}

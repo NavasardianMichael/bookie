@@ -11,10 +11,11 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **Organization** | Clinic / facility; M2M with Category |
 | **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, SEO overrides + vanity `slug` |
 | **Service** | Bookable offering (duration, price, category) |
-| **Consumer** | Patient/client profile — `firstName` + `lastName`, optional `description`/`email`, email prefs + payment info |
+| **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | Consumer ↔ Provider favorites |
-| **Appointment** | Booking with status enum and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time |
-| **Review** | Rating 1–5 for provider and/or organization |
+| **Appointment** | Booking with status enum and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
+| **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
+| **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
 
 ## Relationships
 
@@ -22,9 +23,15 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 Consumer ←→ Appointment ←→ Provider
     ↓           ↓           ↓
   Review      Service    Organization
-                ↑
-            Category
+    ↓           ↑
+ReviewReport  Category
 ```
+
+`Review.consumerId` and `Review.providerId` both cascade. `consumerId` had to: as the
+`Restrict` that Prisma defaults a required relation to, it blocked `DELETE /identity/account`
+for anyone who had ever reviewed. `appointmentId` and `organizationId` stay `SetNull` —
+a review must outlive the booking that earned it, or a provider could erase criticism by
+deleting the appointment.
 
 ## API envelope
 
@@ -35,7 +42,7 @@ All JSON responses use:
 { "value": null, "error": { "code": number, "message": string } }
 ```
 
-## Routes (Express, default `:4142`)
+## Routes (Express, default `:9004`)
 
 | Method | Path | Auth |
 | --- | --- | --- |
@@ -66,6 +73,14 @@ All JSON responses use:
 | GET | `/provider-profile/analytics?from=&to=&tz=` | provider — aggregates over own bookings |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `seoKeywords` / `slug` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
+| GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
+| POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled |
+| PATCH/DELETE | `/reviews/:id` | author only |
+| POST | `/reviews/:id/reply` | provider — the reviewed provider only |
+| POST | `/reviews/:id/report` | provider — the reviewed provider only; rate-limited 5/hour, writes a `ReviewReport` then emails the admin inbox |
+| GET | `/admin/reviews/reports?status=&page=&perPage=` | **admin** (`ADMIN_EMAILS` allowlist) |
+| PATCH | `/admin/reviews/:id/visibility` | admin — hide/restore, recomputes the aggregate |
+| PATCH | `/admin/reviews/reports/:id` | admin — `resolved` or `dismissed` |
 | GET | `/organizations?q=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public |
 | POST | `/contact` | public — contact form; forwards to the mail engine, **stores nothing** |
@@ -100,7 +115,7 @@ banked silently. See the `mail` skill and `server/CLAUDE.md`.
 | `categoryId` | a `Category.id` | — |
 | `available` | `true` / `1` | off |
 | `openToday` | `true` / `1` — `weekSchedule` has hours on today's weekday | off |
-| `sort` | `recommended` · `nameAsc` · `nameDesc` · `newest` | `recommended` |
+| `sort` | `recommended` · `topRated` · `nameAsc` · `nameDesc` · `newest` | `recommended` |
 | `page` | 1-based | 1 |
 | `perPage` | 1-48 | 9 |
 
@@ -126,16 +141,50 @@ about it are load-bearing:
   stay inside `count`/`findMany` without breaking pagination. `now` is the server
   clock; tests inject it.
 
-`Provider` carries two composite indexes for this, both prefixed by `listed` because
-every public query filters on it: `[listed, available, updatedAt]` (the `recommended`
-ordering) and `[listed, lastName, firstName]` (the name orderings). `newest` and the
-search paths ride the `listed` prefix — a third index would cost writes for the
-least-used control.
+`Provider` carries three composite indexes for this, all prefixed by `listed` because
+every public query filters on it: `[listed, available, updatedAt]`, `[listed, lastName,
+firstName]` (the name orderings) and `[listed, ratingScore]`. `newest` and the search
+paths ride the `listed` prefix. The third index used to be argued against here as a write
+cost for the least-used control; `ratingScore` is not that — it is the second term of
+`recommended`, so it is read on nearly every public page view and written only when a
+review changes.
 
-**Rating, price and distance are not filterable, on purpose.** `Review` has no aggregate
-column, so a rating sort is an aggregate over every provider per page; `Service.price`
-mixes currencies with no conversion table; `Provider.address` is free text with no
-geocoding. Each would be a per-row computation or a wrong answer. See `docs/BACKLOG.md`.
+### How rating ranks
+
+`recommended` orders by `available`, then `ratingScore`, then `updatedAt`. `topRated`
+orders by `ratingScore`, then `ratingCount` as a tiebreak.
+
+`ratingScore` is a **Bayesian** rating, not the plain average:
+
+```
+ratingScore = (PRIOR_WEIGHT * PRIOR_MEAN + ratingSum) / (PRIOR_WEIGHT + ratingCount)
+PRIOR_MEAN = 4.0   PRIOR_WEIGHT = 10        -- server/src/services/reviews.ts
+```
+
+Three consequences worth knowing before changing it:
+
+- **An unrated provider scores exactly 4.0**, which is why the column defaults to 4. They
+  rank mid-pack rather than below every rated provider — a marketplace that buries
+  everyone without a review never lets anyone earn a first one.
+- **One 5★ review scores 4.09**, so it cannot outrank an established 4.7 from forty
+  reviews. That is what makes rating safe as the *default* ordering.
+- **The constants are fixed, not the live corpus mean.** Prisma's `orderBy` cannot
+  compute, so the score has to be stored; a prior derived from the corpus would mean
+  every review anywhere dirtied every provider row.
+
+Aggregates are **recomputed, never incremented** — one `aggregate` over the provider's
+visible reviews, inside the transaction of every create, edit, delete, hide and restore.
+A delta is cheaper and goes silently wrong the first time a review is edited or hidden,
+and a wrong aggregate is a wrong sort order that surfaces as no error at all. The cost
+`docs/BACKLOG.md` refused was an aggregate per provider per *page render*; this is one per
+review write.
+
+**Price and distance are still not filterable, on purpose.** `Service.price` mixes
+currencies with no conversion table; `Provider.address` is free text with no geocoding.
+Each would be a per-row computation or a wrong answer. A minimum-rating filter is absent
+too, now for a different reason: with a Bayesian score, "4 stars and up" would hide a
+provider whose genuine 5★ reviews have not yet outweighed the prior. See
+`docs/BACKLOG.md`.
 
 ### Provider services
 
@@ -180,7 +229,7 @@ geocoding. Each would be a per-row computation or a wrong answer. See `docs/BACK
   `toPaymentShare`. Read methods through `toPaymentMethods`
   (`src/helpers/payment.ts`, or `server/src/lib/payment.ts`), which also tolerates the
   pre-migration singular `{ method }` still possible in a stale `draft` overlay.
-  **Consumer** `paymentInfo` is methods only: the payments tab writes `{ methods }` and
+  **Consumer** `paymentInfo` is methods only: the profile tab writes `{ methods }` and
   `PUT /consumer-profile` strips `payToNumber` / `cardNumber` / `accountNumber` / `notes` /
   `reference` so leftover values cannot linger.
 - **SEO columns are *not* draftable.** `seoTitle`, `seoDescription`, `seoKeywords` and
@@ -259,13 +308,41 @@ Anyone can be a consumer; the only question is whether we know who is booking:
 | Caller | Booked as |
 |---|---|
 | Consumer session | `consumerId` = the session's `profileId`. Guest fields in the body are **ignored**, so a signed-in caller cannot book under another name. |
-| Any other session (a provider) | The `User` is already phone-verified, so a `Consumer` profile is found-or-created on it — seeded from the provider's own name — and the booking links to that. Never duplicated on repeat bookings. |
+| Any other session (a provider) | The `User` is already email-verified, so a `Consumer` profile is found-or-created on it — seeded from the provider's own name — and the booking links to that. Never duplicated on repeat bookings. |
 | No session | `consumerId` stays null and the `guest*` columns carry the booker. |
+| Dead `bookie_session` cookie **and** a guest body | Treated as a guest — the visitor filled the anonymous form after `GET /identity/me` 401'd. |
+| Dead cookie and **no** guest body | `401`, same as a signed-in caller whose session expired. |
+
+Every create mints a 32-byte hex capability token (`lib/token.ts`), stores **only**
+`sha256` as `Appointment.manageTokenHash`, and returns the raw value once as
+`manageToken`. It is durable (not one-time): `GET`/`PATCH /appointments/manage/:token`
+look the hash up. A consumer reading their own `GET /appointments` also receives a
+reconstructable owner token (`own.<appointmentId>.<hmac>` from `lib/token.ts`) so the
+account appointments tab can link to `/b/<token>` without recovering the emailed raw
+value. The manage routes accept either form. A bad token is `404`, same as a missing
+row. Never put the appointment UUID *bare* in that URL.
+
+Optional confirmation mail (`lib/booking-mail.ts`) goes out when we have an address
+(guest `email`, or the signed-in user's). The appointment is already saved — a mail
+failure returns `emailSent: false` and still `201`.
+
+`GET /appointments/manage/:token` is public and returns enough to render the summary
+and the public booking panels (appointment + `mapSingleProvider`).
+`PATCH /appointments/manage/:token` is public and rate-limited; body is
+`{ status: 'cancelled' }` **or** `{ serviceId, startAt }` (reschedule **updates the
+same row** and keeps the same `manageToken` / `/b/<token>` — the URL is a capability
+handle, not a hash of the slot. Hard-deleting and inserting a new appointment would
+break every emailed link and 409 against the old row's own slot). create's check, excluding this id, and only while status is `scheduled` or
+`confirmed`. After a reschedule, best-effort mail goes to the booker (guest email
+or the consumer's `User.email`) and the provider's identity `User.email` — never
+`publicEmail`. A send failure still returns 200.
 
 Request body adds `notes` (trimmed, **max 300**, matching `MAX_CHARS_FOR_TEXTAREA`),
 `paymentMethods` (narrowed server-side to what the provider accepts — the client
 offering only those is a convenience, not the guarantee), and `guest`
-(`{ firstName, lastName, phone: { code, number }, email }`, all required together).
+(`{ firstName, lastName, phone: { code, number }, email? }`). Name and phone
+are required; email is optional. Anonymous bookings send `phone.code: 0` (no
+country picker).
 
 `price` and `currency` are **snapshotted** off the Service at creation, alongside
 `durationMinutes` and for the same reason: an appointment is a record of what was agreed,
@@ -287,7 +364,7 @@ Other rules:
   two limits (per-process counters, and `trust proxy` being unset).
 - Every appointment must name a booker. Prisma cannot express that, so the
   **`appointment_actor_present`** CHECK constraint does — either `consumerId`, or
-  guest first name + last name + phone.
+  guest first name + last name + phone. Email on a guest booking is optional.
 - `Appointment.consumer` declares **`onDelete: Restrict` explicitly**. Prisma defaults an
   *optional* relation to `SetNull`, which would quietly turn a deleted consumer's
   appointments into guest bookings carrying no guest details.
@@ -373,7 +450,7 @@ httpOnly) and how the Header renders an avatar without a second fetch.
 2. Run `pnpm install` — generates Prisma client; applies migrations and seed when Postgres is up
 3. Start Postgres if needed: `pnpm db:up` (requires Docker Desktop), then `pnpm db:setup`
 4. Run API + web: `pnpm watch`
-5. Frontend env: copy `.env.example` → `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:4142`
+5. Frontend env: copy `.env.example` → `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:9004`
 
 **Dev login:** see [DEV_CREDS.md](DEV_CREDS.md) for the seeded provider/consumer emails and
 the shared development password.

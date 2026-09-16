@@ -191,7 +191,7 @@ export const CompleteRegistrationForm: FC = () => {
           </div>
         )}
 
-        <AppButton htmlType='submit' type='primary' size='large' block loading={isPending}>
+        <AppButton htmlType='submit' type='primary' block loading={isPending}>
           {t('completeRegistration.submit')}
         </AppButton>
       </Form>

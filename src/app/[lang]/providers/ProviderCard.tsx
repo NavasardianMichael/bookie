@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
+import { RatingStars } from '@components/ui/bare/RatingStars'
 import { EntityCard } from '@components/ui/EntityCard'
 import { UserIcon } from '@components/ui/icons'
 
@@ -32,6 +33,19 @@ export const ProviderCard: FC<Props> = ({ data, hideCategories, headingLevel }) 
       aspect='16/9'
       badges={
         <>
+          {/* `count`, not `average`: an unrated provider has an average of 0, and a row
+              of empty stars reads as "rated badly" rather than "not rated yet".
+
+              `RatingStars` is the antd-free display precisely so this card can stay a
+              Server Component — antd's `Rate` would pull its runtime into the bundle of
+              every route that renders a provider grid. */}
+          {!!basic.rating?.count && (
+            <span className='text-caption inline-flex items-center gap-1'>
+              <RatingStars value={basic.rating.average} size='sm' />
+              <span className='tnum'>{basic.rating.average.toFixed(1)}</span>
+              <span className='text-brand-muted tnum'>({basic.rating.count})</span>
+            </span>
+          )}
           {!hideCategories &&
             basic.categories?.slice(0, 2).map((category) => (
               <span

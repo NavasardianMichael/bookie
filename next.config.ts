@@ -2,13 +2,19 @@ import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 import { ROUTES } from '@constants/routes'
 
-const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4142')
+const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9004')
 
 // Points next-intl at the per-request config. Without the explicit path it looks
 // for `./i18n/request.ts` relative to the project root, not `./src/i18n/`.
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
+  // Emits `.next/standalone` — server.js plus only the traced node_modules — so a release
+  // tarball carries its own runtime and the deploy host never runs an install. The project
+  // root is the repo root, so the default `outputFileTracingRoot` already covers the
+  // workspace. `public/` and `.next/static` are NOT copied in by the build; the deploy
+  // workflow does that. See docs/DEPLOYMENT.md.
+  output: 'standalone',
   images: {
     // Uploads are served by the API on its own origin, so next/image has to be
     // told to allow it. See src/helpers/images.ts.

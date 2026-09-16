@@ -22,10 +22,15 @@ type FilterKey = 'available' | 'openToday'
  * Every toggle in the sheet, so adding one is a row here rather than four edits.
  *
  * A filter has to be a single-column or single-JSON-path predicate to earn a place:
- * rating, price and distance were left out on purpose — `Review` has no aggregate
- * column, `Service.price` mixes currencies with no conversion, and `Provider.address`
- * is free text with no geocoding. Each would be a per-row computation or a wrong
- * answer. See `docs/BACKLOG.md`. Unlisted pages are excluded by the API, not by a toggle.
+ * price and distance are still left out on purpose — `Service.price` mixes currencies
+ * with no conversion, and `Provider.address` is free text with no geocoding. Each would
+ * be a per-row computation or a wrong answer. See `docs/BACKLOG.md`. Unlisted pages are
+ * excluded by the API, not by a toggle.
+ *
+ * Rating used to be listed here for the same reason and no longer is: `Provider.ratingScore`
+ * is a real indexed column now, which is what the `topRated` sort below reads. A minimum-rating
+ * *filter* is still absent, and deliberately — with a Bayesian score, "4 stars and up" would
+ * hide a provider whose two genuine 5★ reviews have not yet outweighed the prior.
  *
  * `available` is the pause-bookings flag. `openToday` is whether today's weekday in
  * `weekSchedule` has hours — a provider can be open today and still have paused
@@ -36,7 +41,7 @@ const FILTERS: { key: FilterKey; labelKey: 'availableNow' | 'activeToday'; hintK
   { key: 'openToday', labelKey: 'activeToday', hintKey: 'activeTodayHint' },
 ]
 
-const SORT_KEYS: ProvidersListSort[] = ['recommended', 'nameAsc', 'nameDesc', 'newest']
+const SORT_KEYS: ProvidersListSort[] = ['recommended', 'topRated', 'nameAsc', 'nameDesc', 'newest']
 
 /**
  * Sort and Filter, as the two icon buttons beside the Service providers heading.

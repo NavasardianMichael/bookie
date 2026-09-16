@@ -5,7 +5,10 @@ and every URL names its language (`/en/providers`, `/es/providers`). Message cat
 live in `src/messages/<locale>.json`, one file per locale, `en.json` is the source of truth.
 Non-auth namespaces: `Language`, `Common`, `Nav`, `Booking`, `Footer`, `Contact`, `Settings`,
 `Home`, `Explore`, `Categories`, `Organizations`, `Provider`, `Legal`, `Services`,
-`ProfileCreation`, `Errors`. Auth screens still hardcode copy.
+`ProfileCreation`, `Validation`, `Errors`. Auth screens still hardcode copy except
+`Auth.validation` (password policy) and `Validation` (shared field rules).
+`Validation.required` uses next-intl `{label}`; `useFormItemRules` fills it with
+antd's `'${label}'` template so the field name is translated *and* substituted.
 
 ```
 en · es · pt-BR · fr · it · de · ar · zh-CN · ja · hy · id · ko · uk · pl · th

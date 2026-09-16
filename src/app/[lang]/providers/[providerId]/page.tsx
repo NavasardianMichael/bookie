@@ -21,7 +21,7 @@ import { acceptsBankTransfer, hasPaymentShare, toPaymentMethods, toPaymentShare 
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { hasWeekScheduleHours } from '@helpers/schedule'
 import { BankTransferDetails } from '@components/settings/BankTransferDetails'
-import { AppLink } from '@components/ui/bare/AppLink'
+import { APP_LINK_META_CLASS,AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
@@ -30,7 +30,9 @@ import { ContactActions } from '@components/ui/ContactActions'
 import { UserIcon } from '@components/ui/icons'
 import { PageShell, Surface } from '@components/ui/layout'
 import { ProviderDetails } from './components/Details'
+import { ProviderReviews } from './components/ProviderReviews'
 import { ProviderShareButton } from './components/ProviderShareButton'
+import { parseReviewsPage } from './components/reviewParams'
 import { WorkingHours } from './components/WorkingHours'
 
 export const dynamic = 'force-dynamic'
@@ -117,8 +119,9 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   }
 }
 
-export default async function Provider({ params }: Props) {
+export default async function Provider({ params, searchParams }: Props) {
   const { providerId } = await params
+  const reviewsPage = parseReviewsPage(await searchParams)
 
   const provider = await loadProvider(providerId)
 
@@ -149,7 +152,7 @@ export default async function Provider({ params }: Props) {
 
       <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start'>
         <aside className='flex flex-col gap-6'>
-          <Surface className='relative flex flex-col items-center text-center'>
+          <Surface className='relative flex flex-col items-center'>
             <ProviderShareButton name={fullName} />
             <div className='ring-brand-50 bg-brand-50 relative mb-4 flex size-32 items-center justify-center overflow-hidden rounded-full ring-4'>
               {image ? (
@@ -170,7 +173,7 @@ export default async function Provider({ params }: Props) {
             )}
 
             {(organization || !!categories?.length || !!details.location.address) && (
-              <div className='mt-6 flex flex-col items-center gap-1'>
+              <div className='mt-6 flex flex-col gap-1'>
                 {organization && (
                   <AppParagraph size='body-sm' className='m-0'>
                     <AppText as='strong' tone='default'>
@@ -179,7 +182,7 @@ export default async function Provider({ params }: Props) {
                     <AppLink
                       href={generateEntityPath(ROUTE_KEYS.organizations, organization.id)}
                       variant='plain'
-                      className='text-brand-muted hover:text-brand font-medium'
+                      className={APP_LINK_META_CLASS}
                     >
                       {organization.basic.name}
                     </AppLink>
@@ -196,7 +199,7 @@ export default async function Provider({ params }: Props) {
                         <AppLink
                           href={generateEntityPath(ROUTE_KEYS.categories, category.id)}
                           variant='plain'
-                          className='text-brand-muted hover:text-brand font-medium'
+                          className={APP_LINK_META_CLASS}
                         >
                           {category.name}
                         </AppLink>
@@ -213,7 +216,7 @@ export default async function Provider({ params }: Props) {
                       href={mapsHref}
                       target='_blank'
                       variant='plain'
-                      className='text-brand-muted hover:text-brand font-medium'
+                      className={APP_LINK_META_CLASS}
                     >
                       {details.location.address}
                       {countryName ? `, ${countryName}` : null}
@@ -260,6 +263,10 @@ export default async function Provider({ params }: Props) {
             ProviderDetails, which holds the selection they share. */}
         <section className='flex min-w-0 flex-col gap-6'>
           <ProviderDetails initialState={provider} />
+          {/* Reviews read as the step after booking, so they close the same column.
+              `provider.id`, never the route segment: this page also serves
+              `/providers/<slug>`, and the section pages itself by id. */}
+          <ProviderReviews providerId={provider.id} page={reviewsPage} />
         </section>
       </div>
     </PageShell>

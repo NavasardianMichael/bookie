@@ -16,22 +16,22 @@ cp .env.example .env.local
 cp server/.env.example server/.env
 
 pnpm db:up          # start Postgres (Docker required)
-pnpm dev            # Next.js :4141 + API :4142
+pnpm dev            # Next.js :7004 + API :9004
 ```
 
 `pnpm install` runs migrations and seed automatically when `server/.env` exists and Postgres is reachable. If the database is down, install still succeeds — run `pnpm db:up` then `pnpm db:setup` once.
 
 Pre-commit hooks run `eslint --fix` on staged files (including import sorting).
 
-Open [http://localhost:4141](http://localhost:4141).
+Open [http://localhost:7004](http://localhost:7004).
 
 ## Scripts
 
 | Command | Description |
 | --- | --- |
 | `pnpm dev` | Next.js + API in parallel |
-| `pnpm dev:web` | Next.js only (port 4141) |
-| `pnpm server:dev` | API only (port 4142) |
+| `pnpm dev:web` | Next.js only (port 7004) |
+| `pnpm server:dev` | API only (port 9004) |
 | `pnpm watch` | Alias for `pnpm dev` |
 | `pnpm db:up` / `pnpm db:down` | Docker Postgres |
 | `pnpm db:migrate` | Apply migrations |
@@ -57,11 +57,8 @@ Each major directory also carries its own `CLAUDE.md` with that layer's invarian
 `src/api`, `src/app`, `src/components`, `src/helpers`, `src/store`, `src/styles`,
 `server`, `tests`. Read the local one before editing there.
 
-## Deploy notes
+## Deploy
 
-- Set strong `JWT_SECRET` and production `DATABASE_URL` in `server/.env`
-- Set `CORS_ORIGIN` to your frontend URL
-- Set `NEXT_PUBLIC_SITE_URL` to the public origin serving the pages — it drives
-  `metadataBase`, canonicals and JSON-LD `@id`s, and falls back to
-  `http://localhost:4141` when unset
-- Run `pnpm db:migrate` against the production database before starting the API
+Push to `master` deploys: GitHub Actions builds both sides, ships them to the server,
+migrates, and restarts. Server setup, the secrets table, both nginx server blocks and the
+rollback procedure are in **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.

@@ -25,6 +25,17 @@ export type ProviderProfile = {
     categories?: BasicCategory[]
     organization?: BasicOrganization
     available: boolean
+    /**
+     * On `basic` so the Explore card gets it for free — `BasicProvider` is
+     * `Pick<ProviderProfile, 'id' | 'basic'>`.
+     *
+     * Optional because a payload written before the aggregate columns existed has no
+     * `rating` key, and a card that renders `undefined` stars is better than one that
+     * throws. `ProviderRating` carries no `score`: the Bayesian ranking input is not
+     * published, since showing a shrunk 4.09 next to "1 review" would read as the
+     * rating itself.
+     */
+    rating?: ProviderRating
   }
   details: {
     location: Location
@@ -62,6 +73,18 @@ export type ProviderSeo = {
   keywords?: string
   /** Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL. */
   slug?: string
+}
+
+/**
+ * The denormalised review aggregate, as every provider payload carries it.
+ *
+ * `count: 0` is the unrated state and `average` is `0` beside it — which the UI must
+ * render as "no reviews yet", never as zero stars. Checking `count` rather than
+ * `average` is what keeps those two apart.
+ */
+export type ProviderRating = {
+  average: number
+  count: number
 }
 
 export type GalleryItem = {

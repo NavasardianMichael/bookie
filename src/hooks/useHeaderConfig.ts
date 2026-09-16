@@ -22,7 +22,7 @@ export const useHeaderConfig = (): UseHeaderConfig => {
     return {
       pathname,
       routeName,
-      ...getHeaderConfig(routeName),
+      ...getHeaderConfig(routeName, pathname),
       isActive: (route: string) => isRouteActive(pathname, route),
     }
   }, [pathname])

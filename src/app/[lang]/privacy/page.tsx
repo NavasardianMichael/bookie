@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { PageHeader, PageShell } from '@components/ui/layout'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[lang]/privacy'>): Promise<Metadata> {
+  const { lang } = await params
+  setRequestLocale(lang)
   const t = await getTranslations('Legal')
 
   return {
@@ -20,7 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * Placeholder with a live URL — see the note in `terms/page.tsx`. Registration links here
  * from its consent notice, so the route has to resolve.
  */
-export default async function Privacy() {
+export default async function Privacy({ params }: PageProps<'/[lang]/privacy'>) {
+  const { lang } = await params
+  setRequestLocale(lang)
+
   const t = await getTranslations('Legal')
 
   return (

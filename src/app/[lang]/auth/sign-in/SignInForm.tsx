@@ -117,7 +117,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
 
       {/* Inline, not `my-0!`: a `!` suffix cannot beat antd's unlayered cssinjs, and the
             column already owns its spacing through the parent flex `gap`. */}
-        <Divider plain style={{ margin: 0 }}>
+      <Divider plain style={{ margin: 0 }}>
         <span className='text-caption text-brand-muted'>{t('orWithEmail')}</span>
       </Divider>
 
@@ -156,12 +156,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
               {displayError}
             </AppParagraph>
             {unverifiedEmail && !resent && (
-              <AppButton
-                type='link'
-                size='small'
-                loading={isResending}
-                onClick={handleResend}
-              >
+              <AppButton type='link' size='small' loading={isResending} onClick={handleResend}>
                 {t('signIn.resendVerification')}
               </AppButton>
             )}
@@ -179,7 +174,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
           </AppLink>
         </div>
 
-        <AppButton htmlType='submit' type='primary' size='large' block loading={isPending}>
+        <AppButton htmlType='submit' type='primary' block loading={isPending}>
           {t('signIn.submit')}
         </AppButton>
       </Form>

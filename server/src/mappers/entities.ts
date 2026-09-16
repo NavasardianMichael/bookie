@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
-import type { Category, Organization, Provider, Service } from '@prisma/client'
+import type { Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
+import { reviewAuthorName } from '../services/reviews.js'
 
 type ProviderWithRelations = Provider & {
   categories: { category: Category }[]
@@ -63,6 +64,17 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
       categories: provider.categories.map((c) => mapBasicCategory(c.category)),
       organization: provider.organization ? mapBasicOrganization(provider.organization) : undefined,
       available: provider.available,
+      /**
+       * On `basic` rather than `details` so the Explore card gets it: `BasicProvider` is
+       * `Pick<ProviderProfile, 'id' | 'basic'>`, so anything here reaches the card for
+       * free, and `providerListInclude` needs no new join to serve it — these are
+       * columns on the row.
+       *
+       * `ratingScore` is deliberately **not** published. It is a ranking input, and
+       * showing a 4.09 beside "1 review" would read as the rating itself rather than as
+       * a rating shrunk toward the prior.
+       */
+      rating: { average: provider.ratingAvg, count: provider.ratingCount },
     },
   }
 }
@@ -205,7 +217,6 @@ export function mapConsumer(consumer: {
   lastName: string
   phoneCode: number
   phoneNumber: bigint
-  description?: string | null
   user: { email: string }
 }) {
   return {
@@ -225,7 +236,6 @@ export function mapConsumer(consumer: {
       // `details.email` — see `src/app/CLAUDE.md`. `emailVerifiedAt` is deliberately not
       // here: both roles read it from `details`, so it has one home per payload.
       email: consumer.user.email,
-      description: consumer.description ?? undefined,
     },
   }
 }
@@ -385,3 +395,83 @@ export const providerListInclude = {
   categories: { include: { category: true } },
   organization: { include: { categories: { include: { category: true } } } },
 } as const
+
+/* ------------------------------------------------------------------ *
+ * Reviews
+ * ------------------------------------------------------------------ */
+
+/**
+ * The author's two name columns and **nothing else**.
+ *
+ * Not `consumer: true`, and emphatically not `consumer: { include: { user: true } }`.
+ * `GET /consumers` was deleted from this API for returning consumers' names and phone
+ * numbers to anyone who asked (`server/CLAUDE.md`, "Consumers are never public"), and a
+ * public review list is the same exposure by another route — it is reachable by anyone,
+ * on every provider page, with no session at all.
+ *
+ * `select` rather than `include` is what makes that structural: a later `include` on the
+ * relation would quietly widen every review payload, where extending this list is a
+ * visible edit.
+ */
+export const reviewListInclude = {
+  consumer: { select: { firstName: true, lastName: true } },
+} as const
+
+type ReviewWithAuthor = Review & { consumer: { firstName: string; lastName: string } }
+
+/**
+ * A single review, as the public list and the write responses return it.
+ *
+ * Three things are absent by design:
+ *
+ * - **`consumerId`.** The client never needs it — `isMine` below answers the only
+ *   question it was for — and publishing it would hand every visitor a key to the
+ *   consumer table's id space.
+ * - **The author's surname.** `reviewAuthorName` reduces it to an initial.
+ * - **`hiddenAt` / `hiddenReason`.** A hidden review is filtered out of every public read
+ *   entirely, so there is no state to describe; leaking the reason would publish the
+ *   moderation note.
+ *
+ * `viewerConsumerId` is passed by the route from the session, never from the request, so
+ * `isMine` cannot be asked about somebody else.
+ */
+export function mapReview(review: ReviewWithAuthor, viewerConsumerId?: string) {
+  return {
+    id: review.id,
+    author: reviewAuthorName(review.consumer.firstName, review.consumer.lastName),
+    rating: review.rating,
+    comment: review.comment ?? undefined,
+    reply: review.providerReply ?? undefined,
+    // `Date -> ISO string`, as every other date crossing this boundary is.
+    repliedAt: review.providerRepliedAt?.toISOString(),
+    createdAt: review.createdAt.toISOString(),
+    // Only surfaced when it differs, so the UI can show "edited" without comparing
+    // timestamps itself and without a second date on every unedited review.
+    updatedAt:
+      review.updatedAt.getTime() === review.createdAt.getTime() ? undefined : review.updatedAt.toISOString(),
+    isMine: Boolean(viewerConsumerId) && review.consumerId === viewerConsumerId,
+  }
+}
+
+/** What the admin queue shows: the report, plus enough of the review to judge it. */
+export function mapReviewReport(
+  report: ReviewReport & { review: ReviewWithAuthor & { provider: Provider | null } }
+) {
+  return {
+    id: report.id,
+    reason: report.reason,
+    status: report.status,
+    createdAt: report.createdAt.toISOString(),
+    resolvedAt: report.resolvedAt?.toISOString(),
+    review: {
+      // The admin payload carries the moderation state the public one omits — that is
+      // the entire job of this screen.
+      ...mapReview(report.review),
+      isHidden: Boolean(report.review.hiddenAt),
+      providerId: report.review.providerId ?? undefined,
+      providerName: report.review.provider
+        ? `${report.review.provider.firstName} ${report.review.provider.lastName}`
+        : undefined,
+    },
+  }
+}

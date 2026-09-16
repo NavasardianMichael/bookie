@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { AuthCard } from '@components/ui/layout'
 import { AuthCallbackClient } from './AuthCallbackClient'
 
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function AuthCallback() {
+export default async function AuthCallback({ params }: PageProps<'/[lang]/auth/callback'>) {
+  const { lang } = await params
+  setRequestLocale(lang)
+
   return (
     <AuthCard>
       <AuthCallbackClient />

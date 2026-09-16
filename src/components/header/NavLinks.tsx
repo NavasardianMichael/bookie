@@ -2,12 +2,13 @@
 
 import { FC } from 'react'
 import { useTranslations } from 'next-intl'
-import { HEADER_ROUTES } from '@constants/header'
+import { AppRouteName } from '@interfaces/routes'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
 import { AppLink } from '@components/ui/bare/AppLink'
 
 type Props = {
+  routes: AppRouteName[]
   orientation: 'horizontal' | 'vertical'
   isActive: (route: string) => boolean
   onNavigate?: () => void
@@ -17,16 +18,18 @@ type Props = {
  * The route list, rendered once and shared by the desktop nav and the mobile
  * drawer — previously duplicated verbatim between the two.
  */
-export const NavLinks: FC<Props> = ({ orientation, isActive, onNavigate }) => {
+export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate }) => {
   const t = useTranslations('Nav')
   const isVertical = orientation === 'vertical'
+
+  if (!routes.length) return null
 
   return (
     <nav
       aria-label={isVertical ? t('mobileNavigation') : t('mainNavigation')}
       className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-8')}
     >
-      {HEADER_ROUTES.map((name) => {
+      {routes.map((name) => {
         const route = ROUTES[name]
         const active = isActive(route)
 

@@ -9,10 +9,10 @@ Zustand (immer) · next-intl · pnpm · Express 5 + Prisma + PostgreSQL
 ## Commands
 
 ```bash
-pnpm dev            # web :4141 + api :4142 together — the usual dev entry point
+pnpm dev            # web :7004 + api :9004 together — the usual dev entry point
 pnpm watch          # alias for `pnpm dev`
-pnpm dev:web        # web only, :4141 (turbopack)
-pnpm server:dev     # api only, :4142
+pnpm dev:web        # web only, :7004 (turbopack)
+pnpm server:dev     # api only, :9004
 
 pnpm verify         # the whole guard, in the order that fails fastest — run this
 pnpm typecheck      # web only; the root tsconfig excludes server/
@@ -21,19 +21,23 @@ pnpm gates          # design-system + export-style grep gates (scripts/gates.mjs
 pnpm lint           # `pnpm lint-fix` for the simple-import-sort churn
 pnpm test           # unit + integration (vitest)
 pnpm build
+pnpm build:api      # server/dist + the deployable out/api release
+pnpm env:base64 production   # API env file -> the ENV_API_BASE64 deploy secret
 
 pnpm test:e2e       # opt-in — needs the DB and both servers up
 pnpm db:up          # Postgres via Docker Desktop
 pnpm db:setup       # migrate + seed
 ```
 
-**There is no CI.** `pnpm verify` is the only guard — `typecheck → typecheck:server →
-gates → lint → test → build`, ~25s end to end — so run it before declaring anything done.
+**CI runs `pnpm verify`'s steps on every PR** (`.github/workflows/ci.yml`), and pushing
+to `master` deploys (`.github/workflows/deploy.yml` — see `docs/DEPLOYMENT.md`).
+Locally, `pnpm verify` is still the guard — `typecheck → typecheck:server → gates →
+lint → test → build`, ~25s end to end — so run it before declaring anything done.
 Prefer it over running the steps individually: it is the only spelling that covers
 `server/` (the root `tsconfig.json` excludes it) and the grep gates.
 
-Every seeded account uses the password `bookie-dev-1234`; the emails are in
-`docs/DEV_CREDS.md`.
+Every local seeded account uses the password `bookie-dev-1234`; the emails (and the
+Google-only fixture) are in `docs/DEV_CREDS.md`.
 
 ## Path alias
 
@@ -54,6 +58,8 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
+| Ratings, reviews, the Explore ranking | `server/src/services/reviews.ts` (the Bayesian score + parsers) · `server/src/routes/reviews.ts` · `src/api/reviews/` |
+| Review moderation (the only admin surface) | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/reviews/` — see `server/CLAUDE.md` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |
@@ -61,11 +67,13 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | API, DB schema, routes | `server/` — see `server/CLAUDE.md` and `docs/DATABASE_STRUCTURE.md` |
 | Sending email | `server/src/lib/mail.ts` — the only mail client; see the `mail` skill |
 | Tests | `tests/` — see `tests/CLAUDE.md` |
+| Deploying, nginx, systemd, server setup | `docs/DEPLOYMENT.md`; templates in `deployment/` — see `deployment/CLAUDE.md` |
+| CI and deploy pipelines | `.github/workflows/` |
 | What's still outstanding | `docs/BACKLOG.md` |
 
-**Nine directories carry their own `CLAUDE.md`** — `src/api`, `src/app`,
+**Ten directories carry their own `CLAUDE.md`** — `src/api`, `src/app`,
 `src/components`, `src/helpers`, `src/i18n`, `src/store`, `src/styles`, `server`,
-`tests`. Each holds
+`tests`, `deployment`. Each holds
 that layer's invariants and its known non-canonical code. They load automatically when
 you open a file in that directory, so read the relevant one before editing rather than
 inferring the pattern from neighbouring files.

@@ -13,6 +13,7 @@
     "share": "共有",
     "linkCopied": "リンクをコピーしました",
     "copyFailed": "コピーできませんでした",
+    "copied": "クリップボードにコピーしました",
     "viewAll": "すべて見る",
     "goHome": "ホームへ戻る",
     "tryAgain": "もう一度お試しください",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes}分",
       "price": "料金",
       "location": "場所",
+      "copyLocation": "住所をコピー",
+      "copyPhone": "電話番号をコピー",
       "accepts": "利用可能な支払い方法"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "姓",
       "phone": "電話番号",
       "email": "メールアドレス",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "メールアドレスがないと、予約リマインダー、変更のお知らせ、キャンセル通知をお送りできません。",
+      "emailHintLabel": "メールアドレスが必要な理由"
     },
     "paymentLabel": "希望する支払い方法",
     "paymentPlaceholder": "1つ以上選択してください",
@@ -182,8 +187,6 @@
     "notesLabel": "提供者への連絡事項",
     "notesPlaceholder": "予約前に伝えておきたいこと",
     "submit": "予約を確定する",
-    "requiredBadge": "必須",
-    "optionalBadge": "任意",
     "chooseService": "サービスを選択",
     "chooseServiceHint": "選択したサービスの所要時間で、下に表示される予約枠の長さが決まります。",
     "chooseServiceNotification": "サービスを選択してください",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "空きなし",
     "requested": "予約をリクエストしました",
     "requestedBody": "{name}が{when}の予約をまもなく確定します。",
-    "failed": "予約に失敗しました"
+    "failed": "予約に失敗しました",
+    "confirmedTitle": "予約が確定しました",
+    "emailSent": "詳細を {email} に送信しました。",
+    "manageLinkLabel": "予約リンク",
+    "copyManageLink": "予約リンクをコピー",
+    "viewBooking": "予約を見る",
+    "cancel": "予約をキャンセル",
+    "cancelConfirmTitle": "この予約をキャンセルしますか？",
+    "cancelConfirmBody": "枠は再び空きます。この操作は取り消せません。",
+    "cancelledNotice": "この予約はキャンセルされています。",
+    "edit": "時間を変更",
+    "confirmNewTime": "新しい時間を確定",
+    "stopEditing": "予約に戻る",
+    "rescheduleConfirmTitle": "この時間に変更しますか？",
+    "rescheduleConfirmBody": "予約は {when} に移動します。",
+    "rescheduled": "予約を更新しました",
+    "cannotEdit": "この予約はもう変更できません。",
+    "manageMetaTitle": "あなたの予約",
+    "manageSubtitle": "確認、キャンセル、または時間の変更ができます。",
+    "manageNotFoundTitle": "予約が見つかりません",
+    "manageNotFoundBody": "このリンクは無効か、予約はもう存在しません。"
   },
   "Footer": {
     "blurb": "近くのサービスを見つけるのも、予約カレンダーを管理するのも、これひとつで。",
@@ -285,7 +308,7 @@
       "imageHint": "JPG または PNG、最大 2MB。",
       "upload": "新しくアップロード",
       "providerSubtitle": "公開プロフィールに表示される情報を更新します。",
-      "sendEmailCode": "確認メールを送信",
+      "sendEmailCode": "メールをリセット",
       "emailRequired": "まずメールアドレスを入力してください。",
       "emailCodeSent": "{email} に確認リンクを送信しました。リンクを開いてこのアドレスを確認してください。開発環境ではリンクが API サーバーのコンソールに出力されます。",
       "emailVerified": "メールアドレスを確認して保存しました。",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "予約",
-      "subtitle": "今後の予約です。",
+      "subtitle": "予約を検索、絞り込み、管理できます。",
       "upcoming": "今後の予約",
       "emptyTitle": "予約はまだありません",
       "emptyBody": "サービスを予約するとここに表示されます。",
       "bookService": "サービスを予約",
       "unknownProvider": "提供者",
-      "unknownService": "サービス"
+      "unknownService": "サービス",
+      "edit": "編集",
+      "cancel": "キャンセル",
+      "searchPlaceholder": "提供者またはサービスで検索",
+      "searchLabel": "予約を検索",
+      "statusPlaceholder": "すべてのステータス",
+      "statusLabel": "ステータスで絞り込み",
+      "sortLabel": "予約を並べ替え",
+      "sort": {
+        "startDesc": "新しい順",
+        "startAsc": "古い順",
+        "createdDesc": "最近予約した順",
+        "nameAsc": "提供者名（A-Z）"
+      },
+      "clearFilters": "フィルターをクリア",
+      "emptyFilteredTitle": "これらの条件に一致するものはありません",
+      "emptyFilteredBody": "別のステータスまたは検索語を試してください。"
     },
     "notifications": {
       "subtitle": "受信するメールを選択してください。",
@@ -571,7 +610,8 @@
       "recommended": "おすすめ",
       "nameAsc": "名前 A–Z",
       "nameDesc": "名前 Z–A",
-      "newest": "新着順"
+      "newest": "新着順",
+      "topRated": "評価が高い順"
     },
     "availableNow": "現在受付中",
     "availableNowHint": "新規予約を一時停止している提供者を隠します。",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "営業時間",
     "fallbackWithOrganization": "{name}（{organization}所属）を予約しましょう。",
-    "fallbackDescription": "{name}を予約しましょう。"
+    "fallbackDescription": "{name}を予約しましょう。",
+    "reviews": {
+      "title": "レビュー",
+      "count": "{count, plural, one {# 件のレビュー} other {# 件のレビュー}}",
+      "empty": "まだレビューがありません",
+      "emptyHint": "予約が完了するとここにレビューが表示されます。",
+      "write": "レビューを書く",
+      "signInPrompt": "レビューするにはログインしてください",
+      "edit": "編集",
+      "editTitle": "レビューを編集",
+      "remove": "削除",
+      "removeTitle": "レビューを削除しますか？",
+      "removeDescription": "評価とコメントは完全に削除されます。",
+      "report": "報告",
+      "reportTitle": "このレビューを報告",
+      "reportDescription": "問題の内容をお知らせください。すべての報告を確認し、規約に違反するレビューは削除します。",
+      "reportLabel": "何が問題ですか？",
+      "reportSubmit": "報告を送信",
+      "reportSent": "ありがとうございます。確認いたします。",
+      "reply": "返信",
+      "replyTitle": "このレビューに返信",
+      "replyLabel": "返信内容",
+      "replySubmit": "返信を投稿",
+      "replyFrom": "事業者からの返信",
+      "formTitle": "予約を評価する",
+      "ratingLabel": "評価",
+      "ratingRequired": "評価を選択してください",
+      "commentLabel": "コメント",
+      "commentPlaceholder": "よかった点は？改善できる点は？",
+      "submit": "レビューを投稿",
+      "save": "変更を保存",
+      "edited": "編集済み",
+      "ratingAria": "5 段階中 {rating}",
+      "summaryAria": "5 段階中 {rating}、{count} 件のレビュー",
+      "starCount": "{count, plural, one {# つ星} other {# つ星}}",
+      "pagesLabel": "レビューのページ",
+      "loadError": "レビューを読み込めませんでした。もう一度お試しください。"
+    }
   },
   "Legal": {
     "termsMetaTitle": "利用規約",
@@ -692,11 +769,40 @@
     "workingDays": "稼働日",
     "weekend": "週末"
   },
+  "Validation": {
+    "required": "{label}を入力してください",
+    "maxCharsForInput": "最大 {max} 文字",
+    "maxCharsForTextarea": "最大 {max} 文字",
+    "oneItemSelectedAtLeast": "少なくとも1つ選択してください",
+    "email": "メールアドレスが無効です",
+    "positiveNumber": "正の数を入力してください",
+    "url": "URLが無効です"
+  },
   "Errors": {
     "notFoundTitle": "ページが見つかりません",
     "notFoundBody": "お探しのページは存在しないか、移動されました。",
     "title": "問題が発生しました",
     "body": "このページを読み込めませんでした。もう一度お試しください。",
     "reference": "参照：{digest}"
+  },
+  "Admin": {
+    "metaTitle": "レビューの管理",
+    "metaDescription": "対応待ちの報告されたレビュー。",
+    "title": "報告されたレビュー",
+    "empty": "対応するものはありません",
+    "emptyHint": "事業者からの報告がここに届きます。",
+    "statusOpen": "未対応",
+    "statusResolved": "対応済み",
+    "statusDismissed": "却下",
+    "filterLabel": "ステータス",
+    "reason": "理由",
+    "reportedBy": "{name} による報告",
+    "hide": "レビューを非表示",
+    "restore": "レビューを復元",
+    "hidden": "非表示",
+    "resolve": "認めて完了",
+    "dismiss": "報告を却下",
+    "actionError": "実行できませんでした。もう一度お試しください。",
+    "pagesLabel": "報告のページ"
   }
 }

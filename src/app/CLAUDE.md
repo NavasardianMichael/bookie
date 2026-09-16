@@ -8,8 +8,8 @@ put in it.
 The root layout is `src/app/[lang]/layout.tsx`, so the paths below are all really
 `/[lang]/…` — `/en/providers`, `/es/providers`, one URL per language. Only these stay at
 the app root, because they are locale-agnostic documents or must sit beside the root
-layout: `global-error.tsx`, `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx`,
-`manifest.ts`, `sw.js/route.ts`, `sitemap.ts`, `robots.ts`, `favicon.ico`.
+layout: `global-error.tsx`, `not-found.tsx`, `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`,
+`opengraph-image.tsx`, `manifest.ts`, `sw.js/route.ts`, `sitemap.ts`, `robots.ts`, `favicon.ico`.
 
 **Write paths without the locale.** `ROUTES` is locale-free and `AppLink` adds the prefix;
 `localePath()` (`@i18n/pathname`) does it for raw URL strings. A page's `alternates` come
@@ -19,41 +19,53 @@ route. See `src/i18n/CLAUDE.md`.
 
 ## The map
 
-`ƒ` = server-rendered on demand, `○` = prerendered static.
+`ƒ` = server-rendered on demand, `○` = prerendered static, `●` = prerendered per locale (SSG).
 
-**Every route under `[lang]` is currently `ƒ`**, verified against `next build`: the
-`prerender-manifest` holds only 9 routes, all of them app-root (`icon`, `apple-icon`,
-`opengraph-image`, `manifest`, `sitemap`, `robots`, `favicon`, `_not-found`,
-`_global-error`). `generateStaticParams` in the root layout is necessary but not
-sufficient — **next-intl also needs `setRequestLocale(locale)`** in every page and layout
-to render statically, and nothing in `src/` calls it. So the static pages below are static
-in intent only; the rows say `ƒ` because that is what the tree does. Calling
-`setRequestLocale` is the change that would make them `○`.
+**11 routes under `[lang]` prerender to static HTML, one copy per locale; the rest are
+`ƒ`.** Verified against `next build`: the `prerender-manifest` holds **176** routes — 11
+× 15 locales plus the app-root documents (`icon`, `apple-icon`, `opengraph-image`,
+`manifest`, `sitemap`, `robots`, `favicon`, `_not-found`, `_global-error`).
+
+Two things are required together, and `generateStaticParams` alone is not enough:
+`generateStaticParams` in the root layout, **and `setRequestLocale(lang)`** from
+`next-intl/server` in the root layout and in every page that is to prerender — including
+its `generateMetadata`. Without the second call, next-intl resolves the locale by reading
+`headers()`, which is a dynamic API, and the route falls back to `ƒ`.
+
+A page that reads `searchParams` can never be static, which is why `/auth/sign-in`,
+`/auth/reset-password` and `/auth/verify-email` stay `ƒ` while the rest of the funnel does
+not. The route-by-route plan for the remaining dynamic routes is the rendering roadmap in
+[docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
 
 | Route (under `/[lang]`) | | State |
 |---|---|---|
 | `/` | ƒ | Real — marketing landing (hero, category rail, feature bento, providers, CTA) |
 | `/providers` | ƒ | Real — explore: debounced search, category chip rail, filter + sort, paged |
-| `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels |
+| `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
 | `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / SEO |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
+| `/b/[token]` | ƒ | Real — public booking manage page (view / cancel / reschedule). Capability token, not the appointment id. **A page**, not a 307. Reschedule PATCHes the same row and keeps this URL; "Back to booking" is an in-page control above the title, not a route. |
 | `/organizations` | ƒ | Real — list |
 | `/organizations/[organizationId]` | ƒ | Real — detail |
 | `/categories` | ƒ | Real — list |
 | `/categories/[categoryId]` | ƒ | Real — providers in a category |
 | `/consumers/profile` (+ nested tabs) | ƒ | Real — consumer account settings (private) |
-| `/contact` | ƒ | Real — contact form; prefilled from the session, `POST /contact` |
-| `/terms`, `/privacy` | ƒ | Placeholders — registration's consent notice must link somewhere real |
-| `/auth/*` | ƒ | Real — see the funnel below |
-| `/routes-overview` | ƒ | Dev aid; `notFound()` in production |
+| `/contact` | ● | Real — contact form; prefilled from the session, `POST /contact` |
+| `/terms`, `/privacy` | ● | Placeholders — registration's consent notice must link somewhere real |
+| `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password` and `verify-email`, which read `searchParams` |
+| `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state |
+| `/routes-overview` | ● | Dev aid; `notFound()` in production |
 
 **Account settings** live under `/consumers/profile` and `/providers/profile` (route group
 `providers/(account)` also wraps `profile-services`). Each sidebar tab is a nested route
 so Next lazy-loads the panel. Provider phone change lives in the Profile tab's Personal
 Information block, not a sidebar item; listing controls (copy URL, publish/unpublish,
-delete page) live on that tab's hero, not a Listing sidebar item. Consumers still have `/consumers/profile/phone`. Visual language follows the prototypes; deviations match
+delete page) live on that tab's hero, not a Listing sidebar item. Consumer phone and
+preferred payment methods live in the Profile tab, not sidebar items — the old
+`/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile.
+Visual language follows the prototypes; deviations match
 registration: keep the global Header/Footer, no dark mode, no password/2FA/security, no
 autosave (Discard / Save, plus Save draft / Publish for providers). Providers may
 publish their own card or account number on the public page after confirming a
@@ -126,6 +138,12 @@ with wrapping titles and no icons, and no "Book an appointment" column heading �
 service picker is the start of that flow. Share is an icon in the identity card's
 top-end corner rather than the prototype's full-width Share button.
 
+**Header nav on this page is not the marketplace nav.** Explore, Categories and
+Organizations stay off the bar so they do not compete with booking. Home, the lockup,
+and Sign In / Get Started (or the avatar) remain. Explore itself (`/providers` exactly)
+keeps the full nav — `matchRouteName` maps both URLs to `providers`, so the extra
+segment is what `getHeaderConfig` uses. Config lives in `src/constants/header.ts`.
+
 ### Explore's state is the query string
 
 `/providers` keeps search, category, filters, sort and page in the URL, and
@@ -172,7 +190,7 @@ Where Explore deviates from `design/initial prototype/explore_service_providers`
 |---|---|---|
 | Search + **Location** field + Search button | One debounced search field | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button goes with the debounce. |
 | "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Service providers* | Paired with the filter control, per the request; the label still shows from `sm` up. |
-| Rating badge and star on every card | Omitted | No aggregate rating column exists; see `docs/BACKLOG.md`. |
+| Rating badge and star on every card | Built (2026-09-15) | `Provider.ratingAvg` / `ratingCount` are denormalised now. Rendered with `ui/bare/RatingStars` — antd-free, because `ProviderCard` is a Server Component and antd's `Rate` would pull its runtime into every route with a provider grid. Shown only when `rating.count > 0`: an unrated provider averages 0, and a row of empty stars reads as "rated badly" rather than "not rated yet". |
 | "Next: Today, 2 PM" on every card | Omitted | One availability computation per card, per page render. |
 | `1 2 3 … 12` pager | Same, as links, elided at ±2 around the current page | Survives 200 pages as well as 12. |
 
@@ -288,17 +306,18 @@ Each of these is a decision, not an oversight — do not "fix" them back:
 | Provider "Business Name" free text | Organization combobox (debounced `?q=` search) | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text still creates one. |
 | Consumer: mobile + **optional** email | First/last name added; email now **required** | Names because `Consumer.firstName`/`lastName` are non-null and the mockup left no way to fill them. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
 | Provider: 3 fields | First/last name added alongside Organization | Same reason: `Provider.firstName`/`lastName` are non-null and were being filled with "New Provider". |
-| Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height | `src/styles/CLAUDE.md` invariant 10, and `h-[NNpx]` is a grep gate. |
+| Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height, no `size='large'` | `src/styles/CLAUDE.md` invariant 10; `h-[NNpx]` and `size='large'` are grep gates. |
 | `text-5xl` hero headline | `AppTitle size='h1'` | The fluid scale's `display` step is 72px at `lg`, too large for a half-width panel; `h1` caps at 40px. |
 | Terms / Privacy as `href="#"` | Real `/terms` and `/privacy` placeholder routes | A dead anchor in a consent notice is worse than a page saying the document is not published. |
-| Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. |
+| Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. The public provider page keeps the bar but drops Explore / Categories / Organizations. |
 
 Labels are rendered by `FieldLabel` with an explicit `htmlFor`, **not** antd's
-`Form.Item label`. antd puts its label in an `inline-flex` element sized to its content, so
-the consumer screen's right-aligned `Required` / `Optional` badge cannot be pushed to the
-input's edge without beating antd's unlayered CSS — which would need a `!` suffix, and that
-is a grep gate. Because the `Form.Item` then has no `label`, `messageVariables={{ label }}`
-must be passed explicitly or the `'Please fill in ${label}'` message renders literally.
+`Form.Item label`. Required fields take a trailing `*`; optional fields carry no mark.
+antd puts its label in an `inline-flex` element sized to its content, so that mark cannot
+be laid out against the input's edge without beating antd's unlayered CSS — which would
+need a `!` suffix, and that is a grep gate. Because the `Form.Item` then has no `label`,
+`messageVariables={{ label }}` must be passed explicitly or the `'Please fill in ${label}'`
+message renders literally.
 
 ### The contact page
 
@@ -354,6 +373,9 @@ whitelists these file names by glob, so only a sibling component file draws the 
 
 `force-dynamic` is a build workaround, not a design choice — it stops `next build`
 prerendering against a missing `NEXT_PUBLIC_API_URL`. See `docs/BACKLOG.md`.
+The route-by-route plan for undoing this — which groups can go static, which can go ISR,
+and what blocks each — is the rendering roadmap in
+[docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
 
 **Do not use a Zustand store for data a page already fetched.** Stores are for client
 interactivity. `useSingleProviderStore` is the counter-example, not the model.
@@ -373,6 +395,8 @@ layout, so the skeleton→content handoff costs no layout shift.
 |---|---|
 | `layout.tsx` | Owns the `viewport` export — without it mobile renders at ~980px and every responsive style is invisible. Font variable goes on `<html>` so antd portals inherit it. `appleWebApp` is the iOS home-screen complement to `manifest.ts`. |
 | `global-error.tsx` | Renders **outside** `ConfigProvider`, so it **cannot use antd**. Inline styles fed from `tokens.ts`. |
+| `not-found.tsx` (app root) | The 404 for URLs matching **no route**. A nested `not-found` only catches `notFound()` inside its own segment, so without this file an unknown address got Next's built-in page. Renders above `[lang]/layout.tsx`: no stylesheet, font or `ConfigProvider` — inline styles from `tokens.ts`, same as `global-error.tsx` — and Next supplies `<html>`/`<body>`, so it must not render its own. Copy is `DEFAULT_LOCALE`: there is no `[lang]` param above the root layout, so `next/root-params` has nothing to read. |
+| `[lang]/not-found.tsx` | The 404 for `notFound()` calls **inside** `[lang]` — every dead provider, category and organization link. Full app chrome, fully translated, and **antd-free**: antd's `Result` is `"use client"`, so the old version shipped an empty shell to the crawler that followed the dead link. |
 | `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import from `tokens.ts` (via `BookieAppIcon` for the icons). Served at `/icon` etc. with no file extension; `src/proxy.ts` must not locale-prefix those paths. `/icon-maskable` is a Route Handler rather than a metadata file convention, because Next only recognises `icon` / `apple-icon`. |
 | `manifest.ts` | Generated, not a static file. Single-locale — `start_url` and shortcuts are `/<DEFAULT_LOCALE>…`, not `/`, because localePrefix is always and `/` is a 307. `id` stays `'/'` so a later start_url change does not install a second app. No `orientation` lock — that would pin a desktop/tablet install to portrait. |
 | `sw.js/route.ts` | Service worker. Network-only for navigations (booking HTML and the API must not be cached); failed navigations get an inlined offline document from `src/helpers/pwa.ts`. Registered in production only by `ServiceWorkerRegistrar`. `/sw.js` has an extension, so the proxy matcher never sees it. |

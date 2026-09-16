@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { axiosInstance } from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { paramsToQueryString } from '@helpers/api'
@@ -5,16 +6,20 @@ import { ENDPOINTS } from './endpoints'
 import {
   processCreateAppointmentResponse,
   processListAppointmentsResponse,
+  processManagedAppointmentResponse,
   processPatchAppointmentStatusResponse,
+  processPatchManagedAppointmentResponse,
   processProviderBookingsCalendarResponse,
   processProviderBookingsResponse,
 } from './processors'
 import {
   CreateAppointmentAPI,
+  GetManagedAppointmentAPI,
   GetProviderBookingsAPI,
   GetProviderBookingsCalendarAPI,
   ListAppointmentsAPI,
   PatchAppointmentStatusAPI,
+  PatchManagedAppointmentAPI,
 } from './types'
 
 /**
@@ -73,4 +78,25 @@ export const patchAppointmentStatusAPI: PatchAppointmentStatusAPI['api'] = async
     { status }
   )
   return processPatchAppointmentStatusResponse(data)
+}
+
+/** Dedupes generateMetadata + page fetches within a single request. */
+const fetchManagedAppointment = cache(async (token: string, cookie: string) => {
+  const { data } = await axiosInstance.get<APIResponse<GetManagedAppointmentAPI['response']>>(
+    `${ENDPOINTS.manageAppointment}/${token}`,
+    cookie ? { headers: { Cookie: cookie } } : undefined
+  )
+  return processManagedAppointmentResponse(data)
+})
+
+export const getManagedAppointmentAPI: GetManagedAppointmentAPI['api'] = async (args) =>
+  fetchManagedAppointment(args.token, args.cookie ?? '')
+
+export const patchManagedAppointmentAPI: PatchManagedAppointmentAPI['api'] = async (params) => {
+  const { token, ...body } = params
+  const { data } = await axiosInstance.patch<APIResponse<PatchManagedAppointmentAPI['response']>>(
+    `${ENDPOINTS.manageAppointment}/${token}`,
+    body
+  )
+  return processPatchManagedAppointmentResponse(data)
 }

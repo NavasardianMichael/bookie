@@ -13,6 +13,7 @@
     "share": "Bagikan",
     "linkCopied": "Tautan disalin",
     "copyFailed": "Tidak dapat menyalin",
+    "copied": "Disalin ke papan klip",
     "viewAll": "Lihat semua",
     "goHome": "Ke beranda",
     "tryAgain": "Coba lagi",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} mnt",
       "price": "Harga",
       "location": "Lokasi",
+      "copyLocation": "Salin alamat",
+      "copyPhone": "Salin nomor telepon",
       "accepts": "Pembayaran yang diterima"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Nama belakang",
       "phone": "Nomor telepon",
       "email": "Email",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Tanpa email, Anda tidak akan menerima pengingat pemesanan, pemberitahuan perubahan, atau pemberitahuan pembatalan.",
+      "emailHintLabel": "Mengapa kami meminta email"
     },
     "paymentLabel": "Cara Anda ingin membayar",
     "paymentPlaceholder": "Pilih satu atau beberapa metode",
@@ -182,8 +187,6 @@
     "notesLabel": "Catatan untuk penyedia",
     "notesPlaceholder": "Hal yang perlu diketahui sebelum janji temu Anda",
     "submit": "Konfirmasi pemesanan",
-    "requiredBadge": "Wajib",
-    "optionalBadge": "Opsional",
     "chooseService": "Pilih layanan",
     "chooseServiceHint": "Durasinya menentukan panjang setiap slot waktu yang ditawarkan di bawah.",
     "chooseServiceNotification": "Pilih layanan",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "tidak ada waktu tersedia",
     "requested": "Janji temu diminta",
     "requestedBody": "{name} akan segera mengonfirmasi pemesanan Anda pada {when}.",
-    "failed": "Pemesanan gagal"
+    "failed": "Pemesanan gagal",
+    "confirmedTitle": "Pemesanan dikonfirmasi",
+    "emailSent": "Kami telah mengirim detail ke {email}.",
+    "manageLinkLabel": "Tautan pemesanan Anda",
+    "copyManageLink": "Salin tautan pemesanan",
+    "viewBooking": "Lihat pemesanan",
+    "cancel": "Batalkan pemesanan",
+    "cancelConfirmTitle": "Batalkan pemesanan ini?",
+    "cancelConfirmBody": "Slot akan tersedia lagi. Ini tidak dapat dibatalkan.",
+    "cancelledNotice": "Pemesanan ini dibatalkan.",
+    "edit": "Ubah waktu",
+    "confirmNewTime": "Konfirmasi waktu baru",
+    "stopEditing": "Kembali ke pemesanan",
+    "rescheduleConfirmTitle": "Ubah ke waktu ini?",
+    "rescheduleConfirmBody": "Pemesanan Anda akan dipindahkan ke {when}.",
+    "rescheduled": "Pemesanan diperbarui",
+    "cannotEdit": "Pemesanan ini tidak dapat diubah lagi.",
+    "manageMetaTitle": "Pemesanan Anda",
+    "manageSubtitle": "Lihat, batalkan, atau pilih waktu baru.",
+    "manageNotFoundTitle": "Pemesanan tidak ditemukan",
+    "manageNotFoundBody": "Tautan ini tidak valid atau pemesanan sudah tidak ada."
   },
   "Footer": {
     "blurb": "Satu platform untuk menemukan layanan di sekitar Anda atau mengelola kalender pemesanan Anda.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG atau PNG. Ukuran maks 2 MB.",
       "upload": "Unggah baru",
       "providerSubtitle": "Perbarui detail yang ditampilkan di profil publik Anda.",
-      "sendEmailCode": "Kirim email verifikasi",
+      "sendEmailCode": "Atur ulang email",
       "emailRequired": "Masukkan alamat email terlebih dahulu.",
       "emailCodeSent": "Kami mengirim tautan verifikasi ke {email}. Buka tautan tersebut untuk mengonfirmasi alamat ini. Dalam mode pengembangan, tautan dicetak di konsol server API.",
       "emailVerified": "Email diverifikasi dan disimpan.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Janji Temu",
-      "subtitle": "Pemesanan Anda yang akan datang.",
+      "subtitle": "Cari, filter, dan kelola pemesanan Anda.",
       "upcoming": "Akan datang",
       "emptyTitle": "Tidak ada janji temu yang akan datang",
       "emptyBody": "Pesan sebuah layanan untuk melihatnya di sini.",
       "bookService": "Pesan Layanan",
       "unknownProvider": "Penyedia",
-      "unknownService": "Layanan"
+      "unknownService": "Layanan",
+      "edit": "Edit",
+      "cancel": "Batalkan",
+      "searchPlaceholder": "Cari berdasarkan penyedia atau layanan",
+      "searchLabel": "Cari janji temu",
+      "statusPlaceholder": "Semua status",
+      "statusLabel": "Filter menurut status",
+      "sortLabel": "Urutkan janji temu",
+      "sort": {
+        "startDesc": "Terbaru dulu",
+        "startAsc": "Terlama dulu",
+        "createdDesc": "Baru dipesan",
+        "nameAsc": "Nama penyedia (A-Z)"
+      },
+      "clearFilters": "Hapus filter",
+      "emptyFilteredTitle": "Tidak ada yang cocok dengan filter ini",
+      "emptyFilteredBody": "Coba status atau kata pencarian lain."
     },
     "notifications": {
       "subtitle": "Pilih email mana yang ingin Anda terima.",
@@ -571,7 +610,8 @@
       "recommended": "Direkomendasikan",
       "nameAsc": "Nama A–Z",
       "nameDesc": "Nama Z–A",
-      "newest": "Terbaru dulu"
+      "newest": "Terbaru dulu",
+      "topRated": "Rating tertinggi"
     },
     "availableNow": "Tersedia sekarang",
     "availableNowHint": "Sembunyikan penyedia yang menjeda pemesanan baru.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Jam kerja",
     "fallbackWithOrganization": "Pesan janji temu dengan {name}, yang bekerja di {organization}.",
-    "fallbackDescription": "Pesan janji temu dengan {name}."
+    "fallbackDescription": "Pesan janji temu dengan {name}.",
+    "reviews": {
+      "title": "Ulasan",
+      "count": "{count, plural, one {# ulasan} other {# ulasan}}",
+      "empty": "Belum ada ulasan",
+      "emptyHint": "Ulasan muncul di sini setelah kunjungan selesai.",
+      "write": "Tulis ulasan",
+      "signInPrompt": "Masuk untuk menulis ulasan",
+      "edit": "Ubah",
+      "editTitle": "Ubah ulasan Anda",
+      "remove": "Hapus",
+      "removeTitle": "Hapus ulasan Anda?",
+      "removeDescription": "Penilaian dan komentar Anda akan dihapus permanen.",
+      "report": "Laporkan",
+      "reportTitle": "Laporkan ulasan ini",
+      "reportDescription": "Beri tahu kami apa masalahnya. Kami membaca setiap laporan dan menghapus ulasan yang melanggar aturan.",
+      "reportLabel": "Apa masalahnya?",
+      "reportSubmit": "Kirim laporan",
+      "reportSent": "Terima kasih — kami akan memeriksanya.",
+      "reply": "Balas",
+      "replyTitle": "Balas ulasan ini",
+      "replyLabel": "Balasan Anda",
+      "replySubmit": "Kirim balasan",
+      "replyFrom": "Balasan dari penyedia",
+      "formTitle": "Nilai kunjungan Anda",
+      "ratingLabel": "Penilaian Anda",
+      "ratingRequired": "Pilih penilaian",
+      "commentLabel": "Komentar Anda",
+      "commentPlaceholder": "Apa yang sudah baik? Apa yang bisa lebih baik?",
+      "submit": "Kirim ulasan",
+      "save": "Simpan perubahan",
+      "edited": "Diubah",
+      "ratingAria": "Dinilai {rating} dari 5",
+      "summaryAria": "{rating} dari 5, dari {count} ulasan",
+      "starCount": "{count, plural, one {# bintang} other {# bintang}}",
+      "pagesLabel": "Halaman ulasan",
+      "loadError": "Ulasan tidak dapat dimuat. Silakan coba lagi."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Ketentuan Layanan",
@@ -692,11 +769,40 @@
     "workingDays": "Hari kerja",
     "weekend": "Akhir pekan"
   },
+  "Validation": {
+    "required": "Harap isi {label}",
+    "maxCharsForInput": "Maksimal {max} karakter",
+    "maxCharsForTextarea": "Maksimal {max} karakter",
+    "oneItemSelectedAtLeast": "Pilih setidaknya satu item",
+    "email": "Email tidak valid",
+    "positiveNumber": "Harus berupa angka positif",
+    "url": "URL tidak valid"
+  },
   "Errors": {
     "notFoundTitle": "Halaman tidak ditemukan",
     "notFoundBody": "Halaman yang Anda cari tidak ada atau telah dipindahkan.",
     "title": "Ada yang tidak beres",
     "body": "Kami tidak dapat memuat halaman ini. Silakan coba lagi.",
     "reference": "Referensi: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Moderasi ulasan",
+    "metaDescription": "Ulasan yang dilaporkan dan menunggu keputusan.",
+    "title": "Ulasan yang dilaporkan",
+    "empty": "Tidak ada yang perlu ditinjau",
+    "emptyHint": "Laporan dari penyedia masuk ke sini.",
+    "statusOpen": "Terbuka",
+    "statusResolved": "Selesai",
+    "statusDismissed": "Ditolak",
+    "filterLabel": "Status",
+    "reason": "Alasan",
+    "reportedBy": "Dilaporkan oleh {name}",
+    "hide": "Sembunyikan ulasan",
+    "restore": "Pulihkan ulasan",
+    "hidden": "Disembunyikan",
+    "resolve": "Terima dan tutup",
+    "dismiss": "Tolak laporan",
+    "actionError": "Tidak berhasil. Silakan coba lagi.",
+    "pagesLabel": "Halaman laporan"
   }
 }

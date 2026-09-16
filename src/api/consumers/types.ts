@@ -7,7 +7,6 @@ export type ConsumerProfileResponse = Consumer
 export type PutConsumerProfileRequestPayload = Partial<{
   firstName: string
   lastName: string
-  description: string | null
   emailNotificationPrefs: ConsumerEmailNotificationPrefs
   paymentInfo: PaymentInfo | null
 }>

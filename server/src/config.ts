@@ -6,9 +6,14 @@ import './load-env.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export const config = {
-  port: Number(process.env.PORT ?? 4142),
+  port: Number(process.env.PORT ?? 9004),
+  /**
+   * Interface to bind. Defaults to every interface so a container or a LAN device can
+   * reach the dev server; production sets `HOST=127.0.0.1` so only nginx can.
+   */
+  host: process.env.HOST ?? '0.0.0.0',
   jwtSecret: process.env.JWT_SECRET ?? 'dev-secret-change-me',
-  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:4141',
+  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:7004',
   uploadDir: path.resolve(process.env.UPLOAD_DIR ?? path.join(__dirname, '../uploads')),
   nodeEnv: process.env.NODE_ENV ?? 'development',
   cookieName: 'bookie_session',
@@ -27,6 +32,23 @@ export const config = {
   oauthFlowTtlMs: 10 * 60 * 1000,
   /** Long enough to fill in a phone number after Google returns, short enough to matter. */
   oauthPendingTtlMs: 15 * 60 * 1000,
+  /**
+   * Who may reach `/admin/*`. Comma-separated addresses, matched case-insensitively
+   * against the signed-in user's identity email by `middleware/auth.ts#requireAdmin`.
+   *
+   * An allowlist rather than a column on `User`, because there is no admin *account*
+   * here: `SessionPayload.role` is only `consumer | provider`, and an admin signs in with
+   * whichever of those they already have. Config also means promoting someone is a deploy
+   * rather than a database write nobody reviews, and demoting them cannot be done by
+   * anyone who has compromised an account.
+   *
+   * **Empty by default, and an empty list admits nobody.** A fresh clone has no admin
+   * surface at all rather than one guarded by a value someone forgot to change.
+   */
+  adminEmails: (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean),
   /**
    * External mail engine. Read only by `lib/mail.ts` — nothing else may touch `apiKey`.
    *
@@ -55,7 +77,7 @@ export const config = {
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID ?? '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? 'http://localhost:4142/identity/google/callback',
+    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? 'http://localhost:9004/identity/google/callback',
   },
 }
 

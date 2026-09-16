@@ -133,6 +133,40 @@ const GATES = [
       /(break-words|overflow-ellipsis|order-none|flex-(shrink|grow)-|(bg|text|border|divide|ring|placeholder)-opacity-)/,
   },
   {
+    name: "no new `size='large'`",
+    why: "antd's default is the app size; remaining call sites are the complete allowlist — src/styles/CLAUDE.md invariant 10",
+    root: 'src',
+    exts: TSX,
+    pattern: /size=['"]large['"]/,
+    allow: [
+      {
+        rel: 'src/app/[lang]/providers/ProviderSearchField.tsx',
+        contains: "size='large'",
+        reason: 'Explore search box — listed in src/styles/CLAUDE.md invariant 10.',
+      },
+      {
+        rel: 'src/app/[lang]/providers/[providerId]/components/BookingSlots.tsx',
+        contains: "size='large'",
+        reason: 'Book now CTA — listed in src/styles/CLAUDE.md invariant 10.',
+      },
+      {
+        rel: 'src/app/[lang]/auth/callback/AuthCallbackClient.tsx',
+        contains: "size='large'",
+        reason: 'Auth waiting Spin — listed in src/styles/CLAUDE.md invariant 10.',
+      },
+      {
+        rel: 'src/app/[lang]/auth/verify-email/VerifyEmailClient.tsx',
+        contains: "size='large'",
+        reason: 'Auth waiting Spin — listed in src/styles/CLAUDE.md invariant 10.',
+      },
+      {
+        rel: 'src/app/[lang]/auth/complete-registration/CompleteRegistrationForm.tsx',
+        contains: "size='large'",
+        reason: 'Auth waiting Spin — listed in src/styles/CLAUDE.md invariant 10.',
+      },
+    ],
+  },
+  {
     name: 'no bare `<Modal>`',
     why: 'Dialogs go through AppConfirmModal / AppSheet — src/components/CLAUDE.md',
     root: 'src',

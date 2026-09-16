@@ -10,7 +10,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "noEmit": true
+    // `pnpm build` has to produce something deployable: `dist/src/index.js` is what the
+    // production systemd unit runs. `pnpm typecheck:server` passes --noEmit on the CLI,
+    // so type checking still emits nothing.
+    "noEmit": false
   },
   "include": ["src/**/*", "prisma/seed.ts", "prisma.config.ts"]
 }

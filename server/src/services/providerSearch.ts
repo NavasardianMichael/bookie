@@ -19,16 +19,31 @@ const PROVIDERS_MAX_PAGE_SIZE = 48
  */
 const SEARCH_TERM_LIMIT = 5
 
-export type ProvidersListSort = 'recommended' | 'nameAsc' | 'nameDesc' | 'newest'
+export type ProvidersListSort = 'recommended' | 'topRated' | 'nameAsc' | 'nameDesc' | 'newest'
 
 /**
- * `recommended` puts bookable providers first and freshest-edited next — the two signals
- * the schema actually carries. It is deliberately not a rating sort: `Review` has no
- * aggregate column, so ordering by it would mean an aggregate over every provider on
- * every page.
+ * `recommended` puts bookable providers first, best-rated next, and freshest-edited last.
+ *
+ * It used to be a two-term ordering, and this comment used to say a rating sort was off
+ * the table because `Review` had no aggregate column, so ordering by it would mean an
+ * aggregate over every provider on every page. That is no longer true: `Provider.ratingScore`
+ * is a denormalised, indexed column, rewritten on review writes only
+ * (`services/reviews.ts#recomputeProviderRating`), so this reads one index instead of
+ * aggregating anything.
+ *
+ * The score is Bayesian rather than a plain average, which is what makes it safe as a
+ * *default* ordering: a lone 5★ review scores 4.09, so it cannot outrank a provider with
+ * forty reviews at 4.7, and an unrated provider scores exactly the prior and lands
+ * mid-pack rather than on the last page forever.
+ *
+ * `available` stays the first term deliberately. A provider who has paused bookings is
+ * not a recommendation however well rated they are — the visitor came here to book.
  */
 const ORDER_BY: Record<ProvidersListSort, Prisma.ProviderOrderByWithRelationInput[]> = {
-  recommended: [{ available: 'desc' }, { updatedAt: 'desc' }],
+  recommended: [{ available: 'desc' }, { ratingScore: 'desc' }, { updatedAt: 'desc' }],
+  // `ratingCount` breaks ties so that, between two providers the prior has pinned to the
+  // same score, the one with evidence behind it comes first.
+  topRated: [{ ratingScore: 'desc' }, { ratingCount: 'desc' }],
   nameAsc: [{ lastName: 'asc' }, { firstName: 'asc' }],
   nameDesc: [{ lastName: 'desc' }, { firstName: 'desc' }],
   newest: [{ createdAt: 'desc' }],

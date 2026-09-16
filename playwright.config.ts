@@ -4,13 +4,13 @@ import { defineConfig, devices } from '@playwright/test'
  * E2E is deliberately NOT part of `pnpm test`. These specs need the full stack:
  *
  *   pnpm db:up && pnpm db:setup    # Docker Desktop must be running
- *   pnpm watch                     # web :4141 + api :4142
+ *   pnpm watch                     # web :7004 + api :9004
  *   pnpm test:e2e
  *
  * Keeping it separate means `pnpm test` stays a fast, dependency-free gate that can run
  * anywhere, while E2E stays opt-in.
  */
-const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:4141'
+const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:7004'
 
 export default defineConfig({
   testDir: './tests/e2e',

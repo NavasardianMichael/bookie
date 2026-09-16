@@ -7,19 +7,21 @@ import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { Consumer } from '@store/consumers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
+import { PaymentMethod } from '@interfaces/settings'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
+import { toPaymentMethods } from '@helpers/payment'
+import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
+import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
-import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
-import { HelpIcon, UserIcon } from '@components/ui/icons'
+import { CreditCardIcon, HelpIcon, UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
@@ -30,8 +32,15 @@ type Props = {
 type ProfileFormValues = {
   firstName: string
   lastName: string
-  description?: string
   email?: string
+  paymentInfo: { methods: PaymentMethod[] }
+}
+
+const DEFAULT_PAYMENT: ProfileFormValues['paymentInfo'] = { methods: ['cash'] }
+
+const paymentFromProfile = (profile: Consumer): ProfileFormValues['paymentInfo'] => {
+  const methods = toPaymentMethods(profile.details.paymentInfo)
+  return methods.length ? { methods } : DEFAULT_PAYMENT
 }
 
 export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
@@ -43,7 +52,6 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
-  const descriptionRules = useFormItemRules('maxCharsForTextarea')
 
   useEffect(() => {
     let cancelled = false
@@ -55,8 +63,8 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         form.setFieldsValue({
           firstName: data.basic.firstName,
           lastName: data.basic.lastName,
-          description: data.details.description ?? data.basic.description ?? '',
           email: data.basic.email ?? '',
+          paymentInfo: paymentFromProfile(data),
         })
       } catch (err) {
         if (!cancelled) setError(processError(err).message)
@@ -74,8 +82,8 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
     form.setFieldsValue({
       firstName: profile.basic.firstName,
       lastName: profile.basic.lastName,
-      description: profile.details.description ?? profile.basic.description ?? '',
       email: profile.basic.email ?? '',
+      paymentInfo: paymentFromProfile(profile),
     })
     setDirty(false)
   }
@@ -88,7 +96,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
       const updated = await putConsumerProfileAPI({
         firstName: values.firstName,
         lastName: values.lastName,
-        description: values.description?.trim() || null,
+        paymentInfo: { methods: toPaymentMethods(values.paymentInfo) },
       })
       setProfile((prev) =>
         prev
@@ -121,29 +129,29 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
 
       {error && <Alert type='error' showIcon message={error} />}
 
-      <Surface className='flex flex-col gap-6'>
-        <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
-          <UserIcon className='text-brand h-5 w-5' />
-          {t('profile.personalInfo')}
-        </AppTitle>
+      <Form
+        form={form}
+        layout='vertical'
+        requiredMark={false}
+        onValuesChange={() => setDirty(true)}
+        className='flex flex-col gap-6'
+      >
+        <Surface className='flex flex-col gap-6'>
+          <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
+            <UserIcon className='text-brand h-5 w-5' />
+            {t('profile.personalInfo')}
+          </AppTitle>
 
-        <div className='border-brand-border flex items-center gap-6 border-b pb-6'>
-          <AppAvatar name={displayName} size={80} />
-          <div>
-            <AppTitle level='h3' size='body'>
-              {displayName}
-            </AppTitle>
-            <AppParagraph size='body-sm'>{t('profile.noAvatarHint')}</AppParagraph>
+          <div className='border-brand-border flex items-center gap-6 border-b pb-6'>
+            <AppAvatar name={displayName} size={80} />
+            <div>
+              <AppTitle level='h3' size='body'>
+                {displayName}
+              </AppTitle>
+              <AppParagraph size='body-sm'>{t('profile.noAvatarHint')}</AppParagraph>
+            </div>
           </div>
-        </div>
 
-        <Form
-          form={form}
-          layout='vertical'
-          requiredMark={false}
-          onValuesChange={() => setDirty(true)}
-          className='flex flex-col gap-4'
-        >
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <div className='flex flex-col gap-1.5'>
               <FieldLabel htmlFor='firstName'>{t('profile.firstName')}</FieldLabel>
@@ -157,22 +165,20 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
                 <AppInput id='lastName' autoComplete='family-name' />
               </AppFormItem>
             </div>
-            <div className='flex flex-col gap-1.5 md:col-span-2'>
-              <FieldLabel htmlFor='description' requirement='Optional'>
-                {t('profile.description')}
-              </FieldLabel>
-              <AppFormItem
-                name='description'
-                rules={descriptionRules}
-                messageVariables={{ label: t('profile.description') }}
-              >
-                <AppTextArea id='description' rows={3} maxLength={MAX_CHARS_FOR_TEXTAREA} />
-              </AppFormItem>
+            <div className='md:col-span-2'>
+              {profile && (
+                <ChangePhoneForm
+                  embedded
+                  currentPhone={profile.basic.phone ?? profile.basic.phoneNumber}
+                  onChanged={(phone) => {
+                    setProfile((prev) => (prev ? { ...prev, basic: { ...prev.basic, phone } } : prev))
+                  }}
+                />
+              )}
             </div>
             <div className='md:col-span-2'>
               <EmailVerifyField
                 currentEmail={profile?.basic.email}
-                emailVerifiedAt={profile?.details.emailVerifiedAt}
                 verifyPath={ROUTES.consumerProfile}
                 verifyToken={verifyEmailToken}
                 onVerified={(email, emailVerifiedAt) => {
@@ -189,8 +195,26 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
               />
             </div>
           </div>
-        </Form>
-      </Surface>
+        </Surface>
+
+        <Surface className='flex flex-col gap-6'>
+          <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
+            <CreditCardIcon className='text-brand h-5 w-5' />
+            {t('payments.title')}
+          </AppTitle>
+          <AppParagraph size='body-sm'>{t('payments.subtitle')}</AppParagraph>
+          <div className='flex flex-col gap-1.5'>
+            <FieldLabel htmlFor='consumer-payment-methods'>{t('payments.methodsLabel')}</FieldLabel>
+            <AppFormItem
+              name={['paymentInfo', 'methods']}
+              hasFeedback={false}
+              messageVariables={{ label: t('payments.methodsLabel') }}
+            >
+              <PaymentMethodPicker htmlId='consumer-payment-methods' />
+            </AppFormItem>
+          </div>
+        </Surface>
+      </Form>
 
       <Surface className='flex flex-col gap-3'>
         <AppTitle level='h3' size='body' className='flex items-center gap-2'>

@@ -1,5 +1,5 @@
 import { AppRouteName } from '@interfaces/routes'
-import { ROUTES } from '@constants/routes'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 
 const normalize = (pathname: string) => pathname.replace(/\/+$/, '') || '/'
 
@@ -20,3 +20,12 @@ export const matchRouteName = (pathname: string): AppRouteName | undefined =>
   ROUTE_ENTRIES.find(([, route]) => matches(normalize(pathname), route))?.[0]
 
 export const isRouteActive = (pathname: string, route: string): boolean => matches(normalize(pathname), route)
+
+/**
+ * Explore is `/providers` exactly. A public booking page is `/providers/<id|slug>`.
+ * Account routes (`/providers/profile…`) match a longer prefix and are not this.
+ */
+export const isPublicProviderPage = (pathname: string): boolean => {
+  const path = normalize(pathname)
+  return matchRouteName(path) === ROUTE_KEYS.providers && path !== ROUTES[ROUTE_KEYS.providers]
+}

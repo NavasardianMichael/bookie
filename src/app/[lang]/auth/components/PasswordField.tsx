@@ -13,7 +13,6 @@ type Props = {
   placeholder?: string
   rules?: Rule[]
   requirement?: FieldRequirement
-  requirementText?: string
   /** `new-password` on registration and reset, `current-password` at sign-in. */
   autoComplete: 'new-password' | 'current-password'
   disabled?: boolean
@@ -37,20 +36,18 @@ export const PasswordField: FC<Props> = ({
   placeholder,
   rules,
   requirement,
-  requirementText,
   autoComplete,
   disabled,
   dependencies,
 }) => (
   <div className='flex flex-col gap-1.5'>
-    <FieldLabel htmlFor={name} requirement={requirement} requirementText={requirementText}>
+    <FieldLabel htmlFor={name} requirement={requirement}>
       {label}
     </FieldLabel>
 
     <AppFormItem name={name} rules={rules} messageVariables={{ label }} dependencies={dependencies}>
       <Input.Password
         id={name}
-        size='large'
         placeholder={placeholder}
         autoComplete={autoComplete}
         disabled={disabled}

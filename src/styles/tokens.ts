@@ -49,6 +49,22 @@ export const STATUS = {
 } as const
 
 /**
+ * Review stars.
+ *
+ * Its own token rather than `STATUS.warning`, which is the same family of amber and
+ * means something else entirely: a four-star rating is not a caution. Aliasing them
+ * would mean a future retune of the warning colour silently restyled every rating on
+ * the site, and neither name would warn you.
+ *
+ * `empty` is the unfilled star — a neutral outline, not a faded gold, so a 2-of-5 reads
+ * as three missing stars rather than three dim ones.
+ */
+export const RATING = {
+  star: '#e0a415',
+  empty: '#cfd5e0',
+} as const
+
+/**
  * Corner radius, in px. Two static values, not a scale and not responsive:
  * `base` is controls and chips (the prototype's `rounded-lg`), `lg` is cards and
  * panels (its `rounded-xl`). antd's own defaults are 6/8, which read visibly

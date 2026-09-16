@@ -23,6 +23,14 @@ export const ROUTE_KEYS = {
   providerProfilePayments: 'providerProfilePayments',
   /** Vanity link. `/p/<slug>` redirects to the provider's canonical profile URL. */
   providerVanity: 'providerVanity',
+  /** Public booking manage page. `/b/<token>` — capability URL, not the appointment id. */
+  bookingManage: 'bookingManage',
+  /**
+   * Review moderation. Guarded by the API's `ADMIN_EMAILS` allowlist, not by this
+   * constant — the page is reachable by anyone and simply shows nothing without the
+   * grant, because `/admin/*` answers 404 rather than 403 to everyone else.
+   */
+  adminReviews: 'adminReviews',
 
   logout: 'logout',
   auth: 'auth',
@@ -66,6 +74,8 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfileNotifications]: '/providers/profile/notifications',
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
   [ROUTE_KEYS.providerVanity]: '/p',
+  [ROUTE_KEYS.bookingManage]: '/b',
+  [ROUTE_KEYS.adminReviews]: '/admin/reviews',
 
   // Auth
   [ROUTE_KEYS.logout]: '/auth/logout',

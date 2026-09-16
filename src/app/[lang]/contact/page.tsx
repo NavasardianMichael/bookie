@@ -1,13 +1,15 @@
 import { getContactPageLDSchema } from '@linkedDataSchema/contact'
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { currentLocale, localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { PageHeader, PageShell, Surface } from '@components/ui/layout'
 import { ContactForm } from './ContactForm'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[lang]/contact'>): Promise<Metadata> {
+  const { lang } = await params
+  setRequestLocale(lang)
   const t = await getTranslations('Contact')
 
   return {
@@ -22,14 +24,15 @@ export async function generateMetadata(): Promise<Metadata> {
  * self-canonical variants with a full `hreflang` set. See `src/i18n/CLAUDE.md`.
  *
  * Deliberately **no `force-dynamic`**: nothing is fetched on the server here, so this page
- * needs none of the build workaround the list routes carry. It still renders on demand —
- * every `[lang]` route does, because next-intl wants `setRequestLocale` for static
- * rendering and nothing calls it (see `src/app/CLAUDE.md`) — but that is a repo-wide
- * property, not something this page opts into.
+ * needs none of the build workaround the list routes carry. With `setRequestLocale` below
+ * it prerenders to static HTML, one copy per locale — see `src/app/CLAUDE.md`.
  *
  * The form is the only client island, and it is what reads the session and the profile.
  */
-export default async function Contact() {
+export default async function Contact({ params }: PageProps<'/[lang]/contact'>) {
+  const { lang } = await params
+  setRequestLocale(lang)
+
   const [locale, t] = await Promise.all([currentLocale(), getTranslations('Contact')])
 
   return (

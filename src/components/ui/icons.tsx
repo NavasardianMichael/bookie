@@ -224,3 +224,33 @@ export const HelpIcon = ({ className }: IconProps) => (
     <path d='M12 17h.01' />
   </svg>
 )
+
+export const InfoIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <circle cx='12' cy='12' r='9' />
+    <path d='M12 11v5' />
+    <path d='M12 8h.01' />
+  </svg>
+)
+
+/**
+ * A star, for review ratings.
+ *
+ * Unlike every other icon here it is drawn as a **fill**, not a stroke: `RatingStars`
+ * renders a full row and clips it to show a partial average, and a stroked outline would
+ * leave the clip edge cutting through a visible border mid-star. `base()` sets
+ * `fill: none`, so the fill and stroke are both overridden here.
+ */
+export const StarIcon = ({ className }: IconProps) => (
+  <svg {...base(className)} fill='currentColor' stroke='none'>
+    <path d='M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45-5.8-3.05-5.8 3.05 1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z' />
+  </svg>
+)
+
+/** The report-this control on a review. An outlined flag, so it reads as reportable. */
+export const FlagIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M5 21V4.5' />
+    <path d='M5 5.2h10.5a1 1 0 0 1 .8 1.6l-1.9 2.4 1.9 2.4a1 1 0 0 1-.8 1.6H5' />
+  </svg>
+)

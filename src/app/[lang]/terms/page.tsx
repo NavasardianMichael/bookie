@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { PageHeader, PageShell } from '@components/ui/layout'
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[lang]/terms'>): Promise<Metadata> {
+  const { lang } = await params
+  setRequestLocale(lang)
   const t = await getTranslations('Legal')
 
   return {
@@ -23,7 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * consent notice is worse than saying plainly that the document is not published yet. No
  * invented legal text — the real terms replace this wholesale.
  */
-export default async function Terms() {
+export default async function Terms({ params }: PageProps<'/[lang]/terms'>) {
+  const { lang } = await params
+  setRequestLocale(lang)
   const t = await getTranslations('Legal')
 
   return (

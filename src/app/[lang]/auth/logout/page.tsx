@@ -1,5 +1,6 @@
 import { Divider } from 'antd'
 import { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -11,7 +12,10 @@ export const metadata: Metadata = {
   description: 'Log out from your Bookie account',
 }
 
-export default function Logout() {
+export default async function Logout({ params }: PageProps<'/[lang]/auth/logout'>) {
+  const { lang } = await params
+  setRequestLocale(lang)
+
   return (
     <AuthCard className='gap-2'>
       <div className='flex flex-col gap-1 text-center'>

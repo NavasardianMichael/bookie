@@ -2,6 +2,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry'
 import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
+import { setRequestLocale } from 'next-intl/server'
 import { getAntdLocale } from '@i18n/antdLocale'
 import { getDirection, LOCALES } from '@i18n/config'
 import { routing } from '@i18n/routing'
@@ -99,6 +100,12 @@ export default async function RootLayout({ children, params }: LayoutProps<'/[la
   if (!hasLocale(routing.locales, lang)) notFound()
 
   const locale = lang
+  // Hands next-intl the locale from the URL. Without it every next-intl call falls back
+  // to reading `headers()`, which is a dynamic API — so every route opted into dynamic
+  // rendering and `generateStaticParams` above was necessary but not sufficient. Each
+  // statically rendered page repeats this call; see docs/DEPLOYMENT.md.
+  setRequestLocale(locale)
+
   const direction = getDirection(locale)
 
   // Loaded on the server so only the active locale's ~6-10KB crosses the RSC

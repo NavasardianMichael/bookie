@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 /**
  * Scaffold only — proves the harness runs and the app boots. Real flows worth writing
- * next are listed in docs/BACKLOG.md: the auth OTP flow, booking slot selection, and
+ * next are listed in docs/BACKLOG.md: the email/password sign-in flow, booking slot selection, and
  * the provider profile edit.
  *
  * Requires the full stack. See playwright.config.ts.

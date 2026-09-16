@@ -4,12 +4,14 @@ import { FC, useCallback, useState } from 'react'
 import { MenuOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
 import { useTranslations } from 'next-intl'
+import { AppRouteName } from '@interfaces/routes'
 import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { NavLinks } from './NavLinks'
 
 type Props = {
+  routes: AppRouteName[]
   isActive: (route: string) => boolean
 }
 
@@ -22,7 +24,7 @@ type Props = {
  * sibling combinator while the icon bars were descendants of the label.
  * antd's Drawer provides all of it and is already in the bundle.
  */
-export const MobileNav: FC<Props> = ({ isActive }) => {
+export const MobileNav: FC<Props> = ({ routes, isActive }) => {
   const t = useTranslations('Nav')
   const [open, setOpen] = useState(false)
 
@@ -52,7 +54,7 @@ export const MobileNav: FC<Props> = ({ isActive }) => {
         classNames={{ body: 'p-3 overscroll-contain' }}
       >
         <div className='flex flex-col gap-4'>
-          <NavLinks orientation='vertical' isActive={isActive} onNavigate={close} />
+          <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
           <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
             {t(HEADER_SIGN_IN)}
           </AppLink>

@@ -13,6 +13,7 @@
     "share": "分享",
     "linkCopied": "链接已复制",
     "copyFailed": "无法复制",
+    "copied": "已复制到剪贴板",
     "viewAll": "查看全部",
     "goHome": "返回首页",
     "tryAgain": "重试",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} 分钟",
       "price": "价格",
       "location": "地点",
+      "copyLocation": "复制地址",
+      "copyPhone": "复制电话号码",
       "accepts": "可接受的支付方式"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "姓氏",
       "phone": "电话号码",
       "email": "电子邮箱",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "如果不提供邮箱，您将无法收到预约提醒、改期通知或取消通知。",
+      "emailHintLabel": "为什么需要邮箱"
     },
     "paymentLabel": "您希望的支付方式",
     "paymentPlaceholder": "请选择一种或多种方式",
@@ -182,8 +187,6 @@
     "notesLabel": "给服务提供者的备注",
     "notesPlaceholder": "预约前需要告知的任何事项",
     "submit": "确认预约",
-    "requiredBadge": "必填",
-    "optionalBadge": "选填",
     "chooseService": "选择服务",
     "chooseServiceHint": "所选服务的时长将决定下方每个时段的长度。",
     "chooseServiceNotification": "请选择服务",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "无可预约时段",
     "requested": "预约已提交",
     "requestedBody": "{name}稍后将确认您在{when}的预约。",
-    "failed": "预约失败"
+    "failed": "预约失败",
+    "confirmedTitle": "预约已确认",
+    "emailSent": "我们已将详情发送至 {email}。",
+    "manageLinkLabel": "你的预约链接",
+    "copyManageLink": "复制预约链接",
+    "viewBooking": "查看预约",
+    "cancel": "取消预约",
+    "cancelConfirmTitle": "取消此预约？",
+    "cancelConfirmBody": "该时段将重新开放。此操作无法撤销。",
+    "cancelledNotice": "此预约已取消。",
+    "edit": "更改时间",
+    "confirmNewTime": "确认新时间",
+    "stopEditing": "返回预约",
+    "rescheduleConfirmTitle": "改到这个时间？",
+    "rescheduleConfirmBody": "预约将改到 {when}。",
+    "rescheduled": "预约已更新",
+    "cannotEdit": "此预约无法再更改。",
+    "manageMetaTitle": "你的预约",
+    "manageSubtitle": "查看、取消或改期。",
+    "manageNotFoundTitle": "未找到预约",
+    "manageNotFoundBody": "此链接无效，或预约已不存在。"
   },
   "Footer": {
     "blurb": "一个平台，既能找到身边的服务，也能管理您的预约日程。",
@@ -285,7 +308,7 @@
       "imageHint": "JPG 或 PNG，最大 2MB。",
       "upload": "上传新的",
       "providerSubtitle": "更新在您公开主页上显示的信息。",
-      "sendEmailCode": "发送验证邮件",
+      "sendEmailCode": "重置邮箱",
       "emailRequired": "请先输入电子邮箱地址。",
       "emailCodeSent": "我们已向 {email} 发送验证链接。打开链接以确认此地址。在开发环境中，该链接会打印在 API 服务器控制台中。",
       "emailVerified": "邮箱已验证并保存。",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "预约记录",
-      "subtitle": "您即将到来的预约。",
+      "subtitle": "搜索、筛选并管理你的预约。",
       "upcoming": "即将到来",
       "emptyTitle": "暂无即将到来的预约",
       "emptyBody": "预约服务后将在此显示。",
       "bookService": "预约服务",
       "unknownProvider": "服务提供者",
-      "unknownService": "服务"
+      "unknownService": "服务",
+      "edit": "编辑",
+      "cancel": "取消",
+      "searchPlaceholder": "按服务者或服务搜索",
+      "searchLabel": "搜索预约",
+      "statusPlaceholder": "任意状态",
+      "statusLabel": "按状态筛选",
+      "sortLabel": "排序预约",
+      "sort": {
+        "startDesc": "最新优先",
+        "startAsc": "最早优先",
+        "createdDesc": "最近预订",
+        "nameAsc": "服务者姓名（A-Z）"
+      },
+      "clearFilters": "清除筛选",
+      "emptyFilteredTitle": "没有符合这些筛选的结果",
+      "emptyFilteredBody": "试试其他状态或搜索词。"
     },
     "notifications": {
       "subtitle": "选择您希望接收的邮件类型。",
@@ -571,7 +610,8 @@
       "recommended": "推荐",
       "nameAsc": "名称 A–Z",
       "nameDesc": "名称 Z–A",
-      "newest": "最新在前"
+      "newest": "最新在前",
+      "topRated": "评分最高"
     },
     "availableNow": "当前可预约",
     "availableNowHint": "隐藏已暂停新预约的服务提供者。",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "营业时间",
     "fallbackWithOrganization": "预约 {name}（就职于 {organization}）。",
-    "fallbackDescription": "预约 {name}。"
+    "fallbackDescription": "预约 {name}。",
+    "reviews": {
+      "title": "评价",
+      "count": "{count, plural, one {# 条评价} other {# 条评价}}",
+      "empty": "暂无评价",
+      "emptyHint": "完成预约后，评价会显示在这里。",
+      "write": "写评价",
+      "signInPrompt": "登录后即可评价",
+      "edit": "编辑",
+      "editTitle": "编辑你的评价",
+      "remove": "删除",
+      "removeTitle": "删除你的评价？",
+      "removeDescription": "你的评分和评论将被永久删除。",
+      "report": "举报",
+      "reportTitle": "举报这条评价",
+      "reportDescription": "请告诉我们问题所在。我们会阅读每一条举报，并删除违反规则的评价。",
+      "reportLabel": "问题是什么？",
+      "reportSubmit": "提交举报",
+      "reportSent": "谢谢，我们会尽快查看。",
+      "reply": "回复",
+      "replyTitle": "回复这条评价",
+      "replyLabel": "你的回复",
+      "replySubmit": "发布回复",
+      "replyFrom": "服务方回复",
+      "formTitle": "为本次预约评分",
+      "ratingLabel": "你的评分",
+      "ratingRequired": "请选择评分",
+      "commentLabel": "你的评论",
+      "commentPlaceholder": "哪里做得好？哪里还可以改进？",
+      "submit": "发布评价",
+      "save": "保存更改",
+      "edited": "已编辑",
+      "ratingAria": "评分 {rating}，满分 5 分",
+      "summaryAria": "{rating} 分（满分 5 分），来自 {count} 条评价",
+      "starCount": "{count, plural, one {# 星} other {# 星}}",
+      "pagesLabel": "评价分页",
+      "loadError": "无法加载评价，请重试。"
+    }
   },
   "Legal": {
     "termsMetaTitle": "服务条款",
@@ -692,11 +769,40 @@
     "workingDays": "工作日",
     "weekend": "周末"
   },
+  "Validation": {
+    "required": "请填写{label}",
+    "maxCharsForInput": "最多 {max} 个字符",
+    "maxCharsForTextarea": "最多 {max} 个字符",
+    "oneItemSelectedAtLeast": "请至少选择一项",
+    "email": "邮箱无效",
+    "positiveNumber": "必须为正数",
+    "url": "网址无效"
+  },
   "Errors": {
     "notFoundTitle": "找不到页面",
     "notFoundBody": "您访问的页面不存在或已被移动。",
     "title": "出错了",
     "body": "无法加载该页面。请重试。",
     "reference": "参考编号：{digest}"
+  },
+  "Admin": {
+    "metaTitle": "评价审核",
+    "metaDescription": "等待处理的被举报评价。",
+    "title": "被举报的评价",
+    "empty": "暂无待办",
+    "emptyHint": "服务方的举报会出现在这里。",
+    "statusOpen": "待处理",
+    "statusResolved": "已处理",
+    "statusDismissed": "已驳回",
+    "filterLabel": "状态",
+    "reason": "原因",
+    "reportedBy": "由 {name} 举报",
+    "hide": "隐藏评价",
+    "restore": "恢复评价",
+    "hidden": "已隐藏",
+    "resolve": "采纳并关闭",
+    "dismiss": "驳回举报",
+    "actionError": "操作失败，请重试。",
+    "pagesLabel": "举报分页"
   }
 }

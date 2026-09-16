@@ -1,6 +1,6 @@
 import { absoluteUrl } from './url'
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4142'
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9004'
 const UPLOADS_PREFIX = '/uploads/'
 
 /**

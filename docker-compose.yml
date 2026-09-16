@@ -4,9 +4,11 @@ services:
     container_name: bookie-postgres
     restart: unless-stopped
     ports:
-      # Host 5434, not 5432: a devdb02 SSH tunnel commonly holds 127.0.0.1:5432
-      # on dev machines, which shadows Docker's bind and breaks Prisma auth.
-      - '5434:5432'
+      # Host 5004 — the same port production publishes, so DATABASE_URL differs
+      # between the two only by host and password. Still deliberately not 5432: a
+      # devdb02 SSH tunnel commonly holds 127.0.0.1:5432 on dev machines, which
+      # shadows Docker's bind and breaks Prisma auth.
+      - '5004:5432'
     environment:
       POSTGRES_USER: bookie
       POSTGRES_PASSWORD: bookie

@@ -13,6 +13,7 @@
     "share": "Teilen",
     "linkCopied": "Link kopiert",
     "copyFailed": "Kopieren fehlgeschlagen",
+    "copied": "In die Zwischenablage kopiert",
     "viewAll": "Alle anzeigen",
     "goHome": "Zur Startseite",
     "tryAgain": "Erneut versuchen",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} Min.",
       "price": "Preis",
       "location": "Ort",
+      "copyLocation": "Adresse kopieren",
+      "copyPhone": "Telefonnummer kopieren",
       "accepts": "Akzeptierte Zahlung"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Nachname",
       "phone": "Telefonnummer",
       "email": "E-Mail",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Ohne E-Mail erhalten Sie keine Buchungserinnerungen, Änderungsmitteilungen oder Stornierungsbenachrichtigungen.",
+      "emailHintLabel": "Warum wir nach einer E-Mail fragen"
     },
     "paymentLabel": "Wie Sie zahlen möchten",
     "paymentPlaceholder": "Wählen Sie eine oder mehrere Methoden",
@@ -182,8 +187,6 @@
     "notesLabel": "Anmerkungen für den Anbieter",
     "notesPlaceholder": "Alles, was vor Ihrem Termin bekannt sein sollte",
     "submit": "Buchung bestätigen",
-    "requiredBadge": "Erforderlich",
-    "optionalBadge": "Optional",
     "chooseService": "Leistung auswählen",
     "chooseServiceHint": "Ihre Dauer bestimmt die Länge jedes unten angebotenen Zeitfensters.",
     "chooseServiceNotification": "Leistung auswählen",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "keine freien Zeiten",
     "requested": "Termin angefragt",
     "requestedBody": "{name} bestätigt Ihre Buchung für {when} in Kürze.",
-    "failed": "Buchung fehlgeschlagen"
+    "failed": "Buchung fehlgeschlagen",
+    "confirmedTitle": "Buchung bestätigt",
+    "emailSent": "Wir haben die Details an {email} gesendet.",
+    "manageLinkLabel": "Dein Buchungslink",
+    "copyManageLink": "Buchungslink kopieren",
+    "viewBooking": "Buchung ansehen",
+    "cancel": "Buchung stornieren",
+    "cancelConfirmTitle": "Diese Buchung stornieren?",
+    "cancelConfirmBody": "Der Termin wird wieder frei. Das lässt sich nicht rückgängig machen.",
+    "cancelledNotice": "Diese Buchung ist storniert.",
+    "edit": "Zeit ändern",
+    "confirmNewTime": "Neue Zeit bestätigen",
+    "stopEditing": "Zurück zur Buchung",
+    "rescheduleConfirmTitle": "Auf diese Zeit ändern?",
+    "rescheduleConfirmBody": "Ihre Buchung wird auf {when} verschoben.",
+    "rescheduled": "Buchung aktualisiert",
+    "cannotEdit": "Diese Buchung kann nicht mehr geändert werden.",
+    "manageMetaTitle": "Deine Buchung",
+    "manageSubtitle": "Ansehen, stornieren oder eine neue Zeit wählen.",
+    "manageNotFoundTitle": "Buchung nicht gefunden",
+    "manageNotFoundBody": "Dieser Link ist ungültig oder die Buchung existiert nicht mehr."
   },
   "Footer": {
     "blurb": "Eine Plattform, um Dienstleistungen in der Nähe zu finden oder den eigenen Buchungskalender zu führen.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG oder PNG. Maximale Größe 2 MB.",
       "upload": "Neu hochladen",
       "providerSubtitle": "Aktualisieren Sie die Angaben, die auf Ihrem öffentlichen Profil erscheinen.",
-      "sendEmailCode": "Bestätigungs-E-Mail senden",
+      "sendEmailCode": "E-Mail zurücksetzen",
       "emailRequired": "Geben Sie zuerst eine E-Mail-Adresse ein.",
       "emailCodeSent": "Wir haben einen Bestätigungslink an {email} gesendet. Öffnen Sie ihn, um diese Adresse zu bestätigen. In der Entwicklung wird der Link in der Konsole des API-Servers ausgegeben.",
       "emailVerified": "E-Mail bestätigt und gespeichert.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Termine",
-      "subtitle": "Ihre bevorstehenden Buchungen.",
+      "subtitle": "Suchen, filtern und verwalten Sie Ihre Buchungen.",
       "upcoming": "Bevorstehend",
       "emptyTitle": "Keine bevorstehenden Termine",
       "emptyBody": "Buchen Sie eine Leistung, um sie hier zu sehen.",
       "bookService": "Leistung buchen",
       "unknownProvider": "Anbieter",
-      "unknownService": "Leistung"
+      "unknownService": "Leistung",
+      "edit": "Bearbeiten",
+      "cancel": "Stornieren",
+      "searchPlaceholder": "Nach Anbieter oder Leistung suchen",
+      "searchLabel": "Termine suchen",
+      "statusPlaceholder": "Jeder Status",
+      "statusLabel": "Nach Status filtern",
+      "sortLabel": "Termine sortieren",
+      "sort": {
+        "startDesc": "Neueste zuerst",
+        "startAsc": "Älteste zuerst",
+        "createdDesc": "Kürzlich gebucht",
+        "nameAsc": "Anbietername (A-Z)"
+      },
+      "clearFilters": "Filter löschen",
+      "emptyFilteredTitle": "Nichts entspricht diesen Filtern",
+      "emptyFilteredBody": "Versuchen Sie einen anderen Status oder Suchbegriff."
     },
     "notifications": {
       "subtitle": "Wählen Sie, welche E-Mails Sie erhalten möchten.",
@@ -571,7 +610,8 @@
       "recommended": "Empfohlen",
       "nameAsc": "Name A–Z",
       "nameDesc": "Name Z–A",
-      "newest": "Neueste zuerst"
+      "newest": "Neueste zuerst",
+      "topRated": "Bestbewertet"
     },
     "availableNow": "Jetzt verfügbar",
     "availableNowHint": "Anbieter ausblenden, die neue Buchungen pausiert haben.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Öffnungszeiten",
     "fallbackWithOrganization": "Termin bei {name} buchen, tätig bei {organization}.",
-    "fallbackDescription": "Termin bei {name} buchen."
+    "fallbackDescription": "Termin bei {name} buchen.",
+    "reviews": {
+      "title": "Bewertungen",
+      "count": "{count, plural, one {# Bewertung} other {# Bewertungen}}",
+      "empty": "Noch keine Bewertungen",
+      "emptyHint": "Bewertungen erscheinen hier nach einem Termin.",
+      "write": "Bewertung schreiben",
+      "signInPrompt": "Melden Sie sich an, um zu bewerten",
+      "edit": "Bearbeiten",
+      "editTitle": "Bewertung bearbeiten",
+      "remove": "Löschen",
+      "removeTitle": "Bewertung löschen?",
+      "removeDescription": "Ihre Bewertung und Ihr Kommentar werden endgültig entfernt.",
+      "report": "Melden",
+      "reportTitle": "Diese Bewertung melden",
+      "reportDescription": "Sagen Sie uns, was daran falsch ist. Wir lesen jede Meldung und entfernen Bewertungen, die gegen unsere Regeln verstoßen.",
+      "reportLabel": "Worum geht es?",
+      "reportSubmit": "Meldung senden",
+      "reportSent": "Danke — wir sehen uns das an.",
+      "reply": "Antworten",
+      "replyTitle": "Auf diese Bewertung antworten",
+      "replyLabel": "Ihre Antwort",
+      "replySubmit": "Antwort veröffentlichen",
+      "replyFrom": "Antwort des Anbieters",
+      "formTitle": "Bewerten Sie Ihren Termin",
+      "ratingLabel": "Ihre Bewertung",
+      "ratingRequired": "Bitte wählen Sie eine Bewertung",
+      "commentLabel": "Ihr Kommentar",
+      "commentPlaceholder": "Was lief gut? Was ließe sich verbessern?",
+      "submit": "Bewertung veröffentlichen",
+      "save": "Änderungen speichern",
+      "edited": "Bearbeitet",
+      "ratingAria": "Bewertet mit {rating} von 5",
+      "summaryAria": "{rating} von 5, aus {count} Bewertungen",
+      "starCount": "{count, plural, one {# Stern} other {# Sterne}}",
+      "pagesLabel": "Bewertungsseiten",
+      "loadError": "Die Bewertungen konnten nicht geladen werden. Bitte erneut versuchen."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Nutzungsbedingungen",
@@ -692,11 +769,40 @@
     "workingDays": "Arbeitstage",
     "weekend": "Wochenende"
   },
+  "Validation": {
+    "required": "Bitte {label} ausfüllen",
+    "maxCharsForInput": "Maximal {max} Zeichen",
+    "maxCharsForTextarea": "Maximal {max} Zeichen",
+    "oneItemSelectedAtLeast": "Bitte mindestens einen Eintrag wählen",
+    "email": "Ungültige E-Mail",
+    "positiveNumber": "Muss eine positive Zahl sein",
+    "url": "Ungültige URL"
+  },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",
     "notFoundBody": "Die Seite, die Sie suchen, existiert nicht oder wurde verschoben.",
     "title": "Etwas ist schiefgelaufen",
     "body": "Wir konnten diese Seite nicht laden. Bitte versuchen Sie es erneut.",
     "reference": "Referenz: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Bewertungsmoderation",
+    "metaDescription": "Gemeldete Bewertungen, die auf eine Entscheidung warten.",
+    "title": "Gemeldete Bewertungen",
+    "empty": "Nichts zu prüfen",
+    "emptyHint": "Meldungen von Anbietern landen hier.",
+    "statusOpen": "Offen",
+    "statusResolved": "Erledigt",
+    "statusDismissed": "Abgelehnt",
+    "filterLabel": "Status",
+    "reason": "Grund",
+    "reportedBy": "Gemeldet von {name}",
+    "hide": "Bewertung ausblenden",
+    "restore": "Bewertung wiederherstellen",
+    "hidden": "Ausgeblendet",
+    "resolve": "Bestätigen und schließen",
+    "dismiss": "Meldung ablehnen",
+    "actionError": "Das hat nicht geklappt. Bitte erneut versuchen.",
+    "pagesLabel": "Meldungsseiten"
   }
 }

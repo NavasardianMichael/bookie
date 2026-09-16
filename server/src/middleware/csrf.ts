@@ -17,7 +17,7 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
  *   *every* sibling subdomain is same-site and unrestricted — including a forgotten
  *   marketing host, a staging box, or one lost to a subdomain takeover. An XSS anywhere on
  *   the domain becomes full CSRF against this API.
- * - In development `:4141` and `:4142` differ only by port, which is not part of the site
+ * - In development `:7004` and `:9004` differ only by port, which is not part of the site
  *   either — so `lax` restricts **nothing** locally, and a CSRF regression cannot be
  *   reproduced before it ships. That alone justifies an explicit control.
  *

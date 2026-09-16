@@ -13,6 +13,7 @@
     "share": "Partager",
     "linkCopied": "Lien copié",
     "copyFailed": "Impossible de copier",
+    "copied": "Copié dans le presse-papiers",
     "viewAll": "Tout voir",
     "goHome": "Retour à l'accueil",
     "tryAgain": "Réessayer",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} min",
       "price": "Prix",
       "location": "Lieu",
+      "copyLocation": "Copier l'adresse",
+      "copyPhone": "Copier le numéro de téléphone",
       "accepts": "Paiement accepté"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Nom",
       "phone": "Numéro de téléphone",
       "email": "E-mail",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Sans e-mail, vous ne recevrez pas les rappels de réservation, les avis de modification ni les notifications d'annulation.",
+      "emailHintLabel": "Pourquoi nous demandons un e-mail"
     },
     "paymentLabel": "Comment vous souhaitez payer",
     "paymentPlaceholder": "Sélectionnez un ou plusieurs moyens",
@@ -182,8 +187,6 @@
     "notesLabel": "Notes pour le professionnel",
     "notesPlaceholder": "Tout ce qu'il doit savoir avant votre rendez-vous",
     "submit": "Confirmer la réservation",
-    "requiredBadge": "Obligatoire",
-    "optionalBadge": "Facultatif",
     "chooseService": "Choisissez une prestation",
     "chooseServiceHint": "Sa durée définit la longueur de chaque créneau proposé ci-dessous.",
     "chooseServiceNotification": "Choisissez une prestation",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "aucun créneau disponible",
     "requested": "Rendez-vous demandé",
     "requestedBody": "{name} confirmera bientôt votre réservation du {when}.",
-    "failed": "La réservation a échoué"
+    "failed": "La réservation a échoué",
+    "confirmedTitle": "Réservation confirmée",
+    "emailSent": "Nous avons envoyé les détails à {email}.",
+    "manageLinkLabel": "Votre lien de réservation",
+    "copyManageLink": "Copier le lien de réservation",
+    "viewBooking": "Voir la réservation",
+    "cancel": "Annuler la réservation",
+    "cancelConfirmTitle": "Annuler cette réservation ?",
+    "cancelConfirmBody": "Le créneau sera de nouveau libre. Cette action est irréversible.",
+    "cancelledNotice": "Cette réservation est annulée.",
+    "edit": "Changer l’horaire",
+    "confirmNewTime": "Confirmer le nouvel horaire",
+    "stopEditing": "Retour à la réservation",
+    "rescheduleConfirmTitle": "Changer pour cet horaire ?",
+    "rescheduleConfirmBody": "Votre réservation sera déplacée à {when}.",
+    "rescheduled": "Réservation mise à jour",
+    "cannotEdit": "Cette réservation ne peut plus être modifiée.",
+    "manageMetaTitle": "Votre réservation",
+    "manageSubtitle": "Consultez, annulez ou choisissez un autre horaire.",
+    "manageNotFoundTitle": "Réservation introuvable",
+    "manageNotFoundBody": "Ce lien n’est pas valide ou la réservation n’existe plus."
   },
   "Footer": {
     "blurb": "Une seule plateforme pour trouver des services près de chez vous ou gérer votre agenda de réservations.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG ou PNG. Taille maximale 2 Mo.",
       "upload": "Envoyer une nouvelle",
       "providerSubtitle": "Mettez à jour les informations affichées sur votre profil public.",
-      "sendEmailCode": "Envoyer l'e-mail de vérification",
+      "sendEmailCode": "Réinitialiser l'e-mail",
       "emailRequired": "Indiquez d'abord une adresse e-mail.",
       "emailCodeSent": "Nous avons envoyé un lien de vérification à {email}. Ouvrez-le pour confirmer cette adresse. En développement, le lien est affiché dans la console du serveur d'API.",
       "emailVerified": "E-mail vérifié et enregistré.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Rendez-vous",
-      "subtitle": "Vos prochaines réservations.",
+      "subtitle": "Recherchez, filtrez et gérez vos réservations.",
       "upcoming": "À venir",
       "emptyTitle": "Aucun rendez-vous à venir",
       "emptyBody": "Réservez une prestation pour la voir apparaître ici.",
       "bookService": "Réserver une prestation",
       "unknownProvider": "Professionnel",
-      "unknownService": "Prestation"
+      "unknownService": "Prestation",
+      "edit": "Modifier",
+      "cancel": "Annuler",
+      "searchPlaceholder": "Rechercher par professionnel ou service",
+      "searchLabel": "Rechercher des rendez-vous",
+      "statusPlaceholder": "Tous les statuts",
+      "statusLabel": "Filtrer par statut",
+      "sortLabel": "Trier les rendez-vous",
+      "sort": {
+        "startDesc": "Plus récents d'abord",
+        "startAsc": "Plus anciens d'abord",
+        "createdDesc": "Réservés récemment",
+        "nameAsc": "Nom du professionnel (A-Z)"
+      },
+      "clearFilters": "Effacer les filtres",
+      "emptyFilteredTitle": "Rien ne correspond à ces filtres",
+      "emptyFilteredBody": "Essayez un autre statut ou terme de recherche."
     },
     "notifications": {
       "subtitle": "Choisissez les e-mails que vous souhaitez recevoir.",
@@ -571,7 +610,8 @@
       "recommended": "Recommandés",
       "nameAsc": "Nom A–Z",
       "nameDesc": "Nom Z–A",
-      "newest": "Les plus récents d'abord"
+      "newest": "Les plus récents d'abord",
+      "topRated": "Les mieux notés"
     },
     "availableNow": "Disponibles maintenant",
     "availableNowHint": "Masquer les professionnels qui ont mis leurs nouvelles réservations en pause.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Horaires de travail",
     "fallbackWithOrganization": "Prenez rendez-vous avec {name}, qui travaille chez {organization}.",
-    "fallbackDescription": "Prenez rendez-vous avec {name}."
+    "fallbackDescription": "Prenez rendez-vous avec {name}.",
+    "reviews": {
+      "title": "Avis",
+      "count": "{count, plural, one {# avis} other {# avis}}",
+      "empty": "Pas encore d’avis",
+      "emptyHint": "Les avis apparaissent ici après un rendez-vous.",
+      "write": "Rédiger un avis",
+      "signInPrompt": "Connectez-vous pour laisser un avis",
+      "edit": "Modifier",
+      "editTitle": "Modifier votre avis",
+      "remove": "Supprimer",
+      "removeTitle": "Supprimer votre avis ?",
+      "removeDescription": "Votre note et votre commentaire seront définitivement supprimés.",
+      "report": "Signaler",
+      "reportTitle": "Signaler cet avis",
+      "reportDescription": "Dites-nous ce qui ne va pas. Nous lisons chaque signalement et retirons les avis qui enfreignent nos règles.",
+      "reportLabel": "Quel est le problème ?",
+      "reportSubmit": "Envoyer le signalement",
+      "reportSent": "Merci, nous allons regarder.",
+      "reply": "Répondre",
+      "replyTitle": "Répondre à cet avis",
+      "replyLabel": "Votre réponse",
+      "replySubmit": "Publier la réponse",
+      "replyFrom": "Réponse du professionnel",
+      "formTitle": "Notez votre rendez-vous",
+      "ratingLabel": "Votre note",
+      "ratingRequired": "Choisissez une note",
+      "commentLabel": "Votre commentaire",
+      "commentPlaceholder": "Qu’est-ce qui s’est bien passé ? Qu’est-ce qui pourrait être amélioré ?",
+      "submit": "Publier l’avis",
+      "save": "Enregistrer",
+      "edited": "Modifié",
+      "ratingAria": "Noté {rating} sur 5",
+      "summaryAria": "{rating} sur 5, sur {count} avis",
+      "starCount": "{count, plural, one {# étoile} other {# étoiles}}",
+      "pagesLabel": "Pages d’avis",
+      "loadError": "Impossible de charger les avis. Veuillez réessayer."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Conditions d'utilisation",
@@ -692,11 +769,40 @@
     "workingDays": "Jours travaillés",
     "weekend": "Week-end"
   },
+  "Validation": {
+    "required": "Veuillez renseigner {label}",
+    "maxCharsForInput": "Maximum {max} caractères",
+    "maxCharsForTextarea": "Maximum {max} caractères",
+    "oneItemSelectedAtLeast": "Veuillez sélectionner au moins un élément",
+    "email": "E-mail invalide",
+    "positiveNumber": "Doit être un nombre positif",
+    "url": "URL invalide"
+  },
   "Errors": {
     "notFoundTitle": "Page introuvable",
     "notFoundBody": "La page que vous cherchez n'existe pas ou a été déplacée.",
     "title": "Une erreur est survenue",
     "body": "Nous n'avons pas pu charger cette page. Veuillez réessayer.",
     "reference": "Référence : {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Modération des avis",
+    "metaDescription": "Avis signalés en attente de décision.",
+    "title": "Avis signalés",
+    "empty": "Rien à examiner",
+    "emptyHint": "Les signalements des professionnels arrivent ici.",
+    "statusOpen": "Ouvert",
+    "statusResolved": "Traité",
+    "statusDismissed": "Rejeté",
+    "filterLabel": "Statut",
+    "reason": "Motif",
+    "reportedBy": "Signalé par {name}",
+    "hide": "Masquer l’avis",
+    "restore": "Restaurer l’avis",
+    "hidden": "Masqué",
+    "resolve": "Confirmer et clore",
+    "dismiss": "Rejeter le signalement",
+    "actionError": "Cela n’a pas fonctionné. Veuillez réessayer.",
+    "pagesLabel": "Pages de signalements"
   }
 }

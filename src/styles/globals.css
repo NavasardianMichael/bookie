@@ -109,6 +109,12 @@
   --color-brand-800: #1c2b50;
   --color-brand-900: #18294e;
   --color-brand-950: #0e1830;
+
+  /* Review stars. Mirrors RATING in src/styles/tokens.ts, which explains why these
+     are not STATUS.warning: a four-star rating is not a caution, and sharing the
+     token would let a retune of one restyle the other. */
+  --color-rating: #e0a415;
+  --color-rating-empty: #cfd5e0;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -196,6 +202,27 @@ body {
 *:focus-visible {
   outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
+}
+
+/* Unlayered. antd Modal/Drawer (cssinjs, injected later) paint `a` with
+   colorLink; utilities in `@layer` cannot win. Same trap as the TimePicker
+   cell below. `AppLink variant='plain'` carries `.app-link-plain`. */
+a.app-link-plain {
+  color: var(--brand-text-muted) !important;
+}
+a.app-link-plain:visited {
+  color: var(--brand-text-muted) !important;
+}
+a.app-link-plain:hover {
+  color: var(--brand-primary) !important;
+}
+
+/* Copy control next to those links — antd `type='text'` also reads colorLink. */
+button.copyable-link-copy.ant-btn {
+  color: var(--brand-text-muted) !important;
+}
+button.copyable-link-copy.ant-btn:hover {
+  color: var(--brand-primary) !important;
 }
 
 /* TimePicker selected cells only paint `controlItemBgActive`. The inner cell

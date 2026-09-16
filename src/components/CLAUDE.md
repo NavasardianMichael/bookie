@@ -21,7 +21,7 @@ modules `"use client"`, so an antd component's text only reaches the DOM after h
 ui/bare/      antd-free BY CONTRACT — server-renderable. Never import antd here.
 ui/layout/    antd-free page structure. Same contract.
 ui/           antd wrappers — client islands (AppButton, AppInput, AppTextArea, AppFormItem,
-              AppSheet, AppConfirmModal, ErrorState)
+              AppSheet, AppConfirmModal, CopyableLinkValue, ErrorState)
 ```
 
 **`bare/BarChart` is antd-free for the same reason `StatTile` is** — a page whose numbers
@@ -38,6 +38,26 @@ the peak is labelled, and only where the bars are wide enough; and the `sr-only`
 under the `aria-hidden` plot is the real accessible alternative, so a screen reader gets
 the figures rather than a description of a picture of them. There is **no charting
 library** in `package.json`; do not add one for a bar chart.
+
+**`bare/RatingStars` exists for the same reason, and it is the one to reach for whenever a
+rating is *displayed*.** antd's `Rate` is a `"use client"` module, and the two places a
+rating appears — `ProviderCard` in the Explore grid, and the review section on a provider's
+public page — are deliberately Server Components. Importing `Rate` into either would pull
+antd's runtime into the bundle of every route that renders a provider card. `Rate` is still
+the right control for *entering* a rating and is used inside the review form, which is a
+client island already.
+
+Two details in it worth not undoing: a partial star is drawn by overlaying a clipped gold
+row on a grey one rather than by swapping in a half-star glyph, so `4.3` renders as `4.3`
+and the two rows cannot drift apart at any size; and the value is **clamped to 0–5**,
+because it renders an average straight off the API and an out-of-range one would set a CSS
+width above 100%, painting a sixth star's worth of gold past the end of the row. The star
+colour is `--color-rating`, a token of its own — deliberately not `STATUS.warning`, which
+is the same amber and means something else entirely (see `src/styles/CLAUDE.md`).
+
+`StarIcon` and `FlagIcon` in `ui/icons.tsx` are its glyphs. `StarIcon` is drawn as a
+**fill**, unlike every other icon there, which are strokes: the clip that produces a
+partial star would otherwise cut through a visible outline mid-glyph.
 
 **`layout/Pagination` is antd-free deliberately, not for want of an antd `Pagination`.**
 It renders real anchors and takes a `buildHref(page)`, so every page of a list is a URL a
@@ -57,7 +77,7 @@ Two wrappers own every dialog in the app. Pick by what the dialog is *for*:
 | The dialog is | Use | Shape |
 |---|---|---|
 | A yes/no question — delete, discard, unpublish, cancel a booking | **`ui/AppConfirmModal`** | Centred 30rem modal on every viewport |
-| A panel of content or a form the user works inside | **`ui/AppSheet`** | Modal ≥`md`, bottom Drawer below |
+| A panel of content or a form the user works inside | **`ui/AppSheet`** | Modal ≥`md` (body capped at `80dvh` and scrollable), bottom Drawer below |
 
 `AppConfirmModal` takes **every** `ModalProps` and forwards it, minus the three it owns —
 `onOk` (it is `onConfirm`, which may be async), `footer` (the Confirm/Cancel pair *is* the
@@ -171,6 +191,11 @@ all are a direction or visibility switch rather than a size table. Prefer fluidi
 
 Spacing between form fields is owned by the parent flex `gap` — `theme.ts` sets
 `Form.itemMarginBottom: 0`. Do not reintroduce `mb-*!` classes.
+
+**Do not pass `size='large'`** on antd controls, wrappers, or `Spin`. antd's default
+is the app size. The five remaining call sites are deliberate and listed in
+`src/styles/CLAUDE.md` invariant 10; do not copy them onto a neighbouring control.
+Enforced by `pnpm gates`.
 
 ## Forms
 

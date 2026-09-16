@@ -5,7 +5,9 @@ import dayjs from 'dayjs'
 import { useTranslations } from 'next-intl'
 import { PaymentMethod } from '@interfaces/settings'
 import { SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
+import { generateGoogleMapsLink } from '@helpers/location'
 import { AppDescriptionList, AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
+import { CopyableLinkValue } from '@components/ui/CopyableLinkValue'
 
 export type BookingSummaryData = {
   providerName: string
@@ -17,6 +19,8 @@ export type BookingSummaryData = {
   /** Pre-formatted, e.g. `70 USD`. Absent when the service carries no price. */
   price?: string
   address?: string
+  /** Display form, e.g. `+374 77 123456`. Absent when the provider has no number. */
+  phone?: string
   acceptedPaymentMethods: PaymentMethod[]
 }
 
@@ -38,9 +42,11 @@ export const BookingSummary: FC<BookingSummaryData> = ({
   durationMinutes,
   price,
   address,
+  phone,
   acceptedPaymentMethods,
 }) => {
   const t = useTranslations('Booking')
+  const tCommon = useTranslations('Common')
   const tMethods = useTranslations('Settings.payments.methods')
 
   const items = useMemo<AppDescriptionListItem[]>(() => {
@@ -66,7 +72,33 @@ export const BookingSummary: FC<BookingSummaryData> = ({
       },
       { key: 'duration', label: t('summary.duration'), value: t('summary.durationValue', { minutes: durationMinutes }) },
       price ? { key: 'price', label: t('summary.price'), value: price } : null,
-      address ? { key: 'location', label: t('summary.location'), value: address } : null,
+      address
+        ? {
+            key: 'location',
+            label: t('summary.location'),
+            value: (
+              <CopyableLinkValue
+                href={generateGoogleMapsLink(address)}
+                text={address}
+                copyLabel={t('summary.copyLocation')}
+                openInNewTab
+              />
+            ),
+          }
+        : null,
+      phone
+        ? {
+            key: 'phone',
+            label: tCommon('phone'),
+            value: (
+              <CopyableLinkValue
+                href={`tel:${phone.replace(/\s/g, '')}`}
+                text={phone}
+                copyLabel={t('summary.copyPhone')}
+              />
+            ),
+          }
+        : null,
       acceptedPaymentMethods.length
         ? {
             key: 'payment',
@@ -81,12 +113,14 @@ export const BookingSummary: FC<BookingSummaryData> = ({
     acceptedPaymentMethods,
     address,
     durationMinutes,
+    phone,
     price,
     providerName,
     serviceDescription,
     serviceName,
     startISO,
     t,
+    tCommon,
     tMethods,
   ])
 

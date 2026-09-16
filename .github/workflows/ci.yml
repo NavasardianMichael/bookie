@@ -1,0 +1,82 @@
+# =============================================================================
+# CI — the `pnpm verify` gate, on every pull request.
+#
+# Steps are spelled out individually rather than as a single `pnpm verify` so the
+# Actions UI names the gate that broke. The order is the same one `verify` uses:
+# fastest-failing first.
+#
+# Nothing here needs a database or a network:
+#   - `postinstall` runs `prisma generate` always, and skips migrate/seed because
+#     `server/.env` does not exist on a runner.
+#   - `pnpm test` is dependency-free by design (tests/CLAUDE.md).
+#   - every `[lang]` route is `force-dynamic`, so `next build` never prerenders
+#     against a live API.
+#
+# Do NOT set TZ here: tests/setup/vitest.setup.ts throws unless it is UTC, which
+# runners already are.
+# =============================================================================
+
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (web)
+        run: pnpm typecheck
+
+      - name: Typecheck (server)
+        run: pnpm typecheck:server
+
+      - name: Grep gates
+        run: pnpm gates
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      # Built with the production values so CI compiles exactly what deploy ships:
+      # both are inlined into the bundle and next.config.ts derives
+      # images.remotePatterns from NEXT_PUBLIC_API_URL.
+      # NEXT_PUBLIC_* must stay scoped to this step. Job-wide they break
+      # tests/unit/helpers/images.spec.ts, which pins the default API origin.
+      - name: Build (web)
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+
+      # Proves the deployable API artifact still assembles — it is the part of the
+      # build that `pnpm verify` does not cover.
+      - name: Build (API release)
+        run: pnpm build:api

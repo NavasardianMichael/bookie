@@ -12,9 +12,14 @@ type Props = ComponentProps<typeof Link> & {
   block?: boolean
 }
 
+/** Org / category / address on the public provider card, and the same links in the booking sheet. */
+export const APP_LINK_META_CLASS = 'text-brand-muted hover:text-brand font-medium'
+
 const VARIANTS: Record<AppLinkVariant, string> = {
   inline: 'text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand',
-  plain: 'transition-colors hover:underline [text-underline-offset:5px]',
+  // `app-link-plain` is unlayered in globals.css so antd Modal/Drawer `a { color }`
+  // cannot keep these looking like `colorLink` (the booking-sheet bug).
+  plain: 'app-link-plain transition-colors hover:underline [text-underline-offset:5px]',
   unstyled:
     'no-underline transition-colors hover:no-underline focus:no-underline active:no-underline visited:no-underline',
   button:

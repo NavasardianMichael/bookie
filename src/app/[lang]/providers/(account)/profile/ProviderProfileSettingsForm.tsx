@@ -209,7 +209,6 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
             <div className='md:col-span-2'>
               <EmailVerifyField
                 currentEmail={profile?.details.email}
-                emailVerifiedAt={profile?.details.emailVerifiedAt}
                 verifyPath={ROUTES.providerProfile}
                 verifyToken={verifyEmailToken}
                 onVerified={(email, emailVerifiedAt) => {

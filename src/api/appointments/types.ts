@@ -1,5 +1,6 @@
 import { BasicProvider } from '@store/providers/list/types'
 import { ProviderProfile } from '@store/providers/profile/types'
+import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
 import { PhoneNumber } from '@interfaces/app'
 import { PaymentMethod } from '@interfaces/settings'
@@ -15,7 +16,7 @@ export type GuestBookingDetails = {
   firstName: string
   lastName: string
   phone: PhoneNumber
-  email: string
+  email?: string
 }
 
 export type CreateAppointmentPayload = {
@@ -26,6 +27,8 @@ export type CreateAppointmentPayload = {
   /** Narrowed server-side to what the provider actually accepts. */
   paymentMethods?: PaymentMethod[]
   guest?: GuestBookingDetails
+  /** UI locale for the manage URL in the confirmation email. */
+  locale?: string
 }
 
 export type AppointmentResponse = {
@@ -56,6 +59,13 @@ export type AppointmentResponse = {
     phone: PhoneNumber
     email?: string
   }
+  /**
+   * Capability token for `/b/<token>`. The emailed raw value is returned only on
+   * create. A consumer's own list returns a reconstructable owner token that the
+   * same manage routes accept; manage GET never echoes either form.
+   */
+  manageToken?: string
+  emailSent?: boolean
 }
 
 export type CreateAppointmentAPI = Endpoint<{
@@ -160,4 +170,43 @@ export type PatchAppointmentStatusAPI = Endpoint<{
   payload: { id: string; status: BookingStatus }
   response: { id: string; status: BookingStatus }
   processed: { id: string; status: BookingStatus }
+}>
+
+export type ManagedAppointment = {
+  id: string
+  status: BookingStatus
+  notes?: string
+  paymentMethods?: PaymentMethod[]
+  time: {
+    startDate: string
+    endDate: string
+    duration: number
+  }
+  price?: number
+  currency?: string
+  service: { id: string; name: string; description?: string }
+  guest?: GuestBookingDetails
+  consumer?: { firstName: string; lastName: string }
+}
+
+export type ManagedAppointmentPayload = {
+  appointment: ManagedAppointment
+  provider: SingleProvider
+}
+
+export type GetManagedAppointmentAPI = Endpoint<{
+  payload: { token: string; cookie?: string }
+  response: ManagedAppointmentPayload
+  processed: ManagedAppointmentPayload
+}>
+
+export type PatchManagedAppointmentPayload = { token: string; locale?: string } & (
+  | { status: 'cancelled' }
+  | { serviceId: string; startAt: string }
+)
+
+export type PatchManagedAppointmentAPI = Endpoint<{
+  payload: PatchManagedAppointmentPayload
+  response: ManagedAppointmentPayload
+  processed: ManagedAppointmentPayload
 }>

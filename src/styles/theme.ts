@@ -1,5 +1,5 @@
 import { theme, type ThemeConfig } from 'antd'
-import { BRAND, CSS_VAR_SCOPE, NEUTRAL, STATUS } from './tokens'
+import { BRAND, CSS_VAR_SCOPE, NEUTRAL, RATING, STATUS } from './tokens'
 
 /**
  * Inner padding shared by every form control. Input / InputNumber / DatePicker
@@ -105,6 +105,16 @@ export const antdTheme: ThemeConfig = {
       controlItemBgActiveHover: BRAND[200],
       controlItemBgHover: BRAND[50],
     },
+    /**
+     * The star colour for the one place antd's `Rate` is used: the write form, which is
+     * a client island. The read-only display everywhere else is `ui/bare/RatingStars`,
+     * an antd-free SVG that reads the same value through `--color-rating`.
+     *
+     * Set here rather than as a class on the component because `starColor` is a cssinjs
+     * token — overriding it in CSS would mean losing to antd's unlayered styles and
+     * reaching for a `!` suffix, which is a grep gate.
+     */
+    Rate: { starColor: RATING.star, starBg: RATING.empty },
     Select: {
       optionPadding: `${FIELD_PADDING_BLOCK}px ${FIELD_PADDING_INLINE}px`,
       // No paddingBlock/paddingInline on Select. Horizontal is `paddingSM - lineWidth`;

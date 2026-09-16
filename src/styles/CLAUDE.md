@@ -21,7 +21,16 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
 ## The invariants
 
 1. Hex and magic px: `tokens.ts` only. The brand-ramp mirror in `globals.css` §4 is the
-   one declared exception and says so in a comment.
+   one declared exception and says so in a comment — `RATING` (`--color-rating`,
+   `--color-rating-empty`) is mirrored in the same block, for the same reason and with the
+   same comment.
+
+   **`RATING` is not `STATUS.warning`, though both are amber.** A four-star rating is not
+   a caution, and aliasing them would mean a future retune of the warning colour silently
+   restyled every rating on the site — with neither name warning you. The antd side is
+   `Rate: { starColor, starBg }` in `theme.ts`, set as a component token rather than a
+   class because `starColor` is cssinjs and a CSS override would lose to antd's unlayered
+   styles, which is how a `!` suffix (a grep gate) gets reached for.
 2. `globals.css` §2 is the only place that may name an `--ant-*` variable. An antd
    upgrade or prefix change must stay a one-file edit.
 3. **Never override antd's `screen*` tokens.** Overriding one forces all 21, and
@@ -48,14 +57,29 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
     `theme.ts` sets no global `controlHeight*`. A `CONTROL` token existed briefly and
     was removed: every call site had to remember `size='large'` to reach it, individual
     antd controls drifted out of sync, and the app ended up with a mix of 40px and 48px
-    controls. Do not reintroduce a global height scale without also removing every
-    per-call-site `size='large'`.
-    **Select and Button are the component-level exceptions.** Select has no
-    `paddingBlock` / `paddingInline` tokens. Button's `paddingBlock` exists on the
-    type but antd 6 hardcodes vertical padding to 0 and sizes the control with
-    `controlHeight`. Both set `controlHeight` on their own `components.*` block
-    so they match Input's 6 / 12 padding (and therefore its height). Change the
-    shared `FIELD_PADDING_*` constants in `theme.ts`, not a call-site height.
+    controls. Do not reintroduce a global height scale.
+
+    **Do not pass `size='large'`.** antd's default (`middle`) is the size every
+    control, button, and input should be. The remaining `size='large'` call sites
+    are the complete list — they are deliberate, not leftover debt:
+
+    | File | Why it stayed |
+    |---|---|
+    | `ProviderSearchField.tsx` | Explore's search box |
+    | `BookingSlots.tsx` | the Book now CTA |
+    | `AuthCallbackClient.tsx`, `VerifyEmailClient.tsx`, `CompleteRegistrationForm.tsx` | full-page `Spin` on the auth waiting screens |
+
+    A new `size='large'` is a design exception and must be added to this table (and
+    the grep gate) in the same change. Do not copy it from these files onto a
+    neighbouring control.
+
+    **Select is the component-level exception for matching Input height.** Select has
+    no `paddingBlock` / `paddingInline` tokens, so it sets `controlHeight` on its own
+    `components.Select` block to match Input's 6 / 12 padding. Button's `paddingBlock`
+    exists on the type but antd 6 hardcodes vertical padding to 0 and sizes the
+    control with seed `controlHeight`; the Button block only overrides
+    `paddingInline`. Change the shared `FIELD_PADDING_*` constants in `theme.ts`,
+    not a call-site height.
 11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg`
     (8/12) via `borderRadius`/`borderRadiusLG`. antd's own 6/8 reads visibly squarer
     than every prototype screen. Two static values, no scale, no breakpoints; they feed
@@ -154,6 +178,7 @@ this section explains *why* each exists, not how it is spelled.
 | no `h-[NNpx]` | Use the control-height tokens |
 | no hex outside `src/styles/` | A hex belongs in `tokens.ts` and nowhere else |
 | no legacy Tailwind aliases | They still compile but mean something else — trap 8 |
+| no new `size='large'` | antd's default is the app size; the five remaining call sites are the complete allowlist — invariant 10 |
 
 Each gate is scoped by file extension. That is load-bearing: unscoped, every pattern
 matches the docs describing it and the gate can never pass. It is also why the script sits

@@ -37,7 +37,7 @@
       "iconColour": "#ff0000"
     }
   },
-  "cSpell.words": ["affordances", "Navasardyan"],
+  "cSpell.words": ["affordances", "mnavasardian", "Navasardyan", "prerendered"],
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }

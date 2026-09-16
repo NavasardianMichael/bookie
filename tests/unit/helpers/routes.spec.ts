@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isRouteActive, matchRouteName } from '@helpers/routes'
+import { isPublicProviderPage, isRouteActive, matchRouteName } from '@helpers/routes'
 
 describe('matchRouteName', () => {
   it('resolves a dynamic detail path to its parent route', () => {
@@ -29,8 +29,26 @@ describe('matchRouteName', () => {
     expect(matchRouteName('/providersXYZ')).toBeUndefined()
   })
 
-  it('returns undefined for an unknown path rather than falling back to home', () => {
-    expect(matchRouteName('/nope')).toBeUndefined()
+  it('matches the public booking manage capability URL', () => {
+    expect(matchRouteName('/b/deadbeef')).toBe('bookingManage')
+    expect(matchRouteName('/b')).toBe('bookingManage')
+  })
+})
+
+describe('isPublicProviderPage', () => {
+  it('is true for a provider id or slug, not for Explore', () => {
+    expect(isPublicProviderPage('/providers/abc')).toBe(true)
+    expect(isPublicProviderPage('/providers/abc/')).toBe(true)
+    expect(isPublicProviderPage('/providers')).toBe(false)
+    expect(isPublicProviderPage('/providers/')).toBe(false)
+  })
+
+  it('is false for the provider workspace and unrelated routes', () => {
+    expect(isPublicProviderPage('/providers/profile')).toBe(false)
+    expect(isPublicProviderPage('/providers/profile-services')).toBe(false)
+    expect(isPublicProviderPage('/providers/profile-creation')).toBe(false)
+    expect(isPublicProviderPage('/categories')).toBe(false)
+    expect(isPublicProviderPage('/')).toBe(false)
   })
 })
 

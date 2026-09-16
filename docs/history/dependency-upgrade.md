@@ -157,7 +157,7 @@ Header calls `usePathname()` twice and looks up `ROUTE_KEYS_BY_VALUES[pathName]`
 
 ## Tooling and DX
 
-1. **`pnpm watch` ports are wrong.** Dev server is port **4141**; the script still `kill-port` 3000/3001. Point it at 4141 and whatever port the mock API uses.
+1. **`pnpm watch` ports are wrong.** Dev server is port **7004**; the script still `kill-port` 3000/3001. Point it at 7004 and whatever port the mock API uses.
 2. **Husky pre-commit is fully commented out.** Either enable `pnpm lint` + `pnpm typecheck` on staged files (`lint-staged`) or remove Husky until you want it.
 3. **No `.env.example`.** Document `NEXT_PUBLIC_API_URL` (and later auth keys) so builds and new clones do not fail silently.
 4. **`pnpm format` only formats `src/`.** Include `eslint.config.mjs`, `next.config.ts`, and this file, or run Prettier from the repo root.

@@ -14,11 +14,12 @@ export {
   type AppDescriptionListItem,
   type AppDescriptionListProps,
 } from './AppDescriptionList'
-export { AppLink, type AppLinkTone, type AppLinkVariant } from './AppLink'
+export { APP_LINK_META_CLASS, AppLink, type AppLinkTone, type AppLinkVariant } from './AppLink'
 export { AppParagraph } from './AppParagraph'
 export { AppText, type AppTextTag } from './AppText'
 export { AppTime } from './AppTime'
 export { AppTitle, type AppTitleLevel, type AppTitleSize } from './AppTitle'
 export { BarChart, type BarChartDatum, type BarChartProps } from './BarChart'
 export { JsonLd } from './JsonLd'
+export { RatingStars, type RatingStarsProps, type RatingStarsSize } from './RatingStars'
 export { type TextSize, type TextTone } from './typography'

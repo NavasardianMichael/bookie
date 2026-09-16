@@ -1,9 +1,12 @@
+import { processSingleProviderResponse } from '@api/providers/processors'
 import {
   CreateAppointmentAPI,
+  GetManagedAppointmentAPI,
   GetProviderBookingsAPI,
   GetProviderBookingsCalendarAPI,
   ListAppointmentsAPI,
   PatchAppointmentStatusAPI,
+  PatchManagedAppointmentAPI,
 } from './types'
 
 export const processCreateAppointmentResponse: CreateAppointmentAPI['processor'] = (response) => response.value
@@ -30,3 +33,14 @@ export const processProviderBookingsCalendarResponse: GetProviderBookingsCalenda
 
 export const processPatchAppointmentStatusResponse: PatchAppointmentStatusAPI['processor'] = (response) =>
   response.value
+
+export const processManagedAppointmentResponse: GetManagedAppointmentAPI['processor'] = (response) => {
+  const value = response.value
+  return {
+    appointment: value.appointment,
+    provider: processSingleProviderResponse({ value: value.provider, error: null }),
+  }
+}
+
+export const processPatchManagedAppointmentResponse: PatchManagedAppointmentAPI['processor'] =
+  processManagedAppointmentResponse

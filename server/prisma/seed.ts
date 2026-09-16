@@ -1,5 +1,7 @@
-import { Plan, PrismaClient } from '@prisma/client'
+import { AuthProvider, Plan, PrismaClient } from '@prisma/client'
 import { hashPassword } from '../src/lib/password.js'
+import { hashUrlToken, mintUrlToken } from '../src/lib/token.js'
+import { recomputeProviderRating } from '../src/services/reviews.js'
 
 // Run directly via tsx, so it does not go through src/config.ts and has to load
 // the env file itself — otherwise DATABASE_URL is undefined.
@@ -8,13 +10,15 @@ import 'dotenv/config'
 const prisma = new PrismaClient()
 
 /**
- * One password for every seeded account. Identity is now an email and an argon2 hash, so
- * the seed hashes exactly like `POST /identity/register` does — via `lib/password.ts`,
- * never a second hasher, or a seeded account would be one `verifyPassword` could not
- * recognise. Documented in `docs/DEV_CREDS.md`.
+ * One password for every seeded **local** account. Identity is an email plus either an
+ * argon2 hash or a Google `sub` — the two credentials `user_credential_present` accepts.
+ * The seed hashes exactly like `POST /identity/register` does, via `lib/password.ts`, never
+ * a second hasher, or a seeded account would be one `verifyPassword` could not recognise.
+ * Documented in `docs/DEV_CREDS.md`.
  */
 const DEV_PASSWORD = 'bookie-dev-1234'
 const SEED_APPOINTMENT_NOTE = 'Seed appointment'
+const SEED_GUEST_APPOINTMENT_NOTE = 'Seed guest appointment'
 const PHONE_CODE = 374
 
 /**
@@ -24,6 +28,13 @@ const PHONE_CODE = 374
 const LOGIN_PROVIDER_PHONE = BigInt(99999999)
 const LOGIN_CONSUMER_PHONE = BigInt(99000000)
 const OTHER_PROVIDER_PHONE_START = BigInt(77000101)
+const GOOGLE_CONSUMER_PHONE = BigInt(77000205)
+const GUEST_PHONE = BigInt(77000999)
+
+const seedManageTokenHash = (): string => hashUrlToken(mintUrlToken())
+
+/** Fake Google `sub`. Will never match a real OAuth callback; this row is a fixture. */
+const GOOGLE_CONSUMER_SUB = 'seed-google-gohar-nazaryan'
 
 const defaultWeekSchedule = () => ({
   monday: { availability: { start: '09:00', end: '17:00' }, breaks: [] },
@@ -35,23 +46,59 @@ const defaultWeekSchedule = () => ({
   sunday: { availability: { start: '', end: '' }, breaks: [] },
 })
 
+type SeedAccount =
+  | { email: string; auth: 'local'; passwordHash: string }
+  | { email: string; auth: 'google'; googleId: string }
+
 /**
- * A seeded account, ready to sign in with.
+ * A seeded account, ready to sign in with — or, for the Google fixture, ready to *exist*.
  *
- * `emailVerifiedAt` is stamped because `middleware/auth.ts` refuses a session for an
- * unverified account on **every** authenticated request — an unstamped seed would create
- * accounts that exist, accept the right password, and then fail every call after login.
+ * Email is required on every row: it is the identity, whether the credential is a password
+ * or a Google `sub`. `emailVerifiedAt` is stamped because `middleware/auth.ts` refuses a
+ * session for an unverified account on **every** authenticated request — an unstamped seed
+ * would create accounts that exist, accept the right password, and then fail every call
+ * after login. Google accounts are stamped too: Google already confirmed the address.
  *
  * `upsert` on `email`, which is the unique key now, so the seed stays re-runnable (it runs
- * on every `pnpm install`). The password is re-hashed on update so changing `DEV_PASSWORD`
- * takes effect on an existing database.
+ * on every `pnpm install`). A local account's password is re-hashed on update so changing
+ * `DEV_PASSWORD` takes effect on an existing database. A Google account's update clears
+ * `passwordHash` so a re-run cannot accidentally turn it into a dual-credential row.
  */
-async function upsertUser(email: string) {
-  const passwordHash = await hashPassword(DEV_PASSWORD)
+async function upsertUser(account: SeedAccount) {
+  const email = account.email.toLowerCase()
+  const emailVerifiedAt = new Date()
+
+  if (account.auth === 'google') {
+    return prisma.user.upsert({
+      where: { email },
+      create: {
+        email,
+        googleId: account.googleId,
+        authProvider: AuthProvider.google,
+        emailVerifiedAt,
+      },
+      update: {
+        googleId: account.googleId,
+        authProvider: AuthProvider.google,
+        passwordHash: null,
+        emailVerifiedAt,
+      },
+    })
+  }
+
   return prisma.user.upsert({
     where: { email },
-    create: { email, passwordHash, authProvider: 'local', emailVerifiedAt: new Date() },
-    update: { passwordHash, emailVerifiedAt: new Date() },
+    create: {
+      email,
+      passwordHash: account.passwordHash,
+      authProvider: AuthProvider.local,
+      emailVerifiedAt,
+    },
+    update: {
+      passwordHash: account.passwordHash,
+      authProvider: AuthProvider.local,
+      emailVerifiedAt,
+    },
   })
 }
 
@@ -61,6 +108,10 @@ const seedEmail = (firstName: string, lastName: string): string =>
 
 async function main() {
   console.log('Seeding database...')
+
+  // One hash for every local account. Argon2id is ~80ms; hashing per row would be ~1s of
+  // identical work. A unique salt per user is not load-bearing for a shared dev password.
+  const localPasswordHash = await hashPassword(DEV_PASSWORD)
 
   const categoryNames = [
     'General Practice',
@@ -221,7 +272,11 @@ async function main() {
 
   for (const [index, def] of providerDefs.entries()) {
     const phoneNumber = index === 0 ? LOGIN_PROVIDER_PHONE : phoneSuffix++
-    const user = await upsertUser(seedEmail(def.firstName, def.lastName))
+    const user = await upsertUser({
+      email: seedEmail(def.firstName, def.lastName),
+      auth: 'local',
+      passwordHash: localPasswordHash,
+    })
     const provider = await prisma.provider.upsert({
       where: { userId: user.id },
       // A no-op update, like the categories and organizations above: re-running the seed
@@ -276,20 +331,38 @@ async function main() {
   }
 
   /**
-   * No email field: a consumer has no *published* address. `Provider.publicEmail` exists
-   * because a provider's page shows one; a consumer's only address is the identity
-   * `User.email`, which `seedEmail` derives from the name below.
+   * No published address on the Consumer row. `Provider.publicEmail` exists because a
+   * provider's page shows one; a consumer's only address is the identity `User.email`,
+   * which `seedEmail` derives from the name below. That address is required even for the
+   * Google-only fixture — Google accounts authenticate with a `sub`, not a password, but
+   * they still have an email.
    */
-  const consumerDefs = [
+  const consumerDefs: Array<{
+    firstName: string
+    lastName: string
+    phone: bigint
+    googleId?: string
+  }> = [
     { firstName: 'Alex', lastName: 'Consumer', phone: LOGIN_CONSUMER_PHONE },
     { firstName: 'Maria', lastName: 'Patient', phone: BigInt(77000202) },
     { firstName: 'Sam', lastName: 'Bookings', phone: BigInt(77000203) },
     { firstName: 'Elena', lastName: 'Client', phone: BigInt(77000204) },
+    {
+      firstName: 'Gohar',
+      lastName: 'Nazaryan',
+      phone: GOOGLE_CONSUMER_PHONE,
+      googleId: GOOGLE_CONSUMER_SUB,
+    },
   ]
 
   const consumers = []
   for (const def of consumerDefs) {
-    const user = await upsertUser(seedEmail(def.firstName, def.lastName))
+    const email = seedEmail(def.firstName, def.lastName)
+    const user = await upsertUser(
+      def.googleId
+        ? { email, auth: 'google', googleId: def.googleId }
+        : { email, auth: 'local', passwordHash: localPasswordHash }
+    )
     const consumer = await prisma.consumer.upsert({
       where: { userId: user.id },
       update: {},
@@ -308,11 +381,14 @@ async function main() {
     consumers.push(consumer)
   }
 
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  tomorrow.setHours(10, 0, 0, 0)
-  const tomorrowEnd = new Date(tomorrow)
-  tomorrowEnd.setMinutes(tomorrowEnd.getMinutes() + 30)
+  const slot = (hours: number, minutes = 0) => {
+    const startAt = new Date()
+    startAt.setDate(startAt.getDate() + 1)
+    startAt.setHours(hours, minutes, 0, 0)
+    const endAt = new Date(startAt)
+    endAt.setMinutes(endAt.getMinutes() + 30)
+    return { startAt, endAt }
+  }
 
   const service0 = await prisma.service.findFirst({ where: { providerId: providers[0]!.id } })
 
@@ -323,32 +399,102 @@ async function main() {
   })
 
   if (service0 && !seededAppointment) {
+    const { startAt, endAt } = slot(10)
     await prisma.appointment.create({
       data: {
         consumerId: consumers[0]!.id,
         providerId: providers[0]!.id,
         serviceId: service0.id,
         organizationId: providers[0]!.organizationId,
-        startAt: tomorrow,
-        endAt: tomorrowEnd,
+        startAt,
+        endAt,
         durationMinutes: 30,
+        price: service0.price,
+        currency: service0.currency,
         status: 'confirmed',
         notes: SEED_APPOINTMENT_NOTE,
+        manageTokenHash: seedManageTokenHash(),
+      },
+    })
+  } else if (service0 && seededAppointment && seededAppointment.price === null) {
+    // Older runs created this row before the price snapshot existed.
+    await prisma.appointment.update({
+      where: { id: seededAppointment.id },
+      data: { price: service0.price, currency: service0.currency },
+    })
+  }
+
+  const seededGuestAppointment = await prisma.appointment.findFirst({
+    where: { providerId: providers[0]!.id, notes: SEED_GUEST_APPOINTMENT_NOTE },
+  })
+
+  if (service0 && !seededGuestAppointment) {
+    const { startAt, endAt } = slot(11)
+    await prisma.appointment.create({
+      data: {
+        providerId: providers[0]!.id,
+        serviceId: service0.id,
+        organizationId: providers[0]!.organizationId,
+        startAt,
+        endAt,
+        durationMinutes: 30,
+        price: service0.price,
+        currency: service0.currency,
+        status: 'scheduled',
+        notes: SEED_GUEST_APPOINTMENT_NOTE,
+        // `appointment_actor_present` requires all four once `consumerId` is null.
+        // Email is the handle now that accounts are keyed on it, not phone.
+        guestFirstName: 'Narek',
+        guestLastName: 'Visitor',
+        guestPhoneCode: PHONE_CODE,
+        guestPhoneNumber: GUEST_PHONE,
+        guestEmail: 'narek.visitor@example.com',
+        manageTokenHash: seedManageTokenHash(),
       },
     })
   }
 
-  const seededProviderReview = await prisma.review.findFirst({
-    where: { consumerId: consumers[0]!.id, providerId: providers[0]!.id },
-  })
+  /**
+   * Enough reviews to make the list, the histogram and the ranking look like themselves.
+   *
+   * Spread deliberately rather than evenly: provider 0 is the well-reviewed one, 1 and 2
+   * have a handful, 3 has a single 5★ — which is the case worth being able to see, since
+   * a plain average would put that provider top of Explore and the Bayesian score does
+   * not. Providers 4+ stay unrated so the "no reviews yet" state is reachable too.
+   *
+   * `consumer` indexes into `consumers`, `provider` into `providers`.
+   */
+  const reviewDefs: { consumer: number; provider: number; rating: number; comment?: string }[] = [
+    { consumer: 0, provider: 0, rating: 5, comment: 'Excellent care and very professional.' },
+    { consumer: 1, provider: 0, rating: 5, comment: 'Booked same week and left delighted. Highly recommend.' },
+    { consumer: 2, provider: 0, rating: 4, comment: 'Great result, though the room was running a little late.' },
+    { consumer: 3, provider: 0, rating: 5, comment: 'Third visit now. Consistent every single time.' },
+    // No comment: a rating-only review. The card has to render without a body.
+    { consumer: 4, provider: 0, rating: 4 },
+    { consumer: 0, provider: 1, rating: 3, comment: 'Fine, but not much time for questions.' },
+    { consumer: 1, provider: 1, rating: 4, comment: 'Friendly and thorough. Would come back.' },
+    { consumer: 2, provider: 2, rating: 2, comment: 'Ran 40 minutes late and seemed rushed.' },
+    { consumer: 3, provider: 3, rating: 5, comment: 'Brilliant. Could not have asked for better.' },
+  ]
 
-  if (!seededProviderReview) {
+  for (const def of reviewDefs) {
+    const consumer = consumers[def.consumer]
+    const provider = providers[def.provider]
+    if (!consumer || !provider) continue
+
+    // `findFirst` on the identifying pair, not `upsert`: `Review` has no unique key to
+    // upsert against, so a plain `create` is what stacks duplicates on the second install.
+    const seeded = await prisma.review.findFirst({
+      where: { consumerId: consumer.id, providerId: provider.id },
+    })
+    if (seeded) continue
+
     await prisma.review.create({
       data: {
-        consumerId: consumers[0]!.id,
-        providerId: providers[0]!.id,
-        rating: 5,
-        comment: 'Excellent care and very professional.',
+        consumerId: consumer.id,
+        providerId: provider.id,
+        rating: def.rating,
+        comment: def.comment,
       },
     })
   }
@@ -368,10 +514,25 @@ async function main() {
     })
   }
 
+  /**
+   * Recompute every rated provider's aggregate.
+   *
+   * Unconditional rather than only-when-a-review-was-created, because this also repairs a
+   * database seeded before the columns existed: the migration backfills once, but a dev
+   * who edits `reviewDefs` or deletes a row by hand needs the numbers to follow. It is
+   * one aggregate per rated provider on a seed run, which is nothing.
+   */
+  for (const provider of providers) {
+    await recomputeProviderRating(prisma, provider.id)
+  }
+
   console.log('Seed complete.')
-  console.log(`Password for every seeded account: ${DEV_PASSWORD}`)
+  console.log(`Password for every local seeded account: ${DEV_PASSWORD}`)
   console.log('Example provider login: anna.petrosyan@bookie.am')
   console.log('Example consumer login: alex.consumer@bookie.am')
+  console.log(
+    'Google-only fixture (no password): gohar.nazaryan@bookie.am — email is still required'
+  )
 }
 
 main()

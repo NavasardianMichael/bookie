@@ -18,10 +18,8 @@ export const DEFAULT_PROVIDER_NOTIFICATION_PREFS = {
 /** Route names used as i18n keys under Settings.nav.* */
 export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[] = [
   { route: ROUTE_KEYS.consumerProfile, match: 'exact' },
-  { route: ROUTE_KEYS.consumerProfilePhone },
   { route: ROUTE_KEYS.consumerProfileAppointments },
   { route: ROUTE_KEYS.consumerProfileNotifications },
-  { route: ROUTE_KEYS.consumerProfilePayments },
 ]
 
 /**

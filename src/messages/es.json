@@ -13,6 +13,7 @@
     "share": "Compartir",
     "linkCopied": "Enlace copiado",
     "copyFailed": "No se pudo copiar",
+    "copied": "Copiado al portapapeles",
     "viewAll": "Ver todo",
     "goHome": "Ir al inicio",
     "tryAgain": "Reintentar",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} min",
       "price": "Precio",
       "location": "Ubicación",
+      "copyLocation": "Copiar dirección",
+      "copyPhone": "Copiar número de teléfono",
       "accepts": "Pago aceptado"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Apellidos",
       "phone": "Número de teléfono",
       "email": "Correo electrónico",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Sin un correo no recibirás recordatorios de la reserva, avisos de cambios ni notificaciones de cancelación.",
+      "emailHintLabel": "Por qué pedimos el correo"
     },
     "paymentLabel": "Cómo prefieres pagar",
     "paymentPlaceholder": "Selecciona uno o más métodos",
@@ -182,8 +187,6 @@
     "notesLabel": "Notas para el profesional",
     "notesPlaceholder": "Cualquier cosa que deba saber antes de tu cita",
     "submit": "Confirmar reserva",
-    "requiredBadge": "Obligatorio",
-    "optionalBadge": "Opcional",
     "chooseService": "Elige un servicio",
     "chooseServiceHint": "Su duración fija la longitud de cada hueco que se muestra abajo.",
     "chooseServiceNotification": "Elige un servicio",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "sin horarios disponibles",
     "requested": "Cita solicitada",
     "requestedBody": "{name} confirmará en breve tu reserva del {when}.",
-    "failed": "No se pudo reservar"
+    "failed": "No se pudo reservar",
+    "confirmedTitle": "Reserva confirmada",
+    "emailSent": "Hemos enviado los detalles a {email}.",
+    "manageLinkLabel": "Tu enlace de reserva",
+    "copyManageLink": "Copiar enlace de reserva",
+    "viewBooking": "Ver reserva",
+    "cancel": "Cancelar reserva",
+    "cancelConfirmTitle": "¿Cancelar esta reserva?",
+    "cancelConfirmBody": "El horario volverá a estar libre. Esto no se puede deshacer.",
+    "cancelledNotice": "Esta reserva está cancelada.",
+    "edit": "Cambiar horario",
+    "confirmNewTime": "Confirmar nuevo horario",
+    "stopEditing": "Volver a la reserva",
+    "rescheduleConfirmTitle": "¿Cambiar a esta hora?",
+    "rescheduleConfirmBody": "Tu reserva se moverá a {when}.",
+    "rescheduled": "Reserva actualizada",
+    "cannotEdit": "Esta reserva ya no se puede cambiar.",
+    "manageMetaTitle": "Tu reserva",
+    "manageSubtitle": "Consulta, cancela o elige otro horario.",
+    "manageNotFoundTitle": "Reserva no encontrada",
+    "manageNotFoundBody": "Este enlace no es válido o la reserva ya no existe."
   },
   "Footer": {
     "blurb": "Una sola plataforma para encontrar servicios locales o gestionar tu agenda de reservas.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG o PNG. Tamaño máximo 2 MB.",
       "upload": "Subir nueva",
       "providerSubtitle": "Actualiza los datos que se muestran en tu perfil público.",
-      "sendEmailCode": "Enviar correo de verificación",
+      "sendEmailCode": "Restablecer correo",
       "emailRequired": "Introduce primero un correo electrónico.",
       "emailCodeSent": "Enviamos un enlace de verificación a {email}. Ábrelo para confirmar esta dirección. En desarrollo, el enlace se imprime en la consola del servidor de la API.",
       "emailVerified": "Correo verificado y guardado.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Citas",
-      "subtitle": "Tus próximas reservas.",
+      "subtitle": "Busca, filtra y gestiona tus reservas.",
       "upcoming": "Próximas",
       "emptyTitle": "No tienes citas próximas",
       "emptyBody": "Reserva un servicio para verlo aquí.",
       "bookService": "Reservar un servicio",
       "unknownProvider": "Profesional",
-      "unknownService": "Servicio"
+      "unknownService": "Servicio",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "searchPlaceholder": "Buscar por profesional o servicio",
+      "searchLabel": "Buscar citas",
+      "statusPlaceholder": "Cualquier estado",
+      "statusLabel": "Filtrar por estado",
+      "sortLabel": "Ordenar citas",
+      "sort": {
+        "startDesc": "Más recientes primero",
+        "startAsc": "Más antiguas primero",
+        "createdDesc": "Reservadas recientemente",
+        "nameAsc": "Nombre del profesional (A-Z)"
+      },
+      "clearFilters": "Borrar filtros",
+      "emptyFilteredTitle": "Nada coincide con estos filtros",
+      "emptyFilteredBody": "Prueba otro estado o término de búsqueda."
     },
     "notifications": {
       "subtitle": "Elige qué correos quieres recibir.",
@@ -571,7 +610,8 @@
       "recommended": "Recomendados",
       "nameAsc": "Nombre A–Z",
       "nameDesc": "Nombre Z–A",
-      "newest": "Más recientes primero"
+      "newest": "Más recientes primero",
+      "topRated": "Mejor valorados"
     },
     "availableNow": "Disponibles ahora",
     "availableNowHint": "Oculta a los profesionales que han pausado las nuevas reservas.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Horario de trabajo",
     "fallbackWithOrganization": "Reserva una cita con {name}, que trabaja en {organization}.",
-    "fallbackDescription": "Reserva una cita con {name}."
+    "fallbackDescription": "Reserva una cita con {name}.",
+    "reviews": {
+      "title": "Opiniones",
+      "count": "{count, plural, one {# opinión} other {# opiniones}}",
+      "empty": "Todavía no hay opiniones",
+      "emptyHint": "Las opiniones aparecen aquí después de una cita.",
+      "write": "Escribir una opinión",
+      "signInPrompt": "Inicia sesión para dejar una opinión",
+      "edit": "Editar",
+      "editTitle": "Edita tu opinión",
+      "remove": "Eliminar",
+      "removeTitle": "¿Eliminar tu opinión?",
+      "removeDescription": "Tu valoración y tu comentario se eliminarán definitivamente.",
+      "report": "Denunciar",
+      "reportTitle": "Denunciar esta opinión",
+      "reportDescription": "Cuéntanos qué problema tiene. Leemos todas las denuncias y retiramos las opiniones que incumplen nuestras normas.",
+      "reportLabel": "¿Cuál es el problema?",
+      "reportSubmit": "Enviar denuncia",
+      "reportSent": "Gracias, lo revisaremos.",
+      "reply": "Responder",
+      "replyTitle": "Responder a esta opinión",
+      "replyLabel": "Tu respuesta",
+      "replySubmit": "Publicar respuesta",
+      "replyFrom": "Respuesta del profesional",
+      "formTitle": "Valora tu cita",
+      "ratingLabel": "Tu valoración",
+      "ratingRequired": "Elige una valoración",
+      "commentLabel": "Tu comentario",
+      "commentPlaceholder": "¿Qué salió bien? ¿Qué se podría mejorar?",
+      "submit": "Publicar opinión",
+      "save": "Guardar cambios",
+      "edited": "Editada",
+      "ratingAria": "Valorado con {rating} sobre 5",
+      "summaryAria": "{rating} sobre 5, de {count} opiniones",
+      "starCount": "{count, plural, one {# estrella} other {# estrellas}}",
+      "pagesLabel": "Páginas de opiniones",
+      "loadError": "No hemos podido cargar las opiniones. Inténtalo de nuevo."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Términos del servicio",
@@ -692,11 +769,40 @@
     "workingDays": "Días laborables",
     "weekend": "Fin de semana"
   },
+  "Validation": {
+    "required": "Completa {label}",
+    "maxCharsForInput": "El máximo es {max} caracteres",
+    "maxCharsForTextarea": "El máximo es {max} caracteres",
+    "oneItemSelectedAtLeast": "Selecciona al menos un elemento",
+    "email": "Correo no válido",
+    "positiveNumber": "Debe ser un número positivo",
+    "url": "URL no válida"
+  },
   "Errors": {
     "notFoundTitle": "Página no encontrada",
     "notFoundBody": "La página que buscas no existe o se ha movido.",
     "title": "Algo ha ido mal",
     "body": "No pudimos cargar esta página. Vuelve a intentarlo.",
     "reference": "Referencia: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Moderación de opiniones",
+    "metaDescription": "Opiniones denunciadas pendientes de decisión.",
+    "title": "Opiniones denunciadas",
+    "empty": "Nada que revisar",
+    "emptyHint": "Aquí llegan las denuncias de los profesionales.",
+    "statusOpen": "Abierta",
+    "statusResolved": "Resuelta",
+    "statusDismissed": "Descartada",
+    "filterLabel": "Estado",
+    "reason": "Motivo",
+    "reportedBy": "Denunciada por {name}",
+    "hide": "Ocultar opinión",
+    "restore": "Restaurar opinión",
+    "hidden": "Oculta",
+    "resolve": "Aceptar y cerrar",
+    "dismiss": "Descartar denuncia",
+    "actionError": "No ha funcionado. Inténtalo de nuevo.",
+    "pagesLabel": "Páginas de denuncias"
   }
 }

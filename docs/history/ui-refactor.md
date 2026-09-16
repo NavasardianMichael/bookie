@@ -142,7 +142,7 @@ The seeded local stack works. What I had to do to get there:
 cp server/.env.example server/.env    # placeholders only; matches docker-compose creds
 pnpm db:up                            # needs Docker Desktop running
 pnpm db:setup                         # migrate + seed (needed the dotenv fix above)
-pnpm watch                            # web :4141 + api :4142
+pnpm watch                            # web :7004 + api :9004
 ```
 
 Seed credentials: dev OTP `123456` for all phones; provider `+37477000100`, consumer `+37477000201`.

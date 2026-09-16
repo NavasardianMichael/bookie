@@ -58,7 +58,7 @@ one object (`showSearch={{ onSearch, filterOption, … }}`, `classNames.popup.ro
 `styles.body`, `variant`); the full mapping is in `src/components/CLAUDE.md`.
 
 **Thin antd wrappers** (client islands): `ui/AppButton`, `ui/AppInput`, `ui/AppTextArea`,
-`ui/AppFormItem`, `ui/AppSheet`, `ui/AppConfirmModal`, `ui/ErrorState`.
+`ui/AppFormItem`, `ui/AppSheet`, `ui/AppConfirmModal`, `ui/CopyableLinkValue`, `ui/ErrorState`.
 
 Import wrappers from their own path. **`ui/index.ts` re-exports only `bare` and
 `layout`** — re-exporting a wrapper there pulls antd's runtime into any route that
@@ -129,9 +129,11 @@ Available token utilities: `bg-brand`, `bg-brand-{50…950}`, `text-brand`,
 
 **Never** write a hex outside `src/styles/tokens.ts`. Never add a `!` suffix — it can't
 win against antd's unlayered cssinjs anyway; move the value into an antd token instead.
-Use the **canonical** class name, not a legacy alias — Tailwind still compiles
-`break-words`, `overflow-ellipsis` and `order-none`, but they mean `wrap-break-word`,
-`text-ellipsis` and `order-0`. See `src/styles/CLAUDE.md` trap 8 for the full list.
+Never pass `size='large'` on an antd control — the default size is the app size; the
+five remaining exceptions are listed in `src/styles/CLAUDE.md` invariant 10. Use the
+**canonical** class name, not a legacy alias — Tailwind still compiles `break-words`,
+`overflow-ellipsis` and `order-none`, but they mean `wrap-break-word`, `text-ellipsis`
+and `order-0`. See `src/styles/CLAUDE.md` trap 8 for the full list.
 
 ## Before you're done
 
@@ -139,10 +141,9 @@ Use the **canonical** class name, not a legacy alias — Tailwind still compiles
 pnpm verify
 ```
 
-That runs the twelve design-system and export-style gates (`pnpm gates` →
-`scripts/gates.mjs`) alongside typecheck, lint, test and build. What each gate checks and
-why is tabulated in `src/styles/CLAUDE.md`; the deprecated-antd-prop mapping is in
-`src/components/CLAUDE.md`.
+That runs the design-system and export-style gates (`pnpm gates` → `scripts/gates.mjs`)
+alongside typecheck, lint, test and build. What each gate checks and why is tabulated in
+`src/styles/CLAUDE.md`; the deprecated-antd-prop mapping is in `src/components/CLAUDE.md`.
 
 Do not hand-write these greps any more. They lived here as a copy, that copy drifted — it
 was missing `Statistic.Countdown` — and one of them never worked at all. The script is the

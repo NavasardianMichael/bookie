@@ -57,3 +57,6 @@ next-env.d.ts
 # editors
 .vs/
 .idea/
+
+# Deploy release staging (scripts/build-api-release.mjs)
+out/

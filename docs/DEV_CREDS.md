@@ -5,7 +5,7 @@ Use these accounts for local testing against a seeded database (`pnpm db:setup`,
 
 ## Password
 
-Every seeded account shares one password, hashed by `server/src/lib/password.ts` — the same
+Every **local** seeded account shares one password, hashed by `server/src/lib/password.ts` — the same
 argon2id path `POST /identity/register` uses, so a seeded account is indistinguishable from
 a registered one.
 
@@ -17,20 +17,27 @@ Seeded accounts are created **already verified** (`emailVerifiedAt` is stamped).
 `middleware/auth.ts` refuses a session for an unverified account on every authenticated
 request, so without that stamp a seeded user could log in and then fail every call after it.
 
+Email is the identity on **every** account, Google-only included. Phone lives on the
+profile, is never unique, and is never what you sign in with.
+
 ## Signing in through the UI
 
-Both accounts sign in at **`/auth/sign-in`** — email, then password. There is no account-type
+Local accounts sign in at **`/auth/sign-in`** — email, then password. There is no account-type
 choice: the role is read off whichever profile the account already has, and a user holding
 both resolves to **provider**. Picking a type starts *registration*, which is a different
 screen.
 
-| Account | Email | Role resolved as |
-| --- | --- | --- |
-| Provider | `anna.petrosyan@bookie.am` | `provider` |
-| Consumer | `alex.consumer@bookie.am` | `consumer` |
+| Account | Email | How to sign in | Role resolved as |
+| --- | --- | --- | --- |
+| Provider | `anna.petrosyan@bookie.am` | email + password above | `provider` |
+| Consumer | `alex.consumer@bookie.am` | email + password above | `consumer` |
+| Google-only consumer | `gohar.nazaryan@bookie.am` | cannot — fixture only; password login is rejected | `consumer` |
 
 Every other seeded provider follows the same `firstname.lastname@bookie.am` shape — for
-example `david.hakobyan@bookie.am`.
+example `david.hakobyan@bookie.am`. The Google fixture has an email too; it has no
+`passwordHash`, only a fake `googleId` (`seed-google-gohar-nazaryan`) that will never match
+a real OAuth callback. Trying the shared password on that address is how you exercise the
+Google-only error path.
 
 ## Emails in development
 
@@ -90,9 +97,9 @@ route list.
 - **Phone moved onto the profiles** (`Provider.phoneCode`/`phoneNumber`, and the same on
   `Consumer`). It is mandatory at registration, never verified, and deliberately **not**
   unique — a clinic line shared by four providers is ordinary.
-- The seed is re-runnable (`pnpm install` re-seeds), and re-hashes the password on every
-  run, so changing `DEV_PASSWORD` in `server/prisma/seed.ts` takes effect on an existing
-  database.
+- The seed is re-runnable (`pnpm install` re-seeds), and re-hashes the local-account
+  password on every run, so changing `DEV_PASSWORD` in `server/prisma/seed.ts` takes effect
+  on an existing database. The Google fixture is re-upserted without a password.
 - These credentials are **local development only**. Never ship `bookie-dev-1234` or a weak
   `JWT_SECRET`.
 - If login fails, check Postgres is up and seeded: `pnpm db:up` then `pnpm db:setup`.

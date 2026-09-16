@@ -13,6 +13,7 @@
     "share": "แชร์",
     "linkCopied": "คัดลอกลิงก์แล้ว",
     "copyFailed": "คัดลอกไม่ได้",
+    "copied": "คัดลอกไปยังคลิปบอร์ดแล้ว",
     "viewAll": "ดูทั้งหมด",
     "goHome": "กลับสู่หน้าแรก",
     "tryAgain": "ลองอีกครั้ง",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} นาที",
       "price": "ราคา",
       "location": "สถานที่",
+      "copyLocation": "คัดลอกที่อยู่",
+      "copyPhone": "คัดลอกเบอร์โทรศัพท์",
       "accepts": "วิธีชำระเงินที่รับ"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "นามสกุล",
       "phone": "หมายเลขโทรศัพท์",
       "email": "อีเมล",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "หากไม่มีอีเมล คุณจะไม่ได้รับการแจ้งเตือนการนัดหมาย การเปลี่ยนแปลง หรือการยกเลิก",
+      "emailHintLabel": "เหตุใดเราจึงขออีเมล"
     },
     "paymentLabel": "วิธีที่คุณต้องการชำระเงิน",
     "paymentPlaceholder": "เลือกหนึ่งวิธีหรือมากกว่า",
@@ -182,8 +187,6 @@
     "notesLabel": "หมายเหตุถึงผู้ให้บริการ",
     "notesPlaceholder": "สิ่งที่ควรทราบก่อนการนัดหมายของคุณ",
     "submit": "ยืนยันการจอง",
-    "requiredBadge": "จำเป็น",
-    "optionalBadge": "ไม่บังคับ",
     "chooseService": "เลือกบริการ",
     "chooseServiceHint": "ระยะเวลาของบริการจะกำหนดความยาวของทุกช่วงเวลาที่แสดงด้านล่าง",
     "chooseServiceNotification": "เลือกบริการ",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "ไม่มีเวลาว่าง",
     "requested": "ขอนัดหมายแล้ว",
     "requestedBody": "{name} จะยืนยันการจอง {when} ของคุณเร็ว ๆ นี้",
-    "failed": "การจองไม่สำเร็จ"
+    "failed": "การจองไม่สำเร็จ",
+    "confirmedTitle": "ยืนยันการจองแล้ว",
+    "emailSent": "เราได้ส่งรายละเอียดไปที่ {email} แล้ว",
+    "manageLinkLabel": "ลิงก์การจองของคุณ",
+    "copyManageLink": "คัดลอกลิงก์การจอง",
+    "viewBooking": "ดูการจอง",
+    "cancel": "ยกเลิกการจอง",
+    "cancelConfirmTitle": "ยกเลิกการจองนี้หรือไม่",
+    "cancelConfirmBody": "ช่วงเวลานี้จะว่างอีกครั้ง การดำเนินการนี้ย้อนกลับไม่ได้",
+    "cancelledNotice": "การจองนี้ถูกยกเลิกแล้ว",
+    "edit": "เปลี่ยนเวลา",
+    "confirmNewTime": "ยืนยันเวลาใหม่",
+    "stopEditing": "กลับไปที่การจอง",
+    "rescheduleConfirmTitle": "เปลี่ยนเป็นเวลานี้หรือไม่",
+    "rescheduleConfirmBody": "การจองจะย้ายไปที่ {when}",
+    "rescheduled": "อัปเดตการจองแล้ว",
+    "cannotEdit": "ไม่สามารถเปลี่ยนการจองนี้ได้อีก",
+    "manageMetaTitle": "การจองของคุณ",
+    "manageSubtitle": "ดู ยกเลิก หรือเลือกเวลาใหม่",
+    "manageNotFoundTitle": "ไม่พบการจอง",
+    "manageNotFoundBody": "ลิงก์นี้ไม่ถูกต้องหรือการจองไม่มีอยู่แล้ว"
   },
   "Footer": {
     "blurb": "แพลตฟอร์มเดียวสำหรับค้นหาบริการใกล้ตัว หรือจัดการปฏิทินการจองของคุณ",
@@ -285,7 +308,7 @@
       "imageHint": "JPG หรือ PNG ขนาดสูงสุด 2MB",
       "upload": "อัปโหลดใหม่",
       "providerSubtitle": "อัปเดตข้อมูลที่แสดงในโปรไฟล์สาธารณะของคุณ",
-      "sendEmailCode": "ส่งอีเมลยืนยัน",
+      "sendEmailCode": "รีเซ็ตอีเมล",
       "emailRequired": "กรุณากรอกที่อยู่อีเมลก่อน",
       "emailCodeSent": "เราได้ส่งลิงก์ยืนยันไปที่ {email} เปิดลิงก์เพื่อยืนยันที่อยู่นี้ ในโหมดพัฒนา ลิงก์จะแสดงในคอนโซลของเซิร์ฟเวอร์ API",
       "emailVerified": "ยืนยันและบันทึกอีเมลแล้ว",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "การนัดหมาย",
-      "subtitle": "การจองที่กำลังจะถึงของคุณ",
+      "subtitle": "ค้นหา กรอง และจัดการการจองของคุณ",
       "upcoming": "กำลังจะถึง",
       "emptyTitle": "ไม่มีนัดหมายที่กำลังจะถึง",
       "emptyBody": "จองบริการเพื่อดูที่นี่",
       "bookService": "จองบริการ",
       "unknownProvider": "ผู้ให้บริการ",
-      "unknownService": "บริการ"
+      "unknownService": "บริการ",
+      "edit": "แก้ไข",
+      "cancel": "ยกเลิก",
+      "searchPlaceholder": "ค้นหาตามผู้ให้บริการหรือบริการ",
+      "searchLabel": "ค้นหานัดหมาย",
+      "statusPlaceholder": "ทุกสถานะ",
+      "statusLabel": "กรองตามสถานะ",
+      "sortLabel": "เรียงนัดหมาย",
+      "sort": {
+        "startDesc": "ใหม่สุดก่อน",
+        "startAsc": "เก่าสุดก่อน",
+        "createdDesc": "จองล่าสุด",
+        "nameAsc": "ชื่อผู้ให้บริการ (A-Z)"
+      },
+      "clearFilters": "ล้างตัวกรอง",
+      "emptyFilteredTitle": "ไม่มีรายการที่ตรงกับตัวกรองเหล่านี้",
+      "emptyFilteredBody": "ลองสถานะหรือคำค้นอื่น"
     },
     "notifications": {
       "subtitle": "เลือกอีเมลที่คุณต้องการรับ",
@@ -571,7 +610,8 @@
       "recommended": "แนะนำ",
       "nameAsc": "ชื่อ ก–ฮ",
       "nameDesc": "ชื่อ ฮ–ก",
-      "newest": "ใหม่สุดก่อน"
+      "newest": "ใหม่สุดก่อน",
+      "topRated": "คะแนนสูงสุด"
     },
     "availableNow": "ว่างตอนนี้",
     "availableNowHint": "ซ่อนผู้ให้บริการที่หยุดรับการจองใหม่ชั่วคราว",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "เวลาทำการ",
     "fallbackWithOrganization": "จองนัดหมายกับ {name} ซึ่งทำงานที่ {organization}",
-    "fallbackDescription": "จองนัดหมายกับ {name}"
+    "fallbackDescription": "จองนัดหมายกับ {name}",
+    "reviews": {
+      "title": "รีวิว",
+      "count": "{count, plural, one {# รีวิว} other {# รีวิว}}",
+      "empty": "ยังไม่มีรีวิว",
+      "emptyHint": "รีวิวจะแสดงที่นี่หลังจากเข้ารับบริการแล้ว",
+      "write": "เขียนรีวิว",
+      "signInPrompt": "เข้าสู่ระบบเพื่อเขียนรีวิว",
+      "edit": "แก้ไข",
+      "editTitle": "แก้ไขรีวิวของคุณ",
+      "remove": "ลบ",
+      "removeTitle": "ลบรีวิวของคุณหรือไม่",
+      "removeDescription": "คะแนนและความคิดเห็นของคุณจะถูกลบอย่างถาวร",
+      "report": "รายงาน",
+      "reportTitle": "รายงานรีวิวนี้",
+      "reportDescription": "บอกเราว่ามีปัญหาอะไร เราอ่านทุกรายงานและจะลบรีวิวที่ผิดกฎ",
+      "reportLabel": "ปัญหาคืออะไร",
+      "reportSubmit": "ส่งรายงาน",
+      "reportSent": "ขอบคุณ เราจะตรวจสอบให้",
+      "reply": "ตอบกลับ",
+      "replyTitle": "ตอบกลับรีวิวนี้",
+      "replyLabel": "คำตอบของคุณ",
+      "replySubmit": "โพสต์คำตอบ",
+      "replyFrom": "คำตอบจากผู้ให้บริการ",
+      "formTitle": "ให้คะแนนการเข้ารับบริการ",
+      "ratingLabel": "คะแนนของคุณ",
+      "ratingRequired": "กรุณาเลือกคะแนน",
+      "commentLabel": "ความคิดเห็นของคุณ",
+      "commentPlaceholder": "อะไรที่ดี และอะไรที่ควรปรับปรุง",
+      "submit": "โพสต์รีวิว",
+      "save": "บันทึกการเปลี่ยนแปลง",
+      "edited": "แก้ไขแล้ว",
+      "ratingAria": "ได้ {rating} จาก 5",
+      "summaryAria": "{rating} จาก 5 จาก {count} รีวิว",
+      "starCount": "{count, plural, one {# ดาว} other {# ดาว}}",
+      "pagesLabel": "หน้ารีวิว",
+      "loadError": "ไม่สามารถโหลดรีวิวได้ กรุณาลองใหม่"
+    }
   },
   "Legal": {
     "termsMetaTitle": "ข้อกำหนดในการให้บริการ",
@@ -692,11 +769,40 @@
     "workingDays": "วันทำงาน",
     "weekend": "วันหยุดสุดสัปดาห์"
   },
+  "Validation": {
+    "required": "กรุณากรอก {label}",
+    "maxCharsForInput": "สูงสุด {max} ตัวอักษร",
+    "maxCharsForTextarea": "สูงสุด {max} ตัวอักษร",
+    "oneItemSelectedAtLeast": "กรุณาเลือกอย่างน้อยหนึ่งรายการ",
+    "email": "อีเมลไม่ถูกต้อง",
+    "positiveNumber": "ต้องเป็นจำนวนบวก",
+    "url": "URL ไม่ถูกต้อง"
+  },
   "Errors": {
     "notFoundTitle": "ไม่พบหน้า",
     "notFoundBody": "หน้าที่คุณกำลังหาไม่มีอยู่หรือถูกย้ายไปแล้ว",
     "title": "เกิดข้อผิดพลาด",
     "body": "ไม่สามารถโหลดหน้านี้ได้ กรุณาลองใหม่อีกครั้ง",
     "reference": "อ้างอิง: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "การดูแลรีวิว",
+    "metaDescription": "รีวิวที่ถูกรายงานและรอการตัดสินใจ",
+    "title": "รีวิวที่ถูกรายงาน",
+    "empty": "ไม่มีรายการให้ตรวจสอบ",
+    "emptyHint": "รายงานจากผู้ให้บริการจะมาที่นี่",
+    "statusOpen": "รอดำเนินการ",
+    "statusResolved": "ดำเนินการแล้ว",
+    "statusDismissed": "ยกเลิก",
+    "filterLabel": "สถานะ",
+    "reason": "เหตุผล",
+    "reportedBy": "รายงานโดย {name}",
+    "hide": "ซ่อนรีวิว",
+    "restore": "กู้คืนรีวิว",
+    "hidden": "ซ่อนอยู่",
+    "resolve": "ยอมรับและปิด",
+    "dismiss": "ยกเลิกรายงาน",
+    "actionError": "ดำเนินการไม่สำเร็จ กรุณาลองใหม่",
+    "pagesLabel": "หน้ารายงาน"
   }
 }

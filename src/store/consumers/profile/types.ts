@@ -14,11 +14,9 @@ export type Consumer = {
     phoneNumber: string
     phone?: PhoneNumber
     email?: string
-    description?: string
   }
   details: {
     favoriteProviders: BasicProvider[]
-    description?: string
     emailVerifiedAt?: string
     emailNotificationPrefs: ConsumerEmailNotificationPrefs
     paymentInfo?: PaymentInfo

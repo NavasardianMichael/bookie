@@ -71,7 +71,6 @@ export const GoogleButton: FC<Props> = ({ role, disabled }) => {
   return (
     <AppButton
       type='default'
-      size='large'
       block
       disabled={disabled}
       onClick={handleClick}

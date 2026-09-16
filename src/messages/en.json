@@ -13,6 +13,7 @@
     "share": "Share",
     "linkCopied": "Link copied",
     "copyFailed": "Could not copy",
+    "copied": "Copied to clipboard",
     "viewAll": "View all",
     "goHome": "Go home",
     "tryAgain": "Try again",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} min",
       "price": "Price",
       "location": "Location",
+      "copyLocation": "Copy address",
+      "copyPhone": "Copy phone number",
       "accepts": "Accepted payment"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Last name",
       "phone": "Phone number",
       "email": "Email",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Without an email you will not receive booking reminders, updates about changes, or cancellation notices.",
+      "emailHintLabel": "Why we ask for email"
     },
     "paymentLabel": "How you'd like to pay",
     "paymentPlaceholder": "Select one or more methods",
@@ -182,8 +187,6 @@
     "notesLabel": "Notes for the provider",
     "notesPlaceholder": "Anything they should know before your appointment",
     "submit": "Confirm booking",
-    "requiredBadge": "Required",
-    "optionalBadge": "Optional",
     "chooseService": "Choose a service",
     "chooseServiceHint": "Its duration sets the length of every slot offered below.",
     "chooseServiceNotification": "Choose a service",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "no open times",
     "requested": "Appointment requested",
     "requestedBody": "{name} will confirm your {when} booking shortly.",
-    "failed": "Booking failed"
+    "failed": "Booking failed",
+    "confirmedTitle": "Booking confirmed",
+    "emailSent": "We've sent the details to {email}.",
+    "manageLinkLabel": "Your booking link",
+    "copyManageLink": "Copy booking link",
+    "viewBooking": "View booking",
+    "cancel": "Cancel booking",
+    "cancelConfirmTitle": "Cancel this booking?",
+    "cancelConfirmBody": "The slot will open up again. This cannot be undone.",
+    "cancelledNotice": "This booking is cancelled.",
+    "edit": "Change time",
+    "confirmNewTime": "Confirm new time",
+    "stopEditing": "Back to booking",
+    "rescheduleConfirmTitle": "Change to this time?",
+    "rescheduleConfirmBody": "Your booking will move to {when}.",
+    "rescheduled": "Booking updated",
+    "cannotEdit": "This booking can no longer be changed.",
+    "manageMetaTitle": "Your booking",
+    "manageSubtitle": "View, cancel, or pick a new time.",
+    "manageNotFoundTitle": "Booking not found",
+    "manageNotFoundBody": "This link is invalid or the booking no longer exists."
   },
   "Footer": {
     "blurb": "A single platform to find local services or run a booking calendar.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG or PNG. Max size 2MB.",
       "upload": "Upload new",
       "providerSubtitle": "Update the details shown on your public profile.",
-      "sendEmailCode": "Send verification email",
+      "sendEmailCode": "Reset email",
       "emailRequired": "Enter an email address first.",
       "emailCodeSent": "We sent a verification link to {email}. Open it to confirm this address. In development the link is printed in the API server console.",
       "emailVerified": "Email verified and saved.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Appointments",
-      "subtitle": "Your upcoming bookings.",
+      "subtitle": "Search, filter, and manage your bookings.",
       "upcoming": "Upcoming",
       "emptyTitle": "No upcoming appointments",
       "emptyBody": "Book a service to see it here.",
       "bookService": "Book a Service",
       "unknownProvider": "Provider",
-      "unknownService": "Service"
+      "unknownService": "Service",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "searchPlaceholder": "Search by provider or service",
+      "searchLabel": "Search appointments",
+      "statusPlaceholder": "Any status",
+      "statusLabel": "Filter by status",
+      "sortLabel": "Sort appointments",
+      "sort": {
+        "startDesc": "Newest first",
+        "startAsc": "Oldest first",
+        "createdDesc": "Recently booked",
+        "nameAsc": "Provider name (A-Z)"
+      },
+      "clearFilters": "Clear filters",
+      "emptyFilteredTitle": "Nothing matches these filters",
+      "emptyFilteredBody": "Try a different status or search term."
     },
     "notifications": {
       "subtitle": "Choose which emails you want to receive.",
@@ -571,7 +610,8 @@
       "recommended": "Recommended",
       "nameAsc": "Name A–Z",
       "nameDesc": "Name Z–A",
-      "newest": "Newest first"
+      "newest": "Newest first",
+      "topRated": "Top rated"
     },
     "availableNow": "Available now",
     "availableNowHint": "Hide providers who have paused new bookings.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Working hours",
     "fallbackWithOrganization": "Book an appointment with {name}, who works at {organization}.",
-    "fallbackDescription": "Book an appointment with {name}."
+    "fallbackDescription": "Book an appointment with {name}.",
+    "reviews": {
+      "title": "Reviews",
+      "count": "{count, plural, one {# review} other {# reviews}}",
+      "empty": "No reviews yet",
+      "emptyHint": "Reviews appear here once a visit has happened.",
+      "write": "Write a review",
+      "signInPrompt": "Sign in to leave a review",
+      "edit": "Edit",
+      "editTitle": "Edit your review",
+      "remove": "Delete",
+      "removeTitle": "Delete your review?",
+      "removeDescription": "Your rating and comment will be removed for good.",
+      "report": "Report",
+      "reportTitle": "Report this review",
+      "reportDescription": "Tell us what is wrong with it. We read every report and remove reviews that break our rules.",
+      "reportLabel": "What is the problem?",
+      "reportSubmit": "Send report",
+      "reportSent": "Thanks — we will take a look.",
+      "reply": "Reply",
+      "replyTitle": "Reply to this review",
+      "replyLabel": "Your reply",
+      "replySubmit": "Post reply",
+      "replyFrom": "Response from the provider",
+      "formTitle": "Rate your visit",
+      "ratingLabel": "Your rating",
+      "ratingRequired": "Please choose a rating",
+      "commentLabel": "Your comment",
+      "commentPlaceholder": "What went well? What could have been better?",
+      "submit": "Post review",
+      "save": "Save changes",
+      "edited": "Edited",
+      "ratingAria": "Rated {rating} out of 5",
+      "summaryAria": "{rating} out of 5, from {count} reviews",
+      "starCount": "{count, plural, one {# star} other {# stars}}",
+      "pagesLabel": "Review pages",
+      "loadError": "We could not load the reviews. Please try again."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Terms of Service",
@@ -692,11 +769,40 @@
     "workingDays": "Working days",
     "weekend": "Weekend"
   },
+  "Validation": {
+    "required": "Please fill in {label}",
+    "maxCharsForInput": "Max count of characters is {max}",
+    "maxCharsForTextarea": "Max count of characters is {max}",
+    "oneItemSelectedAtLeast": "Please select at least one item",
+    "email": "Invalid email",
+    "positiveNumber": "Must be a positive number",
+    "url": "Invalid URL"
+  },
   "Errors": {
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you are looking for does not exist or has moved.",
     "title": "Something went wrong",
     "body": "We could not load this page. Please try again.",
     "reference": "Reference: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Review moderation",
+    "metaDescription": "Reported reviews awaiting a decision.",
+    "title": "Reported reviews",
+    "empty": "Nothing to review",
+    "emptyHint": "Reports from providers land here.",
+    "statusOpen": "Open",
+    "statusResolved": "Resolved",
+    "statusDismissed": "Dismissed",
+    "filterLabel": "Status",
+    "reason": "Reason",
+    "reportedBy": "Reported by {name}",
+    "hide": "Hide review",
+    "restore": "Restore review",
+    "hidden": "Hidden",
+    "resolve": "Uphold and close",
+    "dismiss": "Dismiss report",
+    "actionError": "That did not work. Please try again.",
+    "pagesLabel": "Report pages"
   }
 }

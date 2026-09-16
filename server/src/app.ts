@@ -6,6 +6,7 @@ import { ok } from './lib/api-response.js'
 import { optionalAuth } from './middleware/auth.js'
 import { requireSameOrigin } from './middleware/csrf.js'
 import { errorHandler } from './middleware/error.js'
+import { adminRouter } from './routes/admin.js'
 import { appointmentsRouter } from './routes/appointments.js'
 import { categoriesRouter } from './routes/categories.js'
 import { consumerProfileRouter } from './routes/consumers.js'
@@ -13,9 +14,16 @@ import { contactRouter } from './routes/contact.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
+import { providerReviewsRouter, reviewsRouter } from './routes/reviews.js'
 
 export function createApp() {
   const app = express()
+
+  // Exactly one hop — nginx — never `true`, which would trust a client-supplied
+  // X-Forwarded-For. Without this every request reports nginx's address and all the
+  // in-memory IP limiters in lib/rateLimit.ts collapse into a single shared bucket.
+  // Set to the real hop count if another proxy is ever put in front.
+  app.set('trust proxy', 1)
 
   app.use(
     cors({
@@ -42,6 +50,13 @@ export function createApp() {
 
   app.use('/identity', identityRouter)
   app.use('/providers', providersRouter)
+  // A second router on `/providers`: a review is a sub-resource of the page it is about,
+  // so `/providers/:id/reviews` belongs to that namespace even though its handlers live
+  // in `routes/reviews.ts`. Express runs both in registration order; the paths do not
+  // overlap, because `providersRouter` has no `/:id/reviews`.
+  app.use('/providers', providerReviewsRouter)
+  app.use('/reviews', reviewsRouter)
+  app.use('/admin', adminRouter)
   app.use('/provider-profile', providerProfileRouter)
   app.use('/organizations', organizationsRouter)
   app.use('/categories', categoriesRouter)

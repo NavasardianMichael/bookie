@@ -13,6 +13,7 @@
     "share": "Condividi",
     "linkCopied": "Link copiato",
     "copyFailed": "Impossibile copiare",
+    "copied": "Copiato negli appunti",
     "viewAll": "Vedi tutto",
     "goHome": "Vai alla home",
     "tryAgain": "Riprova",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} min",
       "price": "Prezzo",
       "location": "Luogo",
+      "copyLocation": "Copia indirizzo",
+      "copyPhone": "Copia numero di telefono",
       "accepts": "Pagamento accettato"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Cognome",
       "phone": "Numero di telefono",
       "email": "Email",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Senza un'email non riceverai promemoria della prenotazione, avvisi di modifica né notifiche di cancellazione.",
+      "emailHintLabel": "Perché chiediamo l'email"
     },
     "paymentLabel": "Come preferisci pagare",
     "paymentPlaceholder": "Seleziona uno o più metodi",
@@ -182,8 +187,6 @@
     "notesLabel": "Note per il professionista",
     "notesPlaceholder": "Tutto ciò che deve sapere prima dell'appuntamento",
     "submit": "Conferma prenotazione",
-    "requiredBadge": "Obbligatorio",
-    "optionalBadge": "Facoltativo",
     "chooseService": "Scegli un servizio",
     "chooseServiceHint": "La sua durata definisce la lunghezza di ogni orario mostrato sotto.",
     "chooseServiceNotification": "Scegli un servizio",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "nessun orario disponibile",
     "requested": "Appuntamento richiesto",
     "requestedBody": "{name} confermerà a breve la tua prenotazione del {when}.",
-    "failed": "Prenotazione non riuscita"
+    "failed": "Prenotazione non riuscita",
+    "confirmedTitle": "Prenotazione confermata",
+    "emailSent": "Abbiamo inviato i dettagli a {email}.",
+    "manageLinkLabel": "Il tuo link di prenotazione",
+    "copyManageLink": "Copia link della prenotazione",
+    "viewBooking": "Vedi prenotazione",
+    "cancel": "Annulla prenotazione",
+    "cancelConfirmTitle": "Annullare questa prenotazione?",
+    "cancelConfirmBody": "Lo slot tornerà libero. L’operazione non si può annullare.",
+    "cancelledNotice": "Questa prenotazione è annullata.",
+    "edit": "Cambia orario",
+    "confirmNewTime": "Conferma nuovo orario",
+    "stopEditing": "Torna alla prenotazione",
+    "rescheduleConfirmTitle": "Passare a questo orario?",
+    "rescheduleConfirmBody": "La prenotazione verrà spostata a {when}.",
+    "rescheduled": "Prenotazione aggiornata",
+    "cannotEdit": "Questa prenotazione non può più essere modificata.",
+    "manageMetaTitle": "La tua prenotazione",
+    "manageSubtitle": "Visualizza, annulla o scegli un altro orario.",
+    "manageNotFoundTitle": "Prenotazione non trovata",
+    "manageNotFoundBody": "Questo link non è valido o la prenotazione non esiste più."
   },
   "Footer": {
     "blurb": "Un’unica piattaforma per trovare servizi nella tua zona o gestire la tua agenda di prenotazioni.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG o PNG. Dimensione massima 2 MB.",
       "upload": "Carica nuova",
       "providerSubtitle": "Aggiorna i dati mostrati sul tuo profilo pubblico.",
-      "sendEmailCode": "Invia email di verifica",
+      "sendEmailCode": "Reimposta email",
       "emailRequired": "Inserisci prima un indirizzo email.",
       "emailCodeSent": "Abbiamo inviato un link di verifica a {email}. Aprilo per confermare questo indirizzo. In sviluppo il link viene stampato nella console del server API.",
       "emailVerified": "Email verificata e salvata.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Appuntamenti",
-      "subtitle": "Le tue prossime prenotazioni.",
+      "subtitle": "Cerca, filtra e gestisci le tue prenotazioni.",
       "upcoming": "In arrivo",
       "emptyTitle": "Nessun appuntamento in arrivo",
       "emptyBody": "Prenota un servizio per vederlo qui.",
       "bookService": "Prenota un servizio",
       "unknownProvider": "Professionista",
-      "unknownService": "Servizio"
+      "unknownService": "Servizio",
+      "edit": "Modifica",
+      "cancel": "Annulla",
+      "searchPlaceholder": "Cerca per professionista o servizio",
+      "searchLabel": "Cerca appuntamenti",
+      "statusPlaceholder": "Qualsiasi stato",
+      "statusLabel": "Filtra per stato",
+      "sortLabel": "Ordina appuntamenti",
+      "sort": {
+        "startDesc": "Più recenti prima",
+        "startAsc": "Più vecchi prima",
+        "createdDesc": "Prenotati di recente",
+        "nameAsc": "Nome del professionista (A-Z)"
+      },
+      "clearFilters": "Cancella filtri",
+      "emptyFilteredTitle": "Niente corrisponde a questi filtri",
+      "emptyFilteredBody": "Prova un altro stato o termine di ricerca."
     },
     "notifications": {
       "subtitle": "Scegli quali email vuoi ricevere.",
@@ -571,7 +610,8 @@
       "recommended": "Consigliati",
       "nameAsc": "Nome A–Z",
       "nameDesc": "Nome Z–A",
-      "newest": "Più recenti prima"
+      "newest": "Più recenti prima",
+      "topRated": "Più apprezzati"
     },
     "availableNow": "Disponibili ora",
     "availableNowHint": "Nascondi i professionisti che hanno messo in pausa le nuove prenotazioni.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Orari di lavoro",
     "fallbackWithOrganization": "Prenota un appuntamento con {name}, che lavora presso {organization}.",
-    "fallbackDescription": "Prenota un appuntamento con {name}."
+    "fallbackDescription": "Prenota un appuntamento con {name}.",
+    "reviews": {
+      "title": "Recensioni",
+      "count": "{count, plural, one {# recensione} other {# recensioni}}",
+      "empty": "Ancora nessuna recensione",
+      "emptyHint": "Le recensioni compaiono qui dopo un appuntamento.",
+      "write": "Scrivi una recensione",
+      "signInPrompt": "Accedi per lasciare una recensione",
+      "edit": "Modifica",
+      "editTitle": "Modifica la tua recensione",
+      "remove": "Elimina",
+      "removeTitle": "Eliminare la tua recensione?",
+      "removeDescription": "Il tuo voto e il tuo commento saranno eliminati definitivamente.",
+      "report": "Segnala",
+      "reportTitle": "Segnala questa recensione",
+      "reportDescription": "Dicci qual è il problema. Leggiamo ogni segnalazione e rimuoviamo le recensioni che violano le nostre regole.",
+      "reportLabel": "Qual è il problema?",
+      "reportSubmit": "Invia segnalazione",
+      "reportSent": "Grazie, daremo un’occhiata.",
+      "reply": "Rispondi",
+      "replyTitle": "Rispondi a questa recensione",
+      "replyLabel": "La tua risposta",
+      "replySubmit": "Pubblica risposta",
+      "replyFrom": "Risposta del professionista",
+      "formTitle": "Valuta il tuo appuntamento",
+      "ratingLabel": "Il tuo voto",
+      "ratingRequired": "Scegli un voto",
+      "commentLabel": "Il tuo commento",
+      "commentPlaceholder": "Cosa è andato bene? Cosa si poteva fare meglio?",
+      "submit": "Pubblica recensione",
+      "save": "Salva modifiche",
+      "edited": "Modificata",
+      "ratingAria": "Valutato {rating} su 5",
+      "summaryAria": "{rating} su 5, da {count} recensioni",
+      "starCount": "{count, plural, one {# stella} other {# stelle}}",
+      "pagesLabel": "Pagine di recensioni",
+      "loadError": "Non è stato possibile caricare le recensioni. Riprova."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Termini di servizio",
@@ -692,11 +769,40 @@
     "workingDays": "Giorni lavorativi",
     "weekend": "Weekend"
   },
+  "Validation": {
+    "required": "Compila {label}",
+    "maxCharsForInput": "Massimo {max} caratteri",
+    "maxCharsForTextarea": "Massimo {max} caratteri",
+    "oneItemSelectedAtLeast": "Seleziona almeno un elemento",
+    "email": "Email non valida",
+    "positiveNumber": "Deve essere un numero positivo",
+    "url": "URL non valido"
+  },
   "Errors": {
     "notFoundTitle": "Pagina non trovata",
     "notFoundBody": "La pagina che cerchi non esiste o è stata spostata.",
     "title": "Qualcosa è andato storto",
     "body": "Non è stato possibile caricare questa pagina. Riprova.",
     "reference": "Riferimento: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Moderazione recensioni",
+    "metaDescription": "Recensioni segnalate in attesa di decisione.",
+    "title": "Recensioni segnalate",
+    "empty": "Nulla da esaminare",
+    "emptyHint": "Qui arrivano le segnalazioni dei professionisti.",
+    "statusOpen": "Aperta",
+    "statusResolved": "Risolta",
+    "statusDismissed": "Respinta",
+    "filterLabel": "Stato",
+    "reason": "Motivo",
+    "reportedBy": "Segnalata da {name}",
+    "hide": "Nascondi recensione",
+    "restore": "Ripristina recensione",
+    "hidden": "Nascosta",
+    "resolve": "Accogli e chiudi",
+    "dismiss": "Respingi segnalazione",
+    "actionError": "Non ha funzionato. Riprova.",
+    "pagesLabel": "Pagine di segnalazioni"
   }
 }

@@ -13,6 +13,7 @@
     "share": "공유",
     "linkCopied": "링크가 복사되었습니다",
     "copyFailed": "복사하지 못했습니다",
+    "copied": "클립보드에 복사됨",
     "viewAll": "전체 보기",
     "goHome": "홈으로 이동",
     "tryAgain": "다시 시도",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes}분",
       "price": "가격",
       "location": "장소",
+      "copyLocation": "주소 복사",
+      "copyPhone": "전화번호 복사",
       "accepts": "가능한 결제 수단"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "성",
       "phone": "전화번호",
       "email": "이메일",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "이메일을 제공하지 않으면 예약 알림, 변경 안내, 취소 알림을 받을 수 없습니다.",
+      "emailHintLabel": "이메일을 요청하는 이유"
     },
     "paymentLabel": "결제 희망 방법",
     "paymentPlaceholder": "하나 이상 선택하세요",
@@ -182,8 +187,6 @@
     "notesLabel": "제공자에게 전달할 내용",
     "notesPlaceholder": "예약 전에 알아 두어야 할 사항",
     "submit": "예약 확정",
-    "requiredBadge": "필수",
-    "optionalBadge": "선택",
     "chooseService": "서비스 선택",
     "chooseServiceHint": "선택한 서비스의 소요 시간이 아래 시간대의 길이를 결정해요.",
     "chooseServiceNotification": "서비스를 선택해 주세요",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "예약 가능 없음",
     "requested": "예약을 요청했어요",
     "requestedBody": "{name}님이 곧 {when} 예약을 확정해 드릴 거예요.",
-    "failed": "예약에 실패했어요"
+    "failed": "예약에 실패했어요",
+    "confirmedTitle": "예약이 확정되었어요",
+    "emailSent": "세부 정보를 {email}(으)로 보냈어요.",
+    "manageLinkLabel": "예약 링크",
+    "copyManageLink": "예약 링크 복사",
+    "viewBooking": "예약 보기",
+    "cancel": "예약 취소",
+    "cancelConfirmTitle": "이 예약을 취소할까요?",
+    "cancelConfirmBody": "해당 시간이 다시 열립니다. 이 작업은 되돌릴 수 없어요.",
+    "cancelledNotice": "이 예약은 취소되었어요.",
+    "edit": "시간 변경",
+    "confirmNewTime": "새 시간 확인",
+    "stopEditing": "예약으로 돌아가기",
+    "rescheduleConfirmTitle": "이 시간으로 바꿀까요?",
+    "rescheduleConfirmBody": "예약이 {when}(으)로 옮겨집니다.",
+    "rescheduled": "예약이 업데이트되었어요",
+    "cannotEdit": "이 예약은 더 이상 변경할 수 없어요.",
+    "manageMetaTitle": "내 예약",
+    "manageSubtitle": "확인하고, 취소하거나, 다른 시간을 고르세요.",
+    "manageNotFoundTitle": "예약을 찾을 수 없어요",
+    "manageNotFoundBody": "이 링크가 유효하지 않거나 예약이 더 이상 없어요."
   },
   "Footer": {
     "blurb": "주변 서비스를 찾는 것도, 예약 일정을 관리하는 것도 하나의 플랫폼에서.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG 또는 PNG, 최대 2MB.",
       "upload": "새로 업로드",
       "providerSubtitle": "공개 프로필에 표시되는 정보를 업데이트하세요.",
-      "sendEmailCode": "인증 이메일 보내기",
+      "sendEmailCode": "이메일 재설정",
       "emailRequired": "먼저 이메일 주소를 입력해 주세요.",
       "emailCodeSent": "{email}(으)로 인증 링크를 보냈습니다. 링크를 열어 이 주소를 확인하세요. 개발 환경에서는 링크가 API 서버 콘솔에 출력됩니다.",
       "emailVerified": "이메일을 확인하고 저장했어요.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "예약 내역",
-      "subtitle": "다가오는 예약이에요.",
+      "subtitle": "예약을 검색, 필터링하고 관리하세요.",
       "upcoming": "다가오는 예약",
       "emptyTitle": "다가오는 예약이 없어요",
       "emptyBody": "서비스를 예약하면 여기에 표시돼요.",
       "bookService": "서비스 예약하기",
       "unknownProvider": "제공자",
-      "unknownService": "서비스"
+      "unknownService": "서비스",
+      "edit": "수정",
+      "cancel": "취소",
+      "searchPlaceholder": "제공자 또는 서비스로 검색",
+      "searchLabel": "예약 검색",
+      "statusPlaceholder": "모든 상태",
+      "statusLabel": "상태별 필터",
+      "sortLabel": "예약 정렬",
+      "sort": {
+        "startDesc": "최신순",
+        "startAsc": "오래된순",
+        "createdDesc": "최근 예약",
+        "nameAsc": "제공자 이름 (A-Z)"
+      },
+      "clearFilters": "필터 지우기",
+      "emptyFilteredTitle": "이 필터와 일치하는 항목이 없어요",
+      "emptyFilteredBody": "다른 상태나 검색어를 시도해 보세요."
     },
     "notifications": {
       "subtitle": "받을 이메일을 선택하세요.",
@@ -571,7 +610,8 @@
       "recommended": "추천",
       "nameAsc": "이름 A–Z",
       "nameDesc": "이름 Z–A",
-      "newest": "최신 등록순"
+      "newest": "최신 등록순",
+      "topRated": "평점 높은 순"
     },
     "availableNow": "지금 예약 가능",
     "availableNowHint": "새 예약을 잠시 중단한 제공자를 숨겨요.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "영업 시간",
     "fallbackWithOrganization": "{organization}에서 근무하는 {name}에게 예약하세요.",
-    "fallbackDescription": "{name}에게 예약하세요."
+    "fallbackDescription": "{name}에게 예약하세요.",
+    "reviews": {
+      "title": "리뷰",
+      "count": "{count, plural, one {리뷰 #개} other {리뷰 #개}}",
+      "empty": "아직 리뷰가 없습니다",
+      "emptyHint": "예약이 끝나면 리뷰가 여기에 표시됩니다.",
+      "write": "리뷰 쓰기",
+      "signInPrompt": "리뷰를 남기려면 로그인하세요",
+      "edit": "수정",
+      "editTitle": "내 리뷰 수정",
+      "remove": "삭제",
+      "removeTitle": "내 리뷰를 삭제할까요?",
+      "removeDescription": "평점과 댓글이 영구적으로 삭제됩니다.",
+      "report": "신고",
+      "reportTitle": "이 리뷰 신고하기",
+      "reportDescription": "무엇이 문제인지 알려주세요. 모든 신고를 확인하고 규정을 위반한 리뷰는 삭제합니다.",
+      "reportLabel": "무엇이 문제인가요?",
+      "reportSubmit": "신고 보내기",
+      "reportSent": "감사합니다. 확인하겠습니다.",
+      "reply": "답글",
+      "replyTitle": "이 리뷰에 답글 달기",
+      "replyLabel": "답글 내용",
+      "replySubmit": "답글 등록",
+      "replyFrom": "제공자 답글",
+      "formTitle": "방문을 평가해 주세요",
+      "ratingLabel": "평점",
+      "ratingRequired": "평점을 선택해 주세요",
+      "commentLabel": "댓글",
+      "commentPlaceholder": "좋았던 점은? 아쉬웠던 점은?",
+      "submit": "리뷰 등록",
+      "save": "변경 사항 저장",
+      "edited": "수정됨",
+      "ratingAria": "5점 만점에 {rating}점",
+      "summaryAria": "5점 만점에 {rating}점, 리뷰 {count}개",
+      "starCount": "{count, plural, one {별 #개} other {별 #개}}",
+      "pagesLabel": "리뷰 페이지",
+      "loadError": "리뷰를 불러오지 못했습니다. 다시 시도해 주세요."
+    }
   },
   "Legal": {
     "termsMetaTitle": "서비스 약관",
@@ -692,11 +769,40 @@
     "workingDays": "근무일",
     "weekend": "주말"
   },
+  "Validation": {
+    "required": "{label}을(를) 입력하세요",
+    "maxCharsForInput": "최대 {max}자",
+    "maxCharsForTextarea": "최대 {max}자",
+    "oneItemSelectedAtLeast": "하나 이상 선택하세요",
+    "email": "잘못된 이메일",
+    "positiveNumber": "양수여야 합니다",
+    "url": "잘못된 URL"
+  },
   "Errors": {
     "notFoundTitle": "페이지를 찾을 수 없어요",
     "notFoundBody": "찾으시는 페이지가 존재하지 않거나 이동되었어요.",
     "title": "문제가 발생했어요",
     "body": "페이지를 불러오지 못했어요. 다시 시도해 주세요.",
     "reference": "참조: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "리뷰 관리",
+    "metaDescription": "처리를 기다리는 신고된 리뷰.",
+    "title": "신고된 리뷰",
+    "empty": "처리할 항목이 없습니다",
+    "emptyHint": "제공자의 신고가 여기에 표시됩니다.",
+    "statusOpen": "대기",
+    "statusResolved": "처리됨",
+    "statusDismissed": "기각됨",
+    "filterLabel": "상태",
+    "reason": "사유",
+    "reportedBy": "{name} 님이 신고",
+    "hide": "리뷰 숨기기",
+    "restore": "리뷰 복원",
+    "hidden": "숨김",
+    "resolve": "인정하고 종료",
+    "dismiss": "신고 기각",
+    "actionError": "처리하지 못했습니다. 다시 시도해 주세요.",
+    "pagesLabel": "신고 페이지"
   }
 }

@@ -13,6 +13,7 @@
     "share": "Compartilhar",
     "linkCopied": "Link copiado",
     "copyFailed": "Não foi possível copiar",
+    "copied": "Copiado para a área de transferência",
     "viewAll": "Ver tudo",
     "goHome": "Ir para o início",
     "tryAgain": "Tentar novamente",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} min",
       "price": "Preço",
       "location": "Local",
+      "copyLocation": "Copiar endereço",
+      "copyPhone": "Copiar número de telefone",
       "accepts": "Pagamento aceito"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "Sobrenome",
       "phone": "Número de telefone",
       "email": "E-mail",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Sem um e-mail você não receberá lembretes da reserva, avisos de alterações nem notificações de cancelamento.",
+      "emailHintLabel": "Por que pedimos o e-mail"
     },
     "paymentLabel": "Como você prefere pagar",
     "paymentPlaceholder": "Selecione um ou mais métodos",
@@ -182,8 +187,6 @@
     "notesLabel": "Observações para o profissional",
     "notesPlaceholder": "Qualquer coisa que ele deva saber antes do atendimento",
     "submit": "Confirmar agendamento",
-    "requiredBadge": "Obrigatório",
-    "optionalBadge": "Opcional",
     "chooseService": "Escolha um serviço",
     "chooseServiceHint": "A duração dele define o tamanho de cada horário mostrado abaixo.",
     "chooseServiceNotification": "Escolha um serviço",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "sem horários disponíveis",
     "requested": "Agendamento solicitado",
     "requestedBody": "{name} confirmará em breve o seu agendamento de {when}.",
-    "failed": "Não foi possível agendar"
+    "failed": "Não foi possível agendar",
+    "confirmedTitle": "Agendamento confirmado",
+    "emailSent": "Enviamos os detalhes para {email}.",
+    "manageLinkLabel": "Seu link de agendamento",
+    "copyManageLink": "Copiar link do agendamento",
+    "viewBooking": "Ver agendamento",
+    "cancel": "Cancelar agendamento",
+    "cancelConfirmTitle": "Cancelar este agendamento?",
+    "cancelConfirmBody": "O horário ficará livre de novo. Isso não pode ser desfeito.",
+    "cancelledNotice": "Este agendamento está cancelado.",
+    "edit": "Mudar horário",
+    "confirmNewTime": "Confirmar novo horário",
+    "stopEditing": "Voltar ao agendamento",
+    "rescheduleConfirmTitle": "Mudar para este horário?",
+    "rescheduleConfirmBody": "Seu agendamento será movido para {when}.",
+    "rescheduled": "Agendamento atualizado",
+    "cannotEdit": "Este agendamento não pode mais ser alterado.",
+    "manageMetaTitle": "Seu agendamento",
+    "manageSubtitle": "Veja, cancele ou escolha outro horário.",
+    "manageNotFoundTitle": "Agendamento não encontrado",
+    "manageNotFoundBody": "Este link é inválido ou o agendamento não existe mais."
   },
   "Footer": {
     "blurb": "Uma única plataforma para encontrar serviços locais ou gerenciar sua agenda de agendamentos.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG ou PNG. Tamanho máximo 2 MB.",
       "upload": "Enviar nova",
       "providerSubtitle": "Atualize os dados exibidos no seu perfil público.",
-      "sendEmailCode": "Enviar e-mail de verificação",
+      "sendEmailCode": "Redefinir e-mail",
       "emailRequired": "Informe um e-mail primeiro.",
       "emailCodeSent": "Enviamos um link de verificação para {email}. Abra-o para confirmar este endereço. Em desenvolvimento, o link é exibido no console do servidor da API.",
       "emailVerified": "E-mail verificado e salvo.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "Agendamentos",
-      "subtitle": "Seus próximos agendamentos.",
+      "subtitle": "Pesquise, filtre e gerencie seus agendamentos.",
       "upcoming": "Próximos",
       "emptyTitle": "Nenhum agendamento próximo",
       "emptyBody": "Agende um serviço para vê-lo aqui.",
       "bookService": "Agendar um serviço",
       "unknownProvider": "Profissional",
-      "unknownService": "Serviço"
+      "unknownService": "Serviço",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "searchPlaceholder": "Pesquisar por profissional ou serviço",
+      "searchLabel": "Pesquisar agendamentos",
+      "statusPlaceholder": "Qualquer status",
+      "statusLabel": "Filtrar por status",
+      "sortLabel": "Ordenar agendamentos",
+      "sort": {
+        "startDesc": "Mais recentes primeiro",
+        "startAsc": "Mais antigos primeiro",
+        "createdDesc": "Reservados recentemente",
+        "nameAsc": "Nome do profissional (A-Z)"
+      },
+      "clearFilters": "Limpar filtros",
+      "emptyFilteredTitle": "Nada corresponde a estes filtros",
+      "emptyFilteredBody": "Tente outro status ou termo de busca."
     },
     "notifications": {
       "subtitle": "Escolha quais e-mails você quer receber.",
@@ -571,7 +610,8 @@
       "recommended": "Recomendados",
       "nameAsc": "Nome A–Z",
       "nameDesc": "Nome Z–A",
-      "newest": "Mais recentes primeiro"
+      "newest": "Mais recentes primeiro",
+      "topRated": "Mais bem avaliados"
     },
     "availableNow": "Disponíveis agora",
     "availableNowHint": "Oculta profissionais que pausaram novos agendamentos.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "Horário de trabalho",
     "fallbackWithOrganization": "Agende um horário com {name}, que trabalha em {organization}.",
-    "fallbackDescription": "Agende um horário com {name}."
+    "fallbackDescription": "Agende um horário com {name}.",
+    "reviews": {
+      "title": "Avaliações",
+      "count": "{count, plural, one {# avaliação} other {# avaliações}}",
+      "empty": "Ainda não há avaliações",
+      "emptyHint": "As avaliações aparecem aqui depois de uma consulta.",
+      "write": "Escrever uma avaliação",
+      "signInPrompt": "Entre para deixar uma avaliação",
+      "edit": "Editar",
+      "editTitle": "Edite sua avaliação",
+      "remove": "Excluir",
+      "removeTitle": "Excluir sua avaliação?",
+      "removeDescription": "Sua nota e seu comentário serão removidos definitivamente.",
+      "report": "Denunciar",
+      "reportTitle": "Denunciar esta avaliação",
+      "reportDescription": "Conte-nos qual é o problema. Lemos todas as denúncias e removemos avaliações que violam nossas regras.",
+      "reportLabel": "Qual é o problema?",
+      "reportSubmit": "Enviar denúncia",
+      "reportSent": "Obrigado — vamos analisar.",
+      "reply": "Responder",
+      "replyTitle": "Responder a esta avaliação",
+      "replyLabel": "Sua resposta",
+      "replySubmit": "Publicar resposta",
+      "replyFrom": "Resposta do profissional",
+      "formTitle": "Avalie sua consulta",
+      "ratingLabel": "Sua nota",
+      "ratingRequired": "Escolha uma nota",
+      "commentLabel": "Seu comentário",
+      "commentPlaceholder": "O que foi bom? O que poderia melhorar?",
+      "submit": "Publicar avaliação",
+      "save": "Salvar alterações",
+      "edited": "Editada",
+      "ratingAria": "Nota {rating} de 5",
+      "summaryAria": "{rating} de 5, em {count} avaliações",
+      "starCount": "{count, plural, one {# estrela} other {# estrelas}}",
+      "pagesLabel": "Páginas de avaliações",
+      "loadError": "Não foi possível carregar as avaliações. Tente novamente."
+    }
   },
   "Legal": {
     "termsMetaTitle": "Termos de serviço",
@@ -692,11 +769,40 @@
     "workingDays": "Dias de trabalho",
     "weekend": "Fim de semana"
   },
+  "Validation": {
+    "required": "Preencha {label}",
+    "maxCharsForInput": "O máximo é {max} caracteres",
+    "maxCharsForTextarea": "O máximo é {max} caracteres",
+    "oneItemSelectedAtLeast": "Selecione pelo menos um item",
+    "email": "E-mail inválido",
+    "positiveNumber": "Deve ser um número positivo",
+    "url": "URL inválida"
+  },
   "Errors": {
     "notFoundTitle": "Página não encontrada",
     "notFoundBody": "A página que você procura não existe ou foi movida.",
     "title": "Algo deu errado",
     "body": "Não conseguimos carregar esta página. Tente novamente.",
     "reference": "Referência: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "Moderação de avaliações",
+    "metaDescription": "Avaliações denunciadas aguardando decisão.",
+    "title": "Avaliações denunciadas",
+    "empty": "Nada para revisar",
+    "emptyHint": "As denúncias dos profissionais chegam aqui.",
+    "statusOpen": "Aberta",
+    "statusResolved": "Resolvida",
+    "statusDismissed": "Descartada",
+    "filterLabel": "Status",
+    "reason": "Motivo",
+    "reportedBy": "Denunciada por {name}",
+    "hide": "Ocultar avaliação",
+    "restore": "Restaurar avaliação",
+    "hidden": "Oculta",
+    "resolve": "Aceitar e encerrar",
+    "dismiss": "Descartar denúncia",
+    "actionError": "Não funcionou. Tente novamente.",
+    "pagesLabel": "Páginas de denúncias"
   }
 }

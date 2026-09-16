@@ -1,5 +1,6 @@
 import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
+import { hashUrlToken, mintUrlToken } from '../lib/token.js'
 import { HttpError } from '../middleware/error.js'
 
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
@@ -114,16 +115,10 @@ export async function createAppointment(input: {
 
   const endAt = addMinutes(input.startAt, service.durationMinutes)
 
-  const conflict = await prisma.appointment.findFirst({
-    where: {
-      providerId: input.providerId,
-      status: { in: ['scheduled', 'confirmed'] },
-      OR: [
-        { startAt: { lte: input.startAt }, endAt: { gt: input.startAt } },
-        { startAt: { lt: endAt }, endAt: { gte: endAt } },
-        { startAt: { gte: input.startAt }, endAt: { lte: endAt } },
-      ],
-    },
+  const conflict = await findOverlappingAppointment({
+    providerId: input.providerId,
+    startAt: input.startAt,
+    endAt,
   })
 
   if (conflict) throw new HttpError(409, 'Time slot not available', 409)
@@ -136,7 +131,8 @@ export async function createAppointment(input: {
   const requested = toPaymentMethods({ methods: input.paymentMethods ?? [] })
   const paymentMethods = accepted.length ? requested.filter((m) => accepted.includes(m)) : requested
 
-  return prisma.appointment.create({
+  const manageToken = mintUrlToken()
+  const appointment = await prisma.appointment.create({
     data: {
       consumerId: input.consumerId,
       guestFirstName: input.guest?.firstName,
@@ -157,6 +153,75 @@ export async function createAppointment(input: {
       status: 'scheduled',
       notes: input.notes,
       paymentMethods,
+      manageTokenHash: hashUrlToken(manageToken),
+    },
+  })
+
+  return { appointment, manageToken }
+}
+
+const LIVE_STATUSES = ['scheduled', 'confirmed'] as const
+
+/**
+ * Overlap against live bookings. `excludeId` lets a reschedule keep its own slot
+ * rather than 409ing against itself.
+ */
+async function findOverlappingAppointment(input: {
+  providerId: string
+  startAt: Date
+  endAt: Date
+  excludeId?: string
+}) {
+  return prisma.appointment.findFirst({
+    where: {
+      providerId: input.providerId,
+      status: { in: [...LIVE_STATUSES] },
+      ...(input.excludeId ? { id: { not: input.excludeId } } : {}),
+      OR: [
+        { startAt: { lte: input.startAt }, endAt: { gt: input.startAt } },
+        { startAt: { lt: input.endAt }, endAt: { gte: input.endAt } },
+        { startAt: { gte: input.startAt }, endAt: { lte: input.endAt } },
+      ],
+    },
+  })
+}
+
+export async function rescheduleAppointment(input: {
+  appointmentId: string
+  serviceId: string
+  startAt: Date
+}) {
+  const appointment = await prisma.appointment.findUnique({ where: { id: input.appointmentId } })
+  if (!appointment) throw new HttpError(404, 'Appointment not found', 404)
+
+  if (appointment.status !== 'scheduled' && appointment.status !== 'confirmed') {
+    throw new HttpError(409, 'This booking can no longer be changed', 409)
+  }
+
+  const service = await prisma.service.findFirst({
+    where: { id: input.serviceId, providerId: appointment.providerId },
+  })
+  if (!service) throw new HttpError(404, 'Service not found', 404)
+
+  const endAt = addMinutes(input.startAt, service.durationMinutes)
+
+  const conflict = await findOverlappingAppointment({
+    providerId: appointment.providerId,
+    startAt: input.startAt,
+    endAt,
+    excludeId: appointment.id,
+  })
+  if (conflict) throw new HttpError(409, 'Time slot not available', 409)
+
+  return prisma.appointment.update({
+    where: { id: appointment.id },
+    data: {
+      serviceId: service.id,
+      startAt: input.startAt,
+      endAt,
+      durationMinutes: service.durationMinutes,
+      price: service.price,
+      currency: service.currency,
     },
   })
 }

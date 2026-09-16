@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
     'out/',
     'build/',
     'dist/',
+    'server/dist/',
     'public/',
     '*.config.js',
     'next.config.js',

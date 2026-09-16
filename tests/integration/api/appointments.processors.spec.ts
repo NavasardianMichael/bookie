@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   processListAppointmentsResponse,
+  processManagedAppointmentResponse,
   processProviderBookingsCalendarResponse,
   processProviderBookingsResponse,
 } from '@api/appointments/processors'
@@ -59,5 +60,38 @@ describe('processProviderBookingsCalendarResponse', () => {
 
   it('degrades to unbadged days rather than throwing over the list underneath', () => {
     expect(processProviderBookingsCalendarResponse(envelope(undefined as never))).toEqual({})
+  })
+})
+
+describe('processManagedAppointmentResponse', () => {
+  it('keeps the appointment and normalizes nested provider services', () => {
+    const result = processManagedAppointmentResponse(
+      envelope({
+        appointment: {
+          id: 'apt-1',
+          status: 'scheduled',
+          time: { startDate: '2026-09-14T09:00:00.000Z', endDate: '2026-09-14T09:30:00.000Z', duration: 30 },
+          service: { id: 'service-1', name: 'Cut' },
+        },
+        provider: {
+          id: 'provider-1',
+          basic: { firstName: 'Ada', lastName: 'Lovelace', available: true },
+          details: {
+            location: { address: '1 Main' },
+            phone: { code: 374, number: 10000000 },
+            gallery: [],
+            weekSchedule: {},
+          },
+          services: {
+            allIds: ['service-1'],
+            byId: { 'service-1': { id: 'service-1', name: 'Cut', duration: 30, categoryId: 'cat-1' } },
+          },
+        },
+      } as never)
+    )
+
+    expect(result.appointment.id).toBe('apt-1')
+    expect(result.provider.services.allIds).toEqual(['service-1'])
+    expect(result.provider.services.byId['service-1']?.name).toBe('Cut')
   })
 })

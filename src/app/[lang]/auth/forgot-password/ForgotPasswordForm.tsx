@@ -106,7 +106,7 @@ export const ForgotPasswordForm: FC = () => {
           </div>
         )}
 
-        <AppButton htmlType='submit' type='primary' size='large' block loading={isSubmitting}>
+        <AppButton htmlType='submit' type='primary' block loading={isSubmitting}>
           {t('forgotPassword.submit')}
         </AppButton>
       </Form>

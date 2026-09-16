@@ -1,0 +1,41 @@
+# Express API. Install to /etc/systemd/system/bookie-api.service.
+# Paths assume APP_DIR=/home/michael/apps/bookie.
+#
+# WorkingDirectory points at the `current` symlink and systemd resolves it at
+# start — that resolution is what makes `systemctl restart` pick up a new release.
+
+[Unit]
+Description=Bookie API (Express)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=michael
+Group=michael
+WorkingDirectory=/home/michael/apps/bookie/api/current
+
+# systemd's EnvironmentFile is NOT dotenv: no `export`, no multi-line values, no
+# command substitution. Quotes around a value are stripped. The deploy workflow
+# writes this file mode 600 and owns NODE_ENV, PORT, HOST and UPLOAD_DIR.
+EnvironmentFile=/home/michael/apps/bookie/shared/.env.api
+
+ExecStart=/usr/bin/node dist/src/index.js
+
+Restart=always
+RestartSec=2
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+# Uploads are the only path the API writes, and they live outside the release.
+ReadWritePaths=/home/michael/apps/bookie/shared/uploads
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

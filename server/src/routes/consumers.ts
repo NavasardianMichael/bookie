@@ -47,7 +47,6 @@ consumerProfileRouter.get(
       ...mapConsumer(consumer),
       details: {
         favoriteProviders: consumer.favorites.map((f) => mapBasicProvider(f.provider)),
-        description: consumer.description ?? undefined,
         emailVerifiedAt: consumer.user.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: {
           ...defaultNotificationPrefs,
@@ -67,14 +66,13 @@ consumerProfileRouter.put(
   '/',
   requireConsumer,
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, description, emailNotificationPrefs, paymentInfo } = req.body ?? {}
+    const { firstName, lastName, emailNotificationPrefs, paymentInfo } = req.body ?? {}
 
     const consumer = await prisma.consumer.update({
       where: { id: req.session!.profileId },
       data: {
         firstName: firstName ?? undefined,
         lastName: lastName ?? undefined,
-        description: description === undefined ? undefined : description || null,
         emailNotificationPrefs: emailNotificationPrefs ?? undefined,
         // Consumers only store preferred methods — never a pay-to number or notes.
         paymentInfo: paymentInfo === undefined ? undefined : { methods: toPaymentMethods(paymentInfo) },
@@ -86,7 +84,6 @@ consumerProfileRouter.put(
       ...mapConsumer(consumer),
       details: {
         favoriteProviders: [],
-        description: consumer.description ?? undefined,
         emailVerifiedAt: consumer.user.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: {
           ...defaultNotificationPrefs,

@@ -4,15 +4,16 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import { App } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { createAppointmentAPI } from '@api/appointments/main'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
-import { DAY_KEY_FORMAT, SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
+import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { countSlotsByDay, getSlotsForDate, getSlotsForDateRange } from '@helpers/booking'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
-import { BookingConfirmSheet, BookingConfirmSubmission } from './BookingConfirmSheet'
+import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { BookingConfirmSheet, BookingConfirmSubmission, BookingCreated } from './BookingConfirmSheet'
 import { BookingMonth } from './BookingMonth'
 import { BookingSlots } from './BookingSlots'
 import { BookingSummaryData } from './BookingSummary'
@@ -42,6 +43,7 @@ type Props = {
  */
 export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const t = useTranslations('Booking')
+  const locale = useLocale()
   const { basic: basicProvider, details, id: providerId, services } = useSingleProviderStore()
   const { notification } = App.useApp()
 
@@ -51,6 +53,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const [requestedStarts, setRequestedStarts] = useState<string[]>([])
   const [isBooking, setIsBooking] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [created, setCreated] = useState<BookingCreated | null>(null)
 
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
@@ -126,6 +129,9 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
   const servicePrice =
     service?.price !== undefined && service?.currency ? `${service.price} ${service.currency}` : undefined
+  const phone = details?.phone?.number
+    ? generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
+    : undefined
 
   /**
    * Booking no longer needs a consumer role, only an identity. Any signed-in visitor
@@ -137,6 +143,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
    */
   const isSignedOn = useAuthStore.use.isSignedOn()
   const isAuthPending = useAuthStore.use.isPending()
+  const accountEmail = useAuthStore.use.email()
 
   /** Empty means the provider never configured a set; the picker then enables every method. */
   const paymentMethodOptions = useMemo(() => toPaymentMethods(details?.paymentInfo), [details?.paymentInfo])
@@ -151,6 +158,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
       durationMinutes,
       price: servicePrice,
       address: details?.location?.address,
+      phone,
       acceptedPaymentMethods: toPaymentMethods(details?.paymentInfo),
     }
   }, [
@@ -159,6 +167,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
     details?.location?.address,
     details?.paymentInfo,
     durationMinutes,
+    phone,
     service?.description,
     service?.name,
     servicePrice,
@@ -170,7 +179,10 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
     setSelectedStart(null)
   }, [])
 
-  const handleCloseConfirm = useCallback(() => setIsConfirmOpen(false), [])
+  const handleCloseConfirm = useCallback(() => {
+    setIsConfirmOpen(false)
+    setCreated(null)
+  }, [])
 
   /**
    * "Book now" opens the confirm sheet; it no longer books. The visitor has picked a
@@ -198,24 +210,23 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
       setIsBooking(true)
       try {
-        await createAppointmentAPI({
+        const result = await createAppointmentAPI({
           providerId,
           serviceId: selectedServiceId,
           startAt: validSelectedStart,
           notes: submission.notes,
           paymentMethods: submission.paymentMethods,
           guest: submission.guest,
+          locale,
         })
         setRequestedStarts((prev) => [...prev, validSelectedStart])
-        setSelectedStart(null)
-        setIsConfirmOpen(false)
-        notification.success({
-          message: t('requested'),
-          description: t('requestedBody', {
-            name: `${basicProvider.firstName} ${basicProvider.lastName}`,
-            when: dayjs(validSelectedStart).format(`D MMMM, ${SCHEDULE_DISPLAY_FORMAT}`),
-          }),
-        })
+        if (result.manageToken) {
+          setCreated({
+            manageToken: result.manageToken,
+            emailSent: Boolean(result.emailSent),
+            emailedTo: submission.guest?.email ?? accountEmail ?? undefined,
+          })
+        }
       } catch (error) {
         // Sheet deliberately left open, so what was typed survives a failed submit —
         // a guest who lost their details to a 409 would have to retype all four fields.
@@ -225,8 +236,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
       }
     },
     [
-      basicProvider.firstName,
-      basicProvider.lastName,
+      accountEmail,
+      locale,
       notification,
       providerId,
       selectedServiceId,
@@ -267,6 +278,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         paymentMethodOptions={paymentMethodOptions}
         paymentInfo={details?.paymentInfo}
         isBooking={isBooking}
+        created={created}
         onClose={handleCloseConfirm}
         onSubmit={handleSubmitBooking}
       />

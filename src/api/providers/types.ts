@@ -27,7 +27,7 @@ export type PutProviderProfileRequestPayload = Partial<{
 }>
 
 /** Mirrors the sorts `server/src/services/providerSearch.ts` accepts. */
-export type ProvidersListSort = 'recommended' | 'nameAsc' | 'nameDesc' | 'newest'
+export type ProvidersListSort = 'recommended' | 'topRated' | 'nameAsc' | 'nameDesc' | 'newest'
 
 /**
  * Explore's query string, serialised by `paramsToQueryString` — so every field is

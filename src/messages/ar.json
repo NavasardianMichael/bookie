@@ -13,6 +13,7 @@
     "share": "مشاركة",
     "linkCopied": "تم نسخ الرابط",
     "copyFailed": "تعذّر النسخ",
+    "copied": "تم النسخ إلى الحافظة",
     "viewAll": "عرض الكل",
     "goHome": "الذهاب إلى الرئيسية",
     "tryAgain": "حاول مرة أخرى",
@@ -159,6 +160,8 @@
       "durationValue": "{minutes} دقيقة",
       "price": "السعر",
       "location": "الموقع",
+      "copyLocation": "نسخ العنوان",
+      "copyPhone": "نسخ رقم الهاتف",
       "accepts": "طرق الدفع المقبولة"
     },
     "guest": {
@@ -168,7 +171,9 @@
       "lastName": "اسم العائلة",
       "phone": "رقم الهاتف",
       "email": "البريد الإلكتروني",
-      "emailPlaceholder": "you@example.com"
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "بدون بريد إلكتروني لن تصلك تذكيرات الحجز أو إشعارات التعديل أو الإلغاء.",
+      "emailHintLabel": "لماذا نطلب البريد الإلكتروني"
     },
     "paymentLabel": "طريقة الدفع المفضلة",
     "paymentPlaceholder": "اختر طريقة أو أكثر",
@@ -182,8 +187,6 @@
     "notesLabel": "ملاحظات للمقدّم",
     "notesPlaceholder": "أي شيء يجب معرفته قبل موعدك",
     "submit": "تأكيد الحجز",
-    "requiredBadge": "مطلوب",
-    "optionalBadge": "اختياري",
     "chooseService": "اختر خدمة",
     "chooseServiceHint": "تحدد مدتها طول كل موعد يُعرض أدناه.",
     "chooseServiceNotification": "اختر خدمة",
@@ -207,7 +210,27 @@
     "noOpenTimesShort": "لا مواعيد متاحة",
     "requested": "تم طلب الموعد",
     "requestedBody": "سيؤكد {name} حجزك {when} قريبًا.",
-    "failed": "تعذّر الحجز"
+    "failed": "تعذّر الحجز",
+    "confirmedTitle": "تم تأكيد الحجز",
+    "emailSent": "أرسلنا التفاصيل إلى {email}.",
+    "manageLinkLabel": "رابط حجزك",
+    "copyManageLink": "نسخ رابط الحجز",
+    "viewBooking": "عرض الحجز",
+    "cancel": "إلغاء الحجز",
+    "cancelConfirmTitle": "إلغاء هذا الحجز؟",
+    "cancelConfirmBody": "سيصبح الموعد متاحًا مجددًا. لا يمكن التراجع عن ذلك.",
+    "cancelledNotice": "هذا الحجز ملغى.",
+    "edit": "تغيير الوقت",
+    "confirmNewTime": "تأكيد الوقت الجديد",
+    "stopEditing": "العودة إلى الحجز",
+    "rescheduleConfirmTitle": "تغيير إلى هذا الوقت؟",
+    "rescheduleConfirmBody": "سيتم نقل حجزك إلى {when}.",
+    "rescheduled": "تم تحديث الحجز",
+    "cannotEdit": "لم يعد بالإمكان تغيير هذا الحجز.",
+    "manageMetaTitle": "حجزك",
+    "manageSubtitle": "اعرض أو ألغِ أو اختر وقتًا جديدًا.",
+    "manageNotFoundTitle": "الحجز غير موجود",
+    "manageNotFoundBody": "هذا الرابط غير صالح أو لم يعد الحجز موجودًا."
   },
   "Footer": {
     "blurb": "منصة واحدة للعثور على الخدمات القريبة منك أو لإدارة تقويم حجوزاتك.",
@@ -285,7 +308,7 @@
       "imageHint": "JPG أو PNG. الحجم الأقصى 2 ميغابايت.",
       "upload": "رفع صورة جديدة",
       "providerSubtitle": "حدّث البيانات المعروضة في ملفك الشخصي العام.",
-      "sendEmailCode": "إرسال بريد التحقق",
+      "sendEmailCode": "إعادة تعيين البريد",
       "emailRequired": "أدخل بريدًا إلكترونيًا أولاً.",
       "emailCodeSent": "أرسلنا رابط تحقق إلى {email}. افتحه لتأكيد هذا العنوان. في بيئة التطوير يُطبع الرابط في وحدة تحكم خادم الـ API.",
       "emailVerified": "تم التحقق من البريد الإلكتروني وحفظه.",
@@ -302,13 +325,29 @@
     },
     "appointments": {
       "title": "المواعيد",
-      "subtitle": "حجوزاتك القادمة.",
+      "subtitle": "ابحث وصفِّ وادرِ حجوزاتك.",
       "upcoming": "قادمة",
       "emptyTitle": "لا توجد مواعيد قادمة",
       "emptyBody": "احجز خدمة لتراها هنا.",
       "bookService": "احجز خدمة",
       "unknownProvider": "المقدّم",
-      "unknownService": "الخدمة"
+      "unknownService": "الخدمة",
+      "edit": "تعديل",
+      "cancel": "إلغاء",
+      "searchPlaceholder": "البحث حسب المزود أو الخدمة",
+      "searchLabel": "البحث في المواعيد",
+      "statusPlaceholder": "أي حالة",
+      "statusLabel": "تصفية حسب الحالة",
+      "sortLabel": "ترتيب المواعيد",
+      "sort": {
+        "startDesc": "الأحدث أولاً",
+        "startAsc": "الأقدم أولاً",
+        "createdDesc": "المحجوز حديثًا",
+        "nameAsc": "اسم المزود (أ-ي)"
+      },
+      "clearFilters": "مسح عوامل التصفية",
+      "emptyFilteredTitle": "لا شيء يطابق هذه عوامل التصفية",
+      "emptyFilteredBody": "جرّب حالة أو مصطلح بحث آخر."
     },
     "notifications": {
       "subtitle": "اختر رسائل البريد الإلكتروني التي تريد استلامها.",
@@ -571,7 +610,8 @@
       "recommended": "موصى به",
       "nameAsc": "الاسم أ–ي",
       "nameDesc": "الاسم ي–أ",
-      "newest": "الأحدث أولاً"
+      "newest": "الأحدث أولاً",
+      "topRated": "الأعلى تقييمًا"
     },
     "availableNow": "متاح الآن",
     "availableNowHint": "إخفاء المقدّمين الذين أوقفوا الحجوزات الجديدة مؤقتًا.",
@@ -604,7 +644,44 @@
   "Provider": {
     "workingHours": "ساعات العمل",
     "fallbackWithOrganization": "احجز موعدًا مع {name}، الذي يعمل في {organization}.",
-    "fallbackDescription": "احجز موعدًا مع {name}."
+    "fallbackDescription": "احجز موعدًا مع {name}.",
+    "reviews": {
+      "title": "التقييمات",
+      "count": "{count, plural, zero {لا تقييمات} one {تقييم واحد} two {تقييمان} few {# تقييمات} many {# تقييمًا} other {# تقييم}}",
+      "empty": "لا توجد تقييمات بعد",
+      "emptyHint": "تظهر التقييمات هنا بعد انتهاء الموعد.",
+      "write": "اكتب تقييمًا",
+      "signInPrompt": "سجّل الدخول لكتابة تقييم",
+      "edit": "تعديل",
+      "editTitle": "تعديل تقييمك",
+      "remove": "حذف",
+      "removeTitle": "حذف تقييمك؟",
+      "removeDescription": "سيتم حذف تقييمك وتعليقك نهائيًا.",
+      "report": "إبلاغ",
+      "reportTitle": "الإبلاغ عن هذا التقييم",
+      "reportDescription": "أخبرنا بالمشكلة. نقرأ كل بلاغ ونزيل التقييمات المخالفة لقواعدنا.",
+      "reportLabel": "ما المشكلة؟",
+      "reportSubmit": "إرسال البلاغ",
+      "reportSent": "شكرًا لك، سنطّلع على الأمر.",
+      "reply": "رد",
+      "replyTitle": "الرد على هذا التقييم",
+      "replyLabel": "ردّك",
+      "replySubmit": "نشر الرد",
+      "replyFrom": "رد مقدّم الخدمة",
+      "formTitle": "قيّم موعدك",
+      "ratingLabel": "تقييمك",
+      "ratingRequired": "يرجى اختيار تقييم",
+      "commentLabel": "تعليقك",
+      "commentPlaceholder": "ما الذي سار على ما يرام؟ وما الذي يمكن تحسينه؟",
+      "submit": "نشر التقييم",
+      "save": "حفظ التغييرات",
+      "edited": "مُعدّل",
+      "ratingAria": "التقييم {rating} من 5",
+      "summaryAria": "{rating} من 5، بناءً على {count} تقييمًا",
+      "starCount": "{count, plural, zero {لا نجوم} one {نجمة واحدة} two {نجمتان} few {# نجوم} many {# نجمة} other {# نجمة}}",
+      "pagesLabel": "صفحات التقييمات",
+      "loadError": "تعذّر تحميل التقييمات. حاول مرة أخرى."
+    }
   },
   "Legal": {
     "termsMetaTitle": "شروط الخدمة",
@@ -692,11 +769,40 @@
     "workingDays": "أيام العمل",
     "weekend": "عطلة نهاية الأسبوع"
   },
+  "Validation": {
+    "required": "يرجى ملء {label}",
+    "maxCharsForInput": "الحد الأقصى {max} حرفًا",
+    "maxCharsForTextarea": "الحد الأقصى {max} حرفًا",
+    "oneItemSelectedAtLeast": "يرجى اختيار عنصر واحد على الأقل",
+    "email": "بريد إلكتروني غير صالح",
+    "positiveNumber": "يجب أن يكون رقمًا موجبًا",
+    "url": "رابط غير صالح"
+  },
   "Errors": {
     "notFoundTitle": "الصفحة غير موجودة",
     "notFoundBody": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
     "title": "حدث خطأ ما",
     "body": "تعذّر تحميل هذه الصفحة. يرجى المحاولة مرة أخرى.",
     "reference": "المرجع: {digest}"
+  },
+  "Admin": {
+    "metaTitle": "مراجعة التقييمات",
+    "metaDescription": "تقييمات مُبلَّغ عنها بانتظار القرار.",
+    "title": "التقييمات المُبلَّغ عنها",
+    "empty": "لا شيء للمراجعة",
+    "emptyHint": "تصل بلاغات مقدّمي الخدمة إلى هنا.",
+    "statusOpen": "مفتوح",
+    "statusResolved": "تمت المعالجة",
+    "statusDismissed": "مرفوض",
+    "filterLabel": "الحالة",
+    "reason": "السبب",
+    "reportedBy": "أبلغ عنه {name}",
+    "hide": "إخفاء التقييم",
+    "restore": "استعادة التقييم",
+    "hidden": "مخفي",
+    "resolve": "قبول وإغلاق",
+    "dismiss": "رفض البلاغ",
+    "actionError": "لم ينجح ذلك. حاول مرة أخرى.",
+    "pagesLabel": "صفحات البلاغات"
   }
 }

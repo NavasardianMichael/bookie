@@ -14,6 +14,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
+| Consumer appointments tab: upcoming + search/status/sort | `filterAndSortConsumerAppointments` | `consumerAppointments.ts` |
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
 | Localised weekday column headers | `buildWeekdayLabels` | `calendar.ts` — **client-only** |
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
@@ -37,11 +38,13 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Service worker script + offline document | `buildServiceWorkerScript`, `buildOfflineDocument` | `pwa.ts` |
 | Google Maps link from an address | `generateGoogleMapsLink` | `location.ts` |
 | Render a `{ code, number }` phone | `generateFriendlyPhoneNumber` | `phone.ts` |
+| Guest booking digits → `{ code: 0, number }` | `toGuestPhoneNumber` | `phone.ts` |
 | Accepted payment methods off a `paymentInfo` column | `toPaymentMethods` | `payment.ts` |
 | Copyable card/account number and notes a provider publishes | `toPaymentShare`, `hasPaymentShare`, `acceptsBankTransfer`, `needsPublicShareConfirm` | `payment.ts` |
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
+| Is this a public provider booking page | `isPublicProviderPage` | `routes.ts` |
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
 | Subset an object | `pick`, `omit` | `commons.ts` |
 | Turn an unknown throw into an `AppError` | `processError` | `error.ts` |

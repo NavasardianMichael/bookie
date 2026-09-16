@@ -5,6 +5,6 @@ import './load-env.js'
 
 const app = createApp()
 
-app.listen(config.port, () => {
-  console.log(`Bookie API listening on http://localhost:${config.port}`)
+app.listen(config.port, config.host, () => {
+  console.log(`Bookie API listening on http://${config.host}:${config.port}`)
 })

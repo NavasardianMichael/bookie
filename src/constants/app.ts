@@ -8,4 +8,4 @@
  * The fallback is the local dev origin, so an unset variable can never leak a
  * wrong host into production metadata — set NEXT_PUBLIC_SITE_URL when deploying.
  */
-export const SITE_URL_FALLBACK = 'http://localhost:4141'
+export const SITE_URL_FALLBACK = 'http://localhost:7004'

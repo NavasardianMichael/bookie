@@ -25,6 +25,11 @@ const _RULE_NAMES = {
   positiveNumber: 'positiveNumber',
 } as const
 
+/**
+ * Constraint shapes for `useFormItemRules`. English `message` strings are the
+ * fallback for static exports (`FORM_ITEM_REQUIRED_RULE_SET`); translated screens
+ * go through the hook, which overwrites `message` from the `Validation` catalogue.
+ */
 export const FORM_ITEM_RULES: Record<(typeof _RULE_NAMES)[keyof typeof _RULE_NAMES], RuleObject> = {
   required: { required: true, message: 'Please fill in ${label}' },
   maxCharsForInput: { max: MAX_CHARS_FOR_INPUT, message: `Max count of characters is ${MAX_CHARS_FOR_INPUT}` },

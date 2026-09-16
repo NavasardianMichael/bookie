@@ -5,20 +5,18 @@ import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Alert, Form } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { changeEmailConfirmAPI, changeEmailSendAPI } from '@api/auth/main'
+import { useFormItemRules } from '@hooks/useFormItemRules'
 import { type Locale } from '@i18n/config'
 import { useRouter } from '@i18n/navigation'
 import { localePath } from '@i18n/pathname'
-import { FORM_ITEM_RULES } from '@constants/form'
 import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
-import { AppText } from '@components/ui/bare/AppText'
 import { MailIcon } from '@components/ui/icons'
 
 type Props = {
   currentEmail?: string
-  emailVerifiedAt?: string
   onVerified?: (email: string, emailVerifiedAt: string) => void
   /** When true, email is a named Form.Item still owned by the parent form. */
   name?: string
@@ -38,13 +36,12 @@ const isSendableEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const normalizeEmail = (value: string): string => value.trim().toLowerCase()
 
 /**
- * Email field plus "Send verification email". The parent form still owns the
- * address; clicking the emailed link (account profile + token) is what saves
- * and marks it verified — not a 6-digit OTP, which belonged to phone change.
+ * Email field plus "Reset email". The parent form still owns the address;
+ * clicking the emailed link (account profile + token) is what saves and marks
+ * it verified — not a 6-digit OTP, which belonged to phone change.
  */
 export const EmailVerifyField: FC<Props> = ({
   currentEmail,
-  emailVerifiedAt,
   onVerified,
   name = 'email',
   disabled,
@@ -55,6 +52,7 @@ export const EmailVerifyField: FC<Props> = ({
   const locale = useLocale() as Locale
   const { replace } = useRouter()
   const form = Form.useFormInstance()
+  const emailRules = useFormItemRules('email')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -119,7 +117,7 @@ export const EmailVerifyField: FC<Props> = ({
         <FieldLabel htmlFor={name} requirement='Optional'>
           {t('email')}
         </FieldLabel>
-        <AppFormItem name={name} rules={[FORM_ITEM_RULES.email]} messageVariables={{ label: t('email') }}>
+        <AppFormItem name={name} rules={emailRules} messageVariables={{ label: t('email') }}>
           <AppInput
             id={name}
             type='email'
@@ -128,11 +126,6 @@ export const EmailVerifyField: FC<Props> = ({
             prefix={<MailIcon className='text-brand-muted h-4 w-4' />}
           />
         </AppFormItem>
-        {emailVerifiedAt && currentEmail && (
-          <AppText size='caption' tone='muted'>
-            {t('verifiedAt', { date: new Date(emailVerifiedAt).toLocaleDateString() })}
-          </AppText>
-        )}
       </div>
 
       {error && <Alert type='error' showIcon message={error} />}

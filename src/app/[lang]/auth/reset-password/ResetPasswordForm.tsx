@@ -82,7 +82,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
         <AppParagraph size='body-sm' className='m-0'>
           {t('resetPassword.doneBody')}
         </AppParagraph>
-        <AppButton type='primary' size='large' className='mt-2' onClick={() => push(ROUTES.signIn)}>
+        <AppButton type='primary' className='mt-2' onClick={() => push(ROUTES.signIn)}>
           {t('backToSignIn')}
         </AppButton>
       </div>
@@ -144,7 +144,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
           </div>
         )}
 
-        <AppButton htmlType='submit' type='primary' size='large' block loading={isSubmitting}>
+        <AppButton htmlType='submit' type='primary' block loading={isSubmitting}>
           {t('resetPassword.submit')}
         </AppButton>
       </Form>

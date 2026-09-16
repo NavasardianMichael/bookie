@@ -27,6 +27,8 @@ type Props = {
   isBooking: boolean
   onSelect: (startISO: string) => void
   onConfirm: () => void
+  /** Defaults to `Booking.bookNow`. Manage-page reschedule passes a different label. */
+  confirmLabel?: string
 }
 
 /**
@@ -47,6 +49,7 @@ export const BookingSlots: FC<Props> = ({
   isBooking,
   onSelect,
   onConfirm,
+  confirmLabel,
 }) => {
   const t = useTranslations('Booking')
   const handleSelect = useCallback(
@@ -156,7 +159,7 @@ export const BookingSlots: FC<Props> = ({
             onClick={onConfirm}
             className='w-full md:w-auto'
           >
-            {t('bookNow')}
+            {confirmLabel ?? t('bookNow')}
           </AppButton>
         </div>
       )}

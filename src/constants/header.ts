@@ -1,5 +1,6 @@
 import { AppRouteName } from '@interfaces/routes'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { isPublicProviderPage } from '@helpers/routes'
 
 /**
  * Nav destinations carry a **route name only**. The visible label is looked up by
@@ -26,18 +27,37 @@ export const HEADER_SIGN_IN: AppRouteName = ROUTE_KEYS.signIn
 /** Rendered as the header's primary call to action rather than a nav link. */
 export const HEADER_CTA: AppRouteName = ROUTE_KEYS.accountTypeSelection
 
+/**
+ * Routes the overview page must not list.
+ *
+ * `/routes-overview` is described as a dev aid but it is prerendered and publicly
+ * reachable, so anything named here is published. `adminReviews` is excluded for the
+ * same reason `requireAdmin` answers 404 rather than 403: the moderation surface should
+ * not advertise that it exists. Guarding it is the API's job — this only stops us
+ * handing out the address.
+ */
+const OVERVIEW_EXCLUDED: AppRouteName[] = [ROUTE_KEYS.adminReviews]
+
 /** Dev aid only (`/routes-overview`), so these stay raw route names — not user copy. */
-export const OVERVIEW_ROUTES: AppRouteName[] = Object.keys(ROUTES) as AppRouteName[]
+export const OVERVIEW_ROUTES: AppRouteName[] = (Object.keys(ROUTES) as AppRouteName[]).filter(
+  (name) => !OVERVIEW_EXCLUDED.includes(name)
+)
 
 export type HeaderConfig = {
   showLogo: boolean
   showNav: boolean
+  /** Destinations rendered in the header nav. Auth actions are separate. */
+  navRoutes: AppRouteName[]
 }
 
 const DEFAULT_CONFIG: HeaderConfig = {
   showLogo: true,
   showNav: true,
+  navRoutes: HEADER_ROUTES,
 }
+
+/** Public booking page: Home stays as the way back; marketplace dests do not. */
+const PUBLIC_PROVIDER_NAV_ROUTES: AppRouteName[] = [ROUTE_KEYS.home]
 
 /**
  * Only the exceptions are listed; everything else falls back to DEFAULT_CONFIG.
@@ -56,7 +76,17 @@ const HEADER_CONFIG_OVERRIDES: Partial<Record<AppRouteName, Partial<HeaderConfig
   [ROUTE_KEYS.logout]: { showNav: false },
 }
 
-export const getHeaderConfig = (routeName?: AppRouteName): HeaderConfig => ({
-  ...DEFAULT_CONFIG,
-  ...(routeName ? HEADER_CONFIG_OVERRIDES[routeName] : undefined),
-})
+export const getHeaderConfig = (routeName?: AppRouteName, pathname?: string): HeaderConfig => {
+  const config: HeaderConfig = {
+    ...DEFAULT_CONFIG,
+    ...(routeName ? HEADER_CONFIG_OVERRIDES[routeName] : undefined),
+  }
+
+  // Not an OVERRIDES entry: Explore and the public page share the `providers`
+  // route name, so the extra segment is what distinguishes them.
+  if (pathname && isPublicProviderPage(pathname)) {
+    return { ...config, navRoutes: PUBLIC_PROVIDER_NAV_ROUTES }
+  }
+
+  return config
+}

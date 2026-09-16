@@ -7,7 +7,7 @@ import { absoluteUrl } from '@helpers/url'
  * import. With no `NEXT_PUBLIC_API_URL` set in the test env it is the documented default.
  * To test a different origin, set the env var and `vi.resetModules()` before importing.
  */
-const API_ORIGIN = 'http://localhost:4142'
+const API_ORIGIN = 'http://localhost:9004'
 
 describe('resolveAssetUrl', () => {
   it('prefixes a root-relative upload with the API origin', () => {

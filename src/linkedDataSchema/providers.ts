@@ -97,6 +97,7 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
   const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
   const categoryNames = basic.categories?.map((category) => category.name) ?? []
   const openingHours = getOpeningHoursLDSchema(details.weekSchedule)
+  const rating = basic.rating
 
   const organization = basic.organization
   const employer = organization
@@ -157,6 +158,25 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
     openingHoursSpecification: openingHours.length ? openingHours : undefined,
     hasOfferCatalog: offerCatalog,
     priceRange: getPriceRange(serviceList),
+    /**
+     * Emitted **only when there is at least one review**. `ratingCount: 0` is not a
+     * rating of zero, it is the absence of one, and Google rejects an `aggregateRating`
+     * whose count is zero — a structured-data error on every unrated provider's page,
+     * which is most of them on a young marketplace.
+     *
+     * `ratingValue` is the plain average, not the Bayesian `ratingScore` that orders
+     * Explore: this is a published claim about what customers said, and shrinking it
+     * toward a prior would make it a claim we cannot support.
+     */
+    aggregateRating: rating?.count
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: Number(rating.average.toFixed(1)),
+          reviewCount: rating.count,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined,
     // The explicit "this page takes bookings" signal. Without it a crawler has to
     // infer bookability from the calendar, which is client-rendered.
     potentialAction: {

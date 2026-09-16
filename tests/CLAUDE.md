@@ -3,7 +3,7 @@
 ```
 tests/
   unit/          pure functions — no network, no DOM, no React
-    app/  components/  helpers/  i18n/  linkedDataSchema/  server/  styles/
+    app/  components/  constants/  helpers/  i18n/  linkedDataSchema/  server/  styles/
   integration/   several units together, dependencies mocked
     api/         processors: pure APIResponse<T> -> processed
     store/       zustand actions driven headlessly, API module mocked
@@ -73,7 +73,7 @@ rather than deleted, so the defect cannot come back unnoticed.
 
 Pure logic where being wrong is expensive and invisible: `booking.ts`, `schedule.ts`,
 `duration.ts`, `routes.ts`, `images.ts`, `url.ts`, `commons.ts`, `error.ts`, `jsonLd.ts`,
-the `linkedDataSchema/` builders, `pwa.ts` (the worker must stay network-only), and every `api/*/processors.ts`.
+the `linkedDataSchema/` builders, `pwa.ts` (the worker must stay network-only), `getHeaderConfig`, and every `api/*/processors.ts`.
 
 Not worth testing: `cn.ts` (tests `clsx` + `tailwind-merge`, not us), thin antd wrappers,
 `localStorage.ts` (constants only, no logic).

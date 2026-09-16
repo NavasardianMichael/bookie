@@ -1,0 +1,45 @@
+# Next.js web server. Install to /etc/systemd/system/bookie-web.service.
+# Paths assume APP_DIR=/home/michael/apps/bookie.
+#
+# WorkingDirectory points at the `current` symlink and systemd resolves it at
+# start — that resolution is what makes `systemctl restart` pick up a new release.
+
+[Unit]
+Description=Bookie web (Next.js)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=michael
+Group=michael
+WorkingDirectory=/home/michael/apps/bookie/web/current
+
+# No EnvironmentFile: NEXT_PUBLIC_API_URL and NEXT_PUBLIC_SITE_URL are inlined
+# into the bundle at build time and cannot be changed here. Changing them means
+# a rebuild — see docs/DEPLOYMENT.md.
+Environment=NODE_ENV=production
+Environment=PORT=7004
+Environment=HOSTNAME=127.0.0.1
+
+ExecStart=/usr/bin/node server.js
+
+Restart=always
+RestartSec=2
+
+# Next drains in-flight requests and pending after() callbacks on SIGTERM.
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+# The ISR/image cache under .next/cache is the only path the web server writes.
+ReadWritePaths=/home/michael/apps/bookie/web
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

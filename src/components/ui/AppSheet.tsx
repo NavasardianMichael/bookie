@@ -13,6 +13,11 @@ export type AppSheetProps = PropsWithChildren<{
 /**
  * Modal on md+, bottom drawer on smaller screens. `footer={null}` — callers own
  * their actions so we never hide focusable footer buttons.
+ *
+ * The desktop body is capped (`80dvh`) so a long form — booking confirm with
+ * guest fields, payment details and notes — scrolls inside the sheet instead of
+ * growing with the page. The drawer already has a `92dvh` size; its body
+ * scrolls the same way.
  */
 export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, children }) => {
   const screens = Grid.useBreakpoint()
@@ -28,6 +33,7 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, c
         width='min(40rem, 100%)'
         centered
         className={className}
+        styles={{ body: { maxHeight: '80dvh', overflowY: 'auto' } }}
         destroyOnHidden
       >
         {children}
@@ -43,6 +49,7 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, c
       placement='bottom'
       size='92dvh'
       className={className}
+      styles={{ body: { overflowY: 'auto' } }}
       destroyOnHidden
     >
       {children}

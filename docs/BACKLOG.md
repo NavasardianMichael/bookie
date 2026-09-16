@@ -35,10 +35,6 @@ limits inherited from that design:
 - **In-memory and per-process.** Behind more than one API process the effective limit
   multiplies by the process count. Moving it to Redis or the proxy is the same piece of
   work `lib/rateLimit.ts` already flags for the contact form.
-- **`app.ts` never sets `trust proxy`.** Behind a load balancer every request carries the
-  balancer's address, so the IP bucket collapses into one shared counter and 20/hour
-  would apply to *all* anonymous bookings site-wide. Set it — deliberately, to the real
-  hop count — before deploying behind a proxy. Affects `routes/contact.ts` equally.
 
 ### 3. A provider cannot see the bookings they *made*, only the ones they received
 
@@ -170,6 +166,18 @@ checking each of the three screens in a browser.
 
 ## Cleanup
 
+- **`react-world-flags` is 80% of the registration payload.** Measured on the 16.3.1
+  production build: the library compiles to a single **3.57 MB** client chunk
+  (**1.18 MB** gzipped) of inlined SVG data-URIs — every flag on earth. It is imported
+  from exactly one file, `src/app/[lang]/auth/components/Country.tsx`, the phone-country
+  picker, and lands on five routes: both registration pages, `/auth/complete-registration`,
+  `/consumers/profile` and `/providers/profile`. `/auth/consumer-registration` ships
+  **4.48 MB raw / 1.48 MB gzipped** across 26 chunks, and the flags are most of it.
+  The picker renders ~20 flags at 20×15px in a dropdown, so the fix is either
+  regional-indicator emoji (zero bytes, native rendering) or one CSS sprite if pixel
+  parity across Windows matters. To re-measure after a build, sum the chunk files listed
+  in `.next/server/app/[lang]/auth/consumer-registration/page_client-reference-manifest.js`.
+
 - ~~**`src/constants/api.ts`** duplicate of `paramsToQueryString`~~ — deleted 2026-09-11;
   the `src/helpers/api.ts` copy is the live one.
 - ~~**`src/helpers/urlSearchParams.ts`**~~ — deleted 2026-09-11, unreferenced and untyped.
@@ -177,7 +185,8 @@ checking each of the three screens in a browser.
   `@types/bcryptjs`; it hashed the OTP and went with `lib/otp.ts`. The only remaining
   mentions are two comments in `lib/password.ts` contrasting argon2 with it.
 - **`src/constants/form.ts`** — `FORM_DEFAULT_VALIDATION_MESSAGES` is never wired to
-  `ConfigProvider` or any `<Form validateMessages>`.
+  `ConfigProvider` or any `<Form validateMessages>`. Field-level copy now comes from
+  the `Validation` catalogue via `useFormItemRules`.
 - **`use…StoreBase` vs `use…Base`** suffix drift between list and single stores.
 - **The whole `Settings` namespace is English in all 15 locales** — every key under it is
   byte-identical to `en.json` everywhere. `Language`, `Common`, `Nav`, `Footer` and
@@ -189,11 +198,6 @@ checking each of the three screens in a browser.
   matching the documented state of the namespace rather than pretending otherwise. All of
   it is provider-facing and behind auth, which is why it has stayed lower priority than
   the public pages below.
-- **Validation messages are hardcoded English.** `FORM_ITEM_RULES` in
-  `src/constants/form.ts` holds literal strings (`'Please fill in ${label}'`), so every
-  form in the app — the translated booking sheet included — shows English on a failed
-  field. Fixing it means either moving the rules behind `useTranslations` or finally
-  wiring `FORM_DEFAULT_VALIDATION_MESSAGES` into `ConfigProvider` with translated values.
 
 ---
 
@@ -296,7 +300,7 @@ Needs a real browser or device:
   been committed with CRLF against ~500 with LF; `git add --renormalize .` folded them in
   as part of the same change, so the warning is gone rather than merely suppressed.
 - **E2E is scaffolded, not written.** `tests/e2e/smoke.spec.ts` proves the harness runs;
-  the auth OTP flow, booking slot selection, and provider profile edit are the specs worth
+  the email/password sign-in flow, booking slot selection, and provider profile edit are the specs worth
   having, and they need `pnpm db:up && pnpm db:setup && pnpm watch` first.
 
 ---
@@ -373,23 +377,49 @@ is worse than none**.
 
 ---
 
-## Explore — the three filters that were left out
+## Explore — the two filters that are still left out
 
 `GET /providers` (2026-09-08) filters on search, category, `available` and
-`openToday`, and sorts on name / `updatedAt` / `createdAt`. Three controls the
-prototype implies are **deliberately absent**, each because the data to back it cheaply
-does not exist yet. Do not add one without the column it needs:
+`openToday`, and sorts on name / `updatedAt` / `createdAt` / `ratingScore`. Two controls
+the prototype implies are **deliberately absent**, each because the data to back it
+cheaply does not exist yet. Do not add one without the column it needs:
 
 | Control | Blocked on | What a naive version would cost |
 |---|---|---|
-| Rating filter / sort, and the star badge on the card | No aggregate on `Provider` — `Review` rows only | An `AVG` over every provider's reviews per page render. Wants a denormalised `ratingAvg` / `ratingCount`, written on review create/update. |
 | Price range | `Service.price` is per-service and `Service.currency` is free-form | A `price <= N` across mixed currencies is not a wrong-ish answer, it is a wrong one. Wants a currency table, or prices normalised to minor units in one currency. |
 | Location / distance | `Provider.address` is free text, `locationUrl` is a Maps link | `contains` on an address string matches text, not places — a radius search that is not one. Wants lat/lng columns and geocoding at write time. |
+
+**Rating was the third, and shipped on 2026-09-15.** It was blocked on exactly the column
+this file named: `Provider.ratingAvg` / `ratingCount` / `ratingScore` are now denormalised
+and rewritten on review writes (`server/src/services/reviews.ts#recomputeProviderRating`),
+so `recommended` ranks on rating and `topRated` exists, both reading one index rather than
+aggregating per page. The star badge is on the card.
+
+A minimum-rating **filter** is still absent, and now for a different reason than "no
+column": the score is Bayesian, so "4 stars and up" would hide a provider whose two
+genuine 5★ reviews have not yet outweighed the prior. A filter on `ratingAvg` instead
+would contradict the ordering next to it.
 
 Also missing from the card versus the prototype: **"Next: Today, 2 PM"**. That is one
 `getProviderAvailability` call per card per render — the shape the whole paged query was
 built to avoid. It wants a cached `nextAvailableAt`, invalidated on schedule and
 appointment writes.
+
+## The root 404 is `DEFAULT_LOCALE` only
+
+`src/app/not-found.tsx` serves every unmatched URL, and it renders *above*
+`app/[lang]/layout.tsx` — so there is no `[lang]` segment, `next/root-params` has nothing
+to read, and the requested locale is genuinely unknowable there. It reads the `Errors` and
+`Common` catalogues at `DEFAULT_LOCALE`, so a visitor who mistypes `/es/proveedorez` gets
+an English 404 inside a Spanish session.
+
+Only the unmatched-URL case is affected. Every `notFound()` call inside `[lang]` — dead
+provider, category and organization links, which is the traffic that actually happens —
+renders `[lang]/not-found.tsx` with full chrome in the right language.
+
+Closing it means either `experimental.globalNotFound` (Next flags it experimental, and it
+bypasses the layout, so the shell would be duplicated a second time) or a proxy-set
+pathname header the root page could read. Neither is worth it for a mistyped URL today.
 
 ## Explore and the public pages are not translated
 

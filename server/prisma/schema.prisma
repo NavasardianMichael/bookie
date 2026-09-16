@@ -200,6 +200,29 @@ model Provider {
   /// homograph would let one provider's slug impersonate another's, and an
   /// unreserved slug could shadow a real route segment or a locale code.
   slug                   String?            @unique
+
+  /// Denormalised review aggregates, rewritten by `services/reviews.ts#recomputeProviderRating`
+  /// inside the transaction of every review write, hide and delete.
+  ///
+  /// They exist because a rating sort has to be an indexed column: Prisma's `orderBy`
+  /// cannot compute, so without these, ordering Explore by rating would mean an `AVG`
+  /// over every provider's reviews on every page render. That cost is what
+  /// `docs/BACKLOG.md` refused the feature over, and this is the fix it named.
+  ///
+  /// `ratingSum` is the integer source of truth — `ratingAvg` derives from it, so
+  /// repeated recomputation cannot accumulate float drift. Hidden reviews count toward
+  /// none of them.
+  ratingCount            Int                @default(0)
+  ratingSum              Int                @default(0)
+  /// Display only. `0` when unrated, which the UI renders as "no reviews yet" rather
+  /// than as zero stars.
+  ratingAvg              Float              @default(0)
+  /// The sort key: a Bayesian-shrunk rating, `(W*M + ratingSum) / (W + ratingCount)`.
+  /// Defaults to `PRIOR_MEAN` (4.0) because that is what the formula yields at zero
+  /// reviews — an unrated provider ranks mid-pack instead of below every rated one,
+  /// which is the only way a new joiner is ever discovered. See `services/reviews.ts`.
+  ratingScore            Float              @default(4)
+
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   categories             ProviderCategory[]
@@ -207,13 +230,20 @@ model Provider {
   services               Service[]
   appointments           Appointment[]
   reviews                Review[]
+  reviewReports          ReviewReport[]
   favorites              FavoriteProvider[]
 
-  /// Explore's two hot orderings, both prefixed by `listed` because every public
+  /// Explore's three hot orderings, all prefixed by `listed` because every public
   /// query filters on it. `newest` and the search paths ride the `listed` prefix and
-  /// sort in memory — a third index would cost writes for the least-used control.
+  /// sort in memory.
+  ///
+  /// The third index used to be argued against here as "a write cost for the least-used
+  /// control". `ratingScore` is not that control: it is the second term of `recommended`,
+  /// which is Explore's default, so it is read on nearly every public page view and
+  /// written only when a review changes.
   @@index([listed, available, updatedAt])
   @@index([listed, lastName, firstName])
+  @@index([listed, ratingScore])
 }
 
 model ProviderCategory {
@@ -254,7 +284,6 @@ model Consumer {
   user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   firstName              String
   lastName               String
-  description            String?
 
   /// As `Provider.phoneCode`/`phoneNumber`, minus the publication: a consumer's number
   /// reaches only the provider they booked, through `mapProviderBooking`. Mandatory at
@@ -309,11 +338,9 @@ model Appointment {
   /// `consumerId` is null; a request carrying a session has its identity read off
   /// the session and these ignored.
   ///
-  /// `guestEmail` is required by the `appointment_actor_present` CHECK, not merely
-  /// validated in `parseGuest` — accounts are keyed on email now, so it is the only
-  /// well-defined handle for recognising a guest who later registers. Nothing reconciles
-  /// them today (see the note in `routes/appointments.ts`); the constraint is what would
-  /// make it possible.
+  /// A guest booking requires name + phone (`appointment_actor_present`). Email is
+  /// optional — phone is the contact we need to deliver the service. `guestEmail`
+  /// remains the handle if a later feature reconciles a guest who registers.
   guestFirstName   String?
   guestLastName    String?
   guestPhoneCode   Int?
@@ -344,6 +371,9 @@ model Appointment {
   /// accepts. Values are `PaymentMethod`; a plain String[] because the codebase
   /// keeps payment methods as JSON strings rather than a DB enum.
   paymentMethods  String[]          @default([])
+  /// sha256 of the capability URL token. The raw value is returned once on create
+  /// and never persisted — `GET`/`PATCH /appointments/manage/:token` look up this hash.
+  manageTokenHash String            @unique
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   review          Review?
@@ -351,17 +381,91 @@ model Appointment {
   @@index([providerId, startAt])
 }
 
+/// A consumer's rating of a provider (or an organization), anchored to the appointment
+/// that earned it.
+///
+/// The model shipped in the init migration and sat unread until 2026-09-15; the columns
+/// below are what turning it into a feature required.
 model Review {
   id             String       @id @default(uuid())
+
+  /// `Cascade`, not the `Restrict` a required relation defaults to. Prisma would
+  /// otherwise block `prisma.user.delete` — `routes/identity.ts`'s account deletion —
+  /// for any consumer who had ever left a review. Deleting the account deletes what
+  /// they wrote; `services/reviews.ts#recomputeProviderRating` repairs the aggregates
+  /// the cascade invalidates.
   consumerId     String
-  consumer       Consumer     @relation(fields: [consumerId], references: [id])
+  consumer       Consumer     @relation(fields: [consumerId], references: [id], onDelete: Cascade)
+
+  /// `Cascade` for the same reason it is not `SetNull`: a review whose provider is gone
+  /// is an orphan no query filters on and no page can render.
   providerId     String?
-  provider       Provider?    @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  provider       Provider?    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  /// What makes a review earned rather than asserted. `POST /providers/:id/reviews`
+  /// requires an appointment of the caller's, with this provider, whose `endAt` has
+  /// passed and whose status is not `cancelled` — and `@unique` is what holds it to one
+  /// review per visit. A repeat customer reviews each visit; nobody reviews twice.
   appointmentId  String?      @unique
   appointment    Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  /// 1–5. Bounded by a CHECK constraint in SQL, which Prisma cannot express — the same
+  /// reasoning that put `appointment_actor_present` there. A column the ranking reads
+  /// has to be right in the database, not only in the route that happens to write it.
   rating         Int
   comment        String?
+
+  /// Set when a report is upheld. Moderation hides, never deletes: a wrongly hidden
+  /// review has to be restorable, and the row is the evidence for the decision. Every
+  /// public read and every aggregate filters on `hiddenAt: null`.
+  hiddenAt       DateTime?
+  hiddenReason   String?
+
+  /// The provider's public answer, shown under the review. One per review, theirs to
+  /// overwrite — a thread would need its own model and moderation of its own.
+  providerReply     String?
+  providerRepliedAt DateTime?
+
   createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  reports        ReviewReport[]
+
+  /// The public list's only ordering: this provider's visible reviews, newest first.
+  /// Without it that is a sequential scan of every review in the table.
+  @@index([providerId, hiddenAt, createdAt])
+}
+
+enum ReviewReportStatus {
+  open
+  resolved
+  dismissed
+}
+
+/// A provider's abuse report against a review on their own page.
+///
+/// **Persisted, unlike a contact message** — and the difference is the admin surface, not
+/// a change of heart. `routes/contact.ts` argues a table would duplicate an inbox nobody
+/// would read against; `/admin/reviews` is exactly the reader that argument said did not
+/// exist, and it needs to know which reports are still open. The email is the alert, this
+/// row is the queue.
+model ReviewReport {
+  id         String             @id @default(uuid())
+  reviewId   String
+  review     Review             @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  /// The reporter. Provider-only: reporting is bounded to the page the review is on, so
+  /// there is no id to aim and nobody can report a review written about someone else.
+  providerId String
+  provider   Provider           @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  reason     String
+  status     ReviewReportStatus @default(open)
+  createdAt  DateTime           @default(now())
+  resolvedAt DateTime?
+
+  /// The admin queue's ordering: open reports, oldest first.
+  @@index([status, createdAt])
 }

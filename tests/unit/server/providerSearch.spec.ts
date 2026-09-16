@@ -44,6 +44,28 @@ describe('parseProvidersListQuery', () => {
       parseProvidersListQuery({}).orderBy
     )
   })
+
+  /**
+   * `recommended` reads the denormalised `ratingScore` rather than aggregating `Review`.
+   * That column is the whole reason a rating ordering is allowed here at all — see the
+   * comment on `ORDER_BY`, which used to forbid exactly this.
+   */
+  it('ranks recommended by availability, then rating, then freshness', () => {
+    expect(parseProvidersListQuery({}).orderBy).toEqual([
+      { available: 'desc' },
+      { ratingScore: 'desc' },
+      { updatedAt: 'desc' },
+    ])
+  })
+
+  // `ratingCount` breaks the tie so that, between two providers the prior has pinned to
+  // the same score, the one with evidence behind it comes first.
+  it('offers a top-rated sort that breaks ties on review count', () => {
+    expect(parseProvidersListQuery({ sort: 'topRated' }).orderBy).toEqual([
+      { ratingScore: 'desc' },
+      { ratingCount: 'desc' },
+    ])
+  })
 })
 
 describe('resolvePageWindow', () => {
