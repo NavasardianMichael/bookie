@@ -41,7 +41,6 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '24'
   KEEP_RELEASES: 3
   WEB_PORT: 7004
   API_PORT: 9004
@@ -84,6 +83,7 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
               - '.github/workflows/deploy.yml'
+              - '.nvmrc'
 
       # A manual run deploys both sides; so does anything touching the shared
       # manifests, since the lockfile governs both builds.
@@ -113,7 +113,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       # The non-build half of `pnpm verify`; the build jobs below cover the rest.
@@ -133,7 +133,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
 
@@ -172,7 +172,7 @@ jobs:
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
 
