@@ -148,16 +148,11 @@ export type PutProviderServiceAPI = Endpoint<{
  * A `PATCH` with three states per field, matching `ClearableField` above: an **absent**
  * key leaves the column alone, `''` clears the override back to the composed default,
  * and anything else is the new value. Sending only `slug` therefore cannot wipe a title
- * the provider is not currently editing — which matters because the slug saves on its
- * own button while the other three ride the draft/publish bar.
- *
- * `keywords` goes up as an array and comes back comma-joined; the tag input is the only
- * thing that needs the list form.
+ * the provider is not currently editing.
  */
 export type PatchProviderSeoPayload = Partial<{
   seoTitle: ClearableField<string>
   seoDescription: ClearableField<string>
-  seoKeywords: string[]
   slug: ClearableField<string>
 }>
 

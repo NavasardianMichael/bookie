@@ -295,7 +295,8 @@
       "services": "Services",
       "bookings": "Bookings",
       "analytics": "Analytics",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "History"
     },
     "actions": {
       "save": "Save Changes",
@@ -485,7 +486,6 @@
       "rangeAll": "All",
       "emptyTitle": "Nothing to measure yet",
       "emptyBody": "Once you have bookings in this period, your numbers appear here.",
-      "listTitle": "Bookings in this period",
       "statBookings": "Bookings",
       "statRevenue": "Revenue",
       "statCompletion": "Completed",
@@ -516,6 +516,12 @@
       "leadTime": "Typically booked {hours, plural, one {# hour} other {# hours}} ahead.",
       "noLeadTime": "Not enough bookings to say how far ahead people book."
     },
+    "history": {
+      "title": "History",
+      "subtitle": "Search, filter and sort every booking, including upcoming.",
+      "status": "Status",
+      "service": "Service"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "How your page appears in search results, and your short link.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Your description appears here.",
       "fallbackWithOrganization": "Book an appointment with {name}, who works at {organization}.",
       "fallbackDescription": "Book an appointment with {name}.",
-      "keywords": "Keywords",
-      "keywordsHint": "Optional. Google ignores the keywords tag, but some other crawlers and directories still read it.",
-      "keywordsLabel": "Keywords",
-      "keywordsPlaceholder": "Type a keyword and press Enter",
-      "tooManyKeywords": "At most {max} keywords.",
       "vanityUrl": "Short link",
       "vanityHint": "A memorable address that opens your profile. Changing it stops the old one working.",
       "slugLabel": "Your link",
@@ -713,8 +714,6 @@
     "addAnother": "Add another service",
     "statTotal": "Total services",
     "statUpcoming": "Upcoming bookings",
-    "statDuration": "Average duration",
-    "durationValue": "{minutes} min",
     "tabAll": "All services ({count})",
     "tabActive": "Active ({count})",
     "tabIncomplete": "Incomplete ({count})",

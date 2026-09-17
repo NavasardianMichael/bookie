@@ -58,7 +58,7 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
   return (
     <li
       className={cn(
-        'bg-surface flex min-w-0 flex-col justify-between gap-4 rounded-brand border p-5 transition-shadow sm:p-6',
+        'bg-surface flex min-w-0 flex-col justify-between gap-4 rounded-brand border p-3 transition-shadow sm:p-4',
         isPriced ? 'border-brand-border hover:shadow-md' : 'border-brand-border border-dashed'
       )}
     >

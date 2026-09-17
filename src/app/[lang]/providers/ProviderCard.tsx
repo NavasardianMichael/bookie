@@ -33,6 +33,13 @@ export const ProviderCard: FC<Props> = ({ data, hideCategories, headingLevel }) 
       aspect='16/9'
       badges={
         <>
+          <span className='text-caption inline-flex items-center gap-1.5'>
+            <span
+              aria-hidden='true'
+              className={basic.available ? 'size-2 rounded-full bg-green-500' : 'bg-brand-300 size-2 rounded-full'}
+            />
+            {basic.available ? 'Available' : 'Fully booked'}
+          </span>
           {/* `count`, not `average`: an unrated provider has an average of 0, and a row
               of empty stars reads as "rated badly" rather than "not rated yet".
 
@@ -55,13 +62,6 @@ export const ProviderCard: FC<Props> = ({ data, hideCategories, headingLevel }) 
                 {category.name}
               </span>
             ))}
-          <span className='text-caption inline-flex items-center gap-1.5'>
-            <span
-              aria-hidden='true'
-              className={basic.available ? 'size-2 rounded-full bg-green-500' : 'bg-brand-300 size-2 rounded-full'}
-            />
-            {basic.available ? 'Available' : 'Fully booked'}
-          </span>
         </>
       }
       cta='View profile'

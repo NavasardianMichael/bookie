@@ -25,10 +25,6 @@ export const MAX_SEO_TITLE = 60
 /** Same reasoning, for the ~160 characters of description a result snippet shows. */
 export const MAX_SEO_DESCRIPTION = 160
 
-export const MAX_SEO_KEYWORDS = 10
-export const MAX_SEO_KEYWORD_LENGTH = 40
-export const MAX_SEO_KEYWORDS_JOINED = 255
-
 export const MIN_SLUG_LENGTH = 3
 export const MAX_SLUG_LENGTH = 40
 
@@ -228,56 +224,6 @@ const parseText = (value: unknown, field: string, max: number): string | null | 
 }
 
 /**
- * Keywords arrive as an array from the tag input and are stored comma-joined, which is
- * the shape the `<meta>` tag wants. A string is accepted too so a hand-written request
- * behaves the same as the UI's.
- */
-const parseKeywords = (value: unknown): string | null | undefined => {
-  if (value === undefined) return undefined
-  if (value === null) return null
-
-  const raw = Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : null
-  if (!raw) throw new HttpError(400, 'seoKeywords must be an array of strings', 400)
-
-  const keywords: string[] = []
-  for (const entry of raw) {
-    if (typeof entry !== 'string') {
-      throw new HttpError(400, 'seoKeywords must be an array of strings', 400)
-    }
-    // A comma is the storage separator, so it cannot survive inside one keyword —
-    // replacing it keeps the round-trip honest instead of splitting the word later.
-    const cleaned = stripInvisible(entry.normalize('NFC'))
-      .replace(/,/g, ' ')
-      .replace(WHITESPACE_RUN, ' ')
-      .trim()
-
-    if (!cleaned) continue
-    if (MARKUP_CHARS.test(cleaned)) {
-      throw new HttpError(400, 'seoKeywords must not contain < or >', 400)
-    }
-    if (charCount(cleaned) > MAX_SEO_KEYWORD_LENGTH) {
-      throw new HttpError(400, `Each keyword must be ${MAX_SEO_KEYWORD_LENGTH} characters or fewer`, 400)
-    }
-    // Case-insensitive dedupe: two spellings of one keyword help nothing and spend the cap.
-    if (!keywords.some((existing) => existing.toLowerCase() === cleaned.toLowerCase())) {
-      keywords.push(cleaned)
-    }
-  }
-
-  if (!keywords.length) return null
-  if (keywords.length > MAX_SEO_KEYWORDS) {
-    throw new HttpError(400, `At most ${MAX_SEO_KEYWORDS} keywords`, 400)
-  }
-
-  const joined = keywords.join(', ')
-  if (joined.length > MAX_SEO_KEYWORDS_JOINED) {
-    throw new HttpError(400, `Keywords must be ${MAX_SEO_KEYWORDS_JOINED} characters or fewer in total`, 400)
-  }
-
-  return joined
-}
-
-/**
  * Validate a vanity slug.
  *
  * **ASCII only, and that is a security rule rather than a simplification.** Allowing
@@ -334,7 +280,6 @@ export const looksLikeProviderId = (value: string): boolean => UUID_PATTERN.test
 export type ProviderSeoPatch = {
   seoTitle?: string | null
   seoDescription?: string | null
-  seoKeywords?: string | null
   slug?: string | null
 }
 
@@ -351,13 +296,11 @@ export function parseProviderSeoBody(body: unknown): ProviderSeoPatch {
 
   const seoTitle = parseText(source.seoTitle, 'seoTitle', MAX_SEO_TITLE)
   const seoDescription = parseText(source.seoDescription, 'seoDescription', MAX_SEO_DESCRIPTION)
-  const seoKeywords = parseKeywords(source.seoKeywords)
   const slug = parseSlug(source.slug)
 
   return {
     ...(seoTitle !== undefined ? { seoTitle } : {}),
     ...(seoDescription !== undefined ? { seoDescription } : {}),
-    ...(seoKeywords !== undefined ? { seoKeywords } : {}),
     ...(slug !== undefined ? { slug } : {}),
   }
 }

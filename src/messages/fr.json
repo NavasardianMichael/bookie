@@ -295,7 +295,8 @@
       "services": "Prestations",
       "bookings": "Réservations",
       "analytics": "Statistiques",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Historique"
     },
     "actions": {
       "save": "Enregistrer les modifications",
@@ -485,7 +486,6 @@
       "rangeAll": "Toutes",
       "emptyTitle": "Rien à mesurer pour l'instant",
       "emptyBody": "Une fois que vous aurez des réservations sur cette période, vos chiffres apparaîtront ici.",
-      "listTitle": "Réservations sur cette période",
       "statBookings": "Réservations",
       "statRevenue": "Chiffre d'affaires",
       "statCompletion": "Terminées",
@@ -516,6 +516,12 @@
       "leadTime": "Réservent en général {hours, plural, one {# heure} other {# heures}} à l'avance.",
       "noLeadTime": "Pas encore assez de réservations pour dire à quelle distance les gens réservent."
     },
+    "history": {
+      "title": "Historique",
+      "subtitle": "Recherchez, filtrez et triez chaque réservation, y compris les à venir.",
+      "status": "Statut",
+      "service": "Prestation"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Comment votre page apparaît dans les résultats de recherche et votre lien court.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Votre description apparaîtra ici.",
       "fallbackWithOrganization": "Prenez rendez-vous avec {name}, qui travaille chez {organization}.",
       "fallbackDescription": "Prenez rendez-vous avec {name}.",
-      "keywords": "Mots-clés",
-      "keywordsHint": "Facultatif. Google ignore la balise de mots-clés, mais certains autres robots et annuaires la lisent encore.",
-      "keywordsLabel": "Mots-clés",
-      "keywordsPlaceholder": "Saisissez un mot-clé et appuyez sur Entrée",
-      "tooManyKeywords": "Au maximum {max} mots-clés.",
       "vanityUrl": "Lien court",
       "vanityHint": "Une adresse facile à retenir qui ouvre votre profil. La modifier rend l'ancienne inutilisable.",
       "slugLabel": "Votre lien",
@@ -713,8 +714,6 @@
     "addAnother": "Ajouter une autre prestation",
     "statTotal": "Prestations au total",
     "statUpcoming": "Réservations à venir",
-    "statDuration": "Durée moyenne",
-    "durationValue": "{minutes} min",
     "tabAll": "Toutes les prestations ({count})",
     "tabActive": "Actives ({count})",
     "tabIncomplete": "Incomplètes ({count})",

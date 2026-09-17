@@ -43,7 +43,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/providers` | ƒ | Real — explore: debounced search, category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
-| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / SEO |
+| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / History / SEO |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
 | `/b/[token]` | ƒ | Real — public booking manage page (view / cancel / reschedule). Capability token, not the appointment id. **A page**, not a 307. Reschedule PATCHes the same row and keeps this URL; "Back to booking" is an in-page control above the title, not a route. |
@@ -74,18 +74,20 @@ the app never collects a *client's* card. Provider `listed` hides Explore + publ
 `available` only pauses bookings. The Header swaps Sign In / Get Started for an avatar
 when `getMe()` succeeds.
 
-**Three of the provider tabs are not settings.** `Bookings` and `Analytics` are for running
-the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts them above the
-configuration tabs for that reason. They share the shell because a second nav and a second
-shell would be two mental models for one workspace — not because they are settings.
+**Three of the provider tabs are not settings.** `Bookings`, `Analytics` and `History`
+are for running the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts
+them above the configuration tabs for that reason. They share the shell because a second
+nav and a second shell would be two mental models for one workspace — not because they
+are settings.
 
 | Tab | Route | Shape |
 |---|---|---|
 | Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list. `GET /provider-profile/bookings` |
-| Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series, a search/sort/paged list of bookings in the window (upcoming included). `GET /provider-profile/analytics` + `GET /provider-profile/bookings` |
-| SEO | `/providers/profile/seo` | Title / description / keywords / vanity slug. `PATCH /provider-profile/seo` |
+| Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
+| History | `/providers/profile/history` | Search/status/service/sort/paged list of all bookings. `GET /provider-profile/bookings` |
+| SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo` |
 
-Four decisions in there worth not undoing:
+Five decisions in there worth not undoing:
 
 1. **Bookings keeps its filter state in local component state, not the URL** — the opposite
    of Explore, and deliberately. Explore's grid is a Server Component, so its query has to
@@ -105,6 +107,10 @@ Four decisions in there worth not undoing:
    half-finished, and a title tag has no half-finished state. Running a drafted description
    beside a live address on one screen would be the confusing part, so the whole tab is one
    Save. See `docs/DATABASE_STRUCTURE.md`.
+5. **History is a sibling sidebar route, not an Analytics subtab.** Charts stay on
+   Analytics with the range control; the booking list lives at `/providers/profile/history`
+   and is not filtered by that range. History has the Bookings filters (search, status,
+   service, sort) minus the calendar, which stays the Bookings day control.
 
 **The vanity link is a `route.ts`, not a `page.tsx`** — and that distinction was found the
 hard way. As a page it emitted a *soft* redirect: the root layout streams first, so by the

@@ -295,7 +295,8 @@
       "services": "الخدمات",
       "bookings": "الحجوزات",
       "analytics": "التحليلات",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "السجل"
     },
     "actions": {
       "save": "حفظ التغييرات",
@@ -485,7 +486,6 @@
       "rangeAll": "الكل",
       "emptyTitle": "لا شيء لقياسه بعد",
       "emptyBody": "بمجرد أن يكون لديك حجوزات في هذه الفترة، ستظهر أرقامك هنا.",
-      "listTitle": "الحجوزات في هذه الفترة",
       "statBookings": "الحجوزات",
       "statRevenue": "الإيرادات",
       "statCompletion": "مكتملة",
@@ -516,6 +516,12 @@
       "leadTime": "عادةً ما يُحجز قبل {hours, plural, zero {لا ساعات} one {ساعة واحدة} two {ساعتان} few {# ساعات} many {# ساعة} other {# ساعة}}.",
       "noLeadTime": "لا توجد حجوزات كافية لتحديد المدة التي يحجز فيها الناس مسبقًا."
     },
+    "history": {
+      "title": "السجل",
+      "subtitle": "ابحث وصفِّ ورتّب كل الحجوزات، بما فيها القادمة.",
+      "status": "الحالة",
+      "service": "الخدمة"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "كيف تظهر صفحتك في نتائج البحث، ورابطك المختصر.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "يظهر وصفك هنا.",
       "fallbackWithOrganization": "احجز موعدًا مع {name}، الذي يعمل في {organization}.",
       "fallbackDescription": "احجز موعدًا مع {name}.",
-      "keywords": "الكلمات المفتاحية",
-      "keywordsHint": "اختياري. تتجاهل Google وسم الكلمات المفتاحية، لكن بعض الزواحف والدلائل الأخرى لا تزال تقرؤه.",
-      "keywordsLabel": "الكلمات المفتاحية",
-      "keywordsPlaceholder": "اكتب كلمة مفتاحية واضغط Enter",
-      "tooManyKeywords": "بحد أقصى {max} كلمات مفتاحية.",
       "vanityUrl": "الرابط المختصر",
       "vanityHint": "عنوان يسهل تذكره يفتح ملفك الشخصي. تغييره يوقف عمل القديم.",
       "slugLabel": "رابطك",
@@ -713,8 +714,6 @@
     "addAnother": "إضافة خدمة أخرى",
     "statTotal": "إجمالي الخدمات",
     "statUpcoming": "الحجوزات القادمة",
-    "statDuration": "متوسط المدة",
-    "durationValue": "{minutes} دقيقة",
     "tabAll": "كل الخدمات ({count})",
     "tabActive": "نشطة ({count})",
     "tabIncomplete": "غير مكتملة ({count})",

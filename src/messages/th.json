@@ -295,7 +295,8 @@
       "services": "บริการ",
       "bookings": "การจอง",
       "analytics": "การวิเคราะห์",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "ประวัติ"
     },
     "actions": {
       "save": "บันทึกการเปลี่ยนแปลง",
@@ -485,7 +486,6 @@
       "rangeAll": "ทั้งหมด",
       "emptyTitle": "ยังไม่มีอะไรให้วัด",
       "emptyBody": "เมื่อคุณมีการจองในช่วงนี้ ตัวเลขจะปรากฏที่นี่",
-      "listTitle": "การจองในช่วงเวลานี้",
       "statBookings": "การจอง",
       "statRevenue": "รายได้",
       "statCompletion": "เสร็จสิ้น",
@@ -516,6 +516,12 @@
       "leadTime": "โดยทั่วไปจองล่วงหน้า {hours, plural, one {# ชั่วโมง} other {# ชั่วโมง}}",
       "noLeadTime": "การจองไม่เพียงพอที่จะบอกได้ว่าคนจองล่วงหน้ากี่วัน"
     },
+    "history": {
+      "title": "ประวัติ",
+      "subtitle": "ค้นหา กรอง และเรียงการจองทั้งหมด รวมถึงรายการที่จะมาถึง",
+      "status": "สถานะ",
+      "service": "บริการ"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "หน้าของคุณปรากฏในผลการค้นหาอย่างไร และลิงก์สั้นของคุณ",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "คำอธิบายของคุณจะปรากฏที่นี่",
       "fallbackWithOrganization": "จองนัดหมายกับ {name} ซึ่งทำงานที่ {organization}",
       "fallbackDescription": "จองนัดหมายกับ {name}",
-      "keywords": "คำสำคัญ",
-      "keywordsHint": "ไม่บังคับ Google ไม่สนใจแท็กคำสำคัญ แต่โปรแกรมค้นหาและไดเรกทอรีอื่นบางแห่งยังคงอ่านอยู่",
-      "keywordsLabel": "คำสำคัญ",
-      "keywordsPlaceholder": "พิมพ์คำสำคัญและกด Enter",
-      "tooManyKeywords": "ไม่เกิน {max} คำสำคัญ",
       "vanityUrl": "ลิงก์สั้น",
       "vanityHint": "ที่อยู่ที่จำง่ายซึ่งเปิดโปรไฟล์ของคุณ การเปลี่ยนจะทำให้ลิงก์เดิมใช้ไม่ได้",
       "slugLabel": "ลิงก์ของคุณ",
@@ -713,8 +714,6 @@
     "addAnother": "เพิ่มบริการอีก",
     "statTotal": "บริการทั้งหมด",
     "statUpcoming": "การจองที่กำลังจะถึง",
-    "statDuration": "ระยะเวลาเฉลี่ย",
-    "durationValue": "{minutes} นาที",
     "tabAll": "บริการทั้งหมด ({count})",
     "tabActive": "ใช้งาน ({count})",
     "tabIncomplete": "ไม่สมบูรณ์ ({count})",

@@ -295,7 +295,8 @@
       "services": "Servizi",
       "bookings": "Prenotazioni",
       "analytics": "Statistiche",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Cronologia"
     },
     "actions": {
       "save": "Salva modifiche",
@@ -485,7 +486,6 @@
       "rangeAll": "Tutte",
       "emptyTitle": "Ancora nulla da misurare",
       "emptyBody": "Quando avrai prenotazioni in questo periodo, i tuoi numeri appariranno qui.",
-      "listTitle": "Prenotazioni in questo periodo",
       "statBookings": "Prenotazioni",
       "statRevenue": "Fatturato",
       "statCompletion": "Completate",
@@ -516,6 +516,12 @@
       "leadTime": "Di solito prenotano con {hours, plural, one {# ora} other {# ore}} di anticipo.",
       "noLeadTime": "Non ci sono ancora abbastanza prenotazioni per dire con quanto anticipo si prenota."
     },
+    "history": {
+      "title": "Cronologia",
+      "subtitle": "Cerca, filtra e ordina ogni prenotazione, comprese quelle in arrivo.",
+      "status": "Stato",
+      "service": "Servizio"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Come appare la tua pagina nei risultati di ricerca e il tuo link breve.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "La tua descrizione appare qui.",
       "fallbackWithOrganization": "Prenota un appuntamento con {name}, che lavora presso {organization}.",
       "fallbackDescription": "Prenota un appuntamento con {name}.",
-      "keywords": "Parole chiave",
-      "keywordsHint": "Facoltativo. Google ignora il tag delle parole chiave, ma alcuni altri crawler e directory lo leggono ancora.",
-      "keywordsLabel": "Parole chiave",
-      "keywordsPlaceholder": "Digita una parola chiave e premi Invio",
-      "tooManyKeywords": "Al massimo {max} parole chiave.",
       "vanityUrl": "Link breve",
       "vanityHint": "Un indirizzo facile da ricordare che apre il tuo profilo. Modificarlo rende il precedente non più valido.",
       "slugLabel": "Il tuo link",
@@ -713,8 +714,6 @@
     "addAnother": "Aggiungi un altro servizio",
     "statTotal": "Servizi totali",
     "statUpcoming": "Prenotazioni in arrivo",
-    "statDuration": "Durata media",
-    "durationValue": "{minutes} min",
     "tabAll": "Tutti i servizi ({count})",
     "tabActive": "Attivi ({count})",
     "tabIncomplete": "Incompleti ({count})",

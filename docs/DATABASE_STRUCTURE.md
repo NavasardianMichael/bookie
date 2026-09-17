@@ -71,7 +71,7 @@ All JSON responses use:
 | GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, own bookings only, see [Provider workspace](#provider-workspace) |
 | GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound) |
-| PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `seoKeywords` / `slug` |
+| PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
 | GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
 | POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled |
@@ -232,9 +232,10 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   **Consumer** `paymentInfo` is methods only: the profile tab writes `{ methods }` and
   `PUT /consumer-profile` strips `payToNumber` / `cardNumber` / `accountNumber` / `notes` /
   `reference` so leftover values cannot linger.
-- **SEO columns are *not* draftable.** `seoTitle`, `seoDescription`, `seoKeywords` and
+- **SEO columns are *not* draftable.** `seoTitle`, `seoDescription` and
   `slug` save live through `PATCH /provider-profile/seo`, never through the `draft`
-  overlay — see [Provider workspace](#provider-workspace).
+  overlay — see [Provider workspace](#provider-workspace). The unused `seoKeywords`
+  column is leftover from when the tab accepted keywords; it is not read or written.
 
 ## Provider workspace
 
@@ -268,7 +269,7 @@ Three things about these that are easy to get wrong:
 
 ### `PATCH /provider-profile/seo`
 
-Four columns, all **overrides**: absent means "leave it alone", `''` means "clear it back
+Three columns, all **overrides**: absent means "leave it alone", `''` means "clear it back
 to the composed default", anything else is the new value. Nothing here can blank a tag —
 a cleared override restores what `generateMetadata` composes from the provider's name,
 organization and categories.
@@ -279,7 +280,6 @@ Validation lives in `server/src/services/providerSeo.ts`:
 |---|---|
 | `seoTitle` | ≤ 60 code points. **Rejected, not truncated** — the field is counted live in the browser, so an over-length body is a non-browser caller, and a half-title reaches Google mid-word. |
 | `seoDescription` | ≤ 160 code points, same treatment. |
-| `seoKeywords` | ≤ 10 entries, each ≤ 40 chars, ≤ 255 joined. Stored comma-separated. |
 | all text | Line breaks become a space (never deleted — that would join two words); other control, bidi and zero-width characters are removed; `<` and `>` are refused; NFC-normalised. |
 | `slug` | 3–40 chars, `a-z0-9` with single hyphens, **ASCII only**, not UUID-shaped, not reserved, `@unique`. |
 

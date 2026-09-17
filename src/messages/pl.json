@@ -295,7 +295,8 @@
       "services": "Usługi",
       "bookings": "Rezerwacje",
       "analytics": "Statystyki",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Historia"
     },
     "actions": {
       "save": "Zapisz zmiany",
@@ -485,7 +486,6 @@
       "rangeAll": "Wszystkie",
       "emptyTitle": "Nie ma jeszcze czego mierzyć",
       "emptyBody": "Gdy w tym okresie pojawią się rezerwacje, Twoje liczby wyświetlą się tutaj.",
-      "listTitle": "Rezerwacje w tym okresie",
       "statBookings": "Rezerwacje",
       "statRevenue": "Przychód",
       "statCompletion": "Zakończone",
@@ -516,6 +516,12 @@
       "leadTime": "Zwykle rezerwują {hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godzin}} wcześniej.",
       "noLeadTime": "Za mało rezerwacji, aby określić, z jakim wyprzedzeniem klienci rezerwują."
     },
+    "history": {
+      "title": "Historia",
+      "subtitle": "Wyszukuj, filtruj i sortuj każdą rezerwację, także nadchodzące.",
+      "status": "Status",
+      "service": "Usługa"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Jak Twoja strona pojawia się w wynikach wyszukiwania, i Twój krótki link.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Twój opis pojawi się tutaj.",
       "fallbackWithOrganization": "Zarezerwuj wizytę u {name}, pracującego w {organization}.",
       "fallbackDescription": "Zarezerwuj wizytę u {name}.",
-      "keywords": "Słowa kluczowe",
-      "keywordsHint": "Opcjonalne. Google ignoruje znacznik keywords, ale niektóre inne roboty i katalogi wciąż go czytają.",
-      "keywordsLabel": "Słowa kluczowe",
-      "keywordsPlaceholder": "Wpisz słowo kluczowe i naciśnij Enter",
-      "tooManyKeywords": "Maksymalnie {max} słów kluczowych.",
       "vanityUrl": "Krótki link",
       "vanityHint": "Zapadający w pamięć adres, który otwiera Twój profil. Zmiana wyłącza działanie poprzedniego.",
       "slugLabel": "Twój link",
@@ -713,8 +714,6 @@
     "addAnother": "Dodaj kolejną usługę",
     "statTotal": "Łącznie usług",
     "statUpcoming": "Nadchodzące rezerwacje",
-    "statDuration": "Średni czas trwania",
-    "durationValue": "{minutes} min",
     "tabAll": "Wszystkie usługi ({count})",
     "tabActive": "Aktywne ({count})",
     "tabIncomplete": "Niekompletne ({count})",

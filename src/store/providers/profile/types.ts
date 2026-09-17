@@ -69,8 +69,6 @@ export type ProviderProfile = {
 export type ProviderSeo = {
   title?: string
   description?: string
-  /** Comma-joined, the shape the `<meta name="keywords">` tag wants. */
-  keywords?: string
   /** Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL. */
   slug?: string
 }

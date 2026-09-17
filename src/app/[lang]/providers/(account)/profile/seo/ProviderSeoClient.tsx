@@ -2,7 +2,7 @@
 
 import { FC, useCallback, useEffect, useState } from 'react'
 import type { InputProps } from 'antd'
-import { Alert, App, Form, Select, Space } from 'antd'
+import { Alert, App, Form, Space } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, patchProviderSeoAPI } from '@api/providers/main'
 import { ProviderSeo } from '@store/providers/profile/types'
@@ -30,7 +30,6 @@ import { Surface } from '@components/ui/layout/Surface'
  */
 const MAX_TITLE = 60
 const MAX_DESCRIPTION = 160
-const MAX_KEYWORDS = 10
 const MIN_SLUG = 3
 const MAX_SLUG = 40
 
@@ -48,14 +47,33 @@ const SLUG_CHARS = /^[a-z0-9-]+$/
 const isWellFormedSlug = (value: string): boolean =>
   SLUG_CHARS.test(value) && !value.startsWith('-') && !value.endsWith('-') && !value.includes('--')
 
+/** Length in code points, matching the server's cap. */
+const clampChars = (value: string, max: number): string => [...value].slice(0, max).join('')
+
+/**
+ * ASCII slug from a display name, so an empty vanity field can still show the address
+ * that *would* be claimed. Non-Latin names yield `''` rather than a homograph.
+ */
+const suggestSlug = (value: string): string => {
+  const slug = value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, MAX_SLUG)
+
+  if (slug.length < MIN_SLUG || !isWellFormedSlug(slug)) return ''
+  return slug
+}
+
 type FormValues = {
   seoTitle: string
   seoDescription: string
-  seoKeywords: string[]
   slug: string
 }
 
-const EMPTY: FormValues = { seoTitle: '', seoDescription: '', seoKeywords: [], slug: '' }
+const EMPTY: FormValues = { seoTitle: '', seoDescription: '', slug: '' }
 
 /**
  * Vanity-slug field. antd 6 replaced `addonBefore` with `Space.Compact`, and Compact
@@ -74,11 +92,13 @@ const SlugInput: FC<SlugInputProps> = ({ urlPrefix, ...props }) => (
   </Space.Compact>
 )
 
-const toFormValues = (seo: ProviderSeo | undefined): FormValues => ({
-  seoTitle: seo?.title ?? '',
-  seoDescription: seo?.description ?? '',
-  seoKeywords: seo?.keywords ? seo.keywords.split(',').map((keyword) => keyword.trim()).filter(Boolean) : [],
-  slug: seo?.slug ?? '',
+const toFormValues = (
+  seo: ProviderSeo | undefined,
+  fallback: { title: string; description: string; slug: string }
+): FormValues => ({
+  seoTitle: seo?.title ?? fallback.title,
+  seoDescription: seo?.description ?? fallback.description,
+  slug: seo?.slug ?? fallback.slug,
 })
 
 /** How full a field is, as the counter's tone. */
@@ -100,7 +120,8 @@ const counterTone = (length: number, good: number, max: number): 'muted' | 'bran
  *
  * **Every field is an override.** Emptying one restores the composed default (name,
  * organization, categories) rather than blanking the tag, which is why the preview below
- * shows the fallback rather than an empty line.
+ * shows the fallback rather than an empty line. The inputs are prefilled with that
+ * default so the provider sees what search actually uses, not a blank box.
  */
 export const ProviderSeoClient = () => {
   const t = useTranslations('Settings.seo')
@@ -110,7 +131,13 @@ export const ProviderSeoClient = () => {
   const [form] = Form.useForm<FormValues>()
 
   const [saved, setSaved] = useState<FormValues>(EMPTY)
-  const [fallback, setFallback] = useState<{ title: string; description: string }>({ title: '', description: '' })
+  const [fallback, setFallback] = useState<{ title: string; description: string; slug: string }>({
+    title: '',
+    description: '',
+    slug: '',
+  })
+  const [providerId, setProviderId] = useState('')
+  const [persistedSlug, setPersistedSlug] = useState('')
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -122,22 +149,37 @@ export const ProviderSeoClient = () => {
   useEffect(() => {
     void getProviderProfileAPI()
       .then((profile) => {
-        const values = toFormValues(profile.seo)
-        setSaved(values)
-        form.setFieldsValue(values)
-
-        // What the public page composes when an override is absent, reproduced here so
-        // the preview shows the real fallback rather than an empty line. It mirrors
-        // `generateMetadata` in `providers/[providerId]/page.tsx`.
         const name = `${profile.basic.firstName} ${profile.basic.lastName}`.trim()
         const organization = profile.basic.organization?.basic.name
         const categories = profile.basic.categories?.map((category) => category.name) ?? []
-        setFallback({
-          title: [name, organization, categories.join(', ')].filter(Boolean).join(' | '),
-          description: organization
-            ? t('fallbackWithOrganization', { name, organization })
-            : t('fallbackDescription', { name }),
+        // What the public page composes when an override is absent, reproduced here so
+        // the fields and the preview show the real fallback rather than an empty line.
+        // It mirrors `generateMetadata` in `providers/[providerId]/page.tsx`.
+        const nextFallback = {
+          title: clampChars(
+            [name, organization, categories.join(', ')].filter(Boolean).join(' | '),
+            MAX_TITLE
+          ),
+          description: clampChars(
+            organization
+              ? t('fallbackWithOrganization', { name, organization })
+              : t('fallbackDescription', { name }),
+            MAX_DESCRIPTION
+          ),
+          slug: suggestSlug(organization || name),
+        }
+        const values = toFormValues(profile.seo, {
+          ...nextFallback,
+          // Only a saved slug belongs in the field. A guessed one would be written on
+          // the next Save of the title/description, claiming a link the provider never
+          // confirmed. The guess stays the placeholder.
+          slug: profile.seo?.slug ?? '',
         })
+        setFallback(nextFallback)
+        setProviderId(profile.id)
+        setPersistedSlug(profile.seo?.slug ?? '')
+        setSaved(values)
+        form.setFieldsValue(values)
       })
       .catch((err) => setError(processError(err).message))
   }, [form, t])
@@ -155,8 +197,15 @@ export const ProviderSeoClient = () => {
     [activeLocale]
   )
 
+  const canonicalUrl = providerId
+    ? `${getSiteUrl()}${localePath(activeLocale, `${ROUTES.providers}/${providerId}`)}`
+    : ''
+
   /** What the preview shows: the link as it would be with the *unsaved* slug. */
   const previewUrl = vanityUrlFor(slug.trim().toLowerCase())
+
+  /** The address that already works — vanity if one is saved, otherwise the profile URL. */
+  const liveUrl = persistedSlug ? vanityUrlFor(persistedSlug) : canonicalUrl
 
   const handleSave = async () => {
     const values = await form.validateFields()
@@ -168,10 +217,10 @@ export const ProviderSeoClient = () => {
       const next = await patchProviderSeoAPI({
         seoTitle: values.seoTitle.trim(),
         seoDescription: values.seoDescription.trim(),
-        seoKeywords: values.seoKeywords ?? [],
         slug: values.slug.trim(),
       })
-      const applied = toFormValues(next)
+      const applied = toFormValues(next, fallback)
+      setPersistedSlug(next.slug ?? '')
       setSaved(applied)
       form.setFieldsValue(applied)
       setDirty(false)
@@ -254,38 +303,12 @@ export const ProviderSeoClient = () => {
         </Surface>
 
         <Surface className='flex flex-col gap-6'>
-          <h2 className='text-h3 font-bold'>{t('keywords')}</h2>
-          {/* Said plainly rather than left implied: a field that quietly does nothing is
-              worse than a labelled one. */}
-          <AppParagraph size='body-sm'>{t('keywordsHint')}</AppParagraph>
-
-          <AppFormItem
-            name='seoKeywords'
-            label={t('keywordsLabel')}
-            rules={[
-              {
-                validator: (_, value: string[] | undefined) =>
-                  (value?.length ?? 0) <= MAX_KEYWORDS
-                    ? Promise.resolve()
-                    : Promise.reject(new Error(t('tooManyKeywords', { max: MAX_KEYWORDS }))),
-              },
-            ]}
-          >
-            <Select
-              mode='tags'
-              tokenSeparators={[',']}
-              placeholder={t('keywordsPlaceholder')}
-              maxTagCount='responsive'
-              // No `options`: the whole point is free text the provider types.
-              options={[]}
-              suffixIcon={null}
-            />
-          </AppFormItem>
-        </Surface>
-
-        <Surface className='flex flex-col gap-6'>
-          <h2 className='text-h3 font-bold'>{t('vanityUrl')}</h2>
-          <AppParagraph size='body-sm'>{t('vanityHint')}</AppParagraph>
+          <div className='flex flex-col gap-2'>
+            <h2 className='text-h3 font-bold'>{t('vanityUrl')}</h2>
+            <AppParagraph size='body-sm' className='m-0'>
+              {t('vanityHint')}
+            </AppParagraph>
+          </div>
 
           <AppFormItem
             name='slug'
@@ -313,19 +336,19 @@ export const ProviderSeoClient = () => {
           >
             <SlugInput
               urlPrefix={`${getSiteUrl()}${localePath(activeLocale, ROUTES.providerVanity)}/`}
-              placeholder={t('slugPlaceholder')}
+              placeholder={fallback.slug || t('slugPlaceholder')}
               maxLength={MAX_SLUG}
             />
           </AppFormItem>
 
-          {saved.slug && (
+          {liveUrl && (
             <div className='bg-surface-sunken border-brand-border flex items-center justify-between gap-3 rounded-brand border p-3'>
               <div className='min-w-0'>
                 <AppText size='caption' tone='muted' className='font-bold uppercase'>
                   {t('yourLink')}
                 </AppText>
                 <AppParagraph className='truncate font-semibold' tone='default'>
-                  {vanityUrlFor(saved.slug)}
+                  {liveUrl}
                 </AppParagraph>
               </div>
               <AppButton
@@ -333,7 +356,7 @@ export const ProviderSeoClient = () => {
                 icon={<CopyIcon className='h-4 w-4' />}
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText(vanityUrlFor(saved.slug))
+                    await navigator.clipboard.writeText(liveUrl)
                     message.success(t('copied'))
                   } catch {
                     message.error(t('copyFailed'))
@@ -347,8 +370,8 @@ export const ProviderSeoClient = () => {
 
           {/* Only once a slug exists and the provider is changing it — a warning about
               breaking a link nobody has yet is noise. */}
-          {saved.slug && slug.trim().toLowerCase() !== saved.slug && (
-            <Alert type='warning' showIcon message={t('slugChangeWarning', { slug: saved.slug })} />
+          {persistedSlug && slug.trim().toLowerCase() !== persistedSlug && (
+            <Alert type='warning' showIcon message={t('slugChangeWarning', { slug: persistedSlug })} />
           )}
         </Surface>
       </Form>

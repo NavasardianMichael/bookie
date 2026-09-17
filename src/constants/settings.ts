@@ -23,15 +23,16 @@ export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
 ]
 
 /**
- * Running the business sits above configuring it: Bookings and Analytics are opened
- * daily, the tabs around them are opened once. `match: 'exact'` on the profile home is
- * load-bearing — `/providers/profile` is a prefix of every nested tab, so without it the
- * Profile item lights up on all of them.
+ * Running the business sits above configuring it: Bookings, Analytics and History
+ * are opened daily, the tabs around them are opened once. `match: 'exact'` on the
+ * profile home is load-bearing — `/providers/profile` is a prefix of every nested
+ * tab, so without it the Profile item lights up on all of them.
  */
 export const PROVIDER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[] = [
   { route: ROUTE_KEYS.providerProfile, match: 'exact' },
   { route: ROUTE_KEYS.providerProfileBookings },
   { route: ROUTE_KEYS.providerProfileAnalytics },
+  { route: ROUTE_KEYS.providerProfileHistory },
   { route: ROUTE_KEYS.providerProfileAvailability },
   { route: ROUTE_KEYS.providerServices },
   { route: ROUTE_KEYS.providerProfileSeo },

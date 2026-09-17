@@ -295,7 +295,8 @@
       "services": "服务",
       "bookings": "预约",
       "analytics": "数据分析",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "历史记录"
     },
     "actions": {
       "save": "保存更改",
@@ -485,7 +486,6 @@
       "rangeAll": "全部",
       "emptyTitle": "暂无可衡量的数据",
       "emptyBody": "在此期间产生预约后，相关数据会显示在这里。",
-      "listTitle": "此时间段的预约",
       "statBookings": "预约数",
       "statRevenue": "收入",
       "statCompletion": "已完成",
@@ -516,6 +516,12 @@
       "leadTime": "通常提前 {hours, plural, one {# 小时} other {# 小时}} 预约。",
       "noLeadTime": "预约数量不足以判断提前预约的时间。"
     },
+    "history": {
+      "title": "历史记录",
+      "subtitle": "搜索、筛选并排序全部预约，包括即将到来的预约。",
+      "status": "状态",
+      "service": "服务"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "您的主页在搜索结果中的显示方式，以及您的短链接。",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "您的描述将显示在这里。",
       "fallbackWithOrganization": "预约 {name}（就职于 {organization}）。",
       "fallbackDescription": "预约 {name}。",
-      "keywords": "关键词",
-      "keywordsHint": "可选。Google 会忽略关键词标签，但部分抓取器和目录仍会读取。",
-      "keywordsLabel": "关键词",
-      "keywordsPlaceholder": "输入关键词后按回车",
-      "tooManyKeywords": "最多 {max} 个关键词。",
       "vanityUrl": "短链接",
       "vanityHint": "便于记忆的地址，可直达您的主页。更换后旧链接将失效。",
       "slugLabel": "您的短链接",
@@ -713,8 +714,6 @@
     "addAnother": "再添加一项服务",
     "statTotal": "服务总数",
     "statUpcoming": "即将到来的预约",
-    "statDuration": "平均时长",
-    "durationValue": "{minutes} 分钟",
     "tabAll": "全部服务 ({count})",
     "tabActive": "在线 ({count})",
     "tabIncomplete": "未完成 ({count})",

@@ -181,6 +181,15 @@ export const ChartIcon = ({ className }: IconProps) => (
   </svg>
 )
 
+/** Clock with a rewind arrow — the History workspace tab. */
+export const HistoryIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M3 12a9 9 0 1 0 3-6.7' />
+    <path d='M3 4v5h5' />
+    <path d='M12 7v5l3.5 2' />
+  </svg>
+)
+
 export const SearchIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>
     <circle cx='11' cy='11' r='7' />

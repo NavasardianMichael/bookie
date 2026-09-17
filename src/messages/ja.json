@@ -295,7 +295,8 @@
       "services": "サービス",
       "bookings": "予約管理",
       "analytics": "分析",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "履歴"
     },
     "actions": {
       "save": "変更を保存",
@@ -485,7 +486,6 @@
       "rangeAll": "すべて",
       "emptyTitle": "まだ計測できるデータがありません",
       "emptyBody": "この期間に予約が入るとここに数値が表示されます。",
-      "listTitle": "この期間の予約",
       "statBookings": "予約数",
       "statRevenue": "売上",
       "statCompletion": "完了",
@@ -516,6 +516,12 @@
       "leadTime": "通常 {hours, plural, one {# 時間} other {# 時間}} 前に予約されています。",
       "noLeadTime": "予約数が少ないため、事前予約の目安を算出できません。"
     },
+    "history": {
+      "title": "履歴",
+      "subtitle": "今後の予約も含め、すべての予約を検索・絞り込み・並べ替えできます。",
+      "status": "ステータス",
+      "service": "サービス"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "ページが検索結果に表示される方法と、短縮リンク。",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "説明文がここに表示されます。",
       "fallbackWithOrganization": "{name}（{organization}所属）を予約しましょう。",
       "fallbackDescription": "{name}を予約しましょう。",
-      "keywords": "キーワード",
-      "keywordsHint": "任意。Google はキーワードタグを無視しますが、一部のクローラーやディレクトリはまだ参照します。",
-      "keywordsLabel": "キーワード",
-      "keywordsPlaceholder": "キーワードを入力して Enter",
-      "tooManyKeywords": "キーワードは最大 {max} 個までです。",
       "vanityUrl": "短縮リンク",
       "vanityHint": "プロフィールを開きやすい短いアドレス。変更すると以前のリンクは無効になります。",
       "slugLabel": "短縮リンク",
@@ -713,8 +714,6 @@
     "addAnother": "サービスをさらに追加",
     "statTotal": "サービス総数",
     "statUpcoming": "今後の予約",
-    "statDuration": "平均所要時間",
-    "durationValue": "{minutes}分",
     "tabAll": "すべてのサービス ({count})",
     "tabActive": "公開中 ({count})",
     "tabIncomplete": "未完了 ({count})",

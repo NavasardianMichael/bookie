@@ -295,7 +295,8 @@
       "services": "Послуги",
       "bookings": "Бронювання",
       "analytics": "Аналітика",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Історія"
     },
     "actions": {
       "save": "Зберегти зміни",
@@ -485,7 +486,6 @@
       "rangeAll": "Усі",
       "emptyTitle": "Поки що нічого міряти",
       "emptyBody": "Коли за цей період з’являться бронювання, ваші числа відобразяться тут.",
-      "listTitle": "Записи за цей період",
       "statBookings": "Бронювання",
       "statRevenue": "Дохід",
       "statCompletion": "Завершено",
@@ -516,6 +516,12 @@
       "leadTime": "Зазвичай бронюють за {hours, plural, one {# годину} few {# години} many {# годин} other {# годин}} наперед.",
       "noLeadTime": "Недостатньо бронювань, щоб сказати, наскільки завчасно бронюють."
     },
+    "history": {
+      "title": "Історія",
+      "subtitle": "Шукайте, фільтруйте й сортуйте всі бронювання, зокрема майбутні.",
+      "status": "Статус",
+      "service": "Послуга"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Як ваша сторінка з’являється в результатах пошуку, і ваше коротке посилання.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Ваш опис з’являється тут.",
       "fallbackWithOrganization": "Забронюйте візит до {name}, який працює в {organization}.",
       "fallbackDescription": "Забронюйте візит до {name}.",
-      "keywords": "Ключові слова",
-      "keywordsHint": "Необов’язково. Google ігнорує тег keywords, але деякі інші сканери та каталоги ще його читають.",
-      "keywordsLabel": "Ключові слова",
-      "keywordsPlaceholder": "Введіть ключове слово та натисніть Enter",
-      "tooManyKeywords": "Не більше {max} ключових слів.",
       "vanityUrl": "Коротке посилання",
       "vanityHint": "Легко запам’ятовувана адреса, що відкриває ваш профіль. Зміна вимикає стару.",
       "slugLabel": "Ваше посилання",
@@ -713,8 +714,6 @@
     "addAnother": "Додати ще одну послугу",
     "statTotal": "Усього послуг",
     "statUpcoming": "Майбутні бронювання",
-    "statDuration": "Середня тривалість",
-    "durationValue": "{minutes} хв",
     "tabAll": "Усі послуги ({count})",
     "tabActive": "Активні ({count})",
     "tabIncomplete": "Незавершені ({count})",

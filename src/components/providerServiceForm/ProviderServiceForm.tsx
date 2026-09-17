@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Col, Flex, Form, InputNumber, Row } from 'antd'
+import { Flex, Form, InputNumber } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -54,7 +54,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
       form={form}
       initialValues={initialValues}
       requiredMark
-      className='mt-4 flex w-full flex-col gap-4'
+      className='mt-4 flex min-w-0 w-full flex-col gap-4'
       layout='vertical'
       onFinish={onSubmit}
       scrollToFirstError
@@ -68,37 +68,42 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
         <AppTextArea autoSize={{ minRows: 3, maxRows: 5 }} maxLength={MAX_CHARS_FOR_TEXTAREA} />
       </AppFormItem>
 
-      <Row gutter={[16, 0]}>
-        <Col xs={24} sm={12}>
-          <AppFormItem name='duration' label={t('formDuration')} rules={requiredRuleSet}>
-            <ProviderServiceFormDuration />
-          </AppFormItem>
-        </Col>
-        <Col xs={24} sm={12}>
-          {/* Combobox: pick a predefined Category or type a new name. `Service.categoryId`
-              is still a required FK — the server matches or creates the row. */}
-          <AppFormItem name='category' label={t('formCategory')} rules={categoryRules} required>
-            <ProviderServiceFormCategory />
-          </AppFormItem>
-        </Col>
-      </Row>
+      {/* CSS grid, not antd `Row`/`Col`: Row's gutter applies negative inline margins,
+          which made this sheet 16px wider than the modal body and produced a horizontal
+          scrollbar. Grid gap does the same layout without overflowing. */}
+      <div className='grid grid-cols-[repeat(auto-fill,minmax(min(14rem,100%),1fr))] gap-4'>
+        <AppFormItem name='duration' label={t('formDuration')} rules={requiredRuleSet} hasFeedback={false} className='min-w-0'>
+          <ProviderServiceFormDuration />
+        </AppFormItem>
+        {/* Combobox: pick a predefined Category or type a new name. `Service.categoryId`
+            is still a required FK — the server matches or creates the row. */}
+        <AppFormItem
+          name='category'
+          label={t('formCategory')}
+          rules={categoryRules}
+          required
+          hasFeedback={false}
+          className='min-w-0'
+        >
+          <ProviderServiceFormCategory />
+        </AppFormItem>
+        <AppFormItem
+          name='price'
+          label={t('formPrice')}
+          rules={inputNumberPositiveRuleSet}
+          hasFeedback={false}
+          className='min-w-0'
+        >
+          {/* antd sizes this from `controlWidth` (90px). That rule is unlayered, so
+              Tailwind `w-full` cannot override it — `styles.root` can. */}
+          <InputNumber min={0} inputMode='decimal' styles={{ root: { width: '100%' } }} />
+        </AppFormItem>
+        <AppFormItem name='currency' label={t('formCurrency')} rules={currencyMaxCharsRuleSet} hasFeedback={false} className='min-w-0'>
+          <ProviderServiceFormCurrency />
+        </AppFormItem>
+      </div>
 
-      <Row gutter={[16, 0]}>
-        <Col xs={24} sm={12}>
-          <AppFormItem name='price' label={t('formPrice')} rules={inputNumberPositiveRuleSet}>
-            {/* antd sizes this from `controlWidth` (90px). That rule is unlayered, so
-                Tailwind `w-full` cannot override it — `styles.root` can. */}
-            <InputNumber min={0} inputMode='decimal' styles={{ root: { width: '100%' } }} />
-          </AppFormItem>
-        </Col>
-        <Col xs={24} sm={12}>
-          <AppFormItem name='currency' label={t('formCurrency')} rules={currencyMaxCharsRuleSet}>
-            <ProviderServiceFormCurrency />
-          </AppFormItem>
-        </Col>
-      </Row>
-
-      <AppFormItem name='image' label={t('formImage')}>
+      <AppFormItem name='image' label={t('formImage')} hasFeedback={false} className='min-w-0'>
         <ProviderServiceFormImage />
       </AppFormItem>
 

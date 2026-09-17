@@ -17,7 +17,7 @@ import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
 import { AppText } from '@components/ui/bare/AppText'
 import { EmptyState } from '@components/ui/EmptyState'
-import { CalendarIcon, ClockIcon, ListIcon } from '@components/ui/icons'
+import { CalendarIcon, ListIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { StatTile } from '@components/ui/StatTile'
@@ -101,12 +101,6 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       }),
     [filter, serviceList]
   )
-
-  const averageDuration = useMemo(() => {
-    const durations = serviceList.map((service) => service.duration).filter((duration) => duration > 0)
-    if (!durations.length) return null
-    return Math.round(durations.reduce((sum, duration) => sum + duration, 0) / durations.length)
-  }, [serviceList])
 
   const closeDeleteServiceModal = useCallback(() => {
     setDeleteServiceModalOpened(false)
@@ -229,12 +223,6 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           label={t('statUpcoming')}
           value={upcomingCount ?? '—'}
         />
-        <StatTile
-          layout='row'
-          icon={<ClockIcon className='h-5 w-5' />}
-          label={t('statDuration')}
-          value={averageDuration ? t('durationValue', { minutes: averageDuration }) : '—'}
-        />
       </ResponsiveGrid>
 
       {isLoading ? (
@@ -263,7 +251,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                 <button
                   type='button'
                   onClick={onAddServiceClick}
-                  className='border-brand-border text-brand-muted hover:bg-brand-50 hover:border-brand hover:text-brand focus-visible:ring-brand/40 flex h-full min-h-56 w-full flex-col items-center justify-center gap-4 rounded-brand border-2 border-dashed p-6 transition-colors focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]'
+                  className='border-brand-border text-brand-muted hover:bg-brand-50 hover:border-brand hover:text-brand focus-visible:ring-brand/40 flex h-full min-h-56 w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-brand border-2 border-dashed p-6 transition-colors focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]'
                 >
                   <span
                     aria-hidden

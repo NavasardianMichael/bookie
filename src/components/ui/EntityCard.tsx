@@ -138,7 +138,7 @@ export const EntityCard: FC<EntityCardProps> = ({
           </AppParagraph>
         )}
 
-        {badges && <div className='relative z-2 mt-auto flex flex-wrap items-center gap-1 pt-2'>{badges}</div>}
+        {badges && <div className='relative z-2 mt-auto flex flex-wrap items-center gap-3 pt-2'>{badges}</div>}
 
         {footer && <div className='text-caption mt-auto pt-1'>{footer}</div>}
 

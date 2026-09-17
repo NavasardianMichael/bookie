@@ -9,9 +9,10 @@ import {
 } from '../../../server/src/services/providerSeo'
 
 /**
- * The SEO tab writes four columns straight into public `<meta>` tags and a URL segment,
- * so this file is the security boundary rather than a formatting nicety. The route is a
- * five-line delegate; every rule that matters lives in the service under test.
+ * The SEO tab writes title, description and a URL segment straight into public
+ * `<meta>` tags and a vanity link, so this file is the security boundary rather
+ * than a formatting nicety. The route is a five-line delegate; every rule that
+ * matters lives in the service under test.
  */
 
 const throws = (body: unknown): (() => unknown) => () => parseProviderSeoBody(body)
@@ -85,30 +86,10 @@ describe('parseProviderSeoBody — text sanitising', () => {
   })
 })
 
-describe('parseProviderSeoBody — keywords', () => {
-  it('joins an array into the comma-separated shape the meta tag wants', () => {
-    expect(parseProviderSeoBody({ seoKeywords: ['hair', 'salon'] }).seoKeywords).toBe('hair, salon')
-  })
-
-  it('replaces a comma inside one keyword, since a comma is the separator', () => {
-    expect(parseProviderSeoBody({ seoKeywords: ['hair, beauty'] }).seoKeywords).toBe('hair beauty')
-  })
-
-  it('dedupes case-insensitively rather than spending the cap twice', () => {
-    expect(parseProviderSeoBody({ seoKeywords: ['Hair', 'hair', 'HAIR'] }).seoKeywords).toBe('Hair')
-  })
-
-  it('drops blanks and clears when nothing survives', () => {
-    expect(parseProviderSeoBody({ seoKeywords: ['', '  '] }).seoKeywords).toBeNull()
-  })
-
-  it('caps the list and each entry', () => {
-    expect(throws({ seoKeywords: Array.from({ length: 11 }, (_, i) => `k${i}`) })).toThrow(/At most 10/)
-    expect(throws({ seoKeywords: ['a'.repeat(41)] })).toThrow(/40 characters or fewer/)
-  })
-
-  it('refuses a non-string entry', () => {
-    expect(throws({ seoKeywords: [1] })).toThrow(/array of strings/)
+describe('parseProviderSeoBody — keywords are no longer accepted', () => {
+  it('ignores seoKeywords so a leftover client cannot write the column', () => {
+    expect(parseProviderSeoBody({ seoKeywords: ['hair', 'salon'] })).toEqual({})
+    expect(parseProviderSeoBody({ seoTitle: 'Acme', seoKeywords: ['hair'] })).toEqual({ seoTitle: 'Acme' })
   })
 })
 

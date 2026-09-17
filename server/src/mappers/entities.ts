@@ -146,11 +146,10 @@ export function mapSingleProvider(provider: ProviderWithRelations) {
  * tell "no override, compose the default" from "an override that happens to be empty" —
  * the distinction the whole override model rests on.
  */
-export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescription' | 'seoKeywords' | 'slug'>) {
+export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescription' | 'slug'>) {
   return {
     title: provider.seoTitle ?? undefined,
     description: provider.seoDescription ?? undefined,
-    keywords: provider.seoKeywords ?? undefined,
     slug: provider.slug ?? undefined,
   }
 }

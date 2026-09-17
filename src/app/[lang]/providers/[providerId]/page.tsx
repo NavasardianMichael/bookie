@@ -90,10 +90,11 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
     // Filtered rather than interpolated: the previous template wrote the literal
     // string "undefined" into the keywords of every provider with no country or
     // email. Phone and email are also gone from here — a keywords tag is ignored
-    // by search engines but is still scraped.
-    keywords:
-      seo?.keywords ??
-      ['Bookie', fullName, ...categoryNames, details.country, details.location.address].filter(Boolean).join(', '),
+    // by search engines but is still scraped. Owner-authored keywords were removed
+    // from the SEO tab; this is composed from the profile, not typed in.
+    keywords: ['Bookie', fullName, ...categoryNames, details.country, details.location.address]
+      .filter(Boolean)
+      .join(', '),
     classification: categoryNames.join(', '),
     // Declared per route because the root layout no longer does: metadata is
     // inherited, so an absolute canonical there marked every page a duplicate of `/`.

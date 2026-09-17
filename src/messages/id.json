@@ -295,7 +295,8 @@
       "services": "Layanan",
       "bookings": "Pemesanan",
       "analytics": "Analitik",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Riwayat"
     },
     "actions": {
       "save": "Simpan Perubahan",
@@ -485,7 +486,6 @@
       "rangeAll": "Semua",
       "emptyTitle": "Belum ada yang bisa diukur",
       "emptyBody": "Setelah Anda memiliki pemesanan dalam periode ini, angka Anda akan muncul di sini.",
-      "listTitle": "Pemesanan pada periode ini",
       "statBookings": "Pemesanan",
       "statRevenue": "Pendapatan",
       "statCompletion": "Selesai",
@@ -516,6 +516,12 @@
       "leadTime": "Biasanya dipesan {hours, plural, one {# jam} other {# jam}} sebelumnya.",
       "noLeadTime": "Pemesanan belum cukup untuk menentukan seberapa jauh sebelumnya orang memesan."
     },
+    "history": {
+      "title": "Riwayat",
+      "subtitle": "Cari, filter, dan urutkan setiap pemesanan, termasuk yang akan datang.",
+      "status": "Status",
+      "service": "Layanan"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Bagaimana halaman Anda muncul di hasil pencarian, dan tautan pendek Anda.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Deskripsi Anda muncul di sini.",
       "fallbackWithOrganization": "Pesan janji temu dengan {name}, yang bekerja di {organization}.",
       "fallbackDescription": "Pesan janji temu dengan {name}.",
-      "keywords": "Kata kunci",
-      "keywordsHint": "Opsional. Google mengabaikan tag keywords, tetapi beberapa perayap dan direktori lain masih membacanya.",
-      "keywordsLabel": "Kata kunci",
-      "keywordsPlaceholder": "Ketik kata kunci dan tekan Enter",
-      "tooManyKeywords": "Maksimal {max} kata kunci.",
       "vanityUrl": "Tautan pendek",
       "vanityHint": "Alamat yang mudah diingat yang membuka profil Anda. Mengubahnya menonaktifkan yang lama.",
       "slugLabel": "Tautan Anda",
@@ -713,8 +714,6 @@
     "addAnother": "Tambah layanan lain",
     "statTotal": "Total layanan",
     "statUpcoming": "Pemesanan mendatang",
-    "statDuration": "Durasi rata-rata",
-    "durationValue": "{minutes} mnt",
     "tabAll": "Semua layanan ({count})",
     "tabActive": "Aktif ({count})",
     "tabIncomplete": "Belum lengkap ({count})",

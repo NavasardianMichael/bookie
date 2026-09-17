@@ -295,7 +295,8 @@
       "services": "서비스",
       "bookings": "예약",
       "analytics": "분석",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "기록"
     },
     "actions": {
       "save": "변경 사항 저장",
@@ -485,7 +486,6 @@
       "rangeAll": "전체",
       "emptyTitle": "아직 측정할 데이터가 없어요",
       "emptyBody": "이 기간에 예약이 생기면 여기에 수치가 표시돼요.",
-      "listTitle": "이 기간의 예약",
       "statBookings": "예약 수",
       "statRevenue": "매출",
       "statCompletion": "완료",
@@ -516,6 +516,12 @@
       "leadTime": "보통 {hours, plural, one {#시간} other {#시간}} 전에 예약해요.",
       "noLeadTime": "예약 수가 적어 얼마나 미리 예약하는지 알기 어려워요."
     },
+    "history": {
+      "title": "기록",
+      "subtitle": "예정된 예약을 포함해 모든 예약을 검색, 필터, 정렬하세요.",
+      "status": "상태",
+      "service": "서비스"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "페이지가 검색 결과에 어떻게 표시되는지, 그리고 짧은 링크.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "설명이 여기에 표시돼요.",
       "fallbackWithOrganization": "{organization}에서 근무하는 {name} 예약하기.",
       "fallbackDescription": "{name} 예약하기.",
-      "keywords": "키워드",
-      "keywordsHint": "선택 사항. Google은 키워드 태그를 무시하지만 일부 크롤러와 디렉터리는 여전히 참고해요.",
-      "keywordsLabel": "키워드",
-      "keywordsPlaceholder": "키워드를 입력하고 Enter",
-      "tooManyKeywords": "키워드는 최대 {max}개예요.",
       "vanityUrl": "짧은 링크",
       "vanityHint": "프로필로 바로 연결되는 기억하기 쉬운 주소예요. 변경하면 이전 링크는 작동하지 않아요.",
       "slugLabel": "짧은 링크",
@@ -713,8 +714,6 @@
     "addAnother": "서비스 하나 더 추가",
     "statTotal": "서비스 수",
     "statUpcoming": "다가오는 예약",
-    "statDuration": "평균 소요 시간",
-    "durationValue": "{minutes}분",
     "tabAll": "전체 서비스 ({count})",
     "tabActive": "활성 ({count})",
     "tabIncomplete": "미완성 ({count})",

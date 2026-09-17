@@ -15,7 +15,6 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { Surface } from '@components/ui/layout/Surface'
 import { StatTile } from '@components/ui/StatTile'
-import { AnalyticsBookingsList } from './AnalyticsBookingsList'
 
 const RANGE_DAYS = [7, 30, 90, 365] as const
 
@@ -139,7 +138,9 @@ export const ProviderAnalyticsClient = () => {
     () =>
       (data?.byWeekday ?? []).map((entry) => {
         // `byWeekday` is Monday-first; dayjs `day()` is Sunday-first.
-        const label = dayjs().day((entry.weekday + 1) % 7).format('ddd')
+        const label = dayjs()
+          .day((entry.weekday + 1) % 7)
+          .format('ddd')
         return { key: String(entry.weekday), label, name: label, value: entry.bookings }
       }),
     [data]
@@ -228,9 +229,7 @@ export const ProviderAnalyticsClient = () => {
           <Surface>
             <BarChart
               title={t('chartPerDay')}
-              caption={
-                rangeDays === null ? t('chartPerDayCaptionAll') : t('chartPerDayCaption', { days: rangeDays })
-              }
+              caption={rangeDays === null ? t('chartPerDayCaptionAll') : t('chartPerDayCaption', { days: rangeDays })}
               data={seriesData}
               emptyLabel={t('chartEmpty')}
               valueLabel={t('chartDayLabel')}
@@ -312,8 +311,6 @@ export const ProviderAnalyticsClient = () => {
               </AppText>
             </Surface>
           </div>
-
-          <AnalyticsBookingsList key={preset} from={'from' in range ? range.from : undefined} />
         </>
       )}
     </div>

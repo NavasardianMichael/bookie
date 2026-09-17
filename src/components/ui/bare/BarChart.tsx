@@ -106,7 +106,7 @@ export const BarChart: FC<BarChartProps> = ({
                     </AppText>
                   )}
                   <span
-                    className='bg-brand-400 group-hover:bg-brand-600 rounded-t-brand-sm relative w-full transition-colors'
+                    className='bg-brand group-hover:bg-brand-hover rounded-t-brand-sm relative w-full transition-colors'
                     // The one inline style in this component: a bar's height is data,
                     // not design, so it cannot be a class. Floored so a non-zero day is
                     // never invisible, which would read as no bookings at all.

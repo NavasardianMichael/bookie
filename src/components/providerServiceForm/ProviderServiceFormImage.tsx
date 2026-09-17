@@ -63,8 +63,12 @@ export const ProviderServiceFormImage: FC<Props> = ({ value, onChange, disabled 
         )}
       </Flex>
       {previewUrl && (
-        <div className='mt-6 flex justify-center'>
-          <Image className='max-w-80' alt='Service picture' preview={false} src={previewUrl} />
+        <div className='mt-6 max-w-full min-w-0'>
+          <Image
+            alt='Service picture'
+            src={previewUrl}
+            classNames={{ root: 'max-w-full', image: 'max-w-full' }}
+          />
         </div>
       )}
     </>

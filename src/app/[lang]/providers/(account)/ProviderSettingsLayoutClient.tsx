@@ -12,6 +12,7 @@ import {
   ClockIcon,
   CreditCardIcon,
   GlobeIcon,
+  HistoryIcon,
   ListIcon,
   UserIcon,
 } from '@components/ui/icons'
@@ -31,6 +32,7 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
           [ROUTE_KEYS.providerProfile]: t('nav.profile'),
           [ROUTE_KEYS.providerProfileBookings]: t('nav.bookings'),
           [ROUTE_KEYS.providerProfileAnalytics]: t('nav.analytics'),
+          [ROUTE_KEYS.providerProfileHistory]: t('nav.history'),
           [ROUTE_KEYS.providerProfileAvailability]: t('nav.availability'),
           [ROUTE_KEYS.providerServices]: t('nav.services'),
           [ROUTE_KEYS.providerProfileSeo]: t('nav.seo'),
@@ -41,6 +43,7 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
           [ROUTE_KEYS.providerProfile]: <UserIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileBookings]: <CalendarIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileAnalytics]: <ChartIcon className='h-5 w-5' />,
+          [ROUTE_KEYS.providerProfileHistory]: <HistoryIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileAvailability]: <ClockIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerServices]: <ListIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileSeo]: <GlobeIcon className='h-5 w-5' />,

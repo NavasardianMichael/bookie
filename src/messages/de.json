@@ -295,7 +295,8 @@
       "services": "Leistungen",
       "bookings": "Buchungen",
       "analytics": "Statistiken",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Verlauf"
     },
     "actions": {
       "save": "Änderungen speichern",
@@ -485,7 +486,6 @@
       "rangeAll": "Alle",
       "emptyTitle": "Noch nichts zu messen",
       "emptyBody": "Sobald Sie in diesem Zeitraum Buchungen haben, erscheinen Ihre Zahlen hier.",
-      "listTitle": "Buchungen in diesem Zeitraum",
       "statBookings": "Buchungen",
       "statRevenue": "Umsatz",
       "statCompletion": "Abgeschlossen",
@@ -516,6 +516,12 @@
       "leadTime": "Typischerweise {hours, plural, one {# Stunde} other {# Stunden}} im Voraus gebucht.",
       "noLeadTime": "Nicht genug Buchungen, um zu sagen, wie weit im Voraus gebucht wird."
     },
+    "history": {
+      "title": "Verlauf",
+      "subtitle": "Durchsuchen, filtern und sortieren Sie jede Buchung, auch anstehende.",
+      "status": "Status",
+      "service": "Leistung"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Wie Ihre Seite in Suchergebnissen erscheint, und Ihr Kurzlink.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Ihre Beschreibung erscheint hier.",
       "fallbackWithOrganization": "Termin bei {name} buchen, tätig bei {organization}.",
       "fallbackDescription": "Termin bei {name} buchen.",
-      "keywords": "Schlüsselwörter",
-      "keywordsHint": "Optional. Google ignoriert den Keywords-Tag, aber einige andere Crawler und Verzeichnisse lesen ihn noch.",
-      "keywordsLabel": "Schlüsselwörter",
-      "keywordsPlaceholder": "Schlüsselwort eingeben und Enter drücken",
-      "tooManyKeywords": "Höchstens {max} Schlüsselwörter.",
       "vanityUrl": "Kurzlink",
       "vanityHint": "Eine einprägsame Adresse, die Ihr Profil öffnet. Eine Änderung deaktiviert den alten Link.",
       "slugLabel": "Ihr Link",
@@ -713,8 +714,6 @@
     "addAnother": "Weitere Leistung hinzufügen",
     "statTotal": "Leistungen insgesamt",
     "statUpcoming": "Bevorstehende Buchungen",
-    "statDuration": "Durchschnittliche Dauer",
-    "durationValue": "{minutes} Min.",
     "tabAll": "Alle Leistungen ({count})",
     "tabActive": "Aktiv ({count})",
     "tabIncomplete": "Unvollständig ({count})",

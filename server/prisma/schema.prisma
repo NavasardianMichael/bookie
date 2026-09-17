@@ -185,15 +185,14 @@ model Provider {
   /// that the public profile and booking sheet publish. Saving a new or changed
   /// number is confirmed in a dialog. `{ methods: ('cash'|'card_on_site'|'bank_transfer')[] }`
   paymentInfo            Json?
-  /// Owner-authored search metadata. All three are overrides: when null the public
-  /// page falls back to the values `generateMetadata` composes from name,
+  /// Owner-authored search metadata. Title and description are overrides: when null
+  /// the public page falls back to the values `generateMetadata` composes from name,
   /// organization and categories, so clearing a field restores the default rather
   /// than blanking the tag. Length-capped and sanitised in `services/providerSeo.ts`.
   seoTitle               String?
   seoDescription         String?
-  /// Comma-joined. Emitted as `<meta name="keywords">`, which Google ignores but
-  /// other crawlers still scrape — the same reasoning as the derived keywords it
-  /// replaces.
+  /// Comma-joined leftover from when the SEO tab accepted keywords. No longer
+  /// read or written; the public page composes `<meta name="keywords">` itself.
   seoKeywords            String?
   /// Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL.
   /// ASCII-only and reserved-word checked (`services/providerSeo.ts`) — a Cyrillic

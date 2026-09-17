@@ -505,8 +505,8 @@ providerProfileRouter.get(
  * Search metadata and the vanity slug.
  *
  * A `PATCH` rather than another `mode` on `PUT /provider-profile`: that handler is a
- * multipart form reader with three body modes already, and these are four plain string
- * columns with their own validation rules.
+ * multipart form reader with three body modes already, and these are title, description
+ * and slug with their own validation rules.
  *
  * The slug saves **live**, not into the draft overlay the other public fields use. A
  * slug is an address rather than content — staging an address change behind a publish

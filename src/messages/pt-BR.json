@@ -295,7 +295,8 @@
       "services": "Serviços",
       "bookings": "Agendamentos",
       "analytics": "Análises",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Histórico"
     },
     "actions": {
       "save": "Salvar alterações",
@@ -485,7 +486,6 @@
       "rangeAll": "Todas",
       "emptyTitle": "Nada para medir ainda",
       "emptyBody": "Quando você tiver agendamentos neste período, seus números aparecerão aqui.",
-      "listTitle": "Agendamentos neste período",
       "statBookings": "Agendamentos",
       "statRevenue": "Receita",
       "statCompletion": "Concluídos",
@@ -516,6 +516,12 @@
       "leadTime": "Costumam agendar com {hours, plural, one {# hora} other {# horas}} de antecedência.",
       "noLeadTime": "Ainda não há agendamentos suficientes para dizer com que antecedência as pessoas agendam."
     },
+    "history": {
+      "title": "Histórico",
+      "subtitle": "Pesquise, filtre e ordene cada reserva, inclusive as próximas.",
+      "status": "Status",
+      "service": "Serviço"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Como sua página aparece nos resultados de busca e seu link curto.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Sua descrição aparece aqui.",
       "fallbackWithOrganization": "Agende um horário com {name}, que trabalha em {organization}.",
       "fallbackDescription": "Agende um horário com {name}.",
-      "keywords": "Palavras-chave",
-      "keywordsHint": "Opcional. O Google ignora a tag de palavras-chave, mas alguns outros rastreadores e diretórios ainda a leem.",
-      "keywordsLabel": "Palavras-chave",
-      "keywordsPlaceholder": "Digite uma palavra-chave e pressione Enter",
-      "tooManyKeywords": "No máximo {max} palavras-chave.",
       "vanityUrl": "Link curto",
       "vanityHint": "Um endereço fácil de lembrar que abre seu perfil. Alterá-lo faz o antigo parar de funcionar.",
       "slugLabel": "Seu link",
@@ -713,8 +714,6 @@
     "addAnother": "Adicionar outro serviço",
     "statTotal": "Total de serviços",
     "statUpcoming": "Agendamentos futuros",
-    "statDuration": "Duração média",
-    "durationValue": "{minutes} min",
     "tabAll": "Todos os serviços ({count})",
     "tabActive": "Ativos ({count})",
     "tabIncomplete": "Incompletos ({count})",

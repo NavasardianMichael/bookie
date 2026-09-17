@@ -55,7 +55,7 @@ export const ProviderServiceFormDuration: FC<Props> = ({ value, onChange, disabl
       // Options are already derived from the current value, so antd's own substring
       // filter would only hide the suggestions.
       showSearch={{ filterOption: false }}
-      suffixIcon={<span className='mr-2'>minutes</span>}
+      suffixIcon={<span>minutes</span>}
       className='w-full'
     />
   )

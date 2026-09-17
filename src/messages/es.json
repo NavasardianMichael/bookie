@@ -295,7 +295,8 @@
       "services": "Servicios",
       "bookings": "Reservas",
       "analytics": "Analíticas",
-      "seo": "SEO"
+      "seo": "SEO",
+      "history": "Historial"
     },
     "actions": {
       "save": "Guardar cambios",
@@ -485,7 +486,6 @@
       "rangeAll": "Todas",
       "emptyTitle": "Aún no hay nada que medir",
       "emptyBody": "Cuando tengas reservas en este periodo, tus cifras aparecerán aquí.",
-      "listTitle": "Reservas en este periodo",
       "statBookings": "Reservas",
       "statRevenue": "Ingresos",
       "statCompletion": "Completadas",
@@ -516,6 +516,12 @@
       "leadTime": "Suelen reservar con {hours, plural, one {# hora} other {# horas}} de antelación.",
       "noLeadTime": "Aún no hay suficientes reservas para saber con cuánta antelación reserva la gente."
     },
+    "history": {
+      "title": "Historial",
+      "subtitle": "Busca, filtra y ordena cada reserva, incluidas las próximas.",
+      "status": "Estado",
+      "service": "Servicio"
+    },
     "seo": {
       "title": "SEO",
       "subtitle": "Cómo aparece tu página en los resultados de búsqueda y tu enlace corto.",
@@ -533,11 +539,6 @@
       "previewEmptyDescription": "Tu descripción aparecerá aquí.",
       "fallbackWithOrganization": "Reserva una cita con {name}, que trabaja en {organization}.",
       "fallbackDescription": "Reserva una cita con {name}.",
-      "keywords": "Palabras clave",
-      "keywordsHint": "Opcional. Google ignora la etiqueta de palabras clave, pero algunos otros rastreadores y directorios aún la leen.",
-      "keywordsLabel": "Palabras clave",
-      "keywordsPlaceholder": "Escribe una palabra clave y pulsa Intro",
-      "tooManyKeywords": "Como máximo {max} palabras clave.",
       "vanityUrl": "Enlace corto",
       "vanityHint": "Una dirección fácil de recordar que abre tu perfil. Cambiarla deja de servir la anterior.",
       "slugLabel": "Tu enlace",
@@ -713,8 +714,6 @@
     "addAnother": "Añadir otro servicio",
     "statTotal": "Servicios totales",
     "statUpcoming": "Reservas próximas",
-    "statDuration": "Duración media",
-    "durationValue": "{minutes} min",
     "tabAll": "Todos los servicios ({count})",
     "tabActive": "Activos ({count})",
     "tabIncomplete": "Incompletos ({count})",
