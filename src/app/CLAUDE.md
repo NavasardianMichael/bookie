@@ -43,7 +43,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/providers` | ƒ | Real — explore: debounced search, category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
-| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / History / SEO |
+| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / SEO |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
 | `/b/[token]` | ƒ | Real — public booking manage page (view / cancel / reschedule). Capability token, not the appointment id. **A page**, not a 307. Reschedule PATCHes the same row and keeps this URL; "Back to booking" is an in-page control above the title, not a route. |
@@ -64,7 +64,8 @@ so Next lazy-loads the panel. Provider phone change lives in the Profile tab's P
 Information block, not a sidebar item; listing controls (copy URL, publish/unpublish,
 delete page) live on that tab's hero, not a Listing sidebar item. Consumer phone and
 preferred payment methods live in the Profile tab, not sidebar items — the old
-`/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile.
+`/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile,
+and `/providers/profile/history` 307s to Bookings.
 Visual language follows the prototypes; deviations match
 registration: keep the global Header/Footer, no dark mode, no password/2FA/security, no
 autosave (Discard / Save, plus Save draft / Publish for providers). Providers may
@@ -74,17 +75,15 @@ the app never collects a *client's* card. Provider `listed` hides Explore + publ
 `available` only pauses bookings. The Header swaps Sign In / Get Started for an avatar
 when `getMe()` succeeds.
 
-**Three of the provider tabs are not settings.** `Bookings`, `Analytics` and `History`
-are for running the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts
-them above the configuration tabs for that reason. They share the shell because a second
-nav and a second shell would be two mental models for one workspace — not because they
-are settings.
+**Two of the provider tabs are not settings.** `Bookings` and `Analytics` are for running
+the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts them above the
+configuration tabs for that reason. They share the shell because a second nav and a second
+shell would be two mental models for one workspace — not because they are settings.
 
 | Tab | Route | Shape |
 |---|---|---|
-| Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list. `GET /provider-profile/bookings` |
+| Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list of every appointment booked with you. `GET /provider-profile/bookings` + `/calendar`. The old `/providers/profile/history` URL is a Route Handler that 307s here |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
-| History | `/providers/profile/history` | Search/status/service/sort/paged list of all bookings. `GET /provider-profile/bookings` |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo` |
 
 Five decisions in there worth not undoing:
@@ -107,10 +106,9 @@ Five decisions in there worth not undoing:
    half-finished, and a title tag has no half-finished state. Running a drafted description
    beside a live address on one screen would be the confusing part, so the whole tab is one
    Save. See `docs/DATABASE_STRUCTURE.md`.
-5. **History is a sibling sidebar route, not an Analytics subtab.** Charts stay on
-   Analytics with the range control; the booking list lives at `/providers/profile/history`
-   and is not filtered by that range. History has the Bookings filters (search, status,
-   service, sort) minus the calendar, which stays the Bookings day control.
+5. **Bookings is a sibling sidebar route, not an Analytics subtab.** Charts stay on
+   Analytics with the range control; the booking list lives at `/providers/profile/bookings`
+   and is not filtered by that range. The calendar day-filter lives here, not on Analytics.
 
 **The vanity link is a `route.ts`, not a `page.tsx`** — and that distinction was found the
 hard way. As a page it emitted a *soft* redirect: the root layout streams first, so by the
@@ -196,7 +194,7 @@ Where Explore deviates from `design/initial prototype/explore_service_providers`
 |---|---|---|
 | Search + **Location** field + Search button | One debounced search field | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button goes with the debounce. |
 | "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Service providers* | Paired with the filter control, per the request; the label still shows from `sm` up. |
-| Rating badge and star on every card | Built (2026-09-15) | `Provider.ratingAvg` / `ratingCount` are denormalised now. Rendered with `ui/bare/RatingStars` — antd-free, because `ProviderCard` is a Server Component and antd's `Rate` would pull its runtime into every route with a provider grid. Shown only when `rating.count > 0`: an unrated provider averages 0, and a row of empty stars reads as "rated badly" rather than "not rated yet". |
+| Rating badge and star on every card | Built (2026-09-15); rating sits in the card body, availability is a pill on the image, top-end | Three statuses from `available` + `openToday`, not remaining slots: Available (green), Closed (orange, no hours today), Fully blocked (red, bookings paused). Remaining-slot math is the same omission as "Next: Today, 2 PM". |
 | "Next: Today, 2 PM" on every card | Omitted | One availability computation per card, per page render. |
 | `1 2 3 … 12` pager | Same, as links, elided at ±2 around the current page | Survives 200 pages as well as 12. |
 

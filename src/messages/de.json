@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Verlauf",
-      "subtitle": "Durchsuchen, filtern und sortieren Sie jede Buchung, auch anstehende.",
+      "subtitle": "Alle bei Ihnen gebuchten Termine, vergangene und bevorstehende.",
       "status": "Status",
       "service": "Leistung"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Öffnungszeiten",
+    "cardStatus": {
+      "available": "Verfügbar",
+      "fullyBlocked": "Vollständig gesperrt",
+      "closed": "Geschlossen"
+    },
     "fallbackWithOrganization": "Termin bei {name} buchen, tätig bei {organization}.",
     "fallbackDescription": "Termin bei {name} buchen.",
     "reviews": {

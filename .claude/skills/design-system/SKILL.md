@@ -31,7 +31,7 @@ after hydration.
 | `layout/PageHeader` | H1 + subtitle + meta + actions + media; `align='center'` for a standalone page |
 | `layout/ResponsiveGrid` | self-tuning `auto-fill` grid — **no breakpoints** |
 | `layout/Surface` | white panel on the sunken canvas (border, radius, shadow) |
-| `layout/ChipRail` | horizontal overflow chip scroller |
+| `layout/ChipRail` | wrapping chip row for category filters |
 | `layout/Pagination` | link-based pager — `buildHref(page)`, elided window; never antd's |
 | `brand/BrandLockup` | navy mark tile + wordmark, shared by header and footer |
 | `layout/Footer` (`components/layout/Footer.tsx`) | site footer, mounted once from `App.tsx` |
@@ -131,6 +131,7 @@ unless the losing class is actually *removed*, which is what `twMerge` does.
 
 Available token utilities: `bg-brand`, `bg-brand-{50…950}`, `text-brand`,
 `text-brand-muted`, `border-brand-border`, `bg-surface`, `bg-surface-sunken`,
+`bg-brand-success`, `bg-brand-warning`, `bg-brand-danger`,
 `rounded-brand`, `rounded-brand-sm`, plus `tnum`, `app-gutter-x`, `app-safe-t`,
 `app-safe-b`, `h-header`.
 

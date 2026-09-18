@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import type { Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
+import { isOpenToday } from '../services/providerSearch.js'
 import { reviewAuthorName } from '../services/reviews.js'
 
 type ProviderWithRelations = Provider & {
@@ -65,6 +66,11 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
       organization: provider.organization ? mapBasicOrganization(provider.organization) : undefined,
       available: provider.available,
       /**
+       * Same predicate as Explore's `openToday` filter, so the card's Closed
+       * state cannot disagree with a list that was filtered on hours today.
+       */
+      openToday: isOpenToday(provider.weekSchedule),
+      /**
        * On `basic` rather than `details` so the Explore card gets it: `BasicProvider` is
        * `Pick<ProviderProfile, 'id' | 'basic'>`, so anything here reaches the card for
        * free, and `providerListInclude` needs no new join to serve it — these are
@@ -90,9 +96,7 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
  */
 export function mapProviderDetails(provider: ProviderWithRelations & { paymentInfo?: unknown }) {
   const weekSchedule =
-    provider.weekSchedule && typeof provider.weekSchedule === 'object'
-      ? provider.weekSchedule
-      : defaultWeekSchedule
+    provider.weekSchedule && typeof provider.weekSchedule === 'object' ? provider.weekSchedule : defaultWeekSchedule
 
   return {
     location: {
@@ -446,16 +450,13 @@ export function mapReview(review: ReviewWithAuthor, viewerConsumerId?: string) {
     createdAt: review.createdAt.toISOString(),
     // Only surfaced when it differs, so the UI can show "edited" without comparing
     // timestamps itself and without a second date on every unedited review.
-    updatedAt:
-      review.updatedAt.getTime() === review.createdAt.getTime() ? undefined : review.updatedAt.toISOString(),
+    updatedAt: review.updatedAt.getTime() === review.createdAt.getTime() ? undefined : review.updatedAt.toISOString(),
     isMine: Boolean(viewerConsumerId) && review.consumerId === viewerConsumerId,
   }
 }
 
 /** What the admin queue shows: the report, plus enough of the review to judge it. */
-export function mapReviewReport(
-  report: ReviewReport & { review: ReviewWithAuthor & { provider: Provider | null } }
-) {
+export function mapReviewReport(report: ReviewReport & { review: ReviewWithAuthor & { provider: Provider | null } }) {
   return {
     id: report.id,
     reason: report.reason,

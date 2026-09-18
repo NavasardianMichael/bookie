@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Historia",
-      "subtitle": "Wyszukuj, filtruj i sortuj każdą rezerwację, także nadchodzące.",
+      "subtitle": "Każda wizyta zarezerwowana u Ciebie — przeszła i nadchodząca.",
       "status": "Status",
       "service": "Usługa"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Godziny pracy",
+    "cardStatus": {
+      "available": "Dostępny",
+      "fullyBlocked": "W pełni zablokowany",
+      "closed": "Zamknięte"
+    },
     "fallbackWithOrganization": "Zarezerwuj wizytę u {name}, pracującego w {organization}.",
     "fallbackDescription": "Zarezerwuj wizytę u {name}.",
     "reviews": {

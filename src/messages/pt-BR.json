@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Histórico",
-      "subtitle": "Pesquise, filtre e ordene cada reserva, inclusive as próximas.",
+      "subtitle": "Todos os atendimentos agendados com você, passados e futuros.",
       "status": "Status",
       "service": "Serviço"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Horário de trabalho",
+    "cardStatus": {
+      "available": "Disponível",
+      "fullyBlocked": "Totalmente bloqueado",
+      "closed": "Fechado"
+    },
     "fallbackWithOrganization": "Agende um horário com {name}, que trabalha em {organization}.",
     "fallbackDescription": "Agende um horário com {name}.",
     "reviews": {

@@ -57,8 +57,7 @@ const asString = (raw: unknown): string => (typeof raw === 'string' ? raw : '')
 
 const asFlag = (raw: unknown): boolean => raw === true || raw === 'true' || raw === '1'
 
-const asSort = (raw: unknown): ProvidersListSort =>
-  PROVIDERS_LIST_SORTS.find((sort) => sort === raw) ?? 'recommended'
+const asSort = (raw: unknown): ProvidersListSort => PROVIDERS_LIST_SORTS.find((sort) => sort === raw) ?? 'recommended'
 
 const asPositiveInt = (raw: unknown, fallback: number, max: number): number => {
   const parsed = Number.parseInt(asString(raw), 10)
@@ -107,7 +106,18 @@ export const PUBLIC_PROVIDER_WHERE: Prisma.ProviderWhereInput = {
  */
 const WEEKDAYS_SUNDAY_FIRST = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
 
-const weekdayOf = (now: Date): (typeof WEEKDAYS_SUNDAY_FIRST)[number] => WEEKDAYS_SUNDAY_FIRST[now.getDay()]!
+export const weekdayOf = (now: Date): (typeof WEEKDAYS_SUNDAY_FIRST)[number] => WEEKDAYS_SUNDAY_FIRST[now.getDay()]!
+
+/**
+ * Same predicate as `openTodayWhere`: today's weekday has an `'HH:mm'` start.
+ * Used by `mapBasicProvider` so the card's Closed state matches the filter.
+ */
+export function isOpenToday(weekSchedule: unknown, now: Date = new Date()): boolean {
+  if (!weekSchedule || typeof weekSchedule !== 'object' || Array.isArray(weekSchedule)) return false
+  const day = (weekSchedule as Record<string, { availability?: { start?: unknown } }>)[weekdayOf(now)]
+  const start = day?.availability?.start
+  return typeof start === 'string' && start.includes(':')
+}
 
 /**
  * Today's hours live on `weekSchedule.<day>.availability.start` as `'HH:mm'`.

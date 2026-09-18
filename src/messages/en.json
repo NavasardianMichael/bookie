@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "History",
-      "subtitle": "Search, filter and sort every booking, including upcoming.",
+      "subtitle": "Every appointment booked with you, past and upcoming.",
       "status": "Status",
       "service": "Service"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Working hours",
+    "cardStatus": {
+      "available": "Available",
+      "fullyBlocked": "Fully blocked",
+      "closed": "Closed"
+    },
     "fallbackWithOrganization": "Book an appointment with {name}, who works at {organization}.",
     "fallbackDescription": "Book an appointment with {name}.",
     "reviews": {

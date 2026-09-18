@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  isOpenToday,
   parseProvidersListQuery,
   PUBLIC_PROVIDER_WHERE,
   resolvePageWindow,
@@ -39,10 +40,22 @@ describe('parseProvidersListQuery', () => {
     expect(parseProvidersListQuery({}, mondayNoonUtc).where.weekSchedule).toBeUndefined()
   })
 
+  it('isOpenToday matches the filter: HH:mm start on that weekday, empty otherwise', () => {
+    const mondayNoonUtc = new Date('2026-09-07T12:00:00.000Z')
+    const sundayNoonUtc = new Date('2026-09-06T12:00:00.000Z')
+    const weekSchedule = {
+      monday: { availability: { start: '09:00', end: '17:00' }, breaks: [] },
+      sunday: { availability: { start: '', end: '' }, breaks: [] },
+    }
+
+    expect(isOpenToday(weekSchedule, mondayNoonUtc)).toBe(true)
+    expect(isOpenToday(weekSchedule, sundayNoonUtc)).toBe(false)
+    expect(isOpenToday({}, mondayNoonUtc)).toBe(false)
+    expect(isOpenToday(null, mondayNoonUtc)).toBe(false)
+  })
+
   it('narrows an unknown sort to recommended', () => {
-    expect(parseProvidersListQuery({ sort: 'DROP TABLE' }).orderBy).toEqual(
-      parseProvidersListQuery({}).orderBy
-    )
+    expect(parseProvidersListQuery({ sort: 'DROP TABLE' }).orderBy).toEqual(parseProvidersListQuery({}).orderBy)
   })
 
   /**

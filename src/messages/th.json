@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "ประวัติ",
-      "subtitle": "ค้นหา กรอง และเรียงการจองทั้งหมด รวมถึงรายการที่จะมาถึง",
+      "subtitle": "ทุกการนัดหมายที่จองกับคุณ ทั้งที่ผ่านมาและกำลังจะถึง",
       "status": "สถานะ",
       "service": "บริการ"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "เวลาทำการ",
+    "cardStatus": {
+      "available": "ว่าง",
+      "fullyBlocked": "ปิดรับจอง",
+      "closed": "ปิด"
+    },
     "fallbackWithOrganization": "จองนัดหมายกับ {name} ซึ่งทำงานที่ {organization}",
     "fallbackDescription": "จองนัดหมายกับ {name}",
     "reviews": {

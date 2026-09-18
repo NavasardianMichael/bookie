@@ -41,6 +41,8 @@
   --brand-text: var(--ant-color-text);
   --brand-text-muted: var(--ant-color-text-secondary);
   --brand-danger: var(--ant-color-error);
+  --brand-success: var(--ant-color-success);
+  --brand-warning: var(--ant-color-warning);
   --brand-border: var(--ant-color-border);
   --brand-border-subtle: var(--ant-color-border-secondary);
   --brand-surface: var(--ant-color-bg-container);
@@ -87,6 +89,8 @@
   --color-brand-text: var(--brand-text);
   --color-brand-muted: var(--brand-text-muted);
   --color-brand-danger: var(--brand-danger);
+  --color-brand-success: var(--brand-success);
+  --color-brand-warning: var(--brand-warning);
   --color-brand-border: var(--brand-border);
   --color-brand-border-subtle: var(--brand-border-subtle);
   --color-surface: var(--brand-surface);
@@ -233,6 +237,14 @@ button.copyable-link-copy.ant-btn:hover {
 .ant-picker-dropdown
   .ant-picker-time-panel-cell-selected:not(.ant-picker-time-panel-cell-disabled)
   .ant-picker-time-panel-cell-inner {
+  color: var(--brand-surface) !important;
+}
+
+/* Select's multi-select tick is hardcoded to `colorPrimary` in
+   select/style/dropdown.js. `optionSelectedColor` only paints the label, so a
+   navy selected row hid a navy check. Same `!important` reason as TimePicker. */
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
   color: var(--brand-surface) !important;
 }
 

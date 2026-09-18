@@ -139,7 +139,9 @@ about it are load-bearing:
   JSON path on `weekSchedule.<day>.availability.start` containing `:` (so `''` and a
   missing key miss). Remaining-slot math is deliberately not this filter — it cannot
   stay inside `count`/`findMany` without breaking pagination. `now` is the server
-  clock; tests inject it.
+  clock; tests inject it. `mapBasicProvider` puts the same predicate on each row as
+  `basic.openToday`, so the card can show Available / Closed / Fully blocked without
+  a second schedule payload.
 
 `Provider` carries three composite indexes for this, all prefixed by `listed` because
 every public query filters on it: `[listed, available, updatedAt]`, `[listed, lastName,

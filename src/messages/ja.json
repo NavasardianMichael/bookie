@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "履歴",
-      "subtitle": "今後の予約も含め、すべての予約を検索・絞り込み・並べ替えできます。",
+      "subtitle": "あなたの過去と今後の予約すべて。",
       "status": "ステータス",
       "service": "サービス"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "営業時間",
+    "cardStatus": {
+      "available": "予約可",
+      "fullyBlocked": "予約停止",
+      "closed": "休業"
+    },
     "fallbackWithOrganization": "{name}（{organization}所属）を予約しましょう。",
     "fallbackDescription": "{name}を予約しましょう。",
     "reviews": {

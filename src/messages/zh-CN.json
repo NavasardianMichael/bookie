@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "历史记录",
-      "subtitle": "搜索、筛选并排序全部预约，包括即将到来的预约。",
+      "subtitle": "与您相关的所有过去和即将到来的预约。",
       "status": "状态",
       "service": "服务"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "营业时间",
+    "cardStatus": {
+      "available": "可预约",
+      "fullyBlocked": "已暂停预约",
+      "closed": "休息"
+    },
     "fallbackWithOrganization": "预约 {name}（就职于 {organization}）。",
     "fallbackDescription": "预约 {name}。",
     "reviews": {

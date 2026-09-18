@@ -18,6 +18,7 @@ export const ROUTE_KEYS = {
   providerProfileAvailability: 'providerProfileAvailability',
   providerProfileBookings: 'providerProfileBookings',
   providerProfileAnalytics: 'providerProfileAnalytics',
+  /** Redirects to Bookings. Kept so old History bookmarks still land somewhere real. */
   providerProfileHistory: 'providerProfileHistory',
   providerProfileSeo: 'providerProfileSeo',
   providerProfileNotifications: 'providerProfileNotifications',

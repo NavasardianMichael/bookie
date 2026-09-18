@@ -15,15 +15,15 @@ export const HomeHeroPreview = () => (
       </div>
       <div className='flex flex-col gap-4'>
         <div className='bg-surface-sunken flex h-12 items-center gap-3 rounded-lg px-4'>
-          <span className='size-2 rounded-full bg-green-500' />
+          <span className='size-2 rounded-full bg-brand-success' />
           <span className='bg-brand-200 h-3 w-1/2 rounded-full' />
         </div>
         <div className='bg-brand-50 flex h-12 items-center gap-3 rounded-lg px-4'>
-          <span className='bg-brand size-2 rounded-full' />
+          <span className='size-2 rounded-full bg-brand-danger' />
           <span className='bg-brand-300 h-3 w-1/3 rounded-full' />
         </div>
         <div className='bg-surface-sunken flex h-12 items-center gap-3 rounded-lg px-4'>
-          <span className='size-2 rounded-full bg-amber-400' />
+          <span className='size-2 rounded-full bg-brand-warning' />
           <span className='bg-brand-200 h-3 w-2/3 rounded-full' />
         </div>
       </div>

@@ -32,6 +32,11 @@ export type EntityCardProps = {
    */
   aspect?: '1/1' | '4/3' | '16/9' | false
   badges?: ReactNode
+  /**
+   * Overlay on the media well, top-end corner — status on a provider card,
+   * rating on a prototype. Keep it inert: a stretched card link covers the well.
+   */
+  mediaBadge?: ReactNode
   footer?: ReactNode
   /**
    * Label for a real "View profile"-style control. When set, this is the only
@@ -75,6 +80,7 @@ export const EntityCard: FC<EntityCardProps> = ({
   headingLevel = 3,
   aspect = '4/3',
   badges,
+  mediaBadge,
   footer,
   cta,
   actions,
@@ -113,6 +119,7 @@ export const EntityCard: FC<EntityCardProps> = ({
               )}
             </span>
           )}
+          {mediaBadge && <div className='pointer-events-none absolute top-3 inset-e-3 z-2'>{mediaBadge}</div>}
         </div>
       )}
 

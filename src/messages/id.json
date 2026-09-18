@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Riwayat",
-      "subtitle": "Cari, filter, dan urutkan setiap pemesanan, termasuk yang akan datang.",
+      "subtitle": "Setiap janji temu yang dipesan dengan Anda, lampau dan akan datang.",
       "status": "Status",
       "service": "Layanan"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Jam kerja",
+    "cardStatus": {
+      "available": "Tersedia",
+      "fullyBlocked": "Sepenuhnya diblokir",
+      "closed": "Tutup"
+    },
     "fallbackWithOrganization": "Pesan janji temu dengan {name}, yang bekerja di {organization}.",
     "fallbackDescription": "Pesan janji temu dengan {name}.",
     "reviews": {

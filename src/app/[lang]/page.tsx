@@ -69,10 +69,10 @@ export default async function Home() {
               <AppParagraph className='max-w-lg text-lg'>{t('body')}</AppParagraph>
             </div>
             <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
-              <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-44 px-8'>
+              <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-48 px-10 py-6'>
                 {t('findProvider')}
               </AppLink>
-              <AppLink href={ROUTES.accountTypeSelection} variant='button' className='min-w-44 px-8'>
+              <AppLink href={ROUTES.accountTypeSelection} variant='button' className='min-w-48 px-10 py-6'>
                 {t('joinAsProvider')}
               </AppLink>
             </div>

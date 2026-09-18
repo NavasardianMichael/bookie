@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Historial",
-      "subtitle": "Busca, filtra y ordena cada reserva, incluidas las próximas.",
+      "subtitle": "Todas las citas reservadas contigo, pasadas y próximas.",
       "status": "Estado",
       "service": "Servicio"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Horario de trabajo",
+    "cardStatus": {
+      "available": "Disponible",
+      "fullyBlocked": "Completamente bloqueado",
+      "closed": "Cerrado"
+    },
     "fallbackWithOrganization": "Reserva una cita con {name}, que trabaja en {organization}.",
     "fallbackDescription": "Reserva una cita con {name}.",
     "reviews": {

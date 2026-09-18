@@ -13,6 +13,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Bookable slots for a date / range | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
+| Provider card status (available / fully blocked / closed) | `getProviderAvailabilityStatus` | `providerAvailability.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | Consumer appointments tab: upcoming + search/status/sort | `filterAndSortConsumerAppointments` | `consumerAppointments.ts` |
 | Booking details list + copy-as-text | `buildBookingSummaryFields`, `formatBookingSummaryPlainText` | `bookingSummary.ts` |

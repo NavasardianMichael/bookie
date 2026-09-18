@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Історія",
-      "subtitle": "Шукайте, фільтруйте й сортуйте всі бронювання, зокрема майбутні.",
+      "subtitle": "Кожен візит, забронований у вас, — минулий і майбутній.",
       "status": "Статус",
       "service": "Послуга"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Години роботи",
+    "cardStatus": {
+      "available": "Доступно",
+      "fullyBlocked": "Повністю заблоковано",
+      "closed": "Зачинено"
+    },
     "fallbackWithOrganization": "Забронюйте візит до {name}, який працює в {organization}.",
     "fallbackDescription": "Забронюйте візит до {name}.",
     "reviews": {

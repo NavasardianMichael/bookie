@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "السجل",
-      "subtitle": "ابحث وصفِّ ورتّب كل الحجوزات، بما فيها القادمة.",
+      "subtitle": "كل موعد حُجز معك، السابق والقادم.",
       "status": "الحالة",
       "service": "الخدمة"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "ساعات العمل",
+    "cardStatus": {
+      "available": "متاح",
+      "fullyBlocked": "محظور بالكامل",
+      "closed": "مغلق"
+    },
     "fallbackWithOrganization": "احجز موعدًا مع {name}، الذي يعمل في {organization}.",
     "fallbackDescription": "احجز موعدًا مع {name}.",
     "reviews": {

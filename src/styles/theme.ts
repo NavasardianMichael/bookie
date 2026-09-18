@@ -124,6 +124,11 @@ export const antdTheme: ThemeConfig = {
       controlHeight: FIELD_CONTROL_HEIGHT,
       optionSelectedBg: BRAND[900],
       optionSelectedColor: NEUTRAL[0],
+      // The multi-select tick is not `optionSelectedColor` — `select/style/dropdown.js`
+      // hardcodes `.option-state` to `colorPrimary` (navy), so it vanished on this
+      // fill. Painted white in globals.css next to the TimePicker selected-cell
+      // override; there is no icon token, and setting Select.colorPrimary to white
+      // would also bleach `activeBorderColor`.
       optionActiveBg: BRAND[100],
       // Selected+active uses this instead of optionSelectedBg; keep it primary
       // or the highlighted current option paints as a pale hover chip.

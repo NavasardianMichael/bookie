@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Historique",
-      "subtitle": "Recherchez, filtrez et triez chaque réservation, y compris les à venir.",
+      "subtitle": "Tous les rendez-vous pris avec vous, passés et à venir.",
       "status": "Statut",
       "service": "Prestation"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Horaires de travail",
+    "cardStatus": {
+      "available": "Disponible",
+      "fullyBlocked": "Entièrement bloqué",
+      "closed": "Fermé"
+    },
     "fallbackWithOrganization": "Prenez rendez-vous avec {name}, qui travaille chez {organization}.",
     "fallbackDescription": "Prenez rendez-vous avec {name}.",
     "reviews": {

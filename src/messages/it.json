@@ -518,7 +518,7 @@
     },
     "history": {
       "title": "Cronologia",
-      "subtitle": "Cerca, filtra e ordina ogni prenotazione, comprese quelle in arrivo.",
+      "subtitle": "Tutti gli appuntamenti presi con te, passati e futuri.",
       "status": "Stato",
       "service": "Servizio"
     },
@@ -656,6 +656,11 @@
   },
   "Provider": {
     "workingHours": "Orari di lavoro",
+    "cardStatus": {
+      "available": "Disponibile",
+      "fullyBlocked": "Completamente bloccato",
+      "closed": "Chiuso"
+    },
     "fallbackWithOrganization": "Prenota un appuntamento con {name}, che lavora presso {organization}.",
     "fallbackDescription": "Prenota un appuntamento con {name}.",
     "reviews": {

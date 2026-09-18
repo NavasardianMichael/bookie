@@ -26,6 +26,12 @@ export type ProviderProfile = {
     organization?: BasicOrganization
     available: boolean
     /**
+     * Hours on today's weekday, same predicate as Explore's `openToday` filter.
+     * On `basic` so the card can tell Available from Closed without pulling
+     * `weekSchedule`. Optional for payloads written before the field existed.
+     */
+    openToday?: boolean
+    /**
      * On `basic` so the Explore card gets it for free — `BasicProvider` is
      * `Pick<ProviderProfile, 'id' | 'basic'>`.
      *
