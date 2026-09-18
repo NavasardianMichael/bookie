@@ -44,13 +44,12 @@ sudo -u michael mkdir -p /home/michael/apps/bookie/{web/releases,api/releases,sh
 # 2. Node 24 + pnpm (pnpm is needed on the host: the API release installs there)
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 sudo apt-get install -y nodejs
-# Name pnpm: a bare `corepack enable` also shims npm. The shim lands in Node's own
-# bin directory, so REINSTALLING OR UPGRADING NODE REMOVES IT — re-run this line
-# after any Node change, or the deploy fails with `pnpm: command not found`.
-sudo corepack enable pnpm
-# As michael, not root: this primes THAT user's corepack cache, and the deploy runs
-# as michael. `sudo corepack prepare` would populate root's cache instead.
-sudo -u michael pnpm --version
+# Not corepack: this nodejs package does not ship it, which is why three deploys in a
+# row could not find pnpm. npm is the one package manager guaranteed to sit beside
+# node. --prefix installs for the deploy user with no sudo and no shim in node's bin
+# directory, so a node upgrade cannot take pnpm with it.
+sudo -u michael npm install --global --prefix /home/michael/.local pnpm@10.28.2
+sudo -u michael /home/michael/.local/bin/pnpm --version
 # so a failed deploy can dump service logs
 sudo usermod -aG systemd-journal michael
 
@@ -222,30 +221,36 @@ Only the boot check generalises. The include fixes one package; the next tracing
 be a different one, and the deploy ships the API first, so a web bundle that fails at boot
 leaves production with a migrated database behind a frontend that will not start.
 
-### pnpm on the host, and why it keeps disappearing
+### pnpm on the host, and why it kept disappearing
 
 The deploy reaches the host as `ssh … bash -s`, a non-interactive **non-login** shell.
 It reads neither `~/.profile` nor `~/.bashrc` — Debian's returns early when not
-interactive — so nothing a shell profile puts on `PATH` exists during a deploy. `pnpm`
-therefore has to sit somewhere a bare `PATH` already reaches, which is what
-`sudo corepack enable pnpm` arranges by writing the shim next to `node`.
+interactive — so nothing a shell profile puts on `PATH` exists during a deploy. That is
+why `pnpm -v` can work when you ssh in by hand and still be "command not found" three
+lines into a deploy.
 
-That shim lives in Node's bin directory, so it does not survive a Node reinstall or a
-major upgrade. This failed twice that way, the second time right after the host's Node
-was aligned to the `.nvmrc` pin.
+This failed three times, each with a different cause, so the fix does not assume any
+one of them:
 
-Two guards now, so it cannot fail silently again:
+1. pnpm reachable only through a profile-managed `PATH`.
+2. A corepack shim, which lives in node's own bin directory and does not survive a node
+   reinstall — it vanished right after the host was aligned to the `.nvmrc` pin.
+3. No corepack at all. This host's nodejs package does not ship it, so every
+   `corepack enable` instruction was a no-op waiting to happen.
 
-- The deploy resolves pnpm itself — `$PNPM_HOME`, `~/.local/bin`, `/usr/local/bin`, then
-  `corepack enable --install-directory ~/.local/bin pnpm` to rebuild a missing shim
-  without sudo. It prints the version and path it settled on, and fails with the
-  candidate paths listed rather than a bare `command not found`.
-- `out/api/package.json` carries `packageManager`, so whatever pnpm is found runs the
-  version that resolved the lockfile instead of whatever the host happens to have.
+The deploy now resolves pnpm itself, in order: `$PNPM_HOME`, `~/.local/bin`,
+`/usr/local/bin`; then corepack if the distribution has it; then
+`npm install --global --prefix ~/.local`, since npm is the one package manager
+guaranteed to sit beside node. Both installs go to `$HOME`, so neither needs sudo and
+neither can be removed by a node upgrade. The version comes from `packageManager` in
+the release manifest, so a self-installed pnpm cannot be a major behind
+`--frozen-lockfile`. It echoes which route it took and the version and path it settled
+on; when every route fails it prints node/npm/corepack, the PATH it searched, and a
+copy-pasteable install command.
 
 `preflight.sh` checks pnpm the way the deploy invokes it, not the way you do. A bare
-`command -v pnpm` in your own shell proves nothing: your profile is loaded and the
-deploy's is not.
+`command -v pnpm` in your own shell proves nothing, because your profile is loaded and
+the deploy's is not.
 
 ## Ports, and changing one
 

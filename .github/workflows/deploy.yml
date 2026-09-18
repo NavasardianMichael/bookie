@@ -354,21 +354,39 @@ jobs:
               export PATH="$PNPM_HOME:$HOME/.local/bin:/usr/local/bin:$PATH"
               command -v pnpm >/dev/null && return 0
 
-              # corepack ships with Node 24 but writes its shims only when `enable` runs,
-              # and they live in Node's own bin directory — so reinstalling or upgrading
-              # Node silently removes pnpm. Re-create them in $HOME, which needs no sudo.
-              # Naming pnpm matters: a bare `corepack enable` also shims npm.
+              # The version that resolved the lockfile, straight off the release manifest,
+              # so a self-installed pnpm cannot be a major behind --frozen-lockfile.
+              want=$(node -p "require('./package.json').packageManager || 'pnpm@latest'" 2>/dev/null || echo 'pnpm@latest')
+              mkdir -p "$HOME/.local/bin"
+
+              # corepack, when the distribution ships it. Its shims live in node's own bin
+              # directory, so a node reinstall drops them; --install-directory puts ours in
+              # $HOME instead, which also needs no sudo. Naming pnpm matters: a bare
+              # `corepack enable` also shims npm.
               if command -v corepack >/dev/null; then
-                mkdir -p "$HOME/.local/bin"
+                echo "resolving pnpm through corepack"
                 corepack enable --install-directory "$HOME/.local/bin" pnpm || true
                 command -v pnpm >/dev/null && return 0
               fi
 
-              echo "::error::pnpm is not reachable from a non-interactive shell on this host"
+              # npm is the one package manager guaranteed to sit beside node, and this host
+              # has no corepack. --prefix keeps the install in $HOME — no sudo, and
+              # $HOME/.local/bin is already on the PATH exported above.
+              if command -v npm >/dev/null; then
+                echo "corepack absent; installing $want with npm"
+                npm install --global --prefix "$HOME/.local" "$want" || true
+                command -v pnpm >/dev/null && return 0
+              fi
+
+              echo "::error::pnpm is not reachable from a non-interactive shell, and could not be installed"
               echo "  node:     $(command -v node || echo MISSING)"
+              echo "  npm:      $(command -v npm || echo MISSING)"
               echo "  corepack: $(command -v corepack || echo MISSING)"
+              echo "  wanted:   $want"
               echo "  PATH:     $PATH"
-              echo "  fix: sudo corepack enable pnpm   (see docs/DEPLOYMENT.md)"
+              echo "  fix: install pnpm for the deploy user, e.g."
+              echo "       npm install --global --prefix \"$HOME/.local\" $want"
+              echo "  see docs/DEPLOYMENT.md"
               return 1
             }
             resolve_pnpm

@@ -44,18 +44,30 @@ else bad "node not on PATH"; fi
 # Checked the way the DEPLOY invokes it, not the way you do. The deploy arrives as
 # `ssh … bash -s` — non-interactive and non-login, so neither ~/.profile nor ~/.bashrc
 # is read. A plain `command -v pnpm` here passes with your profile loaded while the
-# deploy dies on "pnpm: command not found"; this repo has been bitten by that twice.
-if env -i HOME="$HOME" PATH=/usr/local/bin:/usr/bin:/bin bash -c 'command -v pnpm' >/dev/null 2>&1; then
+# deploy dies on "pnpm: command not found"; this repo was bitten by that three times.
+#
+# PATH mirrors what the deploy builds: sshd's own default, plus the three directories
+# resolve_pnpm prepends. Keep it in step with deploy.yml or this check starts lying.
+DEPLOY_PATH="${PNPM_HOME:-$HOME/.local/share/pnpm}:$HOME/.local/bin:/usr/local/bin"
+DEPLOY_PATH="$DEPLOY_PATH:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+if env -i HOME="$HOME" PATH="$DEPLOY_PATH" bash -c 'command -v pnpm' >/dev/null 2>&1; then
   ok "pnpm $(pnpm --version) — reachable from a non-interactive shell"
 elif command -v pnpm >/dev/null; then
   bad "pnpm is on YOUR PATH but not a non-interactive one — the deploy will not find it"
   note "a shell profile is putting it there; the deploy reads no profile"
-  note "fix: sudo corepack enable pnpm   (puts the shim next to node)"
+  note "fix: sudo -u $(whoami) npm install --global --prefix $HOME/.local pnpm@10.28.2"
 else
   bad "pnpm not on PATH"
-  note "the API release installs its dependencies on this host: sudo corepack enable pnpm"
+  note "the API release installs its dependencies on this host:"
+  note "  npm install --global --prefix $HOME/.local pnpm@10.28.2"
 fi
-note "the shim lives in node's bin directory — reinstalling or upgrading node removes it"
+# A corepack shim would live in node's bin directory and not survive a node upgrade,
+# which is how this broke once already. ~/.local/bin does survive.
+case "$(command -v pnpm || echo none)" in
+  "$HOME"/*) ok "pnpm lives under $HOME — a node upgrade cannot remove it" ;;
+  none) : ;;
+  *) note "pnpm sits outside $HOME; if it is a corepack shim, a node upgrade removes it" ;;
+esac
 command -v curl >/dev/null && ok "curl" || bad "curl missing — the deploy health check needs it"
 command -v docker >/dev/null && ok "docker" || bad "docker missing"
 
