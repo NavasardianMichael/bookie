@@ -31,6 +31,7 @@ const outDir = path.resolve(rootDir, process.argv[2] ?? 'out/api')
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'))
 
 const serverPkg = readJson(path.join(serverDir, 'package.json'))
+const rootPkg = readJson(path.join(rootDir, 'package.json'))
 
 /** The version actually on disk after `pnpm install`, so prod matches what CI tested. */
 function resolvedVersion(name) {
@@ -66,6 +67,11 @@ writeFileSync(
       version: serverPkg.version,
       private: true,
       type: 'module',
+      // Pins the host install to the pnpm that resolved the lockfile. A corepack shim
+      // reads this and fetches that exact version, so the deploy stops depending on
+      // whichever pnpm the server happens to carry — or, after a Node reinstall drops
+      // the shim, does not carry.
+      packageManager: rootPkg.packageManager,
       // No `postinstall`/`prepare`: the host install must not migrate, seed, or reach for
       // husky. Migrations are an explicit, ordered step in the deploy script instead.
       scripts: { start: 'node dist/src/index.js' },

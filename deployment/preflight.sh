@@ -41,10 +41,21 @@ if command -v node >/dev/null; then
   fi
 else bad "node not on PATH"; fi
 
-command -v pnpm >/dev/null && ok "pnpm $(pnpm --version)" || {
+# Checked the way the DEPLOY invokes it, not the way you do. The deploy arrives as
+# `ssh … bash -s` — non-interactive and non-login, so neither ~/.profile nor ~/.bashrc
+# is read. A plain `command -v pnpm` here passes with your profile loaded while the
+# deploy dies on "pnpm: command not found"; this repo has been bitten by that twice.
+if env -i HOME="$HOME" PATH=/usr/local/bin:/usr/bin:/bin bash -c 'command -v pnpm' >/dev/null 2>&1; then
+  ok "pnpm $(pnpm --version) — reachable from a non-interactive shell"
+elif command -v pnpm >/dev/null; then
+  bad "pnpm is on YOUR PATH but not a non-interactive one — the deploy will not find it"
+  note "a shell profile is putting it there; the deploy reads no profile"
+  note "fix: sudo corepack enable pnpm   (puts the shim next to node)"
+else
   bad "pnpm not on PATH"
-  note "the API release installs its dependencies on this host: corepack prepare pnpm@10.28.2 --activate"
-}
+  note "the API release installs its dependencies on this host: sudo corepack enable pnpm"
+fi
+note "the shim lives in node's bin directory — reinstalling or upgrading node removes it"
 command -v curl >/dev/null && ok "curl" || bad "curl missing — the deploy health check needs it"
 command -v docker >/dev/null && ok "docker" || bad "docker missing"
 

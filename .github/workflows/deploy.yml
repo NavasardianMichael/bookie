@@ -341,8 +341,43 @@ jobs:
             install -m 600 /tmp/env.api "$APP_DIR/shared/.env.api"
 
             cd "$NEW"
+
+            # `ssh host bash -s` is a non-interactive, NON-LOGIN shell: it reads neither
+            # ~/.profile nor ~/.bashrc, which on Debian returns early unless interactive.
+            # So every PATH entry a shell profile owns is invisible here, and `pnpm -v`
+            # can work when you ssh in by hand while the deploy three lines later says
+            # "command not found". Resolve it here rather than inheriting a login PATH
+            # this workflow does not control.
+            resolve_pnpm() {
+              export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+              export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+              export PATH="$PNPM_HOME:$HOME/.local/bin:/usr/local/bin:$PATH"
+              command -v pnpm >/dev/null && return 0
+
+              # corepack ships with Node 24 but writes its shims only when `enable` runs,
+              # and they live in Node's own bin directory — so reinstalling or upgrading
+              # Node silently removes pnpm. Re-create them in $HOME, which needs no sudo.
+              # Naming pnpm matters: a bare `corepack enable` also shims npm.
+              if command -v corepack >/dev/null; then
+                mkdir -p "$HOME/.local/bin"
+                corepack enable --install-directory "$HOME/.local/bin" pnpm || true
+                command -v pnpm >/dev/null && return 0
+              fi
+
+              echo "::error::pnpm is not reachable from a non-interactive shell on this host"
+              echo "  node:     $(command -v node || echo MISSING)"
+              echo "  corepack: $(command -v corepack || echo MISSING)"
+              echo "  PATH:     $PATH"
+              echo "  fix: sudo corepack enable pnpm   (see docs/DEPLOYMENT.md)"
+              return 1
+            }
+            resolve_pnpm
+            echo "pnpm $(pnpm --version) at $(command -v pnpm)"
+
             # A normal install, which is what makes @prisma/client's postinstall run
-            # and fetches every native dependency for THIS host's platform.
+            # and fetches every native dependency for THIS host's platform. The release
+            # manifest carries `packageManager`, so this runs the same pnpm that resolved
+            # the lockfile whatever the host happens to have.
             pnpm install --prod --frozen-lockfile
             # Explicit: the postinstall above does not always locate the schema.
             ./node_modules/.bin/prisma generate --schema prisma/schema.prisma
