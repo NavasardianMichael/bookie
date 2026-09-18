@@ -70,11 +70,13 @@ jobs:
       # images.remotePatterns from NEXT_PUBLIC_API_URL.
       # NEXT_PUBLIC_* must stay scoped to this step. Job-wide they break
       # tests/unit/helpers/images.spec.ts, which pins the default API origin.
+      # secrets.* first, then vars.* — they are different stores. Empty is fine
+      # here (localhost fallback); deploy.yml refuses that and will not ship it.
       - name: Build (web)
         run: pnpm build
         env:
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || vars.NEXT_PUBLIC_SITE_URL }}
 
       # Proves the deployable API artifact still assembles — it is the part of the
       # build that `pnpm verify` does not cover.

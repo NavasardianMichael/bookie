@@ -116,22 +116,24 @@ The first deploy creates the release directories and starts both services.
 
 **Secrets** (Settings → Secrets and variables → Actions → Secrets):
 
-| Name             | Value                                     |
-| ---------------- | ----------------------------------------- |
-| `SSH_HOST`       | server hostname or IP                     |
-| `SSH_USER`       | `michael`                                 |
-| `SSH_KEY`        | private half of the deploy key (full PEM) |
-| `SSH_PORT`       | optional, defaults to 22                  |
-| `APP_DIR`        | `/home/michael/apps/bookie`               |
-| `ENV_API_BASE64` | see below                                 |
+| Name                   | Value                                     |
+| ---------------------- | ----------------------------------------- |
+| `SSH_HOST`             | server hostname or IP                     |
+| `SSH_USER`             | `michael`                                 |
+| `SSH_KEY`              | private half of the deploy key (full PEM) |
+| `SSH_PORT`             | optional, defaults to 22                  |
+| `APP_DIR`              | `/home/michael/apps/bookie`               |
+| `ENV_API_BASE64`       | see below                                 |
+| `NEXT_PUBLIC_API_URL`  | `https://api.bookie.mnavasardian.com`     |
+| `NEXT_PUBLIC_SITE_URL` | `https://bookie.mnavasardian.com`         |
 
-**Variables** (same page → Variables tab) — these are _not_ secrets: both are inlined into
-the browser bundle at build time, so they are public by construction.
-
-| Name                   | Value                                 |
-| ---------------------- | ------------------------------------- |
-| `NEXT_PUBLIC_API_URL`  | `https://api.bookie.mnavasardian.com` |
-| `NEXT_PUBLIC_SITE_URL` | `https://bookie.mnavasardian.com`     |
+The two `NEXT_PUBLIC_*` values are inlined into the browser bundle, so they are public
+by construction — they can live as repository **Secrets** or **Variables**. The workflow
+reads `secrets.*` first, then `vars.*`. Those are different stores: a value in Secrets is
+invisible to `vars.NAME`, and the other way around. An empty value used to fall through
+to `localhost:9004` / `:7004` and ship a bundle whose session probe asked Chrome for
+"Apps on device" on every page. Deploy now fails closed if either origin is missing,
+loopback, or `http://`.
 
 `ENV_API_BASE64` holds `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `MAIL_*` and
 `GOOGLE_*` — the keys are documented in `server/.env.example`. Do **not** put `NODE_ENV`,
@@ -148,7 +150,7 @@ unrelated to each other:
 
 |                       | must equal                                                                                                                        |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `CORS_ORIGIN`         | the `NEXT_PUBLIC_SITE_URL` variable — `requireSameOrigin` compares them                                                           |
+| `CORS_ORIGIN`         | the `NEXT_PUBLIC_SITE_URL` value — `requireSameOrigin` compares them                                                              |
 | `GOOGLE_REDIRECT_URI` | an Authorized redirect URI on the Google client, on the `api.` host                                                               |
 | `NEXT_PUBLIC_API_URL` | the API origin — `next.config.ts` derives `images.remotePatterns` from it, so a wrong value silently breaks every uploaded avatar |
 
@@ -309,7 +311,9 @@ sudo systemctl restart bookie-web                     # same shape for api
   inlined, and `next.config.ts` derives `images.remotePatterns` from the API URL — get it
   wrong and `next/image` silently refuses every uploaded avatar. Next 16 also 400s a
   matching pattern when the hostname resolves to a private IP; `dangerouslyAllowLocalIP`
-  is therefore on only while that URL is loopback, and stays off in production.
+  is therefore on only while that URL is loopback, and stays off in production. Put them
+  in repository Secrets *or* Variables — not one of each under the assumption they merge.
+  The web build job coalesces `secrets.* || vars.*` and refuses to ship a localhost origin.
 - **Never put `proxy_cache` on the web host.** `src/proxy.ts` answers unprefixed and guarded
   requests with personalised 307s carrying `Vary: Accept-Language, Cookie` and
   `Cache-Control: no-store`. Caching them pins one visitor's language onto everyone.
