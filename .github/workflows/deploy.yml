@@ -156,6 +156,44 @@ jobs:
           tar -czf web-build.tar.gz -C .next/standalone .
           echo "bundle: $(du -sh web-build.tar.gz | cut -f1)"
 
+      # Boot what actually ships. Output file tracing can copy a package's manifest
+      # without the files behind its `exports` map — @swc/helpers' `esm/` was missing
+      # exactly that way — and the result is an ERR_MODULE_NOT_FOUND that appears only
+      # when node runs server.js. `next build` stays green, and because the deploy
+      # restarts the API first, finding it on the host leaves production with a migrated
+      # database behind a frontend that will not boot.
+      #
+      # `/` is a middleware redirect to `/<locale>`, so any HTTP response proves the
+      # server booted without reaching the API or the database. Rendering a real page
+      # here would tie every build to production's uptime.
+      - name: Smoke-test the standalone bundle
+        working-directory: .next/standalone
+        env:
+          PORT: ${{ env.WEB_PORT }}
+          HOSTNAME: 127.0.0.1
+          NODE_ENV: production
+        run: |
+          node server.js > /tmp/web-smoke.log 2>&1 &
+          pid=$!
+          for i in $(seq 1 30); do
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "::error::the standalone bundle exited before it listened on $PORT"
+              cat /tmp/web-smoke.log
+              exit 1
+            fi
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "http://127.0.0.1:$PORT/" || true)
+            if [ -n "$code" ] && [ "$code" != "000" ]; then
+              echo "standalone bundle answered / with HTTP $code after ${i}s"
+              kill "$pid" 2>/dev/null || true
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::the standalone bundle never answered on port $PORT"
+          cat /tmp/web-smoke.log
+          kill "$pid" 2>/dev/null || true
+          exit 1
+
       - uses: actions/upload-artifact@v6
         with:
           name: web-build

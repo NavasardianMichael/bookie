@@ -193,6 +193,29 @@ tried and rejected:
 Installing on the host also means native dependencies (`@node-rs/argon2`, the Prisma
 engines) are fetched for the host's own platform rather than the runner's.
 
+### The web bundle is booted before it ships
+
+`output: 'standalone'` copies only what `@vercel/nft` traced, and the trace can copy a
+package's manifest without the files its `exports` map points at. `@swc/helpers` failed
+exactly that way: the bundle carried `package.json` and `cjs/` but no `esm/`, so resolution
+got as far as the exports map and then threw `ERR_MODULE_NOT_FOUND` for
+`@swc/helpers/esm/_interop_require_default.js` the moment systemd ran `node server.js`.
+`next build` stayed green throughout — the gap exists only in the standalone output, so
+`next start` never reproduces it.
+
+Two guards, and the second is the one that matters:
+
+- `outputFileTracingIncludes` in `next.config.ts` forces the whole `@swc/helpers` package
+  in, under both the pnpm virtual-store path and the hoisted one.
+- `build-web` boots the assembled bundle and requires an HTTP answer on `/` before the
+  artifact uploads. `/` is a middleware redirect to `/<locale>`, so it proves the server
+  booted without reaching the API or the database — a real page would tie every build to
+  production's uptime.
+
+Only the boot check generalises. The include fixes one package; the next tracing gap will
+be a different one, and the deploy ships the API first, so a web bundle that fails at boot
+leaves production with a migrated database behind a frontend that will not start.
+
 ## Ports, and changing one
 
 Bookie claims three, all bound to loopback — nothing is exposed but 80/443 through nginx:

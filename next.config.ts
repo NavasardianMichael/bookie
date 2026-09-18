@@ -17,6 +17,19 @@ const nextConfig: NextConfig = {
   // workspace. `public/` and `.next/static` are NOT copied in by the build; the deploy
   // workflow does that. See docs/DEPLOYMENT.md.
   output: 'standalone',
+  // nft traces @swc/helpers through its CommonJS entry, so the standalone bundle gets the
+  // package manifest and `cjs/` but none of `esm/` — which is what the compiled server
+  // actually imports through the package's `exports` map. A manifest that resolves while
+  // the file behind it is absent is exactly ERR_MODULE_NOT_FOUND at boot, and it happens
+  // only in the standalone output, so `next start` never reproduces it. Force the whole
+  // package in: pnpm keeps the real files in the virtual store, and the hoisted path is
+  // listed for a non-pnpm install. A pattern that matches nothing is ignored.
+  outputFileTracingIncludes: {
+    '/*': [
+      'node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers/**',
+      'node_modules/@swc/helpers/**',
+    ],
+  },
   images: {
     // Uploads are served by the API on its own origin, so next/image has to be
     // told to allow it. See src/helpers/images.ts.
