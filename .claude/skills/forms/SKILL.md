@@ -121,6 +121,12 @@ client validation, submitted, and returned an error the form had never warned ab
 partial mirror is worse than none.** One hook, matching the server rule for rule, is the
 shape to copy for any other policy that lives on both sides.
 
+**Choosing a password is always two fields.** Registration, reset, and any later change
+form use `NewPasswordFields` — password plus a required confirm that re-validates when
+the first field changes. Sign-in is the exception: it asks for the existing password
+once, through `PasswordField` with `autoComplete='current-password'`. Do not add a lone
+`new-password` input.
+
 The `required` catalogue string is `Validation.required` with next-intl's `{label}`.
 `useFormItemRules` fills that with the literal `'${label}'` so antd's `messageVariables`
 can still substitute the field name. Do **not** put a raw `${label}` in the JSON —

@@ -4,8 +4,6 @@ import { FC, useState } from 'react'
 import { Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { resetPasswordAPI } from '@api/auth/main'
-import { useFormItemRules } from '@hooks/useFormItemRules'
-import { usePasswordRules } from '@hooks/usePasswordRules'
 import { useRouter } from '@i18n/navigation'
 import { PASSWORD_MIN_LENGTH } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
@@ -15,7 +13,7 @@ import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { CheckCircleIcon } from '@components/ui/icons'
-import { PasswordField } from '../components/PasswordField'
+import { NewPasswordFields } from '../components/NewPasswordFields'
 
 type ResetPasswordFormValues = {
   password: string
@@ -34,9 +32,6 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const requiredRules = useFormItemRules('required')
-  const passwordRules = usePasswordRules()
 
   const handleFinish = async (values: ResetPasswordFormValues) => {
     if (!token) return
@@ -109,32 +104,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
         scrollToFirstError
         className='flex w-full flex-col gap-4'
       >
-        <PasswordField
-          name='password'
-          label={t('fields.newPassword')}
-          rules={passwordRules}
-          autoComplete='new-password'
-          disabled={isSubmitting}
-        />
-
-        <PasswordField
-          name='confirmPassword'
-          label={t('fields.confirmPassword')}
-          autoComplete='new-password'
-          disabled={isSubmitting}
-          // `dependencies` is what re-runs this rule when `password` changes — without it
-          // a match validated once stays "valid" after the first field is edited.
-          dependencies={['password']}
-          rules={[
-            ...requiredRules,
-            ({ getFieldValue }) => ({
-              validator: (_, value) =>
-                !value || getFieldValue('password') === value
-                  ? Promise.resolve()
-                  : Promise.reject(new Error(t('validation.passwordsDoNotMatch'))),
-            }),
-          ]}
-        />
+        <NewPasswordFields passwordLabel={t('fields.newPassword')} disabled={isSubmitting} />
 
         {error && (
           <div role='alert' className='rounded-brand-sm bg-red-50 p-3'>

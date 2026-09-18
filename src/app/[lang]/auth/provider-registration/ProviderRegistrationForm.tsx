@@ -6,7 +6,6 @@ import type { Rule } from 'antd/es/form'
 import { useLocale, useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { usePasswordRules } from '@hooks/usePasswordRules'
 import { OrganizationValue } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
@@ -19,7 +18,7 @@ import { MailIcon, UserIcon } from '@components/ui/icons'
 import { OrganizationAutocomplete } from './OrganizationAutocomplete'
 import { FieldLabel } from '../components/FieldLabel'
 import { GoogleButton } from '../components/GoogleButton'
-import { PasswordField } from '../components/PasswordField'
+import { NewPasswordFields } from '../components/NewPasswordFields'
 import { PhoneFormValues, PhoneNumberField } from '../components/PhoneNumberField'
 import { RegistrationField } from '../components/RegistrationField'
 
@@ -29,6 +28,7 @@ type ProviderRegistrationFormValues = PhoneFormValues & {
   lastName: string
   email: string
   password: string
+  confirmPassword: string
 }
 
 const INITIAL_VALUES: ProviderRegistrationFormValues = {
@@ -37,6 +37,7 @@ const INITIAL_VALUES: ProviderRegistrationFormValues = {
   lastName: '',
   email: '',
   password: '',
+  confirmPassword: '',
   code: undefined,
   number: '',
 }
@@ -76,8 +77,6 @@ export const ProviderRegistrationForm: React.FC = () => {
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const emailRules = useFormItemRules('required', 'email')
-  // Mirrors the server policy in full — length, letter+number, and not the email.
-  const passwordRules = usePasswordRules('email')
 
   const handleFinish = async (values: ProviderRegistrationFormValues) => {
     setSubmitError(null)
@@ -171,13 +170,10 @@ export const ProviderRegistrationForm: React.FC = () => {
           labelClassName='text-brand font-semibold'
         />
 
-        <PasswordField
-          name='password'
-          label={t('fields.password')}
+        <NewPasswordFields
+          emailFieldName='email'
           placeholder={t('fields.choosePasswordPlaceholder')}
-          autoComplete='new-password'
           disabled={isPending}
-          rules={passwordRules}
         />
 
         <PhoneNumberField

@@ -13,7 +13,10 @@ type Props = {
   placeholder?: string
   rules?: Rule[]
   requirement?: FieldRequirement
-  /** `new-password` on registration and reset, `current-password` at sign-in. */
+  /**
+   * `new-password` only through `NewPasswordFields` (registration, reset, change).
+   * Sign-in is the one `current-password` call site, because it is not choosing a password.
+   */
   autoComplete: 'new-password' | 'current-password'
   disabled?: boolean
   /** Passed to `Form.Item` so a confirm field re-validates when the password changes. */

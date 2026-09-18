@@ -294,7 +294,9 @@ Five things that are easy to get wrong here:
 Password rules are mirrored client-side by `usePasswordRules` (`src/hooks/`), which matches
 `server/src/lib/password.ts` **rule for rule**. A partial mirror is worse than none: the
 first version checked only length, so a password the server rejects for having no digit
-passed validation and came back as an error the form had never warned about.
+passed validation and came back as an error the form had never warned about. Choosing a
+password is always two fields (`NewPasswordFields`): registration and reset both require
+confirm. Sign-in is the one single-password screen.
 
 `src/proxy.ts` guards the signed-in areas on cookie presence only — Next's docs are explicit
 that Proxy is not an authorization layer, so real enforcement stays in the API's
