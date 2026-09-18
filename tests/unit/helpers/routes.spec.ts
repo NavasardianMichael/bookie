@@ -12,6 +12,7 @@ describe('matchRouteName', () => {
   it('prefers the longest matching route', () => {
     expect(matchRouteName('/providers/profile')).toBe('providerProfile')
     expect(matchRouteName('/providers/profile/bookings')).toBe('providerProfileBookings')
+    expect(matchRouteName('/providers/profile/consumer-bookings')).toBe('providerProfileConsumerBookings')
     expect(matchRouteName('/providers/profile/history')).toBe('providerProfileHistory')
     expect(matchRouteName('/providers/profile-services')).toBe('providerServices')
     expect(matchRouteName('/providers/profile-creation')).toBe('providerProfileCreation')

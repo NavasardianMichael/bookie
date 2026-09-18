@@ -11,4 +11,10 @@ export const ENDPOINTS = {
    */
   getProviderBookings: '/provider-profile/bookings',
   getProviderBookingsCalendar: '/provider-profile/bookings/calendar',
+  /**
+   * Same paged shape as `getProviderBookings`, scoped to appointments this User
+   * booked as a client. Empty when they have no Consumer row yet.
+   */
+  getProviderConsumerBookings: '/provider-profile/consumer-bookings',
+  getProviderConsumerBookingsCalendar: '/provider-profile/consumer-bookings/calendar',
 } as const

@@ -432,8 +432,15 @@
       "cta": "Contacter le support"
     },
     "bookings": {
-      "title": "Réservations",
+      "title": "Réservations en tant que professionnel",
       "subtitle": "Tous les rendez-vous pris avec vous, passés et à venir.",
+      "asConsumerTitle": "Réservations en tant que client",
+      "asConsumerSubtitle": "Tous les rendez-vous que vous avez pris chez un autre professionnel, passés et à venir.",
+      "switchToConsumer": "Passer aux réservations en tant que client",
+      "switchToProvider": "Passer aux réservations en tant que professionnel",
+      "emptyAsConsumerTitle": "Vous n'avez pas encore de réservations",
+      "emptyAsConsumerBody": "Lorsque vous réservez chez un autre professionnel, ces rendez-vous apparaissent ici.",
+      "confirmBodyAsConsumer": "Cela annule le rendez-vous. Vous ne pouvez annuler que tant qu'il est encore à venir.",
       "calendarHint": "Sélectionnez un jour pour voir qui a réservé.",
       "calendarFiltered": "Un seul jour affiché. Sélectionnez-le à nouveau pour tout voir.",
       "calendarLabel": "Réservations par jour",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# minute} other {# minutes}}",
       "confirmTitle": "Marquer cette réservation comme {status} ?",
       "confirmBody": "Le client n'est pas prévenu automatiquement. Vous pourrez changer le statut à nouveau plus tard.",
+      "moreActions": "Actions pour {name}",
       "status": {
         "scheduled": "Planifiée",
         "confirmed": "Confirmée",

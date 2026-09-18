@@ -432,8 +432,15 @@
       "cta": "联系支持"
     },
     "bookings": {
-      "title": "预约",
+      "title": "作为服务者的预约",
       "subtitle": "与您相关的所有过去和即将到来的预约。",
+      "asConsumerTitle": "作为客户的预约",
+      "asConsumerSubtitle": "你向其他服务者预约的每一次预约，包括过去和即将到来的。",
+      "switchToConsumer": "切换到作为客户的预约",
+      "switchToProvider": "切换到作为服务者的预约",
+      "emptyAsConsumerTitle": "还没有你自己的预约",
+      "emptyAsConsumerBody": "当你预约其他服务者时，那些预约会出现在这里。",
+      "confirmBodyAsConsumer": "这将取消预约。仅可在预约仍未开始时取消。",
       "calendarHint": "选择某一天以查看当日预约。",
       "calendarFiltered": "显示单日预约。再次点击可查看全部。",
       "calendarLabel": "按日期查看预约",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# 分钟} other {# 分钟}}",
       "confirmTitle": "将此预约标记为 {status}？",
       "confirmBody": "系统不会自动通知客户。您稍后可再修改状态。",
+      "moreActions": "{name} 的操作",
       "status": {
         "scheduled": "已安排",
         "confirmed": "已确认",

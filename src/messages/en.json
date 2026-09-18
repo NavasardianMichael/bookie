@@ -432,8 +432,15 @@
       "cta": "Contact Support"
     },
     "bookings": {
-      "title": "Bookings",
+      "title": "Bookings as Provider",
       "subtitle": "Every appointment booked with you, past and upcoming.",
+      "asConsumerTitle": "Bookings as Consumer",
+      "asConsumerSubtitle": "Every appointment you booked with another provider, past and upcoming.",
+      "switchToConsumer": "Switch to Bookings as Consumer",
+      "switchToProvider": "Switch to Bookings as Provider",
+      "emptyAsConsumerTitle": "No bookings of your own yet",
+      "emptyAsConsumerBody": "When you book another provider, those appointments appear here.",
+      "confirmBodyAsConsumer": "This cancels the appointment. You can only cancel while it is still upcoming.",
       "calendarHint": "Select a day to see who is booked.",
       "calendarFiltered": "Showing one day. Select it again to see them all.",
       "calendarLabel": "Bookings by day",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# minute} other {# minutes}}",
       "confirmTitle": "Mark this booking as {status}?",
       "confirmBody": "The client is not notified automatically. You can change the status again later.",
+      "moreActions": "Actions for {name}",
       "status": {
         "scheduled": "Scheduled",
         "confirmed": "Confirmed",

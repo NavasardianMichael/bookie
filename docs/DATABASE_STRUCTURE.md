@@ -68,8 +68,10 @@ All JSON responses use:
 | GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
 | GET | `/providers/:id/availability?date=` | public |
 | GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page) |
-| GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, own bookings only, see [Provider workspace](#provider-workspace) |
+| GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments booked *with* them, see [Provider workspace](#provider-workspace) |
 | GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
+| GET | `/provider-profile/consumer-bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments they booked as a client; empty if the User has no Consumer row |
+| GET | `/provider-profile/consumer-bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for that client-side list |
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound) |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
@@ -241,9 +243,10 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 
 ## Provider workspace
 
-Three provider-only reads over a provider's own data, all on `providerProfileRouter` and
-therefore all scoped by `req.session.profileId`. **The provider id is never a parameter**,
-so none of them can be aimed at another provider's calendar.
+Three provider-only reads over a provider's own data, plus a pair for appointments they
+booked as a client, all on `providerProfileRouter`. **The provider id (and the Consumer
+id on the client-side pair) is never a parameter**, so none of them can be aimed at
+another person's calendar.
 
 They are separate from `GET /appointments` on purpose. That route answers "what is coming
 up" for either role and has two existing callers; adding a page window would change its
@@ -253,6 +256,8 @@ response from an array to an envelope and break both.
 |---|---|
 | `GET /provider-profile/bookings` | Paged `{ items, total, page, perPage, pageCount }`. Filters: `from`/`to`, repeatable `status`, `serviceId`, `q`. Sorts: `startDesc` (default — this is a history view), `startAsc`, `createdDesc`, `nameAsc`. Parsing lives in `services/providerBookings.ts`; every value narrows to a closed set, so a hand-edited query degrades to defaults rather than 500s. |
 | `GET /provider-profile/bookings/calendar` | `{ month, timeZone, days }` where `days` is keyed `YYYY-MM-DD` — the same key the client's grid uses — with `{ total, live }` per day. Cancelled and no-show bookings count in `total` so the grid cannot disagree with the unfiltered list. |
+| `GET /provider-profile/consumer-bookings` | Same envelope as `/bookings`, scoped to the User's Consumer id. Search and `nameAsc` hit the *other* provider's name. Empty `{ items: [], total: 0 }` when there is no Consumer row — the read must not create one. The row names that provider (`booker.kind: 'provider'`) and does **not** include their phone or email. |
+| `GET /provider-profile/consumer-bookings/calendar` | Same day-count shape as `/bookings/calendar`, over the client-side `where`. |
 | `GET /provider-profile/analytics` | Totals, the equal-length previous window, settled-only rates, a zero-filled daily series, top services, weekday/hour buckets, new-vs-returning clients, median lead time. A numbered `from`/`to` is how far *back* to look — upcoming `startAt` after `to` still counts. `all=true` drops the lower bound too (no previous-period delta). `services/providerAnalytics.ts`. |
 
 Three things about these that are easy to get wrong:

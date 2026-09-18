@@ -12,6 +12,8 @@ export type SettingsNavItem = {
   icon: ReactNode
   /** Exact match for the profile home; prefix for nested tabs. */
   match?: 'exact' | 'prefix'
+  /** Extra paths that light this item — sibling views of the same tab. */
+  aliases?: string[]
 }
 
 export type SettingsShellProps = {
@@ -28,10 +30,13 @@ export type SettingsShellProps = {
   className?: string
 }
 
-const isActive = (item: SettingsNavItem, activeHref: string): boolean => {
-  if (item.match === 'exact') return activeHref === item.href
-  return activeHref === item.href || activeHref.startsWith(`${item.href}/`)
+const pathMatches = (activeHref: string, href: string, match?: 'exact' | 'prefix'): boolean => {
+  if (match === 'exact') return activeHref === href
+  return activeHref === href || activeHref.startsWith(`${href}/`)
 }
+
+const isActive = (item: SettingsNavItem, activeHref: string): boolean =>
+  [item.href, ...(item.aliases ?? [])].some((href) => pathMatches(activeHref, href, item.match))
 
 /**
  * Settings layout: left nav + right panel. Matches the prototype sidebar + bento

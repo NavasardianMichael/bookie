@@ -5,6 +5,7 @@ import {
   dayKeyInZone,
   isBookingStatus,
   monthRangeInZone,
+  parseConsumerBookingsQuery,
   parseProviderBookingsQuery,
   zoneOffsetMs,
 } from '../../../server/src/services/providerBookings'
@@ -91,6 +92,36 @@ describe('parseProviderBookingsQuery — sort and page', () => {
     expect(parseProviderBookingsQuery(PROVIDER, { perPage: '100000' }).perPage).toBe(100)
     expect(parseProviderBookingsQuery(PROVIDER, { page: '0' }).page).toBe(1)
     expect(parseProviderBookingsQuery(PROVIDER, { page: '-3' }).page).toBe(1)
+  })
+})
+
+describe('parseConsumerBookingsQuery — scoping', () => {
+  const CONSUMER = 'consumer-1'
+
+  it('always scopes to the caller, whatever the query string says', () => {
+    const { where } = parseConsumerBookingsQuery(CONSUMER, { consumerId: 'someone-else', providerId: 'p-9' })
+    expect(where.consumerId).toBe(CONSUMER)
+    expect(where.providerId).toBeUndefined()
+  })
+
+  it('searches the other provider, not the caller', () => {
+    const { where } = parseConsumerBookingsQuery(CONSUMER, { q: 'lena' })
+    expect(where.AND).toEqual([
+      {
+        OR: [
+          { provider: { firstName: { contains: 'lena', mode: 'insensitive' } } },
+          { provider: { lastName: { contains: 'lena', mode: 'insensitive' } } },
+          { service: { name: { contains: 'lena', mode: 'insensitive' } } },
+        ],
+      },
+    ])
+  })
+
+  it('orders by the other provider when sorting by name', () => {
+    expect(parseConsumerBookingsQuery(CONSUMER, { sort: 'nameAsc' }).orderBy).toEqual([
+      { provider: { lastName: 'asc' } },
+      { provider: { firstName: 'asc' } },
+    ])
   })
 })
 

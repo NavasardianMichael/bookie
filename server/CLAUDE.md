@@ -205,6 +205,8 @@ does not. That is a deliberate widening, taken under the rule above rather than 
   no id to tamper with and no way to aim it at another provider's calendar. The contact
   details reach only the provider those appointments belong to.
 - **Where it is allowed to live.** `mapProviderBooking` in `mappers/entities.ts`, and
-  nowhere else. Do not add these fields to `GET /appointments`, to `mapConsumer`, or to any
-  route keyed on a consumer id. A search by name deliberately matches `guestEmail` but
+  nowhere else. Do not add these fields to `GET /appointments`, to `mapConsumer`, to
+  `mapConsumerSideBooking`, or to any route keyed on a consumer id. The consumer-side
+  workspace list names the *other* provider and must not carry their phone or email.
+  A search by name on the receiving-provider list deliberately matches `guestEmail` but
   **not** a consumer's email, so a provider cannot probe for which addresses hold accounts.

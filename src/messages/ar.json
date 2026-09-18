@@ -432,8 +432,15 @@
       "cta": "التواصل مع الدعم"
     },
     "bookings": {
-      "title": "الحجوزات",
+      "title": "الحجوزات كمقدّم خدمة",
       "subtitle": "كل موعد حُجز معك، السابق والقادم.",
+      "asConsumerTitle": "الحجوزات كعميل",
+      "asConsumerSubtitle": "كل موعد حجزته لدى مقدّم خدمة آخر، السابق والقادم.",
+      "switchToConsumer": "التبديل إلى الحجوزات كعميل",
+      "switchToProvider": "التبديل إلى الحجوزات كمقدّم خدمة",
+      "emptyAsConsumerTitle": "لا توجد حجوزات خاصة بك بعد",
+      "emptyAsConsumerBody": "عندما تحجز لدى مقدّم خدمة آخر، تظهر تلك المواعيد هنا.",
+      "confirmBodyAsConsumer": "هذا يلغي الموعد. يمكنك الإلغاء فقط ما دام الموعد قادمًا.",
       "calendarHint": "اختر يومًا لرؤية من قام بالحجز.",
       "calendarFiltered": "عرض يوم واحد. اختره مرة أخرى لعرضها جميعًا.",
       "calendarLabel": "الحجوزات حسب اليوم",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, zero {لا دقائق} one {دقيقة واحدة} two {دقيقتان} few {# دقائق} many {# دقيقة} other {# دقيقة}}",
       "confirmTitle": "وضع علامة على هذا الحجز كـ {status}؟",
       "confirmBody": "لا يتم إشعار العميل تلقائيًا. يمكنك تغيير الحالة مرة أخرى لاحقًا.",
+      "moreActions": "إجراءات لـ {name}",
       "status": {
         "scheduled": "مجدول",
         "confirmed": "مؤكد",

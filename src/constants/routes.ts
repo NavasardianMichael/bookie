@@ -17,6 +17,11 @@ export const ROUTE_KEYS = {
   providerProfile: 'providerProfile',
   providerProfileAvailability: 'providerProfileAvailability',
   providerProfileBookings: 'providerProfileBookings',
+  /**
+   * Appointments this provider booked as a client. Sibling of Bookings, not a
+   * sidebar tab — the header switch on either page is how you get here.
+   */
+  providerProfileConsumerBookings: 'providerProfileConsumerBookings',
   providerProfileAnalytics: 'providerProfileAnalytics',
   /** Redirects to Bookings. Kept so old History bookmarks still land somewhere real. */
   providerProfileHistory: 'providerProfileHistory',
@@ -71,6 +76,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
   [ROUTE_KEYS.providerProfileAvailability]: '/providers/profile/availability',
   [ROUTE_KEYS.providerProfileBookings]: '/providers/profile/bookings',
+  [ROUTE_KEYS.providerProfileConsumerBookings]: '/providers/profile/consumer-bookings',
   [ROUTE_KEYS.providerProfileAnalytics]: '/providers/profile/analytics',
   [ROUTE_KEYS.providerProfileHistory]: '/providers/profile/history',
   [ROUTE_KEYS.providerProfileSeo]: '/providers/profile/seo',

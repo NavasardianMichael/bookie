@@ -432,8 +432,15 @@
       "cta": "지원팀에 문의"
     },
     "bookings": {
-      "title": "예약",
+      "title": "제공자로서의 예약",
       "subtitle": "지난 예약과 다가오는 예약 모두.",
+      "asConsumerTitle": "고객으로서의 예약",
+      "asConsumerSubtitle": "다른 제공자에게 예약한 모든 일정, 지난 것과 다가오는 것.",
+      "switchToConsumer": "고객으로서의 예약으로 전환",
+      "switchToProvider": "제공자로서의 예약으로 전환",
+      "emptyAsConsumerTitle": "아직 내 예약이 없어요",
+      "emptyAsConsumerBody": "다른 제공자를 예약하면 그 일정이 여기에 나타나요.",
+      "confirmBodyAsConsumer": "예약을 취소합니다. 아직 다가오는 예약만 취소할 수 있어요.",
       "calendarHint": "날짜를 선택하면 그날의 예약이 표시돼요.",
       "calendarFiltered": "하루만 표시 중. 다시 선택하면 전체를 볼 수 있어요.",
       "calendarLabel": "일별 예약",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {#분} other {#분}}",
       "confirmTitle": "이 예약을 {status}(으)로 표시할까요?",
       "confirmBody": "고객에게 자동으로 알림이 가지 않아요. 상태는 나중에 다시 바꿀 수 있어요.",
+      "moreActions": "{name}의 작업",
       "status": {
         "scheduled": "예약됨",
         "confirmed": "확정",

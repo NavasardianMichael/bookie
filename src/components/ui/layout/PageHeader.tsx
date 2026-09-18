@@ -30,7 +30,10 @@ export type PageHeaderProps = {
  * One markup order, two layouts: `media` is placed last in the DOM and pulled
  * back visually with `md:order-last`, so mobile stacks image-over-text while
  * desktop puts the image to the right — no duplicated markup, no wasted column
- * on a narrow screen.
+ * on a narrow screen. On `align='start'`, `actions` sit as a sibling of the
+ * title column so they land on the right from `md` up (the Bookings switch);
+ * on `align='center'` they stay under the subtitle, because a centred axis and
+ * a title-left / actions-right row are different layouts.
  */
 export const PageHeader: FC<PageHeaderProps> = ({
   title,
@@ -54,14 +57,16 @@ export const PageHeader: FC<PageHeaderProps> = ({
     >
       {media && <div className={cn('shrink-0', !isCentered && 'md:order-last')}>{media}</div>}
 
-      <div className={cn('flex min-w-0 flex-col gap-4', isCentered && 'items-center')}>
+      <div className={cn('flex min-w-0 flex-col gap-4', isCentered ? 'items-center' : 'flex-1')}>
         <div className='flex flex-col gap-2'>
           <AppTitle level='h1'>{title}</AppTitle>
           {subtitle && <AppParagraph>{subtitle}</AppParagraph>}
         </div>
         {meta && <div className={cn('flex flex-wrap items-center gap-2', rowAlign)}>{meta}</div>}
-        {actions && <div className={cn('flex flex-wrap items-center gap-2', rowAlign)}>{actions}</div>}
+        {actions && isCentered && <div className='flex flex-wrap items-center justify-center gap-2'>{actions}</div>}
       </div>
+
+      {actions && !isCentered && <div className='flex shrink-0 flex-wrap items-center gap-2'>{actions}</div>}
     </header>
   )
 }

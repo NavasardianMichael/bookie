@@ -7,7 +7,9 @@ import { config } from '../config.js'
 import { ok } from '../lib/api-response.js'
 import { prisma } from '../lib/prisma.js'
 import {
+  consumerSideBookingInclude,
   mapBasicProvider,
+  mapConsumerSideBooking,
   mapProviderBooking,
   mapProviderProfile,
   mapProviderSeo,
@@ -26,6 +28,7 @@ import {
   asTimeZone,
   countBookingsByDay,
   monthRangeInZone,
+  parseConsumerBookingsQuery,
   parseProviderBookingsQuery,
 } from '../services/providerBookings.js'
 import { parseProvidersListQuery, resolvePageWindow } from '../services/providerSearch.js'
@@ -400,10 +403,12 @@ providerProfileRouter.delete(
  * deliberately. That route answers "what is coming up" for whoever is asking and is
  * consumed by two existing clients; adding a page window to it would change its
  * response from an array to an envelope and break both. It also picks its `where` off
- * the session *role*, which is the limitation `docs/BACKLOG.md` item 3 records.
+ * the session *role*, so a provider who booked someone else would never see that row
+ * there — `/consumer-bookings` is the read for that side.
  *
- * Here the provider id comes off `req.session.profileId` and is never a parameter, so
- * there is no id to verify and no way to aim these at another provider's calendar.
+ * Here the provider id (and, on the consumer-side pair, the User's Consumer id)
+ * comes off the session and is never a parameter, so there is no id to verify and
+ * no way to aim these at another person's calendar.
  * ------------------------------------------------------------------ */
 
 providerProfileRouter.get(
@@ -460,6 +465,77 @@ providerProfileRouter.get(
     const bookings = await prisma.appointment.findMany({
       where: {
         providerId: req.session!.profileId,
+        startAt: { gte: range.start, lt: range.end },
+      },
+      select: { startAt: true, status: true },
+    })
+
+    return ok(res, { month, timeZone, days: countBookingsByDay(bookings, timeZone) })
+  })
+)
+
+/**
+ * Appointments this provider booked *as a client*. Empty when the User has no
+ * Consumer row yet — this is a read, so it must not create one. `resolveConsumerId`
+ * already does that at book time.
+ */
+const findConsumerIdForUser = async (userId: string): Promise<string | null> => {
+  const consumer = await prisma.consumer.findUnique({ where: { userId }, select: { id: true } })
+  return consumer?.id ?? null
+}
+
+providerProfileRouter.get(
+  '/consumer-bookings',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const consumerId = await findConsumerIdForUser(req.session!.userId)
+    const { where, orderBy, page: requestedPage, perPage } = parseConsumerBookingsQuery(
+      consumerId ?? '',
+      req.query
+    )
+
+    if (!consumerId) {
+      return ok(res, { items: [], total: 0, page: 1, perPage, pageCount: 0 })
+    }
+
+    const total = await prisma.appointment.count({ where })
+    const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
+
+    const bookings = await prisma.appointment.findMany({
+      where,
+      include: consumerSideBookingInclude,
+      orderBy,
+      skip,
+      take: perPage,
+    })
+
+    return ok(res, {
+      items: bookings.map(mapConsumerSideBooking),
+      total,
+      page,
+      perPage,
+      pageCount,
+    })
+  })
+)
+
+providerProfileRouter.get(
+  '/consumer-bookings/calendar',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const timeZone = asTimeZone(req.query.tz)
+    const month = typeof req.query.month === 'string' ? req.query.month : ''
+    const range = monthRangeInZone(month, timeZone)
+    if (!range) throw new HttpError(400, 'month must be YYYY-MM', 400)
+
+    const consumerId = await findConsumerIdForUser(req.session!.userId)
+    if (!consumerId) {
+      return ok(res, { month, timeZone, days: {} })
+    }
+
+    const bookings = await prisma.appointment.findMany({
+      where: {
+        consumerId,
         startAt: { gte: range.start, lt: range.end },
       },
       select: { startAt: true, status: true },

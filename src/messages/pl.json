@@ -432,8 +432,15 @@
       "cta": "Skontaktuj się ze wsparciem"
     },
     "bookings": {
-      "title": "Rezerwacje",
+      "title": "Rezerwacje jako specjalista",
       "subtitle": "Każda wizyta zarezerwowana u Ciebie — przeszła i nadchodząca.",
+      "asConsumerTitle": "Rezerwacje jako klient",
+      "asConsumerSubtitle": "Każda wizyta, którą zarezerwowałeś u innego specjalisty, przeszła i nadchodząca.",
+      "switchToConsumer": "Przełącz na rezerwacje jako klient",
+      "switchToProvider": "Przełącz na rezerwacje jako specjalista",
+      "emptyAsConsumerTitle": "Nie masz jeszcze własnych rezerwacji",
+      "emptyAsConsumerBody": "Gdy zarezerwujesz innego specjalistę, te wizyty pojawią się tutaj.",
+      "confirmBodyAsConsumer": "To anuluje wizytę. Możesz anulować tylko, gdy wciąż jest nadchodząca.",
       "calendarHint": "Wybierz dzień, aby zobaczyć, kto jest zapisany.",
       "calendarFiltered": "Wyświetlany jeden dzień. Wybierz go ponownie, aby zobaczyć wszystkie.",
       "calendarLabel": "Rezerwacje według dnia",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# minuta} few {# minuty} many {# minut} other {# minut}}",
       "confirmTitle": "Oznaczyć tę rezerwację jako {status}?",
       "confirmBody": "Klient nie jest automatycznie powiadamiany. Możesz zmienić status ponownie później.",
+      "moreActions": "Akcje dla {name}",
       "status": {
         "scheduled": "Zaplanowane",
         "confirmed": "Potwierdzone",

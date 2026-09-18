@@ -432,8 +432,15 @@
       "cta": "サポートに問い合わせる"
     },
     "bookings": {
-      "title": "予約管理",
+      "title": "提供者としての予約",
       "subtitle": "あなたの過去と今後の予約すべて。",
+      "asConsumerTitle": "利用者としての予約",
+      "asConsumerSubtitle": "他の提供者に予約したすべての予定（過去と今後）。",
+      "switchToConsumer": "利用者としての予約に切り替え",
+      "switchToProvider": "提供者としての予約に切り替え",
+      "emptyAsConsumerTitle": "まだ自分の予約はありません",
+      "emptyAsConsumerBody": "他の提供者を予約すると、その予定がここに表示されます。",
+      "confirmBodyAsConsumer": "予約をキャンセルします。これから先の予約のみキャンセルできます。",
       "calendarHint": "日を選択するとその日の予約が表示されます。",
       "calendarFiltered": "1 日のみ表示中。もう一度クリックすると全体を表示します。",
       "calendarLabel": "日別の予約",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# 分} other {# 分}}",
       "confirmTitle": "この予約を {status} にしますか？",
       "confirmBody": "顧客への自動通知はありません。ステータスは後から変更できます。",
+      "moreActions": "{name} の操作",
       "status": {
         "scheduled": "予定",
         "confirmed": "確定",

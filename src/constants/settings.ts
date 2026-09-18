@@ -28,9 +28,16 @@ export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
  * is load-bearing — `/providers/profile` is a prefix of every nested tab, so without
  * it the Profile item lights up on all of them.
  */
-export const PROVIDER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[] = [
+export const PROVIDER_SETTINGS_NAV: {
+  route: keyof typeof ROUTES
+  match?: 'exact' | 'prefix'
+  aliases?: (keyof typeof ROUTES)[]
+}[] = [
   { route: ROUTE_KEYS.providerProfile, match: 'exact' },
-  { route: ROUTE_KEYS.providerProfileBookings },
+  {
+    route: ROUTE_KEYS.providerProfileBookings,
+    aliases: [ROUTE_KEYS.providerProfileConsumerBookings],
+  },
   { route: ROUTE_KEYS.providerProfileAnalytics },
   { route: ROUTE_KEYS.providerProfileAvailability },
   { route: ROUTE_KEYS.providerServices },
@@ -40,13 +47,14 @@ export const PROVIDER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
 ]
 
 export const toSettingsNavItems = (
-  entries: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[],
+  entries: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix'; aliases?: (keyof typeof ROUTES)[] }[],
   labels: Record<string, string>,
   icons: Record<string, SettingsNavItem['icon']>
 ): SettingsNavItem[] =>
-  entries.map(({ route, match }) => ({
+  entries.map(({ route, match, aliases }) => ({
     href: ROUTES[route],
     label: labels[route] ?? route,
     icon: icons[route],
     match,
+    aliases: aliases?.map((name) => ROUTES[name]),
   }))

@@ -432,8 +432,15 @@
       "cta": "Hubungi Dukungan"
     },
     "bookings": {
-      "title": "Pemesanan",
+      "title": "Pemesanan sebagai penyedia",
       "subtitle": "Setiap janji temu yang dipesan dengan Anda, lampau dan akan datang.",
+      "asConsumerTitle": "Pemesanan sebagai klien",
+      "asConsumerSubtitle": "Setiap janji yang Anda pesan dengan penyedia lain, yang lalu dan yang akan datang.",
+      "switchToConsumer": "Beralih ke pemesanan sebagai klien",
+      "switchToProvider": "Beralih ke pemesanan sebagai penyedia",
+      "emptyAsConsumerTitle": "Belum ada pemesanan milik Anda",
+      "emptyAsConsumerBody": "Saat Anda memesan penyedia lain, janji itu muncul di sini.",
+      "confirmBodyAsConsumer": "Ini membatalkan janji. Anda hanya dapat membatalkan selama janji masih akan datang.",
       "calendarHint": "Pilih hari untuk melihat siapa yang memesan.",
       "calendarFiltered": "Menampilkan satu hari. Pilih kembali untuk melihat semuanya.",
       "calendarLabel": "Pemesanan per hari",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# menit} other {# menit}}",
       "confirmTitle": "Tandai pemesanan ini sebagai {status}?",
       "confirmBody": "Klien tidak diberi tahu secara otomatis. Anda dapat mengubah status lagi nanti.",
+      "moreActions": "Aksi untuk {name}",
       "status": {
         "scheduled": "Terjadwal",
         "confirmed": "Dikonfirmasi",

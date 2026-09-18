@@ -17,6 +17,8 @@ import {
   GetManagedAppointmentAPI,
   GetProviderBookingsAPI,
   GetProviderBookingsCalendarAPI,
+  GetProviderConsumerBookingsAPI,
+  GetProviderConsumerBookingsCalendarAPI,
   ListAppointmentsAPI,
   PatchAppointmentStatusAPI,
   PatchManagedAppointmentAPI,
@@ -64,6 +66,26 @@ export const getProviderBookingsCalendarAPI: GetProviderBookingsCalendarAPI['api
   const queryString = paramsToQueryString({ month, tz: currentTimeZone() })
   const { data } = await axiosInstance.get<APIResponse<GetProviderBookingsCalendarAPI['response']>>(
     `${ENDPOINTS.getProviderBookingsCalendar}?${queryString}`
+  )
+  return processProviderBookingsCalendarResponse(data)
+}
+
+export const getProviderConsumerBookingsAPI: GetProviderConsumerBookingsAPI['api'] = async (query) => {
+  const queryString = paramsToQueryString({ ...query, tz: currentTimeZone() })
+  const { data } = await axiosInstance.get<APIResponse<GetProviderConsumerBookingsAPI['response']>>(
+    queryString
+      ? `${ENDPOINTS.getProviderConsumerBookings}?${queryString}`
+      : ENDPOINTS.getProviderConsumerBookings
+  )
+  return processProviderBookingsResponse(data)
+}
+
+export const getProviderConsumerBookingsCalendarAPI: GetProviderConsumerBookingsCalendarAPI['api'] = async ({
+  month,
+}) => {
+  const queryString = paramsToQueryString({ month, tz: currentTimeZone() })
+  const { data } = await axiosInstance.get<APIResponse<GetProviderConsumerBookingsCalendarAPI['response']>>(
+    `${ENDPOINTS.getProviderConsumerBookingsCalendar}?${queryString}`
   )
   return processProviderBookingsCalendarResponse(data)
 }

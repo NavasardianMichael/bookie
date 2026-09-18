@@ -432,8 +432,15 @@
       "cta": "Contatta l'assistenza"
     },
     "bookings": {
-      "title": "Prenotazioni",
+      "title": "Prenotazioni come professionista",
       "subtitle": "Tutti gli appuntamenti presi con te, passati e futuri.",
+      "asConsumerTitle": "Prenotazioni come cliente",
+      "asConsumerSubtitle": "Tutti gli appuntamenti che hai preso con un altro professionista, passati e futuri.",
+      "switchToConsumer": "Passa alle prenotazioni come cliente",
+      "switchToProvider": "Passa alle prenotazioni come professionista",
+      "emptyAsConsumerTitle": "Non hai ancora prenotazioni tue",
+      "emptyAsConsumerBody": "Quando prenoti da un altro professionista, quegli appuntamenti compaiono qui.",
+      "confirmBodyAsConsumer": "Questo annulla l'appuntamento. Puoi cancellare solo mentre è ancora in programma.",
       "calendarHint": "Seleziona un giorno per vedere chi ha prenotato.",
       "calendarFiltered": "Stai vedendo un solo giorno. Selezionalo di nuovo per vederli tutti.",
       "calendarLabel": "Prenotazioni per giorno",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# minuto} other {# minuti}}",
       "confirmTitle": "Segnare questa prenotazione come {status}?",
       "confirmBody": "Il cliente non riceve un avviso automatico. Puoi cambiare di nuovo lo stato in seguito.",
+      "moreActions": "Azioni per {name}",
       "status": {
         "scheduled": "In programma",
         "confirmed": "Confermata",

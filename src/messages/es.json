@@ -432,8 +432,15 @@
       "cta": "Contactar con soporte"
     },
     "bookings": {
-      "title": "Reservas",
+      "title": "Reservas como profesional",
       "subtitle": "Todas las citas reservadas contigo, pasadas y próximas.",
+      "asConsumerTitle": "Reservas como cliente",
+      "asConsumerSubtitle": "Cada cita que reservaste con otro profesional, pasadas y próximas.",
+      "switchToConsumer": "Cambiar a reservas como cliente",
+      "switchToProvider": "Cambiar a reservas como profesional",
+      "emptyAsConsumerTitle": "Aún no tienes reservas propias",
+      "emptyAsConsumerBody": "Cuando reserves con otro profesional, esas citas aparecerán aquí.",
+      "confirmBodyAsConsumer": "Esto cancela la cita. Solo puedes cancelar mientras siga siendo próxima.",
       "calendarHint": "Selecciona un día para ver quién ha reservado.",
       "calendarFiltered": "Mostrando un solo día. Selecciónalo de nuevo para verlas todas.",
       "calendarLabel": "Reservas por día",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# minuto} other {# minutos}}",
       "confirmTitle": "¿Marcar esta reserva como {status}?",
       "confirmBody": "El cliente no recibe un aviso automático. Puedes cambiar el estado de nuevo más adelante.",
+      "moreActions": "Acciones para {name}",
       "status": {
         "scheduled": "Programada",
         "confirmed": "Confirmada",

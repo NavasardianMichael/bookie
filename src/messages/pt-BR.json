@@ -432,8 +432,15 @@
       "cta": "Falar com o suporte"
     },
     "bookings": {
-      "title": "Agendamentos",
+      "title": "Agendamentos como profissional",
       "subtitle": "Todos os atendimentos agendados com você, passados e futuros.",
+      "asConsumerTitle": "Agendamentos como cliente",
+      "asConsumerSubtitle": "Todos os atendimentos que você agendou com outro profissional, passados e futuros.",
+      "switchToConsumer": "Mudar para agendamentos como cliente",
+      "switchToProvider": "Mudar para agendamentos como profissional",
+      "emptyAsConsumerTitle": "Você ainda não tem agendamentos próprios",
+      "emptyAsConsumerBody": "Quando você agendar com outro profissional, esses atendimentos aparecem aqui.",
+      "confirmBodyAsConsumer": "Isso cancela o agendamento. Só é possível cancelar enquanto ele ainda estiver por vir.",
       "calendarHint": "Selecione um dia para ver quem está agendado.",
       "calendarFiltered": "Mostrando um dia. Selecione-o novamente para ver todos.",
       "calendarLabel": "Agendamentos por dia",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# minuto} other {# minutos}}",
       "confirmTitle": "Marcar este agendamento como {status}?",
       "confirmBody": "O cliente não é avisado automaticamente. Você pode alterar o status novamente depois.",
+      "moreActions": "Ações para {name}",
       "status": {
         "scheduled": "Agendado",
         "confirmed": "Confirmado",

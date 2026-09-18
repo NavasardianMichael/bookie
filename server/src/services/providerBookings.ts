@@ -147,6 +147,52 @@ export function parseProviderBookingsQuery(providerId: string, query: RawQuery):
 }
 
 /**
+ * The other side of the same list: appointments this User booked *with another
+ * provider*. Search and `nameAsc` hit that provider's name, not the caller's —
+ * they already know who they are. Guest columns are unused here because a
+ * signed-in booking never writes them.
+ *
+ * The consumer id is **not** a query parameter. A missing Consumer row is an
+ * empty list in the route, not a create: this is a read, and `resolveConsumerId`
+ * already creates the row at book time.
+ */
+const matchesConsumerTerm = (term: string): Prisma.AppointmentWhereInput => ({
+  OR: [
+    { provider: { firstName: { contains: term, mode: 'insensitive' } } },
+    { provider: { lastName: { contains: term, mode: 'insensitive' } } },
+    { service: { name: { contains: term, mode: 'insensitive' } } },
+  ],
+})
+
+const CONSUMER_ORDER_BY: Record<ProviderBookingsSort, Prisma.AppointmentOrderByWithRelationInput[]> = {
+  startDesc: [{ startAt: 'desc' }],
+  startAsc: [{ startAt: 'asc' }],
+  createdDesc: [{ createdAt: 'desc' }],
+  nameAsc: [{ provider: { lastName: 'asc' } }, { provider: { firstName: 'asc' } }],
+}
+
+export function parseConsumerBookingsQuery(consumerId: string, query: RawQuery): ProviderBookingsQuery {
+  const terms = toSearchTerms(query.q)
+  const statuses = asStatuses(query.status)
+  const serviceId = asString(query.serviceId)
+  const from = asDate(query.from)
+  const to = asDate(query.to)
+
+  return {
+    where: {
+      consumerId,
+      ...(terms.length ? { AND: terms.map(matchesConsumerTerm) } : {}),
+      ...(statuses.length ? { status: { in: statuses } } : {}),
+      ...(serviceId ? { serviceId } : {}),
+      ...(from || to ? { startAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } } : {}),
+    },
+    orderBy: CONSUMER_ORDER_BY[asSort(query.sort)],
+    page: asPositiveInt(query.page, 1, Number.MAX_SAFE_INTEGER),
+    perPage: asPositiveInt(query.perPage, BOOKINGS_PAGE_SIZE, BOOKINGS_MAX_PAGE_SIZE),
+  }
+}
+
+/**
  * The UTC instants bounding one calendar month **as seen in `timeZone`**.
  *
  * `startAt` is stored in UTC but a provider reads their calendar in local time, so a

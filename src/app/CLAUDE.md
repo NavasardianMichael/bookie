@@ -82,11 +82,11 @@ shell would be two mental models for one workspace — not because they are sett
 
 | Tab | Route | Shape |
 |---|---|---|
-| Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list of every appointment booked with you. `GET /provider-profile/bookings` + `/calendar`. The old `/providers/profile/history` URL is a Route Handler that 307s here |
+| Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list of every appointment booked with you. `GET /provider-profile/bookings` + `/calendar`. The old `/providers/profile/history` URL is a Route Handler that 307s here. A header switch toggles `/providers/profile/consumer-bookings` — the same UI for appointments this provider booked as a client (`GET /provider-profile/consumer-bookings`). Not a second sidebar tab |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo` |
 
-Five decisions in there worth not undoing:
+Six decisions in there worth not undoing:
 
 1. **Bookings keeps its filter state in local component state, not the URL** — the opposite
    of Explore, and deliberately. Explore's grid is a Server Component, so its query has to
@@ -106,7 +106,13 @@ Five decisions in there worth not undoing:
    half-finished, and a title tag has no half-finished state. Running a drafted description
    beside a live address on one screen would be the confusing part, so the whole tab is one
    Save. See `docs/DATABASE_STRUCTURE.md`.
-5. **Bookings is a sibling sidebar route, not an Analytics subtab.** Charts stay on
+5. **The consumer-side list is a header switch, not a sidebar item.** A provider can book
+   someone else, and those rows must be visible, but they are the same Bookings surface
+   with a different `where`. A second nav item would be two mental models for one
+   workspace; `/providers/profile/consumer-bookings` is a sibling URL so the toggle can
+   be a real link, and `SettingsShell` aliases it onto the Bookings item so the tab
+   stays lit.
+6. **Bookings is a sibling sidebar route, not an Analytics subtab.** Charts stay on
    Analytics with the range control; the booking list lives at `/providers/profile/bookings`
    and is not filtered by that range. The calendar day-filter lives here, not on Analytics.
 

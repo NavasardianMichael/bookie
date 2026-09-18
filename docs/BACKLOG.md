@@ -36,21 +36,20 @@ limits inherited from that design:
   multiplies by the process count. Moving it to Redis or the proxy is the same piece of
   work `lib/rateLimit.ts` already flags for the contact form.
 
-### 3. A provider cannot see the bookings they *made*, only the ones they received
+### 3. ~~A provider cannot see the bookings they *made*, only the ones they received~~ — done 2026-09-18
 
-Narrowed on 2026-09-09. `/providers/profile/bookings` now shows a provider every
-appointment booked **with** them, so the original framing ("a provider's own bookings are
-invisible") no longer holds. What is left is the other side of the same `where`:
+`/providers/profile/bookings` lists appointments booked **with** the provider.
+`/providers/profile/consumer-bookings` lists the ones they booked as a client. The
+header switch toggles them; there is no second sidebar tab. Both reads live on
+`providerProfileRouter` (`GET /provider-profile/bookings` and
+`/consumer-bookings`). The consumer-side pair looks up the User's Consumer row and
+answers empty if there is none — it does not create one. `PATCH /appointments/:id`
+treats that same Consumer row as ownership, and only allows cancel from
+scheduled/confirmed when the caller is acting as the client.
 
-`GET /appointments` still picks its filter off `session.role` alone — provider →
-`providerId`, consumer → `consumerId`. A provider who books *another* provider gets a real
-`Consumer` profile on their `User` and a properly linked appointment, but their session
-role is still `provider`, so that booking appears in no list they can open. The new
-workspace endpoint does not help: it is scoped to `providerId` by design.
-
-The data is correct and reachable; only the read path is one-sided. Fixing it means either
-returning both sides when a `User` has both profiles, or a role switch in the UI — neither
-is a one-liner, because the consumer and provider appointment views render differently.
+`GET /appointments` still picks its filter off `session.role` alone. That is now
+fine: the workspace has its own paged reads, and that route still answers "what is
+coming up" for whichever role the session is.
 
 ### 4. `tsc -p server` does not catch a wrong Prisma field name
 

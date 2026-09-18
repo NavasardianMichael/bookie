@@ -432,8 +432,15 @@
       "cta": "Support kontaktieren"
     },
     "bookings": {
-      "title": "Buchungen",
+      "title": "Buchungen als Anbieter",
       "subtitle": "Alle bei Ihnen gebuchten Termine, vergangene und bevorstehende.",
+      "asConsumerTitle": "Buchungen als Kunde",
+      "asConsumerSubtitle": "Jeder Termin, den Sie bei einem anderen Anbieter gebucht haben, vergangen und bevorstehend.",
+      "switchToConsumer": "Zu Buchungen als Kunde wechseln",
+      "switchToProvider": "Zu Buchungen als Anbieter wechseln",
+      "emptyAsConsumerTitle": "Noch keine eigenen Buchungen",
+      "emptyAsConsumerBody": "Wenn Sie einen anderen Anbieter buchen, erscheinen diese Termine hier.",
+      "confirmBodyAsConsumer": "Damit wird der Termin storniert. Sie können nur stornieren, solange er noch bevorsteht.",
       "calendarHint": "Wählen Sie einen Tag, um zu sehen, wer gebucht hat.",
       "calendarFiltered": "Ein Tag angezeigt. Wählen Sie ihn erneut, um alle zu sehen.",
       "calendarLabel": "Buchungen nach Tag",
@@ -471,6 +478,7 @@
       "minutes": "{count, plural, one {# Minute} other {# Minuten}}",
       "confirmTitle": "Diese Buchung als {status} markieren?",
       "confirmBody": "Der Kunde wird nicht automatisch benachrichtigt. Sie können den Status später wieder ändern.",
+      "moreActions": "Aktionen für {name}",
       "status": {
         "scheduled": "Geplant",
         "confirmed": "Bestätigt",

@@ -98,12 +98,14 @@ export type ProviderBookingsSort = (typeof PROVIDER_BOOKINGS_SORTS)[number]
  * can label a guest without inferring it from a missing id.
  */
 export type BookingBooker = {
-  kind: 'consumer' | 'guest'
+  /** `provider` is the other professional, on the consumer-side workspace list. */
+  kind: 'consumer' | 'guest' | 'provider'
   id?: string
   firstName: string
   lastName: string
   email?: string
-  phone: PhoneNumber
+  /** Present on the receiving-provider list; omitted when the row is the other provider. */
+  phone?: PhoneNumber
 }
 
 export type ProviderBooking = {
@@ -165,6 +167,10 @@ export type GetProviderBookingsCalendarAPI = Endpoint<{
   response: ProviderBookingsCalendarResponse
   processed: ProviderBookingsCalendarResponse['days']
 }>
+
+/** Same envelope as the receiving-provider list; a different `where`. */
+export type GetProviderConsumerBookingsAPI = GetProviderBookingsAPI
+export type GetProviderConsumerBookingsCalendarAPI = GetProviderBookingsCalendarAPI
 
 export type PatchAppointmentStatusAPI = Endpoint<{
   payload: { id: string; status: BookingStatus }

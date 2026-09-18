@@ -366,6 +366,58 @@ export const providerBookingInclude = {
 } as const
 
 /**
+ * The caller is the consumer on these rows, so the *other* provider is who the
+ * row names. Phone and email stay off this payload on purpose — those belong
+ * on `mapProviderBooking` for the provider's own client list, not here.
+ */
+type BookingWithProvider = {
+  id: string
+  startAt: Date
+  endAt: Date
+  durationMinutes: number
+  status: string
+  notes: string | null
+  paymentMethods: string[]
+  price: Prisma.Decimal | null
+  currency: string | null
+  createdAt: Date
+  serviceId: string
+  service: { id: string; name: string } | null
+  provider: { id: string; firstName: string; lastName: string }
+}
+
+export function mapConsumerSideBooking(booking: BookingWithProvider) {
+  return {
+    id: booking.id,
+    time: {
+      startDate: booking.startAt.toISOString(),
+      endDate: booking.endAt.toISOString(),
+      duration: booking.durationMinutes,
+    },
+    status: booking.status,
+    notes: booking.notes ?? undefined,
+    paymentMethods: booking.paymentMethods,
+    price: booking.price ? Number(booking.price) : undefined,
+    currency: booking.currency ?? undefined,
+    createdAt: booking.createdAt.toISOString(),
+    service: booking.service
+      ? { id: booking.service.id, name: booking.service.name }
+      : { id: booking.serviceId, name: '' },
+    booker: {
+      kind: 'provider' as const,
+      id: booking.provider.id,
+      firstName: booking.provider.firstName,
+      lastName: booking.provider.lastName,
+    },
+  }
+}
+
+export const consumerSideBookingInclude = {
+  service: { select: { id: true, name: true } },
+  provider: { select: { id: true, firstName: true, lastName: true } },
+} as const
+
+/**
  * For the **public** provider payloads.
  *
  * `user` is deliberately absent: phone is on the Provider row now, and the only thing left

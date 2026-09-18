@@ -147,6 +147,25 @@ const resolveConsumerId = async (session: SessionPayload): Promise<string> => {
   return created.id
 }
 
+/**
+ * True when this session is the consumer on the appointment. A provider who booked
+ * someone else holds a Consumer row on the same User; we look that up rather than
+ * creating one — a PATCH must not mint a profile just to decide ownership.
+ */
+const isAppointmentConsumer = async (
+  session: SessionPayload,
+  appointment: { consumerId: string | null }
+): Promise<boolean> => {
+  if (!appointment.consumerId) return false
+  if (session.role === 'consumer') return appointment.consumerId === session.profileId
+
+  const consumer = await prisma.consumer.findUnique({
+    where: { userId: session.userId },
+    select: { id: true },
+  })
+  return consumer?.id === appointment.consumerId
+}
+
 /** Guest contact details, or undefined when the booking names a real Consumer. */
 const mapGuest = (appointment: {
   guestFirstName: string | null
@@ -556,11 +575,11 @@ appointmentsRouter.patch(
     const appointment = await prisma.appointment.findUnique({ where: { id: req.params.id } })
     if (!appointment) throw new HttpError(404, 'Appointment not found', 404)
 
-    const isOwner =
-      (req.session!.role === 'consumer' && appointment.consumerId === req.session!.profileId) ||
-      (req.session!.role === 'provider' && appointment.providerId === req.session!.profileId)
+    const session = req.session!
+    const isProviderOwner = session.role === 'provider' && appointment.providerId === session.profileId
+    const isConsumerOwner = await isAppointmentConsumer(session, appointment)
 
-    if (!isOwner) throw new HttpError(403, 'Forbidden', 403)
+    if (!isProviderOwner && !isConsumerOwner) throw new HttpError(403, 'Forbidden', 403)
 
     // Narrowed against the enum rather than passed through. It used to reach Prisma
     // unchecked, which only stayed harmless while the sole caller sent nothing at all
@@ -569,6 +588,18 @@ appointmentsRouter.patch(
     const requested = req.body?.status ?? 'cancelled'
     if (!isBookingStatus(requested)) {
       throw new HttpError(400, `status must be one of: ${BOOKING_STATUSES.join(', ')}`, 400)
+    }
+
+    // Acting as the client, not the provider who received the booking: cancel only,
+    // and only while the slot is still upcoming. Confirm / complete / no-show are
+    // the receiving provider's verbs.
+    if (isConsumerOwner && !isProviderOwner) {
+      if (requested !== 'cancelled') {
+        throw new HttpError(400, 'A client can only cancel a booking', 400)
+      }
+      if (appointment.status !== 'scheduled' && appointment.status !== 'confirmed') {
+        throw new HttpError(409, 'This booking can no longer be changed', 409)
+      }
     }
 
     const updated = await prisma.appointment.update({
