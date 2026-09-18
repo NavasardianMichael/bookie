@@ -314,6 +314,14 @@ sudo systemctl restart bookie-web                     # same shape for api
   is therefore on only while that URL is loopback, and stays off in production. Put them
   in repository Secrets *or* Variables — not one of each under the assumption they merge.
   The web build job coalesces `secrets.* || vars.*` and refuses to ship a localhost origin.
+- **Cloudflare Universal SSL does not cover `api.bookie.mnavasardian.com`.** The zone is
+  `mnavasardian.com`, so the free cert is the apex plus one label (`bookie.mnavasardian.com`).
+  `api.bookie…` is two labels; Chrome then reports `ERR_SSL_VERSION_OR_CIPHER_MISMATCH` on
+  every API call, and `www.bookie…` fails the same way. Cover it with Total TLS / an
+  Advanced Certificate, or grey-cloud that record and terminate TLS on origin nginx as
+  these templates assume. HTTP through Cloudflare returning **523** is a separate check:
+  the `api` DNS record's origin IP must be the VPS, and the API vhost must be enabled
+  with its own Let's Encrypt cert (`docs` step 6).
 - **Never put `proxy_cache` on the web host.** `src/proxy.ts` answers unprefixed and guarded
   requests with personalised 307s carrying `Vary: Accept-Language, Cookie` and
   `Cache-Control: no-store`. Caching them pins one visitor's language onto everyone.
