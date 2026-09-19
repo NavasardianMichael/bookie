@@ -15,9 +15,18 @@ flip → `systemctl restart` → health check.
                                           127.0.0.1:5004  Postgres (Docker)
 ```
 
-Two origins, not one. The `bookie_session` cookie is host-only on the API origin,
-`CORS_ORIGIN` names the web origin, and `GOOGLE_REDIRECT_URI` must point at the API host —
-that is why the callback can set the cookie at all.
+Two origins, not one, and that is the single fact most of the auth configuration exists to
+cope with. `GOOGLE_REDIRECT_URI` must point at the **API** host, because only the API holds
+`JWT_SECRET` and so only it can mint `bookie_session`. `CORS_ORIGIN` names the **web**
+origin — and in production its hostname is also what the API puts in the cookie's `Domain`,
+so that the cookie the API sets is visible to the web host as well.
+
+That last part is not decoration. `src/proxy.ts` gates every signed-in route on the web host
+by checking `bookie_session` is present, and Server Components forward request cookies to
+the API. Locally both halves are `localhost` and a host-only cookie reaches both; in
+production they are different hosts and it reaches neither. Get it wrong and sign-in
+succeeds, the API stays healthy, and the first click on a guarded route 307s back to the
+sign-in page. See `server/CLAUDE.md` and `config.cookieDomain`.
 
 On-host layout:
 
@@ -150,7 +159,7 @@ unrelated to each other:
 
 |                       | must equal                                                                                                                        |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `CORS_ORIGIN`         | the `NEXT_PUBLIC_SITE_URL` value — `requireSameOrigin` compares them                                                              |
+| `CORS_ORIGIN`         | the `NEXT_PUBLIC_SITE_URL` value — `requireSameOrigin` compares them, and its hostname becomes the session cookie's `Domain`       |
 | `GOOGLE_REDIRECT_URI` | an Authorized redirect URI on the Google client, on the `api.` host                                                               |
 | `NEXT_PUBLIC_API_URL` | the API origin — `next.config.ts` derives `images.remotePatterns` from it, so a wrong value silently breaks every uploaded avatar |
 

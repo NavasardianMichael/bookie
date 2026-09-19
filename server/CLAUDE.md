@@ -13,9 +13,9 @@ server/
     services/     appointments + availability logic, Explore's provider query
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
-    lib/          api-response, auth-notices, booking-mail, email-verify, google-oauth, mail,
-                  oauth-state, password, password-reset, payment, prisma, rateLimit, request,
-                  return-path, review-mail, session, token
+    lib/          api-response, auth-notices, booking-mail, cookie-domain, email-verify,
+                  google-oauth, mail, oauth-state, password, password-reset, payment, prisma,
+                  rateLimit, request, return-path, review-mail, session, token
 ```
 
 ## The response envelope is non-negotiable
@@ -49,6 +49,35 @@ The frontend's `Endpoint<>` contract in `src/interfaces/api.ts` depends on this 
   makes the CLI skip its implicit env loading ("Prisma config detected, skipping
   environment variable loading"), which is why the file imports `dotenv/config` itself.
   Remove that import and `prisma migrate deploy` runs with no `DATABASE_URL`.
+
+## The session cookie has to reach the *web* host too
+
+Production serves the two halves from different hosts — `bookie.<domain>` and
+`api.bookie.<domain>` — while local dev serves both from `localhost`, where `:7004` and
+`:9004` differ only by a port and cookies ignore ports.
+
+So a **host-only cookie is same-host in dev and cross-host in production**, and this one is
+not only read by the API. `src/proxy.ts` guards every signed-in route on the web host by
+checking `bookie_session` is merely *present*; Server Components forward the request's
+cookies to the API (`app/[lang]/providers/[providerId]/page.tsx`). Both live on
+`bookie.<domain>` and see nothing without a `Domain`.
+
+That shipped: sign-in succeeded, the client believed it held a session because its XHRs to
+`api.` did carry the cookie, and the first navigation to a guarded route 307'd back to
+sign-in. Nothing reproduced locally and the API was healthy throughout.
+
+`lib/session.ts` therefore sets `Domain` from `config.cookieDomain`, which defaults in
+production to **`CORS_ORIGIN`'s hostname** — the web host, which covers its own subdomains
+and so covers the API. Two things follow:
+
+- **Do not widen it to the bare registrable domain.** `.mnavasardian.com` would put this
+  session JWT on every request to every sibling app, `api-mail-engine` included.
+- **`clearSessionCookie` must keep repeating the set attributes.** A browser overwrites a
+  cookie only when name, path *and domain* all match, so a logout that forgets `Domain`
+  leaves the session alive. The options are factored into one function for this reason.
+
+The Google OAuth cookies (`bookie_oauth`, `bookie_oauth_pending`) stay host-only on
+purpose: they are set and read by this API alone, within `/identity/google`.
 
 ## Email goes through the mail engine, and only from here
 

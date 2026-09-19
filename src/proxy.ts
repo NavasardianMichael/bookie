@@ -27,6 +27,14 @@ import { ROUTES } from '@constants/routes'
  *    form that will fail on submit. The cookie is httpOnly, so this is the only place in
  *    the frontend that can see it at all.
  *
+ *    **This runs on the web host, and the cookie is minted by the API on another one** —
+ *    `bookie.<domain>` vs `api.bookie.<domain>` in production, both `localhost` in dev.
+ *    A host-only cookie is therefore invisible here in production and only there, which
+ *    turned this guard into an infinite bounce to sign-in for users who *were* signed in.
+ *    The API sets `Domain` to the web host (`config.cookieDomain`, defaulted from
+ *    `CORS_ORIGIN`) so both hosts see it — see `server/CLAUDE.md`. Anything added here
+ *    that reads a cookie set by the API depends on that.
+ *
  * 3. **Hand off to next-intl**, which validates the prefix and keeps its locale cookie in
  *    step with the URL.
  */

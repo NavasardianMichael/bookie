@@ -61,10 +61,32 @@ const sessionCookieOptions = () => ({
   sameSite: 'lax' as const,
   secure: config.nodeEnv === 'production',
   path: '/',
+  // Omitted entirely when unset, rather than passed as '': Express forwards the empty
+  // string through to `Domain=`, which is not the same thing as a host-only cookie.
+  // `config.cookieDomain` explains why production needs one at all.
+  ...(config.cookieDomain ? { domain: config.cookieDomain } : {}),
 })
+
+/**
+ * A browser keys a cookie on name + path + **domain**, so the host-only cookie this API set
+ * before `cookieDomain` existed is a *different* cookie from the domain-scoped one that
+ * replaces it — setting the new one does not overwrite the old, and both are then sent to
+ * this host under the same name, where the parser keeps whichever comes first.
+ *
+ * Every session write therefore expires the host-only variant alongside. It matters most at
+ * sign-out: without it, a user holding a pre-upgrade cookie would clear the new one, keep
+ * the old one, and stay authenticated against the API. Dead code once no pre-upgrade cookie
+ * is still alive — they last 7 days — but harmless to keep, and cheaper than reasoning
+ * about whether any remain.
+ */
+const expireHostOnlySessionCookie = (res: Response) => {
+  if (!config.cookieDomain) return
+  res.clearCookie(config.cookieName, { ...sessionCookieOptions(), domain: undefined })
+}
 
 export function setSessionCookie(res: Response, payload: SessionPayload) {
   const token = signSession(payload)
+  expireHostOnlySessionCookie(res)
   res.cookie(config.cookieName, token, {
     ...sessionCookieOptions(),
     maxAge: COOKIE_MAX_AGE_MS,
@@ -81,4 +103,5 @@ export function setSessionCookie(res: Response, payload: SessionPayload) {
  */
 export function clearSessionCookie(res: Response) {
   res.clearCookie(config.cookieName, sessionCookieOptions())
+  expireHostOnlySessionCookie(res)
 }

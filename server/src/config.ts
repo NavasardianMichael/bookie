@@ -1,9 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { deriveCookieDomain } from './lib/cookie-domain.js'
 
 import './load-env.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const nodeEnv = process.env.NODE_ENV ?? 'development'
+const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:7004'
 
 export const config = {
   port: Number(process.env.PORT ?? 9004),
@@ -13,10 +17,37 @@ export const config = {
    */
   host: process.env.HOST ?? '0.0.0.0',
   jwtSecret: process.env.JWT_SECRET ?? 'dev-secret-change-me',
-  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:7004',
+  corsOrigin,
   uploadDir: path.resolve(process.env.UPLOAD_DIR ?? path.join(__dirname, '../uploads')),
-  nodeEnv: process.env.NODE_ENV ?? 'development',
+  nodeEnv,
   cookieName: 'bookie_session',
+  /**
+   * `Domain` on the session cookie. **Empty means host-only**, which is what a browser does
+   * by default and what local dev wants.
+   *
+   * It exists because the two halves of this app are served from different hosts in
+   * production — `bookie.<domain>` and `api.bookie.<domain>` — while local dev runs both on
+   * `localhost`, and cookies ignore the port. So a host-only cookie set by the API is
+   * visible to the web app locally and invisible to it in production. `src/proxy.ts` guards
+   * every signed-in route on the *web* host by checking this cookie is present, so in
+   * production it sent every signed-in user straight back to sign-in. Nothing reproduced in
+   * dev, and the API itself was fine throughout — the browser's XHRs to `api.` did carry the
+   * cookie, so the client believed it held a session right up until it navigated.
+   *
+   * It is the **web** host, not this one: `bookie.<domain>` covers itself and every
+   * subdomain, which is exactly `api.bookie.<domain>` and nothing else. The bare registrable
+   * domain would also hand this session JWT to every unrelated app on a sibling subdomain —
+   * which is why this is not simply `.<domain>`.
+   *
+   * Derived from `CORS_ORIGIN` rather than demanded as its own variable, because this is
+   * the one setting whose absence is invisible: a missing `Domain` is a perfectly valid
+   * host-only cookie and the API notices nothing. Requiring an operator to add a variable
+   * they have never heard of would simply reproduce the outage on the next environment.
+   * `COOKIE_DOMAIN` overrides it, for a topology where the API is **not** a subdomain of the
+   * web host — a browser silently drops a `Domain` the setting host does not belong to, so
+   * that case has to be stated rather than guessed. See `lib/cookie-domain.ts`.
+   */
+  cookieDomain: process.env.COOKIE_DOMAIN ?? deriveCookieDomain(nodeEnv, corsOrigin),
   /** Cookie holding an in-flight Google OAuth flow. Scoped to `/identity/google`. */
   oauthCookieName: 'bookie_oauth',
   /** Cookie holding a verified Google identity awaiting its phone number. */
@@ -71,8 +102,9 @@ export const config = {
    * Empty values disable the flow rather than throwing — the same bargain `mail` makes, so
    * a fresh clone starts and the Google button is simply unavailable.
    *
-   * `redirectUri` points at the **API**, not the web app: the session cookie is host-only
-   * on the API origin, so the callback has to land there to be able to set it.
+   * `redirectUri` points at the **API**, not the web app: only this process holds
+   * `jwtSecret`, so only it can mint the session cookie, so the callback has to land here.
+   * How far that cookie then reaches is `cookieDomain`'s job, not this one's.
    */
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID ?? '',
