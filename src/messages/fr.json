@@ -119,6 +119,8 @@
       "requestNew": "Demander un nouveau lien"
     },
     "verifyEmail": {
+      "sentTitle": "Consultez votre boîte de réception",
+      "sentBody": "Nous avons envoyé un lien de confirmation à votre adresse e-mail. Ouvrez-le pour activer votre compte. S’il n’arrive pas dans quelques minutes, vérifiez vos spams.",
       "verifying": "Confirmation de votre e-mail…",
       "doneTitle": "E-mail confirmé",
       "doneBody": "Votre compte est prêt. Connectez-vous pour commencer.",

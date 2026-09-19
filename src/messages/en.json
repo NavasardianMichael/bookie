@@ -119,6 +119,8 @@
       "requestNew": "Request a new link"
     },
     "verifyEmail": {
+      "sentTitle": "Check your inbox",
+      "sentBody": "We have sent a confirmation link to your email address. Open it to activate your account. If it has not arrived in a few minutes, check your spam folder.",
       "verifying": "Confirming your email…",
       "doneTitle": "Email confirmed",
       "doneBody": "Your account is ready. Sign in to get started.",

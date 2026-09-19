@@ -161,6 +161,28 @@ verified from the CLI — which is why they are **baselined**, not deleted: they
 gate. Fixing them means moving the value into an antd token (`src/styles/CLAUDE.md`) and
 checking each of the three screens in a browser.
 
+### 12. The password-reset link's param name is held only by inspection
+
+Found 2026-09-19 while fixing the signup-verification equivalent, which had actually
+broken: the server minted `?verifyEmail=` and `app/[lang]/auth/verify-email/page.tsx` read
+`?token=`, so every confirmation link landed tokenless and the page reported a valid link
+as expired. Nothing failed — the param is a string on both sides, in two packages with no
+shared type, so it typechecks, lints and builds.
+
+That pair is now pinned: `buildEmailVerifyUrl` and `EMAIL_VERIFY_QUERY` moved into the
+dependency-free `lib/return-path.ts`, and `tests/unit/server/returnPath.spec.ts` asserts the
+server constant equals `EMAIL_VERIFY_QUERY` in `src/constants/auth.ts`.
+
+`buildPasswordResetUrl` is not. `lib/password-reset.ts` imports config, Prisma and the mail
+client, so `tests/unit/server/` cannot reach `PASSWORD_RESET_QUERY` — the reset link and
+`TOKEN_QUERY` agree today only because someone checked. Fixing it is the same move: lift
+`PASSWORD_RESET_QUERY` and `buildPasswordResetUrl` into `lib/return-path.ts`, re-export them
+from `lib/password-reset.ts` so call sites are untouched, and add the equality assertion
+next to the verification one. Not done here to keep a production fix narrow.
+
+No `KNOWN BUG:` test accompanies this one: the behaviour is currently *correct*, and a test
+asserting the two constants match is the fix rather than a record of a defect.
+
 ---
 
 ## Cleanup

@@ -20,6 +20,13 @@ path. Only a server module with no imports of its own is reachable this way: any
 pulling in `../config.js` needs env stubbing and does not belong here. `lib/rateLimit.ts`
 qualifies and is tested; `lib/mail.ts` does not.
 
+One deliberate exception: `returnPath.spec.ts` also imports `@constants/auth` by alias, to
+assert the server's `EMAIL_VERIFY_QUERY` equals the web constant that the verification page
+reads links with. That cross-package pin is the *point* of the test — the two halves of an
+emailed link have no shared type, and when they disagreed the only symptom was a valid link
+reported as expired (see `server/CLAUDE.md`). Reach across like this when a test's subject
+is an agreement between the packages, not merely for convenience.
+
 ```bash
 pnpm test         # unit + integration — fast, no external dependencies
 pnpm test:watch

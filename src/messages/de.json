@@ -119,6 +119,8 @@
       "requestNew": "Neuen Link anfordern"
     },
     "verifyEmail": {
+      "sentTitle": "Prüfen Sie Ihren Posteingang",
+      "sentBody": "Wir haben einen Bestätigungslink an Ihre E-Mail-Adresse gesendet. Öffnen Sie ihn, um Ihr Konto zu aktivieren. Sollte er nicht innerhalb weniger Minuten ankommen, prüfen Sie den Spam-Ordner.",
       "verifying": "E-Mail wird bestätigt …",
       "doneTitle": "E-Mail bestätigt",
       "doneBody": "Ihr Konto ist bereit. Melden Sie sich an, um loszulegen.",

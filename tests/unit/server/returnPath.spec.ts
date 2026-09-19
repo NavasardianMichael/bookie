@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest'
+// The one aliased import here, and the point of the last describe block: the web constant is
+// the *consumer* of what this module mints, and only a test that holds both can catch them
+// drifting apart.
+import { EMAIL_VERIFY_QUERY as WEB_EMAIL_VERIFY_QUERY } from '@constants/auth'
 // Relative, not aliased: `server/` is a separate package. This module imports only
 // `lib/request.ts`, which imports nothing — which is what keeps it reachable here at all,
 // and is the stated reason it was split out of `lib/email-verify.ts`.
 import {
   asVerifyLocale,
+  buildEmailVerifyUrl,
   DEFAULT_VERIFY_LOCALE,
+  EMAIL_VERIFY_QUERY,
   isAllowedEmailVerifyReturnPath,
   isAllowedPublicReturnPath,
   splitLocalePath,
@@ -157,5 +163,50 @@ describe('asVerifyLocale', () => {
     ['an object', { locale: 'en' }],
   ])('falls back to the default for %s', (_label, input) => {
     expect(asVerifyLocale(input)).toBe(DEFAULT_VERIFY_LOCALE)
+  })
+})
+
+/**
+ * The link builder, and the contract it has with the page that reads the link.
+ *
+ * This block exists because the contract broke in production and nothing failed: the server
+ * minted `?verifyEmail=`, `src/app/[lang]/auth/verify-email/page.tsx` read `?token=`, and so
+ * every confirmation link arrived tokenless. Both sides typechecked, both had tests, and the
+ * page answered a valid link with "we could not confirm this email" — the failure mode of a
+ * mismatch is indistinguishable from an expired token, which is what made it survive.
+ */
+describe('buildEmailVerifyUrl', () => {
+  const ORIGIN = 'https://bookie.example.com'
+  const TOKEN = 'a-token'
+
+  it('puts the token on the return path under the agreed param', () => {
+    expect(buildEmailVerifyUrl(ORIGIN, '/en/auth/verify-email', TOKEN)).toBe(
+      `${ORIGIN}/en/auth/verify-email?${EMAIL_VERIFY_QUERY}=${TOKEN}`,
+    )
+  })
+
+  // The signup link and the change-email link are built by this one function, so the param
+  // is the same on both and the two reading pages cannot diverge from each other.
+  it('uses the same param for the change-email return path', () => {
+    expect(buildEmailVerifyUrl(ORIGIN, '/fr/providers/profile', TOKEN)).toBe(
+      `${ORIGIN}/fr/providers/profile?${EMAIL_VERIFY_QUERY}=${TOKEN}`,
+    )
+  })
+
+  it('tolerates a trailing slash on the origin rather than swallowing the path', () => {
+    expect(buildEmailVerifyUrl(`${ORIGIN}/`, '/en/auth/verify-email', TOKEN)).toBe(
+      `${ORIGIN}/en/auth/verify-email?${EMAIL_VERIFY_QUERY}=${TOKEN}`,
+    )
+  })
+
+  it('percent-encodes the token instead of emitting it raw', () => {
+    const url = new URL(buildEmailVerifyUrl(ORIGIN, '/en/auth/verify-email', 'a b&c=d'))
+    expect(url.searchParams.get(EMAIL_VERIFY_QUERY)).toBe('a b&c=d')
+  })
+
+  // The assertion that would have caught the outage. Renaming either constant alone fails
+  // here rather than in a user's inbox.
+  it('mints the param name the web app reads', () => {
+    expect(EMAIL_VERIFY_QUERY).toBe(WEB_EMAIL_VERIFY_QUERY)
   })
 })

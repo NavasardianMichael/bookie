@@ -119,6 +119,8 @@
       "requestNew": "Minta tautan baru"
     },
     "verifyEmail": {
+      "sentTitle": "Periksa kotak masuk Anda",
+      "sentBody": "Kami telah mengirim tautan konfirmasi ke alamat email Anda. Buka tautan tersebut untuk mengaktifkan akun Anda. Jika belum tiba dalam beberapa menit, periksa folder spam.",
       "verifying": "Mengonfirmasi email Anda…",
       "doneTitle": "Email dikonfirmasi",
       "doneBody": "Akun Anda siap. Masuk untuk memulai.",

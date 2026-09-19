@@ -3,9 +3,6 @@ import { prisma } from './prisma.js'
 import { hashUrlToken, mintUrlToken, urlTokensMatch } from './token.js'
 import { config } from '../config.js'
 
-/** Query param the verification link puts on the account profile URL. */
-export const EMAIL_VERIFY_QUERY = 'verifyEmail'
-
 /**
  * The token machinery now lives in `lib/token.ts` so the password-reset flow shares one
  * implementation rather than growing a second, subtly different one. Re-exported under the
@@ -16,19 +13,18 @@ export const hashEmailVerifyToken = hashUrlToken
 export const emailVerifyTokensMatch = urlTokensMatch
 
 /**
- * The return-path allowlist moved to `lib/return-path.ts` — this file imports config,
+ * The return-path allowlist and the link builder moved to `lib/return-path.ts` — this file imports config,
  * Prisma and the mail client, which put the open-redirect guards out of reach of
  * `tests/unit/server/`.
  */
-export { isAllowedEmailVerifyReturnPath, isAllowedPublicReturnPath } from './return-path.js'
+export {
+  buildEmailVerifyUrl,
+  EMAIL_VERIFY_QUERY,
+  isAllowedEmailVerifyReturnPath,
+  isAllowedPublicReturnPath,
+} from './return-path.js'
 
 const emailVerifyExpiry = (): Date => new Date(Date.now() + config.emailVerifyTtlMs)
-
-export const buildEmailVerifyUrl = (origin: string, returnPath: string, token: string): string => {
-  const url = new URL(returnPath, origin.endsWith('/') ? origin : `${origin}/`)
-  url.searchParams.set(EMAIL_VERIFY_QUERY, token)
-  return url.toString()
-}
 
 /**
  * Stores the pending address and a hash of the one-time link token. Returns the

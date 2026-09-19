@@ -119,6 +119,8 @@
       "requestNew": "Poproś o nowy link"
     },
     "verifyEmail": {
+      "sentTitle": "Sprawdź swoją skrzynkę",
+      "sentBody": "Wysłaliśmy link potwierdzający na Twój adres e-mail. Otwórz go, aby aktywować konto. Jeśli nie dotrze w ciągu kilku minut, sprawdź folder spam.",
       "verifying": "Potwierdzamy Twój e-mail…",
       "doneTitle": "E-mail potwierdzony",
       "doneBody": "Twoje konto jest gotowe. Zaloguj się, aby zacząć.",

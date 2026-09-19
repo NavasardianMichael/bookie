@@ -119,6 +119,8 @@
       "requestNew": "Richiedi un nuovo link"
     },
     "verifyEmail": {
+      "sentTitle": "Controlla la tua casella di posta",
+      "sentBody": "Abbiamo inviato un link di conferma al tuo indirizzo email. Aprilo per attivare il tuo account. Se non arriva entro pochi minuti, controlla la cartella spam.",
       "verifying": "Conferma dell’email in corso…",
       "doneTitle": "Email confermata",
       "doneBody": "Il tuo account è pronto. Accedi per iniziare.",

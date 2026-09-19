@@ -20,12 +20,22 @@ export const SIGN_ON_STEPS = {
   completeRegistration: 'completeRegistration',
 } as const
 
-/** Query param the email-verification link puts on the account profile URL. */
+/**
+ * Query param carrying the one-time token on **every** email-verification link the API
+ * mails — the signup link landing on `/auth/verify-email` and the change-email link
+ * landing on the account profile alike.
+ *
+ * Mirrors `EMAIL_VERIFY_QUERY` in `server/src/lib/return-path.ts`, which is what mints it.
+ * The two are pinned together by `tests/unit/server/returnPath.spec.ts`: a rename on one
+ * side alone is silent — the page reads `undefined` and reports a perfectly good link as
+ * expired.
+ */
 export const EMAIL_VERIFY_QUERY = 'verifyEmail'
 
 /**
- * Query param carrying the one-time token on the links this app mails — signup
- * verification and password reset both read it.
+ * Query param carrying the one-time token on the **password-reset** link. Verification uses
+ * `EMAIL_VERIFY_QUERY` instead — the two flows mint different names, so read the one that
+ * matches the link rather than assuming a shared spelling.
  */
 export const TOKEN_QUERY = 'token'
 

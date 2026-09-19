@@ -96,3 +96,24 @@ export const asVerifyLocale = (value: unknown): string => {
   const trimmed = asTrimmedString(value)
   return trimmed && VERIFY_LOCALES.has(trimmed) ? trimmed : DEFAULT_VERIFY_LOCALE
 }
+
+/**
+ * Query param **every** link this server mints for email verification carries — the signup
+ * link that lands on `/{locale}/auth/verify-email` and the change-email link that lands on
+ * the caller's own profile alike. One name for one token: the page reading it mirrors this
+ * as `EMAIL_VERIFY_QUERY` in `src/constants/auth.ts`, and `tests/unit/server/returnPath.spec.ts`
+ * pins the two together, because a rename on one side alone fails silently — the page simply
+ * reads `undefined` and tells the visitor their link expired.
+ */
+export const EMAIL_VERIFY_QUERY = 'verifyEmail'
+
+/**
+ * Composes the emailed link. Lives here rather than in `lib/email-verify.ts` for the same
+ * reason the guards above do: that module imports config, Prisma and the mail client, which
+ * would put this out of reach of `tests/unit/server/`.
+ */
+export const buildEmailVerifyUrl = (origin: string, returnPath: string, token: string): string => {
+  const url = new URL(returnPath, origin.endsWith('/') ? origin : `${origin}/`)
+  url.searchParams.set(EMAIL_VERIFY_QUERY, token)
+  return url.toString()
+}

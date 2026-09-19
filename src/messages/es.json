@@ -119,6 +119,8 @@
       "requestNew": "Solicitar un enlace nuevo"
     },
     "verifyEmail": {
+      "sentTitle": "Revisa tu bandeja de entrada",
+      "sentBody": "Hemos enviado un enlace de confirmación a tu correo electrónico. Ábrelo para activar tu cuenta. Si no llega en unos minutos, revisa la carpeta de spam.",
       "verifying": "Confirmando tu correo…",
       "doneTitle": "Correo confirmado",
       "doneBody": "Tu cuenta está lista. Inicia sesión para empezar.",

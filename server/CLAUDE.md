@@ -13,7 +13,9 @@ server/
     services/     appointments + availability logic, Explore's provider query
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
-    lib/          api-response, booking-mail, email-verify, mail, password, prisma, rateLimit, request, session, token
+    lib/          api-response, auth-notices, booking-mail, email-verify, google-oauth, mail,
+                  oauth-state, password, password-reset, payment, prisma, rateLimit, request,
+                  return-path, review-mail, session, token
 ```
 
 ## The response envelope is non-negotiable
@@ -99,6 +101,37 @@ Two consequences follow, and both are the opposite of `contact.ts`:
   authenticated, so there is a stable identity to count against — and that identity is
   exactly what is being abused when someone tries to bury a page's reviews under reports.
   An IP key would let one provider spend everyone else's budget from a shared network.
+
+## An emailed link has a reader, and the param name is the contract
+
+Every link this server mails is consumed by a page in `src/app/`, and the two halves live in
+different packages with no shared type between them. Nothing catches a disagreement: the
+query param is a string on one side and a string on the other, so a mismatch typechecks,
+lints, builds, and reaches the inbox — where the page reads `undefined` and tells the
+visitor their link expired. That shipped once, on signup verification.
+
+So: **mint the param from `lib/return-path.ts` and read it from `src/constants/auth.ts`, and
+keep the pair pinned by a test.**
+
+| Link | Minted by | Param | Read by |
+|---|---|---|---|
+| Signup verification | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `app/[lang]/auth/verify-email` |
+| Email change | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `app/[lang]/{providers,consumers}/profile` |
+| Password reset | `buildPasswordResetUrl` | `PASSWORD_RESET_QUERY` (`token`) | `app/[lang]/auth/reset-password` |
+
+The two names are **not** interchangeable, which is the trap — reaching for `TOKEN_QUERY` on a
+verification page is the exact bug above.
+
+`buildEmailVerifyUrl` and `EMAIL_VERIFY_QUERY` were moved into `lib/return-path.ts` (and are
+re-exported from `lib/email-verify.ts`, so call sites did not change) for one reason: that
+module imports nothing but `lib/request.ts`, which makes it the only half of the pair a test
+can reach. `tests/unit/server/returnPath.spec.ts` imports the server constant and the web one
+side by side and asserts they are equal, so renaming either alone now fails there.
+
+`buildPasswordResetUrl` is **not** pinned that way — `lib/password-reset.ts` imports config,
+Prisma and the mail client, so no unit test can reach it. The reset pair agrees today and is
+held only by inspection; see `docs/BACKLOG.md`. When you add a link, add its row here and
+give it a pinned test, which means putting the builder somewhere a test can import.
 
 ## `/admin/*` — the one admin surface
 
