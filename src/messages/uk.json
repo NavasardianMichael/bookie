@@ -74,13 +74,13 @@
       "phone": "Номер телефону",
       "phoneMandatory": "Номер телефону (обов'язково)",
       "mobileNumber": "Номер мобільного",
-      "organization": "Організація"
+      "organization": "Організація",
+      "organizationOptional": "Організація (необов’язково)"
     },
     "validation": {
       "passwordTooShort": "Пароль має містити щонайменше {min} символів",
       "passwordTooLong": "Пароль не може перевищувати {max} символів",
       "passwordsDoNotMatch": "Паролі не збігаються",
-      "organizationRequired": "Будь ласка, вкажіть організацію",
       "passwordRequired": "Будь ласка, введіть пароль",
       "passwordNeedsLetterAndNumber": "Пароль має містити щонайменше одну літеру та одну цифру",
       "passwordContainsEmail": "Пароль не повинен містити вашу електронну адресу"

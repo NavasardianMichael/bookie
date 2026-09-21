@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Alert, Divider, Form } from 'antd'
-import type { Rule } from 'antd/es/form'
 import { useLocale, useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -43,17 +42,6 @@ const INITIAL_VALUES: ProviderRegistrationFormValues = {
 }
 
 const ORGANIZATION_INPUT_ID = 'organization'
-
-/**
- * `required` cannot express this: the field's value is an object, so antd would accept
- * `{ name: '' }` as present. The name itself has to carry text.
- */
-const organizationRules = (message: string): Rule[] => [
-  {
-    validator: (_, value: OrganizationValue | undefined) =>
-      value?.name?.trim() ? Promise.resolve() : Promise.reject(new Error(message)),
-  },
-]
 
 /**
  * Provider registration, per `design/initial prototype/provider_registration`.
@@ -125,13 +113,11 @@ export const ProviderRegistrationForm: React.FC = () => {
 
         <div className='flex flex-col gap-1.5'>
           <FieldLabel htmlFor={ORGANIZATION_INPUT_ID} className='text-brand font-semibold'>
-            {t('fields.organization')}
+            {t('fields.organizationOptional')}
           </FieldLabel>
-          <AppFormItem
-            name='organization'
-            rules={organizationRules(t('validation.organizationRequired'))}
-            messageVariables={{ label: t('fields.organization') }}
-          >
+          {/* No rule: a provider may be a sole trader, and `resolveOrganizationId` on the
+              server treats a missing organization as "none" rather than an error. */}
+          <AppFormItem name='organization'>
             <OrganizationAutocomplete id={ORGANIZATION_INPUT_ID} placeholder='Acme Services' disabled={isPending} />
           </AppFormItem>
         </div>

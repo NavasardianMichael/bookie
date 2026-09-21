@@ -74,13 +74,13 @@
       "phone": "Phone number",
       "phoneMandatory": "Phone number (mandatory)",
       "mobileNumber": "Mobile number",
-      "organization": "Organization"
+      "organization": "Organization",
+      "organizationOptional": "Organization (optional)"
     },
     "validation": {
       "passwordTooShort": "Password must be at least {min} characters",
       "passwordTooLong": "Password must be {max} characters or fewer",
       "passwordsDoNotMatch": "The two passwords do not match",
-      "organizationRequired": "Please fill in Organization",
       "passwordRequired": "Please enter a password",
       "passwordNeedsLetterAndNumber": "Password must contain at least one letter and one number",
       "passwordContainsEmail": "Password must not contain your email address"

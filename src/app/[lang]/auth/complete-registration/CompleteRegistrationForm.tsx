@@ -2,7 +2,6 @@
 
 import { FC, useEffect, useState } from 'react'
 import { Form, Segmented, Spin } from 'antd'
-import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { getGooglePendingAPI } from '@api/auth/main'
 import { useAuthStore } from '@store/auth/store'
@@ -29,14 +28,6 @@ type CompleteRegistrationFormValues = PhoneFormValues & {
   lastName: string
   organization?: OrganizationValue
 }
-
-/** Same reasoning as the provider registration form: the value is an object, so `required` cannot see an empty name. */
-const organizationRules = (message: string): Rule[] => [
-  {
-    validator: (_, value: OrganizationValue | undefined) =>
-      value?.name?.trim() ? Promise.resolve() : Promise.reject(new Error(message)),
-  },
-]
 
 /**
  * The last step of a first-time Google sign-up.
@@ -143,6 +134,7 @@ export const CompleteRegistrationForm: FC = () => {
             <Segmented
               id='role'
               block
+              size='large'
               options={[
                 { label: t('roles.consumer'), value: USER_TYPES.consumer },
                 { label: t('roles.provider'), value: USER_TYPES.provider },
@@ -176,8 +168,10 @@ export const CompleteRegistrationForm: FC = () => {
 
         {role === USER_TYPES.provider && (
           <div className='flex flex-col gap-1.5'>
-            <FieldLabel htmlFor='organization'>{t('fields.organization')}</FieldLabel>
-            <AppFormItem name='organization' rules={organizationRules(t('validation.organizationRequired'))}>
+            <FieldLabel htmlFor='organization'>{t('fields.organizationOptional')}</FieldLabel>
+            {/* No rule: a provider may be a sole trader, and the server treats a missing
+                organization as "none" rather than an error. */}
+            <AppFormItem name='organization'>
               <OrganizationAutocomplete id='organization' disabled={isPending} />
             </AppFormItem>
           </div>

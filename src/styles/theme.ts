@@ -115,6 +115,17 @@ export const antdTheme: ThemeConfig = {
      * reaching for a `!` suffix, which is a grep gate.
      */
     Rate: { starColor: RATING.star, starBg: RATING.empty },
+    /**
+     * A Segmented strip is a choice between peers, so the chosen one is painted with the
+     * brand fill rather than antd's default white-on-grey thumb, which reads as a hover
+     * state next to our navy buttons. `itemSelectedColor` has to move with it: antd's
+     * default is `colorText` (charcoal), which is unreadable on navy.
+     *
+     * Both are cssinjs tokens — the thumb that animates between items reads
+     * `itemSelectedBg` too, so a CSS override would have to catch two selectors and would
+     * still lose to antd's unlayered styles.
+     */
+    Segmented: { itemSelectedBg: BRAND[900], itemSelectedColor: NEUTRAL[0] },
     Select: {
       optionPadding: `${FIELD_PADDING_BLOCK}px ${FIELD_PADDING_INLINE}px`,
       // No paddingBlock/paddingInline on Select. Horizontal is `paddingSM - lineWidth`;

@@ -74,13 +74,13 @@
       "phone": "Numero di telefono",
       "phoneMandatory": "Numero di telefono (obbligatorio)",
       "mobileNumber": "Numero di cellulare",
-      "organization": "Organizzazione"
+      "organization": "Organizzazione",
+      "organizationOptional": "Organizzazione (facoltativo)"
     },
     "validation": {
       "passwordTooShort": "La password deve contenere almeno {min} caratteri",
       "passwordTooLong": "La password non può superare i {max} caratteri",
       "passwordsDoNotMatch": "Le due password non coincidono",
-      "organizationRequired": "Inserisci un’organizzazione",
       "passwordRequired": "Inserisci una password",
       "passwordNeedsLetterAndNumber": "La password deve contenere almeno una lettera e un numero",
       "passwordContainsEmail": "La password non deve contenere il tuo indirizzo email"

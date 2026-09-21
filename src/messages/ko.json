@@ -74,13 +74,13 @@
       "phone": "전화번호",
       "phoneMandatory": "전화번호(필수)",
       "mobileNumber": "휴대폰 번호",
-      "organization": "기관"
+      "organization": "기관",
+      "organizationOptional": "기관(선택 사항)"
     },
     "validation": {
       "passwordTooShort": "비밀번호는 {min}자 이상이어야 합니다",
       "passwordTooLong": "비밀번호는 {max}자 이하여야 합니다",
       "passwordsDoNotMatch": "두 비밀번호가 일치하지 않습니다",
-      "organizationRequired": "기관을 입력해 주세요",
       "passwordRequired": "비밀번호를 입력하세요",
       "passwordNeedsLetterAndNumber": "비밀번호에는 영문자와 숫자가 각각 하나 이상 포함되어야 합니다",
       "passwordContainsEmail": "비밀번호에 이메일 주소를 포함할 수 없습니다"

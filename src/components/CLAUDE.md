@@ -201,7 +201,7 @@ Spacing between form fields is owned by the parent flex `gap` — `theme.ts` set
 `Form.itemMarginBottom: 0`. Do not reintroduce `mb-*!` classes.
 
 **Do not pass `size='large'`** on antd controls, wrappers, or `Spin`. antd's default
-is the app size. The five remaining call sites are deliberate and listed in
+is the app size. The six remaining call sites are deliberate and listed in
 `src/styles/CLAUDE.md` invariant 10; do not copy them onto a neighbouring control.
 Enforced by `pnpm gates`.
 

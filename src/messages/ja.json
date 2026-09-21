@@ -74,13 +74,13 @@
       "phone": "電話番号",
       "phoneMandatory": "電話番号（必須）",
       "mobileNumber": "携帯電話番号",
-      "organization": "組織"
+      "organization": "組織",
+      "organizationOptional": "組織（任意）"
     },
     "validation": {
       "passwordTooShort": "パスワードは {min} 文字以上で入力してください",
       "passwordTooLong": "パスワードは {max} 文字以内で入力してください",
       "passwordsDoNotMatch": "パスワードが一致しません",
-      "organizationRequired": "組織を入力してください",
       "passwordRequired": "パスワードを入力してください",
       "passwordNeedsLetterAndNumber": "パスワードには英字と数字をそれぞれ 1 文字以上含めてください",
       "passwordContainsEmail": "パスワードにメールアドレスを含めることはできません"

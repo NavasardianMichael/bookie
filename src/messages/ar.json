@@ -74,13 +74,13 @@
       "phone": "رقم الهاتف",
       "phoneMandatory": "رقم الهاتف (إلزامي)",
       "mobileNumber": "رقم الجوال",
-      "organization": "المؤسسة"
+      "organization": "المؤسسة",
+      "organizationOptional": "المؤسسة (اختياري)"
     },
     "validation": {
       "passwordTooShort": "يجب أن تتكون كلمة المرور من {min} أحرف على الأقل",
       "passwordTooLong": "يجب ألا تتجاوز كلمة المرور {max} حرفاً",
       "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
-      "organizationRequired": "يرجى إدخال المؤسسة",
       "passwordRequired": "يرجى إدخال كلمة مرور",
       "passwordNeedsLetterAndNumber": "يجب أن تحتوي كلمة المرور على حرف واحد ورقم واحد على الأقل",
       "passwordContainsEmail": "يجب ألا تحتوي كلمة المرور على عنوان بريدك الإلكتروني"

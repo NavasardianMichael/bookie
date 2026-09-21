@@ -74,13 +74,13 @@
       "phone": "Nomor telepon",
       "phoneMandatory": "Nomor telepon (wajib)",
       "mobileNumber": "Nomor ponsel",
-      "organization": "Organisasi"
+      "organization": "Organisasi",
+      "organizationOptional": "Organisasi (opsional)"
     },
     "validation": {
       "passwordTooShort": "Kata sandi minimal {min} karakter",
       "passwordTooLong": "Kata sandi maksimal {max} karakter",
       "passwordsDoNotMatch": "Kedua kata sandi tidak cocok",
-      "organizationRequired": "Silakan isi Organisasi",
       "passwordRequired": "Masukkan kata sandi",
       "passwordNeedsLetterAndNumber": "Kata sandi harus memuat setidaknya satu huruf dan satu angka",
       "passwordContainsEmail": "Kata sandi tidak boleh memuat alamat email Anda"

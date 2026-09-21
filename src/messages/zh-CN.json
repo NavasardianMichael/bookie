@@ -74,13 +74,13 @@
       "phone": "电话号码",
       "phoneMandatory": "电话号码（必填）",
       "mobileNumber": "手机号码",
-      "organization": "机构"
+      "organization": "机构",
+      "organizationOptional": "机构（选填）"
     },
     "validation": {
       "passwordTooShort": "密码至少需要 {min} 个字符",
       "passwordTooLong": "密码不能超过 {max} 个字符",
       "passwordsDoNotMatch": "两次输入的密码不一致",
-      "organizationRequired": "请填写机构",
       "passwordRequired": "请输入密码",
       "passwordNeedsLetterAndNumber": "密码必须包含至少一个字母和一个数字",
       "passwordContainsEmail": "密码不能包含您的邮箱地址"

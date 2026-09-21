@@ -74,13 +74,13 @@
       "phone": "Հեռախոսահամար",
       "phoneMandatory": "Հեռախոսահամար (պարտադիր)",
       "mobileNumber": "Բջջային համար",
-      "organization": "Կազմակերպություն"
+      "organization": "Կազմակերպություն",
+      "organizationOptional": "Կազմակերպություն (ըստ ցանկության)"
     },
     "validation": {
       "passwordTooShort": "Գաղտնաբառը պետք է լինի առնվազն {min} նիշ",
       "passwordTooLong": "Գաղտնաբառը չպետք է գերազանցի {max} նիշը",
       "passwordsDoNotMatch": "Երկու գաղտնաբառերը չեն համընկնում",
-      "organizationRequired": "Խնդրում ենք լրացնել կազմակերպությունը",
       "passwordRequired": "Խնդրում ենք մուտքագրել գաղտնաբառ",
       "passwordNeedsLetterAndNumber": "Գաղտնաբառը պետք է պարունակի առնվազն մեկ տառ և մեկ թիվ",
       "passwordContainsEmail": "Գաղտնաբառը չպետք է պարունակի ձեր էլ. փոստի հասցեն"

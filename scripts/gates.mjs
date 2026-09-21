@@ -161,8 +161,13 @@ const GATES = [
       },
       {
         rel: 'src/app/[lang]/auth/complete-registration/CompleteRegistrationForm.tsx',
-        contains: "size='large'",
+        contains: "<Spin size='large' />",
         reason: 'Auth waiting Spin — listed in src/styles/CLAUDE.md invariant 10.',
+      },
+      {
+        rel: 'src/app/[lang]/auth/complete-registration/CompleteRegistrationForm.tsx',
+        contains: "size='large'",
+        reason: 'Role Segmented — listed in src/styles/CLAUDE.md invariant 10.',
       },
     ],
   },
