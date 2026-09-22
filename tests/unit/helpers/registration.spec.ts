@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { toOptionalText, toOrganizationFields, toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
+import {
+  toOptionalPhoneNumber,
+  toOptionalText,
+  toOrganizationFields,
+  toPhoneFormValues,
+  toPhoneNumber,
+} from '@helpers/registration'
 
 describe('toPhoneNumber', () => {
   it('resolves a country to its numeric calling code', () => {
@@ -12,6 +18,18 @@ describe('toPhoneNumber', () => {
     expect(typeof phone.code).toBe('number')
     expect(typeof phone.number).toBe('number')
     expect(phone.code).toBe(1)
+  })
+})
+
+describe('toOptionalPhoneNumber', () => {
+  it('returns undefined when the number is blank, so a provider can skip the field', () => {
+    expect(toOptionalPhoneNumber('AM', '')).toBeUndefined()
+    expect(toOptionalPhoneNumber('AM', '   ')).toBeUndefined()
+    expect(toOptionalPhoneNumber(undefined, '77000201')).toBeUndefined()
+  })
+
+  it('strips non-digits and otherwise matches toPhoneNumber', () => {
+    expect(toOptionalPhoneNumber('AM', '77 000 201')).toEqual(toPhoneNumber('AM', '77000201'))
   })
 })
 

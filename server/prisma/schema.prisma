@@ -14,7 +14,21 @@ enum Plan {
   premium
 }
 
+/// The lifecycle of a booking.
+///
+/// `pending` is the only value that is not reached by default: it is written at create
+/// time **only** when the provider has `requiresBookingApproval` on, and it is what the
+/// approvals tab lists. Approving it writes `scheduled` — exactly the row an
+/// auto-approving provider would have got — so there is one "on the calendar" state
+/// rather than two that later code has to remember to check for.
+///
+/// It is a *live* status everywhere it matters: `findOverlappingAppointment` and the
+/// availability read both count it, so a slot awaiting a decision is already taken.
+/// A booking that is refused is `cancelled`; the approvals tab is the only place the
+/// difference between "refused" and "called to cancel" is visible, and it shows neither
+/// once the decision is made.
 enum AppointmentStatus {
+  pending
   scheduled
   confirmed
   cancelled
@@ -142,8 +156,9 @@ model Provider {
   description            String?
   imageUrl               String?
 
-  /// Contact phone. Mandatory at registration and **never verified** — it is not identity
-  /// any more, so nothing depends on it being reachable.
+  /// Contact phone. Optional at provider registration and **never verified** — it is not
+  /// identity any more, so nothing depends on it being reachable. Consumers still require
+  /// a number (`Consumer.phoneCode` stays NOT NULL).
   ///
   /// On the profile rather than on `User` because the two profiles publish it differently:
   /// `mapProviderDetails` puts a provider's number on the *public* `GET /providers/:id`
@@ -154,8 +169,8 @@ model Provider {
   /// household sharing a mobile, is ordinary — the old `@@unique` existed only because
   /// phone *was* the identity. A unique constraint on an unverified field would also
   /// reintroduce an enumeration oracle.
-  phoneCode              Int
-  phoneNumber            BigInt
+  phoneCode              Int?
+  phoneNumber            BigInt?
 
   /// A **published** contact address, distinct from the identity `User.email`. Unverified,
   /// non-unique, and writable straight from `PUT /provider-profile` — which is precisely
@@ -169,6 +184,18 @@ model Provider {
   address                String             @default("")
   locationUrl            String             @default("")
   available              Boolean            @default(true)
+
+  /// When true a submitted booking lands as `pending` and waits for the owner's
+  /// approve/reject on `/providers/profile/approvals`; when false it is `scheduled`
+  /// straight away. **Defaults to false**, because that is what every provider on the
+  /// system already had — turning approval on for existing accounts would silently stop
+  /// their calendar filling.
+  ///
+  /// It does *not* gate the slot: a pending booking holds its time exactly as a
+  /// scheduled one does. The alternative — leaving the slot open until a decision —
+  /// double-books whoever asks second, and the provider then has to refuse a booking
+  /// the app told them was fine.
+  requiresBookingApproval Boolean           @default(false)
   /// When false the provider is hidden from Explore and public detail 404s for
   /// everyone except the owner. Independent of `available` (pause bookings).
   /// New accounts start unlisted; they appear only after Publish page.
@@ -180,6 +207,7 @@ model Provider {
   /// Unpublished edits: firstName, lastName, description, imageUrl, weekSchedule,
   /// available, paymentInfo. Publish copies these onto the live columns.
   draft                  Json?
+  /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges, newBooking }`
   emailNotificationPrefs Json               @default("{}")
   /// Accepted in-person payment methods, plus optional `{ payToNumber?, notes? }`
   /// that the public profile and booking sheet publish. Saving a new or changed
@@ -266,14 +294,20 @@ model Service {
   id              String        @id @default(uuid())
   providerId      String
   provider        Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  categoryId      String
-  category        Category      @relation(fields: [categoryId], references: [id])
+  /// Optional: a service is valid with a title and a duration. `onDelete: Restrict` is
+  /// stated explicitly because Prisma's default for an *optional* relation is SetNull.
+  categoryId      String?
+  category        Category?     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   name            String
   durationMinutes Int
   description     String?
   price           Decimal?      @db.Decimal(10, 2)
   currency        String?
   imageUrl        String?
+  /// A provider can withdraw a service without deleting it. Deactivated services are
+  /// filtered out of every public read and refused at book time; the owner's own
+  /// catalogue still lists them, and historical appointments keep pointing at them.
+  active          Boolean       @default(true)
   appointments    Appointment[]
 }
 
@@ -299,6 +333,7 @@ model Consumer {
   /// +1 is the US, Canada and ~20 more. Mirrors Provider.country, and now sits on the same
   /// row as the phone it was picked beside, so the two can no longer diverge.
   country                String?
+  /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges, marketing }`
   emailNotificationPrefs Json               @default("{}")
   /// Preferred in-person methods only — `{ methods: [...] }`. Card/account numbers
   /// belong on the provider, not here.

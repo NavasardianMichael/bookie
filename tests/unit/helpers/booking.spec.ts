@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { at, day, LONG_AGO, makeWeekSchedule, MONDAY, SUNDAY, TUESDAY } from '@test/setup/fixtures'
 import {
   countSlotsByDay,
+  dropBusySlots,
   getSlotsForDate,
   getSlotsForDateRange,
   getWeekDay,
@@ -162,5 +163,78 @@ describe('countSlotsByDay', () => {
 
   it('is keyed by SUNDAY as a plain date, not a weekday name', () => {
     expect([...countSlotsByDay([{ start: SUNDAY, end: SUNDAY }]).keys()]).toEqual(['2026-03-08'])
+  })
+})
+
+/**
+ * The half of the booking grid that did not exist until now.
+ *
+ * `getSlotsForDate` answers "when is this provider open", and `BookingPanel` rendered
+ * that as if it meant "when can I book" — so every visitor saw every in-hours time as
+ * free and learned otherwise from a 409 on submit (`docs/BACKLOG.md` #6). These cases
+ * are the overlap arithmetic that closes it.
+ */
+describe('dropBusySlots', () => {
+  const slotAt = (start: string, end: string) => ({ start: new Date(start), end: new Date(end) })
+
+  const slots = [
+    slotAt('2026-03-02T09:00:00Z', '2026-03-02T10:00:00Z'),
+    slotAt('2026-03-02T10:00:00Z', '2026-03-02T11:00:00Z'),
+    slotAt('2026-03-02T11:00:00Z', '2026-03-02T12:00:00Z'),
+  ]
+
+  it('returns the slots untouched when nothing is booked', () => {
+    expect(dropBusySlots(slots, [])).toEqual(slots)
+  })
+
+  it('drops a slot a booking sits exactly on', () => {
+    const remaining = dropBusySlots(slots, [
+      { startAt: '2026-03-02T10:00:00Z', endAt: '2026-03-02T11:00:00Z' },
+    ])
+
+    expect(remaining.map((slot) => at(slot.start))).toEqual(['09:00', '11:00'])
+  })
+
+  /**
+   * The case that makes this overlap arithmetic rather than a start-time lookup. A
+   * 45-minute booking at 09:30 sits on no slot boundary at all, and comparing starts
+   * would offer both hours it eats into.
+   */
+  it('drops every slot a booking overlaps, boundaries included', () => {
+    const remaining = dropBusySlots(slots, [
+      { startAt: '2026-03-02T09:30:00Z', endAt: '2026-03-02T10:15:00Z' },
+    ])
+
+    expect(remaining.map((slot) => at(slot.start))).toEqual(['11:00'])
+  })
+
+  // Half-open intervals: a booking that ends exactly when a slot starts does not touch
+  // it. Getting this wrong loses a bookable hour after every appointment.
+  it('keeps a slot that merely abuts a booking', () => {
+    const remaining = dropBusySlots(slots, [
+      { startAt: '2026-03-02T08:00:00Z', endAt: '2026-03-02T09:00:00Z' },
+    ])
+
+    expect(remaining).toHaveLength(3)
+  })
+
+  it('handles a long booking spanning several slots', () => {
+    expect(dropBusySlots(slots, [{ startAt: '2026-03-02T08:00:00Z', endAt: '2026-03-02T13:00:00Z' }])).toEqual([])
+  })
+
+  /**
+   * An unparseable instant compares `NaN` against everything and would silently keep
+   * every slot bookable — the one outcome worse than dropping too many, because it is
+   * exactly the false "this is free" this function exists to stop.
+   */
+  it('ignores an unusable interval rather than letting it match nothing', () => {
+    const remaining = dropBusySlots(slots, [
+      { startAt: 'not-a-date', endAt: '2026-03-02T10:00:00Z' },
+      // Zero-length and inverted intervals cannot take a slot either.
+      { startAt: '2026-03-02T09:00:00Z', endAt: '2026-03-02T09:00:00Z' },
+      { startAt: '2026-03-02T12:00:00Z', endAt: '2026-03-02T11:00:00Z' },
+    ])
+
+    expect(remaining).toEqual(slots)
   })
 })

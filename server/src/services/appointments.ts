@@ -1,88 +1,58 @@
+import { SLOT_TAKEN_MESSAGE } from '../lib/booking-errors.js'
 import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
 import { hashUrlToken, mintUrlToken } from '../lib/token.js'
 import { HttpError } from '../middleware/error.js'
 
-const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
+/**
+ * The statuses that hold a slot. `pending` is one of them: a booking waiting on the
+ * provider's decision has already taken its time, or the second person to ask would be
+ * offered a slot the provider then has to refuse.
+ *
+ * Read by the overlap check *and* by `getProviderBusyIntervals`, from this one
+ * declaration — the grid a visitor sees and the guard that rejects their submit must
+ * never be able to disagree about what "taken" means.
+ */
+const LIVE_STATUSES = ['pending', 'scheduled', 'confirmed'] as const
 
-type DaySchedule = {
-  availability?: { start?: string; end?: string }
-  breaks?: { start: string; end: string }[]
-}
-
-type WeekSchedule = Record<string, DaySchedule>
-
-function parseTimeOnDate(date: Date, time: string) {
-  const [h, m] = time.split(':').map(Number)
-  const d = new Date(date)
-  d.setHours(h ?? 0, m ?? 0, 0, 0)
-  return d
-}
 
 function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60_000)
 }
 
-function overlaps(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
-  return aStart < bEnd && bStart < aEnd
-}
-
-export async function getProviderAvailability(providerId: string, dateStr: string) {
-  const provider = await prisma.provider.findUnique({ where: { id: providerId } })
-  if (!provider) throw new HttpError(404, 'Provider not found', 404)
-
-  const date = new Date(dateStr)
-  if (Number.isNaN(date.getTime())) throw new HttpError(400, 'Invalid date', 400)
-
-  const dayStart = new Date(date)
-  dayStart.setHours(0, 0, 0, 0)
-  const dayEndBound = new Date(date)
-  dayEndBound.setHours(23, 59, 59, 999)
-
-  const dayKey = DAY_KEYS[date.getDay()]!
-  const schedule = (provider.weekSchedule as WeekSchedule) ?? {}
-  const day = schedule[dayKey]
-  const startStr = day?.availability?.start
-  const endStr = day?.availability?.end
-
-  if (!startStr || !endStr) return []
-
-  const workStart = parseTimeOnDate(date, startStr)
-  const workEnd = parseTimeOnDate(date, endStr)
-
+/**
+ * Bookings that already hold a slot, within a window.
+ *
+ * This replaced `getProviderAvailability`, which built its own 30-minute slot grid that
+ * nothing ever called — `BookingPanel` computes slots client-side from `weekSchedule`,
+ * stepped by the *selected service's* duration. Two engines that disagreed about what a
+ * slot even is (`docs/BACKLOG.md` #6): the server's grid could not answer for a 45-minute
+ * service, so the UI ignored it, and the UI in turn subtracted nothing — every visitor
+ * saw every in-hours time as free and found out otherwise from a 409.
+ *
+ * So the split is by *responsibility* rather than by layer: the client owns stepping
+ * (it knows the service), the server owns what is taken (it owns the rows). This returns
+ * intervals, not slots, which is the only shape that does not presuppose a step.
+ *
+ * It is a **public** read on a public page, so it carries instants and nothing else —
+ * no id, no service, no booker. What it discloses is exactly what the grid already
+ * shows once it renders: which times are unavailable.
+ */
+export async function getProviderBusyIntervals(providerId: string, from: Date, to: Date) {
   const appointments = await prisma.appointment.findMany({
     where: {
       providerId,
-      startAt: { gte: dayStart, lte: dayEndBound },
-      status: { in: ['scheduled', 'confirmed'] },
+      status: { in: [...LIVE_STATUSES] },
+      // Any overlap with the window, not merely a start inside it: a booking that began
+      // before `from` and runs past it still blocks the window's first slots.
+      startAt: { lt: to },
+      endAt: { gt: from },
     },
+    select: { startAt: true, endAt: true },
+    orderBy: { startAt: 'asc' },
   })
 
-  const slots: { start: string; end: string }[] = []
-  const slotMinutes = 30
-  let cursor = new Date(workStart)
-  const now = new Date()
-
-  while (cursor < workEnd) {
-    const slotEnd = addMinutes(cursor, slotMinutes)
-    if (slotEnd > workEnd) break
-    if (cursor <= now) {
-      cursor = addMinutes(cursor, slotMinutes)
-      continue
-    }
-
-    const inBreak = (day.breaks ?? []).some((brk) => {
-      if (!brk.start || !brk.end) return false
-      return overlaps(cursor, slotEnd, parseTimeOnDate(date, brk.start), parseTimeOnDate(date, brk.end))
-    })
-    const booked = appointments.some((a) => overlaps(cursor, slotEnd, a.startAt, a.endAt))
-    if (!inBreak && !booked) {
-      slots.push({ start: cursor.toISOString(), end: slotEnd.toISOString() })
-    }
-    cursor = addMinutes(cursor, slotMinutes)
-  }
-
-  return slots
+  return appointments.map((a) => ({ startAt: a.startAt.toISOString(), endAt: a.endAt.toISOString() }))
 }
 
 /** Contact details for a booking made without an account. */
@@ -112,6 +82,7 @@ export async function createAppointment(input: {
     where: { id: input.serviceId, providerId: input.providerId },
   })
   if (!service) throw new HttpError(404, 'Service not found', 404)
+  if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
 
   const endAt = addMinutes(input.startAt, service.durationMinutes)
 
@@ -121,9 +92,23 @@ export async function createAppointment(input: {
     endAt,
   })
 
-  if (conflict) throw new HttpError(409, 'Time slot not available', 409)
+  // `SLOT_TAKEN_MESSAGE`, not a sentence written here: the client matches on it to tell
+  // "someone got there first" apart from every other 409 this route can answer — a
+  // withdrawn service included — and a second spelling degrades that back to a generic
+  // red toast. `lib/booking-errors.ts` explains why it lives in a module of its own.
+  if (conflict) throw new HttpError(409, SLOT_TAKEN_MESSAGE, 409)
 
   const provider = await prisma.provider.findUnique({ where: { id: input.providerId } })
+
+  /**
+   * The approval gate. `pending` waits for the owner's decision on the approvals tab;
+   * `scheduled` is on the calendar the moment it is written.
+   *
+   * The slot is held either way — `LIVE_STATUSES` covers both — so this decides who
+   * sees the booking first, never whether the time is taken. A provider who has not
+   * turned the setting on keeps exactly the behaviour they had.
+   */
+  const requiresApproval = provider?.requiresBookingApproval === true
 
   // The client only offers what the provider accepts; this is what makes that true
   // rather than merely likely. A provider who has configured nothing accepts anything.
@@ -150,17 +135,15 @@ export async function createAppointment(input: {
       // must not change when the price list does.
       price: service.price,
       currency: service.currency,
-      status: 'scheduled',
+      status: requiresApproval ? 'pending' : 'scheduled',
       notes: input.notes,
       paymentMethods,
       manageTokenHash: hashUrlToken(manageToken),
     },
   })
 
-  return { appointment, manageToken }
+  return { appointment, manageToken, requiresApproval }
 }
-
-const LIVE_STATUSES = ['scheduled', 'confirmed'] as const
 
 /**
  * Overlap against live bookings. `excludeId` lets a reschedule keep its own slot
@@ -194,7 +177,10 @@ export async function rescheduleAppointment(input: {
   const appointment = await prisma.appointment.findUnique({ where: { id: input.appointmentId } })
   if (!appointment) throw new HttpError(404, 'Appointment not found', 404)
 
-  if (appointment.status !== 'scheduled' && appointment.status !== 'confirmed') {
+  // `LIVE_STATUSES` rather than a hand-written pair: a booking awaiting approval is
+  // still upcoming, and the person who made it must be able to move or drop it while
+  // the provider is deciding. Spelling the list out here is how the two drift.
+  if (!LIVE_STATUSES.includes(appointment.status as (typeof LIVE_STATUSES)[number])) {
     throw new HttpError(409, 'This booking can no longer be changed', 409)
   }
 
@@ -202,6 +188,7 @@ export async function rescheduleAppointment(input: {
     where: { id: input.serviceId, providerId: appointment.providerId },
   })
   if (!service) throw new HttpError(404, 'Service not found', 404)
+  if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
 
   const endAt = addMinutes(input.startAt, service.durationMinutes)
 
@@ -211,7 +198,7 @@ export async function rescheduleAppointment(input: {
     endAt,
     excludeId: appointment.id,
   })
-  if (conflict) throw new HttpError(409, 'Time slot not available', 409)
+  if (conflict) throw new HttpError(409, SLOT_TAKEN_MESSAGE, 409)
 
   return prisma.appointment.update({
     where: { id: appointment.id },

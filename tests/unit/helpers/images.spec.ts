@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getInitials, isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@helpers/images'
+import { getInitials, isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl, resolveAvatarSrc } from '@helpers/images'
 import { absoluteUrl } from '@helpers/url'
 
 /**
@@ -65,6 +65,20 @@ describe('isUploadedAsset', () => {
     [undefined, false],
   ])('%o -> %s', (src, expected) => {
     expect(isUploadedAsset(src)).toBe(expected)
+  })
+})
+
+describe('resolveAvatarSrc', () => {
+  it('prefixes an upload', () => {
+    expect(resolveAvatarSrc('/uploads/a.png')).toBe(`${API_ORIGIN}/uploads/a.png`)
+  })
+
+  it.each(['blob:x', 'data:image/png;base64,AAA'])('keeps a crop preview %s', (src) => {
+    expect(resolveAvatarSrc(src)).toBe(src)
+  })
+
+  it.each(['/logo.svg', '', undefined])('drops a non-portrait %o', (src) => {
+    expect(resolveAvatarSrc(src)).toBeUndefined()
   })
 })
 

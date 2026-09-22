@@ -4,6 +4,7 @@ import { ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Normalized } from '@interfaces/commons'
 import {
+  GetProviderBusyAPI,
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
@@ -87,6 +88,12 @@ export const processProviderProfileResponse: GetProviderProfileAPI['processor'] 
 export const processProviderServiceResponse: PutProviderServiceAPI['processor'] = (response) => {
   return response.value as PutProviderServiceAPI['processed']
 }
+
+/**
+ * `?? []` so a provider with an empty diary reads as "nothing taken" rather than
+ * throwing inside the grid that is trying to render their open times.
+ */
+export const processProviderBusyResponse: GetProviderBusyAPI['processor'] = (response) => response.value ?? []
 
 /** `?? {}` so a provider who has never opened the SEO tab reads as "no overrides set". */
 export const processProviderSeoResponse: PatchProviderSeoAPI['processor'] = (response) => response.value ?? {}

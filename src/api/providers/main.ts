@@ -4,6 +4,7 @@ import { APIResponse } from '@interfaces/api'
 import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
+  processProviderBusyResponse,
   processProviderProfileResponse,
   processProviderSeoResponse,
   processProviderServiceResponse,
@@ -13,6 +14,7 @@ import {
 import {
   DeleteProviderProfileAPI,
   DeleteProviderServiceAPI,
+  GetProviderBusyAPI,
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
@@ -43,6 +45,20 @@ const fetchSingleProvider = cache(async (id: string, cookie: string) => {
 
 export const getSingleProviderAPI: GetSingleProviderAPI['api'] = async (args) =>
   fetchSingleProvider(args.id, args.cookie ?? '')
+
+/**
+ * Not wrapped in `cache()`, unlike `getSingleProvider` above: this is called from the
+ * client as the visitor pages the month, and a request-scoped memo would pin the first
+ * answer for the life of the render — freezing the grid on a snapshot of who was free
+ * when the page opened, which is the exact failure the endpoint exists to fix.
+ */
+export const getProviderBusyAPI: GetProviderBusyAPI['api'] = async ({ id, from, to }) => {
+  const queryString = paramsToQueryString({ from, to })
+  const { data } = await axiosInstance.get<APIResponse<GetProviderBusyAPI['response']>>(
+    `${ENDPOINTS.getProviderBusy}/${id}/busy?${queryString}`
+  )
+  return processProviderBusyResponse(data)
+}
 
 export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetProviderProfileAPI['response']>>(

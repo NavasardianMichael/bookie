@@ -24,7 +24,7 @@ export const toCategoryFields = (
   if (value?.id) return { categoryId: value.id }
 
   const name = value?.name?.trim()
-  return name ? { categoryName: name } : {}
+  return name ? { categoryName: name } : { categoryId: '' }
 }
 
 export const processProviderServiceFormToRequestPayload = (

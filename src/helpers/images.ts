@@ -43,6 +43,17 @@ export const resolveAbsoluteAssetUrl = (src?: string): string | undefined => {
 export const isUploadedAsset = (src?: string): boolean =>
   !!src && (src.startsWith(UPLOADS_PREFIX) || /^https?:/.test(src))
 
+/**
+ * What an avatar may paint. Crop blobs and real uploads, never the seeded `/logo.svg`
+ * — that mark is the site logo, not a face, and it is what used to sit in the header
+ * after Save draft because the live column still held the placeholder.
+ */
+export const resolveAvatarSrc = (src?: string): string | undefined => {
+  if (!src) return undefined
+  if (/^(blob:|data:)/.test(src)) return src
+  return isUploadedAsset(src) ? resolveAssetUrl(src) : undefined
+}
+
 /** Deterministic initials for the avatar fallback. */
 export const getInitials = (name: string): string =>
   name

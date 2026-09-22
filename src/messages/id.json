@@ -68,22 +68,19 @@
       "newPassword": "Kata sandi baru",
       "confirmPassword": "Konfirmasi kata sandi",
       "firstName": "Nama depan",
-      "firstNamePlaceholder": "Alex",
       "lastName": "Nama belakang",
-      "lastNamePlaceholder": "Morgan",
       "phone": "Nomor telepon",
-      "phoneMandatory": "Nomor telepon (wajib)",
       "mobileNumber": "Nomor ponsel",
       "organization": "Organisasi",
-      "organizationOptional": "Organisasi (opsional)"
+      "countryCode": "Kode negara"
     },
     "validation": {
       "passwordTooShort": "Kata sandi minimal {min} karakter",
       "passwordTooLong": "Kata sandi maksimal {max} karakter",
       "passwordsDoNotMatch": "Kedua kata sandi tidak cocok",
-      "passwordRequired": "Masukkan kata sandi",
       "passwordNeedsLetterAndNumber": "Kata sandi harus memuat setidaknya satu huruf dan satu angka",
-      "passwordContainsEmail": "Kata sandi tidak boleh memuat alamat email Anda"
+      "passwordContainsEmail": "Kata sandi tidak boleh memuat alamat email Anda",
+      "invalidPhone": "Masukkan nomor telepon yang valid"
     },
     "signIn": {
       "title": "Selamat datang kembali",
@@ -99,7 +96,14 @@
       "submit": "Buat akun"
     },
     "providerRegistration": {
-      "submit": "Buat akun penyedia"
+      "submit": "Buat akun penyedia",
+      "title": "Kembangkan bisnis Anda dengan Bookie",
+      "subtitle": "Bergabunglah dengan ribuan penyedia layanan yang mengelola janji temu dengan mudah",
+      "metaTitle": "Buat akun penyedia",
+      "metaDescription": "Bergabunglah dengan ribuan penyedia layanan yang mengelola janji temu dengan mudah di Bookie.",
+      "termsLead": "Dengan mengeklik \"Buat akun penyedia\", Anda menyetujui",
+      "alreadyHaveAccount": "Sudah punya akun?",
+      "organizationPlaceholder": "Organisasi Anda"
     },
     "forgotPassword": {
       "title": "Atur ulang kata sandi",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "Akun Google itu sudah terhubung ke akun Bookie lain.",
       "google_already_linked": "Akun Anda sudah terhubung dengan Google.",
       "google_unauthorized": "Masuk dulu, lalu hubungkan Google dari pengaturan."
-    }
+    },
+    "termsAnd": "dan"
   },
   "Booking": {
     "confirmTitle": "Konfirmasi pemesanan Anda",
@@ -237,7 +242,15 @@
     "generateQr": "Buat QR",
     "downloadQr": "Unduh QR",
     "shareQr": "Bagikan QR",
-    "qrAlt": "Kode QR pemesanan ini"
+    "qrAlt": "Kode QR pemesanan ini",
+    "slotTaken": "Waktu itu baru saja dipesan",
+    "slotTakenBody": "Orang lain memesannya saat Anda mengisi formulir. Silakan pilih waktu lain.",
+    "requestedTitle": "Pemesanan diajukan",
+    "confirmedBody": "Janji temu Anda sudah ada di kalender penyedia.",
+    "awaitingApprovalBody": "Waktunya ditahan untuk Anda selama penyedia meninjaunya. Anda akan menerima email begitu mereka menjawab.",
+    "approvalNoticeTitle": "Penyedia ini meninjau pemesanan",
+    "approvalNoticeBody": "Pemesanan Anda dikirim sebagai permintaan. Waktunya ditahan untuk Anda sampai ada jawaban.",
+    "submitRequest": "Kirim permintaan pemesanan"
   },
   "Footer": {
     "blurb": "Satu platform untuk menemukan layanan di sekitar Anda atau mengelola kalender pemesanan Anda.",
@@ -296,9 +309,18 @@
       "availability": "Ketersediaan",
       "services": "Layanan",
       "bookings": "Pemesanan",
+      "approvals": "Persetujuan",
       "analytics": "Analitik",
       "seo": "SEO",
       "history": "Riwayat"
+    },
+    "workspace": {
+      "onProviderTitle": "Anda berada di ruang kerja penyedia",
+      "onProviderBody": "Halaman publik, layanan, dan pemesanan yang masuk kepada Anda.",
+      "onConsumerTitle": "Anda berada di profil klien",
+      "onConsumerBody": "Data Anda sendiri dan pemesanan yang Anda buat dengan penyedia lain.",
+      "toConsumer": "Beralih ke profil klien",
+      "toProvider": "Beralih ke ruang kerja penyedia"
     },
     "actions": {
       "save": "Simpan Perubahan",
@@ -361,7 +383,10 @@
       "subtitle": "Pilih email mana yang ingin Anda terima.",
       "emailPrefs": "Preferensi Notifikasi",
       "remindersTitle": "Pengingat Janji Temu",
-      "remindersBody": "Dapatkan notifikasi 24 jam sebelum pemesanan.",
+      "remindersBody": "Dapatkan email sebelum pemesanan dimulai.",
+      "remindersLeadLabel": "Ingatkan saya",
+      "remindersMinutes": "{count} menit",
+      "remindersHours": "{count, plural, one {# jam} other {# jam}}",
       "changesTitle": "Perubahan Pemesanan",
       "changesBody": "Pembaruan saat pemesanan diubah atau dibatalkan.",
       "marketingTitle": "Email Pemasaran",
@@ -376,6 +401,8 @@
       "methodsLabel": "Metode yang diterima",
       "cardOrAccountNumber": "Nomor kartu / Nomor rekening",
       "cardOrAccountNumberPlaceholder": "Nomor yang disalin klien untuk membayar Anda",
+      "cardOrAccountNumberInfo": "Aplikasi ini tidak memproses pembayaran. Kolom ini ditampilkan kepada konsumen sebagai informasi.",
+      "cardOrAccountNumberInfoLabel": "Tentang nomor ini",
       "publicShareWarning": "Nomor kartu atau rekening ini akan muncul di halaman terbit Anda dan di lembar pemesanan. Siapa pun yang membuka halaman dapat menyalinnya. Anda bertanggung jawab atas apa yang Anda terbitkan.",
       "publicShareTitle": "Bagikan data ini secara publik?",
       "notes": "Catatan",
@@ -438,8 +465,6 @@
       "subtitle": "Setiap janji temu yang dipesan dengan Anda, lampau dan akan datang.",
       "asConsumerTitle": "Pemesanan sebagai klien",
       "asConsumerSubtitle": "Setiap janji yang Anda pesan dengan penyedia lain, yang lalu dan yang akan datang.",
-      "switchToConsumer": "Beralih ke pemesanan sebagai klien",
-      "switchToProvider": "Beralih ke pemesanan sebagai penyedia",
       "emptyAsConsumerTitle": "Belum ada pemesanan milik Anda",
       "emptyAsConsumerBody": "Saat Anda memesan penyedia lain, janji itu muncul di sini.",
       "confirmBodyAsConsumer": "Ini membatalkan janji. Anda hanya dapat membatalkan selama janji masih akan datang.",
@@ -481,13 +506,42 @@
       "confirmTitle": "Tandai pemesanan ini sebagai {status}?",
       "confirmBody": "Klien tidak diberi tahu secara otomatis. Anda dapat mengubah status lagi nanti.",
       "moreActions": "Aksi untuk {name}",
+      "reviewInApprovals": "Tinjau di Persetujuan",
       "status": {
+        "pending": "Menunggu persetujuan",
         "scheduled": "Terjadwal",
         "confirmed": "Dikonfirmasi",
         "completed": "Selesai",
         "cancelled": "Dibatalkan",
-        "no_show": "Tidak hadir"
+        "no_show": "Terlewat"
       }
+    },
+    "approvals": {
+      "title": "Persetujuan",
+      "subtitle": "Tentukan pemesanan mana yang masuk ke kalender Anda.",
+      "badgeTitle": "{count, plural, other {# pemesanan menunggu persetujuan}}",
+      "settingTitle": "Persetujuan pemesanan",
+      "switchTitle": "Tinjau pemesanan sebelum dikonfirmasi",
+      "switchBody": "Saat aktif, pemesanan yang dikirim menunggu keputusan Anda di sini (Anda akan diberi tahu melalui email). Selama menunggu, waktunya tetap ditahan untuk klien.",
+      "stateOn": "Pemesanan menunggu persetujuan Anda. Anda menerima email untuk setiap pemesanan.",
+      "stateOff": "Pemesanan dikonfirmasi otomatis dan langsung masuk ke kalender Anda.",
+      "queueHint": "Menunggu keputusan Anda, janji temu terdekat lebih dulu.",
+      "emptyTitle": "Tidak ada yang menunggu",
+      "emptyBody": "Pemesanan yang perlu persetujuan Anda muncul di sini.",
+      "approve": "Setujui",
+      "reject": "Tolak",
+      "expired": "Waktunya sudah lewat",
+      "detailService": "Layanan",
+      "detailPrice": "Harga",
+      "detailPhone": "Telepon",
+      "detailEmail": "Email",
+      "detailPayment": "Pembayaran",
+      "detailRequested": "Diajukan",
+      "detailNotes": "Catatan dari klien",
+      "confirmApproveTitle": "Setujui pemesanan ini?",
+      "confirmApproveBody": "Pemesanan masuk ke kalender Anda dan klien menerima email konfirmasi.",
+      "confirmRejectTitle": "Tolak pemesanan ini?",
+      "confirmRejectBody": "Waktunya dilepas dan klien diberi tahu lewat email. Tindakan ini tidak dapat dibatalkan."
     },
     "analytics": {
       "title": "Analitik",
@@ -499,7 +553,7 @@
       "statBookings": "Pemesanan",
       "statRevenue": "Pendapatan",
       "statCompletion": "Selesai",
-      "statNoShow": "Tingkat tidak hadir",
+      "statNoShow": "Tingkat terlewat",
       "vsPrevious": "{change} vs periode sebelumnya",
       "noPrevious": "Tidak ada periode sebelumnya untuk dibandingkan",
       "ofSettled": "Dari pemesanan yang telah selesai",
@@ -557,11 +611,20 @@
       "slugLength": "Harus antara {min} dan {max} karakter.",
       "slugPattern": "Gunakan huruf kecil, angka, dan tanda hubung tunggal di antaranya.",
       "slugChangeWarning": "Menyimpan ini menggantikan tautan Anda saat ini. Siapa pun yang menggunakan /p/{slug} tidak akan sampai ke halaman Anda.",
-      "yourLink": "Tautan pendek Anda",
-      "copy": "Salin",
-      "copied": "Tautan disalin.",
-      "copyFailed": "Tidak dapat menyalin tautan.",
       "saved": "Pengaturan pencarian disimpan."
+    },
+    "signOutTitle": "Keluar?",
+    "signOutBody": "Anda perlu masuk lagi untuk mengelola akun.",
+    "deleteAccount": {
+      "button": "Hapus akun",
+      "title": "Hapus akun",
+      "hint": "Menghapus akun dan semua data terkait secara permanen. Tindakan ini tidak dapat dibatalkan.",
+      "confirmTitle": "Hapus akun Anda?",
+      "confirmBody": "Semua data terkait akun ini akan dihapus. Tindakan ini tidak dapat dibatalkan.",
+      "password": "Kata sandi saat ini",
+      "googleOnly": "Akun ini masuk dengan Google. Tetapkan kata sandi terlebih dahulu untuk mengonfirmasi penghapusan.",
+      "hasAppointments": "Anda memiliki janji temu. Batalkan dulu sebelum menghapus akun.",
+      "wrongPassword": "Kata sandi saat ini salah"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "Penyedia layanan",
-    "emptyTitle": "Belum ada penyedia",
-    "emptyBody": "Penyedia akan muncul di sini segera setelah mereka menerbitkan profil.",
     "ctaTitle": "Siap merebut kembali waktu Anda?",
     "ctaBody": "Temukan penyedia, pilih waktu, dan lanjutkan hari Anda — atau kelola kalender Anda sendiri di Bookie.",
     "getStarted": "Mulai",
@@ -661,6 +722,7 @@
     "title": "Organisasi",
     "emptyTitle": "Belum ada organisasi",
     "emptyBody": "Organisasi akan muncul di sini setelah ditambahkan.",
+    "viewOrganization": "Lihat organisasi",
     "fallbackDescription": "Pesan janji temu di {name}.",
     "loadError": "Kami tidak dapat memuat daftar organisasi. Silakan coba lagi."
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "Pemesanan mendatang",
     "tabAll": "Semua layanan ({count})",
     "tabActive": "Aktif ({count})",
-    "tabIncomplete": "Belum lengkap ({count})",
-    "emptyPricedTitle": "Tidak ada layanan berharga",
-    "emptyPricedBody": "Tambahkan harga ke sebuah layanan dan itu akan muncul di sini sebagai dapat dipesan.",
-    "emptyIncompleteTitle": "Tidak ada yang belum lengkap",
-    "emptyIncompleteBody": "Setiap layanan sudah memiliki harga.",
     "emptyTitle": "Belum ada layanan",
     "emptyBody": "Tambahkan layanan yang bisa klien pesan dengan Anda.",
     "sheetTitle": "Konfigurasi Layanan",
     "deleteTitle": "Hapus layanan ini?",
-    "deleteBody": "Klien tidak akan bisa lagi memesannya. Ini tidak dapat dibatalkan.",
+    "deleteBody": "Klien tidak akan dapat memesannya lagi. Untuk menyembunyikannya sementara, nonaktifkan. Tindakan ini tidak dapat dibatalkan.",
     "delete": "Hapus",
     "edit": "Edit layanan",
     "deleteService": "Hapus layanan",
@@ -748,7 +805,6 @@
     "noDescription": "Belum ada deskripsi.",
     "noPrice": "Tanpa harga",
     "active": "Aktif",
-    "incomplete": "Belum lengkap",
     "formTitle": "Judul",
     "formDescription": "Deskripsi",
     "formDuration": "Durasi",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "Ketik atau pilih kategori",
     "currencyPlaceholder": "Ketik atau pilih mata uang",
     "onboardingDone": "Selesai menyiapkan? Profil Anda sudah aktif — lihat apa yang dilihat klien.",
-    "viewProfile": "Lihat profil saya"
+    "viewProfile": "Lihat profil saya",
+    "tabInactive": "Nonaktif ({count})",
+    "emptyActiveTitle": "Tidak ada layanan aktif",
+    "emptyActiveBody": "Aktifkan layanan agar klien dapat memesannya.",
+    "emptyInactiveTitle": "Tidak ada yang nonaktif",
+    "emptyInactiveBody": "Semua layanan saat ini ditawarkan kepada klien.",
+    "inactive": "Nonaktif",
+    "activate": "Aktifkan {name}",
+    "deactivate": "Nonaktifkan {name}"
   },
   "ProfileCreation": {
     "metaTitle": "Buat Profil Anda Sendiri",

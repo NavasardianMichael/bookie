@@ -17,7 +17,7 @@ export type EmptyStateProps = {
 export const EmptyState: FC<EmptyStateProps> = ({ title, description, action, icon, className }) => (
   <div
     className={cn(
-      'border-brand-border bg-surface flex flex-col items-center gap-3 rounded-brand border border-dashed p-4 text-center shadow-sm',
+      'border-brand-border bg-surface flex flex-col items-center gap-3 rounded-brand border border-dashed p-8 text-center shadow-sm',
       className
     )}
   >

@@ -43,7 +43,17 @@ axiosInstance.interceptors.response.use(null, (error) => {
   }
 
   const requestUrl = String(error.config?.url ?? '')
-  if (requestUrl.includes(AUTH_ENDPOINTS.me)) {
+  /**
+   * 401s that are not a dead session: `GET /me` is a guest probe; wrong password on
+   * change-password or delete-account is re-auth; `POST /logout` after the cookie is
+   * already gone (delete-account clears it) is "already signed out".
+   */
+  if (
+    requestUrl.includes(AUTH_ENDPOINTS.me) ||
+    requestUrl.includes(AUTH_ENDPOINTS.changePassword) ||
+    requestUrl.includes(AUTH_ENDPOINTS.deleteAccount) ||
+    requestUrl.includes(AUTH_ENDPOINTS.logout)
+  ) {
     return Promise.reject(error)
   }
 

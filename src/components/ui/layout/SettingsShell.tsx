@@ -8,7 +8,17 @@ import { PageShell } from './PageShell'
 
 export type SettingsNavItem = {
   href: string
-  label: string
+  /**
+   * `ReactNode`, not `string`, so a caller can decorate the label — the Approvals tab
+   * wraps it in an antd `Badge` carrying the pending count.
+   *
+   * The decoration is composed **by the caller**, which is what keeps this file's
+   * antd-free contract intact (`src/components/CLAUDE.md`): `ui/layout/` must stay
+   * server-renderable, and an antd import here would pull the client runtime into every
+   * route that renders a settings shell. A node arrives already built by a `'use client'`
+   * island, and this file only places it.
+   */
+  label: ReactNode
   icon: ReactNode
   /** Exact match for the profile home; prefix for nested tabs. */
   match?: 'exact' | 'prefix'
@@ -25,6 +35,15 @@ export type SettingsShellProps = {
   displayName?: string
   items: SettingsNavItem[]
   activeHref: string
+  /**
+   * Rendered above the panel, on every subpage — the workspace switch lives here.
+   *
+   * A slot rather than the component itself, for the same reason `label` is a `ReactNode`:
+   * this file is antd-free by contract, and the switch is a `'use client'` island. It also
+   * keeps the shell reusable by the consumer tree, which passes nothing when the account
+   * holds no provider profile.
+   */
+  contentHeader?: ReactNode
   footer?: ReactNode
   children: ReactNode
   className?: string
@@ -49,6 +68,7 @@ export const SettingsShell: FC<SettingsShellProps> = ({
   displayName,
   items,
   activeHref,
+  contentHeader,
   footer,
   children,
   className,
@@ -106,7 +126,10 @@ export const SettingsShell: FC<SettingsShellProps> = ({
         {footer && <div className='mt-auto border-t border-brand-border pt-4'>{footer}</div>}
       </aside>
 
-      <div className='min-w-0 flex-1'>{children}</div>
+      <div className='min-w-0 flex-1'>
+        {contentHeader}
+        {children}
+      </div>
     </div>
   </PageShell>
 )

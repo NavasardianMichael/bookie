@@ -66,6 +66,13 @@ export type AppointmentResponse = {
    */
   manageToken?: string
   emailSent?: boolean
+  /**
+   * The provider reviews bookings, so this one landed as `pending` rather than going
+   * straight onto their calendar. The confirm sheet reads it to say "sent for approval"
+   * instead of "confirmed"; it is derived from the row the API wrote, not echoed from
+   * the provider setting, so the sheet cannot claim a state the booking is not in.
+   */
+  requiresApproval?: boolean
 }
 
 export type CreateAppointmentAPI = Endpoint<{
@@ -84,7 +91,21 @@ export type ListAppointmentsAPI = Endpoint<{
  * The provider workspace's view of its own bookings.
  * ------------------------------------------------------------------ */
 
-export const BOOKING_STATUSES = ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'] as const
+/**
+ * Mirrors the Prisma `AppointmentStatus` enum, in the order the UI lists them.
+ *
+ * `pending` is only ever written by the API, and only for a provider who has
+ * `requiresBookingApproval` on. It holds its slot exactly as `scheduled` does — the
+ * difference is who has seen it, not whether the time is taken.
+ */
+export const BOOKING_STATUSES = [
+  'pending',
+  'scheduled',
+  'confirmed',
+  'completed',
+  'cancelled',
+  'no_show',
+] as const
 
 export type BookingStatus = (typeof BOOKING_STATUSES)[number]
 
@@ -176,6 +197,19 @@ export type PatchAppointmentStatusAPI = Endpoint<{
   payload: { id: string; status: BookingStatus }
   response: { id: string; status: BookingStatus }
   processed: { id: string; status: BookingStatus }
+}>
+
+export type BookingDecision = 'approve' | 'reject'
+
+/**
+ * The approvals tab's only write. Answers the updated row rather than an ack, so the
+ * list can drop it without a refetch — and a `409` distinguishes "already decided",
+ * which is what a second tab open on the same queue produces.
+ */
+export type PatchBookingDecisionAPI = Endpoint<{
+  payload: { id: string; decision: BookingDecision; locale?: string }
+  response: ProviderBooking
+  processed: ProviderBooking
 }>
 
 export type ManagedAppointment = {

@@ -5,8 +5,9 @@ import { Alert, Form, Switch } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { ConsumerEmailNotificationPrefs } from '@interfaces/settings'
-import { DEFAULT_CONSUMER_NOTIFICATION_PREFS } from '@constants/settings'
+import { DEFAULT_CONSUMER_NOTIFICATION_PREFS, toAppointmentReminderLeadMinutes } from '@constants/settings'
 import { processError } from '@helpers/error'
+import { AppointmentReminderPref } from '@components/settings/AppointmentReminderPref'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -16,10 +17,9 @@ import { BellIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
-type PrefKey = keyof ConsumerEmailNotificationPrefs
+type PrefKey = Exclude<keyof ConsumerEmailNotificationPrefs, 'appointmentReminderMinutes'>
 
 const ROWS: { key: PrefKey; titleKey: string; descKey: string }[] = [
-  { key: 'appointmentReminders', titleKey: 'remindersTitle', descKey: 'remindersBody' },
   { key: 'bookingChanges', titleKey: 'changesTitle', descKey: 'changesBody' },
   { key: 'marketing', titleKey: 'marketingTitle', descKey: 'marketingBody' },
 ]
@@ -36,7 +36,13 @@ export const ConsumerNotificationsClient = () => {
   useEffect(() => {
     void getConsumerProfileAPI()
       .then((profile) => {
-        const prefs = { ...DEFAULT_CONSUMER_NOTIFICATION_PREFS, ...profile.details.emailNotificationPrefs }
+        const prefs = {
+          ...DEFAULT_CONSUMER_NOTIFICATION_PREFS,
+          ...profile.details.emailNotificationPrefs,
+          appointmentReminderMinutes: toAppointmentReminderLeadMinutes(
+            profile.details.emailNotificationPrefs?.appointmentReminderMinutes
+          ),
+        }
         setSaved(prefs)
         form.setFieldsValue(prefs)
       })
@@ -80,10 +86,11 @@ export const ConsumerNotificationsClient = () => {
             onValuesChange={() => setDirty(true)}
             className='flex flex-col gap-0'
           >
-            {ROWS.map((row, index) => (
+            <AppointmentReminderPref />
+            {ROWS.map((row) => (
               <div
                 key={row.key}
-                className={`flex items-center justify-between gap-4 py-4 ${index > 0 ? 'border-brand-border border-t' : ''}`}
+                className='border-brand-border flex items-center justify-between gap-4 border-t py-4'
               >
                 <div>
                   <AppText className='font-bold'>{t(`notifications.${row.titleKey}`)}</AppText>

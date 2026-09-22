@@ -1,15 +1,18 @@
 'use client'
 
-import { FC, useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { App } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useLocale, useTranslations } from 'next-intl'
 import { createAppointmentAPI } from '@api/appointments/main'
+import { getProviderBusyAPI } from '@api/providers/main'
+import { ProviderBusyInterval } from '@api/providers/types'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
+import { BUSY_WINDOW_PADDING_DAYS } from '@constants/booking'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
-import { countSlotsByDay, getSlotsForDate, getSlotsForDateRange } from '@helpers/booking'
+import { countSlotsByDay, dropBusySlots, getSlotsForDate, getSlotsForDateRange, isSlotTakenError } from '@helpers/booking'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
@@ -54,19 +57,68 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const [isBooking, setIsBooking] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [created, setCreated] = useState<BookingCreated | null>(null)
+  const [busy, setBusy] = useState<ProviderBusyInterval[]>([])
+  /** Bumped to re-ask who is booked — after a 409, and after a successful booking. */
+  const [busyRevision, setBusyRevision] = useState(0)
+
+  /**
+   * What is already taken in the month on screen, padded a week either side so the grid
+   * cells that spill into the neighbouring months are covered by the same request.
+   *
+   * This is the half of the calendar that used not to exist. The panel stepped the
+   * provider's opening hours and rendered every one of them as bookable, because nothing
+   * told it otherwise — the server's slot endpoint answered in fixed 30-minute steps and
+   * so could not speak for a 45-minute service, and no client ever called it
+   * (`docs/BACKLOG.md` #6). Stepping stays here, where the service duration is known;
+   * the server says only which intervals are gone.
+   */
+  const busyWindow = useMemo(
+    () => ({
+      providerId,
+      from: month.startOf('month').subtract(BUSY_WINDOW_PADDING_DAYS, 'day').toISOString(),
+      to: month.endOf('month').add(BUSY_WINDOW_PADDING_DAYS, 'day').toISOString(),
+      revision: busyRevision,
+    }),
+    [busyRevision, month, providerId]
+  )
+
+  useEffect(() => {
+    if (!busyWindow.providerId) return
+    let cancelled = false
+
+    void getProviderBusyAPI({
+      id: busyWindow.providerId,
+      from: busyWindow.from,
+      to: busyWindow.to,
+    })
+      .then((intervals) => {
+        if (!cancelled) setBusy(intervals)
+      })
+      // A failed read must not empty the set: `[]` would mean "everything is free",
+      // which is the very claim that gets a visitor to a slot the API then refuses.
+      // Keeping the last answer degrades to a stale grid, and the 409 still catches it.
+      .catch(() => undefined)
+
+    return () => {
+      cancelled = true
+    }
+  }, [busyWindow])
 
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
 
   const monthSlots = useMemo(
     () =>
-      getSlotsForDateRange({
-        weekSchedule: details?.weekSchedule,
-        start: month.startOf('month').toDate(),
-        end: month.endOf('month').add(1, 'day').startOf('day').toDate(),
-        durationMinutes,
-      }),
-    [details?.weekSchedule, durationMinutes, month]
+      dropBusySlots(
+        getSlotsForDateRange({
+          weekSchedule: details?.weekSchedule,
+          start: month.startOf('month').toDate(),
+          end: month.endOf('month').add(1, 'day').startOf('day').toDate(),
+          durationMinutes,
+        }),
+        busy
+      ),
+    [busy, details?.weekSchedule, durationMinutes, month]
   )
 
   const slotCountByDay = useMemo(() => {
@@ -114,8 +166,13 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
   const daySlots = useMemo(
     () =>
-      selectedDate ? getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes }) : [],
-    [details?.weekSchedule, durationMinutes, selectedDate]
+      selectedDate
+        ? dropBusySlots(
+            getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes }),
+            busy
+          )
+        : [],
+    [busy, details?.weekSchedule, durationMinutes, selectedDate]
   )
 
   /**
@@ -219,18 +276,50 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
           locale,
         })
         setRequestedStarts((prev) => [...prev, validSelectedStart])
+        // The booking we just made is now one of the taken intervals. Re-asking rather
+        // than splicing it in locally also picks up anything else that landed while the
+        // sheet was open, which is the same staleness this whole path is about.
+        setBusyRevision((current) => current + 1)
         if (result.manageToken) {
           setCreated({
             manageToken: result.manageToken,
             emailSent: Boolean(result.emailSent),
             emailedTo: submission.guest?.email ?? accountEmail ?? undefined,
             paymentMethods: submission.paymentMethods ?? [],
+            requiresApproval: Boolean(result.requiresApproval),
           })
         }
       } catch (error) {
+        const processed = processError(error)
+
+        /**
+         * Somebody booked that time while this visitor was filling in the sheet.
+         *
+         * The one failure here the visitor can fix themselves, so it is answered
+         * differently from every other: the slot is dropped from the grid, the time
+         * selection is cleared so the dead slot cannot simply be resubmitted, and the
+         * sheet closes back onto the day they were looking at with a message naming what
+         * happened. It used to surface as `t('failed')` over a raw server string, in
+         * front of a grid still offering the slot that had just been refused.
+         *
+         * Recognised by `isSlotTakenError`, not by the 409 alone — a withdrawn service
+         * answers 409 too, and telling that visitor to pick another time sends them
+         * round a loop with no exit.
+         */
+        if (isSlotTakenError(processed)) {
+          setBusyRevision((current) => current + 1)
+          setSelectedStart(null)
+          setIsConfirmOpen(false)
+          notification.warning({
+            message: t('slotTaken'),
+            description: t('slotTakenBody'),
+          })
+          return
+        }
+
         // Sheet deliberately left open, so what was typed survives a failed submit —
         // a guest who lost their details to a 409 would have to retype all four fields.
-        notification.error({ message: t('failed'), description: processError(error).message })
+        notification.error({ message: t('failed'), description: processed.message })
       } finally {
         setIsBooking(false)
       }
@@ -275,6 +364,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         booking={booking}
         needsGuestDetails={!isSignedOn}
         isAuthPending={isAuthPending}
+        requiresApproval={Boolean(details?.requiresBookingApproval)}
         paymentMethodOptions={paymentMethodOptions}
         paymentInfo={details?.paymentInfo}
         isBooking={isBooking}

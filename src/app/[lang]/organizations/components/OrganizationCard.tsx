@@ -1,4 +1,6 @@
 import { FC } from 'react'
+import { CategoryBadge } from '@app/[lang]/categories/components/CategoryBadge'
+import { getTranslations } from 'next-intl/server'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { ROUTES } from '@constants/routes'
 import { EntityCard } from '@components/ui/EntityCard'
@@ -10,8 +12,9 @@ type Props = {
   headingLevel?: 2 | 3 | 4
 }
 
-export const OrganizationCard: FC<Props> = ({ data, hideCategories, headingLevel }) => {
+export const OrganizationCard: FC<Props> = async ({ data, hideCategories, headingLevel }) => {
   const { basic } = data
+  const t = await getTranslations('Organizations')
 
   return (
     <EntityCard
@@ -21,20 +24,13 @@ export const OrganizationCard: FC<Props> = ({ data, hideCategories, headingLevel
       headingLevel={headingLevel}
       aspect='16/9'
       badges={
-        // hideCategories used to be accepted and then silently ignored.
-        // Bare spans rather than antd Tag: these are labels, not controls, and a
-        // Tag would pull antd's runtime onto every list page that renders a card.
         hideCategories
           ? undefined
           : basic.categories?.slice(0, 2).map((category) => (
-              <span
-                key={category.id}
-                className='border-brand-border text-brand-muted rounded-brand border px-1.5 py-0.5 text-caption'
-              >
-                {category.name}
-              </span>
+              <CategoryBadge key={category.id} id={category.id} name={category.name} />
             ))
       }
+      cta={t('viewOrganization')}
     />
   )
 }

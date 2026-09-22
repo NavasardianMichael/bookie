@@ -27,6 +27,8 @@ type SignInFormValues = {
 const isGoogleErrorCode = (value?: string): value is GoogleErrorCode =>
   !!value && (GOOGLE_ERROR_CODES as readonly string[]).includes(value)
 
+const AUX_LINK_CLASS = 'text-body-sm font-semibold'
+
 type Props = {
   /**
    * The `?error=` the API's Google callback redirected back with. Read by the page — a
@@ -169,7 +171,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
         )}
 
         <div className='text-end'>
-          <AppLink href={ROUTES.forgotPassword} className='text-body-sm font-semibold'>
+          <AppLink href={ROUTES.forgotPassword} className={AUX_LINK_CLASS}>
             {t('signIn.forgotPassword')}
           </AppLink>
         </div>
@@ -179,12 +181,14 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
         </AppButton>
       </Form>
 
-      <AppParagraph size='body-sm' className='m-0 text-center'>
-        {t('signIn.noAccount')}{' '}
-        <AppLink href={ROUTES.accountTypeSelection} className='font-semibold'>
+      <div className='flex flex-wrap items-baseline justify-center gap-x-1'>
+        <AppParagraph size='body-sm' className='m-0'>
+          {t('signIn.noAccount')}
+        </AppParagraph>
+        <AppLink href={ROUTES.accountTypeSelection} className={AUX_LINK_CLASS}>
           {t('signIn.createAccount')}
         </AppLink>
-      </AppParagraph>
+      </div>
     </>
   )
 }

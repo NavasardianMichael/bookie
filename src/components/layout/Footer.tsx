@@ -56,7 +56,7 @@ export const Footer: FC = () => {
               <AppText as='strong' size='caption' tone='default' className='uppercase tracking-widest'>
                 {t(column.titleKey)}
               </AppText>
-              <ul className='flex flex-col gap-3'>
+              <ul className='flex flex-col gap-1'>
                 {column.links.map((link) => (
                   <li key={`${column.titleKey}-${link.labelKey}`}>
                     <AppLink href={link.href} variant='plain' className='text-body-sm text-brand-muted hover:text-brand'>

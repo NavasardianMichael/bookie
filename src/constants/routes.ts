@@ -18,6 +18,12 @@ export const ROUTE_KEYS = {
   providerProfileAvailability: 'providerProfileAvailability',
   providerProfileBookings: 'providerProfileBookings',
   /**
+   * Bookings waiting on this provider's approve/reject, plus the switch that decides
+   * whether there are any. Linked from the approval-request email, so the path is also
+   * spelled in `server/src/lib/booking-mail.ts` and pinned by a test.
+   */
+  providerProfileApprovals: 'providerProfileApprovals',
+  /**
    * Appointments this provider booked as a client. Sibling of Bookings, not a
    * sidebar tab — the header switch on either page is how you get here.
    */
@@ -76,6 +82,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
   [ROUTE_KEYS.providerProfileAvailability]: '/providers/profile/availability',
   [ROUTE_KEYS.providerProfileBookings]: '/providers/profile/bookings',
+  [ROUTE_KEYS.providerProfileApprovals]: '/providers/profile/approvals',
   [ROUTE_KEYS.providerProfileConsumerBookings]: '/providers/profile/consumer-bookings',
   [ROUTE_KEYS.providerProfileAnalytics]: '/providers/profile/analytics',
   [ROUTE_KEYS.providerProfileHistory]: '/providers/profile/history',

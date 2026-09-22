@@ -78,7 +78,7 @@ export type ChangeEmailSendAPI = Endpoint<{
 }>
 
 export type DeleteAccountAPI = Endpoint<{
-  payload: void
+  payload: { password: string }
   response: boolean
   processed: void
 }>

@@ -24,6 +24,8 @@ export type PutProviderProfileRequestPayload = Partial<{
   available: boolean
   emailNotificationPrefs: NonNullable<ProviderProfile['details']['emailNotificationPrefs']>
   paymentInfo: NonNullable<ProviderProfile['details']['paymentInfo']> | null
+  /** Saved live, like the vanity slug — it changes nothing anyone can see. */
+  requiresBookingApproval: boolean
 }>
 
 /** Mirrors the sorts `server/src/services/providerSearch.ts` accepts. */
@@ -54,6 +56,23 @@ export type GetProvidersListAPI = Endpoint<{
   payload: ProvidersListQuery | void
   response: ProvidersListResponse
   processed: Pick<ProvidersListState, 'list' | 'pagination'>
+}>
+
+/**
+ * One booked interval, as UTC ISO instants. Deliberately not slots: a slot only exists
+ * once a service duration is chosen, and that is the visitor's to pick — which is why
+ * the server's old slot endpoint went unused for as long as it existed
+ * (`docs/BACKLOG.md` #6). The client steps the grid; this says what is already gone.
+ */
+export type ProviderBusyInterval = {
+  startAt: string
+  endAt: string
+}
+
+export type GetProviderBusyAPI = Endpoint<{
+  payload: { id: string; from: string; to: string }
+  response: ProviderBusyInterval[]
+  processed: ProviderBusyInterval[]
 }>
 
 export type GetSingleProviderAPI = Endpoint<{
@@ -104,13 +123,14 @@ export type ClearableField<T> = T | ''
 /**
  * What a service edit puts on the wire. Spelled out rather than derived from
  * `ProviderService` so the two differences from the entity stay visible: `image` may be a
- * freshly cropped `File` (the API stores it and answers with a URL), and `missing` is a
- * client-side flag that must never be sent.
+ * freshly cropped `File` (the API stores it and answers with a URL), and `active` is the
+ * activate/deactivate toggle — absent leaves the column alone; a create defaults to active.
  */
 export type ProviderServiceRequestPayload = Partial<{
   name: ProviderService['name']
   duration: ProviderService['duration']
-  categoryId: ProviderService['categoryId']
+  /** `''` clears it — category is optional. */
+  categoryId: ClearableField<NonNullable<ProviderService['categoryId']>>
   /**
    * Typed when the provider wrote a category that may not exist yet. The API
    * matches case-insensitively or creates a Category row. Do not send alongside
@@ -121,6 +141,7 @@ export type ProviderServiceRequestPayload = Partial<{
   price: ClearableField<NonNullable<ProviderService['price']>>
   currency: ClearableField<NonNullable<ProviderService['currency']>>
   image: ProviderService['image'] | File
+  active: boolean
 }>
 
 export type PostProviderServiceAPI = Endpoint<{

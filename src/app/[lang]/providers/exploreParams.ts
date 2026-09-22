@@ -78,8 +78,7 @@ const RESULT_SET_KEYS = ['q', 'categoryId', 'available', 'openToday', 'sort'] as
  *
  * Two patches must survive that rule: one naming `page` (the pager itself), and the
  * empty one, which is how a caller asks for the current URL. Resetting there silently
- * rewrote page 4 as page 1 — it broke `exploreParamsKey`, so the `<Suspense>` boundary
- * shared one key across every page and the grid never handed over to its skeleton.
+ * rewrote page 4 as page 1 — it collapsed every page onto one `exploreParamsKey`.
  */
 const withPageReset = (patch: Partial<ExploreParams>): Partial<ExploreParams> => {
   if ('page' in patch) return patch
@@ -122,8 +121,8 @@ export const toProvidersListQuery = (params: ExploreParams): ProvidersListQuery 
 })
 
 /**
- * Identity of a result set, for the `<Suspense key>` that swaps the grid for a skeleton
- * while the next one streams in.
+ * Identity of a result set. Tests pin that paging and searching produce distinct keys;
+ * `withPageReset` used to collapse every page onto one, which hid the next query.
  */
 export const exploreParamsKey = (params: ExploreParams): string => buildExploreQuery(params) || 'default'
 

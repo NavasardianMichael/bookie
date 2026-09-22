@@ -69,8 +69,8 @@ POST /identity/login
 
 ```jsonc
 // Registration. Does not sign you in — it mails a verification link.
-// `phone` is an object and is mandatory, but it is profile data now, not identity:
-// it is never verified and has no unique constraint.
+// `phone` is an object. Consumers must send one; providers may omit it. Profile data
+// now, not identity: it is never verified and has no unique constraint.
 POST /identity/register
 {
   "role": "provider",
@@ -95,8 +95,9 @@ route list.
 - **Email is the identity**, stored `citext` so the unique index is case-insensitive in the
   database rather than only in whichever route remembered to lowercase.
 - **Phone moved onto the profiles** (`Provider.phoneCode`/`phoneNumber`, and the same on
-  `Consumer`). It is mandatory at registration, never verified, and deliberately **not**
-  unique — a clinic line shared by four providers is ordinary.
+  `Consumer`). Consumers must send one at registration; providers may omit it. Never
+  verified, and deliberately **not** unique — a clinic line shared by four providers is
+  ordinary.
 - The seed is re-runnable (`pnpm install` re-seeds), and re-hashes the local-account
   password on every run, so changing `DEV_PASSWORD` in `server/prisma/seed.ts` takes effect
   on an existing database. The Google fixture is re-upserted without a password.

@@ -1,13 +1,14 @@
 'use client'
 
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import { DeleteOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons'
-import { Button, Dropdown, Tag } from 'antd'
+import { App, Button, Dropdown, Switch, Tag } from 'antd'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
+import { processError } from '@helpers/error'
 import { resolveAssetUrl } from '@helpers/images'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -17,10 +18,9 @@ import { ClockIcon, CreditCardIcon, ScissorsIcon } from '@components/ui/icons'
 
 type Props = {
   service: ProviderService
-  /** False when the service carries no price, which is what makes it unbookable. */
-  isPriced: boolean
   onEdit: (serviceId: string) => void
   onDelete: (serviceId: string) => void
+  onToggleActive: (serviceId: string, active: boolean) => Promise<void>
 }
 
 const MENU_KEYS = { edit: 'edit', delete: 'delete' } as const
@@ -28,16 +28,19 @@ const MENU_KEYS = { edit: 'edit', delete: 'delete' } as const
 /**
  * One service, as `manage_services` draws it: icon tile and an overflow menu on
  * the top row, name and clamped description in the body, then a ruled footer
- * carrying duration, price and a status tag.
+ * carrying duration, price and an activate/deactivate switch.
  *
  * The two per-card actions live in a `Dropdown` rather than as a pair of icon
- * buttons because the footer is where the prototype puts status, not controls —
- * and a 3-column grid of cards each showing two always-on destructive-adjacent
+ * buttons because the footer is where status lives, not controls — and a
+ * 3-column grid of cards each showing two always-on destructive-adjacent
  * buttons reads as a toolbar rather than a catalogue.
  */
-export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDelete }) => {
+export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onToggleActive }) => {
   const t = useTranslations('Services')
+  const { message } = App.useApp()
   const resolvedImage = resolveAssetUrl(service.image)
+  const hasPrice = typeof service.price === 'number'
+  const [isToggling, setIsToggling] = useState(false)
 
   const handleMenuClick = useCallback(
     ({ key }: { key: string }) => {
@@ -45,6 +48,20 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
       if (key === MENU_KEYS.delete) onDelete(service.id)
     },
     [onDelete, onEdit, service.id]
+  )
+
+  const handleToggle = useCallback(
+    async (active: boolean) => {
+      setIsToggling(true)
+      try {
+        await onToggleActive(service.id, active)
+      } catch (error) {
+        message.error(processError(error).message)
+      } finally {
+        setIsToggling(false)
+      }
+    },
+    [message, onToggleActive, service.id]
   )
 
   const items = useMemo(
@@ -59,7 +76,7 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
     <li
       className={cn(
         'bg-surface flex min-w-0 flex-col justify-between gap-4 rounded-brand border p-3 transition-shadow sm:p-4',
-        isPriced ? 'border-brand-border hover:shadow-md' : 'border-brand-border border-dashed'
+        service.active ? 'border-brand-border hover:shadow-md' : 'border-brand-border border-dashed'
       )}
     >
       <div className='flex min-w-0 flex-col gap-2'>
@@ -67,7 +84,7 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
           <span
             className={cn(
               'relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-brand-sm',
-              isPriced ? 'bg-brand-50 text-brand' : 'bg-surface-sunken text-brand-400'
+              service.active ? 'bg-brand-50 text-brand' : 'bg-surface-sunken text-brand-400'
             )}
           >
             {resolvedImage ? (
@@ -111,17 +128,25 @@ export const ProviderServiceCard: FC<Props> = ({ service, isPriced, onEdit, onDe
             </AppTime>
           </span>
 
-          <span className={cn('flex items-center gap-1.5 font-semibold', !isPriced && 'text-brand-muted')}>
+          <span className={cn('flex items-center gap-1.5 font-semibold', !hasPrice && 'text-brand-muted')}>
             <CreditCardIcon aria-hidden className='h-4 w-4' />
-            <AppText size='caption' tone={isPriced ? 'default' : 'muted'} numeric>
-              {isPriced ? `${service.price} ${service.currency ?? ''}`.trim() : t('noPrice')}
+            <AppText size='caption' tone={hasPrice ? 'default' : 'muted'} numeric>
+              {hasPrice ? `${service.price} ${service.currency ?? ''}`.trim() : t('noPrice')}
             </AppText>
           </span>
         </div>
 
-        <Tag color={isPriced ? 'success' : undefined} className='m-0 uppercase'>
-          {isPriced ? t('active') : t('incomplete')}
-        </Tag>
+        <div className='flex items-center gap-2'>
+          <Tag color={service.active ? 'success' : undefined} className='m-0 uppercase'>
+            {service.active ? t('active') : t('inactive')}
+          </Tag>
+          <Switch
+            checked={service.active}
+            loading={isToggling}
+            onChange={handleToggle}
+            aria-label={t(service.active ? 'deactivate' : 'activate', { name: service.name })}
+          />
+        </div>
       </div>
     </li>
   )

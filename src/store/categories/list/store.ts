@@ -7,8 +7,7 @@ import { CategoriesListActions, CategoriesListState } from './types'
 
 // Empty until `getCategoriesList` runs. This used to ship one fake row whose `allIds`
 // entry ('c-1') did not even match its own `byId` key ('smth'), so every category picker
-// offered a category id the API had never heard of — and `Service.categoryId` is a
-// required foreign key, so choosing it failed the save.
+// offered a category id the API had never heard of.
 const initialState: CategoriesListState = {
   list: {
     allIds: [],

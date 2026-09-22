@@ -6,13 +6,13 @@ import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { PaymentInfo } from '@interfaces/settings'
 import { processError } from '@helpers/error'
-import { acceptsBankTransfer, hasPaymentShare, needsPublicShareConfirm, toPaymentMethods, toPaymentShare } from '@helpers/payment'
+import { needsPublicShareConfirm, toPaymentMethods, toPaymentShare } from '@helpers/payment'
 import { toOptionalText } from '@helpers/registration'
-import { BankTransferDetails } from '@components/settings/BankTransferDetails'
 import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppTitle } from '@components/ui/bare/AppTitle'
 import { CreditCardIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
@@ -111,23 +111,19 @@ export const ProviderPaymentsClient = () => {
     setPendingMode(null)
   }
 
-  const payToNumber = Form.useWatch(['paymentInfo', 'payToNumber'], form)
-  const notes = Form.useWatch(['paymentInfo', 'notes'], form)
-  const methods = Form.useWatch(['paymentInfo', 'methods'], form)
-  const preview = toPaymentShare({ methods: [], payToNumber, notes })
-  const showTransferPreview = acceptsBankTransfer({ methods: methods ?? [] }) && hasPaymentShare(preview)
-
   return (
     <div className='flex flex-col gap-6'>
       <PageHeader title={t('nav.payments')} subtitle={t('payments.subtitle')} />
       {error && <Alert type='error' showIcon message={error} />}
 
       <Surface className='flex flex-col gap-6'>
-        <h2 className='text-h3 flex items-center gap-2 font-bold'>
-          <CreditCardIcon className='text-brand h-5 w-5' />
-          {t('payments.title')}
-        </h2>
-        <AppParagraph size='body-sm'>{t('payments.hint')}</AppParagraph>
+        <div className='flex flex-col gap-1.5'>
+          <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
+            <CreditCardIcon className='text-brand h-5 w-5' />
+            {t('payments.title')}
+          </AppTitle>
+          <AppParagraph size='body-sm'>{t('payments.hint')}</AppParagraph>
+        </div>
 
         <Form
           form={form}
@@ -138,8 +134,6 @@ export const ProviderPaymentsClient = () => {
         >
           <PaymentInfoFields disabled={pendingAction !== null} />
         </Form>
-
-        {showTransferPreview ? <BankTransferDetails {...preview} showHeading={false} /> : null}
       </Surface>
 
       <SettingsActionBar

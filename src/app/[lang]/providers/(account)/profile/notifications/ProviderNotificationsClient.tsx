@@ -5,8 +5,9 @@ import { Alert, Form, Switch } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { ProviderEmailNotificationPrefs } from '@interfaces/settings'
-import { DEFAULT_PROVIDER_NOTIFICATION_PREFS } from '@constants/settings'
+import { DEFAULT_PROVIDER_NOTIFICATION_PREFS, toAppointmentReminderLeadMinutes } from '@constants/settings'
 import { processError } from '@helpers/error'
+import { AppointmentReminderPref } from '@components/settings/AppointmentReminderPref'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -16,11 +17,10 @@ import { BellIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
-type PrefKey = keyof ProviderEmailNotificationPrefs
+type PrefKey = Exclude<keyof ProviderEmailNotificationPrefs, 'appointmentReminderMinutes'>
 
 const ROWS: { key: PrefKey; titleKey: string; descKey: string }[] = [
   { key: 'newBooking', titleKey: 'newBookingTitle', descKey: 'newBookingBody' },
-  { key: 'appointmentReminders', titleKey: 'remindersTitle', descKey: 'remindersBody' },
   { key: 'bookingChanges', titleKey: 'changesTitle', descKey: 'changesBody' },
 ]
 
@@ -40,6 +40,9 @@ export const ProviderNotificationsClient = () => {
         const prefs = {
           ...DEFAULT_PROVIDER_NOTIFICATION_PREFS,
           ...profile.details.emailNotificationPrefs,
+          appointmentReminderMinutes: toAppointmentReminderLeadMinutes(
+            profile.details.emailNotificationPrefs?.appointmentReminderMinutes
+          ),
         }
         setSaved(prefs)
         form.setFieldsValue(prefs)
@@ -74,11 +77,20 @@ export const ProviderNotificationsClient = () => {
         </AppTitle>
 
         <Form form={form} initialValues={saved} disabled={saving} onValuesChange={() => setDirty(true)}>
-          {ROWS.map((row, index) => (
-            <div
-              key={row.key}
-              className={`flex items-center justify-between gap-4 py-4 ${index > 0 ? 'border-brand-border border-t' : ''}`}
-            >
+          {ROWS.slice(0, 1).map((row) => (
+            <div key={row.key} className='flex items-center justify-between gap-4 py-4'>
+              <div>
+                <AppText className='font-bold'>{t(`notifications.${row.titleKey}`)}</AppText>
+                <AppParagraph size='body-sm'>{t(`notifications.${row.descKey}`)}</AppParagraph>
+              </div>
+              <AppFormItem name={row.key} valuePropName='checked' className='m-0'>
+                <Switch />
+              </AppFormItem>
+            </div>
+          ))}
+          <AppointmentReminderPref showTopBorder />
+          {ROWS.slice(1).map((row) => (
+            <div key={row.key} className='border-brand-border flex items-center justify-between gap-4 border-t py-4'>
               <div>
                 <AppText className='font-bold'>{t(`notifications.${row.titleKey}`)}</AppText>
                 <AppParagraph size='body-sm'>{t(`notifications.${row.descKey}`)}</AppParagraph>

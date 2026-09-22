@@ -5,7 +5,17 @@ import multer from 'multer'
 import path from 'node:path'
 import { config } from '../config.js'
 import { ok } from '../lib/api-response.js'
+import {
+  buildBookingManageUrl,
+  buildProviderPageUrl,
+  formatBookingWhen,
+  resolveBookingLocale,
+  sendBookingApprovedEmail,
+  sendBookingRejectedEmail,
+} from '../lib/booking-mail.js'
+import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
+import { mintOwnerManageToken } from '../lib/token.js'
 import {
   consumerSideBookingInclude,
   mapBasicProvider,
@@ -22,7 +32,7 @@ import {
 } from '../mappers/entities.js'
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
-import { getProviderAvailability } from '../services/appointments.js'
+import { getProviderBusyIntervals } from '../services/appointments.js'
 import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
 import {
   asTimeZone,
@@ -36,11 +46,13 @@ import { looksLikeProviderId, parseProviderSeoBody } from '../services/providerS
 
 const upload = multer({ dest: config.uploadDir })
 
-const defaultProviderNotificationPrefs = {
-  appointmentReminders: true,
-  bookingChanges: true,
-  newBooking: true,
-}
+/**
+ * How far `GET /providers/:id/busy` will look in one request. The booking grid asks a
+ * calendar month at a time, so this is three of them — wide enough that paging ahead
+ * never needs a wider call, narrow enough that the route cannot be turned into a scan
+ * of a provider's whole history.
+ */
+const MAX_BUSY_WINDOW_MS = 100 * 24 * 60 * 60 * 1000
 
 /**
  * The unpublished-edits overlay. **Deliberately has no `email` key**, and `patch` below is
@@ -94,12 +106,48 @@ providersRouter.get(
   })
 )
 
+/**
+ * Times this provider is already taken, so the public grid can grey them out.
+ *
+ * Replaces `GET /:id/availability`, which returned a server-built 30-minute slot grid
+ * that no client ever called (`docs/BACKLOG.md` #6). A slot is only meaningful once a
+ * service duration is known, and that is the visitor's choice — so the server answers
+ * the part it owns, which is which intervals are gone, and the client subtracts them
+ * from the grid it steps itself.
+ *
+ * Public, and deliberately says nothing but instants — no id, service or booker. It
+ * discloses only what the rendered grid already shows.
+ */
 providersRouter.get(
-  '/:id/availability',
+  '/:id/busy',
   asyncHandler(async (req, res) => {
-    const date = (req.query.date as string) ?? new Date().toISOString().slice(0, 10)
-    const slots = await getProviderAvailability(req.params.id!, date)
-    return ok(res, slots)
+    const from = new Date(String(req.query.from ?? ''))
+    const to = new Date(String(req.query.to ?? ''))
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      throw new HttpError(400, 'from and to must be ISO timestamps', 400)
+    }
+    // A window, not an open-ended scan: the grid asks a month at a time, and an
+    // unbounded range on a public route is a free full-table read of one provider.
+    if (to <= from || to.getTime() - from.getTime() > MAX_BUSY_WINDOW_MS) {
+      throw new HttpError(400, 'from and to must bound a window of 100 days or less', 400)
+    }
+
+    /**
+     * The same unlisted rule `GET /providers/:id` enforces, and for the same reason: an
+     * unlisted page 404s for everyone but its owner, so nothing legitimate asks this of
+     * one. Without the check, a provider who unpublished their page would still be
+     * answering questions about when they are booked to anyone holding the id.
+     */
+    const provider = await prisma.provider.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, listed: true },
+    })
+    const isOwner = req.session?.role === 'provider' && req.session.profileId === provider?.id
+    if (!provider || (!provider.listed && !isOwner)) {
+      throw new HttpError(404, 'Provider not found', 404)
+    }
+
+    return ok(res, await getProviderBusyIntervals(provider.id, from, to))
   })
 )
 
@@ -155,12 +203,7 @@ providerProfileRouter.get(
         // which is why the public and owner payloads disagreed about whether `details`
         // carried them.
         ...mapped.details,
-        emailNotificationPrefs: {
-          ...defaultProviderNotificationPrefs,
-          ...(typeof provider.emailNotificationPrefs === 'object' && provider.emailNotificationPrefs
-            ? (provider.emailNotificationPrefs as Record<string, boolean>)
-            : {}),
-        },
+        emailNotificationPrefs: mergeProviderNotificationPrefs(provider.emailNotificationPrefs),
         paymentInfo: provider.paymentInfo ?? undefined,
       },
     })
@@ -297,6 +340,18 @@ providerProfileRouter.put(
     const weekSchedule = weekScheduleRaw ? JSON.parse(weekScheduleRaw) : undefined
     const emailNotificationPrefs =
       parseJson(body.emailNotificationPrefs) ?? req.body?.emailNotificationPrefs
+    /**
+     * Saved **live**, never into the draft overlay, for the same reason the vanity slug
+     * is: the draft exists so a provider can rework the *visible* page without shipping
+     * it half-finished, and this changes nothing anyone sees. Staging it behind Publish
+     * would mean a provider who switched approval on, saved a draft, and walked away
+     * kept taking auto-confirmed bookings they believed they were reviewing.
+     */
+    const requiresApprovalRaw = body.requiresBookingApproval ?? req.body?.requiresBookingApproval
+    const requiresBookingApproval =
+      requiresApprovalRaw === undefined
+        ? undefined
+        : requiresApprovalRaw === true || requiresApprovalRaw === 'true' || requiresApprovalRaw === '1'
     const paymentInfo = parseJson(body.paymentInfo) ?? req.body?.paymentInfo
     const availableRaw = body.available ?? req.body?.available
     const available =
@@ -330,7 +385,11 @@ providerProfileRouter.put(
         weekSchedule: weekSchedule ?? undefined,
         imageUrl: imageUrl ?? undefined,
         available: available ?? undefined,
-        emailNotificationPrefs: emailNotificationPrefs ?? undefined,
+        emailNotificationPrefs:
+          emailNotificationPrefs === undefined
+            ? undefined
+            : mergeProviderNotificationPrefs(emailNotificationPrefs),
+        requiresBookingApproval,
         paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
         ...(categoryIds
           ? {
@@ -545,6 +604,137 @@ providerProfileRouter.get(
   })
 )
 
+/**
+ * Tells the booker what was decided. Reads the row rather than taking the caller's word
+ * for who it is about, exactly as the create-time notices do.
+ *
+ * The approved link is an **owner** manage token — `mintOwnerManageToken`, an HMAC over
+ * the appointment id — because the raw emailed token is never persisted and cannot be
+ * recovered here. That is safe precisely because of where it is going: the address on
+ * the booking, which is the owner's. It must not be minted anywhere a provider could
+ * read it back.
+ *
+ * A decline carries no manage link at all — the row is cancelled, so there is nothing
+ * left to manage — and no reason, because the provider is never asked for one and
+ * inventing "unavailable" would put words in their mouth.
+ */
+const notifyBookingDecision = async (
+  appointmentId: string,
+  decision: 'approve' | 'reject',
+  locale: string
+): Promise<void> => {
+  const row = await prisma.appointment.findUnique({
+    where: { id: appointmentId },
+    select: {
+      startAt: true,
+      providerId: true,
+      guestEmail: true,
+      guestFirstName: true,
+      service: { select: { name: true } },
+      consumer: { select: { firstName: true, user: { select: { email: true } } } },
+      provider: { select: { firstName: true, lastName: true } },
+    },
+  })
+  if (!row) return
+
+  // A guest may have booked with a phone and no address. There is nobody to email;
+  // the provider still has the decision recorded, and the phone number to call.
+  const to = row.guestEmail ?? row.consumer?.user.email
+  if (!to) return
+
+  const shared = {
+    to,
+    firstName: row.guestFirstName ?? row.consumer?.firstName ?? 'there',
+    providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
+    serviceName: row.service.name,
+    when: formatBookingWhen(row.startAt),
+  }
+
+  if (decision === 'approve') {
+    await sendBookingApprovedEmail({
+      ...shared,
+      manageUrl: buildBookingManageUrl(
+        config.corsOrigin,
+        locale,
+        mintOwnerManageToken(appointmentId, config.jwtSecret)
+      ),
+    })
+    return
+  }
+
+  await sendBookingRejectedEmail({
+    ...shared,
+    bookingUrl: buildProviderPageUrl(config.corsOrigin, locale, row.providerId),
+  })
+}
+
+/**
+ * Approve or decline one booking that is waiting on this provider.
+ *
+ * A route of its own rather than another status on `PATCH /appointments/:id`, because
+ * three things here are not true of that one:
+ *
+ * - **It is a state machine, not a status write.** Only `pending` is a legal starting
+ *   point. Re-posting a decision on a booking already decided must not re-send the
+ *   email — approving twice would tell a client twice that they are confirmed, and the
+ *   second one would arrive after they had maybe already cancelled.
+ * - **It sends mail**, and which message depends on the decision.
+ * - **It is scoped by the session's `profileId`**, never a body field, so there is no
+ *   id to aim at another provider's queue. `PATCH /appointments/:id` resolves ownership
+ *   from the row and serves both sides of a booking; this serves one.
+ *
+ * A failed send does not fail the request: the decision is committed and the approvals
+ * tab has already moved on, so there is no outcome the caller should branch on. Same
+ * bargain `lib/booking-mail.ts` makes everywhere else — see `server/CLAUDE.md`.
+ */
+providerProfileRouter.patch(
+  '/bookings/:id/decision',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const decision = req.body?.decision
+    if (decision !== 'approve' && decision !== 'reject') {
+      throw new HttpError(400, "decision must be 'approve' or 'reject'", 400)
+    }
+
+    const booking = await prisma.appointment.findFirst({
+      where: { id: req.params.id, providerId: req.session!.profileId },
+      include: providerBookingInclude,
+    })
+    // 404 rather than 403 on someone else's booking: the id is a uuid, and confirming
+    // that one exists is the first useful thing to learn before guessing at more.
+    if (!booking) throw new HttpError(404, 'Booking not found', 404)
+
+    if (booking.status !== 'pending') {
+      throw new HttpError(409, 'This booking has already been decided', 409)
+    }
+
+    /**
+     * A slot that has come and gone cannot be approved — "all that stuff works if it is
+     * upcoming". Declining one still can, and must: that is how a request nobody got to
+     * in time leaves the queue, and the client is told rather than left wondering.
+     */
+    if (decision === 'approve' && booking.startAt.getTime() <= Date.now()) {
+      throw new HttpError(409, 'This time has already passed. Decline it and offer another.', 409)
+    }
+
+    const updated = await prisma.appointment.update({
+      where: { id: booking.id },
+      // Approving writes `scheduled`, which is exactly the row an auto-approving
+      // provider would have had — there is one "on the calendar" state, not two.
+      data: { status: decision === 'approve' ? 'scheduled' : 'cancelled' },
+      include: providerBookingInclude,
+    })
+
+    try {
+      await notifyBookingDecision(booking.id, decision, resolveBookingLocale(req.body?.locale))
+    } catch (error) {
+      console.error('[mail] booking decision notify failed', error)
+    }
+
+    return ok(res, mapProviderBooking(updated))
+  })
+)
+
 providerProfileRouter.get(
   '/analytics',
   requireProvider,
@@ -657,6 +847,12 @@ function readNumber(body: Record<string, unknown>, key: string): number | null |
   return parsed
 }
 
+function readBoolean(body: Record<string, unknown>, key: string): boolean | undefined {
+  if (!hasField(body, key)) return undefined
+  const raw = body[key]
+  return raw === true || raw === 'true' || raw === '1'
+}
+
 const uploadedImageUrl = (req: Request): string | undefined =>
   req.file ? `/uploads/${path.basename(req.file.path)}` : undefined
 
@@ -678,13 +874,17 @@ const CATEGORY_NAME_MAX = 40
  * Resolves the service form's Category field, which is a combobox: an id means an
  * existing (usually predefined) category was picked, a bare name means the provider
  * typed one that may not exist yet. Matching is case-insensitive so "Hair" and "hair"
- * do not become two Category rows. New names become Category rows so `Service.categoryId`
- * stays a required FK — they are not auto-linked onto the provider or organization.
+ * do not become two Category rows. New names become Category rows; they are not
+ * auto-linked onto the provider or organization.
+ *
+ * Three states, matching the rest of this body: `undefined` means the field was
+ * absent (leave the column alone), `null` means it was sent empty (clear it), a
+ * string is the resolved id. Category is optional — a service is valid with a
+ * title and a duration.
  */
 async function resolveServiceCategoryId(
-  body: Record<string, unknown>,
-  required: boolean
-): Promise<string | undefined> {
+  body: Record<string, unknown>
+): Promise<string | null | undefined> {
   const categoryId = readText(body, 'categoryId')
   if (categoryId) {
     const existing = await prisma.category.findUnique({
@@ -695,33 +895,34 @@ async function resolveServiceCategoryId(
   }
 
   const categoryName = readText(body, 'categoryName')
-  if (!categoryName) {
-    if (required) throw new HttpError(400, 'Service category is required')
-    return undefined
-  }
-  if (categoryName.length > CATEGORY_NAME_MAX) {
-    throw new HttpError(400, `Category name must be at most ${CATEGORY_NAME_MAX} characters`)
-  }
-
-  const matched = await prisma.category.findFirst({
-    where: { name: { equals: categoryName, mode: 'insensitive' } },
-    select: { id: true },
-  })
-  if (matched) return matched.id
-
-  try {
-    const created = await prisma.category.create({ data: { name: categoryName } })
-    return created.id
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      const raced = await prisma.category.findFirst({
-        where: { name: { equals: categoryName, mode: 'insensitive' } },
-        select: { id: true },
-      })
-      if (raced) return raced.id
+  if (categoryName) {
+    if (categoryName.length > CATEGORY_NAME_MAX) {
+      throw new HttpError(400, `Category name must be at most ${CATEGORY_NAME_MAX} characters`)
     }
-    throw error
+
+    const matched = await prisma.category.findFirst({
+      where: { name: { equals: categoryName, mode: 'insensitive' } },
+      select: { id: true },
+    })
+    if (matched) return matched.id
+
+    try {
+      const created = await prisma.category.create({ data: { name: categoryName } })
+      return created.id
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const raced = await prisma.category.findFirst({
+          where: { name: { equals: categoryName, mode: 'insensitive' } },
+          select: { id: true },
+        })
+        if (raced) return raced.id
+      }
+      throw error
+    }
   }
+
+  if (hasField(body, 'categoryId') || hasField(body, 'categoryName')) return null
+  return undefined
 }
 
 /** Scoped by `providerId` so one provider can never address another's service. */
@@ -744,12 +945,11 @@ providersRouter.post(
     const body = req.body as Record<string, unknown>
 
     const name = readText(body, 'name')
-    const categoryId = await resolveServiceCategoryId(body, true)
+    const categoryId = await resolveServiceCategoryId(body)
     const duration = readNumber(body, 'duration')
     const price = readNumber(body, 'price')
 
     if (!name) throw new HttpError(400, 'Service name is required')
-    if (!categoryId) throw new HttpError(400, 'Service category is required')
     if (duration === undefined || duration === null) throw new HttpError(400, 'Service duration is required')
     assertDuration(duration)
     assertPrice(price)
@@ -758,12 +958,13 @@ providersRouter.post(
       data: {
         providerId,
         name,
-        categoryId,
+        categoryId: categoryId ?? null,
         durationMinutes: duration,
         description: readText(body, 'description') ?? null,
         price: price ?? null,
         currency: readText(body, 'currency') ?? null,
         imageUrl: uploadedImageUrl(req) ?? null,
+        active: readBoolean(body, 'active') ?? true,
       },
     })
 
@@ -783,8 +984,8 @@ providersRouter.put(
     const name = readText(body, 'name')
     if (hasField(body, 'name') && !name) throw new HttpError(400, 'Service name is required')
 
-    const categoryTouched = hasField(body, 'categoryId') || hasField(body, 'categoryName')
-    const categoryId = categoryTouched ? await resolveServiceCategoryId(body, true) : undefined
+    const categoryId = await resolveServiceCategoryId(body)
+    const active = readBoolean(body, 'active')
 
     const duration = readNumber(body, 'duration')
     if (duration !== undefined) {
@@ -804,12 +1005,13 @@ providersRouter.put(
       where: { id: serviceId },
       data: {
         ...(name ? { name } : {}),
-        ...(categoryId ? { categoryId } : {}),
+        ...(categoryId !== undefined ? { categoryId } : {}),
         ...(duration !== undefined && duration !== null ? { durationMinutes: duration } : {}),
         ...(hasField(body, 'description') ? { description: readText(body, 'description') } : {}),
         ...(price !== undefined ? { price } : {}),
         ...(hasField(body, 'currency') ? { currency: readText(body, 'currency') } : {}),
         ...(imageUrl ? { imageUrl } : {}),
+        ...(active !== undefined ? { active } : {}),
       },
     })
 

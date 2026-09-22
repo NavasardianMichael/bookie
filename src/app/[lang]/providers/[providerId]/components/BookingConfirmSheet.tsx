@@ -2,7 +2,7 @@
 
 import { FC } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Form, Spin, Tooltip } from 'antd'
+import { Alert, Form, Spin, Tooltip } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { GuestBookingDetails } from '@api/appointments/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -41,6 +41,12 @@ export type BookingCreated = {
   emailSent: boolean
   emailedTo?: string
   paymentMethods: PaymentMethod[]
+  /**
+   * The provider reviews bookings, so this one is a *request* and the slot is held
+   * pending their decision. Comes off the created row, not off the provider setting —
+   * the success screen must not promise a state the appointment is not in.
+   */
+  requiresApproval: boolean
 }
 
 type FormValues = {
@@ -62,6 +68,12 @@ type Props = {
   needsGuestDetails: boolean
   /** Session still resolving. Showing the guest form here would flash it at a signed-in user. */
   isAuthPending: boolean
+  /**
+   * This provider reviews bookings, so the submit button asks rather than books. Read
+   * from the public provider payload, which is the only way the sheet can say so
+   * *before* the visitor commits — afterwards, the created row is the source.
+   */
+  requiresApproval: boolean
   /**
    * Methods this provider takes. Empty means they never configured a set, so the
    * picker enables every method rather than disabling the whole list.
@@ -96,6 +108,7 @@ export const BookingConfirmSheet: FC<Props> = ({
   booking,
   needsGuestDetails,
   isAuthPending,
+  requiresApproval,
   paymentMethodOptions,
   paymentInfo,
   isBooking,
@@ -117,6 +130,7 @@ export const BookingConfirmSheet: FC<Props> = ({
         <BookingConfirmForm
           booking={booking}
           needsGuestDetails={needsGuestDetails}
+          requiresApproval={requiresApproval}
           paymentMethodOptions={paymentMethodOptions}
           paymentInfo={paymentInfo}
           isBooking={isBooking}
@@ -150,8 +164,14 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
         </span>
         <div className='min-w-0'>
           <AppTitle level='h3' size='h3'>
-            {t('confirmedTitle')}
+            {created.requiresApproval ? t('requestedTitle') : t('confirmedTitle')}
           </AppTitle>
+          {/* The sentence that matters more than the heading: an unreviewed booking is
+              done, a reviewed one is not, and the difference is what the visitor should
+              expect to happen next. */}
+          <AppParagraph size='body-sm' className='m-0'>
+            {created.requiresApproval ? t('awaitingApprovalBody') : t('confirmedBody')}
+          </AppParagraph>
           {created.emailSent && created.emailedTo ? (
             <AppParagraph size='body-sm' className='m-0'>
               {t('emailSent', { email: created.emailedTo })}
@@ -169,7 +189,7 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
 
 type FormProps = Pick<
   Props,
-  'needsGuestDetails' | 'paymentMethodOptions' | 'paymentInfo' | 'isBooking' | 'onSubmit'
+  'needsGuestDetails' | 'paymentMethodOptions' | 'paymentInfo' | 'isBooking' | 'onSubmit' | 'requiresApproval'
 > & {
   booking: BookingSummaryData
 }
@@ -181,6 +201,7 @@ type FormProps = Pick<
 const BookingConfirmForm: FC<FormProps> = ({
   booking,
   needsGuestDetails,
+  requiresApproval,
   paymentMethodOptions,
   paymentInfo,
   isBooking,
@@ -222,6 +243,13 @@ const BookingConfirmForm: FC<FormProps> = ({
       className='flex w-full flex-col gap-6'
     >
       <BookingSummary {...booking} paymentMethods={selectedMethods} />
+
+      {/* Said before the commitment, not after it. A visitor who expects a confirmation
+          and gets "we have passed this on" has been told the wrong thing by the button
+          they pressed. */}
+      {requiresApproval && (
+        <Alert type='info' showIcon message={t('approvalNoticeTitle')} description={t('approvalNoticeBody')} />
+      )}
 
       {needsGuestDetails && (
         <div className='flex flex-col gap-4'>
@@ -347,7 +375,7 @@ const BookingConfirmForm: FC<FormProps> = ({
       </div>
 
       <AppButton htmlType='submit' type='primary' loading={isBooking} className='w-full'>
-        {t('submit')}
+        {requiresApproval ? t('submitRequest') : t('submit')}
       </AppButton>
     </Form>
   )

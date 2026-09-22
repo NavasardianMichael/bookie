@@ -68,22 +68,19 @@
       "newPassword": "Nowe hasło",
       "confirmPassword": "Potwierdź hasło",
       "firstName": "Imię",
-      "firstNamePlaceholder": "Alex",
       "lastName": "Nazwisko",
-      "lastNamePlaceholder": "Morgan",
       "phone": "Numer telefonu",
-      "phoneMandatory": "Numer telefonu (wymagany)",
       "mobileNumber": "Numer komórki",
       "organization": "Organizacja",
-      "organizationOptional": "Organizacja (opcjonalnie)"
+      "countryCode": "Numer kierunkowy kraju"
     },
     "validation": {
       "passwordTooShort": "Hasło musi mieć co najmniej {min} znaków",
       "passwordTooLong": "Hasło nie może przekraczać {max} znaków",
       "passwordsDoNotMatch": "Hasła nie są takie same",
-      "passwordRequired": "Wprowadź hasło",
       "passwordNeedsLetterAndNumber": "Hasło musi zawierać co najmniej jedną literę i jedną cyfrę",
-      "passwordContainsEmail": "Hasło nie może zawierać Twojego adresu e-mail"
+      "passwordContainsEmail": "Hasło nie może zawierać Twojego adresu e-mail",
+      "invalidPhone": "Podaj prawidłowy numer telefonu"
     },
     "signIn": {
       "title": "Witaj ponownie",
@@ -99,7 +96,14 @@
       "submit": "Utwórz konto"
     },
     "providerRegistration": {
-      "submit": "Utwórz konto usługodawcy"
+      "submit": "Utwórz konto usługodawcy",
+      "title": "Rozwijaj firmę z Bookie",
+      "subtitle": "Dołącz do tysięcy usługodawców, którzy łatwo zarządzają wizytami",
+      "metaTitle": "Utwórz konto usługodawcy",
+      "metaDescription": "Dołącz do tysięcy usługodawców, którzy łatwo zarządzają wizytami w Bookie.",
+      "termsLead": "Klikając „Utwórz konto usługodawcy”, akceptujesz nasze",
+      "alreadyHaveAccount": "Masz już konto?",
+      "organizationPlaceholder": "Twoja organizacja"
     },
     "forgotPassword": {
       "title": "Zresetuj hasło",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "To konto Google jest już połączone z innym kontem Bookie.",
       "google_already_linked": "Twoje konto jest już połączone z Google.",
       "google_unauthorized": "Najpierw się zaloguj, a potem połącz Google w ustawieniach."
-    }
+    },
+    "termsAnd": "i"
   },
   "Booking": {
     "confirmTitle": "Potwierdź rezerwację",
@@ -237,7 +242,15 @@
     "generateQr": "Wygeneruj QR",
     "downloadQr": "Pobierz QR",
     "shareQr": "Udostępnij QR",
-    "qrAlt": "Kod QR tej rezerwacji"
+    "qrAlt": "Kod QR tej rezerwacji",
+    "slotTaken": "Ten termin właśnie został zajęty",
+    "slotTakenBody": "Ktoś zarezerwował go, gdy wypełniałeś formularz. Wybierz inną godzinę.",
+    "requestedTitle": "Rezerwacja zgłoszona",
+    "confirmedBody": "Twoja wizyta jest w kalendarzu specjalisty.",
+    "awaitingApprovalBody": "Termin jest dla Ciebie zarezerwowany, dopóki specjalista go rozpatruje. Dostaniesz e-mail, gdy tylko odpowie.",
+    "approvalNoticeTitle": "Ten specjalista sprawdza rezerwacje",
+    "approvalNoticeBody": "Twoja rezerwacja zostanie wysłana jako zgłoszenie. Termin jest dla Ciebie zarezerwowany do czasu odpowiedzi.",
+    "submitRequest": "Wyślij zgłoszenie rezerwacji"
   },
   "Footer": {
     "blurb": "Jedna platforma, aby znaleźć usługi w okolicy albo prowadzić własny kalendarz rezerwacji.",
@@ -296,9 +309,18 @@
       "availability": "Dostępność",
       "services": "Usługi",
       "bookings": "Rezerwacje",
+      "approvals": "Zatwierdzenia",
       "analytics": "Statystyki",
       "seo": "SEO",
       "history": "Historia"
+    },
+    "workspace": {
+      "onProviderTitle": "Jesteś w swoim panelu specjalisty",
+      "onProviderBody": "Twoja strona publiczna, usługi i rezerwacje składane u Ciebie.",
+      "onConsumerTitle": "Jesteś w swoim profilu klienta",
+      "onConsumerBody": "Twoje dane i rezerwacje, które złożyłeś u innych specjalistów.",
+      "toConsumer": "Przejdź do profilu klienta",
+      "toProvider": "Przejdź do panelu specjalisty"
     },
     "actions": {
       "save": "Zapisz zmiany",
@@ -361,7 +383,10 @@
       "subtitle": "Wybierz, które e-maile chcesz otrzymywać.",
       "emailPrefs": "Preferencje powiadomień",
       "remindersTitle": "Przypomnienia o wizytach",
-      "remindersBody": "Otrzymuj powiadomienie 24 godziny przed rezerwacją.",
+      "remindersBody": "Otrzymuj e-mail przed rozpoczęciem rezerwacji.",
+      "remindersLeadLabel": "Przypomnij mi",
+      "remindersMinutes": "{count} minut",
+      "remindersHours": "{count, plural, one {# godzina} few {# godziny} other {# godzin}}",
       "changesTitle": "Zmiany rezerwacji",
       "changesBody": "Aktualizacje, gdy rezerwacja zostanie zmieniona lub anulowana.",
       "marketingTitle": "E-maile marketingowe",
@@ -376,6 +401,8 @@
       "methodsLabel": "Akceptowane metody",
       "cardOrAccountNumber": "Numer karty / Numer konta",
       "cardOrAccountNumberPlaceholder": "Numer, który klienci kopiują, aby Ci zapłacić",
+      "cardOrAccountNumberInfo": "Aplikacja sama nie przetwarza płatności. To pole jest pokazywane konsumentom jako informacja.",
+      "cardOrAccountNumberInfoLabel": "O tym numerze",
       "publicShareWarning": "Ten numer karty lub konta pojawi się na opublikowanej stronie i w arkuszu rezerwacji. Każdy, kto otworzy stronę, może go skopiować. Odpowiadasz za to, co publikujesz.",
       "publicShareTitle": "Udostępnić te dane publicznie?",
       "notes": "Uwagi",
@@ -438,8 +465,6 @@
       "subtitle": "Każda wizyta zarezerwowana u Ciebie — przeszła i nadchodząca.",
       "asConsumerTitle": "Rezerwacje jako klient",
       "asConsumerSubtitle": "Każda wizyta, którą zarezerwowałeś u innego specjalisty, przeszła i nadchodząca.",
-      "switchToConsumer": "Przełącz na rezerwacje jako klient",
-      "switchToProvider": "Przełącz na rezerwacje jako specjalista",
       "emptyAsConsumerTitle": "Nie masz jeszcze własnych rezerwacji",
       "emptyAsConsumerBody": "Gdy zarezerwujesz innego specjalistę, te wizyty pojawią się tutaj.",
       "confirmBodyAsConsumer": "To anuluje wizytę. Możesz anulować tylko, gdy wciąż jest nadchodząca.",
@@ -481,13 +506,42 @@
       "confirmTitle": "Oznaczyć tę rezerwację jako {status}?",
       "confirmBody": "Klient nie jest automatycznie powiadamiany. Możesz zmienić status ponownie później.",
       "moreActions": "Akcje dla {name}",
+      "reviewInApprovals": "Rozpatrz w Zatwierdzeniach",
       "status": {
+        "pending": "Oczekuje na zatwierdzenie",
         "scheduled": "Zaplanowane",
         "confirmed": "Potwierdzone",
         "completed": "Zakończone",
         "cancelled": "Anulowane",
-        "no_show": "Nieobecność"
+        "no_show": "Opuszczone"
       }
+    },
+    "approvals": {
+      "title": "Zatwierdzenia",
+      "subtitle": "Zdecyduj, które rezerwacje trafiają do Twojego kalendarza.",
+      "badgeTitle": "{count, plural, =0 {brak rezerwacji oczekujących na zatwierdzenie} one {# rezerwacja oczekuje na zatwierdzenie} few {# rezerwacje oczekują na zatwierdzenie} many {# rezerwacji oczekuje na zatwierdzenie} other {# rezerwacji oczekuje na zatwierdzenie}}",
+      "settingTitle": "Zatwierdzanie rezerwacji",
+      "switchTitle": "Sprawdzaj rezerwacje przed potwierdzeniem",
+      "switchBody": "Gdy ta opcja jest włączona, przesłana rezerwacja czeka tutaj na Twoją decyzję (powiadomimy Cię e-mailem). W tym czasie termin jest zarezerwowany dla klienta.",
+      "stateOn": "Rezerwacje czekają na Twoje zatwierdzenie. Do każdej dostajesz e-mail.",
+      "stateOff": "Rezerwacje są potwierdzane automatycznie i od razu trafiają do kalendarza.",
+      "queueHint": "Czekają na Twoją decyzję, najbliższa wizyta na początku.",
+      "emptyTitle": "Nic nie czeka",
+      "emptyBody": "Rezerwacje wymagające Twojego zatwierdzenia pojawią się tutaj.",
+      "approve": "Zatwierdź",
+      "reject": "Odrzuć",
+      "expired": "Termin już minął",
+      "detailService": "Usługa",
+      "detailPrice": "Cena",
+      "detailPhone": "Telefon",
+      "detailEmail": "E-mail",
+      "detailPayment": "Płatność",
+      "detailRequested": "Zgłoszono",
+      "detailNotes": "Uwagi klienta",
+      "confirmApproveTitle": "Zatwierdzić tę rezerwację?",
+      "confirmApproveBody": "Trafi do Twojego kalendarza, a klient dostanie e-mail z potwierdzeniem.",
+      "confirmRejectTitle": "Odrzucić tę rezerwację?",
+      "confirmRejectBody": "Termin zostanie zwolniony, a klient dostanie e-mail. Tej operacji nie można cofnąć."
     },
     "analytics": {
       "title": "Statystyki",
@@ -499,7 +553,7 @@
       "statBookings": "Rezerwacje",
       "statRevenue": "Przychód",
       "statCompletion": "Zakończone",
-      "statNoShow": "Wskaźnik nieobecności",
+      "statNoShow": "Wskaźnik opuszczeń",
       "vsPrevious": "{change} vs poprzedni okres",
       "noPrevious": "Brak wcześniejszego okresu do porównania",
       "ofSettled": "Z rezerwacji, które się zakończyły",
@@ -557,11 +611,20 @@
       "slugLength": "Musi mieć od {min} do {max} znaków.",
       "slugPattern": "Używaj małych liter, cyfr i pojedynczych myślników pomiędzy nimi.",
       "slugChangeWarning": "Zapisanie zastąpi Twój obecny link. Osoby korzystające z /p/{slug} nie dotrą już do Twojej strony.",
-      "yourLink": "Twój krótki link",
-      "copy": "Kopiuj",
-      "copied": "Skopiowano link.",
-      "copyFailed": "Nie udało się skopiować linku.",
       "saved": "Ustawienia wyszukiwania zapisane."
+    },
+    "signOutTitle": "Wylogować się?",
+    "signOutBody": "Aby zarządzać kontem, musisz zalogować się ponownie.",
+    "deleteAccount": {
+      "button": "Usuń konto",
+      "title": "Usuń konto",
+      "hint": "Trwale usuwa konto i wszystkie powiązane dane. Tej operacji nie można cofnąć.",
+      "confirmTitle": "Usunąć konto?",
+      "confirmBody": "Wszystkie dane powiązane z tym kontem zostaną usunięte. Tej operacji nie można cofnąć.",
+      "password": "Aktualne hasło",
+      "googleOnly": "To konto loguje się przez Google. Najpierw ustaw hasło, aby potwierdzić usunięcie.",
+      "hasAppointments": "Masz zapisane wizyty. Anuluj je przed usunięciem konta.",
+      "wrongPassword": "Aktualne hasło jest nieprawidłowe"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "Usługodawcy",
-    "emptyTitle": "Brak usługodawców",
-    "emptyBody": "Usługodawcy pojawią się tutaj, gdy tylko opublikują profil.",
     "ctaTitle": "Gotowy odzyskać swój czas?",
     "ctaBody": "Znajdź usługodawcę, wybierz termin i wróć do swoich spraw — albo prowadź własny kalendarz na Bookie.",
     "getStarted": "Zacznij",
@@ -661,6 +722,7 @@
     "title": "Organizacje",
     "emptyTitle": "Brak organizacji",
     "emptyBody": "Organizacje pojawią się tutaj, gdy tylko zostaną dodane.",
+    "viewOrganization": "Zobacz organizację",
     "fallbackDescription": "Zarezerwuj wizytę w {name}.",
     "loadError": "Nie udało się załadować listy organizacji. Spróbuj ponownie."
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "Nadchodzące rezerwacje",
     "tabAll": "Wszystkie usługi ({count})",
     "tabActive": "Aktywne ({count})",
-    "tabIncomplete": "Niekompletne ({count})",
-    "emptyPricedTitle": "Brak wycenionych usług",
-    "emptyPricedBody": "Dodaj cenę do usługi, a pojawi się tu jako możliwa do zarezerwowania.",
-    "emptyIncompleteTitle": "Nic niekompletnego",
-    "emptyIncompleteBody": "Każda usługa ma ustaloną cenę.",
     "emptyTitle": "Brak usług",
     "emptyBody": "Dodaj usługi, które klienci mogą u Ciebie rezerwować.",
     "sheetTitle": "Konfiguracja usługi",
     "deleteTitle": "Usunąć tę usługę?",
-    "deleteBody": "Klienci nie będą mogli już jej zarezerwować. Tej operacji nie można cofnąć.",
+    "deleteBody": "Klienci nie będą mogli jej już zarezerwować. Aby na razie ją ukryć, dezaktywuj. Tej operacji nie można cofnąć.",
     "delete": "Usuń",
     "edit": "Edytuj usługę",
     "deleteService": "Usuń usługę",
@@ -748,7 +805,6 @@
     "noDescription": "Brak opisu.",
     "noPrice": "Brak ceny",
     "active": "Aktywna",
-    "incomplete": "Niekompletna",
     "formTitle": "Tytuł",
     "formDescription": "Opis",
     "formDuration": "Czas trwania",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "Wpisz lub wybierz kategorię",
     "currencyPlaceholder": "Wpisz lub wybierz walutę",
     "onboardingDone": "Skończyłeś konfigurację? Twój profil jest już aktywny — zobacz, co widzą klienci.",
-    "viewProfile": "Zobacz mój profil"
+    "viewProfile": "Zobacz mój profil",
+    "tabInactive": "Nieaktywne ({count})",
+    "emptyActiveTitle": "Brak aktywnych usług",
+    "emptyActiveBody": "Aktywuj usługę, aby klienci mogli ją zarezerwować.",
+    "emptyInactiveTitle": "Nic nieaktywnego",
+    "emptyInactiveBody": "Wszystkie usługi są obecnie oferowane klientom.",
+    "inactive": "Nieaktywna",
+    "activate": "Aktywuj {name}",
+    "deactivate": "Dezaktywuj {name}"
   },
   "ProfileCreation": {
     "metaTitle": "Utwórz swój profil",

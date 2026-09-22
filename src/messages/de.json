@@ -68,22 +68,19 @@
       "newPassword": "Neues Passwort",
       "confirmPassword": "Passwort bestätigen",
       "firstName": "Vorname",
-      "firstNamePlaceholder": "Alex",
       "lastName": "Nachname",
-      "lastNamePlaceholder": "Morgan",
       "phone": "Telefonnummer",
-      "phoneMandatory": "Telefonnummer (Pflichtfeld)",
       "mobileNumber": "Mobilnummer",
       "organization": "Organisation",
-      "organizationOptional": "Organisation (optional)"
+      "countryCode": "Ländervorwahl"
     },
     "validation": {
       "passwordTooShort": "Das Passwort muss mindestens {min} Zeichen lang sein",
       "passwordTooLong": "Das Passwort darf höchstens {max} Zeichen lang sein",
       "passwordsDoNotMatch": "Die beiden Passwörter stimmen nicht überein",
-      "passwordRequired": "Bitte geben Sie ein Passwort ein",
       "passwordNeedsLetterAndNumber": "Das Passwort muss mindestens einen Buchstaben und eine Ziffer enthalten",
-      "passwordContainsEmail": "Das Passwort darf Ihre E-Mail-Adresse nicht enthalten"
+      "passwordContainsEmail": "Das Passwort darf Ihre E-Mail-Adresse nicht enthalten",
+      "invalidPhone": "Bitte geben Sie eine gültige Telefonnummer ein"
     },
     "signIn": {
       "title": "Willkommen zurück",
@@ -99,7 +96,14 @@
       "submit": "Konto erstellen"
     },
     "providerRegistration": {
-      "submit": "Anbieterkonto erstellen"
+      "submit": "Anbieterkonto erstellen",
+      "title": "Wachsen Sie mit Bookie",
+      "subtitle": "Schließen Sie sich Tausenden von Anbietern an, die Termine ganz einfach verwalten",
+      "metaTitle": "Anbieterkonto erstellen",
+      "metaDescription": "Schließen Sie sich Tausenden von Anbietern an, die Termine ganz einfach mit Bookie verwalten.",
+      "termsLead": "Mit einem Klick auf „Anbieterkonto erstellen“ stimmen Sie unseren",
+      "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+      "organizationPlaceholder": "Ihre Organisation"
     },
     "forgotPassword": {
       "title": "Passwort zurücksetzen",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "Dieses Google-Konto ist bereits mit einem anderen Bookie-Konto verknüpft.",
       "google_already_linked": "Ihr Konto ist bereits mit Google verknüpft.",
       "google_unauthorized": "Melden Sie sich zuerst an und verknüpfen Sie Google dann in den Einstellungen."
-    }
+    },
+    "termsAnd": "und"
   },
   "Booking": {
     "confirmTitle": "Buchung bestätigen",
@@ -237,7 +242,15 @@
     "generateQr": "QR erzeugen",
     "downloadQr": "QR herunterladen",
     "shareQr": "QR teilen",
-    "qrAlt": "QR-Code für diese Buchung"
+    "qrAlt": "QR-Code für diese Buchung",
+    "slotTaken": "Dieser Termin ist gerade vergeben worden",
+    "slotTakenBody": "Jemand hat ihn gebucht, während Sie das Formular ausgefüllt haben. Bitte wählen Sie eine andere Uhrzeit.",
+    "requestedTitle": "Buchung angefragt",
+    "confirmedBody": "Ihr Termin steht im Kalender des Anbieters.",
+    "awaitingApprovalBody": "Der Termin ist für Sie reserviert, solange er geprüft wird. Sie erhalten eine E-Mail, sobald eine Antwort vorliegt.",
+    "approvalNoticeTitle": "Dieser Anbieter prüft Buchungen",
+    "approvalNoticeBody": "Ihre Buchung wird als Anfrage gesendet. Der Termin bleibt bis zur Antwort für Sie reserviert.",
+    "submitRequest": "Buchungsanfrage senden"
   },
   "Footer": {
     "blurb": "Eine Plattform, um Dienstleistungen in der Nähe zu finden oder den eigenen Buchungskalender zu führen.",
@@ -296,9 +309,18 @@
       "availability": "Verfügbarkeit",
       "services": "Leistungen",
       "bookings": "Buchungen",
+      "approvals": "Freigaben",
       "analytics": "Statistiken",
       "seo": "SEO",
       "history": "Verlauf"
+    },
+    "workspace": {
+      "onProviderTitle": "Sie sind in Ihrem Anbieterbereich",
+      "onProviderBody": "Ihre öffentliche Seite, Ihre Leistungen und die Buchungen, die bei Ihnen eingehen.",
+      "onConsumerTitle": "Sie sind in Ihrem Kundenprofil",
+      "onConsumerBody": "Ihre eigenen Daten und die Buchungen, die Sie bei anderen gemacht haben.",
+      "toConsumer": "Zum Kundenprofil wechseln",
+      "toProvider": "Zum Anbieterbereich wechseln"
     },
     "actions": {
       "save": "Änderungen speichern",
@@ -361,7 +383,10 @@
       "subtitle": "Wählen Sie, welche E-Mails Sie erhalten möchten.",
       "emailPrefs": "Benachrichtigungseinstellungen",
       "remindersTitle": "Terminerinnerungen",
-      "remindersBody": "Werden Sie 24 Stunden vor einer Buchung benachrichtigt.",
+      "remindersBody": "Erhalten Sie eine E-Mail, bevor ein Termin beginnt.",
+      "remindersLeadLabel": "Erinnern",
+      "remindersMinutes": "{count} Minuten",
+      "remindersHours": "{count, plural, one {# Stunde} other {# Stunden}}",
       "changesTitle": "Buchungsänderungen",
       "changesBody": "Updates, wenn eine Buchung geändert oder storniert wird.",
       "marketingTitle": "Marketing-E-Mails",
@@ -376,6 +401,8 @@
       "methodsLabel": "Akzeptierte Methoden",
       "cardOrAccountNumber": "Kartennummer / Kontonummer",
       "cardOrAccountNumberPlaceholder": "Die Nummer, die Kunden kopieren, um Sie zu bezahlen",
+      "cardOrAccountNumberInfo": "Die App verarbeitet keine Zahlungen. Dieses Feld wird Verbrauchern als Information angezeigt.",
+      "cardOrAccountNumberInfoLabel": "Zu dieser Nummer",
       "publicShareWarning": "Diese Karten- oder Kontonummer erscheint auf Ihrer veröffentlichten Seite und im Buchungsblatt. Jeder, der die Seite öffnet, kann sie kopieren. Sie verantworten, was Sie veröffentlichen.",
       "publicShareTitle": "Diese Angaben öffentlich teilen?",
       "notes": "Notizen",
@@ -438,8 +465,6 @@
       "subtitle": "Alle bei Ihnen gebuchten Termine, vergangene und bevorstehende.",
       "asConsumerTitle": "Buchungen als Kunde",
       "asConsumerSubtitle": "Jeder Termin, den Sie bei einem anderen Anbieter gebucht haben, vergangen und bevorstehend.",
-      "switchToConsumer": "Zu Buchungen als Kunde wechseln",
-      "switchToProvider": "Zu Buchungen als Anbieter wechseln",
       "emptyAsConsumerTitle": "Noch keine eigenen Buchungen",
       "emptyAsConsumerBody": "Wenn Sie einen anderen Anbieter buchen, erscheinen diese Termine hier.",
       "confirmBodyAsConsumer": "Damit wird der Termin storniert. Sie können nur stornieren, solange er noch bevorsteht.",
@@ -481,13 +506,42 @@
       "confirmTitle": "Diese Buchung als {status} markieren?",
       "confirmBody": "Der Kunde wird nicht automatisch benachrichtigt. Sie können den Status später wieder ändern.",
       "moreActions": "Aktionen für {name}",
+      "reviewInApprovals": "In Freigaben prüfen",
       "status": {
+        "pending": "Genehmigung ausstehend",
         "scheduled": "Geplant",
         "confirmed": "Bestätigt",
         "completed": "Abgeschlossen",
         "cancelled": "Storniert",
-        "no_show": "Nicht erschienen"
+        "no_show": "Verpasst"
       }
+    },
+    "approvals": {
+      "title": "Freigaben",
+      "subtitle": "Legen Sie fest, welche Buchungen in Ihren Kalender gelangen.",
+      "badgeTitle": "{count, plural, =0 {keine Buchungen warten auf Freigabe} one {# Buchung wartet auf Freigabe} other {# Buchungen warten auf Freigabe}}",
+      "settingTitle": "Buchungsfreigabe",
+      "switchTitle": "Buchungen vor der Bestätigung prüfen",
+      "switchBody": "Wenn dies aktiviert ist, wartet eine eingereichte Buchung hier auf Ihre Entscheidung (Sie werden per E-Mail benachrichtigt). Der Termin bleibt so lange für die Kundschaft reserviert.",
+      "stateOn": "Buchungen warten auf Ihre Freigabe. Sie erhalten für jede eine E-Mail.",
+      "stateOff": "Buchungen werden automatisch bestätigt und landen direkt in Ihrem Kalender.",
+      "queueHint": "Warten auf Ihre Entscheidung, nächster Termin zuerst.",
+      "emptyTitle": "Nichts offen",
+      "emptyBody": "Buchungen, die Ihre Freigabe brauchen, erscheinen hier.",
+      "approve": "Freigeben",
+      "reject": "Ablehnen",
+      "expired": "Termin ist verstrichen",
+      "detailService": "Leistung",
+      "detailPrice": "Preis",
+      "detailPhone": "Telefon",
+      "detailEmail": "E-Mail",
+      "detailPayment": "Zahlung",
+      "detailRequested": "Angefragt am",
+      "detailNotes": "Hinweise der Kundschaft",
+      "confirmApproveTitle": "Diese Buchung freigeben?",
+      "confirmApproveBody": "Sie wird in Ihren Kalender übernommen und eine Bestätigung per E-Mail verschickt.",
+      "confirmRejectTitle": "Diese Buchung ablehnen?",
+      "confirmRejectBody": "Der Termin wird freigegeben und es geht eine E-Mail raus. Das lässt sich nicht rückgängig machen."
     },
     "analytics": {
       "title": "Statistiken",
@@ -499,7 +553,7 @@
       "statBookings": "Buchungen",
       "statRevenue": "Umsatz",
       "statCompletion": "Abgeschlossen",
-      "statNoShow": "Ausfallrate",
+      "statNoShow": "Verpasst-Quote",
       "vsPrevious": "{change} gegenüber dem vorherigen Zeitraum",
       "noPrevious": "Kein früherer Zeitraum zum Vergleich",
       "ofSettled": "Von abgeschlossenen Buchungen",
@@ -557,11 +611,20 @@
       "slugLength": "Muss zwischen {min} und {max} Zeichen lang sein.",
       "slugPattern": "Verwenden Sie Kleinbuchstaben, Zahlen und einzelne Bindestriche dazwischen.",
       "slugChangeWarning": "Speichern ersetzt Ihren aktuellen Link. Wer /p/{slug} nutzt, erreicht Ihre Seite nicht mehr.",
-      "yourLink": "Ihr Kurzlink",
-      "copy": "Kopieren",
-      "copied": "Link kopiert.",
-      "copyFailed": "Link konnte nicht kopiert werden.",
       "saved": "Sucheinstellungen gespeichert."
+    },
+    "signOutTitle": "Abmelden?",
+    "signOutBody": "Sie müssen sich erneut anmelden, um Ihr Konto zu verwalten.",
+    "deleteAccount": {
+      "button": "Konto löschen",
+      "title": "Konto löschen",
+      "hint": "Löscht Ihr Konto und alle zugehörigen Daten dauerhaft. Das kann nicht rückgängig gemacht werden.",
+      "confirmTitle": "Konto löschen?",
+      "confirmBody": "Alle Daten zu diesem Konto werden entfernt. Das kann nicht rückgängig gemacht werden.",
+      "password": "Aktuelles Passwort",
+      "googleOnly": "Dieses Konto meldet sich mit Google an. Legen Sie zuerst ein Passwort fest, um die Löschung zu bestätigen.",
+      "hasAppointments": "Sie haben Termine. Stornieren Sie diese, bevor Sie Ihr Konto löschen.",
+      "wrongPassword": "Das aktuelle Passwort ist falsch"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "Dienstleister",
-    "emptyTitle": "Noch keine Anbieter",
-    "emptyBody": "Anbieter erscheinen hier, sobald sie ein Profil veröffentlichen.",
     "ctaTitle": "Bereit, sich Ihre Zeit zurückzuholen?",
     "ctaBody": "Finden Sie einen Anbieter, wählen Sie einen Termin und machen Sie mit Ihrem Tag weiter — oder führen Sie Ihren eigenen Kalender auf Bookie.",
     "getStarted": "Loslegen",
@@ -661,6 +722,7 @@
     "title": "Organisationen",
     "emptyTitle": "Noch keine Organisationen",
     "emptyBody": "Organisationen erscheinen hier, sobald sie hinzugefügt werden.",
+    "viewOrganization": "Organisation ansehen",
     "fallbackDescription": "Termin bei {name} buchen.",
     "loadError": "Die Organisationsliste konnte nicht geladen werden. Bitte versuchen Sie es erneut."
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "Bevorstehende Buchungen",
     "tabAll": "Alle Leistungen ({count})",
     "tabActive": "Aktiv ({count})",
-    "tabIncomplete": "Unvollständig ({count})",
-    "emptyPricedTitle": "Keine bepreisten Leistungen",
-    "emptyPricedBody": "Fügen Sie einer Leistung einen Preis hinzu, dann erscheint sie hier als buchbar.",
-    "emptyIncompleteTitle": "Nichts unvollständig",
-    "emptyIncompleteBody": "Für jede Leistung ist ein Preis festgelegt.",
     "emptyTitle": "Noch keine Leistungen",
     "emptyBody": "Fügen Sie die Leistungen hinzu, die Kunden bei Ihnen buchen können.",
     "sheetTitle": "Leistungskonfiguration",
     "deleteTitle": "Diese Leistung löschen?",
-    "deleteBody": "Kunden können sie nicht mehr buchen. Dies kann nicht rückgängig gemacht werden.",
+    "deleteBody": "Kundinnen und Kunden können sie nicht mehr buchen. Um sie vorerst auszublenden, deaktiviere sie. Das kann nicht rückgängig gemacht werden.",
     "delete": "Löschen",
     "edit": "Leistung bearbeiten",
     "deleteService": "Leistung löschen",
@@ -748,7 +805,6 @@
     "noDescription": "Noch keine Beschreibung.",
     "noPrice": "Kein Preis",
     "active": "Aktiv",
-    "incomplete": "Unvollständig",
     "formTitle": "Titel",
     "formDescription": "Beschreibung",
     "formDuration": "Dauer",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "Kategorie eingeben oder auswählen",
     "currencyPlaceholder": "Währung eingeben oder auswählen",
     "onboardingDone": "Fertig eingerichtet? Ihr Profil ist live — sehen Sie, was Kunden sehen.",
-    "viewProfile": "Mein Profil ansehen"
+    "viewProfile": "Mein Profil ansehen",
+    "tabInactive": "Inaktiv ({count})",
+    "emptyActiveTitle": "Keine aktiven Leistungen",
+    "emptyActiveBody": "Aktiviere eine Leistung, damit Kundinnen und Kunden sie buchen können.",
+    "emptyInactiveTitle": "Nichts inaktiv",
+    "emptyInactiveBody": "Alle Leistungen werden derzeit angeboten.",
+    "inactive": "Inaktiv",
+    "activate": "{name} aktivieren",
+    "deactivate": "{name} deaktivieren"
   },
   "ProfileCreation": {
     "metaTitle": "Eigenes Profil erstellen",

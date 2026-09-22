@@ -107,7 +107,22 @@ const requireRole = (role: 'provider' | 'consumer', message: string): RequestHan
 }
 
 export const requireProvider = requireRole('provider', 'Provider access required')
-export const requireConsumer = requireRole('consumer', 'Consumer access required')
+
+/**
+ * **There is no `requireConsumer`, deliberately.** It existed and guarded exactly one
+ * router, `consumerProfileRouter`, where it was a role check standing in for an identity
+ * check — the same mistake `POST /appointments` corrected when it stopped being
+ * role-gated.
+ *
+ * A session resolves to `provider` whenever the User holds both profiles
+ * (`loadProfile`), so the guard locked providers out of their own consumer record. That
+ * router now runs on `requireAuth` and derives the row from `session.userId`, which
+ * scopes it to the caller just as tightly and without asking what hat they are wearing.
+ *
+ * `requireProvider` stays, and is a different thing: a Provider profile is a *capability*
+ * — a public page, a service catalogue, a calendar — not merely a second view of the same
+ * person. Its routes are meaningless without one.
+ */
 
 /**
  * `/admin/*`. Orthogonal to role: an admin holds an ordinary consumer or provider session

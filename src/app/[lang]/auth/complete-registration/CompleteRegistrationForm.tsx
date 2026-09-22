@@ -147,7 +147,8 @@ export const CompleteRegistrationForm: FC = () => {
           <RegistrationField
             name='firstName'
             label={t('fields.firstName')}
-            placeholder={t('fields.firstNamePlaceholder')}
+            requirement='Required'
+            placeholder={t('fields.firstName')}
             icon={<UserIcon className='text-brand-muted h-4 w-4' />}
             rules={nameRules}
             autoComplete='given-name'
@@ -156,7 +157,8 @@ export const CompleteRegistrationForm: FC = () => {
           <RegistrationField
             name='lastName'
             label={t('fields.lastName')}
-            placeholder={t('fields.lastNamePlaceholder')}
+            requirement='Required'
+            placeholder={t('fields.lastName')}
             icon={<UserIcon className='text-brand-muted h-4 w-4' />}
             rules={nameRules}
             autoComplete='family-name'
@@ -164,11 +166,13 @@ export const CompleteRegistrationForm: FC = () => {
           />
         </div>
 
-        <PhoneNumberField label={t('fields.phone')} disabled={isPending} />
+        <PhoneNumberField label={t('fields.phone')} requirement='Required' disabled={isPending} />
 
         {role === USER_TYPES.provider && (
           <div className='flex flex-col gap-1.5'>
-            <FieldLabel htmlFor='organization'>{t('fields.organizationOptional')}</FieldLabel>
+            <FieldLabel htmlFor='organization' requirement='Optional'>
+              {t('fields.organization')}
+            </FieldLabel>
             {/* No rule: a provider may be a sole trader, and the server treats a missing
                 organization as "none" rather than an error. */}
             <AppFormItem name='organization'>

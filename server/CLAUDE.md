@@ -44,6 +44,19 @@ The frontend's `Endpoint<>` contract in `src/interfaces/api.ts` depends on this 
   import `./load-env.js` itself — `config.ts` and `lib/prisma.ts` do. It resolves the
   server's own env file by path, so `pnpm watch` (cwd = repo root) cannot leave Prisma
   pointed at the Next.js env.
+- **The API reads `server/.env` and nothing else.** There is no Next.js-style cascade
+  here: `load-env.ts` hands `dotenv.config` one absolute path, so a
+  `.development.local` / `.production.local` sibling is **never loaded by the running
+  process**. Those are deploy-payload staging files, read only by
+  `scripts/env-to-base64.mjs` (`pnpm env:base64 <name>`) to build the `ENV_API_BASE64`
+  secret.
+
+  This is a trap because the web half *does* cascade — Next.js loads its own
+  `.development.local` automatically — so two packages in one repo treat identically
+  named files differently. A credential edited in the server's `.development.local`
+  changes nothing about what the dev API sends, and the symptom points outward rather
+  than at the file: the mail engine answers `403 Invalid API key` for a key you can see
+  is correct in the file you just edited. Local values belong in `server/.env`.
 - **Prisma CLI config lives in `prisma.config.ts`**, not in a `prisma` block in
   `package.json` — that block is deprecated in Prisma 6.19 and gone in 7. A config file
   makes the CLI skip its implicit env loading ("Prisma config detected, skipping
@@ -146,7 +159,30 @@ keep the pair pinned by a test.**
 |---|---|---|---|
 | Signup verification | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `app/[lang]/auth/verify-email` |
 | Email change | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `app/[lang]/{providers,consumers}/profile` |
+
+**`isAllowedEmailVerifyReturnPath` takes no role.** It accepts either settings home and
+nothing else. It used to narrow to the caller's own side, which was never the
+open-redirect guard — `splitLocalePath` is — and became a bug the moment the settings
+shell gained its workspace switch: a provider who holds a Consumer profile changes their
+email from `/consumers/profile`, their session still reads `provider`, and the send
+answered `Invalid return path`. Do not put the role back; pinned by
+`tests/unit/server/returnPath.spec.ts`.
 | Password reset | `buildPasswordResetUrl` | `PASSWORD_RESET_QUERY` (`token`) | `app/[lang]/auth/reset-password` |
+| Booking approval request | `buildApprovalsUrl` | *(path, not a param)* `PROVIDER_APPROVALS_PATH` | `app/[lang]/providers/(account)/profile/approvals` |
+
+The approvals link is the same trap with a path instead of a query param, and it is pinned
+the same way: the builder lives in `lib/return-path.ts` — the only half a unit test can
+reach — and `tests/unit/server/bookingErrors.spec.ts` asserts it equals
+`ROUTES.providerProfileApprovals`. `lib/booking-mail.ts` re-exports it, so call sites did
+not change.
+
+`tests/unit/server/bookingErrors.spec.ts` pins a second cross-package string for the same
+reason: `SLOT_TAKEN_MESSAGE`, which is thrown by `services/appointments.ts` and matched by
+`src/helpers/booking.ts#isSlotTakenError` to tell "somebody took that time" apart from every
+other 409 the booking route answers. It lives in `lib/booking-errors.ts`, a module that
+imports nothing, purely so the test can hold both sides at once. Renaming it alone
+typechecks and ships — and the only symptom is a recoverable error degrading back into a
+raw red toast.
 
 The two names are **not** interchangeable, which is the trap — reaching for `TOKEN_QUERY` on a
 verification page is the exact bug above.
@@ -161,6 +197,41 @@ side by side and asserts they are equal, so renaming either alone now fails ther
 Prisma and the mail client, so no unit test can reach it. The reset pair agrees today and is
 held only by inspection; see `docs/BACKLOG.md`. When you add a link, add its row here and
 give it a pinned test, which means putting the builder somewhere a test can import.
+
+## Booking approval: the slot is held either way
+
+`Provider.requiresBookingApproval` (default **false**) decides whether a submitted booking
+lands as `pending` and waits on `/providers/profile/approvals`, or as `scheduled` and goes
+straight onto the calendar. Four rules hold it together, and `docs/DATABASE_STRUCTURE.md`
+has the full table.
+
+- **`pending` is a live status.** `LIVE_STATUSES` in `services/appointments.ts` is
+  `['pending', 'scheduled', 'confirmed']`, and the overlap check *and*
+  `getProviderBusyIntervals` both read that one declaration. The grid a visitor sees and
+  the guard that rejects their submit must never be able to disagree about what "taken"
+  means. Leaving a slot open until a decision would double-book whoever asks second, and
+  the provider would then be refusing a booking the app had told them was fine.
+- **Approving writes `scheduled`, not a sixth state.** That is exactly the row an
+  auto-approving provider would have had, so nothing downstream has to learn a second
+  spelling of "on the calendar". Declining writes `cancelled`.
+- **Only `PATCH /provider-profile/bookings/:id/decision` may move a booking out of
+  `pending`**, and `PATCH /appointments/:id` refuses it for the receiving provider with a
+  409. The difference is mail: the decision route sends it and the status route does not,
+  so confirming from the Bookings kebab would put the booking on the calendar and leave a
+  client who was told they were under review with no word either way. The *booker* can
+  still cancel a pending booking — from the manage link or their own list — because a
+  request awaiting someone else is exactly what its maker must be able to withdraw.
+- **The approval-request email is not gated on `emailNotificationPrefs.newBooking`.** That
+  preference silences a notice about something already settled. This one is the only thing
+  that makes a decision happen at all, so silencing it would leave a client waiting on a
+  provider who was never told to decide. It is also sent independently of the booker's
+  own mail succeeding.
+
+`GET /providers/:id/busy` is the public read the grid subtracts. It returns instants and
+nothing else — no id, service or booker — and caps its window at 100 days so a public
+route cannot be turned into a scan of one provider's whole history. It replaced
+`getProviderAvailability`, whose fixed 30-minute grid no client could use; see
+`docs/BACKLOG.md` #6 for why two slot engines existed and what closing it changed.
 
 ## `/admin/*` — the one admin surface
 
@@ -253,6 +324,18 @@ They are gone, and `consumersRouter` no longer exists — only `consumerProfileR
 
 If a provider ever needs to see who booked them, that belongs on the appointment and scoped
 to that provider, not on a lookup keyed by a guessable id.
+
+**`consumerProfileRouter` runs on `requireAuth`, not a role guard — and that is not a
+widening.** It used to sit behind `requireConsumer`, which was a role check standing in for
+an identity check, exactly the mistake `POST /appointments` corrected. `loadProfile`
+resolves a session to `provider` whenever the User holds both profiles, so a provider who
+booked anyone got a Consumer row from `resolveConsumerId` and was then locked out of it —
+their own notification preferences and payment methods unreachable, permanently on
+defaults. The row is now derived from `session.userId` and is still never a parameter, so
+there is exactly one record any caller can reach: their own. `requireConsumer` is deleted
+rather than left unused; `requireProvider` stays, because a Provider profile is a
+capability (a public page, a catalogue, a calendar) rather than a second view of the same
+person.
 
 ### …and that is exactly what `GET /provider-profile/bookings` is
 

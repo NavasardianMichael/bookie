@@ -109,7 +109,7 @@ export const ConsumerRegistrationForm: React.FC = () => {
           name='firstName'
           label={t('fields.firstName')}
           requirement='Required'
-          placeholder={t('fields.firstNamePlaceholder')}
+          placeholder={t('fields.firstName')}
           autoComplete='given-name'
           rules={nameRules}
           icon={<UserIcon className='text-brand-muted h-4 w-4' />}
@@ -120,7 +120,7 @@ export const ConsumerRegistrationForm: React.FC = () => {
           name='lastName'
           label={t('fields.lastName')}
           requirement='Required'
-          placeholder={t('fields.lastNamePlaceholder')}
+          placeholder={t('fields.lastName')}
           autoComplete='family-name'
           rules={nameRules}
           icon={<UserIcon className='text-brand-muted h-4 w-4' />}

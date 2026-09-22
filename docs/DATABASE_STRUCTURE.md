@@ -9,11 +9,11 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category |
-| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, SEO overrides + vanity `slug` |
-| **Service** | Bookable offering (duration, price, category) |
+| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), SEO overrides + vanity `slug` |
+| **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | Consumer ↔ Provider favorites |
-| **Appointment** | Booking with status enum and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
+| **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot) and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
 
@@ -59,20 +59,21 @@ All JSON responses use:
 | PATCH | `/identity/phone` | session — phone is profile data now, not identity |
 | POST | `/identity/change-email/send` | session — `{ email, returnPath }`; emails a link (dev: API console) |
 | POST | `/identity/change-email/confirm` | session — same handler as `/verify-email` |
-| DELETE | `/identity/account` | session |
+| DELETE | `/identity/account` | session — `{ password }`; Google-only accounts refused until a password is set; consumers with appointments get 409 |
 | GET | `/identity/google` | public — starts the OAuth flow (`intent`, `role`, `returnPath`) |
 | GET | `/identity/google/callback` | public — Google returns here; **redirects**, never JSON |
 | GET | `/identity/google/pending` | pending cookie — prefill for the completion form |
 | POST | `/identity/google/complete` | pending cookie — creates the account and signs in |
 | GET | `/providers?q=&categoryId=&available=&openToday=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below |
 | GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
-| GET | `/providers/:id/availability?date=` | public |
+| GET | `/providers/:id/busy?from=&to=` | public, same unlisted rule as `/:id` — booked intervals only (instants, no booker); window capped at 100 days. Replaced `/:id/availability`, see [Booking](#booking) |
 | GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page) |
 | GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments booked *with* them, see [Provider workspace](#provider-workspace) |
 | GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
 | GET | `/provider-profile/consumer-bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments they booked as a client; empty if the User has no Consumer row |
 | GET | `/provider-profile/consumer-bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for that client-side list |
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound) |
+| PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
 | GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
@@ -196,7 +197,7 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 `PUT|DELETE /providers/:providerId/services/:serviceId`.
 
 - **The body is flat**, not wrapped in a `service` key: `name`, `duration` (whole minutes,
-  stored as `durationMinutes`), `categoryId` or `categoryName`, `description`, `price`, `currency`, and
+  stored as `durationMinutes`), optional `categoryId` or `categoryName`, `description`, `price`, `currency`, `active`, and
   `image` as a file part. JSON normally; `multipart/form-data` only when an image comes
   along. A nested `{ service: … }` under multipart serialises to `service[name]` keys,
   and multer does no bracket parsing — the API would read every field as `undefined`.
@@ -205,11 +206,15 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   axios drops `undefined` *and* `null` when serialising multipart.
 - **`image` is only ever accepted as an upload.** The API answers with the stored
   `/uploads/<file>` path; sending that string back is a no-op.
-- **Category is a combobox.** Send `categoryId` for a predefined Category (the same
+- **Category is a combobox, and optional.** Send `categoryId` for a predefined Category (the same
   rows linked to organizations and providers), or `categoryName` for typed text. The
-  API matches case-insensitively or creates a Category row so `Service.categoryId`
-  stays a required FK. An unknown id with no name is a `400`. New categories are not
-  auto-linked onto the provider or organization.
+  API matches case-insensitively or creates a Category row. An unknown id with no name
+  clears the column. New categories are not auto-linked onto the provider or organization.
+  A service is valid with only a title and a duration.
+- **`active` defaults to `true`.** `PUT` `{ active: false }` withdraws the service from
+  every public payload and from book/reschedule (`409 This service is no longer available`).
+  The owner's catalogue still lists it, and historical appointments keep pointing at it.
+  Deactivation is the answer when delete is refused.
 - **`currency` is a string**, not an enum — predefined ISO codes are suggestions; any
   trimmed value is stored.
 - **Both the path id and the service are scoped to the session.** A `providerId` that is
@@ -236,6 +241,10 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   **Consumer** `paymentInfo` is methods only: the profile tab writes `{ methods }` and
   `PUT /consumer-profile` strips `payToNumber` / `cardNumber` / `accountNumber` / `notes` /
   `reference` so leftover values cannot linger.
+- **`emailNotificationPrefs`** — JSON, saved live (not draft). Booleans plus
+  `appointmentReminderMinutes` (`15` \| `60` \| `360` \| `1440`; default `1440`).
+  The Notifications tab shows the lead-time select only while Appointment Reminders is on.
+  Read/write through `server/src/lib/notification-prefs.ts`.
 - **SEO columns are *not* draftable.** `seoTitle`, `seoDescription` and
   `slug` save live through `PATCH /provider-profile/seo`, never through the `draft`
   overlay — see [Provider workspace](#provider-workspace). The unused `seoKeywords`
@@ -331,7 +340,77 @@ row. Never put the appointment UUID *bare* in that URL.
 
 Optional confirmation mail (`lib/booking-mail.ts`) goes out when we have an address
 (guest `email`, or the signed-in user's). The appointment is already saved — a mail
-failure returns `emailSent: false` and still `201`.
+failure returns `emailSent: false` and still `201`. **Which message** goes out is decided
+by the provider's approval setting, below — telling someone their booking is confirmed
+while it sits in a queue is the failure that branch exists to prevent.
+
+### Booking approval
+
+`Provider.requiresBookingApproval` (default **false**) decides what a submitted booking
+becomes:
+
+| Setting | Status written | What the booker is told | What the provider gets |
+|---|---|---|---|
+| off | `scheduled` | "Your booking is confirmed" | nothing |
+| on | `pending` | "We have your booking request" | "A booking is waiting for your approval", linking to `/providers/profile/approvals` |
+
+Four things follow, and none of them is optional:
+
+- **A pending booking holds its slot.** `LIVE_STATUSES` in `services/appointments.ts` is
+  `['pending', 'scheduled', 'confirmed']`, and both the overlap check and
+  `GET /providers/:id/busy` read it. Leaving the slot open until a decision would
+  double-book whoever asks second, and the provider would then have to refuse a booking
+  the app told them was fine.
+- **Approving writes `scheduled`** — exactly the row an auto-approving provider would
+  have had. There is one "on the calendar" state, not two that later code must remember
+  to check for. Declining writes `cancelled`.
+- **`pending` leaves that state only through the decision route.**
+  `PATCH /appointments/:id` refuses it for the receiving provider (`409`, pointing at the
+  Approvals tab), because that route sends no mail: confirming from the Bookings kebab
+  would put the booking on the calendar and leave a client who was told they were under
+  review with no word either way. The *booker* can still cancel a pending booking from
+  either the manage link or their own list.
+- **Approving a slot that has already started is a `409`.** Declining one is not — that
+  is how a request nobody got to in time leaves the queue and the client finally hears
+  back.
+- **The approval-request email is not gated on `emailNotificationPrefs.newBooking`.**
+  That preference silences a notice about something already settled; this one is the only
+  thing that makes a decision happen at all.
+
+The setting saves **live** through `PUT /provider-profile`, never into the draft overlay —
+it changes nothing anyone can see, and staging it behind Publish would leave a provider
+who switched it on and walked away still taking auto-confirmed bookings.
+
+### The booking grid and who is already booked
+
+`GET /providers/:id/busy?from=&to=` returns `[{ startAt, endAt }]` for every live booking
+overlapping the window, and nothing else — no id, no service, no booker. It is public
+because the grid it feeds is, and it applies the **same unlisted rule as
+`GET /providers/:id`**: an unlisted page 404s for everyone but its owner, so nothing
+legitimate asks this of one, and a provider who unpublished would otherwise still be
+answering questions about when they are booked. The window is capped at 100 days so a
+public route cannot be turned into a scan of one provider's whole history.
+
+It replaced `GET /:id/availability`, which built a **fixed 30-minute** slot grid server-side
+and was **never called by anything**: `BookingPanel` computes slots itself from
+`weekSchedule`, stepped by the *selected service's* duration, so the server's grid could
+not answer for a 45-minute service. The two engines disagreed about what a slot even is
+(`docs/BACKLOG.md` #6, now closed), and the consequence was that the public calendar
+subtracted nothing — every visitor saw every in-hours time as free and found out otherwise
+from a `409` on submit.
+
+The split is now by responsibility rather than by layer: **the client owns stepping**
+(it knows the service), **the server owns what is taken** (it owns the rows). Intervals
+are the only shape that does not presuppose a step. `helpers/booking.ts#dropBusySlots`
+subtracts them, on **overlap** rather than equality — a 30-minute slot at 10:00 is
+unbookable against a 45-minute booking at 09:30.
+
+The `409` is still the authority, because two people can submit in the same instant. Its
+message is `SLOT_TAKEN_MESSAGE`, declared in `server/src/lib/booking-errors.ts` and
+mirrored in `src/constants/booking.ts`, pinned by `tests/unit/server/bookingErrors.spec.ts`.
+The sheet matches on it to offer "pick another time" and refresh the grid, rather than
+showing a raw error — matching on `409` alone would catch a withdrawn service too, which
+is not a failure another slot can fix.
 
 `GET /appointments/manage/:token` is public and returns enough to render the summary
 and the public booking panels (appointment + `mapSingleProvider`).
@@ -339,8 +418,10 @@ and the public booking panels (appointment + `mapSingleProvider`).
 `{ status: 'cancelled' }` **or** `{ serviceId, startAt }` (reschedule **updates the
 same row** and keeps the same `manageToken` / `/b/<token>` — the URL is a capability
 handle, not a hash of the slot. Hard-deleting and inserting a new appointment would
-break every emailed link and 409 against the old row's own slot). create's check, excluding this id, and only while status is `scheduled` or
-`confirmed`. After a reschedule, best-effort mail goes to the booker (guest email
+break every emailed link and 409 against the old row's own slot). Overlap is create's
+check, excluding this id, and only while the status is one of `LIVE_STATUSES` —
+`pending` included, because a request still awaiting a decision is upcoming and its
+maker must be able to move or drop it while they wait. After a reschedule, best-effort mail goes to the booker (guest email
 or the consumer's `User.email`) and the provider's identity `User.email` — never
 `publicEmail`. A send failure still returns 200.
 
@@ -360,7 +441,8 @@ price *at migration time*, which is an approximation those rows cannot be rescue
 
 `PATCH /appointments/:id` narrows `status` against `AppointmentStatus` before it reaches
 Prisma. It used to pass the body value straight through, which was harmless only while the
-one caller sent nothing and took the `'cancelled'` default.
+one caller sent nothing and took the `'cancelled'` default. It refuses any provider-side
+write on a `pending` booking — see [Booking approval](#booking-approval).
 
 Other rules:
 
@@ -394,7 +476,8 @@ request, not only at login.
   "role": "provider",                 // or "consumer"; `userType` is accepted as an alias
   "email": "alex@company.com",
   "password": "a-strong-password",
-  // Mandatory, and an object. Profile data — never verified, never unique.
+  // Mandatory for consumers, optional for providers, and an object when present.
+  // Profile data — never verified, never unique.
   "phone": { "code": 374, "number": 77000201 },
   "profile": {
     "firstName": "Alex",

@@ -62,7 +62,9 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 `providers/(account)` also wraps `profile-services`). Each sidebar tab is a nested route
 so Next lazy-loads the panel. Provider phone change lives in the Profile tab's Personal
 Information block, not a sidebar item; listing controls (copy URL, publish/unpublish,
-delete page) live on that tab's hero, not a Listing sidebar item. Consumer phone and
+delete page) live on that tab's hero, not a Listing sidebar item. **Delete account**
+sits at the end of both Profile tabs (`DELETE /identity/account`, password reauth) —
+it is not the listing trash icon, which only removes the public page. Consumer phone and
 preferred payment methods live in the Profile tab, not sidebar items — the old
 `/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile,
 and `/providers/profile/history` 307s to Bookings.
@@ -83,6 +85,7 @@ shell would be two mental models for one workspace — not because they are sett
 | Tab | Route | Shape |
 |---|---|---|
 | Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list of every appointment booked with you. `GET /provider-profile/bookings` + `/calendar`. The old `/providers/profile/history` URL is a Route Handler that 307s here. A header switch toggles `/providers/profile/consumer-bookings` — the same UI for appointments this provider booked as a client (`GET /provider-profile/consumer-bookings`). Not a second sidebar tab |
+| Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo` |
 
@@ -106,15 +109,63 @@ Six decisions in there worth not undoing:
    half-finished, and a title tag has no half-finished state. Running a drafted description
    beside a live address on one screen would be the confusing part, so the whole tab is one
    Save. See `docs/DATABASE_STRUCTURE.md`.
-5. **The consumer-side list is a header switch, not a sidebar item.** A provider can book
+5. **The consumer-side list is a sibling URL, not a sidebar item.** A provider can book
    someone else, and those rows must be visible, but they are the same Bookings surface
    with a different `where`. A second nav item would be two mental models for one
-   workspace; `/providers/profile/consumer-bookings` is a sibling URL so the toggle can
-   be a real link, and `SettingsShell` aliases it onto the Bookings item so the tab
-   stays lit.
+   workspace; `/providers/profile/consumer-bookings` is a sibling URL, and `SettingsShell`
+   aliases it onto the Bookings item so the tab stays lit.
+
+   Its header switch is **gone**, replaced by the workspace switch below — that control
+   swapped between two provider-tree URLs and was the only one of its kind, while the
+   same gesture is now available from every settings tab. **Nothing links to
+   `/providers/profile/consumer-bookings` any more**; the workspace switch sends
+   `/providers/profile/bookings` to `/consumers/profile/appointments`, which lists the
+   same appointments from the other side. Retiring the route, or giving it an entry
+   point, is an open decision — see `docs/BACKLOG.md`.
 6. **Bookings is a sibling sidebar route, not an Analytics subtab.** Charts stay on
    Analytics with the range control; the booking list lives at `/providers/profile/bookings`
    and is not filtered by that range. The calendar day-filter lives here, not on Analytics.
+7. **Approvals is a third tab, not a filter on Bookings** — even though it reads the same
+   endpoint with `status=pending`. Bookings is a record to scan, with its verbs behind a
+   kebab; Approvals asks one question per row and puts both answers on the surface, with
+   every detail the decision rests on (phone, email, notes, price, payment intent) rendered
+   rather than hidden. It has no filters, no search and no calendar on purpose: a queue you
+   have to filter is a queue you are not working through. The setting lives on the same
+   screen because a switch is unintelligible away from what it produces — and an empty
+   queue otherwise cannot be told apart from a switch that is off.
+8. **A pending row's kebab on Bookings is empty**, and links to Approvals instead. Its two
+   verbs send email; `PATCH /appointments/:id` does not, so confirming one from there would
+   put it on the calendar in silence. The API refuses that write for the same reason.
+
+### One account, two workspaces
+
+`AccountSettingsLayout` renders a **workspace switch above the panel on every settings
+subpage**, moving between `/providers/profile/*` and `/consumers/profile/*`.
+
+It exists because one `User` can hold both profiles — booking anyone creates the Consumer
+row (`resolveConsumerId` on the API) — while the session carries a single role, resolved
+provider-first at login. The two trees used to be mutually exclusive: the layout bounced
+any role mismatch, so a provider could never open the consumer record their own booking
+had created, and its notification and payment preferences sat on defaults unreachable.
+
+Four things hold it together:
+
+- **It navigates; it does not re-authenticate.** No cookie is reissued and
+  `SessionPayload` is unchanged. `consumerProfileRouter` resolves the row from
+  `session.userId` rather than from the session's role, so a provider reading their own
+  consumer settings is reading their own record — see `server/CLAUDE.md`.
+- **It renders only when the account holds both profiles.** `GET /identity/me` reports
+  `profiles`, because `role` cannot answer the question. Offering the switch to a provider
+  who has never booked would point at a record that does not exist.
+- **The destination comes from a table**, `src/helpers/workspace.ts`, not from rewriting
+  the path. The trees do not share slugs (`bookings` vs `appointments`) and the consumer
+  side has four tabs to the provider side's nine, so "swap the first segment" would invent
+  `/consumers/profile/analytics`. A tab with no counterpart falls back to the other side's
+  home. Pinned by `tests/unit/helpers/workspace.spec.ts`, including that every destination
+  is a declared `ROUTES` entry.
+- **The layout guard now asks whether the account holds *this* side**, not whether the
+  session's role matches it. A payload without `profiles` falls back to the old, narrower
+  rule rather than letting an unknown through.
 
 **The vanity link is a `route.ts`, not a `page.tsx`** — and that distinction was found the
 hard way. As a page it emitted a *soft* redirect: the root layout streams first, so by the
@@ -187,12 +238,14 @@ Five decisions worth not undoing:
 4. **The filter sheet is staged, the search is live.** Toggles collect into a draft and
    only *Show results* navigates, so opening the panel costs no request and two changes
    cost one. The search box is the opposite because live feedback is its whole point.
-5. **Only the results subtree suspends.** `<Suspense key={exploreParamsKey(params)}>`
-   wraps `ProvidersResults` alone: the heading, search box, rail and toolbar are already
-   correct for the new query, so re-rendering them would only make the controls flicker.
-   The heading and sort/filter controls live on the page, outside that boundary — a bare
-   `CardGridSkeleton` as the fallback is enough, because the section chrome is already on
-   screen.
+5. **Only the results subtree suspends.** `<Suspense>` wraps `ProvidersResults` alone:
+   the heading, search box, rail and toolbar are already correct for the new query, so
+   re-rendering them would only make the controls flicker. The boundary has **no**
+   `key` — a key remounts it and throws the current grid away for a skeleton on every
+   query. Search and sort/filter wrap URL updates in a shared `useTransition`, so the
+   current cards stay under a translucent overlay (`ExplorePending`) while the next
+   set streams in. The skeleton remains the cold-load fallback (`loading.tsx` and the
+   boundary's first paint).
 
 Where Explore deviates from `design/initial prototype/explore_service_providers`:
 
@@ -254,7 +307,7 @@ account-type toggle inside a form. The one exception is the Google completion sc
 ```
 /auth/account-type-selection      two links, no form state
    ├─→ /auth/consumer-registration   split screen: name, email, password, mobile
-   └─→ /auth/provider-registration   card: organization, name, email, password, phone
+   └─→ /auth/provider-registration   card: organization, name, email, password, optional phone
                     │
                     ▼  POST /identity/register — mails a link, does NOT sign in
         /auth/verify-email          ?token= → confirms, then → /auth/sign-in

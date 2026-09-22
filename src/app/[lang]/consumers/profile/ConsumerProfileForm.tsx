@@ -12,6 +12,7 @@ import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
+import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
 import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
@@ -201,11 +202,13 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         </Surface>
 
         <Surface className='flex flex-col gap-6'>
-          <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
-            <CreditCardIcon className='text-brand h-5 w-5' />
-            {t('payments.title')}
-          </AppTitle>
-          <AppParagraph size='body-sm'>{t('payments.subtitle')}</AppParagraph>
+          <div className='flex flex-col gap-1.5'>
+            <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
+              <CreditCardIcon className='text-brand h-5 w-5' />
+              {t('payments.title')}
+            </AppTitle>
+            <AppParagraph size='body-sm'>{t('payments.subtitle')}</AppParagraph>
+          </div>
           <div className='flex flex-col gap-1.5'>
             <FieldLabel htmlFor='consumer-payment-methods'>{t('payments.methodsLabel')}</FieldLabel>
             <AppFormItem
@@ -219,16 +222,20 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         </Surface>
       </Form>
 
-      <Surface className='flex flex-col gap-3'>
-        <AppTitle level='h3' size='body' className='flex items-center gap-2'>
-          <HelpIcon className='h-4 w-4' />
-          {t('needHelp.title')}
-        </AppTitle>
-        <AppParagraph size='body-sm'>{t('needHelp.body')}</AppParagraph>
+      <Surface className='flex flex-col gap-6'>
+        <div className='flex flex-col gap-1.5'>
+          <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
+            <HelpIcon className='text-brand h-5 w-5' />
+            {t('needHelp.title')}
+          </AppTitle>
+          <AppParagraph size='body-sm'>{t('needHelp.body')}</AppParagraph>
+        </div>
         <AppLink href={ROUTES.contact} variant='button' tone='default' className='self-start'>
           {t('needHelp.cta')}
         </AppLink>
       </Surface>
+
+      <DeleteAccountSection disabled={saving} />
 
       <SettingsActionBar
         dirty={dirty}

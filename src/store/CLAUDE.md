@@ -103,8 +103,7 @@ rather than echoed, because the API clamps an out-of-range `page`.
 - **`src/store/categories/list/store.ts`** has **no loader wired to any page but
   `profile-services`.** It used to ship fake seed data in `initialState` — one row whose
   `allIds` entry (`'c-1'`) did not even match its own `byId` key (`'smth'`) — so every
-  category picker offered an id the API had never issued, and `Service.categoryId` is a
-  required foreign key. `initialState` is empty now, which means a page that renders a
+  category picker offered an id the API had never issued. `initialState` is empty now, which means a page that renders a
   category picker **must call `getCategoriesList()` itself**;
   `ProviderProfileFormCategories` still has no page that does.
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns

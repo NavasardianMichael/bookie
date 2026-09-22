@@ -5,10 +5,10 @@ import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '@constants/auth'
 import { checkPasswordPolicy, PasswordPolicyFailure } from '@helpers/password'
+import { useFormItemRules } from './useFormItemRules'
 
-/** Each failure reason maps to one `Auth.validation.*` key. */
-const MESSAGE_KEY: Record<PasswordPolicyFailure, string> = {
-  required: 'passwordRequired',
+/** Policy failures other than empty — empty uses `Validation.required` like every other field. */
+const MESSAGE_KEY: Record<Exclude<PasswordPolicyFailure, 'required'>, string> = {
   tooShort: 'passwordTooShort',
   tooLong: 'passwordTooLong',
   needsLetterAndNumber: 'passwordNeedsLetterAndNumber',
@@ -27,17 +27,18 @@ const MESSAGE_KEY: Record<PasswordPolicyFailure, string> = {
  */
 export const usePasswordRules = (emailFieldName?: string): Rule[] => {
   const t = useTranslations('Auth.validation')
+  const requiredRules = useFormItemRules('required')
 
   return useMemo(
     () => [
-      { required: true, message: t('passwordRequired') },
+      ...requiredRules,
       ({ getFieldValue }) => ({
         validator: (_, value: string) => {
           if (!value) return Promise.resolve()
 
           const email = emailFieldName ? String(getFieldValue(emailFieldName) ?? '') : undefined
           const failure = checkPasswordPolicy(value, email)
-          if (!failure) return Promise.resolve()
+          if (!failure || failure === 'required') return Promise.resolve()
 
           return Promise.reject(
             new Error(t(MESSAGE_KEY[failure], { min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH }))
@@ -45,6 +46,6 @@ export const usePasswordRules = (emailFieldName?: string): Rule[] => {
         },
       }),
     ],
-    [emailFieldName, t]
+    [emailFieldName, requiredRules, t]
   )
 }

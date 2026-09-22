@@ -4,8 +4,8 @@ import { FC, useCallback, useEffect, useMemo } from 'react'
 import { Form, Select, Space } from 'antd'
 import type { CountryCode } from 'libphonenumber-js'
 import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
-import { useLocale } from 'next-intl'
-import { FORM_ITEM_REQUIRED_RULE_SET } from '@constants/form'
+import { useLocale, useTranslations } from 'next-intl'
+import { useFormItemRules } from '@hooks/useFormItemRules'
 import { guessPhoneCountry } from '@helpers/country'
 import { AppInput } from '@components/ui/AppInput'
 import { PhoneIcon } from '@components/ui/icons'
@@ -26,6 +26,11 @@ type Props = {
   disabled?: boolean
   /** The provider prototype labels fields in navy semibold rather than charcoal bold. */
   labelClassName?: string
+  /**
+   * When false, an empty number is valid and the country picker is only required if a
+   * number was typed. Defaults to true — consumer registration still needs a number.
+   */
+  required?: boolean
 }
 
 const NUMBER_INPUT_ID = 'phone-number'
@@ -60,12 +65,18 @@ export const PhoneNumberField: FC<Props> = ({
   placeholder = '+1 (555) 000-0000',
   disabled,
   labelClassName,
+  required = true,
 }) => {
+  const t = useTranslations('Auth')
   const form = Form.useFormInstance<PhoneFormValues>()
   const locale = useLocale()
   const countries = useCountries()
   const countryCode = Form.useWatch<CountryCode | undefined>('code')
+  const numberValue = Form.useWatch<string | undefined>('number')
   const allowedCountries = useMemo(() => new Set(countries.map((country) => country.value)), [countries])
+  const requiredRules = useFormItemRules('required')
+  const countryLabel = t('fields.countryCode')
+  const invalidPhone = t('validation.invalidPhone')
 
   // After mount so `navigator.languages` cannot disagree with the server HTML.
   // Leaves an existing value alone — sign-in, registration, and change-phone all
@@ -79,16 +90,20 @@ export const PhoneNumberField: FC<Props> = ({
 
   const validatePhoneNumber = useCallback(
     (_: unknown, value: string) => {
-      if (!value || !countryCode) return Promise.resolve()
+      if (!value) return Promise.resolve()
+      if (!countryCode) return Promise.reject(new Error(invalidPhone))
       try {
         if (isValidPhoneNumber(`+${getCountryCallingCode(countryCode)}${value}`)) return Promise.resolve()
-        return Promise.reject(new Error('Please enter a valid phone number'))
+        return Promise.reject(new Error(invalidPhone))
       } catch {
-        return Promise.reject(new Error('Please enter a valid phone number'))
+        return Promise.reject(new Error(invalidPhone))
       }
     },
-    [countryCode]
+    [countryCode, invalidPhone]
   )
+
+  const codeRequired = required || Boolean(numberValue?.trim())
+  const numberRules = [...(required ? requiredRules : []), { validator: validatePhoneNumber }]
 
   return (
     <div className='flex flex-col gap-1.5'>
@@ -99,8 +114,8 @@ export const PhoneNumberField: FC<Props> = ({
       <Space.Compact className='w-full'>
         <Form.Item<PhoneFormValues>
           name='code'
-          messageVariables={{ label: 'Country Code' }}
-          rules={FORM_ITEM_REQUIRED_RULE_SET}
+          messageVariables={{ label: countryLabel }}
+          rules={codeRequired ? requiredRules : []}
           validateTrigger={['onChange']}
           className='w-30 shrink-0'
         >
@@ -110,15 +125,15 @@ export const PhoneNumberField: FC<Props> = ({
             showSearch={{ optionFilterProp: 'searchLabel' }}
             popupMatchSelectWidth={320}
             disabled={disabled}
-            aria-label='Country code'
+            aria-label={countryLabel}
             styles={compactSelectStyles}
           />
         </Form.Item>
 
         <Form.Item<PhoneFormValues>
           name='number'
-          messageVariables={{ label: 'phone number' }}
-          rules={[...FORM_ITEM_REQUIRED_RULE_SET, { validator: validatePhoneNumber }]}
+          messageVariables={{ label }}
+          rules={numberRules}
           className='grow'
         >
           <AppInput

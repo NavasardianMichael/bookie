@@ -3,6 +3,9 @@ import { PhoneNumber } from '@interfaces/app'
 /** Preferred in-person payment method. */
 export type PaymentMethod = 'cash' | 'card_on_site' | 'bank_transfer'
 
+/** Minutes before an appointment to send a reminder email. */
+export type AppointmentReminderLeadMinutes = 15 | 60 | 360 | 1440
+
 export type PaymentInfo = {
   /**
    * Every method the owner accepts, not a single preference — a provider may take
@@ -23,12 +26,16 @@ export type PaymentInfo = {
 
 export type ConsumerEmailNotificationPrefs = {
   appointmentReminders: boolean
+  /** Minutes before the appointment to send the reminder. Ignored when reminders are off. */
+  appointmentReminderMinutes: AppointmentReminderLeadMinutes
   bookingChanges: boolean
   marketing: boolean
 }
 
 export type ProviderEmailNotificationPrefs = {
   appointmentReminders: boolean
+  /** Minutes before the appointment to send the reminder. Ignored when reminders are off. */
+  appointmentReminderMinutes: AppointmentReminderLeadMinutes
   bookingChanges: boolean
   newBooking: boolean
 }

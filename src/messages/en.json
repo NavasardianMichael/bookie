@@ -54,6 +54,7 @@
     "orWithEmail": "or with email",
     "backToSignIn": "Back to sign in",
     "termsLead": "By creating an account you agree to our",
+    "termsAnd": "and",
     "roles": {
       "consumer": "Booking a service",
       "provider": "Offering a service"
@@ -68,22 +69,19 @@
       "newPassword": "New password",
       "confirmPassword": "Confirm password",
       "firstName": "First name",
-      "firstNamePlaceholder": "Alex",
       "lastName": "Last name",
-      "lastNamePlaceholder": "Morgan",
       "phone": "Phone number",
-      "phoneMandatory": "Phone number (mandatory)",
       "mobileNumber": "Mobile number",
       "organization": "Organization",
-      "organizationOptional": "Organization (optional)"
+      "countryCode": "Country code"
     },
     "validation": {
       "passwordTooShort": "Password must be at least {min} characters",
       "passwordTooLong": "Password must be {max} characters or fewer",
       "passwordsDoNotMatch": "The two passwords do not match",
-      "passwordRequired": "Please enter a password",
       "passwordNeedsLetterAndNumber": "Password must contain at least one letter and one number",
-      "passwordContainsEmail": "Password must not contain your email address"
+      "passwordContainsEmail": "Password must not contain your email address",
+      "invalidPhone": "Please enter a valid phone number"
     },
     "signIn": {
       "title": "Welcome back",
@@ -99,7 +97,14 @@
       "submit": "Create account"
     },
     "providerRegistration": {
-      "submit": "Create provider account"
+      "submit": "Create provider account",
+      "title": "Grow your business with Bookie",
+      "subtitle": "Join thousands of service providers managing appointments with ease",
+      "metaTitle": "Create your provider account",
+      "metaDescription": "Join thousands of service providers managing appointments with ease on Bookie.",
+      "termsLead": "By clicking \"Create provider account\", you agree to our",
+      "alreadyHaveAccount": "Already have an account?",
+      "organizationPlaceholder": "Your organization"
     },
     "forgotPassword": {
       "title": "Reset your password",
@@ -237,7 +242,15 @@
     "generateQr": "Generate QR",
     "downloadQr": "Download QR",
     "shareQr": "Share QR",
-    "qrAlt": "QR code for this booking"
+    "qrAlt": "QR code for this booking",
+    "slotTaken": "That time has just been taken",
+    "slotTakenBody": "Someone booked it while you were filling this in. Please choose another time.",
+    "requestedTitle": "Booking requested",
+    "confirmedBody": "Your appointment is on the provider's calendar.",
+    "awaitingApprovalBody": "The time is held for you while the provider reviews it. You will get an email as soon as they respond.",
+    "approvalNoticeTitle": "This provider reviews bookings",
+    "approvalNoticeBody": "Your booking is sent as a request. The time is held for you until they respond.",
+    "submitRequest": "Send booking request"
   },
   "Footer": {
     "blurb": "A single platform to find local services or run a booking calendar.",
@@ -296,9 +309,18 @@
       "availability": "Availability",
       "services": "Services",
       "bookings": "Bookings",
+      "approvals": "Approvals",
       "analytics": "Analytics",
       "seo": "SEO",
       "history": "History"
+    },
+    "workspace": {
+      "onProviderTitle": "You are in your provider workspace",
+      "onProviderBody": "Your public page, services and the bookings people make with you.",
+      "onConsumerTitle": "You are in your consumer profile",
+      "onConsumerBody": "Your own details and the bookings you made with other providers.",
+      "toConsumer": "Switch to consumer profile",
+      "toProvider": "Switch to provider profile"
     },
     "actions": {
       "save": "Save Changes",
@@ -361,7 +383,10 @@
       "subtitle": "Choose which emails you want to receive.",
       "emailPrefs": "Notification Preferences",
       "remindersTitle": "Appointment Reminders",
-      "remindersBody": "Get notified 24 hours before a booking.",
+      "remindersBody": "Get an email before a booking starts.",
+      "remindersLeadLabel": "Notify me",
+      "remindersMinutes": "{count} minutes",
+      "remindersHours": "{count, plural, one {# hour} other {# hours}}",
       "changesTitle": "Booking Changes",
       "changesBody": "Updates when a booking is changed or cancelled.",
       "marketingTitle": "Marketing Emails",
@@ -376,6 +401,8 @@
       "methodsLabel": "Accepted methods",
       "cardOrAccountNumber": "Card Number / Account number",
       "cardOrAccountNumberPlaceholder": "The number clients copy to pay you",
+      "cardOrAccountNumberInfo": "The app does not process payments itself. This field is presented to consumers as information.",
+      "cardOrAccountNumberInfoLabel": "About this number",
       "publicShareWarning": "This card or account number will appear on your published page and in the booking sheet. Anyone who opens the page can copy it. You are responsible for what you publish.",
       "publicShareTitle": "Share these details publicly?",
       "notes": "Notes",
@@ -438,8 +465,6 @@
       "subtitle": "Every appointment booked with you, past and upcoming.",
       "asConsumerTitle": "Bookings as Consumer",
       "asConsumerSubtitle": "Every appointment you booked with another provider, past and upcoming.",
-      "switchToConsumer": "Switch to Bookings as Consumer",
-      "switchToProvider": "Switch to Bookings as Provider",
       "emptyAsConsumerTitle": "No bookings of your own yet",
       "emptyAsConsumerBody": "When you book another provider, those appointments appear here.",
       "confirmBodyAsConsumer": "This cancels the appointment. You can only cancel while it is still upcoming.",
@@ -481,13 +506,42 @@
       "confirmTitle": "Mark this booking as {status}?",
       "confirmBody": "The client is not notified automatically. You can change the status again later.",
       "moreActions": "Actions for {name}",
+      "reviewInApprovals": "Review in Approvals",
       "status": {
+        "pending": "Pending approval",
         "scheduled": "Scheduled",
         "confirmed": "Confirmed",
         "completed": "Completed",
         "cancelled": "Cancelled",
-        "no_show": "No-show"
+        "no_show": "Missed"
       }
+    },
+    "approvals": {
+      "title": "Approvals",
+      "subtitle": "Decide which bookings reach your calendar.",
+      "badgeTitle": "{count, plural, =0 {no bookings waiting for approval} one {# booking waiting for approval} other {# bookings waiting for approval}}",
+      "settingTitle": "Booking approval",
+      "switchTitle": "Review bookings before they are confirmed",
+      "switchBody": "When this is on, a submitted booking waits here for your decision (you will be notified about it by email). The time is held for the client while it waits.",
+      "stateOn": "Bookings are held for your approval. You get an email for each one.",
+      "stateOff": "Bookings are confirmed automatically and go straight onto your calendar.",
+      "queueHint": "Waiting for your decision, soonest appointment first.",
+      "emptyTitle": "Nothing waiting",
+      "emptyBody": "Bookings that need your approval appear here.",
+      "approve": "Approve",
+      "reject": "Decline",
+      "expired": "Time has passed",
+      "detailService": "Service",
+      "detailPrice": "Price",
+      "detailPhone": "Phone",
+      "detailEmail": "Email",
+      "detailPayment": "Payment",
+      "detailRequested": "Requested",
+      "detailNotes": "Notes from the client",
+      "confirmApproveTitle": "Approve this booking?",
+      "confirmApproveBody": "It goes onto your calendar and the client is emailed a confirmation.",
+      "confirmRejectTitle": "Decline this booking?",
+      "confirmRejectBody": "The time is released and the client is emailed. This cannot be undone."
     },
     "analytics": {
       "title": "Analytics",
@@ -499,7 +553,7 @@
       "statBookings": "Bookings",
       "statRevenue": "Revenue",
       "statCompletion": "Completed",
-      "statNoShow": "No-show rate",
+      "statNoShow": "Missed rate",
       "vsPrevious": "{change} vs the previous period",
       "noPrevious": "No earlier period to compare with",
       "ofSettled": "Of bookings that have finished",
@@ -557,11 +611,20 @@
       "slugLength": "Must be between {min} and {max} characters.",
       "slugPattern": "Use lowercase letters, numbers and single hyphens between them.",
       "slugChangeWarning": "Saving this replaces your current link. Anyone using /p/{slug} will no longer reach your page.",
-      "yourLink": "Your short link",
-      "copy": "Copy",
-      "copied": "Link copied.",
-      "copyFailed": "Could not copy the link.",
       "saved": "Search settings saved."
+    },
+    "signOutTitle": "Sign out?",
+    "signOutBody": "You will need to sign in again to manage your account.",
+    "deleteAccount": {
+      "button": "Delete account",
+      "title": "Delete account",
+      "hint": "Permanently remove your account and all data related to it. This cannot be undone.",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "All data related to this account will be removed. This cannot be undone.",
+      "password": "Current password",
+      "googleOnly": "This account signs in with Google. Set a password first to confirm deletion.",
+      "hasAppointments": "You have appointments on record. Cancel them before deleting your account.",
+      "wrongPassword": "Current password is incorrect"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "Service providers",
-    "emptyTitle": "No providers yet",
-    "emptyBody": "Providers will appear here as soon as they publish a profile.",
     "ctaTitle": "Ready to reclaim your time?",
     "ctaBody": "Find a provider, pick a slot, and get on with your day — or run your own calendar on Bookie.",
     "getStarted": "Get started",
@@ -661,6 +722,7 @@
     "title": "Organizations",
     "emptyTitle": "No organizations yet",
     "emptyBody": "Organizations will appear here once they are added.",
+    "viewOrganization": "View organization",
     "fallbackDescription": "Book an appointment at {name}.",
     "loadError": "We could not load the organizations list. Please try again."
   },
@@ -731,16 +793,16 @@
     "statUpcoming": "Upcoming bookings",
     "tabAll": "All services ({count})",
     "tabActive": "Active ({count})",
-    "tabIncomplete": "Incomplete ({count})",
-    "emptyPricedTitle": "No priced services",
-    "emptyPricedBody": "Add a price to a service and it shows up here as bookable.",
-    "emptyIncompleteTitle": "Nothing incomplete",
-    "emptyIncompleteBody": "Every service has a price set.",
+    "tabInactive": "Inactive ({count})",
+    "emptyActiveTitle": "No active services",
+    "emptyActiveBody": "Activate a service and clients can book it.",
+    "emptyInactiveTitle": "Nothing inactive",
+    "emptyInactiveBody": "Every service is currently offered to clients.",
     "emptyTitle": "No services yet",
     "emptyBody": "Add the services clients can book with you.",
     "sheetTitle": "Service Configuration",
     "deleteTitle": "Delete this service?",
-    "deleteBody": "Clients will no longer be able to book it. This cannot be undone.",
+    "deleteBody": "Clients will no longer be able to book it. To hide it for now, deactivate it instead. This cannot be undone.",
     "delete": "Delete",
     "edit": "Edit service",
     "deleteService": "Delete service",
@@ -748,7 +810,9 @@
     "noDescription": "No description yet.",
     "noPrice": "No price",
     "active": "Active",
-    "incomplete": "Incomplete",
+    "inactive": "Inactive",
+    "activate": "Activate {name}",
+    "deactivate": "Deactivate {name}",
     "formTitle": "Title",
     "formDescription": "Description",
     "formDuration": "Duration",

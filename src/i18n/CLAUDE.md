@@ -6,9 +6,12 @@ live in `src/messages/<locale>.json`, one file per locale, `en.json` is the sour
 Non-auth namespaces: `Language`, `Common`, `Nav`, `Booking`, `Footer`, `Contact`, `Settings`,
 `Home`, `Explore`, `Categories`, `Organizations`, `Provider`, `Legal`, `Services`,
 `ProfileCreation`, `Validation`, `Errors`. Auth screens still hardcode copy except
-`Auth.validation` (password policy) and `Validation` (shared field rules).
+`Auth.validation` (password policy), `Validation` (shared field rules), and
+`/auth/provider-registration`, whose chrome lives in `Auth.providerRegistration`.
 `Validation.required` uses next-intl `{label}`; `useFormItemRules` fills it with
 antd's `'${label}'` template so the field name is translated *and* substituted.
+Empty-field errors always go through `Validation.required` ("Please fill in {label}") —
+never a per-field "Please enter …" string.
 
 ```
 en · es · pt-BR · fr · it · de · ar · zh-CN · ja · hy · id · ko · uk · pl · th

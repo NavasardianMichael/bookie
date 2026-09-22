@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import Image from 'next/image'
 import { cn } from '@helpers/cn'
-import { getInitials, resolveAssetUrl } from '@helpers/images'
+import { getInitials, resolveAvatarSrc } from '@helpers/images'
 
 export type AppAvatarProps = {
   src?: string
@@ -13,11 +13,11 @@ export type AppAvatarProps = {
 }
 
 /**
- * The fallback is the common case today — uploaded image paths do not resolve and
- * the seed points at the logo — so it has to look deliberate rather than broken.
+ * Initials when there is no real photo. The seed still stores `/logo.svg` on
+ * `imageUrl`; painting that as a face put the site mark in the header.
  */
 export const AppAvatar: FC<AppAvatarProps> = ({ src, name, size = 48, shape = 'circle', className }) => {
-  const resolved = resolveAssetUrl(src)
+  const resolved = resolveAvatarSrc(src)
   const radius = shape === 'circle' ? 'rounded-full' : 'rounded-brand'
 
   return (

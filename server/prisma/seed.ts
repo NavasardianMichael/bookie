@@ -19,6 +19,14 @@ const prisma = new PrismaClient()
 const DEV_PASSWORD = 'bookie-dev-1234'
 const SEED_APPOINTMENT_NOTE = 'Seed appointment'
 const SEED_GUEST_APPOINTMENT_NOTE = 'Seed guest appointment'
+/**
+ * Two rows on provider 1, who seeds with `requiresBookingApproval` on, so the Approvals
+ * tab has both cases it has to render: a signed-in booker and an anonymous one. Without
+ * them the tab only ever shows its empty state locally, and the row layout — notes,
+ * phone, price, payment intent — is never once looked at before it ships.
+ */
+const SEED_PENDING_NOTE = 'Seed pending approval'
+const SEED_PENDING_GUEST_NOTE = 'Seed pending approval (guest)'
 const PHONE_CODE = 374
 
 /**
@@ -323,6 +331,15 @@ async function main() {
               price: 10000,
               currency: 'AMD',
             },
+            ...(def === providerDefs[0]
+              ? [
+                  {
+                    name: 'Draft offering',
+                    durationMinutes: 15,
+                    active: false,
+                  },
+                ]
+              : []),
           ],
         },
       },
@@ -449,6 +466,75 @@ async function main() {
         guestPhoneCode: PHONE_CODE,
         guestPhoneNumber: GUEST_PHONE,
         guestEmail: 'narek.visitor@example.com',
+        manageTokenHash: seedManageTokenHash(),
+      },
+    })
+  }
+
+  /**
+   * Provider 1 reviews every booking. Provider 0 keeps taking them automatically, so both
+   * halves of the setting are reachable locally without touching the toggle first.
+   *
+   * Written unconditionally rather than only on create: `provider.upsert` above passes
+   * `update: {}` so an existing row is left alone, which would leave a developer who
+   * already has a seeded database without the flag the tab is about.
+   */
+  await prisma.provider.update({
+    where: { id: providers[1]!.id },
+    data: { requiresBookingApproval: true },
+  })
+
+  const service1 = await prisma.service.findFirst({ where: { providerId: providers[1]!.id } })
+
+  const seededPending = await prisma.appointment.findFirst({
+    where: { providerId: providers[1]!.id, notes: SEED_PENDING_NOTE },
+  })
+
+  if (service1 && !seededPending) {
+    const { startAt, endAt } = slot(14)
+    await prisma.appointment.create({
+      data: {
+        consumerId: consumers[1]!.id,
+        providerId: providers[1]!.id,
+        serviceId: service1.id,
+        organizationId: providers[1]!.organizationId,
+        startAt,
+        endAt,
+        durationMinutes: 30,
+        price: service1.price,
+        currency: service1.currency,
+        status: 'pending',
+        notes: SEED_PENDING_NOTE,
+        paymentMethods: ['cash'],
+        manageTokenHash: seedManageTokenHash(),
+      },
+    })
+  }
+
+  const seededPendingGuest = await prisma.appointment.findFirst({
+    where: { providerId: providers[1]!.id, notes: SEED_PENDING_GUEST_NOTE },
+  })
+
+  if (service1 && !seededPendingGuest) {
+    const { startAt, endAt } = slot(15)
+    await prisma.appointment.create({
+      data: {
+        providerId: providers[1]!.id,
+        serviceId: service1.id,
+        organizationId: providers[1]!.organizationId,
+        startAt,
+        endAt,
+        durationMinutes: 30,
+        price: service1.price,
+        currency: service1.currency,
+        status: 'pending',
+        notes: SEED_PENDING_GUEST_NOTE,
+        paymentMethods: ['card_on_site'],
+        guestFirstName: 'Anahit',
+        guestLastName: 'Walkin',
+        guestPhoneCode: PHONE_CODE,
+        guestPhoneNumber: GUEST_PHONE,
+        guestEmail: 'anahit.walkin@example.com',
         manageTokenHash: seedManageTokenHash(),
       },
     })

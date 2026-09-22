@@ -54,6 +54,17 @@ describe('parseProvidersListQuery', () => {
     expect(isOpenToday(null, mondayNoonUtc)).toBe(false)
   })
 
+  it('restricts a service-name search to active services', () => {
+    const where = parseProvidersListQuery({ q: 'cut' }).where
+    const and = where.AND as Array<{ OR: Array<{ services?: { some: Record<string, unknown> } }> }>
+
+    expect(and[0]?.OR).toEqual(
+      expect.arrayContaining([
+        { services: { some: { name: { contains: 'cut', mode: 'insensitive' }, active: true } } },
+      ])
+    )
+  })
+
   it('narrows an unknown sort to recommended', () => {
     expect(parseProvidersListQuery({ sort: 'DROP TABLE' }).orderBy).toEqual(parseProvidersListQuery({}).orderBy)
   })

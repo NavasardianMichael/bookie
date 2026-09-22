@@ -68,22 +68,19 @@
       "newPassword": "Nuova password",
       "confirmPassword": "Conferma password",
       "firstName": "Nome",
-      "firstNamePlaceholder": "Alex",
       "lastName": "Cognome",
-      "lastNamePlaceholder": "Morgan",
       "phone": "Numero di telefono",
-      "phoneMandatory": "Numero di telefono (obbligatorio)",
       "mobileNumber": "Numero di cellulare",
       "organization": "Organizzazione",
-      "organizationOptional": "Organizzazione (facoltativo)"
+      "countryCode": "Prefisso internazionale"
     },
     "validation": {
       "passwordTooShort": "La password deve contenere almeno {min} caratteri",
       "passwordTooLong": "La password non può superare i {max} caratteri",
       "passwordsDoNotMatch": "Le due password non coincidono",
-      "passwordRequired": "Inserisci una password",
       "passwordNeedsLetterAndNumber": "La password deve contenere almeno una lettera e un numero",
-      "passwordContainsEmail": "La password non deve contenere il tuo indirizzo email"
+      "passwordContainsEmail": "La password non deve contenere il tuo indirizzo email",
+      "invalidPhone": "Inserisci un numero di telefono valido"
     },
     "signIn": {
       "title": "Bentornato",
@@ -99,7 +96,14 @@
       "submit": "Crea account"
     },
     "providerRegistration": {
-      "submit": "Crea account professionista"
+      "submit": "Crea account professionista",
+      "title": "Fai crescere la tua attività con Bookie",
+      "subtitle": "Unisciti a migliaia di professionisti che gestiscono gli appuntamenti con facilità",
+      "metaTitle": "Crea il tuo account professionista",
+      "metaDescription": "Unisciti a migliaia di professionisti che gestiscono gli appuntamenti con facilità su Bookie.",
+      "termsLead": "Facendo clic su «Crea account professionista» accetti i nostri",
+      "alreadyHaveAccount": "Hai già un account?",
+      "organizationPlaceholder": "La tua organizzazione"
     },
     "forgotPassword": {
       "title": "Reimposta la password",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "Questo account Google è già collegato a un altro account Bookie.",
       "google_already_linked": "Il tuo account è già collegato a Google.",
       "google_unauthorized": "Accedi prima, poi collega Google dalle impostazioni."
-    }
+    },
+    "termsAnd": "e"
   },
   "Booking": {
     "confirmTitle": "Conferma la tua prenotazione",
@@ -237,7 +242,15 @@
     "generateQr": "Genera QR",
     "downloadQr": "Scarica QR",
     "shareQr": "Condividi QR",
-    "qrAlt": "Codice QR di questa prenotazione"
+    "qrAlt": "Codice QR di questa prenotazione",
+    "slotTaken": "Quell'orario è appena stato preso",
+    "slotTakenBody": "Qualcuno l'ha prenotato mentre compilavi il modulo. Scegli un altro orario.",
+    "requestedTitle": "Prenotazione richiesta",
+    "confirmedBody": "Il tuo appuntamento è nel calendario del professionista.",
+    "awaitingApprovalBody": "L'orario è riservato a te mentre il professionista la esamina. Riceverai un'e-mail appena risponde.",
+    "approvalNoticeTitle": "Questo professionista esamina le prenotazioni",
+    "approvalNoticeBody": "La tua prenotazione viene inviata come richiesta. L'orario resta riservato a te fino alla risposta.",
+    "submitRequest": "Invia la richiesta"
   },
   "Footer": {
     "blurb": "Un’unica piattaforma per trovare servizi nella tua zona o gestire la tua agenda di prenotazioni.",
@@ -296,9 +309,18 @@
       "availability": "Disponibilità",
       "services": "Servizi",
       "bookings": "Prenotazioni",
+      "approvals": "Approvazioni",
       "analytics": "Statistiche",
       "seo": "SEO",
       "history": "Cronologia"
+    },
+    "workspace": {
+      "onProviderTitle": "Sei nel tuo spazio professionale",
+      "onProviderBody": "La tua pagina pubblica, i servizi e le prenotazioni che ricevi.",
+      "onConsumerTitle": "Sei nel tuo profilo cliente",
+      "onConsumerBody": "I tuoi dati e le prenotazioni che hai fatto con altri professionisti.",
+      "toConsumer": "Passa al profilo cliente",
+      "toProvider": "Passa allo spazio professionale"
     },
     "actions": {
       "save": "Salva modifiche",
@@ -361,7 +383,10 @@
       "subtitle": "Scegli quali email vuoi ricevere.",
       "emailPrefs": "Preferenze di notifica",
       "remindersTitle": "Promemoria appuntamenti",
-      "remindersBody": "Ricevi un avviso 24 ore prima di una prenotazione.",
+      "remindersBody": "Ricevi un’e-mail prima dell’inizio di una prenotazione.",
+      "remindersLeadLabel": "Avvisami",
+      "remindersMinutes": "{count} minuti",
+      "remindersHours": "{count, plural, one {# ora} other {# ore}}",
       "changesTitle": "Modifiche alle prenotazioni",
       "changesBody": "Aggiornamenti quando una prenotazione viene modificata o annullata.",
       "marketingTitle": "Email marketing",
@@ -376,6 +401,8 @@
       "methodsLabel": "Metodi accettati",
       "cardOrAccountNumber": "Numero di carta / Numero di conto",
       "cardOrAccountNumberPlaceholder": "Il numero che i clienti copiano per pagarti",
+      "cardOrAccountNumberInfo": "L’app non elabora i pagamenti. Questo campo è mostrato ai consumatori come informazione.",
+      "cardOrAccountNumberInfoLabel": "Informazioni su questo numero",
       "publicShareWarning": "Questo numero di carta o di conto apparirà sulla tua pagina pubblicata e nella scheda di prenotazione. Chiunque apra la pagina può copiarlo. Sei responsabile di ciò che pubblichi.",
       "publicShareTitle": "Condividere questi dati pubblicamente?",
       "notes": "Note",
@@ -438,8 +465,6 @@
       "subtitle": "Tutti gli appuntamenti presi con te, passati e futuri.",
       "asConsumerTitle": "Prenotazioni come cliente",
       "asConsumerSubtitle": "Tutti gli appuntamenti che hai preso con un altro professionista, passati e futuri.",
-      "switchToConsumer": "Passa alle prenotazioni come cliente",
-      "switchToProvider": "Passa alle prenotazioni come professionista",
       "emptyAsConsumerTitle": "Non hai ancora prenotazioni tue",
       "emptyAsConsumerBody": "Quando prenoti da un altro professionista, quegli appuntamenti compaiono qui.",
       "confirmBodyAsConsumer": "Questo annulla l'appuntamento. Puoi cancellare solo mentre è ancora in programma.",
@@ -481,13 +506,42 @@
       "confirmTitle": "Segnare questa prenotazione come {status}?",
       "confirmBody": "Il cliente non riceve un avviso automatico. Puoi cambiare di nuovo lo stato in seguito.",
       "moreActions": "Azioni per {name}",
+      "reviewInApprovals": "Esamina in Approvazioni",
       "status": {
-        "scheduled": "In programma",
+        "pending": "In attesa di approvazione",
+        "scheduled": "Programmata",
         "confirmed": "Confermata",
         "completed": "Completata",
         "cancelled": "Annullata",
-        "no_show": "Non presentato"
+        "no_show": "Mancata"
       }
+    },
+    "approvals": {
+      "title": "Approvazioni",
+      "subtitle": "Decidi quali prenotazioni arrivano nel tuo calendario.",
+      "badgeTitle": "{count, plural, =0 {nessuna prenotazione in attesa di approvazione} one {# prenotazione in attesa di approvazione} other {# prenotazioni in attesa di approvazione}}",
+      "settingTitle": "Approvazione delle prenotazioni",
+      "switchTitle": "Esamina le prenotazioni prima di confermarle",
+      "switchBody": "Quando è attivo, una prenotazione inviata attende qui la tua decisione (riceverai una notifica via e-mail). Nel frattempo l'orario resta riservato al cliente.",
+      "stateOn": "Le prenotazioni attendono la tua approvazione. Ricevi un'e-mail per ciascuna.",
+      "stateOff": "Le prenotazioni vengono confermate automaticamente e finiscono subito nel tuo calendario.",
+      "queueHint": "In attesa della tua decisione, prima l'appuntamento più vicino.",
+      "emptyTitle": "Niente in attesa",
+      "emptyBody": "Le prenotazioni che richiedono la tua approvazione compaiono qui.",
+      "approve": "Approva",
+      "reject": "Rifiuta",
+      "expired": "L'orario è passato",
+      "detailService": "Servizio",
+      "detailPrice": "Prezzo",
+      "detailPhone": "Telefono",
+      "detailEmail": "E-mail",
+      "detailPayment": "Pagamento",
+      "detailRequested": "Richiesta il",
+      "detailNotes": "Note del cliente",
+      "confirmApproveTitle": "Approvare questa prenotazione?",
+      "confirmApproveBody": "Verrà aggiunta al tuo calendario e il cliente riceverà una conferma via e-mail.",
+      "confirmRejectTitle": "Rifiutare questa prenotazione?",
+      "confirmRejectBody": "L'orario viene liberato e il cliente riceve un'e-mail. L'operazione non è reversibile."
     },
     "analytics": {
       "title": "Statistiche",
@@ -499,7 +553,7 @@
       "statBookings": "Prenotazioni",
       "statRevenue": "Fatturato",
       "statCompletion": "Completate",
-      "statNoShow": "Tasso di assenze",
+      "statNoShow": "Tasso di mancate presenze",
       "vsPrevious": "{change} rispetto al periodo precedente",
       "noPrevious": "Nessun periodo precedente da confrontare",
       "ofSettled": "Delle prenotazioni già concluse",
@@ -557,11 +611,20 @@
       "slugLength": "Deve contenere tra {min} e {max} caratteri.",
       "slugPattern": "Usa lettere minuscole, numeri e singoli trattini tra di essi.",
       "slugChangeWarning": "Salvando sostituisci il tuo link attuale. Chi usa /p/{slug} non raggiungerà più la tua pagina.",
-      "yourLink": "Il tuo link breve",
-      "copy": "Copia",
-      "copied": "Link copiato.",
-      "copyFailed": "Impossibile copiare il link.",
       "saved": "Impostazioni di ricerca salvate."
+    },
+    "signOutTitle": "Uscire?",
+    "signOutBody": "Dovrai accedere di nuovo per gestire il tuo account.",
+    "deleteAccount": {
+      "button": "Elimina account",
+      "title": "Elimina account",
+      "hint": "Rimuove in modo permanente il tuo account e tutti i dati correlati. L’azione non può essere annullata.",
+      "confirmTitle": "Eliminare il tuo account?",
+      "confirmBody": "Tutti i dati relativi a questo account verranno rimossi. L’azione non può essere annullata.",
+      "password": "Password attuale",
+      "googleOnly": "Questo account accede con Google. Imposta prima una password per confermare l’eliminazione.",
+      "hasAppointments": "Hai appuntamenti registrati. Annullali prima di eliminare l’account.",
+      "wrongPassword": "La password attuale non è corretta"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "Professionisti",
-    "emptyTitle": "Ancora nessun professionista",
-    "emptyBody": "I professionisti appariranno qui non appena pubblicheranno un profilo.",
     "ctaTitle": "Pronto a riprenderti il tuo tempo?",
     "ctaBody": "Trova un professionista, scegli uno slot e vai avanti con la tua giornata — o gestisci la tua agenda su Bookie.",
     "getStarted": "Inizia",
@@ -661,6 +722,7 @@
     "title": "Organizzazioni",
     "emptyTitle": "Ancora nessuna organizzazione",
     "emptyBody": "Le organizzazioni appariranno qui non appena verranno aggiunte.",
+    "viewOrganization": "Vedi organizzazione",
     "fallbackDescription": "Prenota un appuntamento presso {name}.",
     "loadError": "Non è stato possibile caricare la lista delle organizzazioni. Riprova."
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "Prenotazioni in arrivo",
     "tabAll": "Tutti i servizi ({count})",
     "tabActive": "Attivi ({count})",
-    "tabIncomplete": "Incompleti ({count})",
-    "emptyPricedTitle": "Nessun servizio con prezzo",
-    "emptyPricedBody": "Aggiungi un prezzo a un servizio e apparirà qui come prenotabile.",
-    "emptyIncompleteTitle": "Nulla di incompleto",
-    "emptyIncompleteBody": "Ogni servizio ha un prezzo impostato.",
     "emptyTitle": "Ancora nessun servizio",
     "emptyBody": "Aggiungi i servizi che i clienti possono prenotare con te.",
     "sheetTitle": "Configurazione del servizio",
     "deleteTitle": "Eliminare questo servizio?",
-    "deleteBody": "I clienti non potranno più prenotarlo. Questa azione non può essere annullata.",
+    "deleteBody": "I clienti non potranno più prenotarlo. Per nasconderlo per ora, disattivalo. L’azione non può essere annullata.",
     "delete": "Elimina",
     "edit": "Modifica servizio",
     "deleteService": "Elimina servizio",
@@ -748,7 +805,6 @@
     "noDescription": "Nessuna descrizione.",
     "noPrice": "Senza prezzo",
     "active": "Attivo",
-    "incomplete": "Incompleto",
     "formTitle": "Titolo",
     "formDescription": "Descrizione",
     "formDuration": "Durata",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "Digita o scegli una categoria",
     "currencyPlaceholder": "Digita o scegli una valuta",
     "onboardingDone": "Configurazione finita? Il tuo profilo è online — guarda cosa vedono i clienti.",
-    "viewProfile": "Vedi il mio profilo"
+    "viewProfile": "Vedi il mio profilo",
+    "tabInactive": "Inattivi ({count})",
+    "emptyActiveTitle": "Nessun servizio attivo",
+    "emptyActiveBody": "Attiva un servizio e i clienti potranno prenotarlo.",
+    "emptyInactiveTitle": "Niente di inattivo",
+    "emptyInactiveBody": "Tutti i servizi sono attualmente offerti ai clienti.",
+    "inactive": "Inattivo",
+    "activate": "Attiva {name}",
+    "deactivate": "Disattiva {name}"
   },
   "ProfileCreation": {
     "metaTitle": "Crea il tuo profilo",

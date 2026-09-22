@@ -26,10 +26,7 @@ export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
     location: {
       address: '',
     },
-    phone: {
-      code: 0,
-      number: 0,
-    },
+    phone: undefined,
     country: '',
     email: '',
     gallery: [],

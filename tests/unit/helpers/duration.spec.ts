@@ -14,9 +14,11 @@ describe('toIsoDuration', () => {
 describe('formatDuration', () => {
   it.each([
     [0, '0 min'],
+    [1, '1 min'],
     [45, '45 min'],
     [59, '59 min'],
     [60, '1 h'],
+    [61, '1 h 1 min'],
     [90, '1 h 30 min'],
     [120, '2 h'],
     [125, '2 h 5 min'],

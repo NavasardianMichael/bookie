@@ -15,6 +15,7 @@ const initialState: AuthState = {
   lastName: null,
   image: null,
   email: null,
+  profiles: null,
   isSignedOn: false,
   step: SIGN_ON_STEPS.accountTypeSelection,
   error: null,
@@ -30,6 +31,7 @@ const signedOn = (session: Session): Partial<AuthState> => ({
   lastName: session.lastName ?? null,
   image: session.image ?? null,
   email: session.email ?? null,
+  profiles: session.profiles ?? null,
 })
 
 export const useAuthStoreBase = create<AuthState & AuthActions>()(

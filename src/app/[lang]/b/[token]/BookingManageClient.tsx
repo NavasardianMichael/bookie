@@ -32,6 +32,7 @@ dayjs.extend(customParseFormat)
 const DEFAULT_DURATION_MINUTES = 30
 
 const STATUS_TONE: Record<BookingStatus, string> = {
+  pending: 'gold',
   scheduled: 'blue',
   confirmed: 'green',
   completed: 'default',
@@ -39,7 +40,13 @@ const STATUS_TONE: Record<BookingStatus, string> = {
   no_show: 'orange',
 }
 
-const isEditable = (status: BookingStatus): boolean => status === 'scheduled' || status === 'confirmed'
+/**
+ * `pending` included: a request still waiting on the provider is upcoming, and its maker
+ * must be able to move or drop it while they wait. The API agrees — `LIVE_STATUSES` in
+ * `server/src/services/appointments.ts` is what both sides read.
+ */
+const isEditable = (status: BookingStatus): boolean =>
+  status === 'pending' || status === 'scheduled' || status === 'confirmed'
 
 type Props = {
   token: string
@@ -66,7 +73,9 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
     [services]
   )
 
-  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(appointment.service.id)
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(() =>
+    services.allIds.includes(appointment.service.id) ? appointment.service.id : services.allIds[0]
+  )
   const [month, setMonth] = useState<Dayjs>(() => dayjs(appointment.time.startDate).startOf('month'))
   const [pickedDayKey, setPickedDayKey] = useState<string | null>(() =>
     dayjs(appointment.time.startDate).format(DAY_KEY_FORMAT)
@@ -235,9 +244,11 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
 
         {canEdit && !isEditing ? (
           <div className='flex flex-wrap gap-3'>
-            <AppButton type='primary' onClick={openEdit}>
-              {t('edit')}
-            </AppButton>
+            {serviceList.length ? (
+              <AppButton type='primary' onClick={openEdit}>
+                {t('edit')}
+              </AppButton>
+            ) : null}
             <AppButton danger onClick={() => setCancelOpen(true)}>
               {t('cancel')}
             </AppButton>
@@ -251,7 +262,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
         ) : null}
       </Surface>
 
-      {isEditing && canEdit ? (
+      {isEditing && canEdit && serviceList.length ? (
         <>
           {!!serviceList.length && (
             <Surface>

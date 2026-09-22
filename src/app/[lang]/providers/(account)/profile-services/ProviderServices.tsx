@@ -27,12 +27,9 @@ type Props = {
   initialValues?: ProviderServiceFormValues
 }
 
-const FILTERS = { all: 'all', active: 'active', incomplete: 'incomplete' } as const
+const FILTERS = { all: 'all', active: 'active', inactive: 'inactive' } as const
 
 type Filter = (typeof FILTERS)[keyof typeof FILTERS]
-
-/** A service with no price cannot be presented to a client as bookable. */
-const isPriced = (price: number | undefined): boolean => typeof price === 'number' && price > 0
 
 const CLOSED_STATUSES = ['cancelled', 'completed', 'no_show']
 
@@ -67,9 +64,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
    * permanently empty and `providerId` stayed `''` — which posted every new
    * service to `/providers//services`. Nothing else on the account shell hydrates it.
    *
-   * The category list is loaded here for the same reason: the service form's category
-   * picker reads it and nothing else fills it, so `categoryId` — a required foreign
-   * key — had no valid option to offer.
+   * The category list is loaded here because the service form's category picker
+   * reads it and nothing else fills it.
    */
   useEffect(() => {
     void Promise.all([getProviderProfileData(), getCategoriesList()])
@@ -95,8 +91,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   const visibleServices = useMemo(
     () =>
       serviceList.filter((service) => {
-        if (filter === FILTERS.active) return isPriced(service.price)
-        if (filter === FILTERS.incomplete) return !isPriced(service.price)
+        if (filter === FILTERS.active) return service.active
+        if (filter === FILTERS.inactive) return !service.active
         return true
       }),
     [filter, serviceList]
@@ -169,10 +165,12 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
               price: service.price,
               currency: service.currency,
               image: service.image,
-              category: {
-                id: service.categoryId,
-                name: categories.byId[service.categoryId]?.name ?? '',
-              },
+              category: service.categoryId
+                ? {
+                    id: service.categoryId,
+                    name: categories.byId[service.categoryId]?.name ?? '',
+                  }
+                : undefined,
             }
           : initialValues
       )
@@ -180,6 +178,11 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       setEditServiceModalOpened(true)
     },
     [byId, categories.byId, initialValues]
+  )
+
+  const onToggleActive = useCallback(
+    (serviceId: string, active: boolean) => putProviderService({ providerId, serviceId, service: { active } }),
+    [providerId, putProviderService]
   )
 
   const onAddServiceClick = useCallback(() => openServiceForm(), [openServiceForm])
@@ -191,12 +194,12 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   )
 
   const tabItems = useMemo(() => {
-    const priced = serviceList.filter((service) => isPriced(service.price)).length
+    const active = serviceList.filter((service) => service.active).length
 
     return [
       { key: FILTERS.all, label: t('tabAll', { count: serviceList.length }) },
-      { key: FILTERS.active, label: t('tabActive', { count: priced }) },
-      { key: FILTERS.incomplete, label: t('tabIncomplete', { count: serviceList.length - priced }) },
+      { key: FILTERS.active, label: t('tabActive', { count: active }) },
+      { key: FILTERS.inactive, label: t('tabInactive', { count: serviceList.length - active }) },
     ]
   }, [serviceList, t])
 
@@ -241,9 +244,9 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                 <ProviderServiceCard
                   key={service.id}
                   service={service}
-                  isPriced={isPriced(service.price)}
                   onEdit={openServiceForm}
                   onDelete={onDeleteService}
+                  onToggleActive={onToggleActive}
                 />
               ))}
 
@@ -268,8 +271,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           ) : (
             <EmptyState
               className='w-full'
-              title={filter === FILTERS.active ? t('emptyPricedTitle') : t('emptyIncompleteTitle')}
-              description={filter === FILTERS.active ? t('emptyPricedBody') : t('emptyIncompleteBody')}
+              title={filter === FILTERS.active ? t('emptyActiveTitle') : t('emptyInactiveTitle')}
+              description={filter === FILTERS.active ? t('emptyActiveBody') : t('emptyInactiveBody')}
             />
           )}
         </div>

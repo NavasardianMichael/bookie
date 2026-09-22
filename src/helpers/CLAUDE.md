@@ -15,6 +15,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
 | Provider card status (available / fully blocked / closed) | `getProviderAvailabilityStatus` | `providerAvailability.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
+| Remove slots a booking already holds | `dropBusySlots` | `booking.ts` |
+| Was a failed booking "someone got there first" | `isSlotTakenError` | `booking.ts` |
 | Consumer appointments tab: upcoming + search/status/sort | `filterAndSortConsumerAppointments` | `consumerAppointments.ts` |
 | Booking details list + copy-as-text | `buildBookingSummaryFields`, `formatBookingSummaryPlainText` | `bookingSummary.ts` |
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
@@ -29,12 +31,14 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Canonical URL of an entity's page | `generateEntityUrl` | `entities.ts` |
 | Root-relative path of an entity's page (for `push`/`Link`) | `generateEntityPath` | `entities.ts` |
 | Country + national number → `{ code, number }` | `toPhoneNumber` | `registration.ts` |
+| Same, but blank → `undefined` | `toOptionalPhoneNumber` | `registration.ts` |
 | `{ code, number }` / `+…` → country Select values | `toPhoneFormValues` | `registration.ts` |
 | Organization combobox value → API fields | `toOrganizationFields` | `registration.ts` |
 | Blank optional string → `undefined` | `toOptionalText` | `registration.ts` |
 | Upload path → loadable URL | `resolveAssetUrl` | `images.ts` |
 | …and never root-relative (JSON-LD, OG) | `resolveAbsoluteAssetUrl` | `images.ts` |
 | Is this a real upload vs a bundled asset? | `isUploadedAsset` | `images.ts` |
+| Avatar `src` (uploads / crop blobs; never `/logo.svg`) | `resolveAvatarSrc` | `images.ts` |
 | Avatar initials fallback | `getInitials` | `images.ts` |
 | Escape JSON-LD for a `<script>` | `serializeJsonLd` | `jsonLd.ts` |
 | Service worker script + offline document | `buildServiceWorkerScript`, `buildOfflineDocument` | `pwa.ts` |
@@ -132,9 +136,6 @@ needed neither, so the theory expired and they went.
 
 ## Nearby, easily missed
 
-- `src/constants/dates.ts#minsToDisplayFormat` renders the *same* value as
-  `formatDuration` in a different style (`"1 hours, 30 minutes"`, no singular form). Two
-  renderings of one concept in two directories — prefer `formatDuration`.
 - `src/linkedDataSchema/` holds the JSON-LD builders; `jsonLd.ts` only serializes.
 
 ## Adding one

@@ -4,8 +4,8 @@ import { ProvidersResultsSkeleton } from './ProvidersResultsSkeleton'
 
 /**
  * Mirrors the page's own layout: centred hero, the search field's control row, the
- * category rail, then the same results skeleton the `<Suspense>` boundary uses — so a
- * cold load and a re-query hand over identically.
+ * category rail, then the results skeleton — so a cold load of this route matches the
+ * first-paint fallback. A re-query keeps the current grid and overlays a spinner.
  */
 export default async function Loading() {
   const t = await getTranslations('Explore')

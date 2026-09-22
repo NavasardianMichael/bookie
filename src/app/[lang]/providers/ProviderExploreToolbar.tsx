@@ -11,6 +11,7 @@ import { AppSheet } from '@components/ui/AppSheet'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { buildExploreHref, countActiveFilters, ExploreParams } from './exploreParams'
+import { useExplorePending } from './ExplorePending'
 
 type Props = {
   params: ExploreParams
@@ -59,13 +60,14 @@ const SORT_KEYS: ProvidersListSort[] = ['recommended', 'topRated', 'nameAsc', 'n
 export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   const t = useTranslations('Explore')
   const router = useRouter()
+  const { startTransition } = useExplorePending()
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState({ available: params.available, openToday: params.openToday })
 
-  // No `useTransition` here, unlike the search field: nothing on these two controls
-  // renders a pending state, because the grid's `<Suspense>` skeleton already is one.
   const go = (patch: Partial<ExploreParams>) => {
-    router.replace(buildExploreHref(params, patch), { scroll: false })
+    startTransition(() => {
+      router.replace(buildExploreHref(params, patch), { scroll: false })
+    })
   }
 
   const openSheet = () => {

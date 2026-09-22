@@ -68,22 +68,19 @@
       "newPassword": "新密码",
       "confirmPassword": "确认密码",
       "firstName": "名字",
-      "firstNamePlaceholder": "Alex",
       "lastName": "姓氏",
-      "lastNamePlaceholder": "Morgan",
       "phone": "电话号码",
-      "phoneMandatory": "电话号码（必填）",
       "mobileNumber": "手机号码",
       "organization": "机构",
-      "organizationOptional": "机构（选填）"
+      "countryCode": "国家区号"
     },
     "validation": {
       "passwordTooShort": "密码至少需要 {min} 个字符",
       "passwordTooLong": "密码不能超过 {max} 个字符",
       "passwordsDoNotMatch": "两次输入的密码不一致",
-      "passwordRequired": "请输入密码",
       "passwordNeedsLetterAndNumber": "密码必须包含至少一个字母和一个数字",
-      "passwordContainsEmail": "密码不能包含您的邮箱地址"
+      "passwordContainsEmail": "密码不能包含您的邮箱地址",
+      "invalidPhone": "请输入有效的电话号码"
     },
     "signIn": {
       "title": "欢迎回来",
@@ -99,7 +96,14 @@
       "submit": "创建账户"
     },
     "providerRegistration": {
-      "submit": "创建服务提供者账户"
+      "submit": "创建服务提供者账户",
+      "title": "用 Bookie 拓展您的业务",
+      "subtitle": "加入成千上万轻松管理预约的服务提供者",
+      "metaTitle": "创建服务提供者账户",
+      "metaDescription": "加入成千上万在 Bookie 上轻松管理预约的服务提供者。",
+      "termsLead": "点击「创建服务提供者账户」即表示您同意我们的",
+      "alreadyHaveAccount": "已有账户？",
+      "organizationPlaceholder": "您的机构"
     },
     "forgotPassword": {
       "title": "重置密码",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "该 Google 账户已关联到另一个 Bookie 账户。",
       "google_already_linked": "您的账户已关联 Google。",
       "google_unauthorized": "请先登录，然后在设置中关联 Google。"
-    }
+    },
+    "termsAnd": "和"
   },
   "Booking": {
     "confirmTitle": "确认您的预约",
@@ -237,7 +242,15 @@
     "generateQr": "生成二维码",
     "downloadQr": "下载二维码",
     "shareQr": "分享二维码",
-    "qrAlt": "此预约的二维码"
+    "qrAlt": "此预约的二维码",
+    "slotTaken": "该时段刚刚被预约",
+    "slotTakenBody": "在你填写时已有人预约。请另选一个时间。",
+    "requestedTitle": "预约已提交",
+    "confirmedBody": "你的预约已在对方日程中。",
+    "awaitingApprovalBody": "该时段已为你保留，等待对方处理。对方回复后会立即发邮件通知你。",
+    "approvalNoticeTitle": "该服务方会审核预约",
+    "approvalNoticeBody": "你的预约将作为申请提交。在对方回复前，该时段为你保留。",
+    "submitRequest": "提交预约申请"
   },
   "Footer": {
     "blurb": "一个平台，既能找到身边的服务，也能管理您的预约日程。",
@@ -296,9 +309,18 @@
       "availability": "可预约时间",
       "services": "服务",
       "bookings": "预约",
+      "approvals": "审批",
       "analytics": "数据分析",
       "seo": "SEO",
       "history": "历史记录"
+    },
+    "workspace": {
+      "onProviderTitle": "你正在服务方工作区",
+      "onProviderBody": "你的公开主页、服务项目，以及别人向你提交的预约。",
+      "onConsumerTitle": "你正在客户个人资料",
+      "onConsumerBody": "你的个人信息，以及你向其他服务方提交的预约。",
+      "toConsumer": "切换到客户资料",
+      "toProvider": "切换到服务方工作区"
     },
     "actions": {
       "save": "保存更改",
@@ -361,7 +383,10 @@
       "subtitle": "选择您希望接收的邮件类型。",
       "emailPrefs": "通知偏好",
       "remindersTitle": "预约提醒",
-      "remindersBody": "预约开始前 24 小时接收提醒。",
+      "remindersBody": "在预约开始前收到邮件提醒。",
+      "remindersLeadLabel": "提醒我",
+      "remindersMinutes": "{count} 分钟",
+      "remindersHours": "{count, plural, one {# 小时} other {# 小时}}",
       "changesTitle": "预约变更",
       "changesBody": "预约被更改或取消时通知。",
       "marketingTitle": "营销邮件",
@@ -376,6 +401,8 @@
       "methodsLabel": "接受的支付方式",
       "cardOrAccountNumber": "卡号 / 账号",
       "cardOrAccountNumberPlaceholder": "客户复制后向您付款的号码",
+      "cardOrAccountNumberInfo": "应用本身不处理付款。此字段会作为信息展示给消费者。",
+      "cardOrAccountNumberInfoLabel": "关于此号码",
       "publicShareWarning": "该卡号或账号将显示在您已发布的页面和预约表单中。任何打开该页面的人都可以复制。您需对所发布的内容负责。",
       "publicShareTitle": "是否公开显示这些信息？",
       "notes": "备注",
@@ -438,8 +465,6 @@
       "subtitle": "与您相关的所有过去和即将到来的预约。",
       "asConsumerTitle": "作为客户的预约",
       "asConsumerSubtitle": "你向其他服务者预约的每一次预约，包括过去和即将到来的。",
-      "switchToConsumer": "切换到作为客户的预约",
-      "switchToProvider": "切换到作为服务者的预约",
       "emptyAsConsumerTitle": "还没有你自己的预约",
       "emptyAsConsumerBody": "当你预约其他服务者时，那些预约会出现在这里。",
       "confirmBodyAsConsumer": "这将取消预约。仅可在预约仍未开始时取消。",
@@ -481,13 +506,42 @@
       "confirmTitle": "将此预约标记为 {status}？",
       "confirmBody": "系统不会自动通知客户。您稍后可再修改状态。",
       "moreActions": "{name} 的操作",
+      "reviewInApprovals": "前往审批处理",
       "status": {
-        "scheduled": "已安排",
+        "pending": "待审批",
+        "scheduled": "已预约",
         "confirmed": "已确认",
         "completed": "已完成",
         "cancelled": "已取消",
-        "no_show": "未到"
+        "no_show": "缺席"
       }
+    },
+    "approvals": {
+      "title": "审批",
+      "subtitle": "决定哪些预约进入你的日程。",
+      "badgeTitle": "{count, plural, other {# 条预约等待审批}}",
+      "settingTitle": "预约审批",
+      "switchTitle": "先审核再确认预约",
+      "switchBody": "开启后，提交的预约会在此等待你的处理（我们会通过邮件通知你）。等待期间该时段为客户保留。",
+      "stateOn": "预约需要你审批，每一条都会发邮件通知你。",
+      "stateOff": "预约会自动确认并直接进入你的日程。",
+      "queueHint": "等待处理，按预约时间由近到远排列。",
+      "emptyTitle": "暂无待处理",
+      "emptyBody": "需要你审批的预约会显示在这里。",
+      "approve": "通过",
+      "reject": "拒绝",
+      "expired": "时间已过",
+      "detailService": "服务",
+      "detailPrice": "价格",
+      "detailPhone": "电话",
+      "detailEmail": "邮箱",
+      "detailPayment": "支付方式",
+      "detailRequested": "提交时间",
+      "detailNotes": "客户备注",
+      "confirmApproveTitle": "通过这条预约？",
+      "confirmApproveBody": "预约将进入你的日程，并向客户发送确认邮件。",
+      "confirmRejectTitle": "拒绝这条预约？",
+      "confirmRejectBody": "该时段将被释放，并向客户发送邮件通知。此操作无法撤销。"
     },
     "analytics": {
       "title": "数据分析",
@@ -499,7 +553,7 @@
       "statBookings": "预约数",
       "statRevenue": "收入",
       "statCompletion": "已完成",
-      "statNoShow": "未到率",
+      "statNoShow": "缺席率",
       "vsPrevious": "相比上一周期 {change}",
       "noPrevious": "没有可比较的历史周期",
       "ofSettled": "在已结束的预约中",
@@ -557,11 +611,20 @@
       "slugLength": "长度须在 {min} 到 {max} 个字符之间。",
       "slugPattern": "只能使用小写字母、数字以及它们之间的单个连字符。",
       "slugChangeWarning": "保存后将替换当前链接。使用 /p/{slug} 的人将无法再打开您的主页。",
-      "yourLink": "您的短链接",
-      "copy": "复制",
-      "copied": "链接已复制。",
-      "copyFailed": "无法复制链接。",
       "saved": "搜索设置已保存。"
+    },
+    "signOutTitle": "退出登录？",
+    "signOutBody": "您需要重新登录才能管理账户。",
+    "deleteAccount": {
+      "button": "删除账户",
+      "title": "删除账户",
+      "hint": "将永久删除您的账户及所有相关数据。此操作无法撤销。",
+      "confirmTitle": "删除您的账户？",
+      "confirmBody": "与此账户相关的所有数据都将被删除。此操作无法撤销。",
+      "password": "当前密码",
+      "googleOnly": "此账户通过 Google 登录。请先设置密码以确认删除。",
+      "hasAppointments": "您还有预约记录。请先取消后再删除账户。",
+      "wrongPassword": "当前密码不正确"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "服务提供者",
-    "emptyTitle": "暂无服务提供者",
-    "emptyBody": "服务提供者发布主页后将在此显示。",
     "ctaTitle": "准备好夺回自己的时间了吗？",
     "ctaBody": "找到服务提供者、选择时段，然后继续你的一天——或在 Bookie 上打理自己的日程。",
     "getStarted": "立即开始",
@@ -661,6 +722,7 @@
     "title": "机构",
     "emptyTitle": "暂无机构",
     "emptyBody": "机构添加后将在此显示。",
+    "viewOrganization": "查看机构",
     "fallbackDescription": "在 {name} 预约。",
     "loadError": "无法加载机构列表。请重试。"
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "即将到来的预约",
     "tabAll": "全部服务 ({count})",
     "tabActive": "在线 ({count})",
-    "tabIncomplete": "未完成 ({count})",
-    "emptyPricedTitle": "暂无定价服务",
-    "emptyPricedBody": "为服务设置价格后即可显示为可预约。",
-    "emptyIncompleteTitle": "没有未完成的服务",
-    "emptyIncompleteBody": "每项服务都已设定价格。",
     "emptyTitle": "暂无服务",
     "emptyBody": "添加客户可以预约的服务。",
     "sheetTitle": "服务配置",
     "deleteTitle": "删除此服务？",
-    "deleteBody": "客户将无法再预约该服务。此操作无法撤销。",
+    "deleteBody": "客户将无法再预约此项服务。若只是暂时不想展示，请停用它。此操作无法撤销。",
     "delete": "删除",
     "edit": "编辑服务",
     "deleteService": "删除服务",
@@ -748,7 +805,6 @@
     "noDescription": "暂无描述。",
     "noPrice": "未设价格",
     "active": "在线",
-    "incomplete": "未完成",
     "formTitle": "名称",
     "formDescription": "描述",
     "formDuration": "时长",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "输入或选择分类",
     "currencyPlaceholder": "输入或选择货币",
     "onboardingDone": "设置完成？您的主页已上线——看看客户看到的样子。",
-    "viewProfile": "查看我的主页"
+    "viewProfile": "查看我的主页",
+    "tabInactive": "已停用 ({count})",
+    "emptyActiveTitle": "没有已启用的服务",
+    "emptyActiveBody": "启用一项服务后，客户就可以预约。",
+    "emptyInactiveTitle": "没有已停用的服务",
+    "emptyInactiveBody": "目前所有服务都对客户开放。",
+    "inactive": "已停用",
+    "activate": "启用 {name}",
+    "deactivate": "停用 {name}"
   },
   "ProfileCreation": {
     "metaTitle": "创建您的主页",

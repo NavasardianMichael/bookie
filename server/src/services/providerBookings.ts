@@ -24,7 +24,14 @@ const SEARCH_TERM_LIMIT = 5
  * `@prisma/client` so the list can be iterated and so a schema change that drops a
  * value fails the type check here instead of silently widening the filter.
  */
-export const BOOKING_STATUSES = ['scheduled', 'confirmed', 'cancelled', 'completed', 'no_show'] as const
+export const BOOKING_STATUSES = [
+  'pending',
+  'scheduled',
+  'confirmed',
+  'cancelled',
+  'completed',
+  'no_show',
+] as const
 
 export type BookingStatus = (typeof BOOKING_STATUSES)[number]
 
@@ -300,8 +307,13 @@ export function dayKeyInZone(instant: Date, timeZone: string): string {
   return `${read('year')}-${read('month')}-${read('day')}`
 }
 
-/** A booking that still stands, as opposed to one that was cancelled or missed. */
-const LIVE_STATUSES: readonly string[] = ['scheduled', 'confirmed', 'completed']
+/**
+ * A booking that still stands, as opposed to one that was cancelled or missed.
+ *
+ * `pending` counts: the calendar badge answers "how much of that day is spoken for",
+ * and a slot awaiting a decision is spoken for — it is unbookable by anyone else.
+ */
+const LIVE_STATUSES: readonly string[] = ['pending', 'scheduled', 'confirmed', 'completed']
 
 export type DayBookingCount = {
   /** Every booking on the day, whatever its status. */

@@ -116,8 +116,10 @@ export const changeEmailSendAPI: ChangeEmailSendAPI['api'] = async (params) => {
   return processChangeEmailSendResponse(data)
 }
 
-export const deleteAccountAPI: DeleteAccountAPI['api'] = async () => {
-  const { data } = await axiosInstance.delete<APIResponse<DeleteAccountAPI['response']>>(ENDPOINTS.deleteAccount)
+export const deleteAccountAPI: DeleteAccountAPI['api'] = async (params) => {
+  const { data } = await axiosInstance.delete<APIResponse<DeleteAccountAPI['response']>>(ENDPOINTS.deleteAccount, {
+    data: params,
+  })
   return processDeleteAccountResponse(data)
 }
 

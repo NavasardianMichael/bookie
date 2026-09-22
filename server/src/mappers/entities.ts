@@ -94,7 +94,9 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
  * provider's credentials into search-indexable structured data. The identity email is
  * emitted only by `mapProviderProfile`, for the owner.
  */
-export function mapProviderDetails(provider: ProviderWithRelations & { paymentInfo?: unknown }) {
+export function mapProviderDetails(
+  provider: ProviderWithRelations & { paymentInfo?: unknown; requiresBookingApproval?: boolean }
+) {
   const weekSchedule =
     provider.weekSchedule && typeof provider.weekSchedule === 'object' ? provider.weekSchedule : defaultWeekSchedule
 
@@ -103,18 +105,26 @@ export function mapProviderDetails(provider: ProviderWithRelations & { paymentIn
       address: provider.address,
       url: provider.locationUrl,
     },
-    // Straight off the Provider row: both columns are NOT NULL, so there is no fallback to
-    // invent. This used to be a `{ code: 0, number: 0 }` placeholder that
-    // `mapSingleProvider` overwrote from a `user` join with a hardcoded `374` default.
-    phone: {
-      code: provider.phoneCode,
-      number: Number(provider.phoneNumber),
-    },
+    // Optional on the Provider row — a provider may register without a number.
+    // Do not invent `{ code: 0, number: 0 }`: that used to leak as a public tel: link.
+    phone:
+      provider.phoneCode !== null && provider.phoneNumber !== null
+        ? { code: provider.phoneCode, number: Number(provider.phoneNumber) }
+        : undefined,
     country: provider.country ?? undefined,
     publicEmail: provider.publicEmail ?? undefined,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
     weekSchedule,
     paymentInfo: provider.paymentInfo ?? undefined,
+    /**
+     * **Public on purpose.** The booking sheet says "your request will be sent for
+     * approval" instead of "confirmed" when this is on, and it can only do that if the
+     * public payload carries it. What it discloses is how the provider runs their diary,
+     * which the very next screen tells the visitor anyway.
+     *
+     * Optional in the type so a payload written before the column existed still parses.
+     */
+    requiresBookingApproval: provider.requiresBookingApproval ?? false,
   }
 }
 
@@ -189,11 +199,12 @@ export function mapService(service: Service) {
     id: service.id,
     name: service.name,
     duration: service.durationMinutes,
-    categoryId: service.categoryId,
+    categoryId: service.categoryId ?? undefined,
     description: service.description ?? undefined,
-    price: service.price ? Number(service.price) : undefined,
+    price: service.price === null ? undefined : Number(service.price),
     currency: service.currency ?? undefined,
     image: service.imageUrl ?? undefined,
+    active: service.active,
   }
 }
 
@@ -335,7 +346,7 @@ export function mapProviderBooking(booking: BookingWithBooker) {
     paymentMethods: booking.paymentMethods,
     // The snapshot taken at booking time, not the service's price today. Null on rows
     // booked before the snapshot column existed and on services that carry no price.
-    price: booking.price ? Number(booking.price) : undefined,
+    price: booking.price === null ? undefined : Number(booking.price),
     currency: booking.currency ?? undefined,
     createdAt: booking.createdAt.toISOString(),
     service: booking.service
@@ -397,7 +408,7 @@ export function mapConsumerSideBooking(booking: BookingWithProvider) {
     status: booking.status,
     notes: booking.notes ?? undefined,
     paymentMethods: booking.paymentMethods,
-    price: booking.price ? Number(booking.price) : undefined,
+    price: booking.price === null ? undefined : Number(booking.price),
     currency: booking.currency ?? undefined,
     createdAt: booking.createdAt.toISOString(),
     service: booking.service
@@ -428,13 +439,16 @@ export const consumerSideBookingInclude = {
 export const providerInclude = {
   categories: { include: { category: true } },
   organization: { include: { categories: { include: { category: true } } } },
-  services: true,
+  // Public payloads only ever show a live catalogue. Structural rather than per-route:
+  // six call sites read this include and one of them is a public booking page.
+  services: { where: { active: true } },
   gallery: true,
 } as const
 
 /** `providerInclude` plus the identity email, for the owner's own `GET /provider-profile`. */
 export const providerProfileInclude = {
   ...providerInclude,
+  services: true, // the owner sees their own deactivated services
   user: { select: { email: true, emailVerifiedAt: true } },
 } as const
 

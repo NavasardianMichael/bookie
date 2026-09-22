@@ -35,8 +35,13 @@ const MAX_SERIES_DAYS = 732
 
 /** Counted as revenue and as a delivered appointment. */
 const COMPLETED: readonly string[] = ['completed']
-/** Counted as a booking that stood, whether or not it has happened yet. */
-const LIVE: readonly string[] = ['scheduled', 'confirmed', 'completed']
+/**
+ * Counted as a booking that stood, whether or not it has happened yet. `pending`
+ * included: a request awaiting approval is demand, and the weekday/hour histograms it
+ * feeds are about when clients *ask* for time. Leaving it out would under-report exactly
+ * the providers who review every booking.
+ */
+const LIVE: readonly string[] = ['pending', 'scheduled', 'confirmed', 'completed']
 
 /** Only the columns the maths needs — the point of not loading whole appointments. */
 export const ANALYTICS_SELECT = {

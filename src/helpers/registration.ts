@@ -14,6 +14,16 @@ export const toPhoneNumber = (country: CountryCode, nationalNumber: string): Pho
   number: Number(nationalNumber),
 })
 
+/** Same as `toPhoneNumber`, but blank country/number yields `undefined` rather than `{0,0}`. */
+export const toOptionalPhoneNumber = (
+  country: CountryCode | undefined,
+  nationalNumber: string | undefined
+): PhoneNumber | undefined => {
+  const digits = nationalNumber?.replace(/\D/g, '')
+  if (!country || !digits) return undefined
+  return toPhoneNumber(country, digits)
+}
+
 /**
  * Inverse of `toPhoneNumber`: the country Select needs an ISO code, not a dialling
  * code, so `+374…` has to be parsed rather than split on the first digits.

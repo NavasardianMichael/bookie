@@ -11,6 +11,11 @@ export type AuthState = StateCommonProps & {
   lastName: string | null
   image: string | null
   email: string | null
+  /**
+   * The profiles this account holds, once a session read has answered. `null` until then
+   * — distinct from "holds neither", which is not a state a signed-in user can be in.
+   */
+  profiles: Session['profiles'] | null
   step: SignOnStep
 }
 

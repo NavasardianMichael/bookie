@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { CategoryBadge } from '@app/[lang]/categories/components/CategoryBadge'
 import { getTranslations } from 'next-intl/server'
 import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
@@ -66,12 +67,7 @@ export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLev
               </span>
             )}
             {categories.map((category) => (
-              <span
-                key={category.id}
-                className='border-brand-border text-brand-muted rounded-brand border border-dashed px-1.5 py-0.5 text-caption'
-              >
-                {category.name}
-              </span>
+              <CategoryBadge key={category.id} id={category.id} name={category.name} />
             ))}
           </>
         ) : undefined

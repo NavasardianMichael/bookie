@@ -10,7 +10,7 @@ import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
-import { toOrganizationFields, toPhoneNumber } from '@helpers/registration'
+import { toOptionalPhoneNumber, toOrganizationFields } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { MailIcon, UserIcon } from '@components/ui/icons'
@@ -73,7 +73,7 @@ export const ProviderRegistrationForm: React.FC = () => {
         role: USER_TYPES.provider,
         email: values.email,
         password: values.password,
-        phone: toPhoneNumber(values.code!, values.number),
+        phone: toOptionalPhoneNumber(values.code, values.number),
         profile: {
           firstName: values.firstName,
           lastName: values.lastName,
@@ -112,20 +112,25 @@ export const ProviderRegistrationForm: React.FC = () => {
         {submitError && <Alert type='error' showIcon message={submitError} />}
 
         <div className='flex flex-col gap-1.5'>
-          <FieldLabel htmlFor={ORGANIZATION_INPUT_ID} className='text-brand font-semibold'>
-            {t('fields.organizationOptional')}
+          <FieldLabel htmlFor={ORGANIZATION_INPUT_ID} requirement='Optional' className='text-brand font-semibold'>
+            {t('fields.organization')}
           </FieldLabel>
           {/* No rule: a provider may be a sole trader, and `resolveOrganizationId` on the
               server treats a missing organization as "none" rather than an error. */}
           <AppFormItem name='organization'>
-            <OrganizationAutocomplete id={ORGANIZATION_INPUT_ID} placeholder='Acme Services' disabled={isPending} />
+            <OrganizationAutocomplete
+              id={ORGANIZATION_INPUT_ID}
+              placeholder={t('providerRegistration.organizationPlaceholder')}
+              disabled={isPending}
+            />
           </AppFormItem>
         </div>
 
         <RegistrationField
           name='firstName'
           label={t('fields.firstName')}
-          placeholder={t('fields.firstNamePlaceholder')}
+          requirement='Required'
+          placeholder={t('fields.firstName')}
           autoComplete='given-name'
           rules={nameRules}
           icon={<UserIcon className='text-brand-muted h-4 w-4' />}
@@ -136,7 +141,8 @@ export const ProviderRegistrationForm: React.FC = () => {
         <RegistrationField
           name='lastName'
           label={t('fields.lastName')}
-          placeholder={t('fields.lastNamePlaceholder')}
+          requirement='Required'
+          placeholder={t('fields.lastName')}
           autoComplete='family-name'
           rules={nameRules}
           icon={<UserIcon className='text-brand-muted h-4 w-4' />}
@@ -147,6 +153,7 @@ export const ProviderRegistrationForm: React.FC = () => {
         <RegistrationField
           name='email'
           label={t('fields.professionalEmail')}
+          requirement='Required'
           placeholder={t('fields.emailPlaceholder')}
           type='email'
           autoComplete='username'
@@ -159,11 +166,14 @@ export const ProviderRegistrationForm: React.FC = () => {
         <NewPasswordFields
           emailFieldName='email'
           placeholder={t('fields.choosePasswordPlaceholder')}
+          requirement='Required'
           disabled={isPending}
         />
 
         <PhoneNumberField
-          label={t('fields.phoneMandatory')}
+          label={t('fields.phone')}
+          requirement='Optional'
+          required={false}
           disabled={isPending}
           labelClassName='text-brand font-semibold'
         />

@@ -68,22 +68,19 @@
       "newPassword": "新しいパスワード",
       "confirmPassword": "パスワードの確認",
       "firstName": "名",
-      "firstNamePlaceholder": "Alex",
       "lastName": "姓",
-      "lastNamePlaceholder": "Morgan",
       "phone": "電話番号",
-      "phoneMandatory": "電話番号（必須）",
       "mobileNumber": "携帯電話番号",
       "organization": "組織",
-      "organizationOptional": "組織（任意）"
+      "countryCode": "国番号"
     },
     "validation": {
       "passwordTooShort": "パスワードは {min} 文字以上で入力してください",
       "passwordTooLong": "パスワードは {max} 文字以内で入力してください",
       "passwordsDoNotMatch": "パスワードが一致しません",
-      "passwordRequired": "パスワードを入力してください",
       "passwordNeedsLetterAndNumber": "パスワードには英字と数字をそれぞれ 1 文字以上含めてください",
-      "passwordContainsEmail": "パスワードにメールアドレスを含めることはできません"
+      "passwordContainsEmail": "パスワードにメールアドレスを含めることはできません",
+      "invalidPhone": "有効な電話番号を入力してください"
     },
     "signIn": {
       "title": "おかえりなさい",
@@ -99,7 +96,14 @@
       "submit": "アカウントを作成"
     },
     "providerRegistration": {
-      "submit": "提供者アカウントを作成"
+      "submit": "提供者アカウントを作成",
+      "title": "Bookieでビジネスを成長させましょう",
+      "subtitle": "予約をかんたんに管理している、何千ものサービス提供者に加わりましょう",
+      "metaTitle": "提供者アカウントを作成",
+      "metaDescription": "Bookieで予約をかんたんに管理している、何千ものサービス提供者に加わりましょう。",
+      "termsLead": "「提供者アカウントを作成」をクリックすると、次に同意したことになります",
+      "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
+      "organizationPlaceholder": "所属組織"
     },
     "forgotPassword": {
       "title": "パスワードの再設定",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "その Google アカウントは別の Bookie アカウントに連携済みです。",
       "google_already_linked": "お客様のアカウントは既に Google と連携しています。",
       "google_unauthorized": "先にログインし、設定から Google を連携してください。"
-    }
+    },
+    "termsAnd": "および"
   },
   "Booking": {
     "confirmTitle": "予約の確認",
@@ -237,7 +242,15 @@
     "generateQr": "QRを生成",
     "downloadQr": "QRをダウンロード",
     "shareQr": "QRを共有",
-    "qrAlt": "この予約のQRコード"
+    "qrAlt": "この予約のQRコード",
+    "slotTaken": "その時間はたった今埋まりました",
+    "slotTakenBody": "入力中に別の方が予約しました。別の時間をお選びください。",
+    "requestedTitle": "予約を申し込みました",
+    "confirmedBody": "ご予約は相手のカレンダーに入りました。",
+    "awaitingApprovalBody": "確認の間、その時間は確保されています。返答があり次第メールでお知らせします。",
+    "approvalNoticeTitle": "この提供者は予約を確認します",
+    "approvalNoticeBody": "ご予約は申し込みとして送信されます。返答があるまで、その時間は確保されます。",
+    "submitRequest": "予約を申し込む"
   },
   "Footer": {
     "blurb": "近くのサービスを見つけるのも、予約カレンダーを管理するのも、これひとつで。",
@@ -296,9 +309,18 @@
       "availability": "受付時間",
       "services": "サービス",
       "bookings": "予約管理",
+      "approvals": "承認",
       "analytics": "分析",
       "seo": "SEO",
       "history": "履歴"
+    },
+    "workspace": {
+      "onProviderTitle": "提供者ワークスペースを表示しています",
+      "onProviderBody": "公開ページ、サービス、お客さまからの予約。",
+      "onConsumerTitle": "お客さまプロフィールを表示しています",
+      "onConsumerBody": "ご自身の情報と、他の提供者に申し込んだ予約。",
+      "toConsumer": "お客さまプロフィールに切り替える",
+      "toProvider": "提供者ワークスペースに切り替える"
     },
     "actions": {
       "save": "変更を保存",
@@ -361,7 +383,10 @@
       "subtitle": "受信するメールを選択してください。",
       "emailPrefs": "通知設定",
       "remindersTitle": "予約リマインダー",
-      "remindersBody": "予約の 24 時間前に通知します。",
+      "remindersBody": "予約の開始前にメールでお知らせします。",
+      "remindersLeadLabel": "通知する",
+      "remindersMinutes": "{count} 分",
+      "remindersHours": "{count, plural, one {# 時間} other {# 時間}}",
       "changesTitle": "予約変更",
       "changesBody": "予約が変更またはキャンセルされた際に通知します。",
       "marketingTitle": "マーケティングメール",
@@ -376,6 +401,8 @@
       "methodsLabel": "対応可能な支払い方法",
       "cardOrAccountNumber": "カード番号 / 口座番号",
       "cardOrAccountNumberPlaceholder": "利用者がコピーして支払いに使う番号",
+      "cardOrAccountNumberInfo": "アプリ自体は決済を処理しません。この欄は利用者への案内として表示されます。",
+      "cardOrAccountNumberInfoLabel": "この番号について",
       "publicShareWarning": "このカード番号や口座番号は公開ページと予約シートに表示されます。ページを開いた人は誰でもコピーできます。公開する内容の責任はあなたにあります。",
       "publicShareTitle": "これらの情報を公開しますか？",
       "notes": "備考",
@@ -438,8 +465,6 @@
       "subtitle": "あなたの過去と今後の予約すべて。",
       "asConsumerTitle": "利用者としての予約",
       "asConsumerSubtitle": "他の提供者に予約したすべての予定（過去と今後）。",
-      "switchToConsumer": "利用者としての予約に切り替え",
-      "switchToProvider": "提供者としての予約に切り替え",
       "emptyAsConsumerTitle": "まだ自分の予約はありません",
       "emptyAsConsumerBody": "他の提供者を予約すると、その予定がここに表示されます。",
       "confirmBodyAsConsumer": "予約をキャンセルします。これから先の予約のみキャンセルできます。",
@@ -481,13 +506,42 @@
       "confirmTitle": "この予約を {status} にしますか？",
       "confirmBody": "顧客への自動通知はありません。ステータスは後から変更できます。",
       "moreActions": "{name} の操作",
+      "reviewInApprovals": "承認タブで対応する",
       "status": {
-        "scheduled": "予定",
+        "pending": "承認待ち",
+        "scheduled": "予約済み",
         "confirmed": "確定",
         "completed": "完了",
         "cancelled": "キャンセル",
-        "no_show": "不着"
+        "no_show": "欠席"
       }
+    },
+    "approvals": {
+      "title": "承認",
+      "subtitle": "どの予約をカレンダーに入れるかを決めます。",
+      "badgeTitle": "{count, plural, other {承認待ちの予約 # 件}}",
+      "settingTitle": "予約の承認",
+      "switchTitle": "確定する前に予約を確認する",
+      "switchBody": "オンにすると、送信された予約はここで判断を待ちます（メールでお知らせします）。その間、その時間はお客さまのために確保されます。",
+      "stateOn": "予約は承認待ちになります。1件ごとにメールが届きます。",
+      "stateOff": "予約は自動で確定し、そのままカレンダーに入ります。",
+      "queueHint": "判断待ちの予約です。日時の近いものから並びます。",
+      "emptyTitle": "待機中の予約はありません",
+      "emptyBody": "承認が必要な予約はここに表示されます。",
+      "approve": "承認する",
+      "reject": "辞退する",
+      "expired": "時間が過ぎています",
+      "detailService": "サービス",
+      "detailPrice": "料金",
+      "detailPhone": "電話番号",
+      "detailEmail": "メールアドレス",
+      "detailPayment": "支払い方法",
+      "detailRequested": "申込日時",
+      "detailNotes": "お客さまからの備考",
+      "confirmApproveTitle": "この予約を承認しますか？",
+      "confirmApproveBody": "カレンダーに追加され、お客さまに確定のメールが送られます。",
+      "confirmRejectTitle": "この予約を辞退しますか？",
+      "confirmRejectBody": "その時間は空きに戻り、お客さまにメールが送られます。取り消せません。"
     },
     "analytics": {
       "title": "分析",
@@ -499,7 +553,7 @@
       "statBookings": "予約数",
       "statRevenue": "売上",
       "statCompletion": "完了",
-      "statNoShow": "不着率",
+      "statNoShow": "欠席率",
       "vsPrevious": "前期間と比較して {change}",
       "noPrevious": "比較できる過去の期間がありません",
       "ofSettled": "完了した予約のうち",
@@ -557,11 +611,20 @@
       "slugLength": "{min} 〜 {max} 文字で入力してください。",
       "slugPattern": "小文字、数字、およびそれらの間の単一のハイフンのみ使用できます。",
       "slugChangeWarning": "保存すると現在のリンクが置き換わります。/p/{slug} を使用中の方はページに到達できなくなります。",
-      "yourLink": "短縮リンク",
-      "copy": "コピー",
-      "copied": "リンクをコピーしました。",
-      "copyFailed": "リンクをコピーできませんでした。",
       "saved": "検索設定を保存しました。"
+    },
+    "signOutTitle": "ログアウトしますか？",
+    "signOutBody": "アカウントを管理するには、再度ログインする必要があります。",
+    "deleteAccount": {
+      "button": "アカウントを削除",
+      "title": "アカウントを削除",
+      "hint": "アカウントと関連するすべてのデータが完全に削除されます。この操作は元に戻せません。",
+      "confirmTitle": "アカウントを削除しますか？",
+      "confirmBody": "このアカウントに関連するすべてのデータが削除されます。この操作は元に戻せません。",
+      "password": "現在のパスワード",
+      "googleOnly": "このアカウントは Google でログインしています。削除を確認するには、先にパスワードを設定してください。",
+      "hasAppointments": "予約が残っています。アカウントを削除する前にキャンセルしてください。",
+      "wrongPassword": "現在のパスワードが正しくありません"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "サービス提供者",
-    "emptyTitle": "提供者はまだいません",
-    "emptyBody": "プロフィールが公開されるとここに表示されます。",
     "ctaTitle": "自分の時間を取り戻しませんか？",
     "ctaBody": "提供者を見つけて時間を選び、あとはお任せ——ご自身のカレンダー管理も Bookie で。",
     "getStarted": "はじめる",
@@ -661,6 +722,7 @@
     "title": "事業者",
     "emptyTitle": "事業者はまだいません",
     "emptyBody": "事業者が追加されるとここに表示されます。",
+    "viewOrganization": "組織を見る",
     "fallbackDescription": "{name}で予約しましょう。",
     "loadError": "事業者リストを読み込めませんでした。もう一度お試しください。"
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "今後の予約",
     "tabAll": "すべてのサービス ({count})",
     "tabActive": "公開中 ({count})",
-    "tabIncomplete": "未完了 ({count})",
-    "emptyPricedTitle": "料金設定済みのサービスがありません",
-    "emptyPricedBody": "サービスに料金を設定すると予約可能として表示されます。",
-    "emptyIncompleteTitle": "未完了のサービスはありません",
-    "emptyIncompleteBody": "すべてのサービスに料金が設定されています。",
     "emptyTitle": "サービスはまだありません",
     "emptyBody": "顧客が予約できるサービスを追加してください。",
     "sheetTitle": "サービス設定",
     "deleteTitle": "このサービスを削除しますか？",
-    "deleteBody": "顧客はこのサービスを予約できなくなります。この操作は取り消せません。",
+    "deleteBody": "お客様はこのサービスを予約できなくなります。一時的に非表示にするだけなら、非公開にしてください。この操作は取り消せません。",
     "delete": "削除",
     "edit": "サービスを編集",
     "deleteService": "サービスを削除",
@@ -748,7 +805,6 @@
     "noDescription": "説明はまだありません。",
     "noPrice": "料金未設定",
     "active": "公開中",
-    "incomplete": "未完了",
     "formTitle": "タイトル",
     "formDescription": "説明",
     "formDuration": "所要時間",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "カテゴリを入力または選択",
     "currencyPlaceholder": "通貨を入力または選択",
     "onboardingDone": "設定は完了しましたか？あなたのプロフィールは公開中です——顧客に見える形をご確認ください。",
-    "viewProfile": "プロフィールを見る"
+    "viewProfile": "プロフィールを見る",
+    "tabInactive": "非公開 ({count})",
+    "emptyActiveTitle": "公開中のサービスはありません",
+    "emptyActiveBody": "サービスを公開すると、お客様が予約できるようになります。",
+    "emptyInactiveTitle": "非公開のサービスはありません",
+    "emptyInactiveBody": "すべてのサービスが現在お客様に提供されています。",
+    "inactive": "非公開",
+    "activate": "{name} を公開",
+    "deactivate": "{name} を非公開"
   },
   "ProfileCreation": {
     "metaTitle": "プロフィールを作成",

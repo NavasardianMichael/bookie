@@ -10,7 +10,6 @@ import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { JsonLd } from '@components/ui/bare/JsonLd'
-import { EmptyState } from '@components/ui/EmptyState'
 import { BuildingIcon, CalendarIcon, CheckCircleIcon, ClockIcon, SparkleIcon } from '@components/ui/icons'
 import { ChipRail, Container, ResponsiveGrid, Section, Surface } from '@components/ui/layout'
 import { HomeHeroPreview } from './HomeHeroPreview'
@@ -72,7 +71,7 @@ export default async function Home() {
               <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-48 px-10 py-6'>
                 {t('findProvider')}
               </AppLink>
-              <AppLink href={ROUTES.accountTypeSelection} variant='button' className='min-w-48 px-10 py-6'>
+              <AppLink href={ROUTES.providerRegistration} variant='button' className='min-w-48 px-10 py-6'>
                 {t('joinAsProvider')}
               </AppLink>
             </div>
@@ -151,19 +150,19 @@ export default async function Home() {
         </Container>
       </section>
 
-      <section className='pb-16 md:pb-24'>
-        <Container>
-          <Section
-            title={t('providersTitle')}
-            actions={
-              providers.pagination.total > HOME_PROVIDER_LIMIT ? (
-                <AppLink href={ROUTES.providers} variant='plain' className='text-body-sm font-bold text-brand'>
-                  {tCommon('viewAll')}
-                </AppLink>
-              ) : undefined
-            }
-          >
-            {providerIds.length ? (
+      {!!providerIds.length && (
+        <section className='pb-16 md:pb-24'>
+          <Container>
+            <Section
+              title={t('providersTitle')}
+              actions={
+                providers.pagination.total > HOME_PROVIDER_LIMIT ? (
+                  <AppLink href={ROUTES.providers} variant='plain' className='text-body-sm font-bold text-brand'>
+                    {tCommon('viewAll')}
+                  </AppLink>
+                ) : undefined
+              }
+            >
               <ResponsiveGrid as='ul'>
                 {providerIds.map((providerId) => (
                   <li key={providerId}>
@@ -171,20 +170,10 @@ export default async function Home() {
                   </li>
                 ))}
               </ResponsiveGrid>
-            ) : (
-              <EmptyState
-                title={t('emptyTitle')}
-                description={t('emptyBody')}
-                action={
-                  <AppLink href={ROUTES.accountTypeSelection} variant='button' tone='primary'>
-                    {t('joinAsProvider')}
-                  </AppLink>
-                }
-              />
-            )}
-          </Section>
-        </Container>
-      </section>
+            </Section>
+          </Container>
+        </section>
+      )}
 
       <section className='bg-brand relative overflow-hidden py-24 md:py-32'>
         <div className='pointer-events-none absolute inset-0 opacity-10' aria-hidden='true'>

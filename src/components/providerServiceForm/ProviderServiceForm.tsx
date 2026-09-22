@@ -43,7 +43,6 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
     {
       validator: async (_rule, value: CategoryValue | undefined) => {
         const name = value?.name?.trim() ?? ''
-        if (!value?.id && !name) throw new Error('Please fill in Category')
         if (name.length > 40) throw new Error('Max count of characters is 40')
       },
     },
@@ -75,13 +74,12 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
         <AppFormItem name='duration' label={t('formDuration')} rules={requiredRuleSet} hasFeedback={false} className='min-w-0'>
           <ProviderServiceFormDuration />
         </AppFormItem>
-        {/* Combobox: pick a predefined Category or type a new name. `Service.categoryId`
-            is still a required FK — the server matches or creates the row. */}
+        {/* Combobox: pick a predefined Category or type a new name. Optional — a
+            service is valid with a title and a duration. */}
         <AppFormItem
           name='category'
           label={t('formCategory')}
           rules={categoryRules}
-          required
           hasFeedback={false}
           className='min-w-0'
         >

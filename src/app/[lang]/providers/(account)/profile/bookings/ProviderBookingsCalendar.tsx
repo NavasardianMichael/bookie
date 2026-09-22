@@ -70,10 +70,7 @@ export const ProviderBookingsCalendar: FC<Props> = ({
     () => onMonthChange(month.subtract(1, 'month').startOf('month')),
     [month, onMonthChange]
   )
-  const handleNext = useCallback(
-    () => onMonthChange(month.add(1, 'month').startOf('month')),
-    [month, onMonthChange]
-  )
+  const handleNext = useCallback(() => onMonthChange(month.add(1, 'month').startOf('month')), [month, onMonthChange])
 
   const handleDayClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -161,7 +158,7 @@ export const ProviderBookingsCalendar: FC<Props> = ({
                 {!!count?.total && (
                   <span
                     className={cn(
-                      'mt-auto rounded-brand-sm px-1.5 py-0.5 text-caption font-semibold',
+                      'mt-auto ml-auto rounded-brand-sm px-1.5 py-0.5 text-caption font-semibold',
                       isSelected ? 'bg-white/20 text-white' : 'bg-brand-100 text-brand'
                     )}
                   >

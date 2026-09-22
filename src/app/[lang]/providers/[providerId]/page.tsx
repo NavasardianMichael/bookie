@@ -132,7 +132,9 @@ export default async function Provider({ params, searchParams }: Props) {
   const fullName = `${basic.firstName} ${basic.lastName}`
   // Only a real upload is a portrait; the seeded `/logo.svg` gets the placeholder.
   const image = isUploadedAsset(basic.image) ? resolveAssetUrl(basic.image) : undefined
-  const phone = generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
+  const phone = details.phone
+    ? generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
+    : undefined
   const mapsHref = generateGoogleMapsLink(details.location.address)
   // Stored as an ISO code, so it reads in whatever language the page is in.
   const countryName = getCountryName(details.country, await currentLocale())

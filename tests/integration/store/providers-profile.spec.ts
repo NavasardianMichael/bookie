@@ -19,6 +19,7 @@ const service = (id: string, overrides: Record<string, unknown> = {}) => ({
   name: 'Haircut',
   duration: 45,
   categoryId: 'cat-1',
+  active: true,
   ...overrides,
 })
 
@@ -66,6 +67,40 @@ describe('provider profile store — services', () => {
     const { services } = useProviderProfileStoreBase.getState()
     expect(services.allIds).toEqual(['s-1'])
     expect(services.byId['s-1']).toEqual(updated)
+  })
+
+  it('putProviderService records a deactivation from the API response', async () => {
+    useProviderProfileStoreBase.setState({
+      services: { allIds: ['s-1'], byId: { 's-1': service('s-1') } },
+    } as never)
+
+    const updated = service('s-1', { active: false })
+    vi.mocked(putProviderServiceAPI).mockResolvedValue(updated as never)
+
+    await useProviderProfileStoreBase.getState().putProviderService({
+      providerId: 'p-1',
+      serviceId: 's-1',
+      service: { active: false },
+    })
+
+    expect(useProviderProfileStoreBase.getState().services.byId['s-1']?.active).toBe(false)
+  })
+
+  it('leaves the stored service unchanged when a toggle is rejected', async () => {
+    useProviderProfileStoreBase.setState({
+      services: { allIds: ['s-1'], byId: { 's-1': service('s-1') } },
+    } as never)
+    vi.mocked(putProviderServiceAPI).mockRejectedValue(new Error('offline'))
+
+    await expect(
+      useProviderProfileStoreBase.getState().putProviderService({
+        providerId: 'p-1',
+        serviceId: 's-1',
+        service: { active: false },
+      })
+    ).rejects.toThrow('offline')
+
+    expect(useProviderProfileStoreBase.getState().services.byId['s-1']?.active).toBe(true)
   })
 
   // A stale field left behind after an edit is the failure this guards: the write

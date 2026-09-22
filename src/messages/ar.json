@@ -68,22 +68,19 @@
       "newPassword": "كلمة المرور الجديدة",
       "confirmPassword": "تأكيد كلمة المرور",
       "firstName": "الاسم الأول",
-      "firstNamePlaceholder": "أليكس",
       "lastName": "اسم العائلة",
-      "lastNamePlaceholder": "مورغان",
       "phone": "رقم الهاتف",
-      "phoneMandatory": "رقم الهاتف (إلزامي)",
       "mobileNumber": "رقم الجوال",
       "organization": "المؤسسة",
-      "organizationOptional": "المؤسسة (اختياري)"
+      "countryCode": "رمز البلد"
     },
     "validation": {
       "passwordTooShort": "يجب أن تتكون كلمة المرور من {min} أحرف على الأقل",
       "passwordTooLong": "يجب ألا تتجاوز كلمة المرور {max} حرفاً",
       "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
-      "passwordRequired": "يرجى إدخال كلمة مرور",
       "passwordNeedsLetterAndNumber": "يجب أن تحتوي كلمة المرور على حرف واحد ورقم واحد على الأقل",
-      "passwordContainsEmail": "يجب ألا تحتوي كلمة المرور على عنوان بريدك الإلكتروني"
+      "passwordContainsEmail": "يجب ألا تحتوي كلمة المرور على عنوان بريدك الإلكتروني",
+      "invalidPhone": "يرجى إدخال رقم هاتف صالح"
     },
     "signIn": {
       "title": "مرحباً بعودتك",
@@ -99,7 +96,14 @@
       "submit": "إنشاء حساب"
     },
     "providerRegistration": {
-      "submit": "إنشاء حساب مقدّم خدمة"
+      "submit": "إنشاء حساب مقدّم خدمة",
+      "title": "نمِّ عملك مع Bookie",
+      "subtitle": "انضم إلى آلاف مقدّمي الخدمات الذين يديرون مواعيدهم بسهولة",
+      "metaTitle": "إنشاء حساب مقدّم خدمة",
+      "metaDescription": "انضم إلى آلاف مقدّمي الخدمات الذين يديرون مواعيدهم بسهولة على Bookie.",
+      "termsLead": "بالنقر على «إنشاء حساب مقدّم خدمة» فإنك توافق على",
+      "alreadyHaveAccount": "ألديك حساب بالفعل؟",
+      "organizationPlaceholder": "مؤسستك"
     },
     "forgotPassword": {
       "title": "إعادة تعيين كلمة المرور",
@@ -149,7 +153,8 @@
       "google_account_mismatch": "حساب Google هذا مرتبط بالفعل بحساب Bookie آخر.",
       "google_already_linked": "حسابك مرتبط بالفعل بـ Google.",
       "google_unauthorized": "سجّل الدخول أولاً، ثم اربط Google من الإعدادات."
-    }
+    },
+    "termsAnd": "و"
   },
   "Booking": {
     "confirmTitle": "تأكيد الحجز",
@@ -237,7 +242,15 @@
     "generateQr": "إنشاء رمز QR",
     "downloadQr": "تنزيل رمز QR",
     "shareQr": "مشاركة رمز QR",
-    "qrAlt": "رمز QR لهذا الحجز"
+    "qrAlt": "رمز QR لهذا الحجز",
+    "slotTaken": "حُجز هذا الموعد للتو",
+    "slotTakenBody": "حجزه شخص آخر بينما كنت تملأ النموذج. اختر موعدًا آخر.",
+    "requestedTitle": "تم إرسال طلب الحجز",
+    "confirmedBody": "موعدك مُدرج في تقويم مقدّم الخدمة.",
+    "awaitingApprovalBody": "الموعد محجوز لك بينما يراجعه مقدّم الخدمة. ستصلك رسالة بريد إلكتروني فور الرد.",
+    "approvalNoticeTitle": "يراجع مقدّم الخدمة الحجوزات",
+    "approvalNoticeBody": "يُرسَل حجزك كطلب. ويبقى الموعد محجوزًا لك حتى الرد.",
+    "submitRequest": "إرسال طلب الحجز"
   },
   "Footer": {
     "blurb": "منصة واحدة للعثور على الخدمات القريبة منك أو لإدارة تقويم حجوزاتك.",
@@ -296,9 +309,18 @@
       "availability": "التوفر",
       "services": "الخدمات",
       "bookings": "الحجوزات",
+      "approvals": "الموافقات",
       "analytics": "التحليلات",
       "seo": "SEO",
       "history": "السجل"
+    },
+    "workspace": {
+      "onProviderTitle": "أنت في مساحة عملك كمقدّم خدمة",
+      "onProviderBody": "صفحتك العامة وخدماتك والحجوزات التي تصلك.",
+      "onConsumerTitle": "أنت في ملفك كعميل",
+      "onConsumerBody": "بياناتك والحجوزات التي أجريتها مع مقدّمي خدمات آخرين.",
+      "toConsumer": "التبديل إلى ملف العميل",
+      "toProvider": "التبديل إلى مساحة مقدّم الخدمة"
     },
     "actions": {
       "save": "حفظ التغييرات",
@@ -361,7 +383,10 @@
       "subtitle": "اختر رسائل البريد الإلكتروني التي تريد استلامها.",
       "emailPrefs": "تفضيلات الإشعارات",
       "remindersTitle": "تذكيرات المواعيد",
-      "remindersBody": "احصل على إشعار قبل الحجز بـ 24 ساعة.",
+      "remindersBody": "احصل على رسالة قبل بدء الحجز.",
+      "remindersLeadLabel": "نبّهني",
+      "remindersMinutes": "{count} دقيقة",
+      "remindersHours": "{count, plural, one {ساعة واحدة} other {# ساعات}}",
       "changesTitle": "تغييرات الحجز",
       "changesBody": "تحديثات عند تعديل أو إلغاء حجز.",
       "marketingTitle": "رسائل التسويق",
@@ -376,6 +401,8 @@
       "methodsLabel": "طرق الدفع المقبولة",
       "cardOrAccountNumber": "رقم البطاقة / رقم الحساب",
       "cardOrAccountNumberPlaceholder": "الرقم الذي ينسخه العملاء للدفع لك",
+      "cardOrAccountNumberInfo": "التطبيق لا يعالج المدفوعات بنفسه. يُعرض هذا الحقل للمستهلكين كمعلومة.",
+      "cardOrAccountNumberInfoLabel": "حول هذا الرقم",
       "publicShareWarning": "سيظهر رقم البطاقة ورقم الحساب على صفحتك المنشورة وفي ورقة الحجز. يمكن لأي شخص يفتح الصفحة نسخهما. أنت مسؤول عمّا تنشره.",
       "publicShareTitle": "مشاركة هذه البيانات علنًا؟",
       "notes": "ملاحظات",
@@ -438,8 +465,6 @@
       "subtitle": "كل موعد حُجز معك، السابق والقادم.",
       "asConsumerTitle": "الحجوزات كعميل",
       "asConsumerSubtitle": "كل موعد حجزته لدى مقدّم خدمة آخر، السابق والقادم.",
-      "switchToConsumer": "التبديل إلى الحجوزات كعميل",
-      "switchToProvider": "التبديل إلى الحجوزات كمقدّم خدمة",
       "emptyAsConsumerTitle": "لا توجد حجوزات خاصة بك بعد",
       "emptyAsConsumerBody": "عندما تحجز لدى مقدّم خدمة آخر، تظهر تلك المواعيد هنا.",
       "confirmBodyAsConsumer": "هذا يلغي الموعد. يمكنك الإلغاء فقط ما دام الموعد قادمًا.",
@@ -481,13 +506,42 @@
       "confirmTitle": "وضع علامة على هذا الحجز كـ {status}؟",
       "confirmBody": "لا يتم إشعار العميل تلقائيًا. يمكنك تغيير الحالة مرة أخرى لاحقًا.",
       "moreActions": "إجراءات لـ {name}",
+      "reviewInApprovals": "المراجعة في الموافقات",
       "status": {
+        "pending": "بانتظار الموافقة",
         "scheduled": "مجدول",
         "confirmed": "مؤكد",
         "completed": "مكتمل",
         "cancelled": "ملغى",
-        "no_show": "لم يحضر"
+        "no_show": "فائت"
       }
+    },
+    "approvals": {
+      "title": "الموافقات",
+      "subtitle": "حدّد الحجوزات التي تصل إلى تقويمك.",
+      "badgeTitle": "{count, plural, =0 {لا حجوزات بانتظار الموافقة} one {حجز واحد بانتظار الموافقة} two {حجزان بانتظار الموافقة} few {# حجوزات بانتظار الموافقة} many {# حجزًا بانتظار الموافقة} other {# حجز بانتظار الموافقة}}",
+      "settingTitle": "الموافقة على الحجوزات",
+      "switchTitle": "مراجعة الحجوزات قبل تأكيدها",
+      "switchBody": "عند التفعيل، ينتظر الحجز المُرسَل قرارك هنا (سنُعلمك بذلك عبر البريد الإلكتروني). ويبقى الموعد محجوزًا للعميل في أثناء ذلك.",
+      "stateOn": "الحجوزات تنتظر موافقتك. تصلك رسالة بريد إلكتروني عن كل حجز.",
+      "stateOff": "تُؤكَّد الحجوزات تلقائيًا وتنتقل مباشرة إلى تقويمك.",
+      "queueHint": "بانتظار قرارك، الأقرب موعدًا أولًا.",
+      "emptyTitle": "لا شيء بالانتظار",
+      "emptyBody": "تظهر هنا الحجوزات التي تحتاج إلى موافقتك.",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "expired": "انقضى الموعد",
+      "detailService": "الخدمة",
+      "detailPrice": "السعر",
+      "detailPhone": "الهاتف",
+      "detailEmail": "البريد الإلكتروني",
+      "detailPayment": "الدفع",
+      "detailRequested": "تاريخ الطلب",
+      "detailNotes": "ملاحظات العميل",
+      "confirmApproveTitle": "الموافقة على هذا الحجز؟",
+      "confirmApproveBody": "سيُضاف إلى تقويمك وسيصل العميل تأكيد بالبريد الإلكتروني.",
+      "confirmRejectTitle": "رفض هذا الحجز؟",
+      "confirmRejectBody": "سيُحرَّر الموعد وسيُبلَّغ العميل بالبريد الإلكتروني. لا يمكن التراجع عن هذا."
     },
     "analytics": {
       "title": "التحليلات",
@@ -499,7 +553,7 @@
       "statBookings": "الحجوزات",
       "statRevenue": "الإيرادات",
       "statCompletion": "مكتملة",
-      "statNoShow": "نسبة عدم الحضور",
+      "statNoShow": "نسبة الفائت",
       "vsPrevious": "{change} مقارنة بالفترة السابقة",
       "noPrevious": "لا توجد فترة سابقة للمقارنة",
       "ofSettled": "من الحجوزات المنتهية",
@@ -557,11 +611,20 @@
       "slugLength": "يجب أن يكون بين {min} و {max} حرفًا.",
       "slugPattern": "استخدم أحرفًا إنجليزية صغيرة وأرقامًا وشرطات مفردة بينها.",
       "slugChangeWarning": "الحفظ يستبدل رابطك الحالي. لن يتمكن أي شخص يستخدم /p/{slug} من الوصول إلى صفحتك.",
-      "yourLink": "رابطك المختصر",
-      "copy": "نسخ",
-      "copied": "تم نسخ الرابط.",
-      "copyFailed": "تعذّر نسخ الرابط.",
       "saved": "تم حفظ إعدادات البحث."
+    },
+    "signOutTitle": "تسجيل الخروج؟",
+    "signOutBody": "ستحتاج إلى تسجيل الدخول مرة أخرى لإدارة حسابك.",
+    "deleteAccount": {
+      "button": "حذف الحساب",
+      "title": "حذف الحساب",
+      "hint": "يزيل حسابك وكل البيانات المرتبطة به نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      "confirmTitle": "حذف حسابك؟",
+      "confirmBody": "ستُحذف كل البيانات المرتبطة بهذا الحساب. لا يمكن التراجع عن هذا الإجراء.",
+      "password": "كلمة المرور الحالية",
+      "googleOnly": "هذا الحساب يسجّل الدخول عبر Google. عيّن كلمة مرور أولًا لتأكيد الحذف.",
+      "hasAppointments": "لديك مواعيد مسجّلة. ألغِها قبل حذف حسابك.",
+      "wrongPassword": "كلمة المرور الحالية غير صحيحة"
     }
   },
   "Home": {
@@ -599,8 +662,6 @@
       }
     },
     "providersTitle": "مقدّمو الخدمات",
-    "emptyTitle": "لا يوجد مقدّمو خدمات بعد",
-    "emptyBody": "سيظهر مقدّمو الخدمات هنا بمجرد نشر ملفاتهم الشخصية.",
     "ctaTitle": "جاهز لاستعادة وقتك؟",
     "ctaBody": "اعثر على مقدّم خدمة، اختر وقتًا، وتابع يومك — أو أدر تقويمك الخاص على Bookie.",
     "getStarted": "ابدأ الآن",
@@ -661,6 +722,7 @@
     "title": "المؤسسات",
     "emptyTitle": "لا توجد مؤسسات بعد",
     "emptyBody": "ستظهر المؤسسات هنا بمجرد إضافتها.",
+    "viewOrganization": "عرض المؤسسة",
     "fallbackDescription": "احجز موعدًا في {name}.",
     "loadError": "تعذّر تحميل قائمة المؤسسات. يرجى المحاولة مرة أخرى."
   },
@@ -731,16 +793,11 @@
     "statUpcoming": "الحجوزات القادمة",
     "tabAll": "كل الخدمات ({count})",
     "tabActive": "نشطة ({count})",
-    "tabIncomplete": "غير مكتملة ({count})",
-    "emptyPricedTitle": "لا توجد خدمات مُسعّرة",
-    "emptyPricedBody": "أضف سعرًا إلى خدمة لتظهر هنا قابلة للحجز.",
-    "emptyIncompleteTitle": "لا يوجد شيء غير مكتمل",
-    "emptyIncompleteBody": "كل خدمة لها سعر محدد.",
     "emptyTitle": "لا توجد خدمات بعد",
     "emptyBody": "أضف الخدمات التي يمكن للعملاء حجزها معك.",
     "sheetTitle": "إعداد الخدمة",
     "deleteTitle": "حذف هذه الخدمة؟",
-    "deleteBody": "لن يتمكن العملاء من حجزها بعد الآن. لا يمكن التراجع عن هذا.",
+    "deleteBody": "لن يتمكّن العملاء من حجزها بعد الآن. لإخفائها مؤقتاً، عطِّلها. لا يمكن التراجع عن هذا.",
     "delete": "حذف",
     "edit": "تعديل الخدمة",
     "deleteService": "حذف الخدمة",
@@ -748,7 +805,6 @@
     "noDescription": "لا يوجد وصف بعد.",
     "noPrice": "لا يوجد سعر",
     "active": "نشطة",
-    "incomplete": "غير مكتملة",
     "formTitle": "العنوان",
     "formDescription": "الوصف",
     "formDuration": "المدة",
@@ -759,7 +815,15 @@
     "categoryPlaceholder": "اكتب أو اختر فئة",
     "currencyPlaceholder": "اكتب أو اختر عملة",
     "onboardingDone": "انتهيت من الإعداد؟ ملفك الشخصي مباشر — شاهد ما يراه العملاء.",
-    "viewProfile": "عرض ملفي الشخصي"
+    "viewProfile": "عرض ملفي الشخصي",
+    "tabInactive": "غير نشطة ({count})",
+    "emptyActiveTitle": "لا خدمات نشطة",
+    "emptyActiveBody": "فعِّل خدمة ليتمكّن العملاء من حجزها.",
+    "emptyInactiveTitle": "لا شيء غير نشط",
+    "emptyInactiveBody": "كل الخدمات تُعرض حالياً للعملاء.",
+    "inactive": "غير نشطة",
+    "activate": "تفعيل {name}",
+    "deactivate": "تعطيل {name}"
   },
   "ProfileCreation": {
     "metaTitle": "أنشئ ملفك الشخصي",

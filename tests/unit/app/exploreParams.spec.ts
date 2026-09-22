@@ -157,8 +157,8 @@ describe('activity helpers', () => {
 })
 
 describe('exploreParamsKey', () => {
-  // The <Suspense> key. Two different result sets must not share one, or the grid keeps
-  // the previous page's rows instead of handing over to the skeleton.
+  // Two different result sets must not share one key — `withPageReset` used to
+  // collapse paging onto the default and hide that the query had changed.
   it('differs per result set and is stable for the default', () => {
     expect(exploreParamsKey(DEFAULTS)).toBe('default')
     expect(exploreParamsKey({ ...DEFAULTS, page: 2 })).not.toBe(exploreParamsKey(DEFAULTS))

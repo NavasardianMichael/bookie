@@ -59,8 +59,8 @@ const CopyableRow: FC<CopyableRowProps> = ({ label, copyLabel, value }) => {
 }
 
 /**
- * Copyable pay-to details. Shown on the public profile, in settings as a preview,
- * and under the booking picker once the visitor includes bank transfer.
+ * Copyable pay-to details. Shown on the public profile and under the booking
+ * picker once the visitor includes bank transfer.
  */
 export const BankTransferDetails: FC<Props> = ({ payToNumber, notes, showHeading = true }) => {
   const t = useTranslations('Booking')

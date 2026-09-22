@@ -79,25 +79,36 @@ describe('splitLocalePath', () => {
 })
 
 describe('isAllowedEmailVerifyReturnPath', () => {
-  it('allows each role its own settings profile', () => {
-    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile', 'provider')).toBe(true)
-    expect(isAllowedEmailVerifyReturnPath('/hy/consumers/profile', 'consumer')).toBe(true)
+  it('allows either settings profile, in any locale', () => {
+    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile')).toBe(true)
+    expect(isAllowedEmailVerifyReturnPath('/hy/consumers/profile')).toBe(true)
+    expect(isAllowedEmailVerifyReturnPath('/pt-BR/consumers/profile')).toBe(true)
   })
 
-  // The link lands with a live session, so the one thing it must never do is send a
-  // verified address to the *other* role's area.
-  it("refuses the other role's profile", () => {
-    expect(isAllowedEmailVerifyReturnPath('/en/consumers/profile', 'provider')).toBe(false)
-    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile', 'consumer')).toBe(false)
+  /**
+   * It used to take the caller's `role` and accept only that side's page. That was never
+   * what stopped an open redirect — `splitLocalePath` is — and it became a live bug once
+   * the settings shell gained its workspace switch: a provider who holds a Consumer
+   * profile changes their email from `/consumers/profile` while their session still reads
+   * `provider`, and the send answered "Invalid return path".
+   */
+  it('does not care which role the caller holds', () => {
+    expect(isAllowedEmailVerifyReturnPath('/en/consumers/profile')).toBe(true)
+    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile')).toBe(true)
   })
 
+  // Still exactly two destinations. A nested tab is not one of them.
   it('refuses any other path, including a nested tab', () => {
-    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile/seo', 'provider')).toBe(false)
-    expect(isAllowedEmailVerifyReturnPath('/en/providers', 'provider')).toBe(false)
+    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile/seo')).toBe(false)
+    expect(isAllowedEmailVerifyReturnPath('/en/consumers/profile/notifications')).toBe(false)
+    expect(isAllowedEmailVerifyReturnPath('/en/providers')).toBe(false)
   })
 
+  // The guard that actually matters, and the one dropping the role did not touch.
   it('refuses an off-site target', () => {
-    expect(isAllowedEmailVerifyReturnPath('//evil.com/providers/profile', 'provider')).toBe(false)
+    expect(isAllowedEmailVerifyReturnPath('//evil.com/providers/profile')).toBe(false)
+    expect(isAllowedEmailVerifyReturnPath('https://evil.com/en/providers/profile')).toBe(false)
+    expect(isAllowedEmailVerifyReturnPath('/en/providers/profile@evil.com')).toBe(false)
   })
 })
 

@@ -8,6 +8,7 @@ import {
   processListAppointmentsResponse,
   processManagedAppointmentResponse,
   processPatchAppointmentStatusResponse,
+  processPatchBookingDecisionResponse,
   processPatchManagedAppointmentResponse,
   processProviderBookingsCalendarResponse,
   processProviderBookingsResponse,
@@ -21,6 +22,7 @@ import {
   GetProviderConsumerBookingsCalendarAPI,
   ListAppointmentsAPI,
   PatchAppointmentStatusAPI,
+  PatchBookingDecisionAPI,
   PatchManagedAppointmentAPI,
 } from './types'
 
@@ -100,6 +102,18 @@ export const patchAppointmentStatusAPI: PatchAppointmentStatusAPI['api'] = async
     { status }
   )
   return processPatchAppointmentStatusResponse(data)
+}
+
+/**
+ * `locale` rides along so the approve / decline email links land in the language the
+ * provider is working in — the same reason `createAppointmentAPI` carries it.
+ */
+export const patchBookingDecisionAPI: PatchBookingDecisionAPI['api'] = async ({ id, decision, locale }) => {
+  const { data } = await axiosInstance.patch<APIResponse<PatchBookingDecisionAPI['response']>>(
+    `${ENDPOINTS.patchBookingDecision}/${id}/decision`,
+    { decision, locale }
+  )
+  return processPatchBookingDecisionResponse(data)
 }
 
 /** Dedupes generateMetadata + page fetches within a single request. */

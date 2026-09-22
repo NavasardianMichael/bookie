@@ -56,13 +56,32 @@ export const splitLocalePath = (returnPath: string): { locale: string; rest: str
 }
 
 /**
- * The link must land on the caller's *own* settings profile, never an open redirect.
- * Unchanged behaviour from the original `isAllowedEmailVerifyReturnPath`.
+ * The two settings homes an email-verification link may land on.
+ *
+ * Keep in step with `ROUTES.providerProfile` / `ROUTES.consumerProfile`; the locale
+ * prefix is stripped by `splitLocalePath` before the comparison.
  */
-export const isAllowedEmailVerifyReturnPath = (returnPath: string, role: 'provider' | 'consumer'): boolean => {
+const SETTINGS_RETURN_PATHS = new Set(['providers/profile', 'consumers/profile'])
+
+/**
+ * The link must land on a settings profile of ours, never an open redirect.
+ *
+ * It used to take the caller's `role` and accept only that side's page. That was never
+ * the open-redirect guard — `splitLocalePath` is, by refusing anything that is not a
+ * plain site-relative path — and once the settings shell gained its workspace switch the
+ * narrowing became a live bug: a provider who holds a Consumer profile and opens their
+ * own consumer settings sends `/{locale}/consumers/profile`, while their session still
+ * reads `provider`, so changing their email answered **"Invalid return path"**.
+ *
+ * Dropping the role is not a widening worth worrying about. Both destinations are our
+ * own authenticated settings pages, and landing on the one the account does not hold is
+ * answered by the layout's own guard — not by a stranger receiving anything. What the
+ * link carries is a token for the address its recipient just proved they control, and
+ * where it lands cannot change that.
+ */
+export const isAllowedEmailVerifyReturnPath = (returnPath: string): boolean => {
   const parsed = splitLocalePath(returnPath)
-  if (!parsed) return false
-  return parsed.rest === (role === 'provider' ? 'providers/profile' : 'consumers/profile')
+  return Boolean(parsed && SETTINGS_RETURN_PATHS.has(parsed.rest))
 }
 
 /**
@@ -117,3 +136,29 @@ export const buildEmailVerifyUrl = (origin: string, returnPath: string, token: s
   url.searchParams.set(EMAIL_VERIFY_QUERY, token)
   return url.toString()
 }
+
+/**
+ * The provider's approvals queue — where the "a booking is waiting for your approval"
+ * email sends them.
+ *
+ * Here rather than in `lib/booking-mail.ts` for the reason this whole module exists: the
+ * page at the other end is `src/app/[lang]/providers/(account)/profile/approvals`, named
+ * by `ROUTES.providerProfileApprovals`, and the two halves share no type. `booking-mail.ts`
+ * imports config and the mail client, so no unit test can reach into it; this file imports
+ * only `request.ts`, so `tests/unit/server/bookingErrors.spec.ts` can hold both constants
+ * at once and fail when either is renamed alone. See `server/CLAUDE.md`.
+ *
+ * **Locale-free**, exactly as `ROUTES` is — the prefix is added by the builder below and
+ * by `AppLink` on the web side, never written into the constant.
+ */
+export const PROVIDER_APPROVALS_PATH = '/providers/profile/approvals'
+
+const withLocale = (origin: string, locale: string, path: string): string =>
+  new URL(`/${locale}${path}`, origin.endsWith('/') ? origin : `${origin}/`).toString()
+
+export const buildApprovalsUrl = (origin: string, locale: string): string =>
+  withLocale(origin, locale, PROVIDER_APPROVALS_PATH)
+
+/** The provider's public page — where a declined booker goes to pick another time. */
+export const buildProviderPageUrl = (origin: string, locale: string, providerId: string): string =>
+  withLocale(origin, locale, `/providers/${providerId}`)

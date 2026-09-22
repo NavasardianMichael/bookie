@@ -126,7 +126,7 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
     description: basic.description,
     image,
     url: pageUrl,
-    telephone: generateFriendlyPhoneNumber(details.phone, { prefix: '+' }),
+    telephone: details.phone ? generateFriendlyPhoneNumber(details.phone, { prefix: '+' }) : undefined,
     email: details.email,
     jobTitle: categoryNames.length ? categoryNames : undefined,
     worksFor: employer,
@@ -144,7 +144,7 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
     description: basic.description,
     image,
     url: pageUrl,
-    telephone: generateFriendlyPhoneNumber(details.phone, { prefix: '+' }),
+    telephone: details.phone ? generateFriendlyPhoneNumber(details.phone, { prefix: '+' }) : undefined,
     email: details.email,
     address: {
       '@type': 'PostalAddress',

@@ -1,11 +1,12 @@
 'use client'
 
-import { FC, useEffect, useRef, useState, useTransition } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { LoadingOutlined, SearchOutlined } from '@ant-design/icons'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
 import { useRouter } from '@i18n/navigation'
 import { AppInput } from '@components/ui/AppInput'
 import { buildExploreHref, ExploreParams } from './exploreParams'
+import { useExplorePending } from './ExplorePending'
 
 type Props = {
   params: ExploreParams
@@ -37,8 +38,8 @@ const SEARCH_DEBOUNCE_MS = 350
  */
 export const ProviderSearchField: FC<Props> = ({ params, placeholder, label }) => {
   const router = useRouter()
+  const { isPending, startTransition } = useExplorePending()
   const [value, setValue] = useState(params.q)
-  const [isPending, startTransition] = useTransition()
   const valueRef = useRef(value)
   const epochRef = useRef(0)
 

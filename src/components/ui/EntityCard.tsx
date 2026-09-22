@@ -64,8 +64,8 @@ const LEVELS: Record<2 | 3 | 4, AppTitleLevel> = { 2: 'h2', 3: 'h3', 4: 'h4' }
  * card has media) so heights stop tracking source image dimensions, and
  * line-clamped text so one long name cannot break row alignment.
  *
- * A `cta` is the only link (provider cards). Without one, a stretched overlay
- * covers the card so category and organization cards stay one hit target.
+ * A `cta` is the only link (provider and organization cards). Without one, a stretched overlay
+ * covers the card so category cards stay one hit target.
  * Wrapping the article in an <a> is how the old CategoryCard nested buttons
  * inside an anchor.
  */
@@ -145,17 +145,25 @@ export const EntityCard: FC<EntityCardProps> = ({
           </AppParagraph>
         )}
 
-        {badges && <div className='relative z-2 mt-auto flex flex-wrap items-center gap-3 pt-2'>{badges}</div>}
-
-        {footer && <div className='text-caption mt-auto pt-1'>{footer}</div>}
-
-        {cta && href && (
-          <AppLink href={href} variant='button' tone='primary' block>
-            {cta}
-          </AppLink>
+        {badges && (
+          <div className={cn('relative z-2 flex flex-wrap items-center gap-3', !cta && 'mt-auto')}>{badges}</div>
         )}
 
-        {actions && <div className='relative z-2 mt-auto flex items-center justify-end gap-1 pt-1'>{actions}</div>}
+        {footer && <div className={cn('text-caption pt-1', !cta && 'mt-auto')}>{footer}</div>}
+
+        {cta && href && (
+          <div className='mt-auto pt-4'>
+            <AppLink href={href} variant='button' tone='primary' block>
+              {cta}
+            </AppLink>
+          </div>
+        )}
+
+        {actions && (
+          <div className={cn('relative z-2 flex items-center justify-end gap-1 pt-1', !cta && 'mt-auto')}>
+            {actions}
+          </div>
+        )}
       </div>
 
       {stretchHref && (

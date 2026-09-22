@@ -11,7 +11,9 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
+import { isUploadedAsset } from '@helpers/images'
 import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
+import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
 import { ProfilePhotoField } from '@components/settings/ProfilePhotoField'
 import { ProviderPageActions } from '@components/settings/ProviderPageActions'
@@ -81,10 +83,13 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     setProfile(data)
     const values = mergeDraft(data)
     form.setFieldsValue(values)
+    const portrait = data.draft?.imageUrl ?? data.basic.image
     setAuthState({
       firstName: data.basic.firstName,
       lastName: data.basic.lastName,
-      image: data.basic.image ?? null,
+      // Draft wins: Save draft writes the upload there, and the live column stays
+      // `/logo.svg` until Publish. Only a real upload — the seed is not a face.
+      image: isUploadedAsset(portrait ?? undefined) ? (portrait ?? null) : null,
     })
     setDirty(false)
   }
@@ -232,6 +237,8 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
           </div>
         </Form>
       </Surface>
+
+      <DeleteAccountSection disabled={!profile || pendingAction !== null} />
 
       <SettingsActionBar
         dirty={dirty}

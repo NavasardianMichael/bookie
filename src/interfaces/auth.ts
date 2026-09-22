@@ -42,15 +42,15 @@ export type OrganizationValue = {
 /**
  * What `POST /identity/register` sends.
  *
- * **Phone is mandatory but is not identity** — it is unverified contact data on the
- * profile, with no unique constraint, because a clinic line shared by four providers is
- * ordinary.
+ * **Phone is not identity** — it is unverified contact data on the profile, with no
+ * unique constraint, because a clinic line shared by four providers is ordinary.
+ * Consumers must send one; providers may omit it.
  */
 export type RegistrationPayload = {
   role: UserType
   email: string
   password: string
-  phone: PhoneNumber
+  phone?: PhoneNumber
   profile: RegistrationProfile
   /** Decides which locale the verification link lands in. */
   locale: string
@@ -72,6 +72,20 @@ export type Session = {
   /** False for a Google-only account, which has no password to change. */
   hasPassword?: boolean
   hasGoogle?: boolean
+  /**
+   * Which profiles this **account** holds — not which one the session is using.
+   *
+   * `role` is resolved provider-first at login, so it cannot answer this: a provider who
+   * has booked someone holds a Consumer row too, and the settings shell offers its
+   * workspace switch only when both are present.
+   *
+   * Optional because a payload minted before this shipped has no such key. Callers fall
+   * back to `role`, which is the old, narrower behaviour rather than an open door.
+   */
+  profiles?: {
+    consumer: boolean
+    provider: boolean
+  }
 }
 
 /**

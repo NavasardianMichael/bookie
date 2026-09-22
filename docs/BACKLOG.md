@@ -86,14 +86,64 @@ different cities may legitimately share one, so that is a product decision. Both
 produced the duplicates are already closed (the seed's `findFirst`, and
 `resolveOrganizationId`'s case-insensitive match).
 
-### 6. Two slot engines that disagree
+### 6. ~~Two slot engines that disagree~~ — done 2026-09-22
 
-`getProviderAvailability` (`server/src/services/appointments.ts`) steps a **fixed 30
-minutes** and excludes already-booked slots. The UI does not call it: `BookingPanel`
-computes slots client-side from `weekSchedule` via `getSlotsForDateRange`, stepping by the
-**selected service's duration**, and subtracts nothing but the starts requested in the
-current session. So the grid can offer a time the server will reject, and the `409
-"Time slot not available"` is the only real defence. One of the two should go.
+`getProviderAvailability` is gone. It stepped a **fixed 30 minutes**, which is why nothing
+ever called it: `BookingPanel` steps by the *selected service's* duration, so the server's
+grid could not answer for a 45-minute service. The consequence was that the public
+calendar subtracted nothing at all — every visitor saw every in-hours time as free, and
+the `409` was the only defence.
+
+The split is now by responsibility rather than by layer. `GET /providers/:id/busy?from=&to=`
+returns booked **intervals** — the only shape that does not presuppose a step — and
+`helpers/booking.ts#dropBusySlots` subtracts them from the grid the client steps itself,
+on overlap rather than equality. `pending` bookings are in that set, so a slot awaiting a
+provider's approval is already unbookable.
+
+The `409` remains the authority, because two people can still submit in the same instant.
+What changed is that it is now *recoverable*: `SLOT_TAKEN_MESSAGE` is pinned across the two
+packages by `tests/unit/server/bookingErrors.spec.ts`, and the sheet matches on it to
+refresh the grid and say "pick another time" instead of showing a raw error.
+
+### 6b. `POST /appointments` never checks `startAt` against the provider's hours
+
+Found 2026-09-22 while testing booking approval. `createAppointment` validates the service,
+the overlap and the payment methods — and nothing at all about *when* the slot is. A direct
+POST books 03:00 on a day the provider is closed, and it lands on their calendar looking
+like any other appointment.
+
+The UI never offers such a time, which is why this has never been seen: the grid is built
+from `weekSchedule`. But `POST /appointments` is **public**, so the UI is not the guard —
+the same reasoning that put the overlap check server-side applies here and was not
+followed through.
+
+The fix is to run the request's `startAt` through the same availability-minus-breaks
+arithmetic the client uses, server-side, and `409` a slot that is not one. That means
+sharing `splitScheduleIntoParts`-equivalent logic across the two packages, or duplicating
+it with a test pinning the two — which is why it is a backlog entry rather than a line.
+
+**No `KNOWN BUG:` test pins this**, against the usual rule: `services/appointments.ts`
+imports Prisma, so `tests/unit/server/` cannot reach it (`tests/CLAUDE.md`), and nothing in
+`pnpm test` touches a database. The same blind spot as entry 4.
+
+### 6c. `/providers/profile/consumer-bookings` has no entry point
+
+The workspace switch replaced the Bookings page's header control (2026-09-22), and that
+control was the only link to this route. The sidebar merely *aliases* it onto the Bookings
+item so the tab stays lit — it never linked to it.
+
+The route still works and is still the richer surface: it has the month calendar, the
+filters and paging that `/consumers/profile/appointments` does not, over the same rows.
+So there are two reasonable ends and this is deliberately not decided here:
+
+- **Retire it** — 307 to `/consumers/profile/appointments`, which the workspace switch
+  already reaches from `/providers/profile/bookings`. One surface for "bookings I made",
+  at the cost of the calendar and filters.
+- **Keep it and give it a link** — but that means a second control doing something close
+  to what the workspace switch does, which is what `src/app/CLAUDE.md` decision 5 argued
+  against in the first place.
+
+Left reachable by URL in the meantime; nothing 404s.
 
 ### 7. ~~`no-show` vs `no_show`~~ — done 2026-09-11
 
@@ -354,8 +404,6 @@ Still open:
 - **No client-side session persistence.** The auth store has no `persist` middleware, so a
   refresh needs the `getMe` round trip. That is deliberate — `persist` has no precedent in
   this codebase — but it means a brief unauthenticated flash on protected client islands.
-- **`/auth/logout`'s "Delete Account Permanently" button still has no handler.**
-  `DELETE /identity/account` now exists, so this is only a wiring job.
 
 ### ~~The web app's auth funnel does not match the API~~ — done 2026-09-11
 

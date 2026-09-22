@@ -2,10 +2,13 @@ import { Router } from 'express'
 import { config } from '../config.js'
 import { ok } from '../lib/api-response.js'
 import {
+  buildApprovalsUrl,
   buildBookingManageUrl,
   formatBookingWhen,
   resolveBookingLocale,
+  sendBookingApprovalRequestEmail,
   sendBookingConfirmationEmail,
+  sendBookingRequestedEmail,
   sendBookingRescheduledToGuestEmail,
   sendBookingRescheduledToProviderEmail,
 } from '../lib/booking-mail.js'
@@ -21,6 +24,9 @@ import { createAppointment, type GuestBooker, rescheduleAppointment } from '../s
 import { BOOKING_STATUSES, isBookingStatus } from '../services/providerBookings.js'
 
 export const appointmentsRouter = Router()
+
+/** Statuses a booking can still be moved out of by the person who made it. */
+const UPCOMING_STATUSES: readonly string[] = ['pending', 'scheduled', 'confirmed']
 
 /** Matches `MAX_CHARS_FOR_TEXTAREA` and the `maxCharsForTextarea` rule on the client. */
 const MAX_NOTES_LENGTH = 300
@@ -129,10 +135,13 @@ const resolveConsumerId = async (session: SessionPayload): Promise<string> => {
   if (existing) return existing.id
 
   const provider = await prisma.provider.findUnique({ where: { userId: session.userId } })
-  // `phoneCode`/`phoneNumber` are NOT NULL on Consumer, so there is nothing to fall back to
-  // — the old `provider?.firstName ?? 'New'` placeholder cannot cover a missing phone. A
-  // provider session whose Provider row is gone is a 409 rather than a Prisma error.
+  // Consumer.phoneCode/phoneNumber stay NOT NULL. A provider who registered without a
+  // number cannot mint a Consumer row until they add one — 409 rather than a Prisma error
+  // or a `{0,0}` dummy that would land on the booked provider's client list.
   if (!provider) throw new HttpError(409, 'No profile to book from', 409)
+  if (provider.phoneCode === null || provider.phoneNumber === null) {
+    throw new HttpError(409, 'A phone number is required to book', 409)
+  }
 
   const created = await prisma.consumer.create({
     data: {
@@ -164,6 +173,53 @@ const isAppointmentConsumer = async (
     select: { id: true },
   })
   return consumer?.id === appointment.consumerId
+}
+
+/**
+ * Everything the booking emails name, read off the row in one query.
+ *
+ * Off the *row* rather than off the session and the request body, which is what the
+ * create handler used to do across two more queries: `resolveConsumerId` copies a
+ * booking provider's name onto the Consumer it mints, so the row already knows who
+ * booked under either identity, and the row is also the only source that stays right
+ * for the approve/reject sends that happen minutes or days later.
+ *
+ * `to` is the booker and `providerTo` the professional — both `User.email`, never
+ * `publicEmail`, which nothing authenticates and anyone can set. Either can be absent:
+ * a guest may book with a phone and no address at all.
+ */
+const buildBookingNotice = async (appointmentId: string) => {
+  const row = await prisma.appointment.findUnique({
+    where: { id: appointmentId },
+    select: {
+      startAt: true,
+      providerId: true,
+      guestEmail: true,
+      guestFirstName: true,
+      guestLastName: true,
+      service: { select: { name: true } },
+      consumer: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
+      provider: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
+    },
+  })
+  if (!row) return null
+
+  const bookerName =
+    [row.guestFirstName, row.guestLastName].filter(Boolean).join(' ') ||
+    [row.consumer?.firstName, row.consumer?.lastName].filter(Boolean).join(' ') ||
+    'A client'
+
+  return {
+    to: row.guestEmail ?? row.consumer?.user.email ?? undefined,
+    providerTo: row.provider.user.email,
+    providerId: row.providerId,
+    bookerName,
+    bookerFirstName: row.guestFirstName ?? row.consumer?.firstName ?? 'there',
+    providerFirstName: row.provider.firstName,
+    providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
+    serviceName: row.service.name,
+    when: formatBookingWhen(row.startAt),
+  }
 }
 
 /** Guest contact details, or undefined when the booking names a real Consumer. */
@@ -317,7 +373,7 @@ appointmentsRouter.post(
 
     const guestBooker = req.session ? undefined : parseGuest(guest)
 
-    const { appointment, manageToken } = await createAppointment({
+    const { appointment, manageToken, requiresApproval } = await createAppointment({
       // Identity comes from the session whenever there is one. Guest fields in the
       // body are ignored in that case, so a signed-in caller cannot book under
       // someone else's name.
@@ -332,43 +388,42 @@ appointmentsRouter.post(
     /**
      * Mail is best-effort. The row is already committed — a down engine, a missing
      * key in production, or a throw here must still return 201 with `emailSent: false`.
+     *
+     * Which message goes out is decided by `requiresApproval`, not by the caller:
+     * telling someone "your booking is confirmed" while it sits in a queue is the
+     * failure this branch exists to prevent. When approval is on, the provider gets
+     * the actionable half — and that send is deliberately not conditioned on
+     * `emailSent`, because the booker's mail failing must not also lose the decision
+     * request.
      */
     let emailSent = false
     try {
-      const to = req.session
-        ? (await prisma.user.findUnique({ where: { id: req.session.userId }, select: { email: true } }))?.email
-        : guestBooker?.email
-      if (to) {
-        const [namedProvider, namedUser] = await Promise.all([
-          prisma.provider.findUnique({
-            where: { id: providerId },
-            select: { firstName: true, lastName: true },
-          }),
-          req.session
-            ? prisma.user.findUnique({
-                where: { id: req.session.userId },
-                select: {
-                  consumer: { select: { firstName: true } },
-                  provider: { select: { firstName: true } },
-                },
-              })
-            : Promise.resolve(null),
-        ])
-        const firstName =
-          guestBooker?.firstName ??
-          namedUser?.consumer?.firstName ??
-          namedUser?.provider?.firstName ??
-          'there'
-        const providerName = namedProvider
-          ? `${namedProvider.firstName} ${namedProvider.lastName}`.trim()
-          : 'your provider'
-        const manageUrl = buildBookingManageUrl(
-          config.corsOrigin,
-          resolveBookingLocale(req.body?.locale),
-          manageToken
-        )
-        const mailed = await sendBookingConfirmationEmail({ to, firstName, providerName, manageUrl })
+      const notice = await buildBookingNotice(appointment.id)
+      const locale = resolveBookingLocale(req.body?.locale)
+
+      if (notice?.to) {
+        const manageUrl = buildBookingManageUrl(config.corsOrigin, locale, manageToken)
+        const send = requiresApproval ? sendBookingRequestedEmail : sendBookingConfirmationEmail
+        const mailed = await send({
+          to: notice.to,
+          firstName: notice.bookerFirstName,
+          providerName: notice.providerName,
+          serviceName: notice.serviceName,
+          when: notice.when,
+          manageUrl,
+        })
         emailSent = mailed.ok
+      }
+
+      if (requiresApproval && notice?.providerTo) {
+        await sendBookingApprovalRequestEmail({
+          to: notice.providerTo,
+          providerFirstName: notice.providerFirstName,
+          bookerName: notice.bookerName,
+          serviceName: notice.serviceName,
+          when: notice.when,
+          approvalsUrl: buildApprovalsUrl(config.corsOrigin, locale),
+        })
       }
     } catch (error) {
       console.error('[mail] booking confirmation failed', error)
@@ -392,6 +447,10 @@ appointmentsRouter.post(
         guest: mapGuest(appointment),
         manageToken,
         emailSent,
+        // What the confirm sheet renders: "confirmed" or "sent for approval". Derived
+        // from the row's own status rather than echoed from the provider setting, so
+        // the sheet cannot claim a state the appointment is not in.
+        requiresApproval,
       },
       201
     )
@@ -461,49 +520,27 @@ const serializeManaged = (
  * the slot, so it is not sent to the provider.
  */
 const notifyReschedule = async (appointmentId: string, manageToken: string, locale: string) => {
-  const row = await prisma.appointment.findUnique({
-    where: { id: appointmentId },
-    select: {
-      guestEmail: true,
-      guestFirstName: true,
-      guestLastName: true,
-      startAt: true,
-      consumer: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
-      provider: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
-      service: { select: { name: true } },
-    },
-  })
-  if (!row) return
+  const notice = await buildBookingNotice(appointmentId)
+  if (!notice) return
 
-  const providerName = `${row.provider.firstName} ${row.provider.lastName}`.trim()
-  const guestName =
-    [row.guestFirstName, row.guestLastName].filter(Boolean).join(' ') ||
-    [row.consumer?.firstName, row.consumer?.lastName].filter(Boolean).join(' ') ||
-    'A client'
-  const guestFirstName = row.guestFirstName ?? row.consumer?.firstName ?? 'there'
-  const guestTo = row.guestEmail ?? row.consumer?.user.email
-  const providerTo = row.provider.user.email
-  const when = formatBookingWhen(row.startAt)
   const manageUrl = buildBookingManageUrl(config.corsOrigin, locale, manageToken)
 
-  if (guestTo) {
+  if (notice.to) {
     await sendBookingRescheduledToGuestEmail({
-      to: guestTo,
-      firstName: guestFirstName,
-      providerName,
-      when,
+      to: notice.to,
+      firstName: notice.bookerFirstName,
+      providerName: notice.providerName,
+      when: notice.when,
       manageUrl,
     })
   }
-  if (providerTo) {
-    await sendBookingRescheduledToProviderEmail({
-      to: providerTo,
-      providerFirstName: row.provider.firstName,
-      guestName,
-      serviceName: row.service.name,
-      when,
-    })
-  }
+  await sendBookingRescheduledToProviderEmail({
+    to: notice.providerTo,
+    providerFirstName: notice.providerFirstName,
+    guestName: notice.bookerName,
+    serviceName: notice.serviceName,
+    when: notice.when,
+  })
 }
 
 appointmentsRouter.get(
@@ -540,7 +577,7 @@ appointmentsRouter.patch(
       if (status !== 'cancelled') {
         throw new HttpError(400, 'Public manage can only set status to cancelled', 400)
       }
-      if (existing.status !== 'scheduled' && existing.status !== 'confirmed') {
+      if (!UPCOMING_STATUSES.includes(existing.status)) {
         throw new HttpError(409, 'This booking can no longer be changed', 409)
       }
       await prisma.appointment.update({
@@ -597,9 +634,25 @@ appointmentsRouter.patch(
       if (requested !== 'cancelled') {
         throw new HttpError(400, 'A client can only cancel a booking', 400)
       }
-      if (appointment.status !== 'scheduled' && appointment.status !== 'confirmed') {
+      // `pending` belongs here: a request still waiting on the provider is upcoming,
+      // and withdrawing it is the one thing its maker must always be able to do.
+      if (!UPCOMING_STATUSES.includes(appointment.status)) {
         throw new HttpError(409, 'This booking can no longer be changed', 409)
       }
+    }
+
+    /**
+     * A pending booking leaves that state only through
+     * `PATCH /provider-profile/bookings/:id/decision`, never through this route.
+     *
+     * Not a stylistic preference: this route sends no mail. Confirming a queued booking
+     * from the Bookings kebab would put it on the calendar and leave the client — who
+     * was told their request was being reviewed — with no word either way. The approvals
+     * tab is the only surface that offers the verb, and it calls the route that writes
+     * *and* tells them.
+     */
+    if (isProviderOwner && appointment.status === 'pending') {
+      throw new HttpError(409, 'Approve or decline this booking from the Approvals tab', 409)
     }
 
     const updated = await prisma.appointment.update({

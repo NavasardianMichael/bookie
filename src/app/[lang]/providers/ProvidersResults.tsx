@@ -18,9 +18,9 @@ type Props = {
  *
  * The page shell — search box, category rail, results heading and toolbar — is already
  * correct for the new query before the API answers, so re-rendering them would only make
- * the controls flicker. Suspending just this subtree lets the shell stay put and the grid
- * hand over to a skeleton, which is what makes a search feel like filtering rather than a
- * page load.
+ * the controls flicker. Suspending just this subtree lets the shell stay put. A live
+ * search keeps the current grid under a translucent overlay rather than swapping it for
+ * a skeleton; the skeleton is only the cold-load fallback.
  */
 export const ProvidersResults = async ({ params }: Props) => {
   const [{ list, pagination }, t, tCommon] = await Promise.all([

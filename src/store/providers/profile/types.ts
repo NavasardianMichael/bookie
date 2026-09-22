@@ -45,7 +45,7 @@ export type ProviderProfile = {
   }
   details: {
     location: Location
-    phone: PhoneNumber
+    phone?: PhoneNumber
     country?: string
     email?: string
     emailVerifiedAt?: string
@@ -53,6 +53,15 @@ export type ProviderProfile = {
     weekSchedule: WeekSchedule
     emailNotificationPrefs?: ProviderEmailNotificationPrefs
     paymentInfo?: PaymentInfo
+    /**
+     * The provider reviews every booking before it reaches their calendar.
+     *
+     * On `details` and therefore on the **public** payload, because the booking sheet
+     * has to tell a visitor their submission is a request rather than a confirmation.
+     * Optional so a payload written before the column existed still parses; treat a
+     * missing value as `false`, which is what the API defaults it to.
+     */
+    requiresBookingApproval?: boolean
   }
   services: Normalized<ProviderService>
   personal: ProviderPersonalValues
@@ -109,12 +118,13 @@ export type ProviderService = {
   id: string
   name: string
   duration: number
-  categoryId: Category['id']
+  categoryId?: Category['id']
   description?: string
   price?: number
   currency?: string
   image?: string
-  missing?: boolean
+  /** False when the provider has withdrawn this offering. Defaults to true from the API. */
+  active: boolean
 }
 
 type ProviderPersonalValues = {

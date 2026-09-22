@@ -78,7 +78,7 @@ const matchesTerm = (term: string): Prisma.ProviderWhereInput => ({
     { firstName: { contains: term, mode: 'insensitive' } },
     { lastName: { contains: term, mode: 'insensitive' } },
     { organization: { name: { contains: term, mode: 'insensitive' } } },
-    { services: { some: { name: { contains: term, mode: 'insensitive' } } } },
+    { services: { some: { name: { contains: term, mode: 'insensitive' }, active: true } } },
     { categories: { some: { category: { name: { contains: term, mode: 'insensitive' } } } } },
   ],
 })

@@ -15,7 +15,8 @@ type Props = {
   requirement?: FieldRequirement
   /**
    * `new-password` only through `NewPasswordFields` (registration, reset, change).
-   * Sign-in is the one `current-password` call site, because it is not choosing a password.
+   * Sign-in and account deletion are the `current-password` call sites — they re-enter
+   * an existing password rather than choosing one.
    */
   autoComplete: 'new-password' | 'current-password'
   disabled?: boolean

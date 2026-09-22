@@ -27,6 +27,7 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
 const STATUS_TONE: Record<BookingStatus, string> = {
+  pending: 'gold',
   scheduled: 'blue',
   confirmed: 'green',
   completed: 'default',
@@ -37,7 +38,9 @@ const STATUS_TONE: Record<BookingStatus, string> = {
 const isBookingStatus = (status: string): status is BookingStatus =>
   BOOKING_STATUSES.includes(status as BookingStatus)
 
-const isEditable = (status: string): boolean => status === 'scheduled' || status === 'confirmed'
+/** As `BookingManageClient`: a request awaiting approval is still cancellable. */
+const isEditable = (status: string): boolean =>
+  status === 'pending' || status === 'scheduled' || status === 'confirmed'
 
 /**
  * Whether this visit can be reviewed — the same rule the API enforces on

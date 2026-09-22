@@ -19,10 +19,12 @@ import {
 } from '@api/appointments/types'
 import { getProviderProfileAPI } from '@api/providers/main'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
+import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppInput } from '@components/ui/AppInput'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { EmptyState } from '@components/ui/EmptyState'
 import { Surface } from '@components/ui/layout/Surface'
@@ -35,10 +37,25 @@ export type BookingsSide = 'provider' | 'consumer'
 const PROVIDER_ACTIONABLE: BookingStatus[] = ['confirmed', 'completed', 'no_show', 'cancelled']
 const DANGEROUS: BookingStatus[] = ['cancelled', 'no_show']
 
+/** Statuses a booking can still be cancelled out of by the person who made it. */
+const UPCOMING: BookingStatus[] = ['pending', 'scheduled', 'confirmed']
+
 const actionsFor = (side: BookingsSide, status: BookingStatus): BookingStatus[] => {
   if (side === 'consumer') {
-    return status === 'scheduled' || status === 'confirmed' ? ['cancelled'] : []
+    // `pending` included: a request still waiting on the provider is upcoming, and
+    // withdrawing it is the one thing its maker must always be able to do.
+    return UPCOMING.includes(status) ? ['cancelled'] : []
   }
+  /**
+   * A pending booking offers the receiving provider nothing here.
+   *
+   * Its two verbs live on the Approvals tab, which calls the route that also emails the
+   * client. Confirming one from this kebab would move it onto the calendar in silence,
+   * leaving someone who was told their request was under review with no word either way —
+   * and the API refuses it for exactly that reason, so offering it would only produce a
+   * 409. `pendingAction` on the row is the link across instead.
+   */
+  if (status === 'pending') return []
   return PROVIDER_ACTIONABLE.filter((next) => next !== status)
 }
 
@@ -62,6 +79,7 @@ const FilterField: FC<FilterFieldProps> = ({ id, label, icon, children }) => (
 )
 
 const STATUS_TONE: Record<ProviderBooking['status'], string> = {
+  pending: 'gold',
   scheduled: 'blue',
   confirmed: 'green',
   completed: 'default',
@@ -131,14 +149,7 @@ type Props = {
  * only cancel an upcoming booking; confirm / complete / no-show belong to the
  * professional who received it.
  */
-export const BookingsList: FC<Props> = ({
-  side,
-  dayRange,
-  selectedDayKey,
-  onClearDay,
-  revision,
-  onStatusWritten,
-}) => {
+export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClearDay, revision, onStatusWritten }) => {
   const tBookings = useTranslations('Settings.bookings')
   const tAppointments = useTranslations('Settings.appointments')
   const tHistory = useTranslations('Settings.history')
@@ -185,9 +196,7 @@ export const BookingsList: FC<Props> = ({
 
     void getProviderProfileAPI()
       .then((profile) => {
-        setServices(
-          profile.services.allIds.map((id) => ({ value: id, label: profile.services.byId[id]?.name ?? id }))
-        )
+        setServices(profile.services.allIds.map((id) => ({ value: id, label: profile.services.byId[id]?.name ?? id })))
       })
       .catch(() => setServices([]))
   }, [isConsumer])
@@ -279,10 +288,7 @@ export const BookingsList: FC<Props> = ({
             prefix={<SortAscendingOutlined className='text-brand-muted' aria-hidden />}
             options={PROVIDER_BOOKINGS_SORTS.map((value) => ({
               value,
-              label:
-                value === 'nameAsc' && isConsumer
-                  ? tAppointments('sort.nameAsc')
-                  : tBookings(`sort.${value}`),
+              label: value === 'nameAsc' && isConsumer ? tAppointments('sort.nameAsc') : tBookings(`sort.${value}`),
             }))}
             popupMatchSelectWidth={false}
             className='min-w-56 flex-none'
@@ -353,7 +359,9 @@ export const BookingsList: FC<Props> = ({
                 ? tBookings('emptyAsConsumerBody')
                 : tBookings('emptyBody')
           }
-          action={hasFilters ? <AppButton onClick={handleClearFilters}>{tBookings('clearFilters')}</AppButton> : undefined}
+          action={
+            hasFilters ? <AppButton onClick={handleClearFilters}>{tBookings('clearFilters')}</AppButton> : undefined
+          }
         />
       ) : (
         <ul className='flex list-none flex-col gap-3 p-0'>
@@ -370,7 +378,7 @@ export const BookingsList: FC<Props> = ({
                 className='border-brand-border flex flex-wrap items-start gap-4 rounded-brand border p-4'
               >
                 <div className='min-w-0 flex-1 basis-56'>
-                  <AppText size='caption' className='text-brand block font-bold'>
+                  <AppText size='caption' className='text-brand block'>
                     {format.dateTime(start, {
                       weekday: 'short',
                       month: 'short',
@@ -379,7 +387,7 @@ export const BookingsList: FC<Props> = ({
                       minute: '2-digit',
                     })}
                   </AppText>
-                  <AppText size='body' tone='default' className='block font-bold'>
+                  <AppText size='body' tone='default' className='block font-semibold'>
                     {name}
                     {booking.booker.kind === 'guest' && (
                       <Tag className='ms-2' color='default'>
@@ -395,11 +403,19 @@ export const BookingsList: FC<Props> = ({
 
                 <div className='flex shrink-0 items-center gap-1'>
                   <Tag color={STATUS_TONE[booking.status]}>{tStatus(booking.status)}</Tag>
-                  <BookingActionsMenu
-                    name={name}
-                    actions={rowActions}
-                    onPick={(status) => setPending({ booking, status })}
-                  />
+                  {/* The kebab is empty for a pending row, so the tab that owns its two
+                      verbs is named instead of leaving a dead control. */}
+                  {!isConsumer && booking.status === 'pending' ? (
+                    <AppLink href={ROUTES.providerProfileApprovals} className='text-body-sm'>
+                      {tBookings('reviewInApprovals')}
+                    </AppLink>
+                  ) : (
+                    <BookingActionsMenu
+                      name={name}
+                      actions={rowActions}
+                      onPick={(status) => setPending({ booking, status })}
+                    />
+                  )}
                 </div>
               </li>
             )

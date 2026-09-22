@@ -29,10 +29,10 @@ describe('toCategoryFields', () => {
     expect(toCategoryFields({ name: '  Hair  ' })).toEqual({ categoryName: 'Hair' })
   })
 
-  it('sends neither field when the value is absent or blank', () => {
-    expect(toCategoryFields(undefined)).toEqual({})
-    expect(toCategoryFields({ name: '' })).toEqual({})
-    expect(toCategoryFields({ name: '   ' })).toEqual({})
+  it('sends a clear-marker when the value is absent or blank', () => {
+    expect(toCategoryFields(undefined)).toEqual({ categoryId: '' })
+    expect(toCategoryFields({ name: '' })).toEqual({ categoryId: '' })
+    expect(toCategoryFields({ name: '   ' })).toEqual({ categoryId: '' })
   })
 
   it('prefers the id over the name when both are present', () => {
@@ -99,6 +99,17 @@ describe('processProviderServiceFormToRequestPayload', () => {
 
   it('keeps a zero price as a number, not as cleared', () => {
     expect(processProviderServiceFormToRequestPayload({ ...FILLED, price: 0 }).price).toBe(0)
+  })
+
+  it('produces a payload with no category name when only title and duration are set', () => {
+    const payload = processProviderServiceFormToRequestPayload({
+      name: 'Walk-in',
+      duration: 20,
+      category: undefined,
+    })
+
+    expect(payload).toMatchObject({ name: 'Walk-in', duration: 20, categoryId: '' })
+    expect(payload).not.toHaveProperty('categoryName')
   })
 
   // The API only ever accepts an image as an upload, so the layer below drops a

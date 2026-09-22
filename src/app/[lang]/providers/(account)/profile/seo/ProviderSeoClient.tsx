@@ -3,6 +3,7 @@
 import { FC, useCallback, useEffect, useState } from 'react'
 import type { InputProps } from 'antd'
 import { Alert, App, Form, Space } from 'antd'
+import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, patchProviderSeoAPI } from '@api/providers/main'
 import { ProviderSeo } from '@store/providers/profile/types'
@@ -10,15 +11,16 @@ import { DEFAULT_LOCALE, isLocale } from '@i18n/config'
 import { localePath } from '@i18n/pathname'
 import { ROUTES } from '@constants/routes'
 import { processError } from '@helpers/error'
+import { isUploadedAsset, resolveAssetUrl } from '@helpers/images'
 import { getSiteUrl } from '@helpers/url'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
-import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
-import { CopyIcon, GlobeIcon } from '@components/ui/icons'
+import { AppTitle } from '@components/ui/bare/AppTitle'
+import { GlobeIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
@@ -136,7 +138,7 @@ export const ProviderSeoClient = () => {
     description: '',
     slug: '',
   })
-  const [providerId, setProviderId] = useState('')
+  const [previewImage, setPreviewImage] = useState<string | undefined>()
   const [persistedSlug, setPersistedSlug] = useState('')
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -176,7 +178,11 @@ export const ProviderSeoClient = () => {
           slug: profile.seo?.slug ?? '',
         })
         setFallback(nextFallback)
-        setProviderId(profile.id)
+        // Same rule as `generateMetadata` on the public page: only a real upload
+        // overrides the default OG card, so the preview must not paint `/logo.svg`.
+        setPreviewImage(
+          isUploadedAsset(profile.basic.image) ? resolveAssetUrl(profile.basic.image) : undefined
+        )
         setPersistedSlug(profile.seo?.slug ?? '')
         setSaved(values)
         form.setFieldsValue(values)
@@ -187,7 +193,7 @@ export const ProviderSeoClient = () => {
   /**
    * `useLocale()` is typed `string` — it reads the active segment, which nothing at the
    * type level guarantees is one of ours. Narrowed once here rather than at each of the
-   * four call sites below.
+   * two call sites below.
    */
   const activeLocale = isLocale(locale) ? locale : DEFAULT_LOCALE
 
@@ -197,15 +203,8 @@ export const ProviderSeoClient = () => {
     [activeLocale]
   )
 
-  const canonicalUrl = providerId
-    ? `${getSiteUrl()}${localePath(activeLocale, `${ROUTES.providers}/${providerId}`)}`
-    : ''
-
   /** What the preview shows: the link as it would be with the *unsaved* slug. */
   const previewUrl = vanityUrlFor(slug.trim().toLowerCase())
-
-  /** The address that already works — vanity if one is saved, otherwise the profile URL. */
-  const liveUrl = persistedSlug ? vanityUrlFor(persistedSlug) : canonicalUrl
 
   const handleSave = async () => {
     const values = await form.validateFields()
@@ -285,20 +284,38 @@ export const ProviderSeoClient = () => {
           </AppFormItem>
 
           {/* A real preview of the result, because these two fields are the only ones in
-              the app whose output the provider never otherwise sees. */}
-          <div className='bg-surface-sunken border-brand-border flex flex-col gap-1 rounded-brand border p-4'>
-            <AppText size='overline' tone='muted' className='font-semibold'>
+              the app whose output the provider never otherwise sees. The heading sits
+              outside the mock so it is a label, not a row inside the card. An uploaded
+              portrait is cropped to the 1200x630 OG ratio — the same crop a share card
+              uses when it overrides `opengraph-image.tsx`. */}
+          <div className='flex flex-col gap-1.5'>
+            <AppTitle level='h3' size='body'>
               {t('previewLabel')}
-            </AppText>
-            <AppText size='caption' tone='muted' className='block truncate'>
-              {previewUrl}
-            </AppText>
-            <AppText size='body' className='text-brand block font-semibold'>
-              {title || fallback.title || t('previewEmptyTitle')}
-            </AppText>
-            <AppParagraph size='body-sm' className='m-0'>
-              {description || fallback.description || t('previewEmptyDescription')}
-            </AppParagraph>
+            </AppTitle>
+            <div className='bg-surface-sunken border-brand-border overflow-hidden rounded-brand border'>
+              {previewImage && (
+                <div className='bg-surface relative aspect-1200/630 w-full'>
+                  <Image
+                    src={previewImage}
+                    alt={title || fallback.title || t('previewEmptyTitle')}
+                    fill
+                    sizes='(max-width: 768px) 100vw, 640px'
+                    className='object-cover'
+                  />
+                </div>
+              )}
+              <div className='flex flex-col gap-1 p-4'>
+                <AppText size='caption' tone='muted' className='block truncate'>
+                  {previewUrl}
+                </AppText>
+                <AppText size='body' className='text-brand block font-semibold'>
+                  {title || fallback.title || t('previewEmptyTitle')}
+                </AppText>
+                <AppParagraph size='body-sm' className='m-0'>
+                  {description || fallback.description || t('previewEmptyDescription')}
+                </AppParagraph>
+              </div>
+            </div>
           </div>
         </Surface>
 
@@ -340,33 +357,6 @@ export const ProviderSeoClient = () => {
               maxLength={MAX_SLUG}
             />
           </AppFormItem>
-
-          {liveUrl && (
-            <div className='bg-surface-sunken border-brand-border flex items-center justify-between gap-3 rounded-brand border p-3'>
-              <div className='min-w-0'>
-                <AppText size='caption' tone='muted' className='font-bold uppercase'>
-                  {t('yourLink')}
-                </AppText>
-                <AppParagraph className='truncate font-semibold' tone='default'>
-                  {liveUrl}
-                </AppParagraph>
-              </div>
-              <AppButton
-                type='default'
-                icon={<CopyIcon className='h-4 w-4' />}
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(liveUrl)
-                    message.success(t('copied'))
-                  } catch {
-                    message.error(t('copyFailed'))
-                  }
-                }}
-              >
-                {t('copy')}
-              </AppButton>
-            </div>
-          )}
 
           {/* Only once a slug exists and the provider is changing it — a warning about
               breaking a link nobody has yet is noise. */}

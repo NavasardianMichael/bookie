@@ -2,7 +2,7 @@
 
 import { FC } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { App, Form } from 'antd'
+import { App, Form, Tooltip } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { PaymentMethod } from '@interfaces/settings'
@@ -13,7 +13,7 @@ import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
-import { CopyIcon } from '@components/ui/icons'
+import { CopyIcon, InfoIcon } from '@components/ui/icons'
 
 type Props = {
   /** Prefix for nested form names, e.g. nothing or under a parent. */
@@ -67,15 +67,16 @@ export const PaymentInfoFields: FC<Props> = ({ disabled }) => {
           htmlFor='payment-pay-to-number'
           requirement='Optional'
           action={
-            <AppButton
-              type='text'
-              shape='circle'
-              size='small'
-              icon={<CopyIcon className='h-4 w-4' />}
-              aria-label={t('copyCardOrAccountNumber')}
-              disabled={disabled || !copyText.trim()}
-              onClick={() => void copyPayToNumber()}
-            />
+            <Tooltip title={t('cardOrAccountNumberInfo')} trigger={['hover', 'focus', 'click']}>
+              <AppButton
+                type='text'
+                shape='circle'
+                size='small'
+                icon={<InfoIcon className='h-4 w-4' />}
+                aria-label={t('cardOrAccountNumberInfoLabel')}
+                className='text-brand-muted'
+              />
+            </Tooltip>
           }
         >
           {t('cardOrAccountNumber')}
@@ -92,6 +93,17 @@ export const PaymentInfoFields: FC<Props> = ({ disabled }) => {
             maxLength={PAYMENT_SHARE_MAX}
             autoComplete='off'
             spellCheck={false}
+            suffix={
+              <AppButton
+                type='text'
+                shape='circle'
+                size='small'
+                icon={<CopyIcon className='h-4 w-4' />}
+                aria-label={t('copyCardOrAccountNumber')}
+                disabled={disabled || !copyText.trim()}
+                onClick={() => void copyPayToNumber()}
+              />
+            }
           />
         </AppFormItem>
       </div>

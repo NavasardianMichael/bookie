@@ -142,8 +142,8 @@ export const asCountryCode = (value: unknown): string | undefined => {
 export type ParsedPhone = { phoneCode: number; phoneNumber: bigint }
 
 /**
- * Phone is **mandatory but never verified** — informative data a provider needs in order to
- * reach a client, not identity. So it is validated to shape only.
+ * Phone is **never verified** — informative contact data, not identity. Consumers must
+ * send one at registration; providers may omit it. Validated to shape only when present.
  *
  * **No uniqueness check, deliberately.** The old `@@unique` existed solely because phone
  * was the identity; a clinic line shared by four providers is ordinary. A unique constraint
@@ -248,6 +248,22 @@ export type ProfileSummary = {
 }
 
 /**
+ * Portrait for owner chrome (Header). Draft wins so a saved-but-unpublished photo
+ * is not still the seeded logo; only a real upload, because `/logo.svg` is the
+ * site mark, not a face.
+ */
+const sessionPortrait = (profile: { imageUrl?: string | null; draft?: unknown }): string | undefined => {
+  let src: string | undefined
+  if (profile.draft && typeof profile.draft === 'object' && !Array.isArray(profile.draft)) {
+    const url = (profile.draft as { imageUrl?: unknown }).imageUrl
+    if (typeof url === 'string' && url) src = url
+  }
+  src ??= profile.imageUrl ?? undefined
+  if (src && (src.startsWith('/uploads/') || /^https?:/.test(src))) return src
+  return undefined
+}
+
+/**
  * A returning user does not restate what they are, so the role is read off whichever
  * profile exists. A user holding both resolves to provider — the account with more to
  * manage — which is the rule the phone+OTP flow used and is unchanged by this migration.
@@ -264,7 +280,7 @@ export const loadProfile = async (userId: string): Promise<ProfileSummary | null
       profileId: provider.id,
       firstName: provider.firstName,
       lastName: provider.lastName,
-      image: provider.imageUrl ?? undefined,
+      image: sessionPortrait(provider),
     }
   }
   if (consumer) {
@@ -330,7 +346,10 @@ identityRouter.post(
     if (!lastName) return fail(res, 'Last name is required')
 
     const phone = asPhone(req.body?.phone ?? (profile as { phone?: unknown }).phone)
-    if (!phone) return fail(res, 'A valid phone code and number are required')
+    if (role === 'consumer' && !phone) return fail(res, 'A valid phone code and number are required')
+    if (role === 'provider' && req.body?.phone !== undefined && req.body?.phone !== null && !phone) {
+      return fail(res, 'A valid phone code and number are required')
+    }
 
     const country = asCountryCode(profile.country)
     const locale = asVerifyLocale(req.body?.locale)
@@ -392,14 +411,20 @@ identityRouter.post(
             userId: saved.id,
             firstName,
             lastName,
-            phoneCode: phone.phoneCode,
-            phoneNumber: phone.phoneNumber,
+            phoneCode: phone?.phoneCode ?? null,
+            phoneNumber: phone?.phoneNumber ?? null,
             country,
             organizationId,
             weekSchedule: {},
             listed: false,
           },
-          update: { firstName, lastName, phoneCode: phone.phoneCode, phoneNumber: phone.phoneNumber, country },
+          update: {
+            firstName,
+            lastName,
+            phoneCode: phone?.phoneCode ?? null,
+            phoneNumber: phone?.phoneNumber ?? null,
+            country,
+          },
         })
       } else {
         await tx.consumer.upsert({
@@ -408,11 +433,11 @@ identityRouter.post(
             userId: saved.id,
             firstName,
             lastName,
-            phoneCode: phone.phoneCode,
-            phoneNumber: phone.phoneNumber,
+            phoneCode: phone!.phoneCode,
+            phoneNumber: phone!.phoneNumber,
             country,
           },
-          update: { firstName, lastName, phoneCode: phone.phoneCode, phoneNumber: phone.phoneNumber, country },
+          update: { firstName, lastName, phoneCode: phone!.phoneCode, phoneNumber: phone!.phoneNumber, country },
         })
       }
 
@@ -819,7 +844,7 @@ identityRouter.get(
   asyncHandler(async (req, res) => {
     const { role, profileId, userId } = req.session!
 
-    const [user, profile] = await Promise.all([
+    const [user, profile, otherProfileId] = await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
         select: { email: true, emailVerifiedAt: true, authProvider: true, passwordHash: true, googleId: true },
@@ -827,6 +852,22 @@ identityRouter.get(
       role === 'provider'
         ? prisma.provider.findUnique({ where: { id: profileId } })
         : prisma.consumer.findUnique({ where: { id: profileId } }),
+      /**
+       * Whether this User *also* holds the profile their session is not using.
+       *
+       * `loadProfile` resolves a session to `provider` whenever both exist, so the
+       * session alone cannot answer this — and the settings shell needs it to decide
+       * whether to offer the workspace switch. An id-or-null rather than a boolean
+       * because it costs the same query and says which record the other side would open.
+       *
+       * Almost always null for a consumer session: holding a Provider row would have
+       * made the session `provider` in the first place. It is read for both roles
+       * anyway, because that rule lives in one function and this route should not
+       * quietly depend on it.
+       */
+      role === 'provider'
+        ? prisma.consumer.findUnique({ where: { userId }, select: { id: true } })
+        : prisma.provider.findUnique({ where: { userId }, select: { id: true } }),
     ])
 
     if (!user) throw new HttpError(404, 'Account not found', 404)
@@ -838,14 +879,28 @@ identityRouter.get(
       userId,
       firstName: profile.firstName,
       lastName: profile.lastName,
-      image: 'imageUrl' in profile ? (profile.imageUrl ?? undefined) : undefined,
+      // Narrowed before the call: `profile` is `Provider | Consumer`, and only a Provider
+      // carries `imageUrl`/`draft`. Passing the bare union trips TypeScript's weak-type
+      // check, because the Consumer branch shares no property with the parameter type.
+      image: 'imageUrl' in profile ? sessionPortrait(profile) : undefined,
       email: user.email,
       emailVerified: Boolean(user.emailVerifiedAt),
       authProvider: user.authProvider,
-      phone: { code: profile.phoneCode, number: Number(profile.phoneNumber) },
+      phone:
+        profile.phoneCode !== null && profile.phoneNumber !== null
+          ? { code: profile.phoneCode, number: Number(profile.phoneNumber) }
+          : undefined,
       /** Never the hash — only whether one exists, which is all the UI needs to branch on. */
       hasPassword: Boolean(user.passwordHash),
       hasGoogle: Boolean(user.googleId),
+      /**
+       * The profiles this account holds, not the one the session is currently using.
+       * The settings shell offers its workspace switch only when the other side exists.
+       */
+      profiles: {
+        provider: role === 'provider' || Boolean(otherProfileId),
+        consumer: role === 'consumer' || Boolean(otherProfileId),
+      },
     })
   })
 )
@@ -916,9 +971,11 @@ identityRouter.post(
     const password = typeof req.body?.password === 'string' ? req.body.password : ''
     const returnPath = asTrimmedString(req.body?.returnPath)
     const locale = asVerifyLocale(req.body?.locale)
-    const role = req.session!.role
 
-    if (!returnPath || !isAllowedEmailVerifyReturnPath(returnPath, role)) {
+    // Not narrowed by session role: a provider who holds a Consumer profile changes
+    // their email from `/consumers/profile`, and their session still reads `provider`.
+    // See `lib/return-path.ts`.
+    if (!returnPath || !isAllowedEmailVerifyReturnPath(returnPath)) {
       return fail(res, 'Invalid return path')
     }
 

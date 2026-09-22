@@ -1,13 +1,10 @@
 'use client'
 
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowRightOutlined } from '@ant-design/icons'
 import dayjs, { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
 import { getProviderBookingsCalendarAPI, getProviderConsumerBookingsCalendarAPI } from '@api/appointments/main'
-import { ROUTES } from '@constants/routes'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
-import { AppLink } from '@components/ui/bare/AppLink'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { BookingsList, BookingsSide } from './BookingsList'
 import { DayBookingCount, ProviderBookingsCalendar } from './ProviderBookingsCalendar'
@@ -97,20 +94,13 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
 
   return (
     <div className='flex flex-col gap-6'>
+      {/* No switch action here any more. It swapped between two provider-tree URLs and
+          was the only control of its kind in the app; the settings shell now carries one
+          workspace switch above every panel, so the same gesture works from any tab
+          rather than only from this one. See `WorkspaceSwitch`. */}
       <PageHeader
         title={isConsumer ? t('asConsumerTitle') : t('title')}
         subtitle={isConsumer ? t('asConsumerSubtitle') : t('subtitle')}
-        actions={
-          <AppLink
-            href={isConsumer ? ROUTES.providerProfileBookings : ROUTES.providerProfileConsumerBookings}
-            variant='button'
-            tone='primary'
-            className='h-auto min-h-8 whitespace-normal py-2 text-center'
-          >
-            {isConsumer ? t('switchToProvider') : t('switchToConsumer')}
-            <ArrowRightOutlined aria-hidden />
-          </AppLink>
-        }
       />
 
       <ProviderBookingsCalendar
