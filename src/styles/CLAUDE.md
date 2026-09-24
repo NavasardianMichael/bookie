@@ -74,12 +74,13 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
     the grep gate) in the same change. Do not copy it from these files onto a
     neighbouring control.
 
-    **Select is the component-level exception for matching Input height.** Select has
-    no `paddingBlock` / `paddingInline` tokens, so it sets `controlHeight` on its own
+    **Select and Button match Input height on their own component tokens.** Select has
+    no `paddingBlock` / `paddingInline` tokens, so it sets `controlHeight` on its
     `components.Select` block to match Input's 6 / 12 padding. Button's `paddingBlock`
     exists on the type but antd 6 hardcodes vertical padding to 0 and sizes the
-    control with seed `controlHeight`; the Button block only overrides
-    `paddingInline`. Change the shared `FIELD_PADDING_*` constants in `theme.ts`,
+    control with `controlHeight`; the seed default is 32, so the Button block sets the
+    same derived height as Select and only overrides `paddingInline` for the horizontal
+    padding. Change the shared `FIELD_PADDING_*` constants in `theme.ts`,
     not a call-site height.
 11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg`
     (8/12) via `borderRadius`/`borderRadiusLG`. antd's own 6/8 reads visibly squarer

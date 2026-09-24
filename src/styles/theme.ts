@@ -77,6 +77,9 @@ export const antdTheme: ThemeConfig = {
       defaultShadow: 'none',
       // paddingBlock is @deprecated and unused in antd 6: prepareToken hardcodes
       // buttonPaddingVertical to 0 and sizes the button with controlHeight.
+      // The seed height is 32; Select and Input are 36, so a button beside a
+      // field (Clear filters on Bookings) sat a step shorter. Same value as Select.
+      controlHeight: FIELD_CONTROL_HEIGHT,
       paddingInline: FIELD_PADDING_INLINE,
     },
     Input: { paddingBlock: FIELD_PADDING_BLOCK, paddingInline: FIELD_PADDING_INLINE },

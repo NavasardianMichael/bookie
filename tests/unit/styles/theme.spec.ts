@@ -77,6 +77,7 @@ describe('form control padding', () => {
     // only padding token that lands; height is controlHeight.
     expect(antdTheme.components?.Button).toMatchObject({
       paddingInline: 12,
+      controlHeight: 36,
     })
     expect(antdTheme.components?.Button).not.toHaveProperty('paddingBlock')
   })
