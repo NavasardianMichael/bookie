@@ -334,7 +334,7 @@ model Consumer {
   /// +1 is the US, Canada and ~20 more. Mirrors Provider.country, and now sits on the same
   /// row as the phone it was picked beside, so the two can no longer diverge.
   country                String?
-  /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges, marketing }`
+  /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges }`
   emailNotificationPrefs Json               @default("{}")
   /// Preferred in-person methods only — `{ methods: [...] }`. Card/account numbers
   /// belong on the provider, not here.

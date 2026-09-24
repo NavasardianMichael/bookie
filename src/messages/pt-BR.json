@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {# hora} other {# horas}}",
       "changesTitle": "Alterações nos agendamentos",
       "changesBody": "Avisos quando um agendamento for alterado ou cancelado.",
-      "marketingTitle": "E-mails de marketing",
-      "marketingBody": "Ofertas e novidades sobre novos profissionais.",
       "newBookingTitle": "Novos agendamentos",
       "newBookingBody": "Um e-mail quando um cliente agendar com você."
     },

@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {# 小时} other {# 小时}}",
       "changesTitle": "预约变更",
       "changesBody": "预约被更改或取消时通知。",
-      "marketingTitle": "营销邮件",
-      "marketingBody": "优惠和新服务提供者的动态。",
       "newBookingTitle": "新预约",
       "newBookingBody": "有客户向您预约时通知您。"
     },

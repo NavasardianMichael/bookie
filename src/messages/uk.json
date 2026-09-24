@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {# година} few {# години} other {# годин}}",
       "changesTitle": "Зміни бронювань",
       "changesBody": "Оновлення, коли бронювання змінено або скасовано.",
-      "marketingTitle": "Маркетингові листи",
-      "marketingBody": "Пропозиції та повідомлення про нових виконавців.",
       "newBookingTitle": "Нові бронювання",
       "newBookingBody": "Лист, коли клієнт бронює у вас."
     },

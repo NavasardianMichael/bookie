@@ -39,7 +39,11 @@ describe('mergeProviderNotificationPrefs', () => {
 })
 
 describe('mergeConsumerNotificationPrefs', () => {
-  it('keeps marketing off by default', () => {
-    expect(mergeConsumerNotificationPrefs(null).marketing).toBe(false)
+  it('fills defaults and drops a leftover marketing flag', () => {
+    expect(mergeConsumerNotificationPrefs({ marketing: true })).toEqual({
+      appointmentReminders: true,
+      appointmentReminderMinutes: DEFAULT_APPOINTMENT_REMINDER_LEAD_MINUTES,
+      bookingChanges: true,
+    })
   })
 })

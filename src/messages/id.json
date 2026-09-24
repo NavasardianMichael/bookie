@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {# jam} other {# jam}}",
       "changesTitle": "Perubahan Pemesanan",
       "changesBody": "Pembaruan saat pemesanan diubah atau dibatalkan.",
-      "marketingTitle": "Email Pemasaran",
-      "marketingBody": "Penawaran dan pengumuman penyedia baru.",
       "newBookingTitle": "Pemesanan Baru",
       "newBookingBody": "Email saat klien memesan dengan Anda."
     },

@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {#시간} other {#시간}}",
       "changesTitle": "예약 변경",
       "changesBody": "예약이 변경되거나 취소될 때 업데이트를 받아요.",
-      "marketingTitle": "마케팅 이메일",
-      "marketingBody": "혜택과 새 제공자 소식.",
       "newBookingTitle": "새 예약",
       "newBookingBody": "고객이 예약할 때 이메일을 받아요."
     },

@@ -11,10 +11,6 @@ import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 
-type Props = {
-  showTopBorder?: boolean
-}
-
 const LEAD_HOURS: Partial<Record<AppointmentReminderLeadMinutes, number>> = {
   60: 1,
   360: 6,
@@ -25,7 +21,7 @@ const LEAD_HOURS: Partial<Record<AppointmentReminderLeadMinutes, number>> = {
  * Appointment Reminders switch plus the lead-time select. The select stays
  * mounted while hidden so antd does not drop `appointmentReminderMinutes`.
  */
-export const AppointmentReminderPref: FC<Props> = ({ showTopBorder = false }) => {
+export const AppointmentReminderPref: FC = () => {
   const t = useTranslations('Settings.notifications')
   const remindersOn = Form.useWatch('appointmentReminders') !== false
 
@@ -38,7 +34,7 @@ export const AppointmentReminderPref: FC<Props> = ({ showTopBorder = false }) =>
   })
 
   return (
-    <div className={cn('flex flex-col gap-3 py-4', showTopBorder && 'border-brand-border border-t')}>
+    <div className='flex flex-col gap-3 py-4'>
       <div className='flex items-center justify-between gap-4'>
         <div>
           <AppText className='font-bold'>{t('remindersTitle')}</AppText>

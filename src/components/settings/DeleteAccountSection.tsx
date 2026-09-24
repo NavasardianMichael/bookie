@@ -76,7 +76,7 @@ export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
   return (
     <>
       <Surface className='flex flex-col gap-6'>
-        <div className='flex flex-col gap-1.5'>
+        <div className='flex flex-col gap-1'>
           <AppTitle level='h2' size='h3'>
             {t('deleteAccount.title')}
           </AppTitle>

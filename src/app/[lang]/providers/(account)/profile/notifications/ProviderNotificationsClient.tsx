@@ -104,19 +104,8 @@ export const ProviderNotificationsClient = () => {
           />
         ) : (
           <Form form={form} initialValues={saved} disabled={saving} onValuesChange={() => setDirty(true)}>
-            {ROWS.slice(0, 1).map((row) => (
-              <div key={row.key} className='flex items-center justify-between gap-4 py-4'>
-                <div>
-                  <AppText className='font-bold'>{t(`notifications.${row.titleKey}`)}</AppText>
-                  <AppParagraph size='body-sm'>{t(`notifications.${row.descKey}`)}</AppParagraph>
-                </div>
-                <AppFormItem name={row.key} valuePropName='checked' className='m-0'>
-                  <Switch />
-                </AppFormItem>
-              </div>
-            ))}
-            <AppointmentReminderPref showTopBorder />
-            {ROWS.slice(1).map((row) => (
+            <AppointmentReminderPref />
+            {ROWS.map((row) => (
               <div key={row.key} className='border-brand-border flex items-center justify-between gap-4 border-t py-4'>
                 <div>
                   <AppText className='font-bold'>{t(`notifications.${row.titleKey}`)}</AppText>

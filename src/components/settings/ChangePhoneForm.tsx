@@ -1,34 +1,16 @@
 'use client'
 
-import { FC, useEffect, useState } from 'react'
-import { PhoneFormValues, PhoneNumberField } from '@app/[lang]/auth/components/PhoneNumberField'
-import { Alert, Form } from 'antd'
+import { FC } from 'react'
+import { PhoneNumberField } from '@app/[lang]/auth/components/PhoneNumberField'
 import type { CountryCode } from 'libphonenumber-js'
-import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
-import { changePhoneAPI } from '@api/auth/main'
 import { PhoneNumber } from '@interfaces/app'
-import { isFormValidationError } from '@helpers/error'
-import { toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
-import { AppButton } from '@components/ui/AppButton'
-import { ErrorAlert } from '@components/ui/ErrorAlert'
-import { Surface } from '@components/ui/layout/Surface'
+import { toOptionalPhoneNumber, toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
 
 type Props = {
-  currentPhone?: PhoneNumber | string
-  onChanged?: (phone: PhoneNumber) => void
-  /** Skip the outer Surface when the form already sits inside Personal Information. */
-  embedded?: boolean
+  /** Provider phone is optional; a consumer account always has one. */
+  required?: boolean
   disabled?: boolean
-}
-
-const isValidTypedPhone = (code: CountryCode | undefined, number: string | undefined): boolean => {
-  if (!code || !number?.trim()) return false
-  try {
-    return isValidPhoneNumber(`+${getCountryCallingCode(code)}${number}`)
-  } catch {
-    return false
-  }
 }
 
 const isSamePhone = (current: PhoneNumber | string | undefined, next: PhoneNumber): boolean => {
@@ -39,97 +21,26 @@ const isSamePhone = (current: PhoneNumber | string | undefined, next: PhoneNumbe
 }
 
 /**
- * In-account phone change — one field and a save.
- *
- * **No OTP, and nothing to confirm.** Phone stopped being identity in the email/password
- * migration: it is now unverified contact data on the profile, with no unique constraint,
- * so `PATCH /identity/phone` writes it directly. The send-code/enter-code pair this used to
- * run verified nothing that mattered and only stood between the user and a corrected number.
- *
- * When `embedded`, this must not render a `<form>` — it already sits inside the profile
- * Form, and a nested form tag (or a submit button) would steal the parent.
+ * The phone the profile save should write, or `undefined` when the field is blank
+ * or still the number already stored. `PATCH /identity/phone` cannot clear a number,
+ * so a blank optional field is left alone.
  */
-export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded = false, disabled }) => {
+export const phoneChangeToSave = (
+  current: PhoneNumber | string | undefined,
+  code: CountryCode | undefined,
+  number: string | undefined
+): PhoneNumber | undefined => {
+  const next = toOptionalPhoneNumber(code, number)
+  if (!next || isSamePhone(current, next)) return undefined
+  return next
+}
+
+/**
+ * Phone fields for the profile form. No form of its own and no save button — `code` and
+ * `number` register on the surrounding profile `Form`, and that form's save writes them.
+ */
+export const ChangePhoneForm: FC<Props> = ({ required = true, disabled }) => {
   const t = useTranslations('Settings.phone')
-  const tActions = useTranslations('Settings.actions')
-  const [form] = Form.useForm<PhoneFormValues>()
-  const [pending, setPending] = useState(false)
-  const [error, setError] = useState<unknown>(null)
-  const [success, setSuccess] = useState<string | null>(null)
 
-  const typedCode = Form.useWatch('code', form)
-  const typedNumber = Form.useWatch('number', form)
-  const typedPhone = typedCode && typedNumber?.trim() ? toPhoneNumber(typedCode, typedNumber.trim()) : undefined
-  const canSave = Boolean(
-    typedPhone && isValidTypedPhone(typedCode, typedNumber) && !isSamePhone(currentPhone, typedPhone)
-  )
-
-  useEffect(() => {
-    const values = toPhoneFormValues(currentPhone)
-    if (!values) return
-    form.setFieldsValue(values)
-  }, [currentPhone, form])
-
-  const handleSave = async () => {
-    if (disabled) return
-    setError(null)
-    setSuccess(null)
-
-    let values: PhoneFormValues
-    try {
-      values = await form.validateFields()
-    } catch (err) {
-      // A failed rule is already shown under its field; anything else is not.
-      if (!isFormValidationError(err)) setError(err)
-      return
-    }
-
-    setPending(true)
-    try {
-      const result = await changePhoneAPI({ phone: toPhoneNumber(values.code!, values.number) })
-      setSuccess(t('updated'))
-      const next = toPhoneFormValues(result.phone)
-      if (next) form.setFieldsValue(next)
-      onChanged?.(result.phone)
-    } catch (err) {
-      setError(err)
-    } finally {
-      setPending(false)
-    }
-  }
-
-  const body = (
-    <>
-      {error !== null && <ErrorAlert error={error} />}
-      {success && <Alert type='success' showIcon title={success} />}
-
-      <Form
-        form={form}
-        layout='vertical'
-        component={embedded ? false : undefined}
-        disabled={disabled}
-        initialValues={toPhoneFormValues(currentPhone)}
-        className='flex flex-col gap-3'
-        requiredMark={false}
-      >
-        <PhoneNumberField label={t('label')} disabled={disabled} />
-        <AppButton
-          type='default'
-          htmlType='button'
-          onClick={() => void handleSave()}
-          loading={pending}
-          disabled={!canSave || disabled}
-          className='self-start'
-        >
-          {tActions('save')}
-        </AppButton>
-      </Form>
-    </>
-  )
-
-  if (embedded) {
-    return <div className='flex flex-col gap-3'>{body}</div>
-  }
-
-  return <Surface className='flex flex-col gap-3'>{body}</Surface>
+  return <PhoneNumberField label={t('label')} required={required} disabled={disabled} />
 }

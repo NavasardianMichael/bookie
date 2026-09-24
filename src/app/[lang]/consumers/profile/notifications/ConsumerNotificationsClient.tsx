@@ -21,7 +21,6 @@ type PrefKey = Exclude<keyof ConsumerEmailNotificationPrefs, 'appointmentReminde
 
 const ROWS: { key: PrefKey; titleKey: string; descKey: string }[] = [
   { key: 'bookingChanges', titleKey: 'changesTitle', descKey: 'changesBody' },
-  { key: 'marketing', titleKey: 'marketingTitle', descKey: 'marketingBody' },
 ]
 
 export const ConsumerNotificationsClient = () => {

@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {# heure} other {# heures}}",
       "changesTitle": "Changements de réservation",
       "changesBody": "Notifications lorsqu'une réservation est modifiée ou annulée.",
-      "marketingTitle": "E-mails marketing",
-      "marketingBody": "Offres et annonces de nouveaux professionnels.",
       "newBookingTitle": "Nouvelles réservations",
       "newBookingBody": "Un e-mail lorsqu'un client réserve auprès de vous."
     },

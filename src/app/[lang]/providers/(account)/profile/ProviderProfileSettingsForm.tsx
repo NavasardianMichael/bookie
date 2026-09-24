@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Form } from 'antd'
+import type { CountryCode } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
+import { changePhoneAPI } from '@api/auth/main'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { ProviderProfile } from '@store/providers/profile/types'
@@ -12,7 +14,8 @@ import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { isFormValidationError } from '@helpers/error'
 import { isUploadedAsset } from '@helpers/images'
-import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
+import { toPhoneFormValues } from '@helpers/registration'
+import { ChangePhoneForm, phoneChangeToSave } from '@components/settings/ChangePhoneForm'
 import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
 import { ProfilePhotoField } from '@components/settings/ProfilePhotoField'
@@ -38,16 +41,21 @@ type FormValues = {
   lastName: string
   description?: string
   email?: string
+  code?: CountryCode
+  number?: string
   image?: string | File
 }
 
 const mergeDraft = (profile: ProviderProfile): FormValues => {
   const draft = profile.draft
+  const phone = toPhoneFormValues(profile.details.phone)
   return {
     firstName: draft?.firstName ?? profile.basic.firstName,
     lastName: draft?.lastName ?? profile.basic.lastName,
     description: (draft?.description ?? profile.basic.description) || '',
     email: profile.details.email ?? '',
+    code: phone?.code,
+    number: phone?.number ?? '',
     image: draft?.imageUrl ?? profile.basic.image,
   }
 }
@@ -124,6 +132,14 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     setDirty(false)
   }
 
+  /** Phone is live profile data, not part of the draft overlay, so either save writes it. */
+  const withSavedPhone = async (data: ProviderProfile, values: FormValues): Promise<ProviderProfile> => {
+    const nextPhone = phoneChangeToSave(profile?.details.phone, values.code, values.number)
+    if (!nextPhone) return data
+    const saved = await changePhoneAPI({ phone: nextPhone })
+    return { ...data, details: { ...data.details, phone: saved.phone } }
+  }
+
   const handleSaveDraft = async () => {
     const values = await readValidValues()
     if (!values) return
@@ -137,7 +153,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         description: values.description,
         image: values.image instanceof File ? values.image : undefined,
       })
-      applyResult(data)
+      applyResult(await withSavedPhone(data, values))
     } catch (err) {
       setError(err)
     } finally {
@@ -160,7 +176,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         image: values.image instanceof File ? values.image : undefined,
       })
       const data = await putProviderProfileAPI({ mode: 'publish' })
-      applyResult(data)
+      applyResult(await withSavedPhone(data, values))
     } catch (err) {
       setError(err)
     } finally {
@@ -248,16 +264,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 </AppFormItem>
               </div>
               <div className='md:col-span-2'>
-                {profile && (
-                  <ChangePhoneForm
-                    embedded
-                    disabled={pendingAction !== null}
-                    currentPhone={profile.details.phone}
-                    onChanged={(phone) => {
-                      setProfile((prev) => (prev ? { ...prev, details: { ...prev.details, phone } } : prev))
-                    }}
-                  />
-                )}
+                <ChangePhoneForm required={false} disabled={pendingAction !== null} />
               </div>
               <div className='md:col-span-2'>
                 <EmailVerifyField

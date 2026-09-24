@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Form } from 'antd'
+import type { CountryCode } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
+import { changePhoneAPI } from '@api/auth/main'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { Consumer } from '@store/consumers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -11,7 +13,8 @@ import { PaymentMethod } from '@interfaces/settings'
 import { ROUTES } from '@constants/routes'
 import { isFormValidationError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
-import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
+import { toPhoneFormValues } from '@helpers/registration'
+import { ChangePhoneForm, phoneChangeToSave } from '@components/settings/ChangePhoneForm'
 import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
 import { PaymentMethodPicker } from '@components/settings/PaymentMethodPicker'
@@ -35,6 +38,8 @@ type ProfileFormValues = {
   firstName: string
   lastName: string
   email?: string
+  code?: CountryCode
+  number?: string
   paymentInfo: { methods: PaymentMethod[] }
 }
 
@@ -43,6 +48,18 @@ const DEFAULT_PAYMENT: ProfileFormValues['paymentInfo'] = { methods: ['cash'] }
 const paymentFromProfile = (profile: Consumer): ProfileFormValues['paymentInfo'] => {
   const methods = toPaymentMethods(profile.details.paymentInfo)
   return methods.length ? { methods } : DEFAULT_PAYMENT
+}
+
+const valuesFromProfile = (profile: Consumer): ProfileFormValues => {
+  const phone = toPhoneFormValues(profile.basic.phone ?? profile.basic.phoneNumber)
+  return {
+    firstName: profile.basic.firstName,
+    lastName: profile.basic.lastName,
+    email: profile.basic.email ?? '',
+    code: phone?.code,
+    number: phone?.number ?? '',
+    paymentInfo: paymentFromProfile(profile),
+  }
 }
 
 export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
@@ -66,12 +83,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         const data = await getConsumerProfileAPI()
         if (cancelled) return
         setProfile(data)
-        form.setFieldsValue({
-          firstName: data.basic.firstName,
-          lastName: data.basic.lastName,
-          email: data.basic.email ?? '',
-          paymentInfo: paymentFromProfile(data),
-        })
+        form.setFieldsValue(valuesFromProfile(data))
       } catch (err) {
         if (!cancelled) setLoadError(err)
       } finally {
@@ -91,12 +103,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
 
   const handleDiscard = () => {
     if (!profile) return
-    form.setFieldsValue({
-      firstName: profile.basic.firstName,
-      lastName: profile.basic.lastName,
-      email: profile.basic.email ?? '',
-      paymentInfo: paymentFromProfile(profile),
-    })
+    form.setFieldsValue(valuesFromProfile(profile))
     setDirty(false)
   }
 
@@ -118,11 +125,15 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         lastName: values.lastName,
         paymentInfo: { methods: toPaymentMethods(values.paymentInfo) },
       })
+      const currentPhone = profile?.basic.phone ?? profile?.basic.phoneNumber
+      const nextPhone = phoneChangeToSave(currentPhone, values.code, values.number)
+      const savedPhone = nextPhone ? (await changePhoneAPI({ phone: nextPhone })).phone : undefined
       setProfile((prev) =>
         prev
           ? {
               ...prev,
               ...updated,
+              basic: { ...prev.basic, ...updated.basic, ...(savedPhone ? { phone: savedPhone } : {}) },
               details: { ...prev.details, ...updated.details },
             }
           : updated
@@ -135,9 +146,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
     }
   }
 
-  const displayName = profile
-    ? `${profile.basic.firstName} ${profile.basic.lastName}`.trim()
-    : t('consumerAccount')
+  const displayName = profile ? `${profile.basic.firstName} ${profile.basic.lastName}`.trim() : t('consumerAccount')
 
   if (loading) {
     return <Surface className='min-h-64 animate-pulse' />
@@ -197,16 +206,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
               </AppFormItem>
             </div>
             <div className='md:col-span-2'>
-              {profile && (
-                <ChangePhoneForm
-                  embedded
-                  disabled={saving}
-                  currentPhone={profile.basic.phone ?? profile.basic.phoneNumber}
-                  onChanged={(phone) => {
-                    setProfile((prev) => (prev ? { ...prev, basic: { ...prev.basic, phone } } : prev))
-                  }}
-                />
-              )}
+              <ChangePhoneForm disabled={saving} />
             </div>
             <div className='md:col-span-2'>
               <EmailVerifyField
@@ -231,14 +231,14 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
         </Surface>
 
         <Surface className='flex flex-col gap-6'>
-          <div className='flex flex-col gap-1.5'>
+          <div className='flex flex-col gap-1'>
             <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
               <CreditCardIcon className='text-brand h-5 w-5' />
               {t('payments.title')}
             </AppTitle>
             <AppParagraph size='body-sm'>{t('payments.subtitlePay')}</AppParagraph>
           </div>
-          <div className='flex flex-col gap-1.5'>
+          <div className='flex flex-col gap-1'>
             <FieldLabel htmlFor='consumer-payment-methods'>{t('payments.methodsLabel')}</FieldLabel>
             <AppFormItem
               name={['paymentInfo', 'methods']}
@@ -252,7 +252,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
       </Form>
 
       <Surface className='flex flex-col gap-6'>
-        <div className='flex flex-col gap-1.5'>
+        <div className='flex flex-col gap-1'>
           <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
             <HelpIcon className='text-brand h-5 w-5' />
             {t('needHelp.title')}

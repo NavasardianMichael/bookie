@@ -389,8 +389,6 @@
       "remindersHours": "{count, plural, one {ساعة واحدة} other {# ساعات}}",
       "changesTitle": "تغييرات الحجز",
       "changesBody": "تحديثات عند تعديل أو إلغاء حجز.",
-      "marketingTitle": "رسائل التسويق",
-      "marketingBody": "عروض وإعلانات عن مزوّدين جدد.",
       "newBookingTitle": "حجوزات جديدة",
       "newBookingBody": "بريد إلكتروني عندما يحجز عميل معك."
     },

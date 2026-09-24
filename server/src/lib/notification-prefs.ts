@@ -32,7 +32,6 @@ export const defaultConsumerNotificationPrefs = {
   appointmentReminders: true,
   appointmentReminderMinutes: DEFAULT_APPOINTMENT_REMINDER_LEAD_MINUTES,
   bookingChanges: true,
-  marketing: false,
 }
 
 export const mergeProviderNotificationPrefs = (raw: unknown) => {
@@ -55,6 +54,5 @@ export const mergeConsumerNotificationPrefs = (raw: unknown) => {
       ? obj.appointmentReminderMinutes
       : defaultConsumerNotificationPrefs.appointmentReminderMinutes,
     bookingChanges: asBool(obj.bookingChanges, defaultConsumerNotificationPrefs.bookingChanges),
-    marketing: asBool(obj.marketing, defaultConsumerNotificationPrefs.marketing),
   }
 }

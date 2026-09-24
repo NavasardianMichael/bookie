@@ -29,7 +29,6 @@ export type ConsumerEmailNotificationPrefs = {
   /** Minutes before the appointment to send the reminder. Ignored when reminders are off. */
   appointmentReminderMinutes: AppointmentReminderLeadMinutes
   bookingChanges: boolean
-  marketing: boolean
 }
 
 export type ProviderEmailNotificationPrefs = {

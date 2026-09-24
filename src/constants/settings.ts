@@ -19,7 +19,6 @@ export const DEFAULT_CONSUMER_NOTIFICATION_PREFS = {
   appointmentReminders: true,
   appointmentReminderMinutes: DEFAULT_APPOINTMENT_REMINDER_LEAD_MINUTES,
   bookingChanges: true,
-  marketing: false,
 } as const
 
 export const DEFAULT_PROVIDER_NOTIFICATION_PREFS = {
