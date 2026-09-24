@@ -31,7 +31,8 @@
     "nextPage": "Nächste Seite",
     "pageNumber": "Seite {page}",
     "previousMonth": "Vorheriger Monat",
-    "nextMonth": "Nächster Monat"
+    "nextMonth": "Nächster Monat",
+    "reload": "Seite neu laden"
   },
   "Nav": {
     "mainNavigation": "Hauptnavigation",
@@ -47,7 +48,9 @@
     "signIn": "Anmelden",
     "accountTypeSelection": "Loslegen",
     "account": "Konto",
-    "accountSettings": "Kontoeinstellungen"
+    "accountSettings": "Kontoeinstellungen",
+    "bookings": "Buchungen",
+    "favorites": "Favoriten"
   },
   "Auth": {
     "continueWithGoogle": "Mit Google fortfahren",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "Profil",
       "phone": "Telefon",
-      "appointments": "Termine",
       "notifications": "Benachrichtigungen",
       "payments": "Zahlungen",
       "availability": "Verfügbarkeit",
       "services": "Leistungen",
-      "bookings": "Buchungen",
       "approvals": "Freigaben",
       "analytics": "Statistiken",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "Sie sind in Ihrem Anbieterbereich",
       "onProviderBody": "Ihre öffentliche Seite, Ihre Leistungen und die Buchungen, die bei Ihnen eingehen.",
       "onConsumerTitle": "Sie sind in Ihrem Kundenprofil",
-      "onConsumerBody": "Ihre eigenen Daten und die Buchungen, die Sie bei anderen gemacht haben.",
+      "onConsumerBody": "Ihre eigenen Daten, Benachrichtigungen und Zahlungseinstellungen.",
       "toConsumer": "Zum Kundenprofil wechseln",
       "toProvider": "Zum Anbieterbereich wechseln"
     },
@@ -354,7 +355,6 @@
       "updated": "Telefonnummer aktualisiert."
     },
     "appointments": {
-      "title": "Termine",
       "subtitle": "Suchen, filtern und verwalten Sie Ihre Buchungen.",
       "upcoming": "Bevorstehend",
       "emptyTitle": "Keine bevorstehenden Termine",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "Zahlungen",
-      "subtitle": "Wie Sie persönlich bezahlen oder bezahlt werden möchten.",
+      "subtitlePay": "Wie Sie persönlich bezahlen möchten.",
+      "subtitleGetPaid": "Wie Sie persönlich bezahlt werden möchten.",
       "hint": "Wählen Sie die persönlichen Zahlungsmethoden, die Sie akzeptieren. Karten- und Kontonummern, die Sie hier eintragen, erscheinen auf Ihrer öffentlichen Seite.",
       "methodsLabel": "Akzeptierte Methoden",
       "cardOrAccountNumber": "Kartennummer / Kontonummer",
@@ -461,9 +462,7 @@
       "cta": "Support kontaktieren"
     },
     "bookings": {
-      "title": "Buchungen als Anbieter",
       "subtitle": "Alle bei Ihnen gebuchten Termine, vergangene und bevorstehende.",
-      "asConsumerTitle": "Buchungen als Kunde",
       "asConsumerSubtitle": "Jeder Termin, den Sie bei einem anderen Anbieter gebucht haben, vergangen und bevorstehend.",
       "emptyAsConsumerTitle": "Noch keine eigenen Buchungen",
       "emptyAsConsumerBody": "Wenn Sie einen anderen Anbieter buchen, erscheinen diese Termine hier.",
@@ -507,6 +506,12 @@
       "confirmBody": "Der Kunde wird nicht automatisch benachrichtigt. Sie können den Status später wieder ändern.",
       "moreActions": "Aktionen für {name}",
       "reviewInApprovals": "In Freigaben prüfen",
+      "action": {
+        "confirmed": "Bestätigen",
+        "completed": "Abschließen",
+        "cancelled": "Absagen",
+        "no_show": "Verpassen"
+      },
       "status": {
         "pending": "Genehmigung ausstehend",
         "scheduled": "Geplant",
@@ -594,18 +599,18 @@
       "seoTitleHint": "Zielen Sie auf 30–60 Zeichen. Leer lassen, um Namen und Kategorien zu verwenden.",
       "seoTitlePlaceholder": "Ihr Name und was Sie tun",
       "seoDescription": "Meta-Beschreibung",
-      "seoDescriptionHint": "Zielen Sie auf 70–160 Zeichen. Leer lassen, um die Standardbeschreibung zu verwenden.",
+      "seoDescriptionHint": "Zielen Sie auf 70–160 Zeichen. Wenn es leer ist, wird die Standardbeschreibung verwendet.",
       "seoDescriptionPlaceholder": "Ein Satz, der beschreibt, was Sie anbieten",
       "counter": "{count} von {max}",
       "tooLong": "Darf höchstens {max} Zeichen haben.",
-      "previewLabel": "Vorschau des Suchergebnisses",
+      "previewLabel": "Vorschau der Social-Card",
       "previewEmptyTitle": "Ihr Seitentitel",
       "previewEmptyDescription": "Ihre Beschreibung erscheint hier.",
       "fallbackWithOrganization": "Termin bei {name} buchen, tätig bei {organization}.",
       "fallbackDescription": "Termin bei {name} buchen.",
-      "vanityUrl": "Kurzlink",
-      "vanityHint": "Eine einprägsame Adresse, die Ihr Profil öffnet. Eine Änderung deaktiviert den alten Link.",
-      "slugLabel": "Ihr Link",
+      "vanityUrl": "Link zu Ihrer öffentlichen Seite",
+      "copyLink": "Link kopieren",
+      "openPage": "Seite öffnen",
       "slugHint": "{min}–{max} Zeichen: Kleinbuchstaben, Zahlen und Bindestriche.",
       "slugPlaceholder": "your-business",
       "slugLength": "Muss zwischen {min} und {max} Zeichen lang sein.",
@@ -626,6 +631,24 @@
       "hasAppointments": "Sie haben Termine. Stornieren Sie diese, bevor Sie Ihr Konto löschen.",
       "wrongPassword": "Das aktuelle Passwort ist falsch"
     }
+  },
+  "Bookings": {
+    "title": "Buchungen",
+    "viewLabel": "Welche Buchungen anzeigen",
+    "views": {
+      "provider": "Bei mir gebucht",
+      "consumer": "Von mir gebucht"
+    }
+  },
+  "Favorites": {
+    "title": "Favoriten",
+    "subtitle": "Anbieter, die Sie gespeichert haben, um sie schnell wiederzufinden.",
+    "emptyTitle": "Noch keine Favoriten",
+    "emptyBody": "Tippen Sie auf das Herz auf der Karte eines Anbieters, um ihn hier zu behalten.",
+    "explore": "Anbieter entdecken",
+    "add": "{name} zu den Favoriten hinzufügen",
+    "remove": "{name} aus den Favoriten entfernen",
+    "signInToAdd": "Melden Sie sich an, um {name} zu den Favoriten hinzuzufügen"
   },
   "Home": {
     "metaDescription": "Finden Sie Anbieter und Organisationen auf Bookie und reservieren Sie eine passende Zeit.",
@@ -873,7 +896,59 @@
     "notFoundBody": "Die Seite, die Sie suchen, existiert nicht oder wurde verschoben.",
     "title": "Etwas ist schiefgelaufen",
     "body": "Wir konnten diese Seite nicht laden. Bitte versuchen Sie es erneut.",
-    "reference": "Referenz: {digest}"
+    "reference": "Referenz: {digest}",
+    "devDetails": "Details für Entwickler",
+    "newVersionTitle": "Eine neue Version ist verfügbar",
+    "kinds": {
+      "offline": "Sie scheinen offline zu sein. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "network": "Bookie ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "timeout": "Das dauert länger als erwartet. Bitte versuchen Sie es erneut.",
+      "unauthorized": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+      "forbidden": "Sie haben keinen Zugriff darauf.",
+      "notFound": "Wir konnten das Gesuchte nicht finden. Möglicherweise wurde es entfernt.",
+      "conflict": "Das war nicht möglich, weil sich etwas geändert hat. Laden Sie die Seite neu und versuchen Sie es erneut.",
+      "validation": "Einige Angaben wurden nicht akzeptiert. Bitte prüfen Sie sie und versuchen Sie es erneut.",
+      "tooLarge": "Das ist zu groß. Bitte wählen Sie eine kleinere Datei.",
+      "rateLimited": "Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+      "unavailable": "Bookie ist vorübergehend nicht verfügbar. Bitte versuchen Sie es gleich noch einmal.",
+      "server": "Bei uns ist etwas schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "staleBuild": "Bookie wurde aktualisiert. Laden Sie die Seite neu, um fortzufahren.",
+      "unknown": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "codes": {
+      "invalidCredentials": "E-Mail-Adresse oder Passwort ist falsch.",
+      "emailUnverified": "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse. Den Link finden Sie in Ihrem Posteingang.",
+      "passwordPolicy": "Dieses Passwort erfüllt die Anforderungen nicht.",
+      "invalidToken": "Dieser Link ist ungültig. Fordern Sie einen neuen an, um fortzufahren.",
+      "expiredToken": "Dieser Link ist abgelaufen. Fordern Sie einen neuen an, um fortzufahren.",
+      "googleOnlyAccount": "Dieses Konto meldet sich über Google an.",
+      "reauthRequired": "Das aktuelle Passwort ist falsch.",
+      "emailTaken": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
+      "hasAppointments": "Es sind noch Termine vorhanden. Bitte sagen Sie diese zuerst ab.",
+      "slotTaken": "Diese Uhrzeit wurde gerade vergeben. Bitte wählen Sie eine andere."
+    },
+    "pages": {
+      "provider": "Die Seite dieses Anbieters konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "organization": "Diese Organisation konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "categories": "Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "category": "Diese Kategorie konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "booking": "Diese Buchung konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "settings": "Dieser Bereich Ihres Kontos konnte nicht geladen werden. Bitte versuchen Sie es erneut."
+    },
+    "sections": {
+      "load": "Dieser Bereich konnte nicht geladen werden.",
+      "busySlots": "Wir konnten nicht prüfen, welche Zeiten bereits gebucht sind. Einige davon sind möglicherweise vergeben.",
+      "organizationSearch": "Die Suche nach Organisationen ist gerade nicht möglich."
+    },
+    "conflicts": {
+      "bookingUnavailable": "Diese Leistung oder Uhrzeit ist nicht mehr verfügbar. Bitte wählen Sie eine andere.",
+      "bookingLocked": "Diese Buchung kann nicht mehr geändert werden.",
+      "decisionClosed": "Über diese Buchung wurde bereits entschieden, oder ihr Zeitpunkt ist vorbei. Laden Sie die Liste neu, um den aktuellen Stand zu sehen.",
+      "pageHasAppointments": "Für diese Seite sind Termine gebucht, daher kann sie noch nicht gelöscht werden.",
+      "serviceHasAppointments": "Für diese Leistung sind Termine gebucht, daher kann sie nicht gelöscht werden. Sie können sie stattdessen deaktivieren.",
+      "slugTaken": "Dieser Link ist bereits vergeben oder reserviert. Bitte wählen Sie einen anderen.",
+      "alreadyReviewed": "Sie haben diesen Besuch bereits bewertet."
+    }
   },
   "Admin": {
     "metaTitle": "Bewertungsmoderation",

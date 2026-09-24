@@ -1,12 +1,14 @@
 import { OrganizationCard } from '@app/[lang]/organizations/components/OrganizationCard'
 import { ProviderCard } from '@app/[lang]/providers/ProviderCard'
 import { getCategoryLDSchema } from '@linkedDataSchema/categories'
+import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getCategoryAPI } from '@api/categories/main'
 import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { isNotFoundError } from '@helpers/error'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { EmptyState } from '@components/ui/EmptyState'
 import { PageHeader, PageShell, ResponsiveGrid, Section } from '@components/ui/layout'
@@ -20,9 +22,22 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
+/**
+ * A dead category link is a 404, not an outage. `getCategoryAPI` is already `cache()`d, so
+ * `generateMetadata` and the page body still share one request.
+ */
+const loadCategory = async (id: CategoryType['id']) => {
+  try {
+    return await getCategoryAPI({ id })
+  } catch (error) {
+    if (isNotFoundError(error)) notFound()
+    throw error
+  }
+}
+
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const { categoryId } = await params
-  const [category, t] = await Promise.all([getCategoryAPI({ id: categoryId }), getTranslations('Categories')])
+  const [category, t] = await Promise.all([loadCategory(categoryId), getTranslations('Categories')])
 
   const description = t('detailMetaDescription', { name: category.name })
 
@@ -44,7 +59,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
 export default async function Category({ params }: Props) {
   const { categoryId } = await params
 
-  const [category, t] = await Promise.all([getCategoryAPI({ id: categoryId }), getTranslations('Categories')])
+  const [category, t] = await Promise.all([loadCategory(categoryId), getTranslations('Categories')])
 
   const isEmpty = !category.organizations.length && !category.providers.length
 

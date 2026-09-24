@@ -1,10 +1,10 @@
 import { cache } from 'react'
-import { isAxiosError } from 'axios'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getManagedAppointmentAPI } from '@api/appointments/main'
 import { GenerateMetadata } from '@interfaces/components'
+import { isNotFoundError } from '@helpers/error'
 import { PageShell } from '@components/ui/layout'
 import { BookingManageClient } from './BookingManageClient'
 
@@ -19,7 +19,7 @@ const loadManaged = cache(async (token: string) => {
   try {
     return await getManagedAppointmentAPI({ token })
   } catch (error) {
-    if (isAxiosError(error) && error.response?.status === 404) notFound()
+    if (isNotFoundError(error)) notFound()
     throw error
   }
 })

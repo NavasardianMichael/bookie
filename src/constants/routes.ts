@@ -7,8 +7,17 @@ export const ROUTE_KEYS = {
   providerCategories: 'providerCategories',
   providers: 'providers',
   organizations: 'organizations',
+  /**
+   * Every appointment on the account, from whichever side the session holds — booked with
+   * a provider, or booked by a consumer. A top-level page in the header rather than a
+   * settings tab, because it is opened daily and settings are opened once.
+   */
+  bookings: 'bookings',
+  /** Providers the account saved with the heart on a provider card. */
+  favorites: 'favorites',
   consumerProfile: 'consumerProfile',
   consumerProfilePhone: 'consumerProfilePhone',
+  /** Redirects to Bookings, which replaced this settings tab. */
   consumerProfileAppointments: 'consumerProfileAppointments',
   consumerProfileNotifications: 'consumerProfileNotifications',
   consumerProfilePayments: 'consumerProfilePayments',
@@ -16,6 +25,7 @@ export const ROUTE_KEYS = {
   providerServices: 'providerServices',
   providerProfile: 'providerProfile',
   providerProfileAvailability: 'providerProfileAvailability',
+  /** Redirects to Bookings, which replaced this settings tab. */
   providerProfileBookings: 'providerProfileBookings',
   /**
    * Bookings waiting on this provider's approve/reject, plus the switch that decides
@@ -24,8 +34,8 @@ export const ROUTE_KEYS = {
    */
   providerProfileApprovals: 'providerProfileApprovals',
   /**
-   * Appointments this provider booked as a client. Sibling of Bookings, not a
-   * sidebar tab — the header switch on either page is how you get here.
+   * Redirects to Bookings, whose "Booked by me" view is what this page used to show:
+   * appointments this provider booked as a client.
    */
   providerProfileConsumerBookings: 'providerProfileConsumerBookings',
   providerProfileAnalytics: 'providerProfileAnalytics',
@@ -72,6 +82,8 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerCategories]: '/provider-categories',
   [ROUTE_KEYS.providers]: '/providers',
   [ROUTE_KEYS.organizations]: '/organizations',
+  [ROUTE_KEYS.bookings]: '/bookings',
+  [ROUTE_KEYS.favorites]: '/favorites',
   [ROUTE_KEYS.consumerProfile]: '/consumers/profile',
   [ROUTE_KEYS.consumerProfilePhone]: '/consumers/profile/phone',
   [ROUTE_KEYS.consumerProfileAppointments]: '/consumers/profile/appointments',

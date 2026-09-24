@@ -18,6 +18,11 @@ describe('matchRouteName', () => {
     expect(matchRouteName('/providers/profile-creation')).toBe('providerProfileCreation')
   })
 
+  it('resolves the account pages in the header', () => {
+    expect(matchRouteName('/bookings')).toBe('bookings')
+    expect(matchRouteName('/favorites')).toBe('favorites')
+  })
+
   it('ignores a trailing slash', () => {
     expect(matchRouteName('/providers/')).toBe('providers')
     expect(matchRouteName('/providers///')).toBe('providers')

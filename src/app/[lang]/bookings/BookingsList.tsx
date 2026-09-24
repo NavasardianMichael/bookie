@@ -1,9 +1,19 @@
 'use client'
 
 import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { AppstoreOutlined, MoreOutlined, SearchOutlined, SortAscendingOutlined, TagOutlined } from '@ant-design/icons'
+import {
+  AppstoreOutlined,
+  CheckCircleOutlined,
+  CheckOutlined,
+  CloseCircleOutlined,
+  MoreOutlined,
+  SearchOutlined,
+  SortAscendingOutlined,
+  TagOutlined,
+  UserDeleteOutlined,
+} from '@ant-design/icons'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Dropdown, Pagination, Select, Tag } from 'antd'
+import { Dropdown, Pagination, Select, Tag } from 'antd'
 import { useFormatter, useTranslations } from 'next-intl'
 import {
   getProviderBookingsAPI,
@@ -20,13 +30,14 @@ import {
 import { getProviderProfileAPI } from '@api/providers/main'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { reportError } from '@helpers/reportError'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppInput } from '@components/ui/AppInput'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { EmptyState } from '@components/ui/EmptyState'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { Surface } from '@components/ui/layout/Surface'
 
 const SEARCH_DEBOUNCE_MS = 350
@@ -34,13 +45,14 @@ const SEARCH_DEBOUNCE_MS = 350
 export type BookingsSide = 'provider' | 'consumer'
 
 /** Statuses a receiving provider can move a booking into from this screen. */
-const PROVIDER_ACTIONABLE: BookingStatus[] = ['confirmed', 'completed', 'no_show', 'cancelled']
-const DANGEROUS: BookingStatus[] = ['cancelled', 'no_show']
+type BookingAction = 'confirmed' | 'completed' | 'no_show' | 'cancelled'
+
+const PROVIDER_ACTIONABLE: BookingAction[] = ['confirmed', 'completed', 'no_show', 'cancelled']
 
 /** Statuses a booking can still be cancelled out of by the person who made it. */
 const UPCOMING: BookingStatus[] = ['pending', 'scheduled', 'confirmed']
 
-const actionsFor = (side: BookingsSide, status: BookingStatus): BookingStatus[] => {
+const actionsFor = (side: BookingsSide, status: BookingStatus): BookingAction[] => {
   if (side === 'consumer') {
     // `pending` included: a request still waiting on the provider is upcoming, and
     // withdrawing it is the one thing its maker must always be able to do.
@@ -87,24 +99,49 @@ const STATUS_TONE: Record<ProviderBooking['status'], string> = {
   no_show: 'orange',
 }
 
+const ACTION_ICON: Record<BookingAction, typeof CheckOutlined> = {
+  confirmed: CheckOutlined,
+  completed: CheckCircleOutlined,
+  cancelled: CloseCircleOutlined,
+  no_show: UserDeleteOutlined,
+}
+
+/**
+ * The status chip's own text colour. Keyed off `STATUS_TONE` so an action
+ * cannot drift from the tag it changes the booking into. `default` (completed)
+ * is absent on purpose: that chip is neutral, and so is the menu row.
+ * Set on the item itself — a utility class loses to antd's unlayered item colour.
+ */
+const TONE_COLOR: Partial<Record<string, string>> = {
+  green: 'var(--brand-tone-green)',
+  red: 'var(--brand-tone-red)',
+  orange: 'var(--brand-tone-orange)',
+}
+
 type BookingActionsMenuProps = {
   name: string
-  actions: BookingStatus[]
-  onPick: (status: BookingStatus) => void
+  actions: BookingAction[]
+  onPick: (status: BookingAction) => void
 }
 
 const BookingActionsMenu: FC<BookingActionsMenuProps> = ({ name, actions, onPick }) => {
   const t = useTranslations('Settings.bookings')
-  const tStatus = useTranslations('Settings.bookings.status')
+  const tAction = useTranslations('Settings.bookings.action')
 
   const items = useMemo(
     () =>
-      actions.map((status) => ({
-        key: status,
-        label: tStatus(status),
-        danger: DANGEROUS.includes(status),
-      })),
-    [actions, tStatus]
+      actions.map((status) => {
+        const Icon = ACTION_ICON[status]
+        const color = TONE_COLOR[STATUS_TONE[status]]
+
+        return {
+          key: status,
+          icon: <Icon style={color ? { color } : undefined} />,
+          label: tAction(status),
+          style: color ? { color } : undefined,
+        }
+      }),
+    [actions, tAction]
   )
 
   if (items.length === 0) return null
@@ -113,7 +150,7 @@ const BookingActionsMenu: FC<BookingActionsMenuProps> = ({ name, actions, onPick
     <Dropdown
       menu={{
         items,
-        onClick: ({ key }) => onPick(key as BookingStatus),
+        onClick: ({ key }) => onPick(key as BookingAction),
       }}
       trigger={['click']}
       placement='bottomRight'
@@ -154,6 +191,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
   const tAppointments = useTranslations('Settings.appointments')
   const tHistory = useTranslations('Settings.history')
   const tStatus = useTranslations('Settings.bookings.status')
+  const tErrors = useTranslations('Errors')
   const format = useFormatter()
   const isConsumer = side === 'consumer'
 
@@ -170,7 +208,10 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
   const [total, setTotal] = useState(0)
   const [perPage, setPerPage] = useState(20)
   const [services, setServices] = useState<{ value: string; label: string }[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [servicesFailed, setServicesFailed] = useState(false)
+  const [error, setError] = useState<unknown>(null)
+  /** Bumped by Retry; part of the request identity, so a retry is a new request. */
+  const [attempt, setAttempt] = useState(0)
   const [pending, setPending] = useState<{ booking: ProviderBooking; status: BookingStatus } | null>(null)
 
   const query = useMemo(
@@ -183,9 +224,10 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
       page,
       perPage,
       revision,
+      attempt,
       side,
     }),
-    [dayRange, statuses, serviceId, search, sort, page, perPage, revision, side, isConsumer]
+    [dayRange, statuses, serviceId, search, sort, page, perPage, revision, attempt, side, isConsumer]
   )
 
   const [fulfilled, setFulfilled] = useState<object | null>(null)
@@ -198,12 +240,18 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
       .then((profile) => {
         setServices(profile.services.allIds.map((id) => ({ value: id, label: profile.services.byId[id]?.name ?? id })))
       })
-      .catch(() => setServices([]))
+      // The list still works without the service filter's options, so this is not worth a
+      // banner; the filter itself says it could not load them.
+      .catch((err: unknown) => {
+        reportError(err, 'BookingsList:services')
+        setServices([])
+        setServicesFailed(true)
+      })
   }, [isConsumer])
 
   useEffect(() => {
     let cancelled = false
-    const { revision: _ignored, side: _side, ...params } = query
+    const { revision: _ignored, attempt: _attempt, side: _side, ...params } = query
     const fetchList = isConsumer ? getProviderConsumerBookingsAPI : getProviderBookingsAPI
 
     void fetchList(params)
@@ -215,8 +263,8 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
         setPage(result.page)
         setError(null)
       })
-      .catch((err) => {
-        if (!cancelled) setError(processError(err).message)
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err)
       })
       .finally(() => {
         if (!cancelled) setFulfilled(query)
@@ -254,7 +302,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
 
   /**
    * Deliberately written with no try/catch: `AppConfirmModal` awaits this, surfaces a
-   * rejection through `processError` and leaves itself open, so catching here would
+   * rejection through `useErrorToast` and leaves itself open, so catching here would
    * swallow the only signal the provider gets.
    */
   const handleConfirmStatus = useCallback(async () => {
@@ -325,6 +373,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
                 placeholder={tBookings('servicePlaceholder')}
                 aria-label={tBookings('serviceLabel')}
                 options={services}
+                notFoundContent={servicesFailed ? tErrors('sections.load') : undefined}
                 allowClear
                 className='w-full'
               />
@@ -339,10 +388,12 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
         </div>
       </div>
 
-      {error && <Alert type='error' showIcon message={error} />}
-
+      {/* A failed load replaces the list: "no bookings" beside the error would claim the
+          very thing the request could not establish. */}
       {loading ? (
         <div className='bg-brand-50 min-h-64 animate-pulse rounded-brand' />
+      ) : error !== null ? (
+        <ErrorAlert error={error} onRetry={() => setAttempt((current) => current + 1)} />
       ) : items.length === 0 ? (
         <EmptyState
           title={
@@ -450,6 +501,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
         description={isConsumer ? tBookings('confirmBodyAsConsumer') : tBookings('confirmBody')}
         tone={pending?.status === 'cancelled' || pending?.status === 'no_show' ? 'danger' : 'default'}
         onConfirm={handleConfirmStatus}
+        errorOverrides={{ 409: tErrors('conflicts.bookingLocked') }}
         onCancel={() => setPending(null)}
       />
     </Surface>

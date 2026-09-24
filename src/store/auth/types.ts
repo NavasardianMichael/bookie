@@ -31,7 +31,13 @@ export type AuthActions = {
   login: (payload: LoginAPI['payload']) => Promise<Session>
   /** Finishes a first-time Google sign-up once the role and phone have been collected. */
   completeGoogle: (payload: CompleteGoogleAPI['payload']) => Promise<Session>
-  /** Recovers role and profileId after a refresh; the session cookie is httpOnly. */
+  /**
+   * Recovers role and profileId after a refresh; the session cookie is httpOnly.
+   *
+   * Never rejects. `null` means "no session": for a guest (401) `error` stays `null`; for
+   * an outage (5xx, network, timeout) `error` holds it — so a caller that redirects on
+   * `null` checks `error` first.
+   */
   getMe: () => Promise<Session | null>
   logout: () => Promise<void>
 }

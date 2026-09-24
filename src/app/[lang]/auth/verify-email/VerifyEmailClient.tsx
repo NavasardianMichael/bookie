@@ -1,14 +1,16 @@
 'use client'
 
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import { useTranslations } from 'next-intl'
 import { verifyEmailAPI } from '@api/auth/main'
+import { AUTH_ERROR_CODES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { ErrorCopyOverrides } from '@helpers/error'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CheckCircleIcon, MailIcon } from '@components/ui/icons'
 
 type Props = {
@@ -37,29 +39,52 @@ type Status = 'sent' | 'verifying' | 'done' | 'failed'
 export const VerifyEmailClient: FC<Props> = ({ token }) => {
   const t = useTranslations('Auth')
   const [status, setStatus] = useState<Status>(token ? 'verifying' : 'sent')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  /** Bumped by Retry to send the token again. */
+  const [attempt, setAttempt] = useState(0)
+
+  /**
+   * One request per token per attempt. Development double-invokes effects, and a
+   * `cancelled` flag alone does not stop that: it sent the one-time token twice, the first
+   * call cleared its hash, and the second — the one whose answer counted — failed with
+   * `invalidToken`, so every valid link read as a failure in dev. A ref survives the
+   * double invocation, so the second run reuses the first run's request.
+   */
+  const inFlight = useRef<{ key: string; request: Promise<unknown> } | null>(null)
 
   useEffect(() => {
     if (!token) return
 
-    // Guards against React 18's double-invoked effects in development consuming the
-    // one-time token twice — the second call would fail against an already-cleared hash.
+    const key = `${token}:${attempt}`
+    if (inFlight.current?.key !== key) inFlight.current = { key, request: verifyEmailAPI({ token }) }
     let cancelled = false
 
-    verifyEmailAPI({ token })
+    inFlight.current.request
       .then(() => {
         if (!cancelled) setStatus('done')
       })
       .catch((err: unknown) => {
         if (cancelled) return
-        setError(processError(err).message)
+        setError(err)
         setStatus('failed')
       })
 
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [token, attempt])
+
+  const retry = () => {
+    setStatus('verifying')
+    setAttempt((current) => current + 1)
+  }
+
+  // A dead or already-used link is the expected failure, and its remedy is the sign-in
+  // link below, so it reads as this page's own sentence rather than the generic token copy.
+  const linkFailureCopy: ErrorCopyOverrides = {
+    [AUTH_ERROR_CODES.invalidToken]: t('verifyEmail.failedBody'),
+    [AUTH_ERROR_CODES.expiredToken]: t('verifyEmail.failedBody'),
+  }
 
   if (status === 'sent') {
     return (
@@ -115,9 +140,7 @@ export const VerifyEmailClient: FC<Props> = ({ token }) => {
       <AppTitle level='h1' size='h2'>
         {t('verifyEmail.failedTitle')}
       </AppTitle>
-      <AppParagraph size='body-sm' className='m-0'>
-        {error ?? t('verifyEmail.failedBody')}
-      </AppParagraph>
+      <ErrorAlert error={error} overrides={linkFailureCopy} onRetry={retry} className='w-full text-start' />
       <AppLink href={ROUTES.signIn} variant='button' className='mt-2'>
         {t('backToSignIn')}
       </AppLink>

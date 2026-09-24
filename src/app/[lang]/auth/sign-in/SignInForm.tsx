@@ -9,11 +9,13 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { useRouter } from '@i18n/navigation'
 import { AUTH_ERROR_CODES, GOOGLE_ERROR_CODES, GoogleErrorCode } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { processError, UserFacingError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { MailIcon } from '@components/ui/icons'
 import { GoogleButton } from '../components/GoogleButton'
 import { PasswordField } from '../components/PasswordField'
@@ -55,7 +57,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
   const login = useAuthStore.use.login()
   const isPending = useAuthStore.use.isPending()
 
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
   const [resent, setResent] = useState(false)
@@ -66,11 +68,14 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
   /**
    * The API's Google callback cannot answer with JSON — it is a browser navigation — so it
    * reports failures as a stable code here. Unknown values fall back to the generic
-   * message rather than rendering a raw code at the user.
+   * message rather than rendering a raw code at the user. The copy is already translated,
+   * so it travels as a `UserFacingError` and is shown verbatim.
    */
   const googleError = useMemo(() => {
     if (!googleErrorCode) return null
-    return isGoogleErrorCode(googleErrorCode) ? t(`googleErrors.${googleErrorCode}`) : t('googleErrors.generic')
+    return new UserFacingError(
+      isGoogleErrorCode(googleErrorCode) ? t(`googleErrors.${googleErrorCode}`) : t('googleErrors.generic')
+    )
   }, [googleErrorCode, t])
 
   const handleFinish = async (values: SignInFormValues) => {
@@ -81,11 +86,10 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
       const session = await login(values)
       push(session.role === 'provider' ? ROUTES.providerProfile : ROUTES.home)
     } catch (err) {
-      const appError = processError(err)
       // Code, not message: the client has to render a *button* for this one branch, and
       // string-matching an error message is not a contract.
-      if (appError.code === AUTH_ERROR_CODES.emailUnverified) setUnverifiedEmail(values.email)
-      setError(appError.message)
+      if (processError(err).code === AUTH_ERROR_CODES.emailUnverified) setUnverifiedEmail(values.email)
+      setError(err)
     }
   }
 
@@ -96,13 +100,24 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
       await resendVerificationAPI({ email: unverifiedEmail, locale })
       setResent(true)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsResending(false)
     }
   }
 
-  const displayError = error ?? googleError
+  const displayError = error !== null ? error : googleError
+
+  const resendAction =
+    error !== null && unverifiedEmail ? (
+      resent ? (
+        <AppText size='caption'>{t('signIn.verificationResent')}</AppText>
+      ) : (
+        <AppButton type='link' size='small' loading={isResending} onClick={handleResend}>
+          {t('signIn.resendVerification')}
+        </AppButton>
+      )
+    ) : undefined
 
   return (
     <>
@@ -152,23 +167,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
           disabled={isPending}
         />
 
-        {displayError && (
-          <div role='alert' className='rounded-brand-sm bg-red-50 p-3'>
-            <AppParagraph size='body-sm' className='m-0 text-red-700'>
-              {displayError}
-            </AppParagraph>
-            {unverifiedEmail && !resent && (
-              <AppButton type='link' size='small' loading={isResending} onClick={handleResend}>
-                {t('signIn.resendVerification')}
-              </AppButton>
-            )}
-            {resent && (
-              <AppParagraph size='caption' className='m-0 mt-1 text-red-700'>
-                {t('signIn.verificationResent')}
-              </AppParagraph>
-            )}
-          </div>
-        )}
+        {displayError !== null && <ErrorAlert error={displayError} action={resendAction} />}
 
         <div className='text-end'>
           <AppLink href={ROUTES.forgotPassword} className={AUX_LINK_CLASS}>

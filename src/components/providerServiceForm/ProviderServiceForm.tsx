@@ -6,7 +6,7 @@ import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { CategoryValue, ProviderServiceFormValues } from '@interfaces/services'
-import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
+import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
@@ -32,6 +32,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
   const t = useTranslations('Services')
   const tCommon = useTranslations('Common')
   const tActions = useTranslations('Settings.actions')
+  const tValidation = useTranslations('Validation')
   const [form] = Form.useForm<ProviderServiceFormValues>()
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
@@ -39,11 +40,15 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
   const inputNumberPositiveRuleSet = useFormItemRules('positiveNumber')
   const currencyMaxCharsRuleSet = useFormItemRules('maxCharsForInput')
 
+  // `maxCharsForInput` itself cannot apply: the value is `{ id, name }`, not the string
+  // antd's `max` measures. Same limit and copy, applied to the name.
   const categoryRules: Rule[] = [
     {
       validator: async (_rule, value: CategoryValue | undefined) => {
         const name = value?.name?.trim() ?? ''
-        if (name.length > 40) throw new Error('Max count of characters is 40')
+        if (name.length > MAX_CHARS_FOR_INPUT) {
+          throw new Error(tValidation('maxCharsForInput', { max: MAX_CHARS_FOR_INPUT }))
+        }
       },
     },
   ]

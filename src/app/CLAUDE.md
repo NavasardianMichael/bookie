@@ -43,7 +43,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/providers` | ƒ | Real — explore: debounced search, category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
-| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Bookings / Analytics / SEO |
+| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
 | `/b/[token]` | ƒ | Real — public booking manage page (view / cancel / reschedule). Capability token, not the appointment id. **A page**, not a 307. Reschedule PATCHes the same row and keeps this URL; "Back to booking" is an in-page control above the title, not a route. |
@@ -52,10 +52,12 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/categories` | ƒ | Real — list |
 | `/categories/[categoryId]` | ƒ | Real — providers in a category |
 | `/consumers/profile` (+ nested tabs) | ƒ | Real — consumer account settings (private) |
+| `/bookings` | ƒ | Real — every appointment on the account, whichever side the session holds. Header destination when signed in, `noindex`, proxy-guarded. See [Bookings](#bookings--bookings) |
+| `/favorites` | ƒ | Real — providers the account saved with the heart on a provider card. A Server Component grid of `ProviderCard`s over `GET /favorites`, cookie forwarded; a revoked cookie's 401 redirects to sign-in. Header destination when signed in, `noindex`, proxy-guarded |
 | `/contact` | ● | Real — contact form; prefilled from the session, `POST /contact` |
 | `/terms`, `/privacy` | ● | Placeholders — registration's consent notice must link somewhere real |
 | `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password` and `verify-email`, which read `searchParams` |
-| `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state |
+| `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state — `AdminReviewsClient` reads that 404 as an empty list, not as an error; any other failure shows with a Retry |
 | `/routes-overview` | ● | Dev aid; `notFound()` in production |
 
 **Account settings** live under `/consumers/profile` and `/providers/profile` (route group
@@ -66,8 +68,12 @@ delete page) live on that tab's hero, not a Listing sidebar item. **Delete accou
 sits at the end of both Profile tabs (`DELETE /identity/account`, password reauth) —
 it is not the listing trash icon, which only removes the public page. Consumer phone and
 preferred payment methods live in the Profile tab, not sidebar items — the old
-`/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile,
-and `/providers/profile/history` 307s to Bookings.
+`/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile.
+**Bookings is not a settings tab on either side any more.** `/providers/profile/bookings`,
+`/providers/profile/consumer-bookings`, `/providers/profile/history` and
+`/consumers/profile/appointments` are Route Handlers that 307 to `/bookings`. Each is one
+line: `export const GET = localeRedirect(ROUTES.bookings)` (`@i18n/routeRedirect`), pinned
+by `tests/unit/app/bookingsRedirects.spec.ts`.
 Visual language follows the prototypes; deviations match
 registration: keep the global Header/Footer, no dark mode, no password/2FA/security, no
 autosave (Discard / Save, plus Save draft / Publish for providers). Providers may
@@ -77,25 +83,63 @@ the app never collects a *client's* card. Provider `listed` hides Explore + publ
 `available` only pauses bookings. The Header swaps Sign In / Get Started for an avatar
 when `getMe()` succeeds.
 
-**Two of the provider tabs are not settings.** `Bookings` and `Analytics` are for running
+**Two of the provider tabs are not settings.** `Approvals` and `Analytics` are for running
 the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts them above the
 configuration tabs for that reason. They share the shell because a second nav and a second
 shell would be two mental models for one workspace — not because they are settings.
+Bookings was the third and moved out to `/bookings` (see below). Both sides of an account
+open it daily, and the settings shell is neither side's daily page.
 
 | Tab | Route | Shape |
 |---|---|---|
-| Bookings | `/providers/profile/bookings` | Month calendar over a filtered, sorted, paged list of every appointment booked with you. `GET /provider-profile/bookings` + `/calendar`. The old `/providers/profile/history` URL is a Route Handler that 307s here. A header switch toggles `/providers/profile/consumer-bookings` — the same UI for appointments this provider booked as a client (`GET /provider-profile/consumer-bookings`). Not a second sidebar tab |
 | Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo` |
 
-Six decisions in there worth not undoing:
+Three decisions in there worth not undoing:
 
-1. **Bookings keeps its filter state in local component state, not the URL** — the opposite
-   of Explore, and deliberately. Explore's grid is a Server Component, so its query has to
-   survive a round-trip regardless and the address bar is free. This panel is a client
-   island that fetches for itself, so URL state would add a server round-trip to every
-   filter change in exchange for a shareable link to a page only its owner can open.
+1. **SEO saves live; it does not use the draft overlay** the other public-facing tabs use.
+   The draft model exists so a provider can rework the *visible* page without it going out
+   half-finished, and a title tag has no half-finished state. Running a drafted description
+   beside a live address on one screen would be the confusing part, so the whole tab is one
+   Save. See `docs/DATABASE_STRUCTURE.md`.
+2. **Approvals is its own tab, not a filter on Bookings** — even though it reads the same
+   endpoint with `status=pending`. Bookings is a record to scan, with its verbs behind a
+   kebab; Approvals asks one question per row and puts both answers on the surface, with
+   every detail the decision rests on (phone, email, notes, price, payment intent) rendered
+   rather than hidden. It has no filters, no search and no calendar on purpose: a queue you
+   have to filter is a queue you are not working through. The setting lives on the same
+   screen because a switch is unintelligible away from what it produces — and an empty
+   queue otherwise cannot be told apart from a switch that is off. It stayed in settings
+   when Bookings left, because the setting it sits beside is configuration.
+3. **Analytics is not filtered with Bookings.** Charts stay on Analytics with the range
+   control; the booking list on `/bookings` is not filtered by that range, and the calendar
+   day-filter lives there, not on Analytics.
+
+### Bookings — `/bookings`
+
+One page for the whole account, in the header beside Favorites, and **not** inside either
+settings shell. It replaced the provider workspace's Bookings tab and the consumer
+profile's Appointments tab. `BookingsClient` picks the panel from the session:
+
+| Session | Panel | Reads |
+|---|---|---|
+| consumer | `ConsumerAppointmentsClient` — search, status filter, sort; cancel, edit (manage link), write a review | `GET /appointments` |
+| provider | `ProviderBookingsClient side='provider'` — month calendar over a filtered, sorted, paged list | `GET /provider-profile/bookings` + `/calendar` |
+| provider whose account also holds a Consumer profile | the above, plus a `Segmented` "Booked with me / Booked by me" switch; the second is `side='consumer'` | `GET /provider-profile/consumer-bookings` + `/calendar` |
+
+The page owns the one `PageHeader`; the panels render none. The switch shows only when
+`GET /identity/me` reports `profiles.consumer`, so a provider who has never booked anyone
+is not offered an empty view of a record that does not exist.
+
+Six decisions worth not undoing:
+
+1. **Filter state is local component state, not the URL** — the opposite of Explore, and
+   deliberately. Explore's grid is a Server Component, so its query has to survive a
+   round-trip regardless and the address bar is free. These panels are client islands that
+   fetch for themselves, so URL state would add a server round-trip to every filter change
+   in exchange for a shareable link to a page only its owner can open. The view switch is
+   local for the same reason.
 2. **The calendar *is* the day filter.** Selecting a day narrows the list; selecting it
    again clears. There is no separate date-range control, because two controls writing one
    piece of state is how they come to disagree.
@@ -104,38 +148,38 @@ Six decisions in there worth not undoing:
    fulfilled one. `react-hooks/set-state-in-effect` is an ESLint **error** here — the same
    rule that shapes `BookingPanel` — and a derived flag cannot drift out of step with the
    fetch the way two `setLoading` calls on separate paths can.
-4. **SEO saves live; it does not use the draft overlay** the other public-facing tabs use.
-   The draft model exists so a provider can rework the *visible* page without it going out
-   half-finished, and a title tag has no half-finished state. Running a drafted description
-   beside a live address on one screen would be the confusing part, so the whole tab is one
-   Save. See `docs/DATABASE_STRUCTURE.md`.
-5. **The consumer-side list is a sibling URL, not a sidebar item.** A provider can book
-   someone else, and those rows must be visible, but they are the same Bookings surface
-   with a different `where`. A second nav item would be two mental models for one
-   workspace; `/providers/profile/consumer-bookings` is a sibling URL, and `SettingsShell`
-   aliases it onto the Bookings item so the tab stays lit.
+4. **A provider's own bookings-as-client go through `side='consumer'`, not
+   `ConsumerAppointmentsClient`.** `GET /appointments` scopes by the session's *role*, and a
+   provider session is answered with the bookings made *with* them. The panel is keyed on
+   `side`, so a switch starts the other view fresh: its service filter lists a different
+   catalogue, and a day picked on one calendar means nothing on the other.
+5. **It is outside the settings shell, so it has no workspace switch.** Its own switch
+   covers the same gesture for bookings, and `workspaceOf` does not claim `/bookings`. The
+   `bookings` ↔ `appointments` pair was dropped from `src/helpers/workspace.ts`, because
+   both ends are redirect stubs now.
+6. **A pending row's kebab is empty**, and links to Approvals instead. Its two verbs send
+   email; `PATCH /appointments/:id` does not, so confirming one from there would put it on
+   the calendar in silence. The API refuses that write for the same reason.
 
-   Its header switch is **gone**, replaced by the workspace switch below — that control
-   swapped between two provider-tree URLs and was the only one of its kind, while the
-   same gesture is now available from every settings tab. **Nothing links to
-   `/providers/profile/consumer-bookings` any more**; the workspace switch sends
-   `/providers/profile/bookings` to `/consumers/profile/appointments`, which lists the
-   same appointments from the other side. Retiring the route, or giving it an entry
-   point, is an open decision — see `docs/BACKLOG.md`.
-6. **Bookings is a sibling sidebar route, not an Analytics subtab.** Charts stay on
-   Analytics with the range control; the booking list lives at `/providers/profile/bookings`
-   and is not filtered by that range. The calendar day-filter lives here, not on Analytics.
-7. **Approvals is a third tab, not a filter on Bookings** — even though it reads the same
-   endpoint with `status=pending`. Bookings is a record to scan, with its verbs behind a
-   kebab; Approvals asks one question per row and puts both answers on the surface, with
-   every detail the decision rests on (phone, email, notes, price, payment intent) rendered
-   rather than hidden. It has no filters, no search and no calendar on purpose: a queue you
-   have to filter is a queue you are not working through. The setting lives on the same
-   screen because a switch is unintelligible away from what it produces — and an empty
-   queue otherwise cannot be told apart from a switch that is off.
-8. **A pending row's kebab on Bookings is empty**, and links to Approvals instead. Its two
-   verbs send email; `PATCH /appointments/:id` does not, so confirming one from there would
-   put it on the calendar in silence. The API refuses that write for the same reason.
+### Favorites — `/favorites` and the heart
+
+`FavoriteButton` (`@components/favorites`) sits in `EntityCard`'s `mediaAction` slot on
+every `ProviderCard`: top-end of the media well, above the stretched link. The card
+stays a Server Component and only the button hydrates.
+
+- **The owner's own card has no heart.** `useFavoriteProvider` compares the card's id with
+  the session's `profileId`. A session resolves provider-first, so that one comparison
+  covers every account that holds a page. `PUT /favorites/:id` answers 403 regardless.
+- **Guests see it too.** Their heart navigates to sign-in instead of toggling, and it
+  carries no `aria-pressed`, because it is not a toggle for them.
+- **Optimistic, and undone on failure.** `useFavoritesListStore.setFavorite` flips first and
+  flips back if the write rejects; the button then raises `useErrorToast`.
+- **The ids load once per session, however many hearts mount.** See `useFavoriteProvider`:
+  the effect reads the store's *live* `isPending` rather than the hook's snapshot, which is
+  what stops a grid of nine hearts firing nine requests. `loadedFor` is the `profileId` the
+  ids belong to, so signing in as someone else in the same tab reloads them.
+- **Un-favouriting on `/favorites` leaves the card in place** until the next visit. A card
+  that vanished under the pointer could not be put back.
 
 ### One account, two workspaces
 
@@ -158,11 +202,11 @@ Four things hold it together:
   `profiles`, because `role` cannot answer the question. Offering the switch to a provider
   who has never booked would point at a record that does not exist.
 - **The destination comes from a table**, `src/helpers/workspace.ts`, not from rewriting
-  the path. The trees do not share slugs (`bookings` vs `appointments`) and the consumer
-  side has four tabs to the provider side's nine, so "swap the first segment" would invent
-  `/consumers/profile/analytics`. A tab with no counterpart falls back to the other side's
-  home. Pinned by `tests/unit/helpers/workspace.spec.ts`, including that every destination
-  is a declared `ROUTES` entry.
+  the path. The consumer side has two tabs to the provider side's eight, so "swap the
+  first segment" would invent `/consumers/profile/analytics`. A tab with no counterpart
+  falls back to the other side's home. Pinned by `tests/unit/helpers/workspace.spec.ts`,
+  including that every destination is a declared `ROUTES` entry and never a retired
+  booking tab. Bookings has no pair in the table: it left both trees for `/bookings`.
 - **The layout guard now asks whether the account holds *this* side**, not whether the
   session's role matches it. A payload without `profiles` falls back to the old, narrower
   rule rather than letting an unknown through.
@@ -190,7 +234,8 @@ page did before that route accepted slugs — would give one page two canonicals
 
 `src/proxy.ts` needed **no change** for any of this: `PROTECTED_PREFIXES` holds
 `ROUTES.providerProfile` and the guard is a prefix test, so every nested tab is already
-cookie-guarded.
+cookie-guarded. `/bookings` and `/favorites` sit outside every settings prefix, so each has
+its own entry there and in `robots.ts`.
 
 The public provider profile intentionally drops a few prototype pieces: no left-column
 Services list (choosing a service is only the booking picker), no map embed (the address
@@ -204,6 +249,13 @@ Organizations stay off the bar so they do not compete with booking. Home, the lo
 and Sign In / Get Started (or the avatar) remain. Explore itself (`/providers` exactly)
 keeps the full nav — `matchRouteName` maps both URLs to `providers`, so the extra
 segment is what `getHeaderConfig` uses. Config lives in `src/constants/header.ts`.
+
+**Bookings and Favorites follow the session, not the route.** `HEADER_ACCOUNT_ROUTES` is
+appended to whatever `navRoutes` a route shows, by `withAccountRoutes`, once the session is
+signed in. So they stay on the public provider page, beside the avatar they belong with,
+and a guest never sees them. The mobile drawer gets the same list and drops Sign In / Get
+Started once signed in. Six destinations plus an avatar overflowed 768px, so below `lg`
+the bar tightens its gaps and hides the provider's name beside the avatar.
 
 ### Explore's state is the query string
 
@@ -253,7 +305,7 @@ Where Explore deviates from `design/initial prototype/explore_service_providers`
 |---|---|---|
 | Search + **Location** field + Search button | One debounced search field | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button goes with the debounce. |
 | "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Service providers* | Paired with the filter control, per the request; the label still shows from `sm` up. |
-| Rating badge and star on every card | Built (2026-09-15); rating sits in the card body, availability is a pill on the image, top-end | Three statuses from `available` + `openToday`, not remaining slots: Available (green), Closed (orange, no hours today), Fully blocked (red, bookings paused). Remaining-slot math is the same omission as "Next: Today, 2 PM". |
+| Rating badge and star on every card | Built (2026-09-15); rating sits in the card body, availability is a pill on the image, top-start | Three statuses from `available` + `openToday`, not remaining slots: Available (green), Closed (orange, no hours today), Fully blocked (red, bookings paused). Remaining-slot math is the same omission as "Next: Today, 2 PM". |
 | "Next: Today, 2 PM" on every card | Omitted | One availability computation per card, per page render. |
 | `1 2 3 … 12` pager | Same, as links, elided at ±2 around the current page | Survives 200 pages as well as 12. |
 
@@ -396,8 +448,9 @@ Three things not to undo:
    `getMe()` and the email needs a further profile request (`Session` carries no email —
    consumer reads `basic.email`, provider `details.email`), so a visitor can easily start
    typing between the two. Overwriting what they wrote is the bug this prevents.
-2. **A failed prefill is logged, not shown.** The field is left empty and the visitor
-   types their own address; an error banner would be about something they never asked for.
+2. **A failed prefill is recorded, not shown** (`reportError`). The field is left empty and
+   the visitor types their own address; an error banner would be about something they never
+   asked for.
 3. **The hidden `website` field is a honeypot, not dead markup.** It is a nameless-looking
    `Form.Item name='website'` with `noStyle` inside an `aria-hidden` `hidden` wrapper, so
    it reaches the DOM a bot parses but no person or screen reader. The server drops any
@@ -458,14 +511,46 @@ them.
 
 **Every list and detail route gets a sibling `loading.tsx`** mirroring the page's own
 layout, so the skeleton→content handoff costs no layout shift.
-`/organizations/[organizationId]` is currently the one missing it.
+
+### Error boundaries
+
+**Every `error.tsx` is five lines around `@components/errors/RouteErrorFallback`**, passing
+Next's `error` and **`retry`** plus a `description` from `Errors.pages.*` and a `context`
+for the log line. `retry` (stable since Next 16.3) re-fetches and re-renders the segment;
+`reset` only re-renders, so every "Try again" wired to it could never recover from the
+failed fetch that put it there. The fallback reports the error, shows friendly copy in
+production, and adds the original message and stack in development — which for a Server
+Component failure is the axios message `axiosInstance.ts` rewrote to name the call.
+
+A boundary renders **inside its own segment's layout** but not around it, which decides
+where each one lives:
+
+| Boundary | Catches | Why there |
+|---|---|---|
+| `[lang]/error.tsx` | everything not caught lower | The generic fallback, inside the app chrome |
+| `providers/error.tsx`, `organizations/error.tsx`, `categories/error.tsx` | the list pages | List copy |
+| `providers/[providerId]`, `organizations/[organizationId]`, `categories/[categoryId]`, `b/[token]` | one entity | Detail copy — they used to fall through to the *list* boundary and say "could not load the providers list" on a profile |
+| `providers/(account)/error.tsx`, `consumers/profile/error.tsx` | a settings panel | `inline`, so the sidebar stays on screen around the failure |
+
+A crash in a **layout** goes one level up — in `[lang]/layout.tsx` itself, to
+`global-error.tsx`.
+
+**A dead link is a 404, not an error.** A detail page wraps its `cache()`d getter in a
+loader that calls `notFound()` when `isNotFoundError(e)` and rethrows anything else —
+`loadProvider`, `loadManaged`, `loadCategory`, `loadOrganization`. Without it an unknown
+category id threw to the error boundary: "something went wrong" for a page that simply
+does not exist, with a Retry that could never work.
+
+**A Server Component that should degrade rather than throw** (the reviews section) catches,
+calls `reportError`, and renders its own message with `errors/RefreshButton` —
+`router.refresh()` re-runs the server fetch without resetting the page's client islands.
 
 ## Files that behave unusually
 
 | File | Why |
 |---|---|
 | `layout.tsx` | Owns the `viewport` export — without it mobile renders at ~980px and every responsive style is invisible. Font variable goes on `<html>` so antd portals inherit it. `appleWebApp` is the iOS home-screen complement to `manifest.ts`. |
-| `global-error.tsx` | Renders **outside** `ConfigProvider`, so it **cannot use antd**. Inline styles fed from `tokens.ts`. |
+| `global-error.tsx` | Renders **outside** `ConfigProvider` and next-intl's provider, so it **cannot use antd or `useTranslations`**. Inline styles fed from `tokens.ts`. It reads the locale off the URL and imports that catalogue in an effect (prerendered, so reading `window` in render would mismatch); a hardcoded English copy is only the fallback for when the catalogue chunk is what failed. Offers `retry` and a full Reload, and the original error in development. |
 | `not-found.tsx` (app root) | The 404 for URLs matching **no route**. A nested `not-found` only catches `notFound()` inside its own segment, so without this file an unknown address got Next's built-in page. Renders above `[lang]/layout.tsx`: no stylesheet, font or `ConfigProvider` — inline styles from `tokens.ts`, same as `global-error.tsx` — and Next supplies `<html>`/`<body>`, so it must not render its own. Copy is `DEFAULT_LOCALE`: there is no `[lang]` param above the root layout, so `next/root-params` has nothing to read. |
 | `[lang]/not-found.tsx` | The 404 for `notFound()` calls **inside** `[lang]` — every dead provider, category and organization link. Full app chrome, fully translated, and **antd-free**: antd's `Result` is `"use client"`, so the old version shipped an empty shell to the crawler that followed the dead link. |
 | `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import from `tokens.ts` (via `BookieAppIcon` for the icons). Served at `/icon` etc. with no file extension; `src/proxy.ts` must not locale-prefix those paths. `/icon-maskable` is a Route Handler rather than a metadata file convention, because Next only recognises `icon` / `apple-icon`. |

@@ -1,17 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
-import { ErrorState } from '@components/ui/ErrorState'
-import { PageShell } from '@components/ui/layout'
+import { RouteErrorFallback, RouteErrorProps } from '@components/errors/RouteErrorFallback'
 
-export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => {
-    console.error(error)
-  }, [error])
-
+export default function RouteError({ error, retry }: RouteErrorProps) {
   return (
-    <PageShell variant='fill' width='prose' className='justify-center'>
-      <ErrorState digest={error.digest} onRetry={reset} />
-    </PageShell>
+    <RouteErrorFallback
+      error={error}
+      retry={retry}
+      context='route'
+    />
   )
 }

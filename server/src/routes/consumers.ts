@@ -4,7 +4,7 @@ import { mergeConsumerNotificationPrefs } from '../lib/notification-prefs.js'
 import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
 import type { SessionPayload } from '../lib/session.js'
-import { mapBasicProvider, mapConsumer, providerInclude } from '../mappers/entities.js'
+import { mapConsumer } from '../mappers/entities.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 
@@ -61,7 +61,6 @@ consumerProfileRouter.get(
         // Narrowed from `user: true`: `mapConsumer` needs the identity email and the
         // route needs its verification state. There is no reason to load the password hash.
         user: { select: { email: true, emailVerifiedAt: true } },
-        favorites: { include: { provider: { include: providerInclude } } },
       },
     })
     if (!consumer) throw new HttpError(404, 'Consumer profile not found', 404)
@@ -69,7 +68,6 @@ consumerProfileRouter.get(
     return ok(res, {
       ...mapConsumer(consumer),
       details: {
-        favoriteProviders: consumer.favorites.map((f) => mapBasicProvider(f.provider)),
         emailVerifiedAt: consumer.user.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: mergeConsumerNotificationPrefs(consumer.emailNotificationPrefs),
         paymentInfo: consumer.paymentInfo
@@ -102,7 +100,6 @@ consumerProfileRouter.put(
     return ok(res, {
       ...mapConsumer(consumer),
       details: {
-        favoriteProviders: [],
         emailVerifiedAt: consumer.user.emailVerifiedAt?.toISOString(),
         emailNotificationPrefs: mergeConsumerNotificationPrefs(consumer.emailNotificationPrefs),
         paymentInfo: consumer.paymentInfo

@@ -2,12 +2,19 @@
 
 import { FC, PropsWithChildren, ReactNode } from 'react'
 import { Drawer, Grid, Modal } from 'antd'
+import { useTranslations } from 'next-intl'
 
 export type AppSheetProps = PropsWithChildren<{
   open: boolean
   onClose: () => void
   title?: ReactNode
   className?: string
+  /**
+   * Locks the close button, mask click, and Escape while a request inside the
+   * sheet is in flight. Callers still disable their own actions; this only owns
+   * the chrome. Same dismissal lock `AppConfirmModal` applies during `onConfirm`.
+   */
+  pending?: boolean
 }>
 
 /**
@@ -19,20 +26,30 @@ export type AppSheetProps = PropsWithChildren<{
  * growing with the page. The drawer already has a `92dvh` size; its body
  * scrolls the same way.
  */
-export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, children }) => {
+export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, pending = false, children }) => {
   const screens = Grid.useBreakpoint()
   const isDesktop = !!screens.md
+  const t = useTranslations('Common')
+
+  const requestClose = () => {
+    if (!pending) onClose()
+  }
+
+  const closable = { 'aria-label': t('close'), disabled: pending }
 
   if (isDesktop) {
     return (
       <Modal
         title={title}
         open={open}
-        onCancel={onClose}
+        onCancel={requestClose}
         footer={null}
         width='min(40rem, 100%)'
         centered
         className={className}
+        closable={closable}
+        mask={{ closable: !pending }}
+        keyboard={!pending}
         styles={{ body: { maxHeight: '80dvh', overflowY: 'auto' } }}
         destroyOnHidden
       >
@@ -45,10 +62,13 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, c
     <Drawer
       title={title}
       open={open}
-      onClose={onClose}
+      onClose={requestClose}
       placement='bottom'
       size='92dvh'
       className={className}
+      closable={closable}
+      mask={{ closable: !pending }}
+      keyboard={!pending}
       styles={{ body: { overflowY: 'auto' } }}
       destroyOnHidden
     >

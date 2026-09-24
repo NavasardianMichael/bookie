@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Alert, Divider, Form } from 'antd'
+import { Divider, Form } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -9,10 +9,10 @@ import { OrganizationValue } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
 import { toOptionalPhoneNumber, toOrganizationFields } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { MailIcon, UserIcon } from '@components/ui/icons'
 import { OrganizationAutocomplete } from './OrganizationAutocomplete'
 import { FieldLabel } from '../components/FieldLabel'
@@ -61,7 +61,7 @@ export const ProviderRegistrationForm: React.FC = () => {
   const [form] = Form.useForm<ProviderRegistrationFormValues>()
   const register = useAuthStore.use.register()
   const isPending = useAuthStore.use.isPending()
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<unknown>(null)
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const emailRules = useFormItemRules('required', 'email')
@@ -84,7 +84,7 @@ export const ProviderRegistrationForm: React.FC = () => {
       })
       push(ROUTES.verifyEmail)
     } catch (error) {
-      setSubmitError(processError(error).message)
+      setSubmitError(error)
     }
   }
 
@@ -109,7 +109,7 @@ export const ProviderRegistrationForm: React.FC = () => {
         scrollToFirstError
         className='flex w-full flex-col gap-4'
       >
-        {submitError && <Alert type='error' showIcon message={submitError} />}
+        {submitError !== null && <ErrorAlert error={submitError} />}
 
         <div className='flex flex-col gap-1.5'>
           <FieldLabel htmlFor={ORGANIZATION_INPUT_ID} requirement='Optional' className='text-brand font-semibold'>

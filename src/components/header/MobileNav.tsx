@@ -13,6 +13,8 @@ import { NavLinks } from './NavLinks'
 type Props = {
   routes: AppRouteName[]
   isActive: (route: string) => boolean
+  /** Hides Sign In / Get Started, which would otherwise sit under Bookings and Favorites. */
+  isSignedOn: boolean
 }
 
 /**
@@ -24,7 +26,7 @@ type Props = {
  * sibling combinator while the icon bars were descendants of the label.
  * antd's Drawer provides all of it and is already in the bundle.
  */
-export const MobileNav: FC<Props> = ({ routes, isActive }) => {
+export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn }) => {
   const t = useTranslations('Nav')
   const [open, setOpen] = useState(false)
 
@@ -55,12 +57,16 @@ export const MobileNav: FC<Props> = ({ routes, isActive }) => {
       >
         <div className='flex flex-col gap-4'>
           <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
-          <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
-            {t(HEADER_SIGN_IN)}
-          </AppLink>
-          <AppLink href={ROUTES[HEADER_CTA]} variant='button' tone='primary' block onClick={close}>
-            {t(HEADER_CTA)}
-          </AppLink>
+          {!isSignedOn && (
+            <>
+              <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
+                {t(HEADER_SIGN_IN)}
+              </AppLink>
+              <AppLink href={ROUTES[HEADER_CTA]} variant='button' tone='primary' block onClick={close}>
+                {t(HEADER_CTA)}
+              </AppLink>
+            </>
+          )}
         </div>
       </Drawer>
     </>

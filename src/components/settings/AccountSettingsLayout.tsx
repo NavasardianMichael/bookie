@@ -2,13 +2,14 @@
 
 import { FC, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useAuthStore } from '@store/auth/store'
+import { useAuthStore, useAuthStoreBase } from '@store/auth/store'
 import { usePathname, useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
 import { workspaceOf } from '@helpers/workspace'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
+import { ErrorState } from '@components/ui/ErrorState'
 import { LogoutIcon } from '@components/ui/icons'
 import { SettingsNavItem, SettingsShell } from '@components/ui/layout/SettingsShell'
 import { WorkspaceSwitch } from './WorkspaceSwitch'
@@ -44,7 +45,11 @@ export const AccountSettingsLayout: FC<Props> = ({
   const getMe = useAuthStore.use.getMe()
   const logout = useAuthStore.use.logout()
   const isSignedOn = useAuthStore.use.isSignedOn()
+  const sessionError = useAuthStore.use.error()
   const [signOutOpen, setSignOutOpen] = useState(false)
+  /** Bumped by Retry to run the session check again. */
+  const [sessionAttempt, setSessionAttempt] = useState(0)
+  const tErrors = useTranslations('Errors')
 
   /**
    * Which tree is on screen, read from the URL rather than from `accountRole`.
@@ -76,6 +81,10 @@ export const AccountSettingsLayout: FC<Props> = ({
       const session = isSignedOn && userType ? { role: userType, profiles } : await getMe()
       if (cancelled) return
       if (!session) {
+        // `getMe` answers null for a guest *and* for an API outage. Only the first means
+        // "sign in"; bouncing a signed-in user there mid-outage told them their session
+        // was gone when it was the server. The outage renders below with a Retry.
+        if (useAuthStoreBase.getState().error) return
         replace(ROUTES.signIn)
         return
       }
@@ -89,7 +98,7 @@ export const AccountSettingsLayout: FC<Props> = ({
     return () => {
       cancelled = true
     }
-  }, [accountRole, getMe, isSignedOn, profiles, replace, userType])
+  }, [accountRole, getMe, isSignedOn, profiles, replace, sessionAttempt, userType])
 
   const onConfirmSignOut = async () => {
     await logout()
@@ -125,7 +134,15 @@ export const AccountSettingsLayout: FC<Props> = ({
           </button>
         }
       >
-        {children}
+        {sessionError && !isSignedOn ? (
+          <ErrorState
+            error={sessionError}
+            description={tErrors('pages.settings')}
+            onRetry={() => setSessionAttempt((attempt) => attempt + 1)}
+          />
+        ) : (
+          children
+        )}
       </SettingsShell>
       <AppConfirmModal
         title={t('signOutTitle')}

@@ -1,11 +1,11 @@
 import { FC, ReactNode } from 'react'
-import Image from 'next/image'
 import { Link } from '@i18n/navigation'
 import { cn } from '@helpers/cn'
 import { getInitials, isUploadedAsset, resolveAssetUrl } from '@helpers/images'
 import { AppLink } from './bare/AppLink'
 import { AppParagraph } from './bare/AppParagraph'
 import { AppTitle, AppTitleLevel } from './bare/AppTitle'
+import { ImageWithFallback } from './ImageWithFallback'
 
 export type EntityCardProps = {
   href?: string
@@ -33,10 +33,16 @@ export type EntityCardProps = {
   aspect?: '1/1' | '4/3' | '16/9' | false
   badges?: ReactNode
   /**
-   * Overlay on the media well, top-end corner — status on a provider card,
+   * Overlay on the media well, top-start corner — status on a provider card,
    * rating on a prototype. Keep it inert: a stretched card link covers the well.
    */
   mediaBadge?: ReactNode
+  /**
+   * An interactive control on the media well, top-end corner — the favourite heart on a
+   * provider card. Unlike `mediaBadge` it takes clicks, and it sits above the stretched
+   * link so it wins them. Not rendered when `aspect` is `false`: there is no well.
+   */
+  mediaAction?: ReactNode
   footer?: ReactNode
   /**
    * Label for a real "View profile"-style control. When set, this is the only
@@ -81,6 +87,7 @@ export const EntityCard: FC<EntityCardProps> = ({
   aspect = '4/3',
   badges,
   mediaBadge,
+  mediaAction,
   footer,
   cta,
   actions,
@@ -90,6 +97,15 @@ export const EntityCard: FC<EntityCardProps> = ({
   // it `object-cover` in the aspect box put a stretched Bookie mark on every card.
   const resolved = isUploadedAsset(image) ? resolveAssetUrl(image) : undefined
   const stretchHref = href && !cta ? href : undefined
+  const mediaFallback = (
+    <span className='bg-brand-50 absolute inset-0 flex items-center justify-center'>
+      {placeholder ?? (
+        <span aria-hidden='true' className='text-brand-400 text-2xl font-semibold'>
+          {getInitials(fallbackName ?? title)}
+        </span>
+      )}
+    </span>
+  )
 
   return (
     <article
@@ -103,23 +119,20 @@ export const EntityCard: FC<EntityCardProps> = ({
       {aspect !== false && (
         <div className={cn('bg-surface-sunken relative overflow-hidden', ASPECTS[aspect])}>
           {resolved ? (
-            <Image
+            <ImageWithFallback
+              key={resolved}
               src={resolved}
               alt={title}
               fill
               sizes='(max-width: 576px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 296px'
               className={cn('object-cover', stretchHref && 'transition-transform duration-500 group-hover:scale-105')}
+              fallback={mediaFallback}
             />
           ) : (
-            <span className='bg-brand-50 absolute inset-0 flex items-center justify-center'>
-              {placeholder ?? (
-                <span aria-hidden='true' className='text-brand-400 text-2xl font-semibold'>
-                  {getInitials(fallbackName ?? title)}
-                </span>
-              )}
-            </span>
+            mediaFallback
           )}
-          {mediaBadge && <div className='pointer-events-none absolute top-3 inset-e-3 z-2'>{mediaBadge}</div>}
+          {mediaBadge && <div className='pointer-events-none absolute top-3 inset-s-3 z-2'>{mediaBadge}</div>}
+          {mediaAction && <div className='absolute top-3 inset-e-3 z-2'>{mediaAction}</div>}
         </div>
       )}
 

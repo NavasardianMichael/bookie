@@ -1,4 +1,3 @@
-import { BasicProvider } from '@store/providers/list/types'
 import { PhoneNumber } from '@interfaces/app'
 import { ConsumerEmailNotificationPrefs, PaymentInfo } from '@interfaces/settings'
 import { StateCommonProps } from '@interfaces/store'
@@ -15,8 +14,11 @@ export type Consumer = {
     phone?: PhoneNumber
     email?: string
   }
+  /**
+   * No `favoriteProviders`: favourites belong to the account, not to the Consumer profile,
+   * and are served by `GET /favorites` (`src/api/favorites/`).
+   */
   details: {
-    favoriteProviders: BasicProvider[]
     emailVerifiedAt?: string
     emailNotificationPrefs: ConsumerEmailNotificationPrefs
     paymentInfo?: PaymentInfo

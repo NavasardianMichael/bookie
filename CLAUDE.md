@@ -58,7 +58,11 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
+| Showing an error (dev details vs production copy, Retry) | `src/helpers/error.ts` (classify) · `src/components/ui/ErrorAlert.tsx`, `ErrorState.tsx` · `src/hooks/useErrorToast.tsx` · `src/components/errors/` — see *Errors* in `src/components/CLAUDE.md` |
+| Error copy, all 15 locales | `Errors.kinds.*` (by failure kind), `Errors.codes.*` (by stable code), `Errors.pages.*` in `src/messages/` |
 | Ratings, reviews, the Explore ranking | `server/src/services/reviews.ts` (the Bayesian score + parsers) · `server/src/routes/reviews.ts` · `src/api/reviews/` |
+| Favourites (the heart on a provider card, `/favorites`) | `server/src/routes/favorites.ts` · `src/api/favorites/` · `src/store/favorites/list/` · `src/hooks/useFavoriteProvider.ts` · `src/components/favorites/` — see `src/app/CLAUDE.md` |
+| Bookings page (`/bookings`, both sides of an account) | `src/app/[lang]/bookings/` — see `src/app/CLAUDE.md` |
 | Review moderation (the only admin surface) | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/reviews/` — see `server/CLAUDE.md` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
@@ -131,8 +135,13 @@ bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
 - Absolute imports from `src/`. Import order is enforced — `pnpm lint-fix` sorts it.
 - Keep files small and single-purpose; split rather than append.
 - Comment only where the purpose is not obvious from the code and its naming.
-- **Every async operation handles its errors.** Reuse `src/helpers/error.ts#processError`.
-  Never swallow one silently.
+- **Every async operation handles its errors — for two audiences.** Production shows
+  friendly, translated copy with Retry / Reload where they help; development shows that
+  copy *plus* the original error. Never render a server message (`processError(e).message`)
+  — it is English and written for developers. Store the raw error and hand it to
+  `ErrorAlert` (inline), `ErrorState` (a whole panel), `useErrorToast` (no inline home) or a
+  route's `error.tsx`; a deliberate silence goes through `reportError`, never an empty
+  `.catch`. The full rule set is *Errors* in `src/components/CLAUDE.md`; gated by `pnpm gates`.
 - Commits use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) —
   the `/commit-and-push` command does this for you.
 

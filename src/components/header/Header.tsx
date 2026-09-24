@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useHeaderConfig } from '@hooks/useHeaderConfig'
 import { USER_TYPES } from '@constants/auth'
-import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
+import { HEADER_CTA, HEADER_SIGN_IN, withAccountRoutes } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { AppAvatar } from '@components/ui/AppAvatar'
@@ -30,6 +30,7 @@ export const Header = () => {
     void getMe()
   }, [getMe, showLogo, showNav])
 
+  const routes = withAccountRoutes(navRoutes, isSignedOn)
   const displayName = [firstName, lastName].filter(Boolean).join(' ') || t('account')
   const accountHref =
     userType === USER_TYPES.provider ? ROUTES.providerProfile : ROUTES.consumerProfile
@@ -44,8 +45,8 @@ export const Header = () => {
 
         {showNav && (
           <>
-            <div className='ml-auto hidden items-center gap-8 md:flex'>
-              <NavLinks routes={navRoutes} orientation='horizontal' isActive={isActive} />
+            <div className='ml-auto hidden items-center gap-5 md:flex lg:gap-8'>
+              <NavLinks routes={routes} orientation='horizontal' isActive={isActive} />
               {isSignedOn ? (
                 <AppLink
                   href={accountHref}
@@ -53,8 +54,10 @@ export const Header = () => {
                   className='inline-flex items-center gap-3'
                   aria-label={t('accountSettings')}
                 >
+                  {/* From `lg` only: between `md` and `lg` the name is what pushed the
+                      signed-in bar past the viewport, and the avatar still names the link. */}
                   {userType === USER_TYPES.provider && (
-                    <span className='hidden text-right sm:block'>
+                    <span className='hidden text-right lg:block'>
                       <AppText as='span' size='body-sm' className='block font-bold'>
                         {displayName}
                       </AppText>
@@ -83,7 +86,7 @@ export const Header = () => {
                   <AppAvatar src={image ?? undefined} name={displayName} size={36} />
                 </AppLink>
               )}
-              <MobileNav routes={navRoutes} isActive={isActive} />
+              <MobileNav routes={routes} isActive={isActive} isSignedOn={isSignedOn} />
             </div>
           </>
         )}

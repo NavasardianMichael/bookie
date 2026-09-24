@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import { config, isGoogleOAuthConfigured } from './config.js'
-import { ok } from './lib/api-response.js'
+import { fail, ok } from './lib/api-response.js'
 import { optionalAuth } from './middleware/auth.js'
 import { requireSameOrigin } from './middleware/csrf.js'
 import { errorHandler } from './middleware/error.js'
@@ -11,6 +11,7 @@ import { appointmentsRouter } from './routes/appointments.js'
 import { categoriesRouter } from './routes/categories.js'
 import { consumerProfileRouter } from './routes/consumers.js'
 import { contactRouter } from './routes/contact.js'
+import { favoritesRouter } from './routes/favorites.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
@@ -62,7 +63,13 @@ export function createApp() {
   app.use('/categories', categoriesRouter)
   app.use('/contact', contactRouter)
   app.use('/consumer-profile', consumerProfileRouter)
+  app.use('/favorites', favoritesRouter)
   app.use('/appointments', appointmentsRouter)
+
+  // No route matched. Answered in the envelope like everything else — Express's default
+  // is an HTML page, which the client could only report as "Request failed with status
+  // code 404". Also covers a missing file under `/uploads`.
+  app.use((_req, res) => fail(res, 'Not found', 404, 404))
 
   app.use(errorHandler)
 

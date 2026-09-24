@@ -7,10 +7,10 @@ import { useTranslations } from 'next-intl'
 import { deleteReviewAPI, postReviewReplyAPI, postReviewReportAPI, putReviewAPI } from '@api/reviews/main'
 import { Review } from '@store/reviews/list/types'
 import { useRouter } from '@i18n/navigation'
-import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { ReviewForm, ReviewFormValues } from './ReviewForm'
 import { ReviewTextForm, ReviewTextFormValues } from './ReviewTextForm'
 
@@ -44,7 +44,7 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
   const [open, setOpen] = useState<OpenSheet>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
 
   const close = () => {
     setOpen(null)
@@ -64,7 +64,7 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
       onDone?.()
       router.refresh()
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -138,10 +138,10 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
         </>
       )}
 
-      <AppSheet open={open === 'edit'} onClose={close} title={t('editTitle')}>
+      <AppSheet open={open === 'edit'} onClose={close} title={t('editTitle')} pending={isSubmitting}>
         {open === 'edit' && (
           <div className='flex flex-col gap-4'>
-            {error && <Alert type='error' showIcon message={error} />}
+            {error !== null && <ErrorAlert error={error} />}
             {/*
               `initialValues` loads the edit, never `setFieldsValue` — AppSheet destroys
               its Form while closed, so the instance reachable from here is disconnected.
@@ -159,10 +159,10 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
         )}
       </AppSheet>
 
-      <AppSheet open={open === 'reply'} onClose={close} title={t('replyTitle')}>
+      <AppSheet open={open === 'reply'} onClose={close} title={t('replyTitle')} pending={isSubmitting}>
         {open === 'reply' && (
           <div className='flex flex-col gap-4'>
-            {error && <Alert type='error' showIcon message={error} />}
+            {error !== null && <ErrorAlert error={error} />}
             <ReviewTextForm
               label={t('replyLabel')}
               submitLabel={t('replySubmit')}
@@ -174,11 +174,11 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
         )}
       </AppSheet>
 
-      <AppSheet open={open === 'report'} onClose={close} title={t('reportTitle')}>
+      <AppSheet open={open === 'report'} onClose={close} title={t('reportTitle')} pending={isSubmitting}>
         {open === 'report' && (
           <div className='flex flex-col gap-4'>
-            <Alert type='info' showIcon message={t('reportDescription')} />
-            {error && <Alert type='error' showIcon message={error} />}
+            <Alert type='info' showIcon title={t('reportDescription')} />
+            {error !== null && <ErrorAlert error={error} />}
             <ReviewTextForm
               label={t('reportLabel')}
               submitLabel={t('reportSubmit')}

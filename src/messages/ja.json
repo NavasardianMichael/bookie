@@ -31,7 +31,8 @@
     "nextPage": "次のページ",
     "pageNumber": "{page} ページ",
     "previousMonth": "前月",
-    "nextMonth": "翌月"
+    "nextMonth": "翌月",
+    "reload": "ページを再読み込み"
   },
   "Nav": {
     "mainNavigation": "メインナビゲーション",
@@ -47,7 +48,9 @@
     "signIn": "ログイン",
     "accountTypeSelection": "はじめる",
     "account": "アカウント",
-    "accountSettings": "アカウント設定"
+    "accountSettings": "アカウント設定",
+    "bookings": "予約",
+    "favorites": "お気に入り"
   },
   "Auth": {
     "continueWithGoogle": "Google で続行",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "プロフィール",
       "phone": "電話番号",
-      "appointments": "予約",
       "notifications": "通知",
       "payments": "支払い",
       "availability": "受付時間",
       "services": "サービス",
-      "bookings": "予約管理",
       "approvals": "承認",
       "analytics": "分析",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "提供者ワークスペースを表示しています",
       "onProviderBody": "公開ページ、サービス、お客さまからの予約。",
       "onConsumerTitle": "お客さまプロフィールを表示しています",
-      "onConsumerBody": "ご自身の情報と、他の提供者に申し込んだ予約。",
+      "onConsumerBody": "ご自身の情報、通知、お支払いの設定。",
       "toConsumer": "お客さまプロフィールに切り替える",
       "toProvider": "提供者ワークスペースに切り替える"
     },
@@ -354,7 +355,6 @@
       "updated": "電話番号を更新しました。"
     },
     "appointments": {
-      "title": "予約",
       "subtitle": "予約を検索、絞り込み、管理できます。",
       "upcoming": "今後の予約",
       "emptyTitle": "予約はまだありません",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "支払い",
-      "subtitle": "対面でのお支払いや受け取りに使う方法。",
+      "subtitlePay": "対面でのお支払いに使う方法。",
+      "subtitleGetPaid": "対面での受け取りに使う方法。",
       "hint": "対面で受け付ける支払い方法を選んでください。ここに入力したカード番号や口座番号は公開ページに表示されます。",
       "methodsLabel": "対応可能な支払い方法",
       "cardOrAccountNumber": "カード番号 / 口座番号",
@@ -461,9 +462,7 @@
       "cta": "サポートに問い合わせる"
     },
     "bookings": {
-      "title": "提供者としての予約",
       "subtitle": "あなたの過去と今後の予約すべて。",
-      "asConsumerTitle": "利用者としての予約",
       "asConsumerSubtitle": "他の提供者に予約したすべての予定（過去と今後）。",
       "emptyAsConsumerTitle": "まだ自分の予約はありません",
       "emptyAsConsumerBody": "他の提供者を予約すると、その予定がここに表示されます。",
@@ -507,6 +506,12 @@
       "confirmBody": "顧客への自動通知はありません。ステータスは後から変更できます。",
       "moreActions": "{name} の操作",
       "reviewInApprovals": "承認タブで対応する",
+      "action": {
+        "confirmed": "確定する",
+        "completed": "完了する",
+        "cancelled": "キャンセルする",
+        "no_show": "欠席にする"
+      },
       "status": {
         "pending": "承認待ち",
         "scheduled": "予約済み",
@@ -594,18 +599,18 @@
       "seoTitleHint": "30〜60 文字を目安に。空欄の場合はお名前とカテゴリを使用します。",
       "seoTitlePlaceholder": "あなたの名前と提供内容",
       "seoDescription": "メタディスクリプション",
-      "seoDescriptionHint": "70〜160 文字を目安に。空欄の場合はデフォルトを使用します。",
+      "seoDescriptionHint": "70〜160 文字を目安に。空の場合はデフォルトが使用されます。",
       "seoDescriptionPlaceholder": "提供する内容を一文で",
       "counter": "{count} / {max}",
       "tooLong": "{max} 文字以内で入力してください。",
-      "previewLabel": "検索結果プレビュー",
+      "previewLabel": "共有カードのプレビュー",
       "previewEmptyTitle": "ページタイトル",
       "previewEmptyDescription": "説明文がここに表示されます。",
       "fallbackWithOrganization": "{name}（{organization}所属）を予約しましょう。",
       "fallbackDescription": "{name}を予約しましょう。",
-      "vanityUrl": "短縮リンク",
-      "vanityHint": "プロフィールを開きやすい短いアドレス。変更すると以前のリンクは無効になります。",
-      "slugLabel": "短縮リンク",
+      "vanityUrl": "公開ページのリンク",
+      "copyLink": "リンクをコピー",
+      "openPage": "ページを開く",
       "slugHint": "{min}〜{max} 文字：小文字、数字、ハイフン。",
       "slugPlaceholder": "your-business",
       "slugLength": "{min} 〜 {max} 文字で入力してください。",
@@ -626,6 +631,24 @@
       "hasAppointments": "予約が残っています。アカウントを削除する前にキャンセルしてください。",
       "wrongPassword": "現在のパスワードが正しくありません"
     }
+  },
+  "Bookings": {
+    "title": "予約",
+    "viewLabel": "表示する予約",
+    "views": {
+      "provider": "自分が受けた予約",
+      "consumer": "自分がした予約"
+    }
+  },
+  "Favorites": {
+    "title": "お気に入り",
+    "subtitle": "すぐに見つけられるよう保存した提供者です。",
+    "emptyTitle": "お気に入りはまだありません",
+    "emptyBody": "提供者のカードのハートをタップすると、ここに保存されます。",
+    "explore": "提供者をさがす",
+    "add": "{name}をお気に入りに追加",
+    "remove": "{name}をお気に入りから削除",
+    "signInToAdd": "ログインして{name}をお気に入りに追加"
   },
   "Home": {
     "metaDescription": "Bookie で提供者や事業者を見つけて、都合のよい時間を予約しましょう。",
@@ -873,7 +896,59 @@
     "notFoundBody": "お探しのページは存在しないか、移動されました。",
     "title": "問題が発生しました",
     "body": "このページを読み込めませんでした。もう一度お試しください。",
-    "reference": "参照：{digest}"
+    "reference": "参照：{digest}",
+    "devDetails": "開発者向けの詳細",
+    "newVersionTitle": "新しいバージョンがあります",
+    "kinds": {
+      "offline": "オフラインのようです。接続を確認して、もう一度お試しください。",
+      "network": "Bookie に接続できませんでした。接続を確認して、もう一度お試しください。",
+      "timeout": "通常より時間がかかっています。もう一度お試しください。",
+      "unauthorized": "セッションが終了しました。もう一度ログインしてください。",
+      "forbidden": "このページにアクセスする権限がありません。",
+      "notFound": "お探しのものが見つかりませんでした。削除された可能性があります。",
+      "conflict": "状況が変わったため、完了できませんでした。ページを再読み込みして、もう一度お試しください。",
+      "validation": "一部の入力内容が受け付けられませんでした。確認して、もう一度お試しください。",
+      "tooLarge": "サイズが大きすぎます。より小さいファイルを選択してください。",
+      "rateLimited": "試行回数が多すぎます。少し待ってから、もう一度お試しください。",
+      "unavailable": "Bookie は一時的に利用できません。しばらくしてから、もう一度お試しください。",
+      "server": "こちら側で問題が発生しました。もう一度お試しください。",
+      "staleBuild": "Bookie が更新されました。続けるにはページを再読み込みしてください。",
+      "unknown": "問題が発生しました。もう一度お試しください。"
+    },
+    "codes": {
+      "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
+      "emailUnverified": "まずメールアドレスを確認してください。受信トレイにリンクが届いています。",
+      "passwordPolicy": "このパスワードは要件を満たしていません。",
+      "invalidToken": "このリンクは無効です。続けるには新しいリンクをリクエストしてください。",
+      "expiredToken": "このリンクは有効期限が切れています。続けるには新しいリンクをリクエストしてください。",
+      "googleOnlyAccount": "このアカウントは Google でログインします。",
+      "reauthRequired": "現在のパスワードが正しくありません。",
+      "emailTaken": "このメールアドレスのアカウントはすでに存在します。",
+      "hasAppointments": "予約が登録されています。先にキャンセルしてください。",
+      "slotTaken": "その時間はたった今予約されました。別の時間をお選びください。"
+    },
+    "pages": {
+      "provider": "この提供者のページを読み込めませんでした。もう一度お試しください。",
+      "organization": "この事業者を読み込めませんでした。もう一度お試しください。",
+      "categories": "カテゴリを読み込めませんでした。もう一度お試しください。",
+      "category": "このカテゴリを読み込めませんでした。もう一度お試しください。",
+      "booking": "この予約を読み込めませんでした。もう一度お試しください。",
+      "settings": "アカウントのこのセクションを読み込めませんでした。もう一度お試しください。"
+    },
+    "sections": {
+      "load": "このセクションを読み込めませんでした。",
+      "busySlots": "予約済みの時間を確認できなかったため、表示中の時間の一部はすでに埋まっている可能性があります。",
+      "organizationSearch": "現在、事業者を検索できません。"
+    },
+    "conflicts": {
+      "bookingUnavailable": "そのサービスまたは時間は利用できなくなりました。別のものをお選びください。",
+      "bookingLocked": "この予約はもう変更できません。",
+      "decisionClosed": "この予約はすでに対応済みか、時間が過ぎています。一覧を再読み込みして状況をご確認ください。",
+      "pageHasAppointments": "このページには予約が入っているため、まだ削除できません。",
+      "serviceHasAppointments": "このサービスには予約が入っているため、削除できません。代わりに非公開にできます。",
+      "slugTaken": "そのリンクはすでに使用中か予約済みです。別のものをお選びください。",
+      "alreadyReviewed": "この来店にはすでにレビューを投稿しています。"
+    }
   },
   "Admin": {
     "metaTitle": "レビューの管理",

@@ -8,20 +8,21 @@ import { ROUTES } from '@constants/routes'
  * resolved provider-first at login. So "switching workspace" is a **navigation**, not a
  * re-authentication: the same person opening the other half of their own account.
  *
- * The mapping is an explicit table rather than a string substitution on the path. The two
- * trees do not share slugs (`bookings` vs `appointments`), the consumer side has four
- * tabs to the provider side's nine, and a rule like "swap the first segment" would invent
- * `/consumers/profile/analytics` — a URL that has never existed.
+ * The mapping is an explicit table rather than a string substitution on the path. The
+ * consumer side has two tabs to the provider side's eight, and a rule like "swap the first
+ * segment" would invent `/consumers/profile/analytics` — a URL that has never existed.
+ *
+ * Bookings are not in either tree any more. `/bookings` is one page for the whole account,
+ * with its own switch between the two sides, so there is no pair of tabs left to map.
  */
 export type WorkspaceRole = 'consumer' | 'provider'
 
 /**
  * Provider tab → the consumer tab that answers the same question.
  *
- * Only genuine counterparts are listed. `bookings` maps to `appointments` because both
- * are "my bookings" from the two sides of one appointment; everything absent from this
- * table (analytics, availability, services, SEO, approvals) has no consumer meaning at
- * all and falls back to the consumer home, which is what the caller asked for.
+ * Only genuine counterparts are listed. Everything absent from this table (analytics,
+ * availability, SEO, approvals) has no consumer meaning at all and falls back to the
+ * consumer home, which is what the caller asked for.
  *
  * `payments` deliberately points at the consumer *home*: consumer payment preferences were
  * merged into the Profile tab, and `/consumers/profile/payments` is only a redirect stub.
@@ -31,21 +32,18 @@ export type WorkspaceRole = 'consumer' | 'provider'
 const PROVIDER_TO_CONSUMER: Record<string, string> = {
   [ROUTES.providerProfile]: ROUTES.consumerProfile,
   [ROUTES.providerProfileNotifications]: ROUTES.consumerProfileNotifications,
-  [ROUTES.providerProfileBookings]: ROUTES.consumerProfileAppointments,
-  [ROUTES.providerProfileConsumerBookings]: ROUTES.consumerProfileAppointments,
   [ROUTES.providerProfilePayments]: ROUTES.consumerProfile,
   [ROUTES.providerServices]: ROUTES.consumerProfile,
 }
 
 /**
  * The reverse, built by hand rather than by inverting the table above — that one is
- * many-to-one (two provider booking views collapse onto one consumer tab), so inverting
- * it would pick whichever key happened to be enumerated last.
+ * many-to-one (payments and services both land on the consumer home), so inverting it
+ * would pick whichever key happened to be enumerated last.
  */
 const CONSUMER_TO_PROVIDER: Record<string, string> = {
   [ROUTES.consumerProfile]: ROUTES.providerProfile,
   [ROUTES.consumerProfileNotifications]: ROUTES.providerProfileNotifications,
-  [ROUTES.consumerProfileAppointments]: ROUTES.providerProfileBookings,
 }
 
 /** The home each side falls back to when the current tab has no counterpart. */

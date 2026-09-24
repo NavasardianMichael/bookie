@@ -390,10 +390,13 @@ async function main() {
         phoneCode: PHONE_CODE,
         phoneNumber: def.phone,
         country: 'AM',
-        favorites: {
-          create: [{ providerId: providers[0]!.id }],
-        },
       },
+    })
+    // On the account, not the profile — see `FavoriteProvider`. `skipDuplicates` is what
+    // keeps a re-run from failing on the composite primary key.
+    await prisma.favoriteProvider.createMany({
+      data: [{ userId: user.id, providerId: providers[0]!.id }],
+      skipDuplicates: true,
     })
     consumers.push(consumer)
   }

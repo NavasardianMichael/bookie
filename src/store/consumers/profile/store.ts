@@ -13,7 +13,6 @@ const initialState: ConsumerProfileState = {
     phoneNumber: '',
   },
   details: {
-    favoriteProviders: [],
     emailNotificationPrefs: { ...DEFAULT_CONSUMER_NOTIFICATION_PREFS },
   },
   isPending: false,

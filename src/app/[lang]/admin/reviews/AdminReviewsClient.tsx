@@ -1,17 +1,19 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Segmented, Tag } from 'antd'
+import { Segmented, Tag } from 'antd'
 import { useFormatter, useTranslations } from 'next-intl'
 import { getReviewReportsAPI, patchReviewReportAPI, patchReviewVisibilityAPI } from '@api/reviews/main'
 import { ReviewReport, ReviewReportStatus } from '@store/reviews/list/types'
-import { processError } from '@helpers/error'
+import { useErrorToast } from '@hooks/useErrorToast'
+import { classifyError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { RatingStars } from '@components/ui/bare/RatingStars'
 import { EmptyState } from '@components/ui/EmptyState'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
@@ -37,7 +39,7 @@ const STATUS_LABEL_KEY: Record<ReviewReportStatus, 'statusOpen' | 'statusResolve
  * `page.tsx` marks it `noindex` for that reason.
  *
  * **Authorization is entirely the API's.** This renders no guard of its own: a
- * non-admin's request answers 404, the list comes back empty, and the page shows its
+ * non-admin's request answers 404, which is read as an empty list, and the page shows its
  * empty state. Putting a check here too would be a second copy of the rule that could
  * disagree with the real one — and it would still protect nothing, since the data is the
  * thing being guarded.
@@ -46,10 +48,11 @@ export const AdminReviewsClient = () => {
   const t = useTranslations('Admin')
   const tReviews = useTranslations('Provider.reviews')
   const format = useFormatter()
+  const showError = useErrorToast()
 
   const [status, setStatus] = useState<ReviewReportStatus>('open')
   const [items, setItems] = useState<ReviewReport[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<unknown>(null)
   // Bumped after every write to re-run the fetch, so a hidden review and a closed report
   // both reload from the server rather than being patched into local state — the row's
   // status and the review's visibility change together and must be read back together.
@@ -72,10 +75,14 @@ export const AdminReviewsClient = () => {
       .then((data) => {
         if (cancelled) return
         setItems(data.items)
-        setError(null)
+        setLoadError(null)
       })
       .catch((err: unknown) => {
-        if (!cancelled) setError(processError(err).message)
+        if (cancelled) return
+        // Rows from another status, or from before a write, are wrong either way.
+        setItems([])
+        // The 404 is how the API turns away a non-admin — see above — not a failure.
+        setLoadError(classifyError(err).kind === 'notFound' ? null : err)
       })
       .finally(() => {
         if (!cancelled) setFulfilled(query)
@@ -86,15 +93,20 @@ export const AdminReviewsClient = () => {
     }
   }, [query])
 
-  const act = useCallback(async (action: () => Promise<void>) => {
-    setError(null)
-    try {
-      await action()
-      setRevision((current) => current + 1)
-    } catch (err) {
-      setError(processError(err).message)
-    }
-  }, [])
+  const reload = () => setRevision((current) => current + 1)
+
+  // A toast, not the inline alert: the row acted on can sit far below the top of the list.
+  const act = useCallback(
+    async (action: () => Promise<void>) => {
+      try {
+        await action()
+        setRevision((current) => current + 1)
+      } catch (err) {
+        showError(err)
+      }
+    },
+    [showError]
+  )
 
   return (
     <>
@@ -110,9 +122,11 @@ export const AdminReviewsClient = () => {
         ]}
       />
 
-      {error && <Alert type='error' showIcon message={error} />}
-
-      {!loading && !items.length && <EmptyState title={t('empty')} description={t('emptyHint')} />}
+      {loadError !== null ? (
+        <ErrorAlert error={loadError} onRetry={reload} retrying={loading} />
+      ) : (
+        !loading && !items.length && <EmptyState title={t('empty')} description={t('emptyHint')} />
+      )}
 
       <ul className='m-0 flex list-none flex-col gap-4 p-0'>
         {items.map((report) => (

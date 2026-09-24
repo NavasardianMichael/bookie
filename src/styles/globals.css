@@ -50,6 +50,14 @@
   --brand-radius-sm: var(--ant-border-radius);
   --brand-radius: var(--ant-border-radius-lg);
   --brand-control-h: var(--ant-control-height-lg);
+
+  /* Text colour of an antd Tag preset (`color="green" | "red" | "orange"`).
+     The filled tag paints its label with the palette's 7th step. Booking
+     actions read these so a kebab row matches the status chip beside it.
+     `colorError` is a different red, which is why Miss cannot use `danger`. */
+  --brand-tone-green: var(--ant-green-7);
+  --brand-tone-red: var(--ant-red-7);
+  --brand-tone-orange: var(--ant-orange-7);
 }
 
 /* ───────────────────────────────────────────────────────────────────────────

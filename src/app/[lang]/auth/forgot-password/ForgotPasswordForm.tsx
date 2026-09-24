@@ -6,11 +6,11 @@ import { useLocale, useTranslations } from 'next-intl'
 import { forgotPasswordAPI } from '@api/auth/main'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CheckCircleIcon, MailIcon } from '@components/ui/icons'
 import { RegistrationField } from '../components/RegistrationField'
 
@@ -32,7 +32,7 @@ export const ForgotPasswordForm: FC = () => {
   const [form] = Form.useForm<ForgotPasswordFormValues>()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
 
   const emailRules = useFormItemRules('required', 'email')
 
@@ -43,7 +43,7 @@ export const ForgotPasswordForm: FC = () => {
       await forgotPasswordAPI({ email: values.email, locale })
       setSubmitted(true)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -98,13 +98,7 @@ export const ForgotPasswordForm: FC = () => {
           disabled={isSubmitting}
         />
 
-        {error && (
-          <div role='alert' className='rounded-brand-sm bg-red-50 p-3'>
-            <AppParagraph size='body-sm' className='m-0 text-red-700'>
-              {error}
-            </AppParagraph>
-          </div>
-        )}
+        {error !== null && <ErrorAlert error={error} />}
 
         <AppButton htmlType='submit' type='primary' block loading={isSubmitting}>
           {t('forgotPassword.submit')}

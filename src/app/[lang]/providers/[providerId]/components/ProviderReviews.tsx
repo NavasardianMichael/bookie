@@ -2,6 +2,8 @@ import { FC } from 'react'
 import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
 import { getProviderReviewsAPI } from '@api/reviews/main'
+import { reportError } from '@helpers/reportError'
+import { RefreshButton } from '@components/errors/RefreshButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
@@ -40,18 +42,25 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
   /**
    * A failed review fetch must not take the page down with it. The rest of the profile —
    * identity, hours, the whole booking flow — is already rendered and useful, so this
-   * degrades to a message where it sits.
+   * degrades to a message where it sits, with a Retry that re-renders the server tree
+   * (and so re-runs this fetch) without disturbing the booking panel's state.
    */
   let data
   try {
     data = await getProviderReviewsAPI({ providerId, cookie: cookieStore.toString(), query: { page } })
-  } catch {
+  } catch (error) {
+    reportError(error, 'ProviderReviews:load')
     return (
       <Surface>
         <AppTitle level='h2' size='h3' className='mb-3'>
           {t('title')}
         </AppTitle>
-        <AppParagraph size='body-sm'>{t('loadError')}</AppParagraph>
+        <div className='flex flex-wrap items-center justify-between gap-3'>
+          <AppParagraph size='body-sm' className='m-0'>
+            {t('loadError')}
+          </AppParagraph>
+          <RefreshButton label={tCommon('tryAgain')} />
+        </div>
       </Surface>
     )
   }

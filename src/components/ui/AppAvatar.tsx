@@ -1,7 +1,7 @@
 import { FC } from 'react'
-import Image from 'next/image'
 import { cn } from '@helpers/cn'
 import { getInitials, resolveAvatarSrc } from '@helpers/images'
+import { AvatarImage } from './AvatarImage'
 
 export type AppAvatarProps = {
   src?: string
@@ -30,12 +30,7 @@ export const AppAvatar: FC<AppAvatarProps> = ({ src, name, size = 48, shape = 'c
       style={{ width: size, height: size, fontSize: Math.max(12, Math.round(size * 0.36)) }}
     >
       {resolved ? (
-        /^(blob:|data:)/.test(resolved) ? (
-          // Cropped files are only addressable as blob URLs; next/image will not load them.
-          <img src={resolved} alt={name} className='absolute inset-0 size-full object-cover' />
-        ) : (
-          <Image key={resolved} src={resolved} alt={name} fill sizes={`${size}px`} className='object-cover' />
-        )
+        <AvatarImage key={resolved} src={resolved} alt={name} size={size} initials={getInitials(name)} />
       ) : (
         <span aria-hidden='true'>{getInitials(name)}</span>
       )}

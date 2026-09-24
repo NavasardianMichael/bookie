@@ -45,6 +45,8 @@ const PROTECTED_PREFIXES = [
   ROUTES.providerServices,
   ROUTES.providerProfile,
   ROUTES.consumerProfile,
+  ROUTES.bookings,
+  ROUTES.favorites,
 ]
 
 const handleI18nRouting = createMiddleware(routing)

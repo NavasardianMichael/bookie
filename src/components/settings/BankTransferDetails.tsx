@@ -14,15 +14,18 @@ type Props = {
   notes?: string
   /** Booking sheet names the block; the public profile already has a Payments heading. */
   showHeading?: boolean
+  /** Locks the copy buttons while the booking request is in flight. */
+  disabled?: boolean
 }
 
 type CopyableRowProps = {
   label: string
   copyLabel: string
   value: string
+  disabled?: boolean
 }
 
-const CopyableRow: FC<CopyableRowProps> = ({ label, copyLabel, value }) => {
+const CopyableRow: FC<CopyableRowProps> = ({ label, copyLabel, value, disabled }) => {
   const tCopied = useTranslations('Settings.payments')
   const tCommon = useTranslations('Common')
   const { message } = App.useApp()
@@ -48,6 +51,7 @@ const CopyableRow: FC<CopyableRowProps> = ({ label, copyLabel, value }) => {
           size='small'
           icon={<CopyIcon className='h-4 w-4' />}
           aria-label={copyLabel}
+          disabled={disabled}
           onClick={() => void copy()}
         />
       </div>
@@ -62,7 +66,7 @@ const CopyableRow: FC<CopyableRowProps> = ({ label, copyLabel, value }) => {
  * Copyable pay-to details. Shown on the public profile and under the booking
  * picker once the visitor includes bank transfer.
  */
-export const BankTransferDetails: FC<Props> = ({ payToNumber, notes, showHeading = true }) => {
+export const BankTransferDetails: FC<Props> = ({ payToNumber, notes, showHeading = true, disabled }) => {
   const t = useTranslations('Booking')
   const tPayments = useTranslations('Settings.payments')
 
@@ -85,6 +89,7 @@ export const BankTransferDetails: FC<Props> = ({ payToNumber, notes, showHeading
           label={tPayments('cardOrAccountNumber')}
           copyLabel={tPayments('copyCardOrAccountNumber')}
           value={payToNumber}
+          disabled={disabled}
         />
       ) : null}
     </div>

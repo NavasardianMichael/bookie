@@ -9,10 +9,11 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { type Locale } from '@i18n/config'
 import { useRouter } from '@i18n/navigation'
 import { localePath } from '@i18n/pathname'
-import { processError } from '@helpers/error'
+import { UserFacingError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { MailIcon } from '@components/ui/icons'
 
 type Props = {
@@ -54,7 +55,7 @@ export const EmailVerifyField: FC<Props> = ({
   const form = Form.useFormInstance()
   const emailRules = useFormItemRules('email')
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const typedEmail = String(Form.useWatch(name, form) ?? '')
   const canSend =
@@ -87,7 +88,7 @@ export const EmailVerifyField: FC<Props> = ({
       })
       .catch((err: unknown) => {
         sessionStorage.removeItem(key)
-        setError(processError(err).message)
+        setError(err)
       })
       .finally(() => setPending(false))
   }, [form, name, onVerified, replace, t, verifyPath, verifyToken])
@@ -98,7 +99,7 @@ export const EmailVerifyField: FC<Props> = ({
     setSuccess(null)
     const email = String(form.getFieldValue(name) ?? '').trim()
     if (!email) {
-      setError(t('emailRequired'))
+      setError(new UserFacingError(t('emailRequired')))
       return
     }
     setPending(true)
@@ -106,7 +107,7 @@ export const EmailVerifyField: FC<Props> = ({
       await changeEmailSendAPI({ email, returnPath: localePath(locale, verifyPath) })
       setSuccess(t('emailCodeSent', { email }))
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setPending(false)
     }
@@ -129,8 +130,8 @@ export const EmailVerifyField: FC<Props> = ({
         </AppFormItem>
       </div>
 
-      {error && <Alert type='error' showIcon message={error} />}
-      {success && <Alert type='success' showIcon message={success} />}
+      {error !== null && <ErrorAlert error={error} />}
+      {success && <Alert type='success' showIcon title={success} />}
 
       <AppButton type='default' onClick={handleSend} loading={pending} disabled={!canSend} className='self-start'>
         {t('sendEmailCode')}

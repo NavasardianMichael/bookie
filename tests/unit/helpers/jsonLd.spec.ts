@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { processError } from '@helpers/error'
 import { serializeJsonLd } from '@helpers/jsonLd'
 import { generateGoogleMapsLink } from '@helpers/location'
 
@@ -53,41 +52,5 @@ describe('generateGoogleMapsLink', () => {
 
   it('produces a dangling query for an empty address', () => {
     expect(generateGoogleMapsLink('')).toBe('https://www.google.com/maps/search/?api=1&query=')
-  })
-})
-
-describe('processError', () => {
-  it('unwraps an axios error carrying the API envelope', () => {
-    const axiosError = Object.assign(new Error('Request failed'), {
-      isAxiosError: true,
-      response: { data: { value: null, error: { code: 404, message: 'Not found' } } },
-    })
-
-    expect(processError(axiosError)).toEqual({ code: 404, message: 'Not found' })
-  })
-
-  it('coerces a string code to a number', () => {
-    const axiosError = Object.assign(new Error('Request failed'), {
-      isAxiosError: true,
-      response: { data: { value: null, error: { code: '422', message: 'Invalid' } } },
-    })
-
-    expect(processError(axiosError)).toEqual({ code: 422, message: 'Invalid' })
-  })
-
-  it('falls back to code -1 for a plain Error', () => {
-    expect(processError(new Error('boom'))).toEqual({ code: -1, message: 'boom' })
-  })
-
-  it('falls back for an axios error with no envelope', () => {
-    const axiosError = Object.assign(new Error('Network Error'), { isAxiosError: true })
-    expect(processError(axiosError)).toEqual({ code: -1, message: 'Network Error' })
-  })
-
-  // Every async action funnels rejections through here, so this must never throw a second
-  // error of its own — that replaces the real failure with a crash inside the handler
-  // meant to report it. `throw 'nope'` and a bare `Promise.reject()` both land here.
-  it.each([null, undefined, 'nope', 42, {}])('returns an AppError for %o rather than throwing', (input) => {
-    expect(processError(input)).toEqual({ code: -1, message: 'An unknown error occurred' })
   })
 })

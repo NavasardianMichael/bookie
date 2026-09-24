@@ -433,8 +433,8 @@ export const consumerSideBookingInclude = {
  *
  * `user` is deliberately absent: phone is on the Provider row now, and the only thing left
  * on `User` that these payloads could reach is the identity email, which no public read may
- * load. Three call sites lose a join as a result — the public detail route,
- * `GET /appointments`, and a consumer's favourites.
+ * load. The public detail route and `GET /appointments` both lose a join as a result.
+ * Favourites read `providerListInclude` instead: `/favorites` renders cards, not detail pages.
  */
 export const providerInclude = {
   categories: { include: { category: true } },

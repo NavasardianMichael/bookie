@@ -31,7 +31,8 @@
     "nextPage": "Następna strona",
     "pageNumber": "Strona {page}",
     "previousMonth": "Poprzedni miesiąc",
-    "nextMonth": "Następny miesiąc"
+    "nextMonth": "Następny miesiąc",
+    "reload": "Odśwież stronę"
   },
   "Nav": {
     "mainNavigation": "Nawigacja główna",
@@ -47,7 +48,9 @@
     "signIn": "Zaloguj się",
     "accountTypeSelection": "Zacznij",
     "account": "Konto",
-    "accountSettings": "Ustawienia konta"
+    "accountSettings": "Ustawienia konta",
+    "bookings": "Rezerwacje",
+    "favorites": "Ulubione"
   },
   "Auth": {
     "continueWithGoogle": "Kontynuuj z Google",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "Profil",
       "phone": "Telefon",
-      "appointments": "Wizyty",
       "notifications": "Powiadomienia",
       "payments": "Płatności",
       "availability": "Dostępność",
       "services": "Usługi",
-      "bookings": "Rezerwacje",
       "approvals": "Zatwierdzenia",
       "analytics": "Statystyki",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "Jesteś w swoim panelu specjalisty",
       "onProviderBody": "Twoja strona publiczna, usługi i rezerwacje składane u Ciebie.",
       "onConsumerTitle": "Jesteś w swoim profilu klienta",
-      "onConsumerBody": "Twoje dane i rezerwacje, które złożyłeś u innych specjalistów.",
+      "onConsumerBody": "Twoje dane, powiadomienia i preferencje płatności.",
       "toConsumer": "Przejdź do profilu klienta",
       "toProvider": "Przejdź do panelu specjalisty"
     },
@@ -354,7 +355,6 @@
       "updated": "Numer telefonu zaktualizowany."
     },
     "appointments": {
-      "title": "Wizyty",
       "subtitle": "Wyszukuj, filtruj i zarządzaj rezerwacjami.",
       "upcoming": "Nadchodzące",
       "emptyTitle": "Brak nadchodzących wizyt",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "Płatności",
-      "subtitle": "Jak wolisz płacić lub otrzymywać płatności osobiście.",
+      "subtitlePay": "Jak wolisz płacić osobiście.",
+      "subtitleGetPaid": "Jak wolisz otrzymywać płatności osobiście.",
       "hint": "Wybierz metody płatności osobiście, które akceptujesz. Numery karty i konta dodane tutaj pojawią się na Twojej publicznej stronie.",
       "methodsLabel": "Akceptowane metody",
       "cardOrAccountNumber": "Numer karty / Numer konta",
@@ -461,9 +462,7 @@
       "cta": "Skontaktuj się ze wsparciem"
     },
     "bookings": {
-      "title": "Rezerwacje jako specjalista",
       "subtitle": "Każda wizyta zarezerwowana u Ciebie — przeszła i nadchodząca.",
-      "asConsumerTitle": "Rezerwacje jako klient",
       "asConsumerSubtitle": "Każda wizyta, którą zarezerwowałeś u innego specjalisty, przeszła i nadchodząca.",
       "emptyAsConsumerTitle": "Nie masz jeszcze własnych rezerwacji",
       "emptyAsConsumerBody": "Gdy zarezerwujesz innego specjalistę, te wizyty pojawią się tutaj.",
@@ -507,6 +506,12 @@
       "confirmBody": "Klient nie jest automatycznie powiadamiany. Możesz zmienić status ponownie później.",
       "moreActions": "Akcje dla {name}",
       "reviewInApprovals": "Rozpatrz w Zatwierdzeniach",
+      "action": {
+        "confirmed": "Potwierdź",
+        "completed": "Zakończ",
+        "cancelled": "Anuluj",
+        "no_show": "Oznacz nieobecność"
+      },
       "status": {
         "pending": "Oczekuje na zatwierdzenie",
         "scheduled": "Zaplanowane",
@@ -594,18 +599,18 @@
       "seoTitleHint": "Celuj w 30–60 znaków. Zostaw puste, aby użyć swojego imienia i kategorii.",
       "seoTitlePlaceholder": "Twoje imię i to, czym się zajmujesz",
       "seoDescription": "Meta opis",
-      "seoDescriptionHint": "Celuj w 70–160 znaków. Zostaw puste, aby użyć domyślnego opisu.",
+      "seoDescriptionHint": "Celuj w 70–160 znaków. Jeśli jest puste, używany jest domyślny opis.",
       "seoDescriptionPlaceholder": "Jedno zdanie opisujące, co oferujesz",
       "counter": "{count} z {max}",
       "tooLong": "Może mieć maksymalnie {max} znaków.",
-      "previewLabel": "Podgląd wyniku wyszukiwania",
+      "previewLabel": "Podgląd karty w mediach społecznościowych",
       "previewEmptyTitle": "Tytuł Twojej strony",
       "previewEmptyDescription": "Twój opis pojawi się tutaj.",
       "fallbackWithOrganization": "Zarezerwuj wizytę u {name}, pracującego w {organization}.",
       "fallbackDescription": "Zarezerwuj wizytę u {name}.",
-      "vanityUrl": "Krótki link",
-      "vanityHint": "Zapadający w pamięć adres, który otwiera Twój profil. Zmiana wyłącza działanie poprzedniego.",
-      "slugLabel": "Twój link",
+      "vanityUrl": "Link do Twojej strony publicznej",
+      "copyLink": "Kopiuj link",
+      "openPage": "Otwórz stronę",
       "slugHint": "Od {min} do {max} znaków: małe litery, cyfry i myślniki.",
       "slugPlaceholder": "your-business",
       "slugLength": "Musi mieć od {min} do {max} znaków.",
@@ -626,6 +631,24 @@
       "hasAppointments": "Masz zapisane wizyty. Anuluj je przed usunięciem konta.",
       "wrongPassword": "Aktualne hasło jest nieprawidłowe"
     }
+  },
+  "Bookings": {
+    "title": "Rezerwacje",
+    "viewLabel": "Które rezerwacje pokazać",
+    "views": {
+      "provider": "Zarezerwowane u mnie",
+      "consumer": "Zarezerwowane przeze mnie"
+    }
+  },
+  "Favorites": {
+    "title": "Ulubione",
+    "subtitle": "Specjaliści, których zapisujesz, by szybko do nich wrócić.",
+    "emptyTitle": "Brak ulubionych",
+    "emptyBody": "Dotknij serca na karcie specjalisty, aby go tu zapisać.",
+    "explore": "Przeglądaj specjalistów",
+    "add": "Dodaj {name} do ulubionych",
+    "remove": "Usuń {name} z ulubionych",
+    "signInToAdd": "Zaloguj się, aby dodać {name} do ulubionych"
   },
   "Home": {
     "metaDescription": "Znajdź usługodawców i organizacje na Bookie, a potem zarezerwuj pasujący termin.",
@@ -873,7 +896,59 @@
     "notFoundBody": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
     "title": "Coś poszło nie tak",
     "body": "Nie udało nam się załadować tej strony. Spróbuj ponownie.",
-    "reference": "Numer referencyjny: {digest}"
+    "reference": "Numer referencyjny: {digest}",
+    "devDetails": "Szczegóły dla programistów",
+    "newVersionTitle": "Dostępna jest nowa wersja",
+    "kinds": {
+      "offline": "Wygląda na to, że jesteś offline. Sprawdź połączenie i spróbuj ponownie.",
+      "network": "Nie udało się połączyć z Bookie. Sprawdź połączenie i spróbuj ponownie.",
+      "timeout": "Trwa to dłużej niż powinno. Spróbuj ponownie.",
+      "unauthorized": "Twoja sesja wygasła. Zaloguj się ponownie.",
+      "forbidden": "Nie masz do tego dostępu.",
+      "notFound": "Nie znaleźliśmy tego, czego szukasz. Mogło zostać usunięte.",
+      "conflict": "Nie udało się tego zrobić, bo coś się zmieniło. Odśwież stronę i spróbuj ponownie.",
+      "validation": "Niektóre dane nie zostały zaakceptowane. Sprawdź je i spróbuj ponownie.",
+      "tooLarge": "To jest za duże. Wybierz mniejszy plik.",
+      "rateLimited": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
+      "unavailable": "Bookie jest chwilowo niedostępny. Spróbuj ponownie za chwilę.",
+      "server": "Coś poszło nie tak po naszej stronie. Spróbuj ponownie.",
+      "staleBuild": "Bookie został zaktualizowany. Odśwież stronę, aby kontynuować.",
+      "unknown": "Coś poszło nie tak. Spróbuj ponownie."
+    },
+    "codes": {
+      "invalidCredentials": "Adres e-mail lub hasło jest nieprawidłowe.",
+      "emailUnverified": "Najpierw potwierdź swój adres e-mail. Link znajdziesz w skrzynce odbiorczej.",
+      "passwordPolicy": "To hasło nie spełnia wymagań.",
+      "invalidToken": "Ten link jest nieprawidłowy. Poproś o nowy, aby kontynuować.",
+      "expiredToken": "Ten link wygasł. Poproś o nowy, aby kontynuować.",
+      "googleOnlyAccount": "To konto loguje się przez Google.",
+      "reauthRequired": "Aktualne hasło jest nieprawidłowe.",
+      "emailTaken": "Konto z tym adresem e-mail już istnieje.",
+      "hasAppointments": "Masz zapisane wizyty. Najpierw je anuluj.",
+      "slotTaken": "Ta godzina właśnie została zarezerwowana. Wybierz inną."
+    },
+    "pages": {
+      "provider": "Nie udało się załadować strony tego usługodawcy. Spróbuj ponownie.",
+      "organization": "Nie udało się załadować tej organizacji. Spróbuj ponownie.",
+      "categories": "Nie udało się załadować kategorii. Spróbuj ponownie.",
+      "category": "Nie udało się załadować tej kategorii. Spróbuj ponownie.",
+      "booking": "Nie udało się załadować tej rezerwacji. Spróbuj ponownie.",
+      "settings": "Nie udało się załadować tej części konta. Spróbuj ponownie."
+    },
+    "sections": {
+      "load": "Nie udało się załadować tej sekcji.",
+      "busySlots": "Nie udało się sprawdzić, które godziny są już zarezerwowane, więc niektóre z nich mogą być zajęte.",
+      "organizationSearch": "Nie można teraz wyszukiwać organizacji."
+    },
+    "conflicts": {
+      "bookingUnavailable": "Ta usługa lub godzina nie jest już dostępna. Wybierz inną.",
+      "bookingLocked": "Tej rezerwacji nie można już zmienić.",
+      "decisionClosed": "Ta rezerwacja została już rozpatrzona albo jej termin minął. Odśwież listę, aby sprawdzić jej stan.",
+      "pageHasAppointments": "Ta strona ma zarezerwowane wizyty, więc nie można jej jeszcze usunąć.",
+      "serviceHasAppointments": "Ta usługa ma zarezerwowane wizyty, więc nie można jej usunąć. Zamiast tego możesz ją dezaktywować.",
+      "slugTaken": "Ten link jest już zajęty lub zarezerwowany. Wybierz inny.",
+      "alreadyReviewed": "Ta wizyta ma już Twoją opinię."
+    }
   },
   "Admin": {
     "metaTitle": "Moderacja opinii",

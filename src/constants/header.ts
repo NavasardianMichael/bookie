@@ -8,7 +8,8 @@ import { isPublicProviderPage } from '@helpers/routes'
  * cannot read the request locale, so a `label` field here would have pinned the
  * whole chrome to English.
  *
- * Every name below must have a matching key in `Nav`; `tests/unit/i18n` pins that.
+ * Every name below must have a matching key in `Nav`; `tests/unit/constants/header.spec.ts`
+ * pins that.
  */
 export const HEADER_ROUTES: AppRouteName[] = [
   ROUTE_KEYS.home,
@@ -16,6 +17,17 @@ export const HEADER_ROUTES: AppRouteName[] = [
   ROUTE_KEYS.categories,
   ROUTE_KEYS.organizations,
 ]
+
+/**
+ * The signed-in account's own pages, appended to whatever `navRoutes` the route shows.
+ *
+ * Separate from `HEADER_ROUTES` because they follow the *session*, not the route: they
+ * appear on the public provider page too, which drops the marketplace destinations but
+ * keeps the avatar — and these belong with the avatar, not with the marketplace.
+ * Both pages are guarded (`src/proxy.ts`), so offering them to a guest would only be a
+ * detour through sign-in.
+ */
+export const HEADER_ACCOUNT_ROUTES: AppRouteName[] = [ROUTE_KEYS.bookings, ROUTE_KEYS.favorites]
 
 /**
  * Sign in and sign up are separate destinations: a returning user gives an email and a
@@ -90,3 +102,7 @@ export const getHeaderConfig = (routeName?: AppRouteName, pathname?: string): He
 
   return config
 }
+
+/** The destinations to render: the route's own, then the account's when signed in. */
+export const withAccountRoutes = (navRoutes: AppRouteName[], isSignedOn: boolean): AppRouteName[] =>
+  isSignedOn ? [...navRoutes, ...HEADER_ACCOUNT_ROUTES] : navRoutes

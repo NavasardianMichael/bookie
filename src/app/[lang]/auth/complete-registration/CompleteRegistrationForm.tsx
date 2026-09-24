@@ -10,12 +10,14 @@ import { OrganizationValue, PendingGoogleAccount, UserType } from '@interfaces/a
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { classifyError } from '@helpers/error'
 import { toOrganizationFields, toPhoneNumber } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
+import { ErrorState } from '@components/ui/ErrorState'
 import { UserIcon } from '@components/ui/icons'
 import { FieldLabel } from '../components/FieldLabel'
 import { PhoneFormValues, PhoneNumberField } from '../components/PhoneNumberField'
@@ -50,14 +52,19 @@ export const CompleteRegistrationForm: FC = () => {
 
   const [pending, setPending] = useState<PendingGoogleAccount | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const [loadError, setLoadError] = useState<unknown>(null)
+  /** Bumped by Retry to ask for the pending identity again. */
+  const [loadAttempt, setLoadAttempt] = useState(0)
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const role = Form.useWatch('role', form)
 
   // The pending identity lives in an httpOnly cookie, so the only way to read it is to ask.
   // No cookie means the flow expired or was never started — back to sign-in rather than an
-  // empty form that cannot submit.
+  // empty form that cannot submit. The API answers that with a 401 or a 404; anything else
+  // (an outage, a timeout) is not an expired flow, and sending the visitor back through
+  // Google for it would not help, so it shows with a Retry instead.
   useEffect(() => {
     let cancelled = false
 
@@ -72,14 +79,27 @@ export const CompleteRegistrationForm: FC = () => {
         })
         setIsLoading(false)
       })
-      .catch(() => {
-        if (!cancelled) replace(ROUTES.signIn)
+      .catch((loadFailure: unknown) => {
+        if (cancelled) return
+        const { kind } = classifyError(loadFailure)
+        if (kind === 'unauthorized' || kind === 'notFound') {
+          replace(ROUTES.signIn)
+          return
+        }
+        setLoadError(loadFailure)
+        setIsLoading(false)
       })
 
     return () => {
       cancelled = true
     }
-  }, [form, replace])
+  }, [form, loadAttempt, replace])
+
+  const retryLoad = () => {
+    setLoadError(null)
+    setIsLoading(true)
+    setLoadAttempt((attempt) => attempt + 1)
+  }
 
   const handleFinish = async (values: CompleteRegistrationFormValues) => {
     setError(null)
@@ -96,9 +116,11 @@ export const CompleteRegistrationForm: FC = () => {
       })
       push(session.role === USER_TYPES.provider ? ROUTES.providerProfileCreation : ROUTES.home)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     }
   }
+
+  if (loadError !== null) return <ErrorState error={loadError} onRetry={retryLoad} />
 
   if (isLoading) {
     return (
@@ -181,13 +203,7 @@ export const CompleteRegistrationForm: FC = () => {
           </div>
         )}
 
-        {error && (
-          <div role='alert' className='rounded-brand-sm bg-red-50 p-3'>
-            <AppParagraph size='body-sm' className='m-0 text-red-700'>
-              {error}
-            </AppParagraph>
-          </div>
-        )}
+        {error !== null && <ErrorAlert error={error} />}
 
         <AppButton htmlType='submit' type='primary' block loading={isPending}>
           {t('completeRegistration.submit')}

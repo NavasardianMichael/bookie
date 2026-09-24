@@ -6,7 +6,7 @@ import { useAuthStore } from '@store/auth/store'
 import { ROUTE_KEYS } from '@constants/routes'
 import { CONSUMER_SETTINGS_NAV, toSettingsNavItems } from '@constants/settings'
 import { AccountSettingsLayout } from '@components/settings/AccountSettingsLayout'
-import { BellIcon, CalendarIcon, UserIcon } from '@components/ui/icons'
+import { BellIcon, UserIcon } from '@components/ui/icons'
 
 type Props = {
   children: ReactNode
@@ -24,12 +24,10 @@ export const ConsumerSettingsLayoutClient: FC<Props> = ({ children }) => {
         CONSUMER_SETTINGS_NAV,
         {
           [ROUTE_KEYS.consumerProfile]: t('nav.profile'),
-          [ROUTE_KEYS.consumerProfileAppointments]: t('nav.appointments'),
           [ROUTE_KEYS.consumerProfileNotifications]: t('nav.notifications'),
         },
         {
           [ROUTE_KEYS.consumerProfile]: <UserIcon className='h-5 w-5' />,
-          [ROUTE_KEYS.consumerProfileAppointments]: <CalendarIcon className='h-5 w-5' />,
           [ROUTE_KEYS.consumerProfileNotifications]: <BellIcon className='h-5 w-5' />,
         }
       ),

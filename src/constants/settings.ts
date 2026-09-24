@@ -30,17 +30,21 @@ export const DEFAULT_PROVIDER_NOTIFICATION_PREFS = {
 } as const
 
 /** Route names used as i18n keys under Settings.nav.* */
+/**
+ * No Appointments tab: bookings are `/bookings`, a header destination of their own, on
+ * both sides of the account. See `ROUTE_KEYS.bookings`.
+ */
 export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact' | 'prefix' }[] = [
   { route: ROUTE_KEYS.consumerProfile, match: 'exact' },
-  { route: ROUTE_KEYS.consumerProfileAppointments },
   { route: ROUTE_KEYS.consumerProfileNotifications },
 ]
 
 /**
- * Running the business sits above configuring it: Bookings and Analytics are opened
- * daily, the tabs around them are opened once. `match: 'exact'` on the profile home
- * is load-bearing — `/providers/profile` is a prefix of every nested tab, so without
- * it the Profile item lights up on all of them.
+ * Running the business sits above configuring it: Approvals and Analytics are opened
+ * daily, the tabs around them are opened once. Bookings used to head that group and moved
+ * out to `/bookings`, in the header. `match: 'exact'` on the profile home is load-bearing —
+ * `/providers/profile` is a prefix of every nested tab, so without it the Profile item
+ * lights up on all of them.
  */
 export const PROVIDER_SETTINGS_NAV: {
   route: keyof typeof ROUTES
@@ -48,12 +52,8 @@ export const PROVIDER_SETTINGS_NAV: {
   aliases?: (keyof typeof ROUTES)[]
 }[] = [
   { route: ROUTE_KEYS.providerProfile, match: 'exact' },
-  {
-    route: ROUTE_KEYS.providerProfileBookings,
-    aliases: [ROUTE_KEYS.providerProfileConsumerBookings],
-  },
-  // Directly under Bookings, and above Analytics: it is the third "running the business"
-  // tab, and the only one with a queue that goes stale if nobody opens it.
+  // First after Profile, above Analytics: the only tab with a queue that goes stale if
+  // nobody opens it.
   { route: ROUTE_KEYS.providerProfileApprovals },
   { route: ROUTE_KEYS.providerProfileAnalytics },
   { route: ROUTE_KEYS.providerProfileAvailability },

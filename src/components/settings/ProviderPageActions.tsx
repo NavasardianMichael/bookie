@@ -39,6 +39,7 @@ const heroIconStyles = { root: { color: 'var(--brand-surface)' } }
  */
 export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, onListedChange }) => {
   const t = useTranslations('Settings')
+  const tErrors = useTranslations('Errors')
   const locale = useLocale() as Locale
   const { message } = App.useApp()
   const { push } = useRouter()
@@ -145,6 +146,7 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
         okText={t('listing.deletePage')}
         open={deleteOpen}
         onConfirm={onDelete}
+        errorOverrides={{ 409: tErrors('conflicts.pageHasAppointments') }}
         onCancel={() => setDeleteOpen(false)}
       />
     </>

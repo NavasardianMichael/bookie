@@ -7,6 +7,7 @@ import type { Direction, Locale } from '@i18n/config'
 import { setDayjsLocale } from '@i18n/dayjs'
 import { antdTheme } from '@styles/theme'
 import { BreakpointInvariant } from './dev/BreakpointInvariant'
+import { UnhandledErrorListener } from './errors/UnhandledErrorListener'
 import { Header } from './header/Header'
 import { Footer } from './layout/Footer'
 import { SkipLink } from './layout/SkipLink'
@@ -44,6 +45,7 @@ export const App: FC<AppProps> = ({ antdLocale, children, direction, locale }) =
       <AntApp component={false}>
         <SkipLink />
         <ServiceWorkerRegistrar />
+        <UnhandledErrorListener />
         <div className='flex min-h-dvh flex-col'>
           <Header />
           <main id='main' className='flex-1 app-safe-b'>

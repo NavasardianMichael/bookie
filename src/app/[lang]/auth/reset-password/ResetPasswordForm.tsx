@@ -7,11 +7,11 @@ import { resetPasswordAPI } from '@api/auth/main'
 import { useRouter } from '@i18n/navigation'
 import { PASSWORD_MIN_LENGTH } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CheckCircleIcon } from '@components/ui/icons'
 import { NewPasswordFields } from '../components/NewPasswordFields'
 
@@ -31,7 +31,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
   const [form] = Form.useForm<ResetPasswordFormValues>()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [done, setDone] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
 
   const handleFinish = async (values: ResetPasswordFormValues) => {
     if (!token) return
@@ -41,7 +41,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
       await resetPasswordAPI({ token, password: values.password })
       setDone(true)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -106,13 +106,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
       >
         <NewPasswordFields passwordLabel={t('fields.newPassword')} disabled={isSubmitting} />
 
-        {error && (
-          <div role='alert' className='rounded-brand-sm bg-red-50 p-3'>
-            <AppParagraph size='body-sm' className='m-0 text-red-700'>
-              {error}
-            </AppParagraph>
-          </div>
-        )}
+        {error !== null && <ErrorAlert error={error} />}
 
         <AppButton htmlType='submit' type='primary' block loading={isSubmitting}>
           {t('resetPassword.submit')}

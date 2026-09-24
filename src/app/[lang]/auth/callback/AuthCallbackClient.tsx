@@ -1,12 +1,13 @@
 'use client'
 
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Spin } from 'antd'
 import { useTranslations } from 'next-intl'
-import { useAuthStore } from '@store/auth/store'
+import { useAuthStore, useAuthStoreBase } from '@store/auth/store'
 import { useRouter } from '@i18n/navigation'
 import { ROUTES } from '@constants/routes'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { ErrorState } from '@components/ui/ErrorState'
 
 /**
  * Where Google's flow lands once the API has set the session cookie.
@@ -16,15 +17,22 @@ import { AppParagraph } from '@components/ui/bare/AppParagraph'
  * store, and the role decides where to go — a provider into their workspace, a consumer
  * home.
  *
- * A failed `getMe()` means the cookie never arrived. That is not an error to display here,
- * because the API already redirects real failures to `/auth/sign-in?error=<code>` where the
- * copy for each code lives; reaching this page without a session means something outside
- * that contract happened, so it falls back to sign-in rather than inventing a message.
+ * A `getMe()` that finds no session means the cookie never arrived. That is not an error
+ * to display here, because the API already redirects real failures to
+ * `/auth/sign-in?error=<code>` where the copy for each code lives; reaching this page
+ * without a session means something outside that contract happened, so it falls back to
+ * sign-in rather than inventing a message.
+ *
+ * An outage is different: the cookie may well be there and the API simply did not
+ * answer. Sending that visitor to sign-in would make them do Google all over again for
+ * nothing, so it shows the failure with a Retry instead.
  */
 export const AuthCallbackClient: FC = () => {
   const t = useTranslations('Auth')
   const { replace } = useRouter()
   const getMe = useAuthStore.use.getMe()
+  const sessionError = useAuthStore.use.error()
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -32,7 +40,7 @@ export const AuthCallbackClient: FC = () => {
     void getMe().then((session) => {
       if (cancelled) return
       if (!session) {
-        replace(ROUTES.signIn)
+        if (!useAuthStoreBase.getState().error) replace(ROUTES.signIn)
         return
       }
       replace(session.role === 'provider' ? ROUTES.providerProfile : ROUTES.home)
@@ -41,7 +49,11 @@ export const AuthCallbackClient: FC = () => {
     return () => {
       cancelled = true
     }
-  }, [getMe, replace])
+  }, [attempt, getMe, replace])
+
+  if (sessionError) {
+    return <ErrorState error={sessionError} onRetry={() => setAttempt((current) => current + 1)} />
+  }
 
   return (
     <div className='flex flex-col items-center gap-4 py-6'>

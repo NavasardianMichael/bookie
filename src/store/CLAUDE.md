@@ -92,6 +92,13 @@ the URL and fetches on the server — see `src/app/CLAUDE.md`. The slice stays f
 genuinely client-side provider list, and `pagination` is read back from the response
 rather than echoed, because the API clamps an out-of-range `page`.
 
+**`favorites/list` is the other side of the same rule.** It holds provider **ids** only,
+for the heart on every card: many client islands reading one shared answer, which is what
+stores are for. The `/favorites` page lists the providers themselves from a Server
+Component and never touches the slice. Its one-load-per-session guard lives in
+`useFavoriteProvider`, which reads `useFavoritesListStoreBase.getState()` inside an effect.
+That is not an action taking `get` — the store itself still destructures only `set`.
+
 ## Known non-canonical code — do not copy
 
 - **`use…StoreBase` vs `use…Base`** — list/profile stores use the first, single stores
@@ -100,12 +107,21 @@ rather than echoed, because the API clamps an out-of-range `page`.
   `try/finally`, because `errorMiddleware` does not catch rejections and the whole sign-on
   funnel is gated on `isPending` — leaving it `true` locked the user out of retrying. Copy
   that shape, not the other stores'.
-- **`src/store/categories/list/store.ts`** has **no loader wired to any page but
-  `profile-services`.** It used to ship fake seed data in `initialState` — one row whose
-  `allIds` entry (`'c-1'`) did not even match its own `byId` key (`'smth'`) — so every
-  category picker offered an id the API had never issued. `initialState` is empty now, which means a page that renders a
-  category picker **must call `getCategoriesList()` itself**;
-  `ProviderProfileFormCategories` still has no page that does.
+- **`getMe` never rejects, and it is the one action that writes `error`.** It answers
+  `null` for "no session" whatever the cause, so the Header and every other caller keep
+  working through an outage — but only a 401 leaves `error` null. A 5xx, network failure
+  or timeout lands in `error`, and a caller that redirects on `null` (`AccountSettingsLayout`,
+  `AuthCallbackClient`) checks it first: sending a signed-in user to sign-in mid-outage told
+  them their session was gone when it was the server. Every other store rethrows to its
+  caller, which shows the failure (`src/components/CLAUDE.md` → *Errors*).
+- **`src/store/categories/list/store.ts` and `organizations/list`** start empty and load
+  only where a page asks. The categories store used to ship fake seed data in
+  `initialState` — one row whose `allIds` entry (`'c-1'`) did not even match its own
+  `byId` key (`'smth'`) — so every category picker offered an id the API had never
+  issued. A page that renders a category or organization picker **must load the list
+  itself**: `profile-services` loads categories, and `ProviderProfileForm` (profile
+  creation) loads both, with a Retry if that fails. Until 2026-09-23 the latter loaded
+  neither, so its pickers were empty on a cold load.
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns
   `api.setState` — it does **not** catch rejections thrown inside async actions.
 - Action return types drift between `() => void` and `() => Promise<void>` for

@@ -5,6 +5,7 @@ import { BasicProvider } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
 import { getProviderAvailabilityStatus, ProviderAvailabilityStatus } from '@helpers/providerAvailability'
+import { FavoriteButton } from '@components/favorites/FavoriteButton'
 import { RatingStars } from '@components/ui/bare/RatingStars'
 import { EntityCard } from '@components/ui/EntityCard'
 import { UserIcon } from '@components/ui/icons'
@@ -25,7 +26,8 @@ const STATUS_DOT: Record<ProviderAvailabilityStatus, string> = {
 
 /**
  * Server Component: it no longer needs antd's Image, so it stays off the client
- * bundle.
+ * bundle. The favourite heart is the one client island on it, and it hides itself on the
+ * viewer's own card.
  */
 export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLevel }) => {
   const { basic } = data
@@ -45,6 +47,7 @@ export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLev
       image={basic.image}
       placeholder={<UserIcon className='text-brand size-16' />}
       aspect='16/9'
+      mediaAction={<FavoriteButton providerId={data.id} name={fullName} />}
       mediaBadge={
         <span className='bg-surface/90 text-brand-text inline-flex items-center gap-1.5 rounded-brand-sm px-2 py-1 text-caption font-bold shadow-sm backdrop-blur-sm'>
           <span aria-hidden='true' className={cn('size-2 rounded-full', STATUS_DOT[status])} />

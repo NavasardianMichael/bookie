@@ -372,8 +372,13 @@ identityRouter.post(
 
     // Already a real account. Write nothing, and tell its owner — in their own inbox, which
     // is the only place the information is not a leak.
+    //
+    // Over the per-address budget the notice is skipped, *silently*. This used to call
+    // `overBudget`, which answers 429 itself — so the already-registered branch alone could
+    // answer 429 (an oracle for "this address has an account"), and the `ok` below then
+    // wrote a second response onto it.
     if (existing?.emailVerifiedAt) {
-      if (!overBudget(res, registerEmailLimiter, `email:${email}`)) {
+      if (registerEmailLimiter(`email:${email}`).allowed) {
         const notice = await sendAlreadyRegisteredNotice(email, locale)
         if (!notice.ok) console.error(`[identity] already-registered notice failed: ${notice.message}`)
       }

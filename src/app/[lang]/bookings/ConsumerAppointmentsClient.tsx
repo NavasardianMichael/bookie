@@ -1,7 +1,7 @@
 'use client'
 
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Select, Tag } from 'antd'
+import { Select, Tag } from 'antd'
 import { useFormatter, useTranslations } from 'next-intl'
 import { listAppointmentsAPI, patchAppointmentStatusAPI } from '@api/appointments/main'
 import { AppointmentResponse, BOOKING_STATUSES, BookingStatus } from '@api/appointments/types'
@@ -13,7 +13,6 @@ import {
   filterAndSortConsumerAppointments,
 } from '@helpers/consumerAppointments'
 import { generateEntityPath } from '@helpers/entities'
-import { processError } from '@helpers/error'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
@@ -23,7 +22,7 @@ import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { EmptyState } from '@components/ui/EmptyState'
-import { PageHeader } from '@components/ui/layout/PageHeader'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { Surface } from '@components/ui/layout/Surface'
 
 const STATUS_TONE: Record<BookingStatus, string> = {
@@ -57,15 +56,22 @@ const isReviewable = (item: AppointmentResponse, now: number): boolean =>
 
 const SEARCH_DEBOUNCE_MS = 350
 
+/**
+ * A consumer session's view of `/bookings`. The page owns the heading (`BookingsClient`);
+ * this is the list under it. A provider who booked someone sees those rows through
+ * `ProviderBookingsClient side='consumer'` instead, because `GET /appointments` answers a
+ * provider session with the bookings made *with* them.
+ */
 export const ConsumerAppointmentsClient = () => {
   const t = useTranslations('Settings.appointments')
   const tStatus = useTranslations('Settings.bookings.status')
   const tBooking = useTranslations('Booking')
+  const tErrors = useTranslations('Errors')
   const tReviews = useTranslations('Provider.reviews')
   const format = useFormatter()
 
   const [items, setItems] = useState<AppointmentResponse[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [statuses, setStatuses] = useState<BookingStatus[]>([])
@@ -94,8 +100,8 @@ export const ConsumerAppointmentsClient = () => {
         setLoadedAt(Date.now())
         setError(null)
       })
-      .catch((err) => {
-        if (!cancelled) setError(processError(err).message)
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err)
       })
       .finally(() => {
         if (!cancelled) setFulfilled(query)
@@ -141,9 +147,6 @@ export const ConsumerAppointmentsClient = () => {
 
   return (
     <div className='flex flex-col gap-6'>
-      <PageHeader title={t('title')} subtitle={t('subtitle')} />
-      {error && <Alert type='error' showIcon message={error} />}
-
       <Surface className='flex flex-col gap-4'>
         <div className='flex flex-wrap items-center justify-between gap-3'>
           <AppTitle level='h2' size='h3'>
@@ -186,8 +189,11 @@ export const ConsumerAppointmentsClient = () => {
           {hasFilters && <AppButton onClick={handleClearFilters}>{t('clearFilters')}</AppButton>}
         </div>
 
+        {/* A failed load replaces the list rather than sitting above "no appointments". */}
         {loading ? (
           <div className='bg-brand-50 min-h-32 animate-pulse rounded-brand' />
+        ) : error !== null ? (
+          <ErrorAlert error={error} onRetry={() => setRevision((current) => current + 1)} />
         ) : visible.length === 0 ? (
           <EmptyState
             title={hasFilters ? t('emptyFilteredTitle') : t('emptyTitle')}
@@ -271,6 +277,7 @@ export const ConsumerAppointmentsClient = () => {
         description={tBooking('cancelConfirmBody')}
         tone='danger'
         onConfirm={handleCancel}
+        errorOverrides={{ 409: tErrors('conflicts.bookingLocked') }}
         onCancel={() => setPendingCancel(null)}
       />
     </div>

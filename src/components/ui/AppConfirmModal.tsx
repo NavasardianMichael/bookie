@@ -1,10 +1,11 @@
 'use client'
 
 import { FC, PropsWithChildren, ReactNode, useCallback, useState } from 'react'
-import { App, Modal, ModalProps } from 'antd'
+import { Modal, ModalProps } from 'antd'
 import { useTranslations } from 'next-intl'
+import { useErrorToast } from '@hooks/useErrorToast'
 import { cn } from '@helpers/cn'
-import { processError } from '@helpers/error'
+import { ErrorCopyOverrides } from '@helpers/error'
 import { AppParagraph } from './bare/AppParagraph'
 import { AppTitle } from './bare/AppTitle'
 import { AlertTriangleIcon, HelpIcon } from './icons'
@@ -32,6 +33,11 @@ export type AppConfirmModalProps = PropsWithChildren<
     icon?: ReactNode | null
     /** Awaited — the modal shows a busy state and blocks dismissal until it settles. */
     onConfirm: () => void | Promise<void>
+    /**
+     * What this action's failures mean, when the kind's copy would mislead — a delete
+     * refused with 409 because appointments are booked is not "something changed".
+     */
+    errorOverrides?: ErrorCopyOverrides
     /** Required: without it the dialog has no way to close. */
     onCancel: NonNullable<ModalProps['onCancel']>
   }
@@ -68,6 +74,7 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
   icon,
   onConfirm,
   onCancel,
+  errorOverrides,
   children,
   className,
   cancelButtonProps,
@@ -83,7 +90,7 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
   ...props
 }) => {
   const t = useTranslations('Common')
-  const { message } = App.useApp()
+  const toast = useErrorToast()
   const [pending, setPending] = useState(false)
 
   const busy = pending || !!confirmLoading
@@ -95,11 +102,11 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
     } catch (error) {
       // The dialog deliberately stays open on failure: closing it would leave the
       // user unable to tell whether the action took effect.
-      message.error(processError(error).message)
+      toast(error, { overrides: errorOverrides })
     } finally {
       setPending(false)
     }
-  }, [message, onConfirm])
+  }, [errorOverrides, onConfirm, toast])
 
   // antd's object forms, merged rather than replaced so a caller's own
   // `closable` / `mask` config survives the busy-state lock.

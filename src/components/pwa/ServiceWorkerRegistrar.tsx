@@ -1,8 +1,8 @@
 'use client'
 
 import { FC, useEffect } from 'react'
-import { processError } from '@helpers/error'
 import { SERVICE_WORKER_URL } from '@helpers/pwa'
+import { reportError } from '@helpers/reportError'
 
 /**
  * Registers the app-scoped service worker in production.
@@ -31,11 +31,15 @@ export const ServiceWorkerRegistrar: FC = () => {
         registration = next
       })
       .catch((error: unknown) => {
-        console.error(processError(error).message)
+        reportError(error, 'ServiceWorkerRegistrar:register')
       })
 
     const onVisible = () => {
-      if (document.visibilityState === 'visible') void registration?.update()
+      if (document.visibilityState !== 'visible' || !registration) return
+      // Silent for the same reason as registration: the page keeps working on the old worker.
+      void registration.update().catch((error: unknown) => {
+        reportError(error, 'ServiceWorkerRegistrar:update')
+      })
     }
 
     document.addEventListener('visibilitychange', onVisible)

@@ -218,6 +218,28 @@ const GATES = [
     exts: ['.ts'],
     pattern: /default as/,
   },
+  {
+    name: 'no hand-rolled error blocks',
+    why: 'Inline errors are `ErrorAlert` — dev details, translated copy, Retry — src/components/CLAUDE.md',
+    root: 'src',
+    exts: TSX,
+    pattern: /<Alert\b.*type=['"]error['"]|type=['"]error['"].*<\/Alert>|role=['"]alert['"]/,
+    skip: /^src\/components\/ui\/ErrorAlert\.tsx$/,
+  },
+  {
+    name: 'no rendered `processError(…).message`',
+    why: "The server's English text is for developers — show copy via useErrorMessage / ErrorAlert — src/components/CLAUDE.md",
+    root: 'src',
+    exts: TS,
+    pattern: /processError\([^)]*\)\.message/,
+  },
+  {
+    name: 'no silently swallowed promise',
+    why: 'Surface it, or route a deliberate silence through `reportError` — root CLAUDE.md',
+    root: 'src',
+    exts: TS,
+    pattern: /\.catch\(\(\)\s*=>\s*(undefined|null|\{\s*\})\)/,
+  },
 ]
 
 const walk = (dir, exts, out = []) => {

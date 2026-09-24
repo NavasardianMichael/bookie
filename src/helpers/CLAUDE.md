@@ -53,7 +53,13 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Is this a public provider booking page | `isPublicProviderPage` | `routes.ts` |
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
 | Subset an object | `pick`, `omit` | `commons.ts` |
-| Turn an unknown throw into an `AppError` | `processError` | `error.ts` |
+| Branch on an API error's code (`AUTH_ERROR_CODES`, slot taken) — **never render its message** | `processError` | `error.ts` |
+| What *kind* of failure a throw is (picks the copy and whether Retry can help) | `classifyError` | `error.ts` |
+| The friendly copy for an error, key or text (overrides → code → kind) | `resolveErrorCopyKey`, `resolveErrorText` | `error.ts` |
+| The original error as development details | `buildErrorDetails`, `formatErrorDetails` | `error.ts` |
+| Already-translated error copy that must survive to production | `UserFacingError` | `error.ts` |
+| Server Component: an API 404 → `notFound()` | `isNotFoundError` | `error.ts` |
+| antd's `validateFields` rejection (the one error a submit may drop) | `isFormValidationError` | `error.ts` |
 | PNG data URL of a string (booking QR) | `toQrDataUrl` | `qr.ts` |
 | Check a password against the shared policy | `checkPasswordPolicy` | `password.ts` |
 
@@ -120,6 +126,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 |---|---|
 | `commons.ts#sleep` | Timer |
 | `api.ts#getMockAsFakeAPI` | Unused one-line `Promise.resolve` |
+| `reportError.ts#reportError` | `console.error` — the one seam where a failure is *recorded*. Every deliberately silent catch goes through it, and a monitoring client belongs here and nowhere else |
 
 ## Dead code — do not extend
 

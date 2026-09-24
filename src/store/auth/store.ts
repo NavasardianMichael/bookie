@@ -5,6 +5,8 @@ import { completeGoogleAPI, getMeAPI, loginAPI, logoutAPI, registerAPI } from '@
 import { appendSelectors } from '@store/appendSelectors'
 import { Session } from '@interfaces/auth'
 import { SIGN_ON_STEPS } from '@constants/auth'
+import { classifyError, processError } from '@helpers/error'
+import { reportError } from '@helpers/reportError'
 import { errorMiddleware } from '@helpers/store'
 import { AuthActions, AuthState } from './types'
 
@@ -83,13 +85,20 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             }
           },
           getMe: async () => {
-            set({ isPending: true })
+            set({ isPending: true, error: null })
             try {
               const session = await getMeAPI()
               set(signedOn(session))
               return session
-            } catch {
-              // A missing or expired session is the expected answer for a guest, not a fault.
+            } catch (error) {
+              // A missing or expired session (401) is the expected answer for a guest, not
+              // a fault. Anything else — the API down, a 500, a timeout — also answers
+              // `null`, so the Header and every other caller keep working, but it is
+              // recorded in `error`: a caller that would otherwise bounce to sign-in
+              // (`AccountSettingsLayout`, the Google callback) must not send a signed-in
+              // user there in the middle of an outage.
+              const isGuest = classifyError(error).kind === 'unauthorized'
+              if (!isGuest) reportError(error, 'auth:getMe')
               set({
                 isSignedOn: false,
                 userType: null,
@@ -98,6 +107,7 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
                 lastName: null,
                 image: null,
                 email: null,
+                error: isGuest ? null : processError(error),
               })
               return null
             } finally {

@@ -4,8 +4,8 @@ import { FC, useState } from 'react'
 import { CopyOutlined, DownloadOutlined, LinkOutlined, QrcodeOutlined, ShareAltOutlined } from '@ant-design/icons'
 import { App, Image } from 'antd'
 import { useTranslations } from 'next-intl'
+import { useErrorToast } from '@hooks/useErrorToast'
 import { BookingSummaryData, formatBookingSummaryPlainText } from '@helpers/bookingSummary'
-import { processError } from '@helpers/error'
 import { toQrDataUrl } from '@helpers/qr'
 import { AppButton } from '@components/ui/AppButton'
 import { useBookingSummaryFields } from './BookingSummary'
@@ -13,16 +13,19 @@ import { useBookingSummaryFields } from './BookingSummary'
 type Props = {
   manageUrl: string
   booking: BookingSummaryData
+  /** Fired around QR generation so a parent sheet can lock dismissal for the same window. */
+  onPendingChange?: (pending: boolean) => void
 }
 
 const QR_FILENAME = 'booking-qr.png'
 
 const isAbort = (err: unknown): boolean => err instanceof DOMException && err.name === 'AbortError'
 
-export const BookingShareActions: FC<Props> = ({ manageUrl, booking }) => {
+export const BookingShareActions: FC<Props> = ({ manageUrl, booking, onPendingChange }) => {
   const t = useTranslations('Booking')
   const tCommon = useTranslations('Common')
   const { message } = App.useApp()
+  const toast = useErrorToast()
   const fields = useBookingSummaryFields(booking)
 
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -76,12 +79,14 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, booking }) => {
 
   const generateQr = async () => {
     setIsGenerating(true)
+    onPendingChange?.(true)
     try {
       setQrDataUrl(await toQrDataUrl(manageUrl))
     } catch (err) {
-      message.error(processError(err).message)
+      toast(err, { onRetry: () => void generateQr() })
     } finally {
       setIsGenerating(false)
+      onPendingChange?.(false)
     }
   }
 
@@ -95,12 +100,18 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, booking }) => {
 
   return (
     <div className='flex w-full flex-col gap-2'>
-      <AppButton className='w-full justify-start' icon={<ShareAltOutlined />} onClick={() => void shareUrl()}>
+      <AppButton
+        className='w-full justify-start'
+        icon={<ShareAltOutlined />}
+        disabled={isGenerating}
+        onClick={() => void shareUrl()}
+      >
         {t('shareBooking')}
       </AppButton>
       <AppButton
         className='w-full justify-start'
         icon={<LinkOutlined />}
+        disabled={isGenerating}
         onClick={() => void copyText(manageUrl)}
       >
         {t('copyBookingUrl')}
@@ -108,6 +119,7 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, booking }) => {
       <AppButton
         className='w-full justify-start'
         icon={<CopyOutlined />}
+        disabled={isGenerating}
         onClick={() => void copyText(formatBookingSummaryPlainText(fields))}
       >
         {t('copyBookingDetails')}
@@ -129,6 +141,7 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, booking }) => {
           <AppButton
             className='w-full justify-start'
             icon={<DownloadOutlined />}
+            disabled={isGenerating}
             onClick={() => downloadQr(qrDataUrl)}
           >
             {t('downloadQr')}
@@ -136,6 +149,7 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, booking }) => {
           <AppButton
             className='w-full justify-start'
             icon={<ShareAltOutlined />}
+            disabled={isGenerating}
             onClick={() => void shareQr(qrDataUrl)}
           >
             {t('shareQr')}

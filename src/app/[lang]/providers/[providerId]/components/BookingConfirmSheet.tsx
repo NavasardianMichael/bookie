@@ -1,6 +1,6 @@
 'use client'
 
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Alert, Form, Spin, Tooltip } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
@@ -117,11 +117,20 @@ export const BookingConfirmSheet: FC<Props> = ({
   onSubmit,
 }) => {
   const t = useTranslations('Booking')
+  const [sharePending, setSharePending] = useState(false)
+  // The sheet stays mounted while closed. A QR generation that outlives it must
+  // not lock the next open.
+  if (!open && sharePending) setSharePending(false)
 
   return (
-    <AppSheet open={open} onClose={onClose} title={created ? undefined : t('confirmTitle')}>
+    <AppSheet
+      open={open}
+      onClose={onClose}
+      title={created ? undefined : t('confirmTitle')}
+      pending={isBooking || isAuthPending || sharePending}
+    >
       {created && booking ? (
-        <BookingConfirmSuccess booking={booking} created={created} />
+        <BookingConfirmSuccess booking={booking} created={created} onSharePendingChange={setSharePending} />
       ) : isAuthPending || !booking ? (
         <div className='flex justify-center py-10'>
           <Spin />
@@ -144,9 +153,10 @@ export const BookingConfirmSheet: FC<Props> = ({
 type SuccessProps = {
   booking: BookingSummaryData
   created: BookingCreated
+  onSharePendingChange: (pending: boolean) => void
 }
 
-const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
+const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created, onSharePendingChange }) => {
   const t = useTranslations('Booking')
   const locale = useLocale() as Locale
   const managePath = generateEntityPath(ROUTE_KEYS.bookingManage, created.manageToken)
@@ -182,7 +192,7 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created }) => {
 
       <BookingSummary {...summary} />
 
-      <BookingShareActions manageUrl={manageUrl} booking={summary} />
+      <BookingShareActions manageUrl={manageUrl} booking={summary} onPendingChange={onSharePendingChange} />
     </div>
   )
 }
@@ -240,6 +250,7 @@ const BookingConfirmForm: FC<FormProps> = ({
       initialValues={{ paymentMethods: initiallyChecked }}
       onFinish={handleFinish}
       scrollToFirstError
+      disabled={isBooking}
       className='flex w-full flex-col gap-6'
     >
       <BookingSummary {...booking} paymentMethods={selectedMethods} />
@@ -248,7 +259,7 @@ const BookingConfirmForm: FC<FormProps> = ({
           and gets "we have passed this on" has been told the wrong thing by the button
           they pressed. */}
       {requiresApproval && (
-        <Alert type='info' showIcon message={t('approvalNoticeTitle')} description={t('approvalNoticeBody')} />
+        <Alert type='info' showIcon title={t('approvalNoticeTitle')} description={t('approvalNoticeBody')} />
       )}
 
       {needsGuestDetails && (
@@ -354,7 +365,9 @@ const BookingConfirmForm: FC<FormProps> = ({
             />
           </AppFormItem>
         </div>
-        {selectedMethods.includes('bank_transfer') ? <BankTransferDetails {...toPaymentShare(paymentInfo)} /> : null}
+        {selectedMethods.includes('bank_transfer') ? (
+          <BankTransferDetails {...toPaymentShare(paymentInfo)} disabled={isBooking} />
+        ) : null}
       </div>
 
       <div className='flex flex-col gap-1.5'>

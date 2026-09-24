@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Alert, Form } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
+import { Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { PaymentInfo } from '@interfaces/settings'
-import { processError } from '@helpers/error'
+import { isFormValidationError } from '@helpers/error'
 import { needsPublicShareConfirm, toPaymentMethods, toPaymentShare } from '@helpers/payment'
 import { toOptionalText } from '@helpers/registration'
 import { PaymentInfoFields } from '@components/settings/PaymentInfoFields'
@@ -13,6 +13,7 @@ import { SettingsActionBar, type SettingsPendingAction } from '@components/setti
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CreditCardIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
@@ -52,22 +53,41 @@ const toPayload = (values: PaymentInfo): PaymentInfo => ({
 
 export const ProviderPaymentsClient = () => {
   const t = useTranslations('Settings')
+  const tErrors = useTranslations('Errors')
   const [form] = Form.useForm<FormValues>()
   const [saved, setSaved] = useState<PaymentInfo>(DEFAULT)
   const [dirty, setDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const [loadError, setLoadError] = useState<unknown>(null)
+  const [revision, setRevision] = useState(0)
   const [pendingMode, setPendingMode] = useState<PersistMode | null>(null)
 
+  // `loading` is derived from the request's identity, never set at the top of the effect.
+  const request = useMemo(() => ({ revision }), [revision])
+  const [fulfilled, setFulfilled] = useState<object | null>(null)
+  const loading = fulfilled !== request
+
   useEffect(() => {
+    let cancelled = false
     void getProviderProfileAPI()
       .then((profile) => {
+        if (cancelled) return
         const info = readPaymentInfo(profile)
         setSaved(info)
         form.setFieldsValue({ paymentInfo: info })
+        setLoadError(null)
       })
-      .catch((err) => setError(processError(err).message))
-  }, [form])
+      .catch((err: unknown) => {
+        if (!cancelled) setLoadError(err)
+      })
+      .finally(() => {
+        if (!cancelled) setFulfilled(request)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [form, request])
 
   const persist = async (mode: PersistMode) => {
     const values = await form.validateFields()
@@ -89,15 +109,16 @@ export const ProviderPaymentsClient = () => {
   }
 
   const requestPersist = async (mode: PersistMode) => {
-    const values = await form.validateFields()
-    if (needsPublicShareConfirm(saved, values.paymentInfo)) {
-      setPendingMode(mode)
-      return
-    }
     try {
+      const values = await form.validateFields()
+      if (needsPublicShareConfirm(saved, values.paymentInfo)) {
+        setPendingMode(mode)
+        return
+      }
       await persist(mode)
     } catch (err) {
-      setError(processError(err).message)
+      // A field that failed its rules is already marked under that field.
+      if (!isFormValidationError(err)) setError(err)
     }
   }
 
@@ -113,8 +134,8 @@ export const ProviderPaymentsClient = () => {
 
   return (
     <div className='flex flex-col gap-6'>
-      <PageHeader title={t('nav.payments')} subtitle={t('payments.subtitle')} />
-      {error && <Alert type='error' showIcon message={error} />}
+      <PageHeader title={t('nav.payments')} subtitle={t('payments.subtitleGetPaid')} />
+      {error !== null && <ErrorAlert error={error} />}
 
       <Surface className='flex flex-col gap-6'>
         <div className='flex flex-col gap-1.5'>
@@ -125,30 +146,42 @@ export const ProviderPaymentsClient = () => {
           <AppParagraph size='body-sm'>{t('payments.hint')}</AppParagraph>
         </div>
 
-        <Form
-          form={form}
-          layout='vertical'
-          disabled={pendingAction !== null}
-          onValuesChange={() => setDirty(true)}
-          initialValues={{ paymentInfo: saved }}
-        >
-          <PaymentInfoFields disabled={pendingAction !== null} />
-        </Form>
+        {loadError !== null ? (
+          <ErrorAlert
+            error={loadError}
+            title={tErrors('pages.settings')}
+            onRetry={() => setRevision((current) => current + 1)}
+            retrying={loading}
+          />
+        ) : (
+          <Form
+            form={form}
+            layout='vertical'
+            disabled={pendingAction !== null}
+            onValuesChange={() => setDirty(true)}
+            initialValues={{ paymentInfo: saved }}
+          >
+            <PaymentInfoFields disabled={pendingAction !== null} />
+          </Form>
+        )}
       </Surface>
 
-      <SettingsActionBar
-        dirty={dirty}
-        pendingAction={pendingAction}
-        onDiscard={() => {
-          form.setFieldsValue({ paymentInfo: saved })
-          setDirty(false)
-        }}
-        onSaveDraft={() => void requestPersist('draft')}
-        onPublish={() => void requestPersist('publish')}
-        saveDraftLabel={t('actions.saveDraft')}
-        publishLabel={t('actions.publish')}
-        discardLabel={t('actions.discard')}
-      />
+      {/* No Save over settings that never loaded: it would write the empty defaults. */}
+      {loadError === null && (
+        <SettingsActionBar
+          dirty={dirty}
+          pendingAction={pendingAction}
+          onDiscard={() => {
+            form.setFieldsValue({ paymentInfo: saved })
+            setDirty(false)
+          }}
+          onSaveDraft={() => void requestPersist('draft')}
+          onPublish={() => void requestPersist('publish')}
+          saveDraftLabel={t('actions.saveDraft')}
+          publishLabel={t('actions.publish')}
+          discardLabel={t('actions.discard')}
+        />
+      )}
 
       <AppConfirmModal
         open={pendingMode !== null}

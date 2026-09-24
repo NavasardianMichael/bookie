@@ -49,7 +49,26 @@ gives you the envelope; the processor unwraps `.value`.
   `toFormData` also **drops `undefined` and `null`** while keeping `''`, so `''` is the only
   marker that means "clear this field" on both paths.
 - Errors surface as axios rejections. Do not inspect `data.error` inline — that is what
-  `src/helpers/error.ts#processError` is for.
+  `src/helpers/error.ts` is for: `classifyError` for what to show, `processError(e).code`
+  for branching on a code. How a failure is *displayed* is `src/components/CLAUDE.md`
+  → *Errors*.
+
+## What `axiosInstance.ts` does to every request
+
+- **A timeout.** `API_REQUEST_TIMEOUT_MS` (30 s) on everything; a multipart body is bumped
+  to `API_UPLOAD_TIMEOUT_MS` by the request interceptor, so the upload calls need not ask.
+  axios's default is no limit, which let a hung API hold a skeleton or a submit spinner
+  forever. A timeout classifies as `timeout` and offers Retry.
+- **A failed request names itself.** The response interceptor rewrites the error's
+  `message` to `[status] METHOD path — <envelope message>`. Only the development details
+  ever show it on the client; its real audience is a Server Component, whose error reaches
+  `error.tsx` as a message alone (and is stripped to a digest in production).
+- **A 401 is a dead session — except where it is not.** It full-page redirects to
+  account-type selection, *unless* the request is the guest probe (`/identity/me`), a
+  re-auth or token failure the page explains itself (change-password, change-email send and
+  confirm, delete-account), logout, a public booking write, or already under `/auth`. Add
+  to that list whenever an endpoint's 401 means "wrong password" or "bad link" rather than
+  "signed out" — the redirect replaces the one message that said what went wrong.
 
 ## The `React.cache` idiom for single-entity GETs
 

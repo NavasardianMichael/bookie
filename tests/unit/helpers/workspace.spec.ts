@@ -25,7 +25,7 @@ describe('workspaceOf', () => {
 
   it('recognises the consumer tree', () => {
     expect(workspaceOf(ROUTES.consumerProfile)).toBe('consumer')
-    expect(workspaceOf(ROUTES.consumerProfileAppointments)).toBe('consumer')
+    expect(workspaceOf(ROUTES.consumerProfileNotifications)).toBe('consumer')
   })
 
   // A prefix test must not match a sibling that merely starts with the same characters.
@@ -33,6 +33,16 @@ describe('workspaceOf', () => {
     expect(workspaceOf(ROUTES.providers)).toBeNull()
     expect(workspaceOf(ROUTES.home)).toBeNull()
     expect(workspaceOf(ROUTES.providerProfileCreation)).toBeNull()
+  })
+
+  /**
+   * Bookings and favourites are one page for the whole account, outside both settings
+   * trees. Claiming either would render the workspace switch above a page that has its
+   * own switch.
+   */
+  it('does not claim the account pages in the header', () => {
+    expect(workspaceOf(ROUTES.bookings)).toBeNull()
+    expect(workspaceOf(ROUTES.favorites)).toBeNull()
   })
 })
 
@@ -48,16 +58,22 @@ describe('counterpartPath', () => {
   })
 
   /**
-   * The two sides of one appointment. The slugs differ — `bookings` is what people book
-   * with you, `appointments` is what you booked with them — so this pairing exists only
-   * in the table and would be lost by any string rewrite of the path.
+   * The booking tabs used to be paired across the trees. They are 307 stubs to `/bookings`
+   * now, and a switch that pointed at one would bounce the visitor out of settings
+   * altogether, leaving the back button on a URL that redirects again.
    */
-  it('pairs the two booking views across the trees', () => {
-    expect(counterpartPath(ROUTES.providerProfileBookings, 'consumer')).toBe(ROUTES.consumerProfileAppointments)
-    expect(counterpartPath(ROUTES.providerProfileConsumerBookings, 'consumer')).toBe(
-      ROUTES.consumerProfileAppointments
-    )
-    expect(counterpartPath(ROUTES.consumerProfileAppointments, 'provider')).toBe(ROUTES.providerProfileBookings)
+  it('never points at a retired booking tab', () => {
+    const retired = [
+      ROUTES.providerProfileBookings,
+      ROUTES.providerProfileConsumerBookings,
+      ROUTES.consumerProfileAppointments,
+    ]
+    const sources = [...retired, ROUTES.providerProfile, ROUTES.consumerProfile, ROUTES.providerProfileNotifications]
+
+    for (const source of sources) {
+      expect(retired).not.toContain(counterpartPath(source, 'consumer'))
+      expect(retired).not.toContain(counterpartPath(source, 'provider'))
+    }
   })
 
   // The requested fallback: a tab with no meaning on the other side lands on its home.
@@ -96,13 +112,10 @@ describe('counterpartPath', () => {
     const sources = [
       ROUTES.providerProfile,
       ROUTES.providerProfileNotifications,
-      ROUTES.providerProfileBookings,
-      ROUTES.providerProfileConsumerBookings,
       ROUTES.providerProfilePayments,
       ROUTES.providerServices,
       ROUTES.consumerProfile,
       ROUTES.consumerProfileNotifications,
-      ROUTES.consumerProfileAppointments,
     ]
 
     for (const source of sources) {

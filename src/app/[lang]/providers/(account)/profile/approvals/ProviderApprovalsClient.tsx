@@ -1,15 +1,15 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Pagination } from 'antd'
+import { Pagination } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderBookingsAPI, patchBookingDecisionAPI } from '@api/appointments/main'
 import { BookingDecision, ProviderBooking } from '@api/appointments/types'
 import { useProviderApprovalsStore } from '@store/providers/approvals/store'
-import { processError } from '@helpers/error'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { EmptyState } from '@components/ui/EmptyState'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 import { ApprovalSettingCard } from './ApprovalSettingCard'
@@ -43,6 +43,7 @@ const PER_PAGE = 10
  */
 export const ProviderApprovalsClient = () => {
   const t = useTranslations('Settings.approvals')
+  const tErrors = useTranslations('Errors')
   const locale = useLocale()
   /**
    * The badge's number, written from here rather than re-read: this panel's own query
@@ -64,7 +65,7 @@ export const ProviderApprovalsClient = () => {
    */
   const [items, setItems] = useState<{ rows: ProviderBooking[]; asOf: number }>({ rows: [], asOf: 0 })
   const [total, setTotal] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const [deciding, setDeciding] = useState<{ booking: ProviderBooking; decision: BookingDecision } | null>(null)
   const [inFlight, setInFlight] = useState<{ id: string; decision: BookingDecision } | null>(null)
 
@@ -89,8 +90,8 @@ export const ProviderApprovalsClient = () => {
         // wrong — a superseded request's total is not the current one.
         setApprovalsCount({ count: result.total })
       })
-      .catch((err) => {
-        if (!cancelled) setError(processError(err).message)
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err)
       })
       .finally(() => {
         if (!cancelled) setFulfilled(query)
@@ -137,9 +138,11 @@ export const ProviderApprovalsClient = () => {
           {t('queueHint')}
         </AppParagraph>
 
-        {error && <Alert type='error' showIcon message={error} />}
-
-        {loading ? (
+        {/* A failed read replaces the rows as well as the empty state: the rows on hand
+            belong to the previous page or to a queue that has since been decided. */}
+        {error !== null ? (
+          <ErrorAlert error={error} onRetry={refetch} retrying={loading} />
+        ) : loading ? (
           <div className='bg-brand-50 min-h-64 animate-pulse rounded-brand' />
         ) : items.rows.length === 0 ? (
           <EmptyState title={t('emptyTitle')} description={t('emptyBody')} />
@@ -171,6 +174,7 @@ export const ProviderApprovalsClient = () => {
         description={deciding?.decision === 'reject' ? t('confirmRejectBody') : t('confirmApproveBody')}
         tone={deciding?.decision === 'reject' ? 'danger' : 'default'}
         onConfirm={handleConfirm}
+        errorOverrides={{ 409: tErrors('conflicts.decisionClosed') }}
         onCancel={() => setDeciding(null)}
       />
     </div>

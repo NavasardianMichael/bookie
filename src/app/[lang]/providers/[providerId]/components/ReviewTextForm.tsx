@@ -48,6 +48,7 @@ export const ReviewTextForm: FC<Props> = ({
       layout='vertical'
       onFinish={onSubmit}
       scrollToFirstError
+      disabled={isSubmitting}
       className='flex w-full flex-col gap-6'
     >
       <AppFormItem name='text' label={label} rules={rules}>

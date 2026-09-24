@@ -2,13 +2,13 @@
 
 import { FC, useCallback, useMemo, useState } from 'react'
 import { DeleteOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons'
-import { App, Button, Dropdown, Switch, Tag } from 'antd'
+import { Button, Dropdown, Switch, Tag } from 'antd'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
+import { useErrorToast } from '@hooks/useErrorToast'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
-import { processError } from '@helpers/error'
 import { resolveAssetUrl } from '@helpers/images'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -37,7 +37,7 @@ const MENU_KEYS = { edit: 'edit', delete: 'delete' } as const
  */
 export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onToggleActive }) => {
   const t = useTranslations('Services')
-  const { message } = App.useApp()
+  const showError = useErrorToast()
   const resolvedImage = resolveAssetUrl(service.image)
   const hasPrice = typeof service.price === 'number'
   const [isToggling, setIsToggling] = useState(false)
@@ -51,17 +51,18 @@ export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onTo
   )
 
   const handleToggle = useCallback(
-    async (active: boolean) => {
+    // Named so the toast's Try again can re-run the same toggle; setting `active` is idempotent.
+    async function toggle(active: boolean): Promise<void> {
       setIsToggling(true)
       try {
         await onToggleActive(service.id, active)
       } catch (error) {
-        message.error(processError(error).message)
+        showError(error, { key: `service-active-${service.id}`, onRetry: () => void toggle(active) })
       } finally {
         setIsToggling(false)
       }
     },
-    [message, onToggleActive, service.id]
+    [onToggleActive, service.id, showError]
   )
 
   const items = useMemo(

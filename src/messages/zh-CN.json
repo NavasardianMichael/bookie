@@ -31,7 +31,8 @@
     "nextPage": "下一页",
     "pageNumber": "第 {page} 页",
     "previousMonth": "上个月",
-    "nextMonth": "下个月"
+    "nextMonth": "下个月",
+    "reload": "重新加载页面"
   },
   "Nav": {
     "mainNavigation": "主导航",
@@ -47,7 +48,9 @@
     "signIn": "登录",
     "accountTypeSelection": "开始使用",
     "account": "账户",
-    "accountSettings": "账户设置"
+    "accountSettings": "账户设置",
+    "bookings": "预约",
+    "favorites": "收藏"
   },
   "Auth": {
     "continueWithGoogle": "使用 Google 继续",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "个人资料",
       "phone": "电话号码",
-      "appointments": "预约记录",
       "notifications": "通知",
       "payments": "收付款",
       "availability": "可预约时间",
       "services": "服务",
-      "bookings": "预约",
       "approvals": "审批",
       "analytics": "数据分析",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "你正在服务方工作区",
       "onProviderBody": "你的公开主页、服务项目，以及别人向你提交的预约。",
       "onConsumerTitle": "你正在客户个人资料",
-      "onConsumerBody": "你的个人信息，以及你向其他服务方提交的预约。",
+      "onConsumerBody": "你的个人信息、通知和付款偏好。",
       "toConsumer": "切换到客户资料",
       "toProvider": "切换到服务方工作区"
     },
@@ -354,7 +355,6 @@
       "updated": "电话号码已更新。"
     },
     "appointments": {
-      "title": "预约记录",
       "subtitle": "搜索、筛选并管理你的预约。",
       "upcoming": "即将到来",
       "emptyTitle": "暂无即将到来的预约",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "收付款",
-      "subtitle": "您在线下希望使用或收款的方式。",
+      "subtitlePay": "您在线下希望使用的付款方式。",
+      "subtitleGetPaid": "您在线下希望收款的方式。",
       "hint": "选择您接受的当面付款方式。您在此处填写的卡号或账号会显示在公开页面上。",
       "methodsLabel": "接受的支付方式",
       "cardOrAccountNumber": "卡号 / 账号",
@@ -461,9 +462,7 @@
       "cta": "联系支持"
     },
     "bookings": {
-      "title": "作为服务者的预约",
       "subtitle": "与您相关的所有过去和即将到来的预约。",
-      "asConsumerTitle": "作为客户的预约",
       "asConsumerSubtitle": "你向其他服务者预约的每一次预约，包括过去和即将到来的。",
       "emptyAsConsumerTitle": "还没有你自己的预约",
       "emptyAsConsumerBody": "当你预约其他服务者时，那些预约会出现在这里。",
@@ -507,6 +506,12 @@
       "confirmBody": "系统不会自动通知客户。您稍后可再修改状态。",
       "moreActions": "{name} 的操作",
       "reviewInApprovals": "前往审批处理",
+      "action": {
+        "confirmed": "确认",
+        "completed": "完成",
+        "cancelled": "取消",
+        "no_show": "记缺席"
+      },
       "status": {
         "pending": "待审批",
         "scheduled": "已预约",
@@ -594,18 +599,18 @@
       "seoTitleHint": "建议 30-60 个字符。留空则使用您的姓名和分类。",
       "seoTitlePlaceholder": "您的姓名和您所做的",
       "seoDescription": "元描述",
-      "seoDescriptionHint": "建议 70-160 个字符。留空则使用默认值。",
+      "seoDescriptionHint": "建议 70-160 个字符。如果为空，则使用默认值。",
       "seoDescriptionPlaceholder": "用一句话描述您提供的服务",
       "counter": "{count} / {max}",
       "tooLong": "最多 {max} 个字符。",
-      "previewLabel": "搜索结果预览",
+      "previewLabel": "社交分享卡片预览",
       "previewEmptyTitle": "您的页面标题",
       "previewEmptyDescription": "您的描述将显示在这里。",
       "fallbackWithOrganization": "预约 {name}（就职于 {organization}）。",
       "fallbackDescription": "预约 {name}。",
-      "vanityUrl": "短链接",
-      "vanityHint": "便于记忆的地址，可直达您的主页。更换后旧链接将失效。",
-      "slugLabel": "您的短链接",
+      "vanityUrl": "您的公开页面链接",
+      "copyLink": "复制链接",
+      "openPage": "打开页面",
       "slugHint": "{min}-{max} 个字符：小写字母、数字和连字符。",
       "slugPlaceholder": "your-business",
       "slugLength": "长度须在 {min} 到 {max} 个字符之间。",
@@ -626,6 +631,24 @@
       "hasAppointments": "您还有预约记录。请先取消后再删除账户。",
       "wrongPassword": "当前密码不正确"
     }
+  },
+  "Bookings": {
+    "title": "预约",
+    "viewLabel": "显示哪些预约",
+    "views": {
+      "provider": "别人向我预约",
+      "consumer": "我发起的预约"
+    }
+  },
+  "Favorites": {
+    "title": "收藏",
+    "subtitle": "你收藏的服务提供者，方便快速找到。",
+    "emptyTitle": "还没有收藏",
+    "emptyBody": "点击服务提供者卡片上的爱心，即可收藏到这里。",
+    "explore": "发现服务提供者",
+    "add": "收藏{name}",
+    "remove": "取消收藏{name}",
+    "signInToAdd": "登录后收藏{name}"
   },
   "Home": {
     "metaDescription": "在 Bookie 上寻找服务提供者和机构，预约合适的时间。",
@@ -873,7 +896,59 @@
     "notFoundBody": "您访问的页面不存在或已被移动。",
     "title": "出错了",
     "body": "无法加载该页面。请重试。",
-    "reference": "参考编号：{digest}"
+    "reference": "参考编号：{digest}",
+    "devDetails": "开发者详情",
+    "newVersionTitle": "有新版本可用",
+    "kinds": {
+      "offline": "你似乎已离线。请检查网络连接后重试。",
+      "network": "无法连接到 Bookie。请检查网络连接后重试。",
+      "timeout": "耗时比预期更长。请重试。",
+      "unauthorized": "你的会话已结束。请重新登录。",
+      "forbidden": "你没有访问此内容的权限。",
+      "notFound": "找不到你要查找的内容，它可能已被删除。",
+      "conflict": "由于情况已发生变化，操作未能完成。请刷新页面后重试。",
+      "validation": "部分信息未被接受。请检查后重试。",
+      "tooLarge": "文件太大。请选择较小的文件。",
+      "rateLimited": "尝试次数过多。请稍候再试。",
+      "unavailable": "Bookie 暂时不可用。请稍后重试。",
+      "server": "我们这边出了点问题。请重试。",
+      "staleBuild": "Bookie 已更新。请重新加载页面以继续。",
+      "unknown": "出了点问题。请重试。"
+    },
+    "codes": {
+      "invalidCredentials": "邮箱或密码不正确。",
+      "emailUnverified": "请先验证你的邮箱地址。验证链接已发送到你的收件箱。",
+      "passwordPolicy": "该密码不符合要求。",
+      "invalidToken": "此链接无效。请申请新链接以继续。",
+      "expiredToken": "此链接已过期。请申请新链接以继续。",
+      "googleOnlyAccount": "此账户使用 Google 登录。",
+      "reauthRequired": "当前密码不正确。",
+      "emailTaken": "该邮箱已注册账户。",
+      "hasAppointments": "你有预约记录。请先取消这些预约。",
+      "slotTaken": "该时间刚刚被预约。请另选一个时间。"
+    },
+    "pages": {
+      "provider": "无法加载该服务提供者的页面。请重试。",
+      "organization": "无法加载该机构。请重试。",
+      "categories": "无法加载分类。请重试。",
+      "category": "无法加载该分类。请重试。",
+      "booking": "无法加载该预约。请重试。",
+      "settings": "无法加载账户的这一部分。请重试。"
+    },
+    "sections": {
+      "load": "无法加载此部分。",
+      "busySlots": "无法确认哪些时间已被预约，因此部分时间可能已被占用。",
+      "organizationSearch": "暂时无法搜索机构。"
+    },
+    "conflicts": {
+      "bookingUnavailable": "该服务或时间已不可用。请另选一个。",
+      "bookingLocked": "此预约已无法更改。",
+      "decisionClosed": "此预约已被处理，或其时间已过。请刷新列表查看当前状态。",
+      "pageHasAppointments": "此页面有已预约的服务，暂时无法删除。",
+      "serviceHasAppointments": "此服务有已预约的记录，无法删除。你可以改为停用它。",
+      "slugTaken": "该链接已被占用或保留。请另选一个。",
+      "alreadyReviewed": "你已评价过这次预约。"
+    }
   },
   "Admin": {
     "metaTitle": "评价审核",

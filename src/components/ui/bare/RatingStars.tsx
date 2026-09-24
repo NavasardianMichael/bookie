@@ -37,18 +37,19 @@ const STAR_COUNT = 5
  * client form; this is for showing one.
  *
  * A partial star is drawn by overlaying a clipped gold row on a grey one, rather than by
- * picking a half-star glyph: 4.3 renders as 4.3, and the two rows are the same path at
- * the same position, so they cannot drift apart at any size.
+ * picking a half-star glyph: 4.3 renders as 4.3. The gold row is `w-max` and each star
+ * `shrink-0`: the clip is narrower than five stars, and a normal flex row would compress
+ * its glyphs to fit that box, leaving the full-size grey star showing around every gold one.
  */
 export const RatingStars: FC<RatingStarsProps> = ({ value, size = 'md', label, className }) => {
   // Clamped because this renders an average straight off the API, and a value outside
   // 0–5 would set a CSS width over 100% — silently painting a sixth star's worth of gold
   // past the end of the row.
   const clamped = Math.max(0, Math.min(STAR_COUNT, value))
-  const starClass = SIZE[size]
+  const starClass = cn(SIZE[size], 'block shrink-0')
 
   const row = (tone: string) => (
-    <span className={cn('flex', tone)}>
+    <span className={cn('flex w-max', tone)}>
       {Array.from({ length: STAR_COUNT }, (_, index) => (
         <StarIcon key={index} className={starClass} />
       ))}
@@ -66,10 +67,11 @@ export const RatingStars: FC<RatingStarsProps> = ({ value, size = 'md', label, c
     >
       {row('text-rating-empty')}
       <span
-        className='absolute inset-0 overflow-hidden'
+        className='absolute inset-y-0 start-0 overflow-hidden'
         // Inline because the width is a datum, not a design decision — it is the rating
         // itself. There is no Tailwind class for "86%", and an arbitrary-value class
-        // would be a new one compiled per distinct average.
+        // would be a new one compiled per distinct average. `start-0` rather than
+        // `inset-0`: that also sets the end edge, which fights this width.
         style={{ width: `${(clamped / STAR_COUNT) * 100}%` }}
       >
         {row('text-rating')}

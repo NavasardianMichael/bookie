@@ -1,16 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { Alert, Divider, Form } from 'antd'
+import { Divider, Form } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
 import { toPhoneNumber } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { MailIcon, UserIcon } from '@components/ui/icons'
 import { GoogleButton } from '../components/GoogleButton'
 import { NewPasswordFields } from '../components/NewPasswordFields'
@@ -54,7 +54,7 @@ export const ConsumerRegistrationForm: React.FC = () => {
   const [form] = Form.useForm<ConsumerRegistrationFormValues>()
   const register = useAuthStore.use.register()
   const isPending = useAuthStore.use.isPending()
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<unknown>(null)
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const emailRules = useFormItemRules('required', 'email')
@@ -78,7 +78,7 @@ export const ConsumerRegistrationForm: React.FC = () => {
     } catch (error) {
       // Staying put matters: navigating on a failed request would strand the user on a
       // "check your inbox" screen waiting for mail that was never sent.
-      setSubmitError(processError(error).message)
+      setSubmitError(error)
     }
   }
 
@@ -103,7 +103,7 @@ export const ConsumerRegistrationForm: React.FC = () => {
         scrollToFirstError
         className='flex w-full flex-col gap-5'
       >
-        {submitError && <Alert type='error' showIcon message={submitError} />}
+        {submitError !== null && <ErrorAlert error={submitError} />}
 
         <RegistrationField
           name='firstName'

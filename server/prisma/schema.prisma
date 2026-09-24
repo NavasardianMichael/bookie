@@ -109,6 +109,7 @@ model User {
   updatedAt                  DateTime     @updatedAt
   consumer                   Consumer?
   provider                   Provider?
+  favorites                  FavoriteProvider[]
 }
 
 model Category {
@@ -340,18 +341,35 @@ model Consumer {
   paymentInfo            Json?
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
-  favorites              FavoriteProvider[]
   appointments           Appointment[]
   reviews                Review[]
 }
 
+/// A provider an **account** has saved to find again — the heart on a provider card and
+/// the `/favorites` page.
+///
+/// Keyed on `User`, not `Consumer`. It used to be the latter, which made the feature
+/// unreachable for exactly the people who browse other providers most: a provider holds
+/// no Consumer row until they book someone (`resolveConsumerId`), so a Consumer key would
+/// have meant either refusing them or minting a Consumer profile as a side effect of a
+/// click. Neither a favourite nor its owner is a party to a booking, so the account is
+/// the honest owner.
+///
+/// Nobody may favourite their own page: `routes/favorites.ts` refuses a row whose
+/// provider belongs to the caller's own `User`, and the migration that re-keyed this
+/// table dropped the ones that already did.
 model FavoriteProvider {
-  consumerId String
+  userId     String
   providerId String
-  consumer   Consumer @relation(fields: [consumerId], references: [id], onDelete: Cascade)
+  /// The `/favorites` page lists newest first.
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
-  @@unique([consumerId, providerId])
+  /// A composite primary key, matching what the table has always had in the database.
+  /// The schema used to declare only `@@unique`, which `prisma migrate diff` reported as
+  /// drift on every run.
+  @@id([userId, providerId])
 }
 
 model Appointment {

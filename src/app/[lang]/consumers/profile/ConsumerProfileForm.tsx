@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Form } from 'antd'
+import { Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI, putConsumerProfileAPI } from '@api/consumers/main'
 import { Consumer } from '@store/consumers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { PaymentMethod } from '@interfaces/settings'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { isFormValidationError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
 import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
@@ -22,6 +22,7 @@ import { AppInput } from '@components/ui/AppInput'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CreditCardIcon, HelpIcon, UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
@@ -46,12 +47,16 @@ const paymentFromProfile = (profile: Consumer): ProfileFormValues['paymentInfo']
 
 export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
   const t = useTranslations('Settings')
+  const tErrors = useTranslations('Errors')
   const [form] = Form.useForm<ProfileFormValues>()
   const [profile, setProfile] = useState<Consumer | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<unknown>(null)
+  /** Bumped by Retry to ask for the profile again. */
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
 
   useEffect(() => {
@@ -68,7 +73,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
           paymentInfo: paymentFromProfile(data),
         })
       } catch (err) {
-        if (!cancelled) setError(processError(err).message)
+        if (!cancelled) setLoadError(err)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -76,7 +81,13 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
     return () => {
       cancelled = true
     }
-  }, [form])
+  }, [form, loadAttempt])
+
+  const retryLoad = () => {
+    setLoadError(null)
+    setLoading(true)
+    setLoadAttempt((attempt) => attempt + 1)
+  }
 
   const handleDiscard = () => {
     if (!profile) return
@@ -90,9 +101,17 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
   }
 
   const handleSave = async () => {
-    const values = await form.validateFields()
-    setSaving(true)
     setError(null)
+    let values: ProfileFormValues
+    try {
+      values = await form.validateFields()
+    } catch (err) {
+      // A failed rule is already shown under its field; anything else is not.
+      if (!isFormValidationError(err)) setError(err)
+      return
+    }
+
+    setSaving(true)
     try {
       const updated = await putConsumerProfileAPI({
         firstName: values.firstName,
@@ -110,7 +129,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
       )
       setDirty(false)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setSaving(false)
     }
@@ -124,11 +143,21 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
     return <Surface className='min-h-64 animate-pulse' />
   }
 
+  // No form to fall back to: empty fields under a live Save would overwrite the real profile.
+  if (loadError !== null) {
+    return (
+      <div className='flex flex-col gap-6'>
+        <PageHeader title={t('accountSettings')} subtitle={t('consumerSubtitle')} />
+        <ErrorAlert error={loadError} title={tErrors('pages.settings')} onRetry={retryLoad} />
+      </div>
+    )
+  }
+
   return (
     <div className='flex flex-col gap-6'>
       <PageHeader title={t('accountSettings')} subtitle={t('consumerSubtitle')} />
 
-      {error && <Alert type='error' showIcon message={error} />}
+      {error !== null && <ErrorAlert error={error} />}
 
       <Form
         form={form}
@@ -207,7 +236,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
               <CreditCardIcon className='text-brand h-5 w-5' />
               {t('payments.title')}
             </AppTitle>
-            <AppParagraph size='body-sm'>{t('payments.subtitle')}</AppParagraph>
+            <AppParagraph size='body-sm'>{t('payments.subtitlePay')}</AppParagraph>
           </div>
           <div className='flex flex-col gap-1.5'>
             <FieldLabel htmlFor='consumer-payment-methods'>{t('payments.methodsLabel')}</FieldLabel>

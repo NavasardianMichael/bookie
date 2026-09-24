@@ -6,10 +6,10 @@ import { useTranslations } from 'next-intl'
 import { useProviderApprovalsStore } from '@store/providers/approvals/store'
 import { ROUTE_KEYS } from '@constants/routes'
 import { PROVIDER_SETTINGS_NAV, toSettingsNavItems } from '@constants/settings'
+import { reportError } from '@helpers/reportError'
 import { AccountSettingsLayout } from '@components/settings/AccountSettingsLayout'
 import {
   BellIcon,
-  CalendarIcon,
   ChartIcon,
   CheckCircleIcon,
   ClockIcon,
@@ -39,7 +39,9 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
    * fetch can be acted on.
    */
   useEffect(() => {
-    void getPendingApprovalsCount().catch(() => undefined)
+    // A badge is decoration: a failed count leaves the last one (or none) and is recorded,
+    // not announced — the Approvals tab itself shows the real queue and its errors.
+    void getPendingApprovalsCount().catch((error: unknown) => reportError(error, 'ProviderSettingsLayout:approvalsBadge'))
   }, [getPendingApprovalsCount])
 
   const items = useMemo(
@@ -48,7 +50,6 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
         PROVIDER_SETTINGS_NAV,
         {
           [ROUTE_KEYS.providerProfile]: t('nav.profile'),
-          [ROUTE_KEYS.providerProfileBookings]: t('nav.bookings'),
           /**
            * antd `Badge` composed here rather than inside `SettingsShell`, which is
            * antd-free by contract (`src/components/CLAUDE.md`). This file is already a
@@ -81,7 +82,6 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
         },
         {
           [ROUTE_KEYS.providerProfile]: <UserIcon className='h-5 w-5' />,
-          [ROUTE_KEYS.providerProfileBookings]: <CalendarIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileApprovals]: <CheckCircleIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileAnalytics]: <ChartIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileAvailability]: <ClockIcon className='h-5 w-5' />,

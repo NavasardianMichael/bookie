@@ -31,7 +31,8 @@
     "nextPage": "Página siguiente",
     "pageNumber": "Página {page}",
     "previousMonth": "Mes anterior",
-    "nextMonth": "Mes siguiente"
+    "nextMonth": "Mes siguiente",
+    "reload": "Recargar página"
   },
   "Nav": {
     "mainNavigation": "Navegación principal",
@@ -47,7 +48,9 @@
     "signIn": "Iniciar sesión",
     "accountTypeSelection": "Empezar",
     "account": "Cuenta",
-    "accountSettings": "Ajustes de la cuenta"
+    "accountSettings": "Ajustes de la cuenta",
+    "bookings": "Reservas",
+    "favorites": "Favoritos"
   },
   "Auth": {
     "continueWithGoogle": "Continuar con Google",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "Perfil",
       "phone": "Teléfono",
-      "appointments": "Citas",
       "notifications": "Notificaciones",
       "payments": "Pagos",
       "availability": "Disponibilidad",
       "services": "Servicios",
-      "bookings": "Reservas",
       "approvals": "Aprobaciones",
       "analytics": "Analíticas",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "Estás en tu espacio de profesional",
       "onProviderBody": "Tu página pública, tus servicios y las reservas que te hacen.",
       "onConsumerTitle": "Estás en tu perfil de cliente",
-      "onConsumerBody": "Tus datos y las reservas que hiciste con otros profesionales.",
+      "onConsumerBody": "Tus datos, tus notificaciones y tus preferencias de pago.",
       "toConsumer": "Cambiar al perfil de cliente",
       "toProvider": "Cambiar al espacio de profesional"
     },
@@ -354,7 +355,6 @@
       "updated": "Número de teléfono actualizado."
     },
     "appointments": {
-      "title": "Citas",
       "subtitle": "Busca, filtra y gestiona tus reservas.",
       "upcoming": "Próximas",
       "emptyTitle": "No tienes citas próximas",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "Pagos",
-      "subtitle": "Cómo prefieres pagar o cobrar en persona.",
+      "subtitlePay": "Cómo prefieres pagar en persona.",
+      "subtitleGetPaid": "Cómo prefieres cobrar en persona.",
       "hint": "Elige los métodos presenciales que aceptas. El número de tarjeta o de cuenta que añadas aquí aparece en tu página pública.",
       "methodsLabel": "Métodos aceptados",
       "cardOrAccountNumber": "Número de tarjeta o de cuenta",
@@ -461,9 +462,7 @@
       "cta": "Contactar con soporte"
     },
     "bookings": {
-      "title": "Reservas como profesional",
       "subtitle": "Todas las citas reservadas contigo, pasadas y próximas.",
-      "asConsumerTitle": "Reservas como cliente",
       "asConsumerSubtitle": "Cada cita que reservaste con otro profesional, pasadas y próximas.",
       "emptyAsConsumerTitle": "Aún no tienes reservas propias",
       "emptyAsConsumerBody": "Cuando reserves con otro profesional, esas citas aparecerán aquí.",
@@ -507,6 +506,12 @@
       "confirmBody": "El cliente no recibe un aviso automático. Puedes cambiar el estado de nuevo más adelante.",
       "moreActions": "Acciones para {name}",
       "reviewInApprovals": "Revisar en Aprobaciones",
+      "action": {
+        "confirmed": "Confirmar",
+        "completed": "Completar",
+        "cancelled": "Cancelar",
+        "no_show": "Faltar"
+      },
       "status": {
         "pending": "Pendiente de aprobación",
         "scheduled": "Programada",
@@ -594,18 +599,18 @@
       "seoTitleHint": "Apunta a entre 30 y 60 caracteres. Déjalo vacío para usar tu nombre y categorías.",
       "seoTitlePlaceholder": "Tu nombre y a qué te dedicas",
       "seoDescription": "Meta descripción",
-      "seoDescriptionHint": "Apunta a entre 70 y 160 caracteres. Déjalo vacío para usar la predeterminada.",
+      "seoDescriptionHint": "Apunta a entre 70 y 160 caracteres. Si está vacío, se usa la predeterminada.",
       "seoDescriptionPlaceholder": "Una frase que describa lo que ofreces",
       "counter": "{count} de {max}",
       "tooLong": "Debe tener {max} caracteres o menos.",
-      "previewLabel": "Vista previa del resultado de búsqueda",
+      "previewLabel": "Vista previa de la tarjeta social",
       "previewEmptyTitle": "Título de tu página",
       "previewEmptyDescription": "Tu descripción aparecerá aquí.",
       "fallbackWithOrganization": "Reserva una cita con {name}, que trabaja en {organization}.",
       "fallbackDescription": "Reserva una cita con {name}.",
-      "vanityUrl": "Enlace corto",
-      "vanityHint": "Una dirección fácil de recordar que abre tu perfil. Cambiarla deja de servir la anterior.",
-      "slugLabel": "Tu enlace",
+      "vanityUrl": "Enlace de tu página pública",
+      "copyLink": "Copiar enlace",
+      "openPage": "Abrir página",
       "slugHint": "De {min} a {max} caracteres: letras minúsculas, números y guiones.",
       "slugPlaceholder": "your-business",
       "slugLength": "Debe tener entre {min} y {max} caracteres.",
@@ -626,6 +631,24 @@
       "hasAppointments": "Tienes citas registradas. Cancélalas antes de eliminar tu cuenta.",
       "wrongPassword": "La contraseña actual es incorrecta"
     }
+  },
+  "Bookings": {
+    "title": "Reservas",
+    "viewLabel": "Qué reservas mostrar",
+    "views": {
+      "provider": "Reservadas conmigo",
+      "consumer": "Hechas por mí"
+    }
+  },
+  "Favorites": {
+    "title": "Favoritos",
+    "subtitle": "Profesionales que guardaste para encontrarlos rápido.",
+    "emptyTitle": "Aún no tienes favoritos",
+    "emptyBody": "Toca el corazón en la tarjeta de un profesional para guardarlo aquí.",
+    "explore": "Explorar profesionales",
+    "add": "Añadir a {name} a favoritos",
+    "remove": "Quitar a {name} de favoritos",
+    "signInToAdd": "Inicia sesión para añadir a {name} a favoritos"
   },
   "Home": {
     "metaDescription": "Encuentra profesionales y organizaciones en Bookie, y reserva una hora que te venga bien.",
@@ -873,7 +896,59 @@
     "notFoundBody": "La página que buscas no existe o se ha movido.",
     "title": "Algo ha ido mal",
     "body": "No pudimos cargar esta página. Vuelve a intentarlo.",
-    "reference": "Referencia: {digest}"
+    "reference": "Referencia: {digest}",
+    "devDetails": "Detalles para desarrolladores",
+    "newVersionTitle": "Hay una nueva versión disponible",
+    "kinds": {
+      "offline": "Parece que no tienes conexión. Revísala y vuelve a intentarlo.",
+      "network": "No pudimos conectar con Bookie. Revisa tu conexión y vuelve a intentarlo.",
+      "timeout": "Está tardando más de lo normal. Vuelve a intentarlo.",
+      "unauthorized": "Tu sesión ha terminado. Vuelve a iniciar sesión.",
+      "forbidden": "No tienes acceso a esto.",
+      "notFound": "No encontramos lo que buscabas. Puede que se haya eliminado.",
+      "conflict": "No se pudo completar porque algo ha cambiado. Recarga la página y vuelve a intentarlo.",
+      "validation": "Algunos datos no se aceptaron. Revísalos y vuelve a intentarlo.",
+      "tooLarge": "Es demasiado grande. Elige un archivo más pequeño.",
+      "rateLimited": "Demasiados intentos. Espera un momento y vuelve a intentarlo.",
+      "unavailable": "Bookie no está disponible temporalmente. Vuelve a intentarlo en un momento.",
+      "server": "Algo salió mal por nuestra parte. Vuelve a intentarlo.",
+      "staleBuild": "Bookie se ha actualizado. Recarga la página para continuar.",
+      "unknown": "Algo salió mal. Vuelve a intentarlo."
+    },
+    "codes": {
+      "invalidCredentials": "El correo o la contraseña no son correctos.",
+      "emailUnverified": "Primero confirma tu correo electrónico. Busca el enlace en tu bandeja de entrada.",
+      "passwordPolicy": "Esa contraseña no cumple los requisitos.",
+      "invalidToken": "Este enlace no es válido. Solicita uno nuevo para continuar.",
+      "expiredToken": "Este enlace ha caducado. Solicita uno nuevo para continuar.",
+      "googleOnlyAccount": "Esta cuenta inicia sesión con Google.",
+      "reauthRequired": "La contraseña actual es incorrecta.",
+      "emailTaken": "Ya existe una cuenta con este correo.",
+      "hasAppointments": "Tienes citas registradas. Cancélalas primero.",
+      "slotTaken": "Esa hora se acaba de reservar. Elige otra."
+    },
+    "pages": {
+      "provider": "No pudimos cargar la página de este profesional. Vuelve a intentarlo.",
+      "organization": "No pudimos cargar esta organización. Vuelve a intentarlo.",
+      "categories": "No pudimos cargar las categorías. Vuelve a intentarlo.",
+      "category": "No pudimos cargar esta categoría. Vuelve a intentarlo.",
+      "booking": "No pudimos cargar esta reserva. Vuelve a intentarlo.",
+      "settings": "No pudimos cargar esta parte de tu cuenta. Vuelve a intentarlo."
+    },
+    "sections": {
+      "load": "No se pudo cargar esta sección.",
+      "busySlots": "No pudimos comprobar qué horas ya están reservadas, así que algunas podrían estar ocupadas.",
+      "organizationSearch": "No podemos buscar organizaciones en este momento."
+    },
+    "conflicts": {
+      "bookingUnavailable": "Ese servicio u horario ya no está disponible. Elige otro.",
+      "bookingLocked": "Esta reserva ya no se puede modificar.",
+      "decisionClosed": "Esta reserva ya se decidió o su hora ya pasó. Recarga la lista para ver su estado.",
+      "pageHasAppointments": "Esta página tiene citas reservadas, así que todavía no se puede eliminar.",
+      "serviceHasAppointments": "Este servicio tiene citas reservadas, así que no se puede eliminar. Puedes desactivarlo en su lugar.",
+      "slugTaken": "Ese enlace ya está en uso o reservado. Elige otro.",
+      "alreadyReviewed": "Ya has valorado esta visita."
+    }
   },
   "Admin": {
     "metaTitle": "Moderación de opiniones",

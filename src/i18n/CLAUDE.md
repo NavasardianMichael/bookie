@@ -4,8 +4,10 @@
 and every URL names its language (`/en/providers`, `/es/providers`). Message catalogues
 live in `src/messages/<locale>.json`, one file per locale, `en.json` is the source of truth.
 Non-auth namespaces: `Language`, `Common`, `Nav`, `Booking`, `Footer`, `Contact`, `Settings`,
-`Home`, `Explore`, `Categories`, `Organizations`, `Provider`, `Legal`, `Services`,
-`ProfileCreation`, `Validation`, `Errors`. Auth screens still hardcode copy except
+`Bookings`, `Favorites`, `Home`, `Explore`, `Categories`, `Organizations`, `Provider`, `Legal`,
+`Services`, `ProfileCreation`, `Validation`, `Errors`. `Bookings` holds only the `/bookings`
+page's own chrome (title, view switch); its panels still read `Settings.bookings` and
+`Settings.appointments`, from when they were settings tabs. Auth screens still hardcode copy except
 `Auth.validation` (password policy), `Validation` (shared field rules), and
 `/auth/provider-registration`, whose chrome lives in `Auth.providerRegistration`.
 `Validation.required` uses next-intl `{label}`; `useFormItemRules` fills it with
@@ -47,6 +49,12 @@ pin.
 **Never import `next/link` or `next/navigation` directly for an internal destination** —
 use `@i18n/navigation` (`Link`, `redirect`, `usePathname`, `useRouter`), which adds and
 strips the prefix. `AppLink` already does this, so most call sites get it for free.
+
+**A retired URL gets `localeRedirect(target)`** (`routeRedirect.ts`), a `GET` Route Handler
+factory that 307s to `target` in the caller's locale, falling back to `DEFAULT_LOCALE` for a
+segment that is not one. The four old booking tabs use it. It is a Route Handler because a
+`page.tsx` redirect inside a streaming layout arrives as a soft client navigation with no
+`Location`.
 
 ## Resolution order
 

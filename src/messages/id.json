@@ -31,7 +31,8 @@
     "nextPage": "Halaman berikutnya",
     "pageNumber": "Halaman {page}",
     "previousMonth": "Bulan sebelumnya",
-    "nextMonth": "Bulan berikutnya"
+    "nextMonth": "Bulan berikutnya",
+    "reload": "Muat ulang halaman"
   },
   "Nav": {
     "mainNavigation": "Navigasi utama",
@@ -47,7 +48,9 @@
     "signIn": "Masuk",
     "accountTypeSelection": "Mulai",
     "account": "Akun",
-    "accountSettings": "Pengaturan akun"
+    "accountSettings": "Pengaturan akun",
+    "bookings": "Pemesanan",
+    "favorites": "Favorit"
   },
   "Auth": {
     "continueWithGoogle": "Lanjutkan dengan Google",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "Profil",
       "phone": "Telepon",
-      "appointments": "Janji Temu",
       "notifications": "Notifikasi",
       "payments": "Pembayaran",
       "availability": "Ketersediaan",
       "services": "Layanan",
-      "bookings": "Pemesanan",
       "approvals": "Persetujuan",
       "analytics": "Analitik",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "Anda berada di ruang kerja penyedia",
       "onProviderBody": "Halaman publik, layanan, dan pemesanan yang masuk kepada Anda.",
       "onConsumerTitle": "Anda berada di profil klien",
-      "onConsumerBody": "Data Anda sendiri dan pemesanan yang Anda buat dengan penyedia lain.",
+      "onConsumerBody": "Data Anda sendiri, notifikasi, dan preferensi pembayaran.",
       "toConsumer": "Beralih ke profil klien",
       "toProvider": "Beralih ke ruang kerja penyedia"
     },
@@ -354,7 +355,6 @@
       "updated": "Nomor telepon diperbarui."
     },
     "appointments": {
-      "title": "Janji Temu",
       "subtitle": "Cari, filter, dan kelola pemesanan Anda.",
       "upcoming": "Akan datang",
       "emptyTitle": "Tidak ada janji temu yang akan datang",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "Pembayaran",
-      "subtitle": "Bagaimana Anda ingin membayar atau menerima pembayaran secara langsung.",
+      "subtitlePay": "Bagaimana Anda ingin membayar secara langsung.",
+      "subtitleGetPaid": "Bagaimana Anda ingin menerima pembayaran secara langsung.",
       "hint": "Pilih metode pembayaran tatap muka yang Anda terima. Nomor kartu dan rekening yang Anda tambahkan di sini muncul di halaman publik Anda.",
       "methodsLabel": "Metode yang diterima",
       "cardOrAccountNumber": "Nomor kartu / Nomor rekening",
@@ -461,9 +462,7 @@
       "cta": "Hubungi Dukungan"
     },
     "bookings": {
-      "title": "Pemesanan sebagai penyedia",
       "subtitle": "Setiap janji temu yang dipesan dengan Anda, lampau dan akan datang.",
-      "asConsumerTitle": "Pemesanan sebagai klien",
       "asConsumerSubtitle": "Setiap janji yang Anda pesan dengan penyedia lain, yang lalu dan yang akan datang.",
       "emptyAsConsumerTitle": "Belum ada pemesanan milik Anda",
       "emptyAsConsumerBody": "Saat Anda memesan penyedia lain, janji itu muncul di sini.",
@@ -507,6 +506,12 @@
       "confirmBody": "Klien tidak diberi tahu secara otomatis. Anda dapat mengubah status lagi nanti.",
       "moreActions": "Aksi untuk {name}",
       "reviewInApprovals": "Tinjau di Persetujuan",
+      "action": {
+        "confirmed": "Konfirmasi",
+        "completed": "Selesaikan",
+        "cancelled": "Batalkan",
+        "no_show": "Tandai tidak hadir"
+      },
       "status": {
         "pending": "Menunggu persetujuan",
         "scheduled": "Terjadwal",
@@ -594,18 +599,18 @@
       "seoTitleHint": "Targetkan 30–60 karakter. Kosongkan untuk menggunakan nama dan kategori Anda.",
       "seoTitlePlaceholder": "Nama Anda dan yang Anda kerjakan",
       "seoDescription": "Deskripsi meta",
-      "seoDescriptionHint": "Targetkan 70–160 karakter. Kosongkan untuk menggunakan deskripsi bawaan.",
+      "seoDescriptionHint": "Targetkan 70–160 karakter. Jika kosong, deskripsi bawaan yang digunakan.",
       "seoDescriptionPlaceholder": "Satu kalimat yang menjelaskan apa yang Anda tawarkan",
       "counter": "{count} dari {max}",
       "tooLong": "Harus {max} karakter atau kurang.",
-      "previewLabel": "Pratinjau hasil pencarian",
+      "previewLabel": "Pratinjau kartu sosial",
       "previewEmptyTitle": "Judul halaman Anda",
       "previewEmptyDescription": "Deskripsi Anda muncul di sini.",
       "fallbackWithOrganization": "Pesan janji temu dengan {name}, yang bekerja di {organization}.",
       "fallbackDescription": "Pesan janji temu dengan {name}.",
-      "vanityUrl": "Tautan pendek",
-      "vanityHint": "Alamat yang mudah diingat yang membuka profil Anda. Mengubahnya menonaktifkan yang lama.",
-      "slugLabel": "Tautan Anda",
+      "vanityUrl": "Tautan halaman publik Anda",
+      "copyLink": "Salin tautan",
+      "openPage": "Buka halaman",
       "slugHint": "{min}–{max} karakter: huruf kecil, angka, dan tanda hubung.",
       "slugPlaceholder": "your-business",
       "slugLength": "Harus antara {min} dan {max} karakter.",
@@ -626,6 +631,24 @@
       "hasAppointments": "Anda memiliki janji temu. Batalkan dulu sebelum menghapus akun.",
       "wrongPassword": "Kata sandi saat ini salah"
     }
+  },
+  "Bookings": {
+    "title": "Pemesanan",
+    "viewLabel": "Pemesanan yang ditampilkan",
+    "views": {
+      "provider": "Dipesan pada saya",
+      "consumer": "Dipesan oleh saya"
+    }
+  },
+  "Favorites": {
+    "title": "Favorit",
+    "subtitle": "Penyedia yang Anda simpan agar mudah ditemukan lagi.",
+    "emptyTitle": "Belum ada favorit",
+    "emptyBody": "Ketuk ikon hati di kartu penyedia untuk menyimpannya di sini.",
+    "explore": "Jelajahi penyedia",
+    "add": "Tambahkan {name} ke favorit",
+    "remove": "Hapus {name} dari favorit",
+    "signInToAdd": "Masuk untuk menambahkan {name} ke favorit"
   },
   "Home": {
     "metaDescription": "Temukan penyedia dan organisasi di Bookie, lalu pesan waktu yang cocok.",
@@ -873,7 +896,59 @@
     "notFoundBody": "Halaman yang Anda cari tidak ada atau telah dipindahkan.",
     "title": "Ada yang tidak beres",
     "body": "Kami tidak dapat memuat halaman ini. Silakan coba lagi.",
-    "reference": "Referensi: {digest}"
+    "reference": "Referensi: {digest}",
+    "devDetails": "Detail untuk developer",
+    "newVersionTitle": "Versi baru tersedia",
+    "kinds": {
+      "offline": "Sepertinya Anda sedang offline. Periksa koneksi Anda lalu coba lagi.",
+      "network": "Kami tidak dapat menghubungi Bookie. Periksa koneksi Anda lalu coba lagi.",
+      "timeout": "Ini memakan waktu lebih lama dari seharusnya. Silakan coba lagi.",
+      "unauthorized": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+      "forbidden": "Anda tidak memiliki akses ke sini.",
+      "notFound": "Kami tidak dapat menemukan yang Anda cari. Mungkin sudah dihapus.",
+      "conflict": "Tidak dapat diselesaikan karena ada yang berubah. Muat ulang halaman lalu coba lagi.",
+      "validation": "Beberapa data tidak diterima. Silakan periksa lalu coba lagi.",
+      "tooLarge": "Ukurannya terlalu besar. Silakan pilih file yang lebih kecil.",
+      "rateLimited": "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",
+      "unavailable": "Bookie sedang tidak tersedia untuk sementara. Silakan coba lagi sebentar lagi.",
+      "server": "Terjadi kesalahan di pihak kami. Silakan coba lagi.",
+      "staleBuild": "Bookie telah diperbarui. Muat ulang halaman untuk melanjutkan.",
+      "unknown": "Terjadi kesalahan. Silakan coba lagi."
+    },
+    "codes": {
+      "invalidCredentials": "Email atau kata sandi salah.",
+      "emailUnverified": "Silakan konfirmasi alamat email Anda terlebih dahulu. Cek tautannya di kotak masuk Anda.",
+      "passwordPolicy": "Kata sandi tersebut tidak memenuhi persyaratan.",
+      "invalidToken": "Tautan ini tidak valid. Minta tautan baru untuk melanjutkan.",
+      "expiredToken": "Tautan ini sudah kedaluwarsa. Minta tautan baru untuk melanjutkan.",
+      "googleOnlyAccount": "Akun ini masuk dengan Google.",
+      "reauthRequired": "Kata sandi saat ini salah.",
+      "emailTaken": "Akun dengan email ini sudah ada.",
+      "hasAppointments": "Anda memiliki janji temu yang tercatat. Batalkan terlebih dahulu.",
+      "slotTaken": "Waktu itu baru saja dipesan. Silakan pilih waktu lain."
+    },
+    "pages": {
+      "provider": "Kami tidak dapat memuat halaman penyedia ini. Silakan coba lagi.",
+      "organization": "Kami tidak dapat memuat organisasi ini. Silakan coba lagi.",
+      "categories": "Kami tidak dapat memuat kategori. Silakan coba lagi.",
+      "category": "Kami tidak dapat memuat kategori ini. Silakan coba lagi.",
+      "booking": "Kami tidak dapat memuat pemesanan ini. Silakan coba lagi.",
+      "settings": "Kami tidak dapat memuat bagian akun Anda ini. Silakan coba lagi."
+    },
+    "sections": {
+      "load": "Bagian ini tidak dapat dimuat.",
+      "busySlots": "Kami tidak dapat memeriksa waktu yang sudah dipesan, jadi beberapa di antaranya mungkin sudah terisi.",
+      "organizationSearch": "Kami tidak dapat mencari organisasi saat ini."
+    },
+    "conflicts": {
+      "bookingUnavailable": "Layanan atau waktu itu sudah tidak tersedia. Silakan pilih yang lain.",
+      "bookingLocked": "Pemesanan ini sudah tidak dapat diubah.",
+      "decisionClosed": "Pemesanan ini sudah diputuskan, atau waktunya sudah lewat. Muat ulang daftar untuk melihat statusnya.",
+      "pageHasAppointments": "Halaman ini memiliki janji temu yang sudah dipesan, jadi belum dapat dihapus.",
+      "serviceHasAppointments": "Layanan ini memiliki janji temu yang sudah dipesan, jadi tidak dapat dihapus. Anda dapat menonaktifkannya.",
+      "slugTaken": "Tautan itu sudah dipakai atau dicadangkan. Silakan pilih yang lain.",
+      "alreadyReviewed": "Anda sudah memberi ulasan untuk kunjungan ini."
+    }
   },
   "Admin": {
     "metaTitle": "Moderasi ulasan",

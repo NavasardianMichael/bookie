@@ -5,7 +5,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
 import { getProviderBookingsCalendarAPI, getProviderConsumerBookingsCalendarAPI } from '@api/appointments/main'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
-import { PageHeader } from '@components/ui/layout/PageHeader'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { BookingsList, BookingsSide } from './BookingsList'
 import { DayBookingCount, ProviderBookingsCalendar } from './ProviderBookingsCalendar'
 
@@ -17,11 +17,10 @@ type Props = {
  * A provider's bookings: a month calendar over History's filtered, sorted, paged list.
  *
  * `side` is which identity the list is for. `'provider'` is appointments booked *with*
- * this professional; `'consumer'` is appointments they booked with someone else. The
- * two live on sibling URLs and share this client so the calendar, the filters and the
- * kebab stay one implementation. The header switch is how you move between them —
- * there is no second sidebar tab, because that would be two mental models for one
- * workspace surface.
+ * this professional; `'consumer'` is appointments they booked with someone else. Both are
+ * views of `/bookings`, picked by the page's switch (`BookingsClient`), and share this
+ * panel so the calendar, the filters and the kebab stay one implementation. The page owns
+ * the heading, because it names the whole page rather than one view of it.
  *
  * **Filter state is local, not in the URL** — the opposite of Explore, and for a reason
  * that does not apply here. Explore's grid is a Server Component, so its query has to
@@ -35,13 +34,16 @@ type Props = {
  * controls writing one piece of state is how they end up disagreeing.
  */
 export const ProviderBookingsClient: FC<Props> = ({ side }) => {
-  const t = useTranslations('Settings.bookings')
   const isConsumer = side === 'consumer'
+  const tErrors = useTranslations('Errors')
 
   const [month, setMonth] = useState<Dayjs>(() => dayjs().startOf('month'))
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null)
   const [countsByDay, setCountsByDay] = useState<Record<string, DayBookingCount>>({})
   const [revision, setRevision] = useState(0)
+  /** The calendar's own Retry — separate from `revision`, which reloads the list too. */
+  const [calendarAttempt, setCalendarAttempt] = useState(0)
+  const [calendarError, setCalendarError] = useState<unknown>(null)
 
   const monthKey = month.format('YYYY-MM')
 
@@ -56,7 +58,10 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
     return { from: day.startOf('day').toISOString(), to: day.endOf('day').toISOString() }
   }, [selectedDayKey])
 
-  const calendarRequest = useMemo(() => ({ month: monthKey, revision, side }), [monthKey, revision, side])
+  const calendarRequest = useMemo(
+    () => ({ month: monthKey, revision, attempt: calendarAttempt, side }),
+    [calendarAttempt, monthKey, revision, side]
+  )
   const [calendarFulfilled, setCalendarFulfilled] = useState<object | null>(null)
   const calendarLoading = calendarFulfilled !== calendarRequest
 
@@ -66,10 +71,16 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
 
     void fetchCalendar({ month: calendarRequest.month })
       .then((days) => {
-        if (!cancelled) setCountsByDay(days)
+        if (cancelled) return
+        setCountsByDay(days)
+        setCalendarError(null)
       })
-      .catch(() => {
-        if (!cancelled) setCountsByDay({})
+      // The list below still works, so the calendar degrades to no badges — but says so,
+      // or an empty month reads as "no bookings" when it means "could not count them".
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setCountsByDay({})
+        setCalendarError(error)
       })
       .finally(() => {
         if (!cancelled) setCalendarFulfilled(calendarRequest)
@@ -94,14 +105,14 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
 
   return (
     <div className='flex flex-col gap-6'>
-      {/* No switch action here any more. It swapped between two provider-tree URLs and
-          was the only control of its kind in the app; the settings shell now carries one
-          workspace switch above every panel, so the same gesture works from any tab
-          rather than only from this one. See `WorkspaceSwitch`. */}
-      <PageHeader
-        title={isConsumer ? t('asConsumerTitle') : t('title')}
-        subtitle={isConsumer ? t('asConsumerSubtitle') : t('subtitle')}
-      />
+      {calendarError !== null && (
+        <ErrorAlert
+          tone='warning'
+          error={calendarError}
+          title={tErrors('sections.load')}
+          onRetry={() => setCalendarAttempt((current) => current + 1)}
+        />
+      )}
 
       <ProviderBookingsCalendar
         month={month}

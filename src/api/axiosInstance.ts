@@ -1,8 +1,10 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { ENDPOINTS as APPOINTMENT_ENDPOINTS } from '@api/appointments/endpoints'
 import { ENDPOINTS as AUTH_ENDPOINTS } from '@api/auth/endpoints'
+import { APIResponse } from '@interfaces/api'
 import { DEFAULT_LOCALE } from '@i18n/config'
 import { localePath, splitLocaleFromPathname } from '@i18n/pathname'
+import { API_REQUEST_TIMEOUT_MS, API_UPLOAD_TIMEOUT_MS } from '@constants/app'
 import { ROUTES } from '@constants/routes'
 
 export const axiosInstance = axios.create({
@@ -10,14 +12,46 @@ export const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: API_REQUEST_TIMEOUT_MS,
   withCredentials: true,
   formSerializer: {
     indexes: null,
   },
 })
 
+/**
+ * Uploads get the longer ceiling here rather than at each call site: a multipart body is
+ * already marked by its `Content-Type`, and the three upload calls in `api/providers`
+ * would otherwise each have to remember to ask.
+ */
 axiosInstance.interceptors.request.use((config) => {
+  const contentType = String(config.headers?.['Content-Type'] ?? '')
+  if (contentType.includes('multipart/form-data') && config.timeout === API_REQUEST_TIMEOUT_MS) {
+    config.timeout = API_UPLOAD_TIMEOUT_MS
+  }
   return config
+})
+
+/**
+ * Names the failed call in the error's own message: `[400] GET /providers/p1/busy — from
+ * and to must be ISO timestamps`.
+ *
+ * On the client this is only ever seen in the development details block —
+ * `classifyError` reads the response itself and production shows translated copy. It
+ * matters most for Server Components: Next forwards a server error to `error.tsx` as its
+ * message alone, so without this a failed page fetch reads "Request failed with status
+ * code 500" and names nothing. Production strips that message to a digest anyway.
+ */
+const describeFailedRequest = (error: AxiosError<Partial<APIResponse<unknown>>>): string => {
+  const method = (error.config?.method ?? 'get').toUpperCase()
+  const status = error.response?.status ?? error.code ?? 'no response'
+  const serverMessage = error.response?.data?.error?.message
+  return `[${status}] ${method} ${error.config?.url ?? ''} — ${serverMessage ?? error.message}`
+}
+
+axiosInstance.interceptors.response.use(null, (error) => {
+  if (axios.isAxiosError(error)) error.message = describeFailedRequest(error)
+  return Promise.reject(error)
 })
 
 /**
@@ -45,12 +79,17 @@ axiosInstance.interceptors.response.use(null, (error) => {
   const requestUrl = String(error.config?.url ?? '')
   /**
    * 401s that are not a dead session: `GET /me` is a guest probe; wrong password on
-   * change-password or delete-account is re-auth; `POST /logout` after the cookie is
-   * already gone (delete-account clears it) is "already signed out".
+   * change-password, change-email or delete-account is re-auth; a bad or expired
+   * change-email link is a token failure the settings page explains; `POST /logout` after
+   * the cookie is already gone (delete-account clears it) is "already signed out".
+   * Bouncing any of these to account-type selection replaced the one message that said
+   * what went wrong with a page that says nothing.
    */
   if (
     requestUrl.includes(AUTH_ENDPOINTS.me) ||
     requestUrl.includes(AUTH_ENDPOINTS.changePassword) ||
+    requestUrl.includes(AUTH_ENDPOINTS.changeEmailSend) ||
+    requestUrl.includes(AUTH_ENDPOINTS.changeEmailConfirm) ||
     requestUrl.includes(AUTH_ENDPOINTS.deleteAccount) ||
     requestUrl.includes(AUTH_ENDPOINTS.logout)
   ) {

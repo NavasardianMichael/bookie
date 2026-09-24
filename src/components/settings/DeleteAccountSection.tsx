@@ -11,7 +11,7 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { useRouter } from '@i18n/navigation'
 import { AUTH_ERROR_CODES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { isFormValidationError, processError, UserFacingError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -40,22 +40,29 @@ export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
   const [open, setOpen] = useState(false)
   const passwordRules = useFormItemRules('required')
 
+  // AppConfirmModal awaits this, surfaces a rejection and keeps the dialog open.
   const onConfirm = async () => {
-    const values = await form.validateFields().catch(() => null)
-    if (!values) return
+    let values: ConfirmValues
+    try {
+      values = await form.validateFields()
+    } catch (err) {
+      // A failed rule is already shown under the password field; anything else is not.
+      if (isFormValidationError(err)) return
+      throw err
+    }
 
     try {
       await deleteAccountAPI({ password: values.password })
     } catch (err) {
       const appError = processError(err)
       if (appError.code === AUTH_ERROR_CODES.googleOnlyAccount) {
-        throw new Error(t('deleteAccount.googleOnly'))
+        throw new UserFacingError(t('deleteAccount.googleOnly'), { cause: err })
       }
       if (appError.code === AUTH_ERROR_CODES.hasAppointments) {
-        throw new Error(t('deleteAccount.hasAppointments'))
+        throw new UserFacingError(t('deleteAccount.hasAppointments'), { cause: err })
       }
       if (appError.code === AUTH_ERROR_CODES.reauthRequired) {
-        throw new Error(t('deleteAccount.wrongPassword'))
+        throw new UserFacingError(t('deleteAccount.wrongPassword'), { cause: err })
       }
       throw err
     }
@@ -79,6 +86,7 @@ export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
           danger
           icon={<DeleteOutlined />}
           disabled={disabled}
+          type='primary'
           className='self-start'
           onClick={() => setOpen(true)}
         >

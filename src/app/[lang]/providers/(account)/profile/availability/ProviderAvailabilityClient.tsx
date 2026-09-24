@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-import { Alert, Checkbox, Form, Switch, TimePicker } from 'antd'
+import { Checkbox, Form, Switch, TimePicker } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useTranslations } from 'next-intl'
@@ -10,7 +10,6 @@ import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/mai
 import { DaySchedule, ProviderProfile, WeekSchedule } from '@store/providers/profile/types'
 import { WeekDay } from '@interfaces/schedule'
 import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
-import { processError } from '@helpers/error'
 import { rangesToDaySchedule, splitScheduleIntoParts } from '@helpers/schedule'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
@@ -18,6 +17,7 @@ import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { ClockIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
@@ -157,21 +157,40 @@ const AvailabilityDayRow = ({ day }: { day: WeekDay }) => {
 
 export const ProviderAvailabilityClient = () => {
   const t = useTranslations('Settings')
+  const tErrors = useTranslations('Errors')
   const [form] = Form.useForm<FormValues>()
   const [saved, setSaved] = useState<FormValues | null>(null)
   const [dirty, setDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const [loadError, setLoadError] = useState<unknown>(null)
+  const [revision, setRevision] = useState(0)
+
+  // `loading` is derived from the request's identity, never set at the top of the effect.
+  const request = useMemo(() => ({ revision }), [revision])
+  const [fulfilled, setFulfilled] = useState<object | null>(null)
+  const loading = fulfilled !== request
 
   useEffect(() => {
+    let cancelled = false
     void getProviderProfileAPI()
       .then((data) => {
+        if (cancelled) return
         const values = scheduleToForm(data)
         setSaved(values)
         form.setFieldsValue(values)
+        setLoadError(null)
       })
-      .catch((err) => setError(processError(err).message))
-  }, [form])
+      .catch((err: unknown) => {
+        if (!cancelled) setLoadError(err)
+      })
+      .finally(() => {
+        if (!cancelled) setFulfilled(request)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [form, request])
 
   const persist = async (mode: 'draft' | 'publish') => {
     const values = form.getFieldsValue(true)
@@ -190,7 +209,7 @@ export const ProviderAvailabilityClient = () => {
       form.setFieldsValue(next)
       setDirty(false)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setPendingAction(null)
     }
@@ -199,7 +218,7 @@ export const ProviderAvailabilityClient = () => {
   return (
     <div className='flex flex-col gap-6'>
       <PageHeader title={t('nav.availability')} subtitle={t('availability.subtitle')} />
-      {error && <Alert type='error' showIcon message={error} />}
+      {error !== null && <ErrorAlert error={error} />}
 
       <Surface className='flex flex-col gap-6'>
         <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
@@ -208,7 +227,14 @@ export const ProviderAvailabilityClient = () => {
         </AppTitle>
         <AppParagraph size='body-sm'>{t('availability.recurringBody')}</AppParagraph>
 
-        {!saved ? (
+        {loadError !== null ? (
+          <ErrorAlert
+            error={loadError}
+            title={tErrors('pages.settings')}
+            onRetry={() => setRevision((current) => current + 1)}
+            retrying={loading}
+          />
+        ) : !saved ? (
           <div className='bg-brand-50 min-h-40 animate-pulse rounded-brand' />
         ) : (
           <Form
@@ -245,20 +271,23 @@ export const ProviderAvailabilityClient = () => {
         )}
       </Surface>
 
-      <SettingsActionBar
-        dirty={dirty}
-        pendingAction={pendingAction}
-        onDiscard={() => {
-          if (!saved) return
-          form.setFieldsValue(saved)
-          setDirty(false)
-        }}
-        onSaveDraft={() => void persist('draft')}
-        onPublish={() => void persist('publish')}
-        saveDraftLabel={t('actions.saveDraft')}
-        publishLabel={t('actions.publish')}
-        discardLabel={t('actions.discard')}
-      />
+      {/* No Save over settings that never loaded: it would write the empty defaults. */}
+      {loadError === null && (
+        <SettingsActionBar
+          dirty={dirty}
+          pendingAction={pendingAction}
+          onDiscard={() => {
+            if (!saved) return
+            form.setFieldsValue(saved)
+            setDirty(false)
+          }}
+          onSaveDraft={() => void persist('draft')}
+          onPublish={() => void persist('publish')}
+          saveDraftLabel={t('actions.saveDraft')}
+          publishLabel={t('actions.publish')}
+          discardLabel={t('actions.discard')}
+        />
+      )}
     </div>
   )
 }

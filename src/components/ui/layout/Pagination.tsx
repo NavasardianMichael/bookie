@@ -24,6 +24,8 @@ export type PaginationProps = {
 const SIBLINGS = 2
 
 const CELL = 'inline-flex size-10 shrink-0 items-center justify-center rounded-brand-sm text-body-sm font-bold no-underline'
+/** Shared by the arrows and the unselected page numbers, so a page reads as the same control. */
+const OUTLINED = 'border-brand-border text-brand-text hover:bg-surface hover:border-brand border'
 
 /**
  * Real anchors, and therefore a Server Component.
@@ -60,7 +62,7 @@ const Step: FC<{ href?: string; label: string; children: ReactNode }> = ({ href,
       href={href}
       variant='unstyled'
       aria-label={label}
-      className={cn(CELL, 'border-brand-border text-brand-text hover:bg-surface hover:border-brand border')}
+      className={cn(CELL, OUTLINED)}
     >
       {children}
     </AppLink>
@@ -124,7 +126,7 @@ export const Pagination: FC<PaginationProps> = ({
                   href={buildHref(entry)}
                   variant='unstyled'
                   aria-label={pageLabel(entry)}
-                  className={cn(CELL, 'text-brand-text hover:bg-brand-50 tnum')}
+                  className={cn(CELL, OUTLINED, 'tnum')}
                 >
                   {entry}
                 </AppLink>

@@ -2,10 +2,12 @@
 
 import { FC, useCallback, useState } from 'react'
 import { AutoComplete, Spin } from 'antd'
+import { useTranslations } from 'next-intl'
 import { searchOrganizationsAPI } from '@api/organizations/main'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
 import { OrganizationValue } from '@interfaces/auth'
-import { processError } from '@helpers/error'
+import { reportError } from '@helpers/reportError'
+import { AppText } from '@components/ui/bare/AppText'
 import { BuildingIcon } from '@components/ui/icons'
 
 type Props = {
@@ -37,10 +39,13 @@ type Option = { value: string; id: string }
  * backstop.
  */
 export const OrganizationAutocomplete: FC<Props> = ({ value, onChange, placeholder, disabled, id }) => {
+  const t = useTranslations('Errors')
   const [options, setOptions] = useState<Option[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [searchFailed, setSearchFailed] = useState(false)
 
   const runSearch = useCallback(async (query: string) => {
+    setSearchFailed(false)
     if (query.trim().length < MIN_QUERY_LENGTH) {
       setOptions([])
       setIsSearching(false)
@@ -53,9 +58,11 @@ export const OrganizationAutocomplete: FC<Props> = ({ value, onChange, placehold
       setOptions(organizations.map((organization) => ({ value: organization.basic.name, id: organization.id })))
     } catch (error) {
       // A failed lookup must not block registration — the typed name still creates an
-      // organization, so the field degrades to plain text rather than erroring.
-      console.error('Organization search failed:', processError(error).message)
+      // organization, so the field degrades to plain text and the dropdown says why it is
+      // empty, rather than the form showing an error.
+      reportError(error, 'OrganizationAutocomplete:search')
       setOptions([])
+      setSearchFailed(true)
     } finally {
       setIsSearching(false)
     }
@@ -77,7 +84,15 @@ export const OrganizationAutocomplete: FC<Props> = ({ value, onChange, placehold
       onChange={handleChange}
       placeholder={placeholder}
       disabled={disabled}
-      notFoundContent={isSearching ? <Spin size='small' /> : null}
+      notFoundContent={
+        isSearching ? (
+          <Spin size='small' />
+        ) : searchFailed ? (
+          <AppText size='caption' tone='muted'>
+            {t('sections.organizationSearch')}
+          </AppText>
+        ) : null
+      }
       className='w-full'
       prefix={<BuildingIcon className='text-brand-muted h-4 w-4' />}
     />

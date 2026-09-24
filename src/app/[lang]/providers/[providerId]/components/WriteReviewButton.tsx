@@ -1,14 +1,13 @@
 'use client'
 
 import { FC, useState } from 'react'
-import { Alert } from 'antd'
 import { useTranslations } from 'next-intl'
 import { postProviderReviewAPI } from '@api/reviews/main'
 import { ReviewsViewer } from '@store/reviews/list/types'
 import { useRouter } from '@i18n/navigation'
-import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppSheet } from '@components/ui/AppSheet'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { ReviewForm, ReviewFormValues } from './ReviewForm'
 
 type Props = {
@@ -31,11 +30,12 @@ type Props = {
  */
 export const WriteReviewButton: FC<Props> = ({ providerId, viewer }) => {
   const t = useTranslations('Provider.reviews')
+  const tErrors = useTranslations('Errors')
   const router = useRouter()
 
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
 
   const appointmentId = viewer.eligibleAppointmentId
   if (!appointmentId) return null
@@ -61,7 +61,7 @@ export const WriteReviewButton: FC<Props> = ({ providerId, viewer }) => {
       // would leave the summary above it stale.
       router.refresh()
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -73,13 +73,13 @@ export const WriteReviewButton: FC<Props> = ({ providerId, viewer }) => {
         {t('write')}
       </AppButton>
 
-      <AppSheet open={isOpen} onClose={close} title={t('formTitle')}>
+      <AppSheet open={isOpen} onClose={close} title={t('formTitle')} pending={isSubmitting}>
         {/* Conditional so the form mounts with the sheet: `AppSheet` uses
             `destroyOnHidden`, and that remount is what resets the stars and the textarea
             between opens without an explicit `resetFields`. */}
         {isOpen && (
           <div className='flex flex-col gap-4'>
-            {error && <Alert type='error' showIcon message={error} />}
+            {error !== null && <ErrorAlert error={error} overrides={{ 409: tErrors('conflicts.alreadyReviewed') }} />}
             <ReviewForm
               isSubmitting={isSubmitting}
               submitLabel={t('submit')}

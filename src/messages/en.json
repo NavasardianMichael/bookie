@@ -31,7 +31,8 @@
     "nextPage": "Next page",
     "pageNumber": "Page {page}",
     "previousMonth": "Previous month",
-    "nextMonth": "Next month"
+    "nextMonth": "Next month",
+    "reload": "Reload page"
   },
   "Nav": {
     "mainNavigation": "Main navigation",
@@ -47,7 +48,9 @@
     "signIn": "Sign In",
     "accountTypeSelection": "Get Started",
     "account": "Account",
-    "accountSettings": "Account settings"
+    "accountSettings": "Account settings",
+    "bookings": "Bookings",
+    "favorites": "Favorites"
   },
   "Auth": {
     "continueWithGoogle": "Continue with Google",
@@ -303,12 +306,10 @@
     "nav": {
       "profile": "Profile",
       "phone": "Phone",
-      "appointments": "Appointments",
       "notifications": "Notifications",
       "payments": "Payments",
       "availability": "Availability",
       "services": "Services",
-      "bookings": "Bookings",
       "approvals": "Approvals",
       "analytics": "Analytics",
       "seo": "SEO",
@@ -318,7 +319,7 @@
       "onProviderTitle": "You are in your provider workspace",
       "onProviderBody": "Your public page, services and the bookings people make with you.",
       "onConsumerTitle": "You are in your consumer profile",
-      "onConsumerBody": "Your own details and the bookings you made with other providers.",
+      "onConsumerBody": "Your own details, notifications and payment preferences.",
       "toConsumer": "Switch to consumer profile",
       "toProvider": "Switch to provider profile"
     },
@@ -354,7 +355,6 @@
       "updated": "Phone number updated."
     },
     "appointments": {
-      "title": "Appointments",
       "subtitle": "Search, filter, and manage your bookings.",
       "upcoming": "Upcoming",
       "emptyTitle": "No upcoming appointments",
@@ -396,7 +396,8 @@
     },
     "payments": {
       "title": "Payments",
-      "subtitle": "How you prefer to pay or get paid in person.",
+      "subtitlePay": "How you prefer to pay in person.",
+      "subtitleGetPaid": "How you prefer to get paid in person.",
       "hint": "Choose the in-person methods you accept. A card or account number you add here appears on your public page.",
       "methodsLabel": "Accepted methods",
       "cardOrAccountNumber": "Card Number / Account number",
@@ -461,9 +462,7 @@
       "cta": "Contact Support"
     },
     "bookings": {
-      "title": "Bookings as Provider",
       "subtitle": "Every appointment booked with you, past and upcoming.",
-      "asConsumerTitle": "Bookings as Consumer",
       "asConsumerSubtitle": "Every appointment you booked with another provider, past and upcoming.",
       "emptyAsConsumerTitle": "No bookings of your own yet",
       "emptyAsConsumerBody": "When you book another provider, those appointments appear here.",
@@ -507,6 +506,12 @@
       "confirmBody": "The client is not notified automatically. You can change the status again later.",
       "moreActions": "Actions for {name}",
       "reviewInApprovals": "Review in Approvals",
+      "action": {
+        "confirmed": "Confirm",
+        "completed": "Complete",
+        "cancelled": "Cancel",
+        "no_show": "Miss"
+      },
       "status": {
         "pending": "Pending approval",
         "scheduled": "Scheduled",
@@ -594,18 +599,18 @@
       "seoTitleHint": "Aim for 30-60 characters. Leave empty to use your name and categories.",
       "seoTitlePlaceholder": "Your name and what you do",
       "seoDescription": "Meta description",
-      "seoDescriptionHint": "Aim for 70-160 characters. Leave empty to use the default.",
+      "seoDescriptionHint": "Aim for 70-160 characters. If it is empty, the default is used.",
       "seoDescriptionPlaceholder": "One sentence describing what you offer",
       "counter": "{count} of {max}",
       "tooLong": "Must be {max} characters or fewer.",
-      "previewLabel": "Search result preview",
+      "previewLabel": "Shared social card preview",
       "previewEmptyTitle": "Your page title",
       "previewEmptyDescription": "Your description appears here.",
       "fallbackWithOrganization": "Book an appointment with {name}, who works at {organization}.",
       "fallbackDescription": "Book an appointment with {name}.",
-      "vanityUrl": "Short link",
-      "vanityHint": "A memorable address that opens your profile. Changing it stops the old one working.",
-      "slugLabel": "Your link",
+      "vanityUrl": "Your public page link",
+      "copyLink": "Copy link",
+      "openPage": "Open page",
       "slugHint": "{min}-{max} characters: lowercase letters, numbers and hyphens.",
       "slugPlaceholder": "your-business",
       "slugLength": "Must be between {min} and {max} characters.",
@@ -626,6 +631,24 @@
       "hasAppointments": "You have appointments on record. Cancel them before deleting your account.",
       "wrongPassword": "Current password is incorrect"
     }
+  },
+  "Bookings": {
+    "title": "Bookings",
+    "viewLabel": "Which bookings to show",
+    "views": {
+      "provider": "Booked with me",
+      "consumer": "Booked by me"
+    }
+  },
+  "Favorites": {
+    "title": "Favorites",
+    "subtitle": "Providers you saved to find again quickly.",
+    "emptyTitle": "No favorites yet",
+    "emptyBody": "Tap the heart on a provider's card to keep them here.",
+    "explore": "Explore providers",
+    "add": "Add {name} to favorites",
+    "remove": "Remove {name} from favorites",
+    "signInToAdd": "Sign in to add {name} to favorites"
   },
   "Home": {
     "metaDescription": "Find providers and organizations on Bookie, then reserve a time that works.",
@@ -873,7 +896,59 @@
     "notFoundBody": "The page you are looking for does not exist or has moved.",
     "title": "Something went wrong",
     "body": "We could not load this page. Please try again.",
-    "reference": "Reference: {digest}"
+    "reference": "Reference: {digest}",
+    "devDetails": "Developer details",
+    "newVersionTitle": "A new version is available",
+    "kinds": {
+      "offline": "You appear to be offline. Check your connection and try again.",
+      "network": "We could not reach Bookie. Check your connection and try again.",
+      "timeout": "This is taking longer than it should. Please try again.",
+      "unauthorized": "Your session has ended. Please sign in again.",
+      "forbidden": "You do not have access to this.",
+      "notFound": "We could not find what you were looking for. It may have been removed.",
+      "conflict": "That could not be done because something has changed. Refresh the page and try again.",
+      "validation": "Some details were not accepted. Please check them and try again.",
+      "tooLarge": "That is too large. Please choose a smaller file.",
+      "rateLimited": "Too many attempts. Please wait a moment and try again.",
+      "unavailable": "Bookie is temporarily unavailable. Please try again in a moment.",
+      "server": "Something went wrong on our side. Please try again.",
+      "staleBuild": "Bookie has been updated. Reload the page to continue.",
+      "unknown": "Something went wrong. Please try again."
+    },
+    "codes": {
+      "invalidCredentials": "The email or password is incorrect.",
+      "emailUnverified": "Please confirm your email address first. Check your inbox for the link.",
+      "passwordPolicy": "That password does not meet the requirements.",
+      "invalidToken": "This link is not valid. Request a new one to continue.",
+      "expiredToken": "This link has expired. Request a new one to continue.",
+      "googleOnlyAccount": "This account signs in with Google.",
+      "reauthRequired": "The current password is incorrect.",
+      "emailTaken": "An account with this email already exists.",
+      "hasAppointments": "You have appointments on record. Cancel them first.",
+      "slotTaken": "That time has just been taken. Please choose another time."
+    },
+    "pages": {
+      "provider": "We could not load this provider's page. Please try again.",
+      "organization": "We could not load this organization. Please try again.",
+      "categories": "We could not load the categories. Please try again.",
+      "category": "We could not load this category. Please try again.",
+      "booking": "We could not load this booking. Please try again.",
+      "settings": "We could not load this part of your account. Please try again."
+    },
+    "sections": {
+      "load": "This section could not be loaded.",
+      "busySlots": "We could not check which times are already booked, so some of these may be taken.",
+      "organizationSearch": "We could not search organizations right now."
+    },
+    "conflicts": {
+      "bookingUnavailable": "That service or time is no longer available. Please choose another.",
+      "bookingLocked": "This booking can no longer be changed.",
+      "decisionClosed": "This booking was already decided, or its time has passed. Refresh the list to see where it stands.",
+      "pageHasAppointments": "This page has booked appointments, so it cannot be deleted yet.",
+      "serviceHasAppointments": "This service has booked appointments, so it cannot be deleted. You can make it inactive instead.",
+      "slugTaken": "That link is already taken or reserved. Please choose another.",
+      "alreadyReviewed": "You have already reviewed this visit."
+    }
   },
   "Admin": {
     "metaTitle": "Review moderation",

@@ -7,10 +7,10 @@ import { useFormatter, useTranslations } from 'next-intl'
 import { getProviderAnalyticsAPI } from '@api/analytics/main'
 import { CurrencyTotal, ProviderAnalytics } from '@api/analytics/types'
 import { getProviderProfileAPI } from '@api/providers/main'
-import { processError } from '@helpers/error'
 import { AppText } from '@components/ui/bare/AppText'
 import { BarChart, BarChartDatum } from '@components/ui/bare/BarChart'
 import { EmptyState } from '@components/ui/EmptyState'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { Surface } from '@components/ui/layout/Surface'
@@ -40,11 +40,14 @@ export const ProviderAnalyticsClient = () => {
   const [preset, setPreset] = useState<RangePreset>('30')
   const [data, setData] = useState<ProviderAnalytics | null>(null)
   const [serviceNames, setServiceNames] = useState<Record<string, string>>({})
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const [revision, setRevision] = useState(0)
+  const [namesError, setNamesError] = useState<unknown>(null)
+  const [namesRevision, setNamesRevision] = useState(0)
 
   /**
-   * The window as one memoized object, which doubles as the request's identity — so
-   * `loading` is derived rather than set at the top of the effect
+   * The window as one memoized object, which (with the retry counter below) is the
+   * request's identity — so `loading` is derived rather than set at the top of the effect
    * (`react-hooks/set-state-in-effect` is an error here), and the clock is read once per
    * range change rather than on every render.
    *
@@ -60,41 +63,61 @@ export const ProviderAnalyticsClient = () => {
 
   const rangeDays = preset === 'all' ? null : Number(preset)
 
+  /** The range plus a retry counter, so Try again re-reads the same window. */
+  const request = useMemo(() => ({ range, revision }), [range, revision])
   const [fulfilled, setFulfilled] = useState<object | null>(null)
-  const loading = fulfilled !== range
+  const loading = fulfilled !== request
 
   useEffect(() => {
     let cancelled = false
 
-    void getProviderAnalyticsAPI(range)
+    void getProviderAnalyticsAPI(request.range)
       .then((result) => {
         if (cancelled) return
         setData(result)
         setError(null)
       })
-      .catch((err) => {
-        if (!cancelled) setError(processError(err).message)
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err)
       })
       .finally(() => {
-        if (!cancelled) setFulfilled(range)
+        if (!cancelled) setFulfilled(request)
       })
 
     return () => {
       cancelled = true
     }
-  }, [range])
+  }, [request])
+
+  const namesRequest = useMemo(() => ({ revision: namesRevision }), [namesRevision])
+  const [namesFulfilled, setNamesFulfilled] = useState<object | null>(null)
+  const namesLoading = namesFulfilled !== namesRequest
 
   // Service names live on the profile, not on the analytics payload — the aggregate
-  // returns ids so it never has to join a table it only needs for labels.
+  // returns ids so it never has to join a table it only needs for labels. Without them
+  // the ranking still stands under a generic label, so a failure is a warning, not a block.
   useEffect(() => {
+    let cancelled = false
+
     void getProviderProfileAPI()
       .then((profile) => {
+        if (cancelled) return
         setServiceNames(
           Object.fromEntries(profile.services.allIds.map((id) => [id, profile.services.byId[id]?.name ?? id]))
         )
+        setNamesError(null)
       })
-      .catch(() => setServiceNames({}))
-  }, [])
+      .catch((err: unknown) => {
+        if (!cancelled) setNamesError(err)
+      })
+      .finally(() => {
+        if (!cancelled) setNamesFulfilled(namesRequest)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [namesRequest])
 
   const percent = (value: number | null): string =>
     value === null ? '—' : format.number(value, { style: 'percent', maximumFractionDigits: 1 })
@@ -176,9 +199,11 @@ export const ProviderAnalyticsClient = () => {
         }
       />
 
-      {error && <Alert type='error' showIcon message={error} />}
-
-      {loading ? (
+      {/* A failed read replaces the empty state and the previous window's figures alike —
+          both would describe a range other than the one selected. */}
+      {error !== null ? (
+        <ErrorAlert error={error} onRetry={() => setRevision((current) => current + 1)} retrying={loading} />
+      ) : loading ? (
         <div className='flex flex-col gap-6'>
           <div className='bg-brand-100 h-28 animate-pulse rounded-brand' />
           <div className='bg-brand-100 h-72 animate-pulse rounded-brand' />
@@ -215,7 +240,7 @@ export const ProviderAnalyticsClient = () => {
             <Alert
               type='info'
               showIcon
-              message={t('multiCurrencyTitle')}
+              title={t('multiCurrencyTitle')}
               description={
                 <span>
                   {data.totals.revenue
@@ -262,6 +287,14 @@ export const ProviderAnalyticsClient = () => {
               <AppText size='overline' tone='muted' className='font-semibold'>
                 {t('topServices')}
               </AppText>
+              {namesError !== null && topServices.length > 0 && (
+                <ErrorAlert
+                  tone='warning'
+                  error={namesError}
+                  onRetry={() => setNamesRevision((current) => current + 1)}
+                  retrying={namesLoading}
+                />
+              )}
               {topServices.length === 0 ? (
                 <AppText size='body-sm' tone='muted'>
                   {t('chartEmpty')}

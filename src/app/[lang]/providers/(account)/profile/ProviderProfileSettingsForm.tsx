@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Form } from 'antd'
+import { Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
@@ -10,7 +10,7 @@ import { ProviderProfile } from '@store/providers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
+import { isFormValidationError } from '@helpers/error'
 import { isUploadedAsset } from '@helpers/images'
 import { ChangePhoneForm } from '@components/settings/ChangePhoneForm'
 import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
@@ -24,6 +24,7 @@ import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { UserIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
@@ -53,25 +54,54 @@ const mergeDraft = (profile: ProviderProfile): FormValues => {
 
 export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   const t = useTranslations('Settings')
+  const tErrors = useTranslations('Errors')
   const [form] = Form.useForm<FormValues>()
   const setAuthState = useAuthStore.use.setAuthState()
   const profileId = useAuthStore.use.profileId()
   const [profile, setProfile] = useState<ProviderProfile | null>(null)
   const [dirty, setDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const [loadError, setLoadError] = useState<unknown>(null)
+  const [revision, setRevision] = useState(0)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const descriptionRules = useFormItemRules('maxCharsForTextarea')
 
+  // `loading` is derived from the request's identity, never set at the top of the effect.
+  const request = useMemo(() => ({ revision }), [revision])
+  const [fulfilled, setFulfilled] = useState<object | null>(null)
+  const loading = fulfilled !== request
+
   useEffect(() => {
+    let cancelled = false
     void getProviderProfileAPI()
       .then((data) => {
+        if (cancelled) return
         setProfile(data)
         const values = mergeDraft(data)
         form.setFieldsValue(values)
+        setLoadError(null)
       })
-      .catch((err) => setError(processError(err).message))
-  }, [form])
+      .catch((err: unknown) => {
+        if (!cancelled) setLoadError(err)
+      })
+      .finally(() => {
+        if (!cancelled) setFulfilled(request)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [form, request])
+
+  /** `null` when a field failed its rules — antd already shows that under the field. */
+  const readValidValues = async (): Promise<FormValues | null> => {
+    try {
+      return await form.validateFields()
+    } catch (err) {
+      if (!isFormValidationError(err)) setError(err)
+      return null
+    }
+  }
 
   // Watch the live fields — `getFieldsValue()` warns if it runs before `<Form form>` mounts.
   const watchedFirstName = Form.useWatch('firstName', form)
@@ -95,7 +125,8 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   }
 
   const handleSaveDraft = async () => {
-    const values = await form.validateFields()
+    const values = await readValidValues()
+    if (!values) return
     setPendingAction('draft')
     setError(null)
     try {
@@ -108,14 +139,15 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
       })
       applyResult(data)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setPendingAction(null)
     }
   }
 
   const handlePublish = async () => {
-    const values = await form.validateFields()
+    const values = await readValidValues()
+    if (!values) return
     setPendingAction('publish')
     setError(null)
     try {
@@ -130,7 +162,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
       const data = await putProviderProfileAPI({ mode: 'publish' })
       applyResult(data)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setPendingAction(null)
     }
@@ -162,7 +194,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
       </div>
 
       <PageHeader title={t('nav.profile')} subtitle={t('profile.providerSubtitle')} />
-      {error && <Alert type='error' showIcon message={error} />}
+      {error !== null && <ErrorAlert error={error} />}
 
       <Surface className='flex flex-col gap-6'>
         <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
@@ -170,91 +202,103 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
           {t('profile.personalInfo')}
         </AppTitle>
 
-        <Form
-          form={form}
-          layout='vertical'
-          requiredMark={false}
-          disabled={pendingAction !== null}
-          onValuesChange={() => setDirty(true)}
-          className='flex flex-col gap-4'
-        >
-          <AppFormItem name='image' hasFeedback={false}>
-            <ProfilePhotoField
-              name={displayName || 'Provider'}
-              hint={t('profile.imageHint')}
-              uploadLabel={t('profile.upload')}
-            />
-          </AppFormItem>
+        {loadError !== null ? (
+          <ErrorAlert
+            error={loadError}
+            title={tErrors('pages.settings')}
+            onRetry={() => setRevision((current) => current + 1)}
+            retrying={loading}
+          />
+        ) : (
+          <Form
+            form={form}
+            layout='vertical'
+            requiredMark={false}
+            disabled={pendingAction !== null}
+            onValuesChange={() => setDirty(true)}
+            className='flex flex-col gap-4'
+          >
+            <AppFormItem name='image' hasFeedback={false}>
+              <ProfilePhotoField
+                name={displayName || 'Provider'}
+                hint={t('profile.imageHint')}
+                uploadLabel={t('profile.upload')}
+              />
+            </AppFormItem>
 
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='firstName'>{t('profile.firstName')}</FieldLabel>
-              <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('profile.firstName') }}>
-                <AppInput id='firstName' autoComplete='given-name' />
-              </AppFormItem>
-            </div>
-            <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='lastName'>{t('profile.lastName')}</FieldLabel>
-              <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('profile.lastName') }}>
-                <AppInput id='lastName' autoComplete='family-name' />
-              </AppFormItem>
-            </div>
-            <div className='flex flex-col gap-1.5 md:col-span-2'>
-              <FieldLabel htmlFor='description' requirement='Optional'>
-                {t('profile.description')}
-              </FieldLabel>
-              <AppFormItem name='description' rules={descriptionRules} messageVariables={{ label: t('profile.description') }}>
-                <AppTextArea id='description' rows={4} maxLength={MAX_CHARS_FOR_TEXTAREA} />
-              </AppFormItem>
-            </div>
-            <div className='md:col-span-2'>
-              {profile && (
-                <ChangePhoneForm
-                  embedded
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+              <div className='flex flex-col gap-1.5'>
+                <FieldLabel htmlFor='firstName'>{t('profile.firstName')}</FieldLabel>
+                <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('profile.firstName') }}>
+                  <AppInput id='firstName' autoComplete='given-name' />
+                </AppFormItem>
+              </div>
+              <div className='flex flex-col gap-1.5'>
+                <FieldLabel htmlFor='lastName'>{t('profile.lastName')}</FieldLabel>
+                <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('profile.lastName') }}>
+                  <AppInput id='lastName' autoComplete='family-name' />
+                </AppFormItem>
+              </div>
+              <div className='flex flex-col gap-1.5 md:col-span-2'>
+                <FieldLabel htmlFor='description' requirement='Optional'>
+                  {t('profile.description')}
+                </FieldLabel>
+                <AppFormItem name='description' rules={descriptionRules} messageVariables={{ label: t('profile.description') }}>
+                  <AppTextArea id='description' rows={4} maxLength={MAX_CHARS_FOR_TEXTAREA} />
+                </AppFormItem>
+              </div>
+              <div className='md:col-span-2'>
+                {profile && (
+                  <ChangePhoneForm
+                    embedded
+                    disabled={pendingAction !== null}
+                    currentPhone={profile.details.phone}
+                    onChanged={(phone) => {
+                      setProfile((prev) => (prev ? { ...prev, details: { ...prev.details, phone } } : prev))
+                    }}
+                  />
+                )}
+              </div>
+              <div className='md:col-span-2'>
+                <EmailVerifyField
+                  currentEmail={profile?.details.email}
+                  verifyPath={ROUTES.providerProfile}
+                  verifyToken={verifyEmailToken}
                   disabled={pendingAction !== null}
-                  currentPhone={profile.details.phone}
-                  onChanged={(phone) => {
-                    setProfile((prev) => (prev ? { ...prev, details: { ...prev.details, phone } } : prev))
+                  onVerified={(email, emailVerifiedAt) => {
+                    setProfile((prev) =>
+                      prev
+                        ? { ...prev, details: { ...prev.details, email, emailVerifiedAt } }
+                        : prev
+                    )
                   }}
                 />
-              )}
+              </div>
             </div>
-            <div className='md:col-span-2'>
-              <EmailVerifyField
-                currentEmail={profile?.details.email}
-                verifyPath={ROUTES.providerProfile}
-                verifyToken={verifyEmailToken}
-                disabled={pendingAction !== null}
-                onVerified={(email, emailVerifiedAt) => {
-                  setProfile((prev) =>
-                    prev
-                      ? { ...prev, details: { ...prev.details, email, emailVerifiedAt } }
-                      : prev
-                  )
-                }}
-              />
-            </div>
-          </div>
-        </Form>
+          </Form>
+        )}
       </Surface>
 
       <DeleteAccountSection disabled={!profile || pendingAction !== null} />
 
-      <SettingsActionBar
-        dirty={dirty}
-        pendingAction={pendingAction}
-        onDiscard={() => {
-          if (!profile) return
-          const values = mergeDraft(profile)
-          form.setFieldsValue(values)
-          setDirty(false)
-        }}
-        onSaveDraft={() => void handleSaveDraft()}
-        onPublish={() => void handlePublish()}
-        saveDraftLabel={t('actions.saveDraft')}
-        publishLabel={t('actions.publish')}
-        discardLabel={t('actions.discard')}
-      />
+      {/* No Save over settings that never loaded: it would write the empty defaults. */}
+      {loadError === null && (
+        <SettingsActionBar
+          dirty={dirty}
+          pendingAction={pendingAction}
+          onDiscard={() => {
+            if (!profile) return
+            const values = mergeDraft(profile)
+            form.setFieldsValue(values)
+            setDirty(false)
+          }}
+          onSaveDraft={() => void handleSaveDraft()}
+          onPublish={() => void handlePublish()}
+          saveDraftLabel={t('actions.saveDraft')}
+          publishLabel={t('actions.publish')}
+          discardLabel={t('actions.discard')}
+        />
+      )}
     </div>
   )
 }

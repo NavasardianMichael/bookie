@@ -126,24 +126,14 @@ it with a test pinning the two — which is why it is a backlog entry rather tha
 imports Prisma, so `tests/unit/server/` cannot reach it (`tests/CLAUDE.md`), and nothing in
 `pnpm test` touches a database. The same blind spot as entry 4.
 
-### 6c. `/providers/profile/consumer-bookings` has no entry point
+### 6c. ~~`/providers/profile/consumer-bookings` has no entry point~~ — done 2026-09-23
 
-The workspace switch replaced the Bookings page's header control (2026-09-22), and that
-control was the only link to this route. The sidebar merely *aliases* it onto the Bookings
-item so the tab stays lit — it never linked to it.
-
-The route still works and is still the richer surface: it has the month calendar, the
-filters and paging that `/consumers/profile/appointments` does not, over the same rows.
-So there are two reasonable ends and this is deliberately not decided here:
-
-- **Retire it** — 307 to `/consumers/profile/appointments`, which the workspace switch
-  already reaches from `/providers/profile/bookings`. One surface for "bookings I made",
-  at the cost of the calendar and filters.
-- **Keep it and give it a link** — but that means a second control doing something close
-  to what the workspace switch does, which is what `src/app/CLAUDE.md` decision 5 argued
-  against in the first place.
-
-Left reachable by URL in the meantime; nothing 404s.
+Resolved by moving Bookings out of settings. `/bookings` is a top-level page in the header,
+and for a provider whose account also holds a Consumer profile it carries a "Booked with
+me / Booked by me" switch. The second view is exactly what this route rendered, with the
+calendar and filters intact. The route itself is now a 307 to `/bookings`, alongside
+`/providers/profile/bookings` and `/consumers/profile/appointments`. The objection to a
+second switch no longer applies, because there is no settings tab left for it to duplicate.
 
 ### 7. ~~`no-show` vs `no_show`~~ — done 2026-09-11
 
@@ -152,13 +142,19 @@ had **no importers at all** — the live types moved to `src/api/appointments/ty
 where `BOOKING_STATUSES` already matches the Prisma enum. The dead file is deleted rather
 than corrected, so the drift cannot come back through it.
 
-### 8. `FavoriteProvider` schema/DB drift
+### 8. Schema/DB drift — `FavoriteProvider` done 2026-09-23, `Review.updatedAt` open
 
-`prisma migrate diff` reports `[+] Added primary key on columns (consumerId, providerId)`
-against the live database. The init migration created the table with a composite **primary
-key**; `schema.prisma` declares only `@@unique`. Predates all current work and is harmless
-in practice, but it means the drift check is never clean, so a real drift has nothing to
-stand out against.
+**`FavoriteProvider` is fixed.** `20260923000000_favorites_per_user` re-keyed the table on
+`User`. `schema.prisma` now declares the composite `@@id` the database always had, and the
+migration drops the redundant unique index the init migration created alongside it.
+
+**One drift remains.** `prisma migrate diff --from-schema-datasource
+--to-schema-datamodel` still reports `Review.updatedAt` "default changed from `Some(Now)` to
+`None`". `20260915000000_provider_reviews` adds the column with `DEFAULT CURRENT_TIMESTAMP`
+on purpose: a bare NOT NULL column cannot be added to a table that already has rows. The
+schema's `@updatedAt` declares no default. The drift is harmless, because Prisma writes the
+column on every update, but the check is still not clean. A follow-up migration dropping the
+default (every row is backfilled by now) would make it clean.
 
 ### 9. ~~`splitScheduleIntoParts` mutates its caller's break objects~~ — done 2026-09-11
 
@@ -235,6 +231,44 @@ asserting the two constants match is the fix rather than a record of a defect.
 
 ---
 
+## Errors — what the 2026-09-23 pass left open
+
+The error pipeline (`src/components/CLAUDE.md` → *Errors*, `server/CLAUDE.md` → *What a
+failure answers*) covers every surface. These are the edges it deliberately stops at:
+
+- **No monitoring.** `src/helpers/reportError.ts` is `console.error`, so a failure a visitor
+  sees is recorded only in their own console, and the digest an error page shows can be
+  matched only against the API's stdout. A monitoring client plugs in there and nowhere
+  else; the choice of service is open.
+- **The envelope `code` means three things.** The HTTP status on most routes, `-1` on
+  many 400s (`HttpError`'s default), and an `AUTH_ERROR` code on `/identity/*`. The client
+  classifies by HTTP **status** and treats only the `AUTH_ERROR` range and the slot-taken
+  message as codes, so this is harmless today — but a stable per-case code (e.g.
+  `SLUG_TAKEN`) is the only way to give a specific 409 or 400 its own translated sentence
+  without the call site knowing to pass an override.
+- **Validation answers one string, for the first failing field.** There is no per-field
+  map, so a form cannot highlight which field the server refused. The client mirrors the
+  rules that matter (`usePasswordRules`, the form rules), so a server 400 is mostly
+  client/server drift; shown as the generic *validation* copy.
+- **The two auth code mirrors are pinned only by inspection.** `AUTH_ERROR_CODES` and
+  `GOOGLE_ERROR_CODES` (`src/constants/auth.ts`) copy `server/src/routes/identity.ts` and
+  `lib/google-oauth.ts`; both server modules import config, so no unit test reaches them.
+  Same fix as #12: lift the constants into an import-free module.
+- **The service worker's offline page is English-only** (`src/helpers/pwa.ts`). It has a
+  working *Try again*; translating it means inlining 15 copies of two sentences into
+  `/sw.js` and choosing by the navigation's locale segment.
+- **`/auth/logout`'s "Delete Account Permanently" button has no `onClick`**, and the page
+  is hardcoded English. Not an error path — found on the way. Account deletion itself lives
+  in `DeleteAccountSection` on both Profile tabs.
+- **Profile creation's pickers, beyond loading.** `ProviderProfileForm` now loads both lists,
+  but `ProviderProfileFormCategories` is a `mode='tags'` Select, so a typed name is
+  submitted *as a category id* (`processors.ts` stringifies `categoryIds` as-is); both
+  pickers' "create new" links go to a hardcoded `'/'`; and the organization picker's
+  `addItem` focuses an `inputRef` attached to nothing. The registration screens'
+  debounced `OrganizationAutocomplete` is the likely replacement for the organization half.
+
+---
+
 ## Cleanup
 
 - **`react-world-flags` is 80% of the registration payload.** Measured on the 16.3.1
@@ -300,10 +334,11 @@ then built field-for-field on 2026-09-05 (`/auth/consumer-registration`,
 
 | Mockup | Route today |
 |---|---|
-| `provider_calendar_dashboard` | `/providers/profile/bookings` + `/providers/profile/analytics` — partly matched, see below |
+| `provider_calendar_dashboard` | `/bookings` + `/providers/profile/analytics` — partly matched, see below |
 
-**Partly matched on 2026-09-09.** `/providers/profile/bookings` and
-`/providers/profile/analytics` build the mockup's substance — a month calendar that filters
+**Partly matched on 2026-09-09.** The bookings calendar — then `/providers/profile/bookings`,
+top-level `/bookings` since 2026-09-23 — and `/providers/profile/analytics` build the
+mockup's substance — a month calendar that filters
 a day's clients, and the four-tile stat row `StatTile` was written for (its `stack` layout
 and `tone='brand'` variant name this prototype in their docstring). Three pieces are
 deliberately not matched:

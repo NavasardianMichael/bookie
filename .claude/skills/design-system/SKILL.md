@@ -65,7 +65,8 @@ one object (`showSearch={{ onSearch, filterOption, … }}`, `classNames.popup.ro
 `styles.body`, `variant`); the full mapping is in `src/components/CLAUDE.md`.
 
 **Thin antd wrappers** (client islands): `ui/AppButton`, `ui/AppInput`, `ui/AppTextArea`,
-`ui/AppFormItem`, `ui/AppSheet`, `ui/AppConfirmModal`, `ui/CopyableLinkValue`, `ui/ErrorState`.
+`ui/AppFormItem`, `ui/AppSheet`, `ui/AppConfirmModal`, `ui/CopyableLinkValue`, `ui/ErrorState`,
+`ui/ErrorAlert` (the only inline error block — see *Errors* in `src/components/CLAUDE.md`).
 
 Import wrappers from their own path. **`ui/index.ts` re-exports only `bare` and
 `layout`** — re-exporting a wrapper there pulls antd's runtime into any route that

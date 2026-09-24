@@ -56,6 +56,7 @@ type Props = {
 export const BookingManageClient: FC<Props> = ({ token, initial }) => {
   const t = useTranslations('Booking')
   const tStatus = useTranslations('Settings.bookings.status')
+  const tErrors = useTranslations('Errors')
   const locale = useLocale() as Locale
   const { notification } = App.useApp()
 
@@ -309,6 +310,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
         description={t('rescheduleConfirmBody', { when: rescheduleWhen })}
         okText={t('confirmNewTime')}
         onConfirm={handleReschedule}
+        errorOverrides={{ 409: tErrors('conflicts.bookingLocked') }}
         onCancel={() => setRescheduleOpen(false)}
       />
 
@@ -318,6 +320,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
         description={t('cancelConfirmBody')}
         tone='danger'
         onConfirm={handleCancel}
+        errorOverrides={{ 409: tErrors('conflicts.bookingLocked') }}
         onCancel={() => setCancelOpen(false)}
       />
     </div>

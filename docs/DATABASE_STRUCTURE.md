@@ -12,7 +12,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), SEO overrides + vanity `slug` |
 | **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
-| **FavoriteProvider** | Consumer ↔ Provider favorites |
+| **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
 | **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot) and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
@@ -41,6 +41,13 @@ All JSON responses use:
 { "value": <T>, "error": null }
 { "value": null, "error": { "code": number, "message": string } }
 ```
+
+Every failure is enveloped, including the ones no route raised: an unknown path is a
+**404** envelope (not Express's HTML page), malformed JSON a **400**, an oversized body or
+upload a **413**, a Prisma not-found / unique / foreign-key failure a **404 / 409 / 409**, a
+Prisma validation failure a **400**, and anything else a **500**. Outside production the
+generic messages append the original error's message. The table is in `server/CLAUDE.md`
+→ *What a failure answers*.
 
 ## Routes (Express, default `:9004`)
 
@@ -88,6 +95,10 @@ All JSON responses use:
 | GET | `/categories`, `/categories/:id` | public |
 | POST | `/contact` | public — contact form; forwards to the mail engine, **stores nothing** |
 | GET/PUT | `/consumer-profile` | consumer |
+| GET | `/favorites` | session, any role — the caller's favourite providers as `BasicProvider[]`, **listed only**, newest first |
+| GET | `/favorites/ids` | session — just the provider ids, for the hearts on a grid |
+| PUT | `/favorites/:providerId` | session — idempotent add; **403** on the caller's own page, 404 on an unknown or unlisted one |
+| DELETE | `/favorites/:providerId` | session — idempotent remove; no listed check, so an unpublished provider can still be removed |
 | GET/PATCH | `/appointments` | session (list includes `provider` + `service`, and `consumer` **or** `guest`) |
 | POST | `/appointments` | **public** — see [Booking](#booking) |
 
@@ -261,6 +272,11 @@ They are separate from `GET /appointments` on purpose. That route answers "what 
 up" for either role and has two existing callers; adding a page window would change its
 response from an array to an envelope and break both.
 
+Their reader on the web is `/bookings`, a top-level page rather than a settings tab: the
+`/bookings` pair is its default view for a provider session, and the `/consumer-bookings`
+pair is its "Booked by me" view, offered when `GET /identity/me` reports
+`profiles.consumer`. A consumer session reads `GET /appointments` on the same page.
+
 | Endpoint | Notes |
 |---|---|
 | `GET /provider-profile/bookings` | Paged `{ items, total, page, perPage, pageCount }`. Filters: `from`/`to`, repeatable `status`, `serviceId`, `q`. Sorts: `startDesc` (default — this is a history view), `startAsc`, `createdDesc`, `nameAsc`. Parsing lives in `services/providerBookings.ts`; every value narrows to a closed set, so a hand-edited query degrades to defaults rather than 500s. |
@@ -313,6 +329,29 @@ call — `GET /providers/:idOrSlug` already accepts either form. The canonical s
 **id** URL either way, because `generateMetadata` builds it from the resolved entity rather
 than the route segment, so the two addresses never compete in an index. Temporary rather
 than permanent because a 308 is cached by the browser and would outlive a slug change.
+
+## Favourites
+
+`routes/favorites.ts`, behind `requireAuth` — **not** a role guard. Every read and write is
+scoped to `session.userId`, which is never a parameter.
+
+- **The account owns a favourite, not a profile.** The table was Consumer-keyed until
+  `20260923000000_favorites_per_user`, which carried each row across through
+  `Consumer.userId`. A provider holds no Consumer row until they book someone, so the old
+  key would have meant refusing them or minting a profile as a side effect of a click.
+- **Nobody favourites their own page.** `PUT` answers 403 when the provider belongs to the
+  caller's `User`, checked *before* the listed rule — the owner already knows the page
+  exists, so there is nothing to hide. The migration deleted the rows that already broke
+  the rule. The web hides the heart on the owner's card; the API is what enforces it.
+- **Unlisted providers.** `PUT` answers 404 for them, as for an unknown id, so an unlisted
+  id cannot be confirmed. The row survives an unpublish, but `GET /favorites` filters on
+  `listed: true`, because a card that leads to a 404 is worse than no card. `DELETE` has no
+  listed check, so a provider who has since unpublished can still be removed.
+- **Both writes are idempotent.** `PUT` is `createMany({ skipDuplicates })`, which is
+  `ON CONFLICT DO NOTHING` and holds under two concurrent requests. `DELETE` is a
+  `deleteMany`. A retried or double-tapped heart cannot fail.
+- **`GET /consumer-profile` no longer carries `favoriteProviders`.** Nothing read it, and
+  it answered for the profile rather than the account.
 
 ## Booking
 

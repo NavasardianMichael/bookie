@@ -1,5 +1,6 @@
 import { getOrganizationLDSchema } from '@linkedDataSchema/organizations'
 import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getOrganizationAPI } from '@api/organizations/main'
 import { Organization as OrganizationType } from '@store/organizations/single/types'
@@ -7,6 +8,7 @@ import { GenerateMetadata } from '@interfaces/components'
 import { currentLocale, localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { getCountryName } from '@helpers/country'
+import { isNotFoundError } from '@helpers/error'
 import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
 import { AppAvatar } from '@components/ui/AppAvatar'
@@ -25,10 +27,23 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
+/**
+ * A dead organization link is a 404, not an outage. `getOrganizationAPI` is already
+ * `cache()`d, so `generateMetadata` and the page body still share one request.
+ */
+const loadOrganization = async (id: OrganizationType['id']) => {
+  try {
+    return await getOrganizationAPI({ id })
+  } catch (error) {
+    if (isNotFoundError(error)) notFound()
+    throw error
+  }
+}
+
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { organizationId } = await params
   const [organization, t] = await Promise.all([
-    getOrganizationAPI({ id: organizationId }),
+    loadOrganization(organizationId),
     getTranslations('Organizations'),
   ])
 
@@ -63,7 +78,7 @@ export default async function Organization({ params }: Props) {
   const { organizationId } = await params
 
   const [organization, tCommon] = await Promise.all([
-    getOrganizationAPI({ id: organizationId }),
+    loadOrganization(organizationId),
     getTranslations('Common'),
   ])
 

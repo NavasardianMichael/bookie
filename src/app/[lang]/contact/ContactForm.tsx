@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Alert, Form } from 'antd'
+import { Form } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { getConsumerProfileAPI } from '@api/consumers/main'
@@ -12,13 +12,14 @@ import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { USER_TYPES } from '@constants/auth'
 import { MAX_CHARS_FOR_CONTACT_MESSAGE } from '@constants/form'
-import { processError } from '@helpers/error'
+import { reportError } from '@helpers/reportError'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CheckCircleIcon } from '@components/ui/icons'
 
 type ContactFormValues = {
@@ -41,7 +42,7 @@ export const ContactForm = () => {
   const firstName = useAuthStore.use.firstName()
   const lastName = useAuthStore.use.lastName()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const [isSent, setIsSent] = useState(false)
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
@@ -104,7 +105,7 @@ export const ContactForm = () => {
         // Prefill is a convenience, never a gate: a failed profile read leaves the field
         // empty and the visitor types their address. Logged rather than shown, because an
         // error banner here would be about something they did not ask for.
-        if (!cancelled) console.error(processError(err).message)
+        if (!cancelled) reportError(err, 'ContactForm:prefill')
       }
     })()
 
@@ -134,7 +135,7 @@ export const ContactForm = () => {
     } catch (err) {
       // Kept on screen with the values intact — nothing is stored server-side, so a
       // failed send means the message exists only in this form and must not be cleared.
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -173,7 +174,7 @@ export const ContactForm = () => {
       scrollToFirstError
       className='flex flex-col gap-4'
     >
-      {error && <Alert type='error' showIcon message={error} />}
+      {error !== null && <ErrorAlert error={error} />}
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         <div className='flex flex-col gap-1.5'>

@@ -55,6 +55,23 @@ const upload = multer({ dest: config.uploadDir })
 const MAX_BUSY_WINDOW_MS = 100 * 24 * 60 * 60 * 1000
 
 /**
+ * A nested field that arrives JSON-encoded in a multipart body — which carries only
+ * strings — or already parsed in a JSON one. A malformed string is the client's error:
+ * the bare `JSON.parse` this replaces threw inside the route and answered 500, and so did
+ * a JSON body's array, which `JSON.parse` coerces to `"a,b"` before failing on it.
+ */
+const readJsonField = <T = unknown>(value: unknown, field: string): T | undefined => {
+  if (value === undefined || value === null || value === '') return undefined
+  if (typeof value === 'object') return value as T
+  if (typeof value !== 'string') return undefined
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    throw new HttpError(400, `${field} must be valid JSON`, 400)
+  }
+}
+
+/**
  * The unpublished-edits overlay. **Deliberately has no `email` key**, and `patch` below is
  * built by explicit per-field assignments rather than by spreading the request body — so an
  * `email` sent to this route cannot reach the draft JSON and reappear at publish time.
@@ -265,12 +282,7 @@ providerProfileRouter.put(
       if (!existing) throw new HttpError(404, 'Provider profile not found', 404)
 
       const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule ?? req.body?.weekSchedule
-      const weekSchedule =
-        typeof weekScheduleRaw === 'string'
-          ? JSON.parse(weekScheduleRaw)
-          : weekScheduleRaw && typeof weekScheduleRaw === 'object'
-            ? weekScheduleRaw
-            : undefined
+      const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
       const paymentInfo =
         parseJson(typeof body.paymentInfo === 'string' ? body.paymentInfo : undefined) ??
         (typeof req.body?.paymentInfo === 'object' ? req.body.paymentInfo : undefined)
@@ -335,9 +347,9 @@ providerProfileRouter.put(
 
     // Legacy / direct live update (onboarding + settings prefs that are not draftable)
     const categoryIdsRaw = body.categoryIds ?? body.CategoryIds
-    const categoryIds = categoryIdsRaw ? (JSON.parse(categoryIdsRaw) as string[]) : undefined
+    const categoryIds = readJsonField<string[]>(categoryIdsRaw, 'categoryIds')
     const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule
-    const weekSchedule = weekScheduleRaw ? JSON.parse(weekScheduleRaw) : undefined
+    const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
     const emailNotificationPrefs =
       parseJson(body.emailNotificationPrefs) ?? req.body?.emailNotificationPrefs
     /**

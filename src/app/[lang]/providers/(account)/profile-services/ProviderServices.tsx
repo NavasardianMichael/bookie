@@ -2,14 +2,14 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
-import { Alert, Tabs } from 'antd'
+import { Tabs } from 'antd'
 import { useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
-import { processError } from '@helpers/error'
+import { reportError } from '@helpers/reportError'
 import { processProviderServiceFormToRequestPayload } from '@components/providerServiceForm/processors'
 import { ProviderServiceForm } from '@components/providerServiceForm/ProviderServiceForm'
 import { AppButton } from '@components/ui/AppButton'
@@ -17,6 +17,7 @@ import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
 import { AppText } from '@components/ui/bare/AppText'
 import { EmptyState } from '@components/ui/EmptyState'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CalendarIcon, ListIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
@@ -35,6 +36,7 @@ const CLOSED_STATUSES = ['cancelled', 'completed', 'no_show']
 
 export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const t = useTranslations('Services')
+  const tErrors = useTranslations('Errors')
   const {
     id: providerId,
     services,
@@ -53,11 +55,13 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   const deleteServiceIdRef = useRef<string | null>(null)
 
   const [filter, setFilter] = useState<Filter>(FILTERS.all)
-  const [loadError, setLoadError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<unknown>(null)
+  /** Bumped by Retry to run the load again. */
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [upcomingCount, setUpcomingCount] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<unknown>(null)
 
   /**
    * The store slice this page reads had no loader wired to it, so the list stayed
@@ -69,12 +73,19 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
    */
   useEffect(() => {
     void Promise.all([getProviderProfileData(), getCategoriesList()])
-      .catch((error) => setLoadError(processError(error).message))
+      .catch((error: unknown) => setLoadError(error))
       .finally(() => setIsLoading(false))
-  }, [getCategoriesList, getProviderProfileData])
+  }, [getCategoriesList, getProviderProfileData, loadAttempt])
+
+  const retryLoad = useCallback(() => {
+    setLoadError(null)
+    setIsLoading(true)
+    setLoadAttempt((attempt) => attempt + 1)
+  }, [])
 
   // The bookings figure is the one stat the profile payload does not carry, and a
-  // failure here must not take the services list down with it.
+  // failure here must not take the services list down with it. The tile shows `—`, which
+  // is honest; the failure is recorded rather than announced over a working page.
   useEffect(() => {
     void listAppointmentsAPI()
       .then((all) => {
@@ -83,7 +94,10 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           all.filter((a) => new Date(a.time.startDate).getTime() >= now && !CLOSED_STATUSES.includes(a.status)).length
         )
       })
-      .catch(() => setUpcomingCount(null))
+      .catch((error: unknown) => {
+        reportError(error, 'ProviderServices:upcomingCount')
+        setUpcomingCount(null)
+      })
   }, [])
 
   const serviceList = useMemo(() => allIds.map((serviceId) => byId[serviceId]).filter(Boolean), [allIds, byId])
@@ -137,9 +151,11 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         }
         closeEditServiceModal()
         // A typed-in category becomes a Category row; refresh so the next open lists it.
-        void getCategoriesList()
+        // The save already succeeded, so a failed refresh is recorded, not announced —
+        // the worst case is that the new category is missing from the next open's list.
+        void getCategoriesList().catch((error: unknown) => reportError(error, 'ProviderServices:refreshCategories'))
       } catch (error) {
-        setFormError(processError(error).message)
+        setFormError(error)
       } finally {
         setIsSubmitting(false)
       }
@@ -211,8 +227,6 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         actions={addServiceButton}
       />
 
-      {loadError && <Alert type='error' showIcon message={loadError} />}
-
       <ResponsiveGrid min='sm' gap='md'>
         <StatTile
           layout='row'
@@ -228,7 +242,11 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         />
       </ResponsiveGrid>
 
-      {isLoading ? (
+      {/* A failed load replaces the list: an empty list beside the error would say the
+          provider has no services, which is exactly what we could not find out. */}
+      {loadError !== null ? (
+        <ErrorAlert error={loadError} onRetry={retryLoad} />
+      ) : isLoading ? (
         <ResponsiveGrid>
           {Array.from({ length: 3 }, (_, index) => (
             <div key={index} className='bg-surface-sunken min-h-56 animate-pulse rounded-brand' />
@@ -285,10 +303,15 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         />
       )}
 
-      <AppSheet title={t('sheetTitle')} open={editServiceModalOpened} onClose={closeEditServiceModal}>
+      <AppSheet
+        title={t('sheetTitle')}
+        open={editServiceModalOpened}
+        onClose={closeEditServiceModal}
+        pending={isSubmitting}
+      >
         {editServiceModalOpened ? (
           <>
-            {formError && <Alert type='error' showIcon message={formError} />}
+            {formError !== null && <ErrorAlert error={formError} />}
             <ProviderServiceForm
               key={editValues.id ?? 'new'}
               initialValues={editValues}
@@ -307,6 +330,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         okText={t('delete')}
         open={deleteServiceModalOpened}
         onConfirm={onDeleteServiceApprove}
+        errorOverrides={{ 409: tErrors('conflicts.serviceHasAppointments') }}
         onCancel={closeDeleteServiceModal}
       />
     </div>

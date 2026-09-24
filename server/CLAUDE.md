@@ -30,6 +30,34 @@ Every JSON response, success or failure:
 Build it with the helpers in `src/lib/api-response.ts` — never hand-roll `res.json`.
 The frontend's `Endpoint<>` contract in `src/interfaces/api.ts` depends on this shape.
 
+### What a failure answers
+
+A route raises what it means with `throw new HttpError(status, message, code?)` (or
+`fail()` in the identity routes). Everything else that reaches `middleware/error.ts` is
+mapped by `lib/error-response.ts` — import-free so `tests/unit/server/errorResponse.spec.ts`
+can reach it:
+
+| Thrown | Status | `message` in production |
+|---|---|---|
+| body-parser: malformed JSON / body too large | 400 / 413 | `Malformed JSON body` / `Request body too large` |
+| multer: too many files, unexpected field / file too large | 400 / 413 | multer's own |
+| Prisma `P2025` / `P2002` / `P2003` | 404 / 409 / 409 | `Not found` / `Conflict` |
+| Prisma validation (an unvalidated body field of the wrong type) | 400 | `Invalid request` |
+| any other `http-errors` 4xx | its status | `Bad request` |
+| anything else | 500 | `Internal server error` |
+| no route matched (`app.ts`, before `errorHandler`) | 404 | `Not found` |
+
+**Outside production the generic messages carry the original** — `Internal server error:
+Cannot read properties of undefined…` — because the web app's development details show the
+envelope's message, and "Internal server error" alone tells a developer nothing. The client
+never shows this text in production; it picks translated copy by **status** and code
+(`src/components/CLAUDE.md` → *Errors*). That is why the status matters more than the
+message: every client-error row above used to answer 500 (and an unknown path an HTML
+page), so a client mistake read as an outage, with a Retry that could never work.
+
+A handler that has already answered and then throws goes to Express's default handler
+(`res.headersSent`) — writing a second response inside `errorHandler` would throw there.
+
 ## Rules
 
 - **ESM with explicit `.js` extensions on relative imports** (`./routes/providers.js`),
@@ -298,6 +326,7 @@ Every write in `prisma/seed.ts` has to tolerate that:
 | Provider, Consumer | `upsert` on `userId`, with `update: {}` |
 | Organization | `findFirst` on `name` — that column has **no** unique constraint |
 | Appointment, Review | `findFirst` on the identifying columns — neither has a unique key |
+| FavoriteProvider | `createMany({ skipDuplicates: true })` against the composite `(userId, providerId)` key |
 
 `Review` seeding is a `reviewDefs[]` loop guarded by `findFirst` on the consumer/provider
 pair, and the seed ends by calling `recomputeProviderRating` for every provider. That last

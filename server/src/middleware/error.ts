@@ -1,6 +1,7 @@
-import { Prisma } from '@prisma/client'
 import type { NextFunction, Request, Response } from 'express'
+import { config } from '../config.js'
 import { fail } from '../lib/api-response.js'
+import { resolveErrorResponse } from '../lib/error-response.js'
 
 export class HttpError extends Error {
   constructor(
@@ -12,18 +13,24 @@ export class HttpError extends Error {
   }
 }
 
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+/**
+ * The one 4-arg handler. An `HttpError` is answered as thrown; everything else — Prisma,
+ * multer, body-parser, a bug — is mapped by `lib/error-response.ts`, which keeps
+ * production generic and adds the original message everywhere else.
+ */
+export function errorHandler(err: unknown, _req: Request, res: Response, next: NextFunction) {
+  // A route that already answered and then threw cannot be answered again; writing a
+  // second response here would throw inside the error handler itself. Express's default
+  // handler closes the connection instead.
+  if (res.headersSent) return next(err)
+
   if (err instanceof HttpError) {
     return fail(res, err.message, err.code, err.status)
   }
 
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if (err.code === 'P2025') return fail(res, 'Not found', 404, 404)
-    if (err.code === 'P2002') return fail(res, 'Conflict', 409, 409)
-  }
-
-  console.error(err)
-  return fail(res, 'Internal server error', -1, 500)
+  const response = resolveErrorResponse(err, config.nodeEnv === 'production')
+  if (response.status >= 500) console.error(err)
+  return fail(res, response.message, response.code, response.status)
 }
 
 export function asyncHandler(

@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Col, Form, Row } from 'antd'
 import { useTranslations } from 'next-intl'
+import { useCategoriesListStore } from '@store/categories/list/store'
+import { useOrganizationsListStore } from '@store/organizations/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { ProviderProfileFormValues } from '@interfaces/providers'
@@ -10,12 +12,12 @@ import { useRouter } from '@i18n/navigation'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { PROVIDER_PROFILE_FORM_INITIAL_VALUES } from '@constants/providers'
 import { ROUTES } from '@constants/routes'
-import { processError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppFormSection } from '@components/ui/AppFormSection'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { processProviderProfileFormToPostPayload } from './processors'
 import { ProviderProfileFormCategories } from './ProviderProfileFormCategories'
 import { ProviderProfileFormGallery } from './ProviderProfileFormGallery'
@@ -41,11 +43,38 @@ type Props = {
  */
 export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
   const t = useTranslations('ProfileCreation')
+  const tErrors = useTranslations('Errors')
   const { push } = useRouter()
   const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
   const [form] = Form.useForm<ProviderProfileFormValues>()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
+  const getCategoriesList = useCategoriesListStore.use.getCategoriesList()
+  const getOrganizationsList = useOrganizationsListStore.use.getOrganizationsList()
+  const [optionsError, setOptionsError] = useState<unknown>(null)
+  /** Bumped by Retry to load the picker options again. */
+  const [optionsAttempt, setOptionsAttempt] = useState(0)
+
+  /**
+   * The category and organization pickers read list stores that nothing else on this page
+   * fills. They were empty on a cold load — categories had options only if the provider
+   * had opened profile-services earlier in the session, organizations never — so the
+   * required category could be satisfied only by typing a free-text name. A failure keeps
+   * the form usable and says why the pickers are empty.
+   */
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([getCategoriesList(), getOrganizationsList()])
+      .then(() => {
+        if (!cancelled) setOptionsError(null)
+      })
+      .catch((loadFailure: unknown) => {
+        if (!cancelled) setOptionsError(loadFailure)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [getCategoriesList, getOrganizationsList, optionsAttempt])
 
   const emailMaxCharsCountRuleSet = useFormItemRules('email', 'maxCharsForInput')
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
@@ -61,7 +90,7 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
       await putProviderProfileData(processProviderProfileFormToPostPayload(values))
       push(ROUTES.providerServices)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -93,6 +122,14 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
       </AppFormSection>
 
       <AppFormSection title={t('whatYouDo')}>
+        {optionsError !== null && (
+          <ErrorAlert
+            tone='warning'
+            error={optionsError}
+            title={tErrors('sections.load')}
+            onRetry={() => setOptionsAttempt((attempt) => attempt + 1)}
+          />
+        )}
         <AppFormItem name='categoryIds' label={t('categories')} rules={oneItemSelectedAtLeastRuleSet}>
           <ProviderProfileFormCategories disabled={isSubmitting} />
         </AppFormItem>
@@ -144,11 +181,7 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
         </AppFormItem>
       </AppFormSection>
 
-      {error && (
-        <div role='alert' className='text-body-sm text-red-600'>
-          {error}
-        </div>
-      )}
+      {error !== null && <ErrorAlert error={error} />}
 
       <div className='app-safe-b border-brand-border bg-surface sticky bottom-0 z-10 -mx-4 border-t px-4 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0'>
         <AppButton type='primary' variant='solid' htmlType='submit' className='w-full' loading={isSubmitting}>

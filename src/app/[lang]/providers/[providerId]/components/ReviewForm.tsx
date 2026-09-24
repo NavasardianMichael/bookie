@@ -42,6 +42,7 @@ export const ReviewForm: FC<Props> = ({ initialValues, isSubmitting, submitLabel
       layout='vertical'
       onFinish={onSubmit}
       scrollToFirstError
+      disabled={isSubmitting}
       className='flex w-full flex-col gap-6'
     >
       {/*

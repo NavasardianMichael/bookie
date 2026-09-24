@@ -10,12 +10,14 @@ import { getProviderBusyAPI } from '@api/providers/main'
 import { ProviderBusyInterval } from '@api/providers/types'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
+import { useErrorToast } from '@hooks/useErrorToast'
 import { BUSY_WINDOW_PADDING_DAYS } from '@constants/booking'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { countSlotsByDay, dropBusySlots, getSlotsForDate, getSlotsForDateRange, isSlotTakenError } from '@helpers/booking'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { BookingConfirmSheet, BookingConfirmSubmission, BookingCreated } from './BookingConfirmSheet'
 import { BookingMonth } from './BookingMonth'
 import { BookingSlots } from './BookingSlots'
@@ -46,9 +48,11 @@ type Props = {
  */
 export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const t = useTranslations('Booking')
+  const tErrors = useTranslations('Errors')
   const locale = useLocale()
   const { basic: basicProvider, details, id: providerId, services } = useSingleProviderStore()
   const { notification } = App.useApp()
+  const toast = useErrorToast()
 
   const [month, setMonth] = useState<Dayjs>(() => dayjs().startOf('month'))
   const [pickedDayKey, setPickedDayKey] = useState<string | null>(null)
@@ -57,9 +61,16 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const [isBooking, setIsBooking] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [created, setCreated] = useState<BookingCreated | null>(null)
+  /**
+   * Captured when the sheet opens. The live summary goes null once the booked
+   * slot leaves the grid, and the sheet would swap its success body for a spinner.
+   */
+  const [confirmBooking, setConfirmBooking] = useState<BookingSummaryData | null>(null)
   const [busy, setBusy] = useState<ProviderBusyInterval[]>([])
-  /** Bumped to re-ask who is booked — after a 409, and after a successful booking. */
+  /** Bumped to re-ask who is booked — after a 409, after a successful booking, and by Retry. */
   const [busyRevision, setBusyRevision] = useState(0)
+  /** The last busy read failed; the grid is showing the answer before it. */
+  const [busyError, setBusyError] = useState<unknown>(null)
 
   /**
    * What is already taken in the month on screen, padded a week either side so the grid
@@ -92,12 +103,17 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
       to: busyWindow.to,
     })
       .then((intervals) => {
-        if (!cancelled) setBusy(intervals)
+        if (cancelled) return
+        setBusy(intervals)
+        setBusyError(null)
       })
       // A failed read must not empty the set: `[]` would mean "everything is free",
       // which is the very claim that gets a visitor to a slot the API then refuses.
-      // Keeping the last answer degrades to a stale grid, and the 409 still catches it.
-      .catch(() => undefined)
+      // Keeping the last answer degrades to a stale grid, and the 409 still catches it —
+      // but the visitor is told, above the times, and can ask again.
+      .catch((error: unknown) => {
+        if (!cancelled) setBusyError(error)
+      })
 
     return () => {
       cancelled = true
@@ -238,6 +254,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const handleCloseConfirm = useCallback(() => {
     setIsConfirmOpen(false)
     setCreated(null)
+    setConfirmBooking(null)
   }, [])
 
   /**
@@ -247,35 +264,40 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
    * identify) who they are.
    */
   const handleOpenConfirm = useCallback(() => {
-    if (!validSelectedStart || !providerId) return
+    if (!validSelectedStart || !providerId || !booking) return
 
     if (!selectedServiceId) {
       notification.warning({
-        message: t('chooseServiceNotification'),
+        title: t('chooseServiceNotification'),
         description: t('chooseServiceNotificationBody'),
       })
       return
     }
 
+    setConfirmBooking(booking)
     setIsConfirmOpen(true)
-  }, [notification, providerId, selectedServiceId, t, validSelectedStart])
+  }, [booking, notification, providerId, selectedServiceId, t, validSelectedStart])
 
   const handleSubmitBooking = useCallback(
     async (submission: BookingConfirmSubmission) => {
-      if (!validSelectedStart || !providerId || !selectedServiceId) return
+      // The time the sheet is confirming, not the live pick: a busy refresh while the sheet
+      // is open can drop that slot from the grid, and reading the live value then made
+      // Submit return without a word. If the time really has gone, the API's 409 says so.
+      const startAt = confirmBooking?.startISO
+      if (!startAt || !providerId || !selectedServiceId) return
 
       setIsBooking(true)
       try {
         const result = await createAppointmentAPI({
           providerId,
           serviceId: selectedServiceId,
-          startAt: validSelectedStart,
+          startAt,
           notes: submission.notes,
           paymentMethods: submission.paymentMethods,
           guest: submission.guest,
           locale,
         })
-        setRequestedStarts((prev) => [...prev, validSelectedStart])
+        setRequestedStarts((prev) => [...prev, startAt])
         // The booking we just made is now one of the taken intervals. Re-asking rather
         // than splicing it in locally also picks up anything else that landed while the
         // sheet was open, which is the same staleness this whole path is about.
@@ -311,7 +333,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
           setSelectedStart(null)
           setIsConfirmOpen(false)
           notification.warning({
-            message: t('slotTaken'),
+            title: t('slotTaken'),
             description: t('slotTakenBody'),
           })
           return
@@ -319,20 +341,12 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
         // Sheet deliberately left open, so what was typed survives a failed submit —
         // a guest who lost their details to a 409 would have to retype all four fields.
-        notification.error({ message: t('failed'), description: processed.message })
+        toast(error, { title: t('failed'), overrides: { 409: tErrors('conflicts.bookingUnavailable') } })
       } finally {
         setIsBooking(false)
       }
     },
-    [
-      accountEmail,
-      locale,
-      notification,
-      providerId,
-      selectedServiceId,
-      validSelectedStart,
-      t,
-    ]
+    [accountEmail, confirmBooking?.startISO, locale, notification, providerId, selectedServiceId, t, tErrors, toast]
   )
 
   return (
@@ -346,6 +360,15 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         onSelectDay={handleSelectDay}
         onMonthChange={setMonth}
       />
+
+      {busyError !== null && (
+        <ErrorAlert
+          tone='warning'
+          error={busyError}
+          title={tErrors('sections.busySlots')}
+          onRetry={() => setBusyRevision((current) => current + 1)}
+        />
+      )}
 
       <BookingSlots
         date={selectedDate}
@@ -361,7 +384,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
       <BookingConfirmSheet
         open={isConfirmOpen}
-        booking={booking}
+        booking={confirmBooking}
         needsGuestDetails={!isSignedOn}
         isAuthPending={isAuthPending}
         requiresApproval={Boolean(details?.requiresBookingApproval)}

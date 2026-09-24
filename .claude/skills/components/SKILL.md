@@ -51,7 +51,7 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
 - Route every `className` through `cn` (`twMerge(clsx(...))`) — plain concatenation
   can't remove a losing class, only `twMerge` can.
 - Import a wrapper (`AppButton`, `AppInput`, `AppTextArea`, `AppFormItem`, `AppSheet`,
-  `AppConfirmModal`, `ErrorState`) from its own path, never through `ui/index.ts` — that
+  `AppConfirmModal`, `ErrorState`, `ErrorAlert`) from its own path, never through `ui/index.ts` — that
   barrel re-exports `bare` and `layout` only.
 - A clickable card uses a stretched `<Link>` overlay, not an anchor wrapped around
   interactive children.
@@ -86,7 +86,7 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
   dialog open, and the translated Confirm/Cancel/Close defaults. Gate:
   enforced by `pnpm gates`.
 - Don't write a call-site `try`/`catch` inside an `AppConfirmModal` `onConfirm` — the
-  modal already catches, reports via `processError`, and stays open on failure.
+  modal already catches, reports via `useErrorToast`, and stays open on failure.
 - Don't re-export an antd wrapper from `ui/index.ts` — it pulls antd's client
   runtime into every route that imports anything from that barrel.
 - Don't hardcode a hex value or a magic px dimension outside `src/styles/tokens.ts`.

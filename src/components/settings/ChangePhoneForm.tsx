@@ -8,9 +8,10 @@ import { getCountryCallingCode, isValidPhoneNumber } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
 import { changePhoneAPI } from '@api/auth/main'
 import { PhoneNumber } from '@interfaces/app'
-import { processError } from '@helpers/error'
+import { isFormValidationError } from '@helpers/error'
 import { toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
+import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { Surface } from '@components/ui/layout/Surface'
 
 type Props = {
@@ -53,7 +54,7 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
   const tActions = useTranslations('Settings.actions')
   const [form] = Form.useForm<PhoneFormValues>()
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<unknown>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
   const typedCode = Form.useWatch('code', form)
@@ -77,7 +78,9 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
     let values: PhoneFormValues
     try {
       values = await form.validateFields()
-    } catch {
+    } catch (err) {
+      // A failed rule is already shown under its field; anything else is not.
+      if (!isFormValidationError(err)) setError(err)
       return
     }
 
@@ -89,7 +92,7 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
       if (next) form.setFieldsValue(next)
       onChanged?.(result.phone)
     } catch (err) {
-      setError(processError(err).message)
+      setError(err)
     } finally {
       setPending(false)
     }
@@ -97,8 +100,8 @@ export const ChangePhoneForm: FC<Props> = ({ currentPhone, onChanged, embedded =
 
   const body = (
     <>
-      {error && <Alert type='error' showIcon message={error} />}
-      {success && <Alert type='success' showIcon message={success} />}
+      {error !== null && <ErrorAlert error={error} />}
+      {success && <Alert type='success' showIcon title={success} />}
 
       <Form
         form={form}

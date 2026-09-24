@@ -1,6 +1,5 @@
 import { cache } from 'react'
 import { getProviderLDSchema } from '@linkedDataSchema/providers'
-import { isAxiosError } from 'axios'
 import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import Image from 'next/image'
@@ -15,6 +14,7 @@ import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { getCountryName } from '@helpers/country'
 import { generateEntityPath } from '@helpers/entities'
+import { isNotFoundError } from '@helpers/error'
 import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
 import { acceptsBankTransfer, hasPaymentShare, toPaymentMethods, toPaymentShare } from '@helpers/payment'
@@ -49,7 +49,7 @@ const loadProvider = cache(async (providerId: string) => {
   try {
     return await getSingleProviderAPI({ id: providerId, cookie })
   } catch (error) {
-    if (isAxiosError(error) && error.response?.status === 404) notFound()
+    if (isNotFoundError(error)) notFound()
     throw error
   }
 })
