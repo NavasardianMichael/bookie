@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
 import { getProviderReviewsAPI } from '@api/reviews/main'
+import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { reportError } from '@helpers/reportError'
 import { RefreshButton } from '@components/errors/RefreshButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -47,7 +48,17 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
    */
   let data
   try {
-    data = await getProviderReviewsAPI({ providerId, cookie: cookieStore.toString(), query: { page } })
+    const cookie = cookieStore.toString()
+    data = await getProviderReviewsAPI({ providerId, cookie, query: { page } })
+    // The page is five rows, so six to nine reviews would otherwise be a second page
+    // with no pager. Pull the whole list onto this one instead.
+    if (data.total < PAGINATION_MIN_ITEMS && data.items.length < data.total) {
+      data = await getProviderReviewsAPI({
+        providerId,
+        cookie,
+        query: { page: 1, perPage: data.total },
+      })
+    }
   } catch (error) {
     reportError(error, 'ProviderReviews:load')
     return (
@@ -136,12 +147,13 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
               ))}
             </ul>
 
-            {data.pageCount > 1 && (
+            {data.total >= PAGINATION_MIN_ITEMS && data.pageCount > 1 && (
               <Pagination
                 /* `data.page`, not the requested `page`: the API clamps an out-of-range
                  request, so the pager has to render the window that came back. */
                 page={data.page}
                 pageCount={data.pageCount}
+                total={data.total}
                 buildHref={(next) => buildReviewsHref(providerId, next)}
                 label={t('pagesLabel')}
                 previousLabel={tCommon('previousPage')}

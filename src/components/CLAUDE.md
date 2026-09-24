@@ -79,7 +79,10 @@ It renders real anchors and takes a `buildHref(page)`, so every page of a list i
 crawler can follow, the router can prefetch and a visitor can bookmark. antd's version is
 `onChange`-driven and would pull the client runtime into a route whose point is
 server-rendered HTML. Use it wherever a *public* list pages; a paged table inside an
-already-client admin island is the case for antd's.
+already-client admin island is the case for antd's. Either kind is omitted when the list
+is shorter than `PAGINATION_MIN_ITEMS` (10) — there is no second page to offer — and a
+list whose own page is shorter than that (reviews are five) must still render every row
+when it skips the pager.
 
 **`ui/index.ts` re-exports only `./bare` and `./layout`, deliberately.** Re-exporting an
 antd wrapper there would pull antd's runtime into the client bundle of any route that

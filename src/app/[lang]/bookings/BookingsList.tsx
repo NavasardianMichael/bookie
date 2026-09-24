@@ -29,6 +29,7 @@ import {
 } from '@api/appointments/types'
 import { getProviderProfileAPI } from '@api/providers/main'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
+import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { ROUTES } from '@constants/routes'
 import { reportError } from '@helpers/reportError'
 import { AppButton } from '@components/ui/AppButton'
@@ -475,11 +476,12 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
       )}
 
       {/* antd's pager, not `ui/layout/Pagination`: that one renders real anchors for a
-          crawlable public list, and here a page change must not navigate. Shown whenever
-          there is a list, including a single page — this is every booking, and hiding
-          the control until 20 rows makes it look missing. `totalBoundaryShowSizeChanger`
-          defaults to 50, which would hide the size changer the same way. */}
-      {total > 0 && (
+          crawlable public list, and here a page change must not navigate. Omitted below
+          the smallest page size — there is no second page to offer, and the size changer
+          would be a control for a split that cannot happen. From that count up it stays,
+          including a single page, so the size changer is reachable before 20 rows.
+          `totalBoundaryShowSizeChanger` defaults to 50, which would hide it again. */}
+      {total >= PAGINATION_MIN_ITEMS && (
         <Pagination
           current={page}
           pageSize={perPage}

@@ -1,4 +1,5 @@
 import { FC, ReactNode } from 'react'
+import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { cn } from '@helpers/cn'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
@@ -7,6 +8,8 @@ export type PaginationProps = {
   /** 1-based, already clamped into range by whoever fetched the page. */
   page: number
   pageCount: number
+  /** Whole list, not this page. The block is omitted below `PAGINATION_MIN_ITEMS`. */
+  total: number
   /** Locale-free href for a page — `AppLink` adds the prefix. */
   buildHref: (page: number) => string
   /** Accessible name, since a page may carry more than one pager. */
@@ -77,6 +80,7 @@ const Step: FC<{ href?: string; label: string; children: ReactNode }> = ({ href,
 export const Pagination: FC<PaginationProps> = ({
   page,
   pageCount,
+  total,
   buildHref,
   label,
   previousLabel = 'Previous page',
@@ -84,7 +88,7 @@ export const Pagination: FC<PaginationProps> = ({
   pageLabel = (entry) => `Page ${entry}`,
   className,
 }) => {
-  if (pageCount <= 1) return null
+  if (pageCount <= 1 || total < PAGINATION_MIN_ITEMS) return null
 
   return (
     <nav aria-label={label} className={cn('flex items-center justify-center gap-2 sm:gap-4', className)}>

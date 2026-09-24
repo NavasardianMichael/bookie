@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { getProviderBookingsAPI, patchBookingDecisionAPI } from '@api/appointments/main'
 import { BookingDecision, ProviderBooking } from '@api/appointments/types'
 import { useProviderApprovalsStore } from '@store/providers/approvals/store'
+import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { EmptyState } from '@components/ui/EmptyState'
@@ -163,7 +164,7 @@ export const ProviderApprovalsClient = () => {
 
         {/* antd's pager, not `ui/layout/Pagination`: that one renders real anchors for a
             crawlable public list, and a page change here must not navigate. */}
-        {total > PER_PAGE && (
+        {total >= PAGINATION_MIN_ITEMS && total > PER_PAGE && (
           <Pagination current={page} pageSize={PER_PAGE} total={total} onChange={setPage} className='self-center' />
         )}
       </Surface>

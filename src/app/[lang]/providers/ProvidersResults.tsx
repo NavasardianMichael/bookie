@@ -62,6 +62,7 @@ export const ProvidersResults = async ({ params }: Props) => {
       <Pagination
         page={pagination.page}
         pageCount={pagination.pageCount}
+        total={pagination.total}
         buildHref={(page) => buildExploreHref(params, { page })}
         label={t('pagesLabel')}
         previousLabel={tCommon('previousPage')}
