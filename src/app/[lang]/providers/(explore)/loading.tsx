@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { PageShell, Section } from '@components/ui/layout'
-import { ProvidersResultsSkeleton } from './ProvidersResultsSkeleton'
+import { ProvidersResultsSkeleton } from '../ProvidersResultsSkeleton'
 
 /**
  * Mirrors the page's own layout: centred hero, the search field's control row, the

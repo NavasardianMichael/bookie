@@ -244,6 +244,18 @@ with wrapping titles and no icons, and no "Book an appointment" column heading �
 service picker is the start of that flow. Share is an icon in the identity card's
 top-end corner rather than the prototype's full-width Share button.
 
+**The identity column is the segment layout, not the page.** `loading.tsx` wraps the
+page in Suspense, and Next streams the resolved page as `<div hidden>` until an inline
+script reveals it. A document preview and a crawler that does not run that script never
+see what is in there — which is how the name, description, and links disappeared from
+the provider document while the header and footer (rendered in the locale layout,
+outside the boundary) stayed. `[providerId]/layout.tsx` paints the card, the phone
+number as visible text, working hours, and the JSON-LD; `[providerId]/loading.tsx`
+skeletons only the booking column. Two ancestor loading files used to wrap that layout
+too, so they moved into route groups that do not contain this page: `[lang]/(home)/`
+(the home skeleton) and `providers/(explore)/` (the Explore skeleton). The URLs are
+unchanged.
+
 **Header nav on this page is not the marketplace nav.** Explore, Categories and
 Organizations stay off the bar so they do not compete with booking. Home, the lockup,
 and Sign In / Get Started (or the avatar) remain. Explore itself (`/providers` exactly)
@@ -510,7 +522,14 @@ them.
 `generateMetadata` and the page body each make their own HTTP call.
 
 **Every list and detail route gets a sibling `loading.tsx`** mirroring the page's own
-layout, so the skeleton→content handoff costs no layout shift.
+layout, so the skeleton→content handoff costs no layout shift. One exception, on
+purpose: the public provider identity column lives in `[providerId]/layout.tsx`, and
+that segment's `loading.tsx` skeletons only the booking column. A `loading.tsx`
+ancestor streams its resolved children as hidden HTML until a script reveals them, so
+a fact that has to be in the document — the name, the links — cannot sit under one.
+The home skeleton is `[lang]/(home)/loading.tsx` and the Explore skeleton is
+`providers/(explore)/loading.tsx` for the same reason: left at the parent segment they
+wrapped this page.
 
 ### Error boundaries
 

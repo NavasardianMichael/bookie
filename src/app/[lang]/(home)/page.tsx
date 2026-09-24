@@ -12,8 +12,8 @@ import { AppTitle } from '@components/ui/bare/AppTitle'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { BuildingIcon, CalendarIcon, CheckCircleIcon, ClockIcon, SparkleIcon } from '@components/ui/icons'
 import { ChipRail, Container, ResponsiveGrid, Section, Surface } from '@components/ui/layout'
-import { HomeHeroPreview } from './HomeHeroPreview'
-import { ProviderCard } from './providers/ProviderCard'
+import { HomeHeroPreview } from '../HomeHeroPreview'
+import { ProviderCard } from '../providers/ProviderCard'
 
 export const dynamic = 'force-dynamic'
 

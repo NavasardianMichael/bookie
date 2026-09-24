@@ -1,39 +1,16 @@
-import { cache } from 'react'
-import { getProviderLDSchema } from '@linkedDataSchema/providers'
 import { Metadata } from 'next'
-import { cookies } from 'next/headers'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { getSingleProviderAPI } from '@api/providers/main'
 import { ProviderProfile as ProviderProfileType } from '@store/providers/profile/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { DEFAULT_LOCALE } from '@i18n/config'
-import { consolidatedAlternates, currentLocale } from '@i18n/metadata'
+import { consolidatedAlternates } from '@i18n/metadata'
 import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import { getCountryName } from '@helpers/country'
-import { generateEntityPath } from '@helpers/entities'
-import { isNotFoundError } from '@helpers/error'
-import { isUploadedAsset, resolveAbsoluteAssetUrl, resolveAssetUrl } from '@helpers/images'
-import { generateGoogleMapsLink } from '@helpers/location'
-import { acceptsBankTransfer, hasPaymentShare, toPaymentMethods, toPaymentShare } from '@helpers/payment'
-import { generateFriendlyPhoneNumber } from '@helpers/phone'
-import { hasWeekScheduleHours } from '@helpers/schedule'
-import { BankTransferDetails } from '@components/settings/BankTransferDetails'
-import { APP_LINK_META_CLASS,AppLink } from '@components/ui/bare/AppLink'
-import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { AppText } from '@components/ui/bare/AppText'
-import { AppTitle } from '@components/ui/bare/AppTitle'
-import { JsonLd } from '@components/ui/bare/JsonLd'
-import { ContactActions } from '@components/ui/ContactActions'
-import { UserIcon } from '@components/ui/icons'
-import { PageShell, Surface } from '@components/ui/layout'
+import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
 import { ProviderDetails } from './components/Details'
 import { ProviderReviews } from './components/ProviderReviews'
-import { ProviderShareButton } from './components/ProviderShareButton'
 import { parseReviewsPage } from './components/reviewParams'
-import { WorkingHours } from './components/WorkingHours'
+import { loadProvider } from './loadProvider'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,16 +20,6 @@ type Props = {
   }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
-
-const loadProvider = cache(async (providerId: string) => {
-  const cookie = (await cookies()).toString()
-  try {
-    return await getSingleProviderAPI({ id: providerId, cookie })
-  } catch (error) {
-    if (isNotFoundError(error)) notFound()
-    throw error
-  }
-})
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { providerId } = await params
@@ -123,155 +90,17 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
 export default async function Provider({ params, searchParams }: Props) {
   const { providerId } = await params
   const reviewsPage = parseReviewsPage(await searchParams)
-
   const provider = await loadProvider(providerId)
 
-  const { basic, details } = provider
-  const organization = basic.organization
-  const categories = basic.categories
-  const fullName = `${basic.firstName} ${basic.lastName}`
-  // Only a real upload is a portrait; the seeded `/logo.svg` gets the placeholder.
-  const image = isUploadedAsset(basic.image) ? resolveAssetUrl(basic.image) : undefined
-  const phone = details.phone
-    ? generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' })
-    : undefined
-  const mapsHref = generateGoogleMapsLink(details.location.address)
-  // Stored as an ISO code, so it reads in whatever language the page is in.
-  const countryName = getCountryName(details.country, await currentLocale())
-
-  const [tPayments, tCommon, tProvider] = await Promise.all([
-    getTranslations('Settings.payments'),
-    getTranslations('Common'),
-    getTranslations('Provider'),
-  ])
-  const paymentMethods = toPaymentMethods(details.paymentInfo)
-  const paymentShare = toPaymentShare(details.paymentInfo)
-  const showTransferDetails = acceptsBankTransfer(details.paymentInfo) && hasPaymentShare(paymentShare)
-  const showPayments = !!paymentMethods.length || showTransferDetails
-
   return (
-    <PageShell as='article' className='flex flex-col gap-6'>
-      <JsonLd data={getProviderLDSchema(provider)} />
-
-      <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start'>
-        <aside className='flex flex-col gap-6'>
-          <Surface className='relative flex flex-col items-center'>
-            <ProviderShareButton name={fullName} />
-            <div className='ring-brand-50 bg-brand-50 relative mb-4 flex size-32 items-center justify-center overflow-hidden rounded-full ring-4'>
-              {image ? (
-                <Image src={image} alt={fullName} fill priority sizes='128px' className='object-cover' />
-              ) : (
-                <UserIcon className='text-brand size-16' />
-              )}
-            </div>
-
-            <AppTitle level='h1' size='h2'>
-              {fullName}
-            </AppTitle>
-
-            {basic.description && (
-              <AppParagraph size='body-sm' className='mt-2'>
-                {basic.description}
-              </AppParagraph>
-            )}
-
-            {(organization || !!categories?.length || !!details.location.address) && (
-              <div className='mt-6 flex flex-col gap-1'>
-                {organization && (
-                  <AppParagraph size='body-sm' className='m-0'>
-                    <AppText as='strong' tone='default'>
-                      {tCommon('organization')}:{' '}
-                    </AppText>
-                    <AppLink
-                      href={generateEntityPath(ROUTE_KEYS.organizations, organization.id)}
-                      variant='plain'
-                      className={APP_LINK_META_CLASS}
-                    >
-                      {organization.basic.name}
-                    </AppLink>
-                  </AppParagraph>
-                )}
-                {!!categories?.length && (
-                  <AppParagraph size='body-sm' className='m-0'>
-                    <AppText as='strong' tone='default'>
-                      {categories.length === 1 ? tCommon('category') : tCommon('categories')}:{' '}
-                    </AppText>
-                    {categories.map((category, index) => (
-                      <span key={category.id}>
-                        {index > 0 ? ', ' : null}
-                        <AppLink
-                          href={generateEntityPath(ROUTE_KEYS.categories, category.id)}
-                          variant='plain'
-                          className={APP_LINK_META_CLASS}
-                        >
-                          {category.name}
-                        </AppLink>
-                      </span>
-                    ))}
-                  </AppParagraph>
-                )}
-                {!!details.location.address && (
-                  <AppParagraph size='body-sm' className='m-0'>
-                    <AppText as='strong' tone='default'>
-                      {tCommon('address')}:{' '}
-                    </AppText>
-                    <AppLink
-                      href={mapsHref}
-                      target='_blank'
-                      variant='plain'
-                      className={APP_LINK_META_CLASS}
-                    >
-                      {details.location.address}
-                      {countryName ? `, ${countryName}` : null}
-                    </AppLink>
-                  </AppParagraph>
-                )}
-              </div>
-            )}
-
-            <ContactActions phone={phone} address={details.location.address} email={details.email} className='mt-6' />
-
-            {showPayments && (
-              <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>
-                <AppTitle level='h2' size='h3' className='mb-2'>
-                  {tPayments('title')}
-                </AppTitle>
-                {/* Translated labels, not the raw enum with its underscores swapped
-                    for spaces — that rendered English on all 15 locales. */}
-                {!!paymentMethods.length && (
-                  <AppParagraph size='body-sm' tone='default' className='font-semibold'>
-                    {paymentMethods.map((method) => tPayments(`methods.${method}`)).join(', ')}
-                  </AppParagraph>
-                )}
-                {showTransferDetails ? (
-                  <div className='mt-3'>
-                    <BankTransferDetails {...paymentShare} showHeading={false} />
-                  </div>
-                ) : null}
-              </div>
-            )}
-          </Surface>
-
-          {hasWeekScheduleHours(details.weekSchedule) && (
-            <Surface>
-              <AppTitle level='h2' size='h3' className='mb-3'>
-                {tProvider('workingHours')}
-              </AppTitle>
-              <WorkingHours weekSchedule={details.weekSchedule} />
-            </Surface>
-          )}
-        </aside>
-
-        {/* Booking is three stacked panels — service, day, time — all owned by
-            ProviderDetails, which holds the selection they share. */}
-        <section className='flex min-w-0 flex-col gap-6'>
-          <ProviderDetails initialState={provider} />
-          {/* Reviews read as the step after booking, so they close the same column.
-              `provider.id`, never the route segment: this page also serves
-              `/providers/<slug>`, and the section pages itself by id. */}
-          <ProviderReviews providerId={provider.id} page={reviewsPage} />
-        </section>
-      </div>
-    </PageShell>
+    <>
+      {/* Booking is three stacked panels — service, day, time — all owned by
+          ProviderDetails, which holds the selection they share. */}
+      <ProviderDetails initialState={provider} />
+      {/* Reviews read as the step after booking, so they close the same column.
+          `provider.id`, never the route segment: this page also serves
+          `/providers/<slug>`, and the section pages itself by id. */}
+      <ProviderReviews providerId={provider.id} page={reviewsPage} />
+    </>
   )
 }
