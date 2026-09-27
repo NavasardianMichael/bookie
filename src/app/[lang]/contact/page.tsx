@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * `lang()` from `next/root-params`, so next-intl does not fall back to `headers()` and
  * the page prerenders to static HTML, one copy per locale — see `src/app/CLAUDE.md`.
  *
- * The form is the only client island, and it is what reads the session and the profile.
+ * The form is the only client island, and it is what reads the session.
  */
 export default async function Contact() {
   const [locale, t] = await Promise.all([currentLocale(), getTranslations('Contact')])

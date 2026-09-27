@@ -60,7 +60,7 @@ describe('getContactPageLDSchema', () => {
     const breadcrumbs = nodes('en').find((node) => node['@type'] === 'BreadcrumbList')
     const items = breadcrumbs?.itemListElement as Record<string, unknown>[]
 
-    expect(items.map((item) => item.name)).toEqual(['Home', 'Contact'])
+    expect(items.map((item) => item.name)).toEqual(['Home', 'Contact us'])
     expect(items[0]).toHaveProperty('item')
     expect(items[1]).not.toHaveProperty('item')
   })

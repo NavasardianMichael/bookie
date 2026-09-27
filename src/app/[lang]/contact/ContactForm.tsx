@@ -1,18 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Form } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
-import { getConsumerProfileAPI } from '@api/consumers/main'
 import { postContactMessageAPI } from '@api/contact/main'
-import { getProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { USER_TYPES } from '@constants/auth'
 import { MAX_CHARS_FOR_CONTACT_MESSAGE } from '@constants/form'
-import { reportError } from '@helpers/reportError'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
@@ -25,7 +21,7 @@ import { CheckCircleIcon } from '@components/ui/icons'
 type ContactFormValues = {
   firstName: string
   lastName: string
-  email?: string
+  email: string
   message: string
   /** Honeypot — see the hidden field at the bottom of the form. */
   website?: string
@@ -38,15 +34,15 @@ export const ContactForm = () => {
   const t = useTranslations('Contact')
   const [form] = Form.useForm<ContactFormValues>()
   const isSignedOn = useAuthStore.use.isSignedOn()
-  const userType = useAuthStore.use.userType()
   const firstName = useAuthStore.use.firstName()
   const lastName = useAuthStore.use.lastName()
+  const email = useAuthStore.use.email()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [isSent, setIsSent] = useState(false)
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
-  const emailRules = useFormItemRules('email')
+  const emailRules = useFormItemRules('required', 'email')
 
   /**
    * `useFormItemRules` composes named rules and cannot parameterise `max`, and
@@ -62,57 +58,22 @@ export const ContactForm = () => {
   ]
 
   /**
-   * The email is fetched, not read off the session — `Session` carries only the name — so
-   * it is held here rather than written straight into the form. Keeping it lets the prefill
-   * be re-applied after *Send another message* without a second request.
-   */
-  const [profileEmail, setProfileEmail] = useState<string>()
-  /** The profile is fetched once per mount, however often the prefill is re-applied. */
-  const hasFetchedProfile = useRef(false)
-
-  /**
    * Fills only the fields the visitor has left empty, which is what makes it safe to run
-   * whenever a source lands. `getMe()` supplies the name and the profile request supplies
-   * the email, and a visitor can easily start typing between the two — overwriting what
-   * they wrote is the bug this avoids.
+   * whenever a source lands. Name and email both come from `getMe()`, and a visitor can
+   * start typing before that request returns — overwriting what they wrote is the bug
+   * this avoids. The address is the account's identity email, so a provider session and
+   * a consumer session prefill the same way.
    */
   const applyPrefill = useCallback(() => {
     const values: Record<PrefillableField, string | undefined> = {
       firstName: firstName ?? undefined,
       lastName: lastName ?? undefined,
-      email: profileEmail,
+      email: email ?? undefined,
     }
     const current = form.getFieldsValue()
     const next = Object.entries(values).filter(([field, value]) => value && !current[field as PrefillableField])
     if (next.length) form.setFieldsValue(Object.fromEntries(next))
-  }, [firstName, lastName, profileEmail, form])
-
-  useEffect(() => {
-    if (!isSignedOn || !userType || hasFetchedProfile.current) return
-    hasFetchedProfile.current = true
-
-    let cancelled = false
-    ;(async () => {
-      try {
-        // Which endpoint depends on the role, and the email sits in a different place in
-        // each: consumer `basic.email`, provider `details.email`.
-        const email =
-          userType === USER_TYPES.provider
-            ? (await getProviderProfileAPI()).details.email
-            : (await getConsumerProfileAPI()).basic.email
-        if (!cancelled && email) setProfileEmail(email)
-      } catch (err) {
-        // Prefill is a convenience, never a gate: a failed profile read leaves the field
-        // empty and the visitor types their address. Logged rather than shown, because an
-        // error banner here would be about something they did not ask for.
-        if (!cancelled) reportError(err, 'ContactForm:prefill')
-      }
-    })()
-
-    return () => {
-      cancelled = true
-    }
-  }, [isSignedOn, userType])
+  }, [firstName, lastName, email, form])
 
   // Re-runs as each source lands, and after a reset. Safe because it only fills blanks.
   useEffect(() => {
@@ -127,7 +88,7 @@ export const ContactForm = () => {
       await postContactMessageAPI({
         firstName: values.firstName,
         lastName: values.lastName,
-        email: values.email?.trim() || undefined,
+        email: values.email.trim(),
         message: values.message,
         website: values.website ?? '',
       })
@@ -146,7 +107,7 @@ export const ContactForm = () => {
     setIsSent(false)
     setError(null)
     // `resetFields` clears the prefilled name and email too, so put them back rather than
-    // making a signed-in visitor retype what we already know. No refetch — see `profileEmail`.
+    // making a signed-in visitor retype what the session already holds.
     applyPrefill()
   }
 
@@ -196,7 +157,7 @@ export const ContactForm = () => {
         </div>
 
         <div className='flex flex-col gap-1.5 md:col-span-2'>
-          <FieldLabel htmlFor='contact-email' requirement='Optional'>
+          <FieldLabel htmlFor='contact-email' requirement='Required'>
             {t('fields.email')}
           </FieldLabel>
           <AppFormItem name='email' rules={emailRules} messageVariables={{ label: t('fields.email') }}>

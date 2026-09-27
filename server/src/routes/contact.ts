@@ -37,8 +37,13 @@ const limiter = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 })
  * Every interpolated value came from a request body, so it is escaped. The engine's
  * DOMPurify pass strips scripts and handlers, but an `<a href>` or `<img>` a visitor
  * typed would otherwise survive as live markup inside our own template.
+ *
+ * The address is in the body as well as `senderEmail`. The engine may use that field
+ * only as reply metadata; the inbox still has to show where to write back.
  */
-const htmlBodyFor = (message: string): string => `<p style="white-space:pre-wrap">${escapeHtml(message)}</p>`
+const htmlBodyFor = (message: string, email: string): string =>
+  `<p><strong>Email</strong><br/>${escapeHtml(email)}</p>` +
+  `<p style="white-space:pre-wrap">${escapeHtml(message)}</p>`
 
 contactRouter.post(
   '/',
@@ -61,10 +66,10 @@ contactRouter.post(
     if (!lastName) return fail(res, 'Last name is required')
     if (!message) return fail(res, 'Message is required')
 
-    // Optional, but a malformed address is rejected rather than forwarded — a reply-to
+    // Required, and a malformed address is rejected rather than forwarded — a reply-to
     // that cannot be replied to is worse than none, because it looks answerable.
     const email = asTrimmedString(req.body?.email)?.toLowerCase()
-    if (email && !isEmail(email)) return fail(res, 'Valid email required')
+    if (!email || !isEmail(email)) return fail(res, 'Valid email required')
 
     /**
      * Counted **after** validation, and after the honeypot, so only a submission that is
@@ -91,13 +96,13 @@ contactRouter.post(
       if (config.nodeEnv === 'production') {
         return fail(res, 'Contact is temporarily unavailable. Please try again later.', 503, 503)
       }
-      console.log(`[contact] ${firstName} ${lastName} <${email ?? 'no email given'}>\n${message}`)
+      console.log(`[contact] ${firstName} ${lastName} <${email}>\n${message}`)
       return ok(res, true)
     }
 
     const result = await sendInternalMail({
       subject: `Contact form — ${firstName} ${lastName}`,
-      body: htmlBodyFor(message),
+      body: htmlBodyFor(message, email),
       senderEmail: email,
       firstName,
       lastName,

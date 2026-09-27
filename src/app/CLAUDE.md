@@ -454,16 +454,13 @@ Nothing is fetched on the server, so the page carries **no `force-dynamic`** and
 `loading.tsx` — there is no server round-trip for a skeleton to cover. `ContactForm.tsx`
 is the only client island, and it is what reads the session.
 
-Three things not to undo:
+Two things not to undo:
 
-1. **Prefill fills only empty fields, once, guarded by a ref.** The name arrives with
-   `getMe()` and the email needs a further profile request (`Session` carries no email —
-   consumer reads `basic.email`, provider `details.email`), so a visitor can easily start
-   typing between the two. Overwriting what they wrote is the bug this prevents.
-2. **A failed prefill is recorded, not shown** (`reportError`). The field is left empty and
-   the visitor types their own address; an error banner would be about something they never
-   asked for.
-3. **The hidden `website` field is a honeypot, not dead markup.** It is a nameless-looking
+1. **Prefill fills only empty fields.** Name and email both arrive with `getMe()`. The
+   address is the account's identity email, so a provider session and a consumer session
+   prefill the same way. A visitor can start typing before that request lands;
+   overwriting what they wrote is the bug this prevents.
+2. **The hidden `website` field is a honeypot, not dead markup.** It is a nameless-looking
    `Form.Item name='website'` with `noStyle` inside an `aria-hidden` `hidden` wrapper, so
    it reaches the DOM a bot parses but no person or screen reader. The server drops any
    submission that has it set — and answers with a plain success, because telling a bot it

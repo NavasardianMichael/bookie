@@ -270,14 +270,14 @@
     "contact": "Kontak"
   },
   "Contact": {
-    "metaTitle": "Kontak",
+    "metaTitle": "Hubungi kami",
     "metaDescription": "Kirim pesan ke tim Bookie tentang pemesanan, akun Anda, atau halaman penyedia layanan.",
-    "title": "Kontak",
-    "subtitle": "Hubungi tim Bookie. Kami biasanya membalas dalam satu hari kerja.",
+    "title": "Hubungi kami",
+    "subtitle": "Hubungi tim Bookie. Kami biasanya membalas dalam 5 hari kerja.",
     "fields": {
       "firstName": "Nama Depan",
       "lastName": "Nama Belakang",
-      "email": "Alamat Email untuk Balasan",
+      "email": "Email",
       "message": "Pesan",
       "messagePlaceholder": "Ceritakan hal yang Anda perlukan bantuannya."
     },
@@ -290,7 +290,7 @@
     },
     "success": {
       "title": "Pesan terkirim",
-      "body": "Terima kasih telah menghubungi kami. Jika Anda meninggalkan alamat email, kami akan membalas ke sana.",
+      "body": "Terima kasih telah menghubungi kami. Kami akan membalas email Anda, biasanya dalam 5 hari kerja.",
       "sendAnother": "Kirim pesan lain"
     }
   },

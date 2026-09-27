@@ -270,14 +270,14 @@
     "contact": "Contato"
   },
   "Contact": {
-    "metaTitle": "Contato",
+    "metaTitle": "Fale conosco",
     "metaDescription": "Envie uma mensagem para a equipe do Bookie sobre um agendamento, sua conta ou o perfil de um profissional.",
-    "title": "Contato",
-    "subtitle": "Entre em contato com a equipe do Bookie. Normalmente respondemos em um dia útil.",
+    "title": "Fale conosco",
+    "subtitle": "Entre em contato com a equipe do Bookie. Normalmente retornamos em até 5 dias úteis.",
     "fields": {
       "firstName": "Nome",
       "lastName": "Sobrenome",
-      "email": "E-mail de contato",
+      "email": "E-mail",
       "message": "Mensagem",
       "messagePlaceholder": "Conte para nós com o que você precisa de ajuda."
     },
@@ -290,7 +290,7 @@
     },
     "success": {
       "title": "Mensagem enviada",
-      "body": "Obrigado pelo contato. Se você deixou um e-mail, responderemos por lá.",
+      "body": "Obrigado pelo contato. Responderemos ao seu e-mail, normalmente em até 5 dias úteis.",
       "sendAnother": "Enviar outra mensagem"
     }
   },

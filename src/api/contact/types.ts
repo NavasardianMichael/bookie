@@ -8,8 +8,8 @@ import { Endpoint } from '@interfaces/api'
 export type PostContactMessageRequestPayload = {
   firstName: string
   lastName: string
-  /** Optional: a signed-in visitor may have no address on file, and the field allows blank. */
-  email?: string
+  /** Required. A signed-in visitor's field is prefilled from the session, and they can still edit it. */
+  email: string
   message: string
   /**
    * Honeypot. Always sent, always empty for a person — the server drops any submission

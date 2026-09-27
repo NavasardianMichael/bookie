@@ -273,11 +273,11 @@
     "metaTitle": "联系我们",
     "metaDescription": "就预约、账户或服务提供者主页向 Bookie 团队发送消息。",
     "title": "联系我们",
-    "subtitle": "与 Bookie 团队取得联系。我们通常在一个工作日内回复。",
+    "subtitle": "与 Bookie 团队取得联系。我们通常在 5 个工作日内回复。",
     "fields": {
       "firstName": "名字",
       "lastName": "姓氏",
-      "email": "回复邮箱",
+      "email": "电子邮箱",
       "message": "留言",
       "messagePlaceholder": "请告诉我们您需要什么帮助。"
     },
@@ -290,7 +290,7 @@
     },
     "success": {
       "title": "消息已发送",
-      "body": "感谢您的来信。如果您留下了电子邮箱，我们会通过邮件回复。",
+      "body": "感谢您的来信。我们会回复您的电子邮箱，通常在 5 个工作日内。",
       "sendAnother": "再发送一条消息"
     }
   },

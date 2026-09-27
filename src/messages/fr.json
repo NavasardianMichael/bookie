@@ -270,14 +270,14 @@
     "contact": "Contact"
   },
   "Contact": {
-    "metaTitle": "Contact",
+    "metaTitle": "Contactez-nous",
     "metaDescription": "Envoyez un message à l'équipe Bookie au sujet d'une réservation, de votre compte ou d'une fiche de professionnel.",
-    "title": "Contact",
-    "subtitle": "Contactez l'équipe Bookie. Nous répondons généralement sous un jour ouvré.",
+    "title": "Contactez-nous",
+    "subtitle": "Contactez l'équipe Bookie. Nous revenons généralement vers vous sous 5 jours ouvrés.",
     "fields": {
       "firstName": "Prénom",
       "lastName": "Nom",
-      "email": "Adresse e-mail de contact",
+      "email": "E-mail",
       "message": "Message",
       "messagePlaceholder": "Dites-nous ce dont vous avez besoin."
     },
@@ -290,7 +290,7 @@
     },
     "success": {
       "title": "Message envoyé",
-      "body": "Merci de nous avoir contactés. Si vous avez laissé une adresse e-mail, nous y répondrons.",
+      "body": "Merci de nous avoir contactés. Nous répondrons à votre e-mail, généralement sous 5 jours ouvrés.",
       "sendAnother": "Envoyer un autre message"
     }
   },

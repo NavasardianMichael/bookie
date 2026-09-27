@@ -270,14 +270,14 @@
     "contact": "Contact"
   },
   "Contact": {
-    "metaTitle": "Contact",
+    "metaTitle": "Contact us",
     "metaDescription": "Send the Bookie team a message about a booking, your account, or a provider listing.",
-    "title": "Contact",
-    "subtitle": "Get in touch with the Bookie team. We usually reply within one business day.",
+    "title": "Contact us",
+    "subtitle": "Get in touch with the Bookie team. We usually get back within 5 business days.",
     "fields": {
       "firstName": "First Name",
       "lastName": "Last Name",
-      "email": "Contact Back Email Address",
+      "email": "Email",
       "message": "Message",
       "messagePlaceholder": "Tell us what you need help with."
     },
@@ -290,7 +290,7 @@
     },
     "success": {
       "title": "Message sent",
-      "body": "Thanks for getting in touch. If you left an email address, we will reply there.",
+      "body": "Thanks for getting in touch. We will reply to your email, usually within 5 business days.",
       "sendAnother": "Send another message"
     }
   },

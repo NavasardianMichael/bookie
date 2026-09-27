@@ -105,7 +105,7 @@ generic messages append the original error's message. The table is in `server/CL
 There is **no public consumer directory**. `GET /consumers` and `GET /consumers/:id` were removed.
 
 `POST /contact` has **no table behind it**, on purpose. It validates
-`{ firstName, lastName, email?, message, website? }`, drops anything with the `website`
+`{ firstName, lastName, email, message, website? }`, drops anything with the `website`
 honeypot filled in, rate-limits 5/hour per IP, then forwards to the mail engine's
 `/mail/internal/send`. The admin inbox is the system of record — a `ContactMessage` table
 would duplicate it and hold free-text PII with no retention policy or reader. A failed

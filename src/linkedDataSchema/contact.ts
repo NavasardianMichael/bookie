@@ -24,7 +24,7 @@ export const getContactPageLDSchema = (locale: Locale): Graph => {
       {
         '@type': 'ContactPage',
         '@id': pageUrl,
-        name: 'Contact Bookie',
+        name: 'Contact us',
         description: 'Send the Bookie team a message about bookings, an account, or a provider listing.',
         url: pageUrl,
         inLanguage: locale,
@@ -33,7 +33,7 @@ export const getContactPageLDSchema = (locale: Locale): Graph => {
       },
       getBreadcrumbLDSchema([
         { name: 'Home', path: ROUTES[ROUTE_KEYS.home] },
-        { name: 'Contact', path: ROUTES[ROUTE_KEYS.contact] },
+        { name: 'Contact us', path: ROUTES[ROUTE_KEYS.contact] },
       ]),
     ],
   }
