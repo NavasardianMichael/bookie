@@ -81,7 +81,9 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
     control with `controlHeight`; the seed default is 32, so the Button block sets the
     same derived height as Select and only overrides `paddingInline` for the horizontal
     padding. Change the shared `FIELD_PADDING_*` constants in `theme.ts`,
-    not a call-site height.
+    not a call-site height. `AppLink`'s `button` variant is an anchor, not an antd
+    Button, so the token does not reach it: its `h-9` mirrors the Button height by
+    hand, and `theme.spec.ts` fails if the two drift apart.
 11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg`
     (8/12) via `borderRadius`/`borderRadiusLG`. antd's own 6/8 reads visibly squarer
     than every prototype screen. Two static values, no scale, no breakpoints; they feed

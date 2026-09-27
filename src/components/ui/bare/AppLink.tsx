@@ -22,8 +22,9 @@ const VARIANTS: Record<AppLinkVariant, string> = {
   plain: 'app-link-plain transition-colors hover:underline [text-underline-offset:5px]',
   unstyled:
     'no-underline transition-colors hover:no-underline focus:no-underline active:no-underline visited:no-underline',
+  // h-9 is theme.ts `components.Button.controlHeight` (36) — pinned by theme.spec.ts.
   button:
-    'inline-flex h-8 items-center justify-center gap-2 rounded-brand-sm px-3 text-body-sm font-medium leading-none no-underline transition-all',
+    'inline-flex h-9 items-center justify-center gap-2 rounded-brand-sm px-3 text-body-sm font-medium leading-none no-underline transition-all',
   chip: 'border-brand-border bg-surface text-brand-text hover:border-brand inline-flex h-10 shrink-0 items-center gap-2 rounded-brand-sm border px-5 text-body-sm font-bold no-underline transition-colors',
 }
 

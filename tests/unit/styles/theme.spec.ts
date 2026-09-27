@@ -81,4 +81,14 @@ describe('form control padding', () => {
     })
     expect(antdTheme.components?.Button).not.toHaveProperty('paddingBlock')
   })
+
+  it("sizes AppLink's button variant to the Button token", () => {
+    // The link is a server-rendered anchor, not an antd Button, so the token never
+    // reaches it. When Button went to 36 the link stayed h-8 and sat 4px shorter
+    // beside it on the Profile hero. Tailwind's spacing step is 4px.
+    const appLinkSource = readFileSync(join(process.cwd(), 'src/components/ui/bare/AppLink.tsx'), 'utf8')
+    const buttonClasses = appLinkSource.match(/button:\s*'([^']*)'/)?.[1] ?? ''
+    const height = antdTheme.components?.Button?.controlHeight ?? 0
+    expect(buttonClasses.split(' ')).toContain(`h-${height / 4}`)
+  })
 })
