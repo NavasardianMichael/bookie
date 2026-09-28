@@ -64,7 +64,6 @@
     "fields": {
       "email": "Email",
       "emailPlaceholder": "anda@contoh.com",
-      "professionalEmail": "Email profesional",
       "password": "Kata sandi",
       "passwordPlaceholder": "Kata sandi Anda",
       "choosePasswordPlaceholder": "Minimal 8 karakter",
@@ -73,8 +72,6 @@
       "firstName": "Nama depan",
       "lastName": "Nama belakang",
       "phone": "Nomor telepon",
-      "mobileNumber": "Nomor ponsel",
-      "organization": "Organisasi",
       "countryCode": "Kode negara"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "Kedua kata sandi tidak cocok",
       "passwordNeedsLetterAndNumber": "Kata sandi harus memuat setidaknya satu huruf dan satu angka",
       "passwordContainsEmail": "Kata sandi tidak boleh memuat alamat email Anda",
-      "invalidPhone": "Masukkan nomor telepon yang valid"
+      "invalidPhone": "Masukkan nomor telepon yang valid",
+      "invalidPhoneFormat": "Masukkan nomor telepon yang valid, mis. {example}"
+    },
+    "organization": {
+      "add": "Tambahkan organisasi",
+      "detach": "Lepaskan organisasi",
+      "name": "Nama organisasi",
+      "searchPlaceholder": "Cari berdasarkan nama",
+      "noMatches": "Tidak ada organisasi dengan nama tersebut",
+      "addNew": "Tambahkan “{name}” sebagai organisasi baru",
+      "linked": "Organisasi yang sudah ada — profil Anda akan tercantum di dalamnya.",
+      "chooseOrAdd": "Pilih organisasi dari daftar, atau tambahkan sebagai organisasi baru",
+      "newDetails": "Organisasi baru — detail ini tampil di halaman publiknya. Semuanya opsional.",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Apa yang dilakukan organisasi ini",
+      "addressPlaceholder": "Jalan, gedung, kota",
+      "websitePlaceholder": "contoh.com",
+      "similarTitle": "Organisasi ini mungkin sudah ada",
+      "similarDescription": "Kami menemukan organisasi dengan nama yang mirip. Bergabunglah dengannya, atau buat “{name}” sebagai organisasi baru.",
+      "useExisting": "Gunakan yang ini",
+      "createNew": "Buat yang baru"
     },
     "signIn": {
       "title": "Selamat datang kembali",
@@ -105,8 +122,7 @@
       "metaTitle": "Buat akun penyedia",
       "metaDescription": "Bergabunglah dengan ribuan penyedia layanan yang mengelola janji temu dengan mudah di Bookie.",
       "termsLead": "Dengan mengeklik \"Buat akun penyedia\", Anda menyetujui",
-      "alreadyHaveAccount": "Sudah punya akun?",
-      "organizationPlaceholder": "Organisasi Anda"
+      "alreadyHaveAccount": "Sudah punya akun?"
     },
     "forgotPassword": {
       "title": "Atur ulang kata sandi",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "Ubah nomor telepon yang digunakan untuk masuk.",
       "label": "Nomor telepon",
+      "showOnPublic": "Tampilkan telepon di profil publik",
+      "showOnPublicBody": "Jika nonaktif, pengunjung tidak akan melihat nomor Anda atau tombol Telepon di halaman Anda.",
       "sendCode": "Kirim kode",
       "otp": "Kode verifikasi",
       "confirm": "Konfirmasi perubahan",
@@ -696,6 +714,8 @@
     "titleAfter": " sesuai kebutuhan.",
     "searchLabel": "Cari penyedia",
     "searchPlaceholder": "Layanan apa yang Anda cari?",
+    "searchButton": "Cari",
+    "noSuggestions": "Tidak ada penyedia yang cocok dengan pencarian tersebut.",
     "browseCategories": "Telusuri kategori",
     "categoriesRail": "Kategori",
     "allServices": "Semua layanan",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "Tidak ada yang nonaktif",
     "emptyInactiveBody": "Semua layanan saat ini ditawarkan kepada klien.",
     "inactive": "Nonaktif",
-    "activate": "Aktifkan {name}",
-    "deactivate": "Nonaktifkan {name}"
+    "activateService": "Aktifkan layanan",
+    "deactivateService": "Nonaktifkan layanan",
+    "activateTitle": "Aktifkan layanan ini?",
+    "activateBody": "Klien akan dapat memesannya.",
+    "deactivateTitle": "Nonaktifkan layanan ini?",
+    "deactivateBody": "Klien tidak akan dapat memesannya sampai Anda mengaktifkannya lagi."
   },
   "ProfileCreation": {
     "metaTitle": "Buat Profil Anda Sendiri",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "Bagian ini tidak dapat dimuat.",
       "busySlots": "Kami tidak dapat memeriksa waktu yang sudah dipesan, jadi beberapa di antaranya mungkin sudah terisi.",
-      "organizationSearch": "Kami tidak dapat mencari organisasi saat ini."
+      "organizationSearch": "Kami tidak dapat mencari organisasi saat ini.",
+      "providerSuggestions": "Kami tidak dapat memuat saran. Pencarian tetap berfungsi."
     },
     "conflicts": {
       "bookingUnavailable": "Layanan atau waktu itu sudah tidak tersedia. Silakan pilih yang lain.",

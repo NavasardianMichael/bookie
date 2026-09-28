@@ -6,12 +6,12 @@ import { useTranslations } from 'next-intl'
 import { getGooglePendingAPI } from '@api/auth/main'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { OrganizationValue, PendingGoogleAccount, UserType } from '@interfaces/auth'
+import { NewOrganizationFormValues, OrganizationValue, PendingGoogleAccount, UserType } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { classifyError } from '@helpers/error'
-import { toOrganizationFields, toPhoneNumber } from '@helpers/registration'
+import { toPhoneNumber } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -20,15 +20,17 @@ import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { ErrorState } from '@components/ui/ErrorState'
 import { UserIcon } from '@components/ui/icons'
 import { FieldLabel } from '../components/FieldLabel'
+import { OrganizationSection } from '../components/OrganizationSection'
 import { PhoneFormValues, PhoneNumberField } from '../components/PhoneNumberField'
 import { RegistrationField } from '../components/RegistrationField'
-import { OrganizationAutocomplete } from '../provider-registration/OrganizationAutocomplete'
+import { useSimilarOrganizationCheck } from '../components/useSimilarOrganizationCheck'
 
 type CompleteRegistrationFormValues = PhoneFormValues & {
   role: UserType
   firstName: string
   lastName: string
   organization?: OrganizationValue
+  newOrganization?: NewOrganizationFormValues
 }
 
 /**
@@ -59,6 +61,9 @@ export const CompleteRegistrationForm: FC = () => {
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const role = Form.useWatch('role', form)
+  const { resolveOrganization, isChecking, dialog } = useSimilarOrganizationCheck((organization) =>
+    form.setFieldValue('organization', { id: organization.id, name: organization.basic.name })
+  )
 
   // The pending identity lives in an httpOnly cookie, so the only way to read it is to ask.
   // No cookie means the flow expired or was never started — back to sign-in rather than an
@@ -103,6 +108,10 @@ export const CompleteRegistrationForm: FC = () => {
 
   const handleFinish = async (values: CompleteRegistrationFormValues) => {
     setError(null)
+    const organization =
+      values.role === USER_TYPES.provider ? await resolveOrganization(values.organization, values.newOrganization) : {}
+    if (!organization) return
+
     try {
       const session = await completeGoogle({
         role: values.role,
@@ -111,7 +120,7 @@ export const CompleteRegistrationForm: FC = () => {
           firstName: values.firstName,
           lastName: values.lastName,
           country: values.code,
-          ...(values.role === USER_TYPES.provider ? toOrganizationFields(values.organization) : {}),
+          ...organization,
         },
       })
       push(session.role === USER_TYPES.provider ? ROUTES.providerProfileCreation : ROUTES.home)
@@ -190,24 +199,16 @@ export const CompleteRegistrationForm: FC = () => {
 
         <PhoneNumberField label={t('fields.phone')} requirement='Required' disabled={isPending} />
 
-        {role === USER_TYPES.provider && (
-          <div className='flex flex-col gap-1.5'>
-            <FieldLabel htmlFor='organization' requirement='Optional'>
-              {t('fields.organization')}
-            </FieldLabel>
-            {/* No rule: a provider may be a sole trader, and the server treats a missing
-                organization as "none" rather than an error. */}
-            <AppFormItem name='organization'>
-              <OrganizationAutocomplete id='organization' disabled={isPending} />
-            </AppFormItem>
-          </div>
-        )}
+        {/* Optional and closed by default: a provider may be a sole trader. */}
+        {role === USER_TYPES.provider && <OrganizationSection disabled={isPending} />}
 
         {error !== null && <ErrorAlert error={error} />}
 
-        <AppButton htmlType='submit' type='primary' block loading={isPending}>
+        <AppButton htmlType='submit' type='primary' block loading={isPending || isChecking}>
           {t('completeRegistration.submit')}
         </AppButton>
+
+        {dialog}
       </Form>
     </>
   )

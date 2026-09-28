@@ -15,6 +15,16 @@ export const MAX_CHARS_FOR_TEXTAREA = 300
  */
 export const MAX_CHARS_FOR_CONTACT_MESSAGE = 2000
 
+/**
+ * An organization registered alongside a provider. Names run longer than a person's
+ * (`MAX_CHARS_FOR_INPUT` sizes a first name), and an address or a website longer still.
+ * Keep in step with `server/src/services/organizations.ts`, which truncates at the same
+ * figures; the description uses `MAX_CHARS_FOR_TEXTAREA` on both sides.
+ */
+export const MAX_CHARS_FOR_ORGANIZATION_NAME = 100
+export const MAX_CHARS_FOR_ADDRESS = 200
+export const MAX_CHARS_FOR_WEBSITE = 200
+
 const _RULE_NAMES = {
   required: 'required',
   maxCharsForInput: 'maxCharsForInput',

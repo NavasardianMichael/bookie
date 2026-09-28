@@ -86,7 +86,7 @@ export const metadata: Metadata = {
 }
 
 /**
- * Prerenders the shell for all 15 locales. Without this every route would be
+ * Prerenders the shell for all 16 locales. Without this every route would be
  * dynamic purely because the locale is a dynamic segment.
  */
 export function generateStaticParams() {
@@ -108,7 +108,7 @@ export default async function RootLayout({ children, params }: Props) {
   const direction = getDirection(locale)
 
   // Loaded on the server so only the active locale's ~6-10KB crosses the RSC
-  // boundary and none of the 15 antd bundles enter the client bundle.
+  // boundary and none of the 16 antd bundles enter the client bundle.
   const antdLocale = await getAntdLocale(locale)
 
   return (

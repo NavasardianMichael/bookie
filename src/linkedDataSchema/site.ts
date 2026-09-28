@@ -16,7 +16,7 @@ const PUBLISHER_ID = `${getSiteUrl()}#organization`
  */
 /**
  * The `WebSite` and `Organization` `@id`s stay locale-free on purpose: they name
- * one real-world entity that all 15 language variants share, so every page must
+ * one real-world entity that all 16 language variants share, so every page must
  * resolve `publisher` to the same node. Only the `WebPage` — which genuinely is a
  * different document per language — carries the locale, and it is the node whose
  * `url` has to agree with that page's canonical.

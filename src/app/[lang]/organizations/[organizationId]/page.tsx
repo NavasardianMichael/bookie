@@ -97,7 +97,6 @@ export default async function Organization({ params }: Props) {
         </AppLink>
       ),
     },
-    { key: 'email', label: tCommon('email'), value: <AppLink href={`mailto:${details.email}`}>{details.email}</AppLink> },
     {
       key: 'website',
       label: tCommon('website'),
@@ -133,7 +132,6 @@ export default async function Organization({ params }: Props) {
             <ContactActions
               phone={details.phone}
               address={details.location.address}
-              email={details.email}
               website={details.website}
             />
           }

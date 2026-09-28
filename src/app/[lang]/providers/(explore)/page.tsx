@@ -38,8 +38,9 @@ type Props = {
  *
  * A Server Component that reads its whole state out of the query string — see
  * `exploreParams.ts` for why the URL rather than a store. Only two things are client
- * islands: the search box and the sort/filter pair. The category chips and
- * the pager are plain anchors, so both work before hydration and both are crawlable.
+ * islands: the search box (with its suggestions dropdown) and the sort/filter pair. The
+ * category chips and the pager are plain anchors, so both work before hydration and both
+ * are crawlable.
  *
  * Clicking a category **filters here** rather than navigating to `/categories/[id]` — the
  * chip patches `?category=`, which keeps the visitor's search and sort intact. The
@@ -64,7 +65,7 @@ export default async function Providers({ searchParams }: Props) {
             {t('titleAfter')}
           </AppTitle>
           <div className='w-full'>
-            <ProviderSearchField params={params} label={t('searchLabel')} placeholder={t('searchPlaceholder')} />
+            <ProviderSearchField params={params} />
           </div>
         </header>
 

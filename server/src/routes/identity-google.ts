@@ -98,7 +98,7 @@ const localeOf = (returnPath: string | null): string =>
 /**
  * Failures land back on the page the flow started from, carrying a stable `?error=` code.
  *
- * A code rather than a message: the web app has all 15 locales and we do not, so the copy
+ * A code rather than a message: the web app has all 16 locales and we do not, so the copy
  * belongs there. `GOOGLE_ERROR` is the contract.
  */
 const redirectWithError = (res: Response, returnPath: string | null, error: string): void => {
@@ -402,8 +402,6 @@ googleRouter.post(
       return fail(res, 'Too many attempts. Please try again later.', 429, 429)
     }
 
-    const organizationId = role === 'provider' ? await resolveOrganizationId(profile) : undefined
-
     /**
      * `emailVerifiedAt` is stamped at creation: Google confirmed the address, which is the
      * same proof the emailed link provides, so sending one would ask the user to prove
@@ -422,6 +420,7 @@ googleRouter.post(
         })
 
         if (role === 'provider') {
+          const organizationId = await resolveOrganizationId(tx, profile, country)
           await tx.provider.create({
             data: {
               userId: saved.id,

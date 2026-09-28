@@ -72,19 +72,24 @@ const toSearchTerms = (raw: unknown): string[] =>
  * Where one term is allowed to match. `description` is deliberately absent: it is the
  * longest column on the table and the weakest signal, and a service or category name
  * already answers "who does massage?" more precisely.
+ *
+ * A term is one or more spellings, any of which may match — a single one normally, several
+ * on the retry `services/searchFallback.ts` makes after a search that found nothing.
  */
-const matchesTerm = (term: string): Prisma.ProviderWhereInput => ({
-  OR: [
+const matchesTerm = (spellings: readonly string[]): Prisma.ProviderWhereInput => ({
+  OR: spellings.flatMap((term): Prisma.ProviderWhereInput[] => [
     { firstName: { contains: term, mode: 'insensitive' } },
     { lastName: { contains: term, mode: 'insensitive' } },
     { organization: { name: { contains: term, mode: 'insensitive' } } },
     { services: { some: { name: { contains: term, mode: 'insensitive' }, active: true } } },
     { categories: { some: { category: { name: { contains: term, mode: 'insensitive' } } } } },
-  ],
+  ]),
 })
 
 export type ProvidersListQuery = {
   where: Prisma.ProviderWhereInput
+  /** The query's words as matched — what `searchFallback.ts` corrects on an empty result. */
+  terms: string[]
   orderBy: Prisma.ProviderOrderByWithRelationInput[]
   /** 1-based, as requested. Clamped against the real page count by the caller. */
   page: number
@@ -132,8 +137,17 @@ const openTodayWhere = (now: Date): Prisma.ProviderWhereInput => ({
   },
 })
 
-export function parseProvidersListQuery(query: RawQuery, now: Date = new Date()): ProvidersListQuery {
+/**
+ * `spellings` replaces the words of `q` with a set of spellings per word — the corrected
+ * retry. `terms` in the result stays the words as typed.
+ */
+export function parseProvidersListQuery(
+  query: RawQuery,
+  now: Date = new Date(),
+  spellings?: readonly (readonly string[])[]
+): ProvidersListQuery {
   const terms = toSearchTerms(query.q)
+  const matched = spellings ?? terms.map((term) => [term])
   const categoryId = asString(query.categoryId)
 
   return {
@@ -141,11 +155,12 @@ export function parseProvidersListQuery(query: RawQuery, now: Date = new Date())
       ...PUBLIC_PROVIDER_WHERE,
       // Terms live under `AND` so they cannot collide with the `categories` /
       // `services` keys a search term owns.
-      ...(terms.length ? { AND: terms.map(matchesTerm) } : {}),
+      ...(matched.length ? { AND: matched.map(matchesTerm) } : {}),
       ...(categoryId ? { categories: { some: { categoryId } } } : {}),
       ...(asFlag(query.available) ? { available: true } : {}),
       ...(asFlag(query.openToday) ? openTodayWhere(now) : {}),
     },
+    terms,
     orderBy: ORDER_BY[asSort(query.sort)],
     page: asPositiveInt(query.page, 1, Number.MAX_SAFE_INTEGER),
     perPage: asPositiveInt(query.perPage, PROVIDERS_PAGE_SIZE, PROVIDERS_MAX_PAGE_SIZE),

@@ -16,7 +16,7 @@ type AlternatesOptions = {
    *
    * Provider profile pages override this with the provider's own chosen language
    * (Phase 4), which is what makes "his pages are shown in the language he
-   * selected" true for a shared link while all 15 stay independently indexable.
+   * selected" true for a shared link while all 16 stay independently indexable.
    */
   xDefault?: Locale
 }
@@ -25,8 +25,8 @@ type AlternatesOptions = {
  * `alternates` for a page, given its **locale-free** path.
  *
  * Every locale variant is **self-canonical** — `/es/providers` canonicals to
- * itself, not to `/en/providers`. Pointing all 15 at one canonical would tell
- * Google the other 14 are duplicates and deindex them, which is the opposite of
+ * itself, not to `/en/providers`. Pointing all 16 at one canonical would tell
+ * Google the other 15 are duplicates and deindex them, which is the opposite of
  * the reason the locale is in the URL at all. `hreflang` is the tag that says
  * "same page, different language"; canonical is not.
  *
@@ -38,9 +38,9 @@ type AlternatesOptions = {
  * every locale** — a provider's profile, where only the surrounding chrome is
  * translated while their name, services and descriptions stay as they wrote them.
  *
- * All 15 URLs still render and stay reachable; they simply consolidate onto one
- * canonical instead of asking to be indexed separately. Fifteen index entries per
- * provider that differ only in button labels multiply crawl budget by 15 and add
+ * All 16 URLs still render and stay reachable; they simply consolidate onto one
+ * canonical instead of asking to be indexed separately. Sixteen index entries per
+ * provider that differ only in button labels multiply crawl budget by 16 and add
  * nothing a searcher would ever want — nobody searches for a provider's name and
  * needs the Thai-chrome version of it.
  *

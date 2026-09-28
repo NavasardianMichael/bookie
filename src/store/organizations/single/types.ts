@@ -16,7 +16,6 @@ export type Organization = {
     phone: string
     country: string
     location: Location
-    email: string
     website: string
     logoUrl: string
   }

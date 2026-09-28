@@ -65,7 +65,7 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
 
     | File | Why it stayed |
     |---|---|
-    | `ProviderSearchField.tsx` | Explore's search box |
+    | `ProviderSearchField.tsx` | Explore's search box, and its Search button — which sits beside it and must match its height |
     | `BookingSlots.tsx` | the Book now CTA |
     | `AuthCallbackClient.tsx`, `VerifyEmailClient.tsx`, `CompleteRegistrationForm.tsx` | full-page `Spin` on the auth waiting screens |
     | `CompleteRegistrationForm.tsx` | the consumer/provider role `Segmented` — the one choice the whole rest of that form hangs off |
@@ -183,7 +183,7 @@ this section explains *why* each exists, not how it is spelled.
 | no `h-[NNpx]` | Use the control-height tokens |
 | no hex outside `src/styles/` | A hex belongs in `tokens.ts` and nowhere else |
 | no legacy Tailwind aliases | They still compile but mean something else — trap 8 |
-| no new `size='large'` | antd's default is the app size; the six remaining call sites are the complete allowlist — invariant 10 |
+| no new `size='large'` | antd's default is the app size; the seven remaining call sites are the complete allowlist — invariant 10 |
 
 Each gate is scoped by file extension. That is load-bearing: unscoped, every pattern
 matches the docs describing it and the gate can never pass. It is also why the script sits

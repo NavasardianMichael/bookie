@@ -1,6 +1,6 @@
 # i18n — invariants
 
-15 locales, `next-intl` with **prefixed routing**: every route lives under `app/[lang]/`
+16 locales, `next-intl` with **prefixed routing**: every route lives under `app/[lang]/`
 and every URL names its language (`/en/providers`, `/es/providers`). Message catalogues
 live in `src/messages/<locale>.json`, one file per locale, `en.json` is the source of truth.
 Non-auth namespaces: `Language`, `Common`, `Nav`, `Booking`, `Footer`, `Contact`, `Settings`,
@@ -16,7 +16,7 @@ Empty-field errors always go through `Validation.required` ("Please fill in {lab
 never a per-field "Please enter …" string.
 
 ```
-en · es · pt-BR · fr · it · de · ar · zh-CN · ja · hy · id · ko · uk · pl · th
+en · es · pt-BR · fr · it · de · ar · zh-CN · ja · hy · id · ko · uk · pl · th · ru
 ```
 
 A region subtag appears only where it disambiguates a market whose copy differs —
@@ -35,10 +35,10 @@ What it gives you:
 1. **`next/root-params` works.** `lang` is a segment *above* the root layout, so any Server
    Component or server utility can `await lang()` with no prop drilling. `currentLocale()`
    in `metadata.ts` wraps it.
-2. **Static rendering.** `generateStaticParams` in the root layout prerenders all 15
+2. **Static rendering.** `generateStaticParams` in the root layout prerenders all 16
    locales. `i18n/request.ts` reads `lang()` from `next/root-params`, so next-intl never
    falls back to `headers()` and `setRequestLocale` is not used (it is deprecated).
-3. **Real `hreflang`.** `localizedAlternates()` emits all 15 plus `x-default` on every
+3. **Real `hreflang`.** `localizedAlternates()` emits all 16 plus `x-default` on every
    indexable page.
 
 **`ROUTES` never contains a locale.** Every path constant is locale-free and the prefix is
@@ -101,7 +101,7 @@ carries the language, and adding it would fragment the cache by browser locale f
 The URL has to win or it would lie to the crawler, which is the whole reason the locale is
 in the path. The provider's own language is instead the page's **`x-default`** and where a
 bare `/providers/abc` redirects — so a shared link still opens in their language while all
-15 stay independently indexable. The `x-default` override is Phase 4; it needs the `locale`
+16 stay independently indexable. The `x-default` override is Phase 4; it needs the `locale`
 column.
 
 ## We negotiate Accept-Language ourselves, on purpose
@@ -142,7 +142,7 @@ not building an internal href.
 
 | Concern | Where |
 |---|---|
-| canonical + 15 `hreflang` + `x-default` | `localizedAlternates()` in `metadata.ts` |
+| canonical + 16 `hreflang` + `x-default` | `localizedAlternates()` in `metadata.ts` |
 | every route × locale, with alternates | `src/app/sitemap.ts` |
 | crawl rules, sitemap pointer | `src/app/robots.ts` |
 | `inLanguage`, per-locale page URLs | `src/linkedDataSchema/` |
@@ -151,18 +151,18 @@ not building an internal href.
 
 | | Helper | Emits | Use for |
 |---|---|---|---|
-| **Our copy, genuinely translated** | `localizedAlternates()` | self-canonical + 15 `hreflang` + `x-default` | landing, provider/category/organization **lists**, category detail, terms, privacy, contact |
+| **Our copy, genuinely translated** | `localizedAlternates()` | self-canonical + 16 `hreflang` + `x-default` | landing, provider/category/organization **lists**, category detail, terms, privacy, contact |
 | **User-authored, identical in every locale** | `consolidatedAlternates()` | one canonical, **no `hreflang`** | provider **detail** pages |
 
 For the first tier, each locale variant is **self-canonical** — `/es/categories` canonicals
-to itself, never to `/en/categories`. Pointing all 15 at one canonical would tell Google the
-other 14 are duplicates and deindex them, which is the opposite of the point. `hreflang` is
+to itself, never to `/en/categories`. Pointing all 16 at one canonical would tell Google the
+other 15 are duplicates and deindex them, which is the opposite of the point. `hreflang` is
 the tag that says "same page, different language".
 
 For the second tier the reverse holds. Translation is scoped to UI chrome, so a provider's
-name, services and descriptions are identical on all 15 of their URLs — only the buttons
-change. Fifteen index entries per provider that differ in button labels multiply crawl
-budget by 15 and serve nobody: no one searches a provider's name and wants the Thai-chrome
+name, services and descriptions are identical on all 16 of their URLs — only the buttons
+change. Sixteen index entries per provider that differ in button labels multiply crawl
+budget by 16 and serve nobody: no one searches a provider's name and wants the Thai-chrome
 version. So they consolidate onto one canonical.
 
 **Leaving them out of the sitemap would not have achieved this.** Absence from a sitemap is
@@ -180,7 +180,7 @@ second tier. **Consumer detail** pages are personal and arguably want `robots: n
 outright rather than either tier.
 
 **Entity `@id`s stay locale-free; page URLs do not.** A provider is one real-world entity
-that all 15 pages share, so `#person` / `#organization` ids must match across locales for
+that all 16 pages share, so `#person` / `#organization` ids must match across locales for
 `publisher` and `about` references to resolve. Only `WebPage` — genuinely a different
 document per language — carries the locale, and its `url` must agree with that page's
 canonical.
@@ -209,14 +209,14 @@ maps digits to Arabic-Indic (`٠٩:٣٠`), but **dayjs core never calls it**. `'
 
 - **antd** — `antdLocale.ts` resolves the bundle **on the server** and `layout.tsx` passes
   it to `ConfigProvider` as a prop. Only the active locale's ~6-10KB crosses the RSC
-  boundary and none of the 15 enter the client bundle. This works only because antd's
+  boundary and none of the 16 enter the client bundle. This works only because antd's
   locale bundles are pure data — verified, zero functions at any depth. If a future antd
   version adds one, this has to become a client-side import keyed on the locale.
-- **dayjs** — `dayjs.ts` imports all 15 statically (~19KB raw, ~6KB gzipped) and switches
+- **dayjs** — `dayjs.ts` imports all 16 statically (~22KB raw, ~6KB gzipped) and switches
   synchronously. An async load would flash English month names for a frame and desync
   hydration; the bytes are the cheaper side of that trade.
 
-All 15 locales exist in both libraries, Armenian (`hy_AM` / `hy-am`) included — usually the
+All 16 locales exist in both libraries, Armenian (`hy_AM` / `hy-am`) included — usually the
 one missing. Nothing here is hand-written.
 
 ## Fonts
@@ -243,7 +243,7 @@ Two things that will bite:
 - **`subsets` does not restrict what is served.** next/font never puts a `subset` param on
   the Google CSS request, so every `unicode-range` slice is downloaded and self-hosted
   regardless; `subsets` only decides which files get a `<link rel="preload">`. Manrope
-  therefore already renders Polish and Ukrainian on `subsets: ['latin']`. The script faces
+  therefore already renders Polish, Ukrainian and Russian on `subsets: ['latin']`. The script faces
   are all `preload: false` — preloading is global rather than per-locale, so preloading six
   would cost every visitor five fonts they cannot read.
 
@@ -259,3 +259,29 @@ Two things that will bite:
 4. Add `src/messages/<locale>.json` with **every** key. A missing key must fail, not fall
    back silently.
 5. If it is RTL, add it to `RTL_LOCALES` in `config.ts` and sweep the layout at `dir="rtl"`.
+6. Add it to the three hand-kept twins in `server/`, which cannot import `src/`:
+   `LOCALE_SLUGS` (`services/providerSeo.ts`), `VERIFY_LOCALES` (`lib/return-path.ts`) and
+   `BOOKING_LOCALES` (`lib/booking-mail.ts`). The first two are pinned against `LOCALES` by
+   `providerSeo.spec.ts` and `returnPath.spec.ts`. The third is not — `booking-mail.ts`
+   imports config and is out of the unit tests' reach — and missing it sends every booking
+   email for that locale to an English manage page without failing anything.
+
+### Inflected languages (ru, uk, pl, …)
+
+A placeholder cannot be declined. `{name}`, `{service}`, `{status}` and `{when}` arrive in
+the nominative, so a template that puts one after a case-governing preposition
+("к {name}", "на {when}") is wrong for most values. `{when}` is the sharpest case: dayjs
+`'dddd'` yields the nominative weekday, so "на {when}" reads "на среда". Write around it:
+a colon (`Действия: {name}`), a generic noun with the value in apposition
+(`для услуги «{service}»`), or the placeholder as the sentence's subject.
+
+Counts take ICU `plural` with **every** category the language has — `one few many other`
+for Russian — even where `en.json` interpolates a bare `{count}`; `other` is the fractional
+form, not a catch-all. The argument must be a number. The key's TypeScript type comes from
+`en.json` and cannot enforce that, and a non-numeric value does not throw: it falls through
+to `other` and `#` prints `NaN`. So check the call site before turning a bare `{count}` into
+a plural.
+
+Link text rendered next to a sentence fragment (`TermsNotice`: `{lead} <Terms> {and}
+<Privacy>.`) is the nominative page title. The Russian lead therefore ends in a colon
+(`…вы соглашаетесь с документами:`) rather than a verb that would govern another case.

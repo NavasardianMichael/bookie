@@ -64,7 +64,6 @@
     "fields": {
       "email": "电子邮箱",
       "emailPlaceholder": "you@example.com",
-      "professionalEmail": "工作邮箱",
       "password": "密码",
       "passwordPlaceholder": "您的密码",
       "choosePasswordPlaceholder": "至少 8 个字符",
@@ -73,8 +72,6 @@
       "firstName": "名字",
       "lastName": "姓氏",
       "phone": "电话号码",
-      "mobileNumber": "手机号码",
-      "organization": "机构",
       "countryCode": "国家区号"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "两次输入的密码不一致",
       "passwordNeedsLetterAndNumber": "密码必须包含至少一个字母和一个数字",
       "passwordContainsEmail": "密码不能包含您的邮箱地址",
-      "invalidPhone": "请输入有效的电话号码"
+      "invalidPhone": "请输入有效的电话号码",
+      "invalidPhoneFormat": "请输入有效的电话号码，例如 {example}"
+    },
+    "organization": {
+      "add": "添加机构",
+      "detach": "解除关联机构",
+      "name": "机构名称",
+      "searchPlaceholder": "按名称搜索",
+      "noMatches": "没有与该名称匹配的机构",
+      "addNew": "将“{name}”添加为新机构",
+      "linked": "已有机构——您的资料将归入该机构。",
+      "chooseOrAdd": "请从列表中选择机构，或将其添加为新机构",
+      "newDetails": "新机构——这些信息会显示在机构的公开页面上，均为选填。",
+      "description": "简介",
+      "descriptionPlaceholder": "机构的主要业务",
+      "addressPlaceholder": "街道、楼栋、城市",
+      "websitePlaceholder": "example.cn",
+      "similarTitle": "该机构可能已存在",
+      "similarDescription": "我们找到了名称相似的机构。您可以加入该机构，或将“{name}”创建为新机构。",
+      "useExisting": "使用此机构",
+      "createNew": "新建机构"
     },
     "signIn": {
       "title": "欢迎回来",
@@ -105,8 +122,7 @@
       "metaTitle": "创建服务提供者账户",
       "metaDescription": "加入成千上万在 Bookie 上轻松管理预约的服务提供者。",
       "termsLead": "点击「创建服务提供者账户」即表示您同意我们的",
-      "alreadyHaveAccount": "已有账户？",
-      "organizationPlaceholder": "您的机构"
+      "alreadyHaveAccount": "已有账户？"
     },
     "forgotPassword": {
       "title": "重置密码",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "更换用于登录的电话号码。",
       "label": "电话号码",
+      "showOnPublic": "在公开主页显示电话",
+      "showOnPublicBody": "关闭后，访客将看不到你的号码或主页上的呼叫按钮。",
       "sendCode": "发送验证码",
       "otp": "验证码",
       "confirm": "确认更改",
@@ -696,6 +714,8 @@
     "titleAfter": "专业人士。",
     "searchLabel": "搜索服务提供者",
     "searchPlaceholder": "您想寻找什么服务？",
+    "searchButton": "搜索",
+    "noSuggestions": "没有符合该搜索的服务提供者。",
     "browseCategories": "浏览分类",
     "categoriesRail": "分类",
     "allServices": "全部服务",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "没有已停用的服务",
     "emptyInactiveBody": "目前所有服务都对客户开放。",
     "inactive": "已停用",
-    "activate": "启用 {name}",
-    "deactivate": "停用 {name}"
+    "activateService": "启用服务",
+    "deactivateService": "停用服务",
+    "activateTitle": "启用这项服务？",
+    "activateBody": "客户将可以预约它。",
+    "deactivateTitle": "停用这项服务？",
+    "deactivateBody": "在您重新启用之前，客户将无法预约它。"
   },
   "ProfileCreation": {
     "metaTitle": "创建您的主页",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "无法加载此部分。",
       "busySlots": "无法确认哪些时间已被预约，因此部分时间可能已被占用。",
-      "organizationSearch": "暂时无法搜索机构。"
+      "organizationSearch": "暂时无法搜索机构。",
+      "providerSuggestions": "无法加载搜索建议，但仍可正常搜索。"
     },
     "conflicts": {
       "bookingUnavailable": "该服务或时间已不可用。请另选一个。",

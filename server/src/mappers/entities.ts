@@ -47,7 +47,6 @@ export function mapOrganization(org: Organization & { categories: { category: Ca
       phone: org.phone,
       country: org.country,
       location: { address: org.address, url: org.locationUrl },
-      email: org.email,
       website: org.website,
       logoUrl: org.logoUrl,
     },
@@ -95,10 +94,19 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
  * emitted only by `mapProviderProfile`, for the owner.
  */
 export function mapProviderDetails(
-  provider: ProviderWithRelations & { paymentInfo?: unknown; requiresBookingApproval?: boolean }
+  provider: ProviderWithRelations & {
+    paymentInfo?: unknown
+    requiresBookingApproval?: boolean
+    phoneVisible?: boolean
+  }
 ) {
   const weekSchedule =
     provider.weekSchedule && typeof provider.weekSchedule === 'object' ? provider.weekSchedule : defaultWeekSchedule
+
+  const hasPhone = provider.phoneCode !== null && provider.phoneNumber !== null
+  // Absent on a payload written before the column existed; treat as shown, matching the
+  // schema default and every provider's behaviour before this flag existed.
+  const phoneVisible = provider.phoneVisible !== false
 
   return {
     location: {
@@ -107,9 +115,10 @@ export function mapProviderDetails(
     },
     // Optional on the Provider row — a provider may register without a number.
     // Do not invent `{ code: 0, number: 0 }`: that used to leak as a public tel: link.
+    // Hidden numbers stay off this public mapper entirely; the owner payload re-adds them.
     phone:
-      provider.phoneCode !== null && provider.phoneNumber !== null
-        ? { code: provider.phoneCode, number: Number(provider.phoneNumber) }
+      phoneVisible && hasPhone
+        ? { code: provider.phoneCode!, number: Number(provider.phoneNumber) }
         : undefined,
     country: provider.country ?? undefined,
     publicEmail: provider.publicEmail ?? undefined,
@@ -180,15 +189,26 @@ export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescrip
  * reaching past the mapper to add a field is the same leak by another route.
  */
 export function mapProviderProfile(
-  provider: ProviderWithRelations & { user: { email: string; emailVerifiedAt: Date | null } }
+  provider: ProviderWithRelations & {
+    user: { email: string; emailVerifiedAt: Date | null }
+    phoneVisible?: boolean
+  }
 ) {
   const single = mapSingleProvider(provider)
+  // The public mapper omits a hidden phone; the owner still needs the number to edit it
+  // and the visibility flag to drive the settings toggle.
+  const phone =
+    provider.phoneCode !== null && provider.phoneNumber !== null
+      ? { code: provider.phoneCode, number: Number(provider.phoneNumber) }
+      : undefined
   return {
     ...single,
     details: {
       ...single.details,
       email: provider.user.email,
       emailVerifiedAt: provider.user.emailVerifiedAt?.toISOString(),
+      phone,
+      phoneVisible: provider.phoneVisible !== false,
     },
     personal: { plan: provider.plan },
   }

@@ -64,7 +64,6 @@
     "fields": {
       "email": "E-mail",
       "emailPlaceholder": "ty@przyklad.pl",
-      "professionalEmail": "Służbowy e-mail",
       "password": "Hasło",
       "passwordPlaceholder": "Twoje hasło",
       "choosePasswordPlaceholder": "Co najmniej 8 znaków",
@@ -73,8 +72,6 @@
       "firstName": "Imię",
       "lastName": "Nazwisko",
       "phone": "Numer telefonu",
-      "mobileNumber": "Numer komórki",
-      "organization": "Organizacja",
       "countryCode": "Numer kierunkowy kraju"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "Hasła nie są takie same",
       "passwordNeedsLetterAndNumber": "Hasło musi zawierać co najmniej jedną literę i jedną cyfrę",
       "passwordContainsEmail": "Hasło nie może zawierać Twojego adresu e-mail",
-      "invalidPhone": "Podaj prawidłowy numer telefonu"
+      "invalidPhone": "Podaj prawidłowy numer telefonu",
+      "invalidPhoneFormat": "Podaj prawidłowy numer telefonu, np. {example}"
+    },
+    "organization": {
+      "add": "Dodaj organizację",
+      "detach": "Odłącz organizację",
+      "name": "Nazwa organizacji",
+      "searchPlaceholder": "Szukaj po nazwie",
+      "noMatches": "Żadna organizacja nie ma takiej nazwy",
+      "addNew": "Dodaj „{name}” jako nową organizację",
+      "linked": "Istniejąca organizacja — Twój profil zostanie do niej przypisany.",
+      "chooseOrAdd": "Wybierz organizację z listy lub dodaj ją jako nową",
+      "newDetails": "Nowa organizacja — te dane pojawią się na jej publicznej stronie. Wszystkie są opcjonalne.",
+      "description": "Opis",
+      "descriptionPlaceholder": "Czym zajmuje się organizacja",
+      "addressPlaceholder": "Ulica, numer, miasto",
+      "websitePlaceholder": "przyklad.pl",
+      "similarTitle": "Ta organizacja może już istnieć",
+      "similarDescription": "Znaleźliśmy organizację o podobnej nazwie. Dołącz do niej lub utwórz „{name}” jako nową.",
+      "useExisting": "Użyj tej",
+      "createNew": "Utwórz nową"
     },
     "signIn": {
       "title": "Witaj ponownie",
@@ -105,8 +122,7 @@
       "metaTitle": "Utwórz konto usługodawcy",
       "metaDescription": "Dołącz do tysięcy usługodawców, którzy łatwo zarządzają wizytami w Bookie.",
       "termsLead": "Klikając „Utwórz konto usługodawcy”, akceptujesz nasze",
-      "alreadyHaveAccount": "Masz już konto?",
-      "organizationPlaceholder": "Twoja organizacja"
+      "alreadyHaveAccount": "Masz już konto?"
     },
     "forgotPassword": {
       "title": "Zresetuj hasło",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "Zmień numer telefonu używany do logowania.",
       "label": "Numer telefonu",
+      "showOnPublic": "Pokaż telefon w profilu publicznym",
+      "showOnPublicBody": "Gdy wyłączone, odwiedzający nie zobaczą numeru ani przycisku Zadzwoń na Twojej stronie.",
       "sendCode": "Wyślij kod",
       "otp": "Kod weryfikacyjny",
       "confirm": "Potwierdź zmianę",
@@ -696,6 +714,8 @@
     "titleAfter": " specjalistów.",
     "searchLabel": "Szukaj usługodawców",
     "searchPlaceholder": "Jakiej usługi szukasz?",
+    "searchButton": "Szukaj",
+    "noSuggestions": "Żaden usługodawca nie pasuje do tego wyszukiwania.",
     "browseCategories": "Przeglądaj kategorie",
     "categoriesRail": "Kategorie",
     "allServices": "Wszystkie usługi",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "Nic nieaktywnego",
     "emptyInactiveBody": "Wszystkie usługi są obecnie oferowane klientom.",
     "inactive": "Nieaktywna",
-    "activate": "Aktywuj {name}",
-    "deactivate": "Dezaktywuj {name}"
+    "activateService": "Aktywuj usługę",
+    "deactivateService": "Dezaktywuj usługę",
+    "activateTitle": "Aktywować tę usługę?",
+    "activateBody": "Klienci będą mogli ją rezerwować.",
+    "deactivateTitle": "Dezaktywować tę usługę?",
+    "deactivateBody": "Klienci nie będą mogli jej rezerwować, dopóki jej ponownie nie aktywujesz."
   },
   "ProfileCreation": {
     "metaTitle": "Utwórz swój profil",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "Nie udało się załadować tej sekcji.",
       "busySlots": "Nie udało się sprawdzić, które godziny są już zarezerwowane, więc niektóre z nich mogą być zajęte.",
-      "organizationSearch": "Nie można teraz wyszukiwać organizacji."
+      "organizationSearch": "Nie można teraz wyszukiwać organizacji.",
+      "providerSuggestions": "Nie można wczytać podpowiedzi. Wyszukiwanie nadal działa."
     },
     "conflicts": {
       "bookingUnavailable": "Ta usługa lub godzina nie jest już dostępna. Wybierz inną.",

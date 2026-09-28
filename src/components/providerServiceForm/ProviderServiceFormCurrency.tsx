@@ -4,6 +4,7 @@ import { FC } from 'react'
 import { AutoComplete } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
 import { useTranslations } from 'next-intl'
+import { isSameName, matchesSearch } from '@helpers/search'
 import { PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE } from './constants'
 
 type Props = {
@@ -16,33 +17,26 @@ type Props = {
 
 const OPTIONS = PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE ?? []
 
-const matchesQuery = (input: string, option?: DefaultOptionType): boolean => {
-  const query = input.trim().toLowerCase()
-  if (!query) return true
-  const value = String(option?.value ?? '').toLowerCase()
-  const label = String(option?.label ?? '').toLowerCase()
-  return value.includes(query) || label.includes(query)
-}
+/** Code or name; case, accents and spacing ignored, a typo or two tolerated. */
+const matchesQuery = (input: string, option?: DefaultOptionType): boolean =>
+  matchesSearch(String(option?.value ?? ''), input) || matchesSearch(String(option?.label ?? ''), input)
 
 /**
- * Combobox over the usual ISO currencies, plus free text. An exact match on a code
- * or full name (case-insensitive) canonicalises to the predefined code so "USD" and
- * "usd" and "United States Dollar" store the same value; anything else is saved as typed.
+ * Combobox over the usual ISO currencies, plus free text. The same code or full name,
+ * however cased or spaced (`isSameName`), canonicalises to the predefined code so "USD",
+ * " usd" and "united states dollar" store the same value; anything else is saved as typed.
  */
 export const ProviderServiceFormCurrency: FC<Props> = ({ value, onChange, disabled, id }) => {
   const t = useTranslations('Services')
   const handleChange = (next: string | undefined) => {
     const text = next ?? ''
-    const query = text.trim().toLowerCase()
-    if (!query) {
+    if (!text.trim()) {
       onChange?.('')
       return
     }
-    const matched = OPTIONS.find((option) => {
-      const code = String(option.value ?? '').toLowerCase()
-      const label = String(option.label ?? '').toLowerCase()
-      return query === code || query === label
-    })
+    const matched = OPTIONS.find(
+      (option) => isSameName(String(option.value ?? ''), text) || isSameName(String(option.label ?? ''), text)
+    )
     onChange?.(matched ? String(matched.value) : text)
   }
 

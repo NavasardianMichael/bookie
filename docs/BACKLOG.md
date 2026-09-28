@@ -265,7 +265,8 @@ failure answers*) covers every surface. These are the edges it deliberately stop
   submitted *as a category id* (`processors.ts` stringifies `categoryIds` as-is); both
   pickers' "create new" links go to a hardcoded `'/'`; and the organization picker's
   `addItem` focuses an `inputRef` attached to nothing. The registration screens'
-  debounced `OrganizationAutocomplete` is the likely replacement for the organization half.
+  `OrganizationSearchField` (`src/app/[lang]/auth/components/`) is the likely replacement
+  for the organization half.
 
 ---
 
@@ -293,16 +294,6 @@ failure answers*) covers every surface. These are the edges it deliberately stop
   `ConfigProvider` or any `<Form validateMessages>`. Field-level copy now comes from
   the `Validation` catalogue via `useFormItemRules`.
 - **`use…StoreBase` vs `use…Base`** suffix drift between list and single stores.
-- **The whole `Settings` namespace is English in all 15 locales** — every key under it is
-  byte-identical to `en.json` everywhere. `Language`, `Common`, `Nav`, `Footer` and
-  `Booking` are genuinely translated; `Settings` was added English-only and never
-  followed up. Every account-settings screen therefore renders English inside an
-  otherwise-translated shell. The payment-method labels were translated on 2026-09-08
-  because the booking sheet surfaces them to end users; the rest were left.
-  The Bookings / Analytics / SEO tabs (2026-09-09) added ~100 more keys the same way —
-  matching the documented state of the namespace rather than pretending otherwise. All of
-  it is provider-facing and behind auth, which is why it has stayed lower priority than
-  the public pages below.
 
 ---
 
@@ -454,7 +445,7 @@ PWA manifest shortcut — all point at `/auth/sign-in`.
 Verified live against the running API: sign-in returns a session, registration answers
 `{ value: true }` with **no `Set-Cookie`**, an unverified account is refused with code
 `4002`, `forgot-password` answers identically for known and unknown addresses, and
-`PATCH /identity/phone` writes without an OTP. `Auth` is translated in all 15 catalogues.
+`PATCH /identity/phone` writes without an OTP. `Auth` is translated in all 16 catalogues.
 
 One thing found while wiring it, worth remembering: the client password rules originally
 checked only length, while `validatePassword` on the server also requires a letter **and** a
@@ -524,22 +515,6 @@ renders `[lang]/not-found.tsx` with full chrome in the right language.
 Closing it means either `experimental.globalNotFound` (Next flags it experimental, and it
 bypasses the layout, so the shell would be duplicated a second time) or a proxy-set
 pathname header the root page could read. Neither is worth it for a mistyped URL today.
-
-## Explore and the public pages are not translated
-
-`/providers`, `/`, `/categories` and `/organizations` hardcode English. The 15 locale
-catalogues cover `Language`, `Common`, `Nav`, `Footer` and `Settings` only — chrome and
-account settings — so the new Explore copy (search placeholder, sort labels, the two
-filter labels, both empty states, the pager's `aria-label`s) follows the page it lives
-on and is English too.
-
-This is consistency with the surrounding code, not a decision that it should stay that
-way: the locale is already a path segment and `localizedAlternates()` advertises all 15
-variants of `/providers` on every one of them, so a crawler is told those pages are
-translated when they are not. Fixing it is one `Explore` (and `Home`, `Categories`, …)
-namespace per page, added to all 15 files at once — `tests/unit/i18n/catalogues.spec.ts`
-fails on a key that is missing from any locale, which is what makes a partial pass
-visible.
 
 ## Larger, deferred
 

@@ -15,3 +15,26 @@ export const getSiteUrl = (): string => {
 }
 
 export const absoluteUrl = (path: string): string => `${getSiteUrl()}${path.startsWith('/') ? path : `/${path}`}`
+
+/**
+ * A website as a person types it → an absolute URL, or `undefined` when it is not one.
+ *
+ * A bare domain (`acme.am`) gains `https://`, because nobody types the scheme. Any scheme
+ * but `http(s)` is refused: the value is rendered as a link on a public page, so
+ * `javascript:` must never survive. A bare origin comes back without the trailing slash
+ * `URL` adds, since the organization page prints the address as well as linking it.
+ */
+export const toWebsiteUrl = (text: string | undefined): string | undefined => {
+  const trimmed = text?.trim()
+  if (!trimmed) return undefined
+
+  const withScheme = /^[a-z][a-z\d+.-]*:/i.test(trimmed) ? trimmed : `https://${trimmed}`
+  try {
+    const url = new URL(withScheme)
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return undefined
+    if (!url.hostname.includes('.')) return undefined
+    return url.pathname === '/' && !url.search && !url.hash ? url.origin : url.href
+  } catch {
+    return undefined
+  }
+}

@@ -36,7 +36,7 @@ const CHANGE_FREQUENCY: Partial<Record<(typeof INDEXABLE_ROUTE_KEYS)[number], Me
 
 /**
  * One entry per route per locale, each carrying the full `alternates.languages`
- * set so crawlers see the 15 variants as one page in many languages rather than
+ * set so crawlers see the 16 variants as one page in many languages rather than
  * 15 competing near-duplicates.
  *
  * Not yet listed: `/providers/[providerId]`, `/categories/[categoryId]` and

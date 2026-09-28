@@ -147,6 +147,21 @@ Two gotchas:
 - `useFormItemRules` memoises on the translator. Fine for literal call sites; a dynamic
   rule-name list silently returns stale rules.
 
+**A field that is invalid until it is complete validates on submit first.** A phone
+number, a website, a search that must end in a pick — on-change validation reports an
+error at the first keystroke. Use `useValidateAfterSubmit` (`src/hooks/`): pass its
+`validateTrigger` to the item (it overrides `AppFormItem`'s `onChange`) and call
+`markChecked()` at the top of the validator. The item stays silent until a submit runs the
+validator, then re-checks on every change so the error clears as soon as the value is
+valid. `PhoneNumberField` and the registration Organization section are the examples.
+
+Re-validating when *another* field changes needs `dependencies` — but gate it on
+`isLive`: rc-field-form re-validates a dependent field that has an **initial value** even if
+nobody touched it, so `number: ''` in `initialValues` plus an ungated
+`dependencies={['code']}` shows "required" the moment a country is picked. Read the other
+field through the rule's `getFieldValue`, not `useWatch`, which has not re-rendered yet
+when the dependency check runs.
+
 ## Reset
 
 `form.resetFields()` — and if a sheet or modal hosts the form, reset on close, not only

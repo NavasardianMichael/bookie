@@ -1,5 +1,5 @@
 /**
- * The 15 supported locales, in rollout order.
+ * The 16 supported locales, in rollout order.
  *
  * BCP-47 codes carry a region subtag only where it disambiguates a market whose
  * copy genuinely differs — `pt-BR` (agendamento, celular, você) rather than
@@ -33,6 +33,7 @@ export const LOCALES = [
   'uk',
   'pl',
   'th',
+  'ru',
 ] as const
 
 export type Locale = (typeof LOCALES)[number]
@@ -79,4 +80,5 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   uk: 'Українська',
   pl: 'Polski',
   th: 'ไทย',
+  ru: 'Русский',
 }

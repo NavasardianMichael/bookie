@@ -1,3 +1,5 @@
+import { matchesSearch } from '@helpers/search'
+
 export const CONSUMER_APPOINTMENT_SORTS = ['startDesc', 'startAsc', 'createdDesc', 'nameAsc'] as const
 
 export type ConsumerAppointmentSort = (typeof CONSUMER_APPOINTMENT_SORTS)[number]
@@ -22,10 +24,9 @@ const isUpcoming = (item: ConsumerAppointmentListItem, nowMs: number): boolean =
     item.status as (typeof CONSUMER_APPOINTMENT_LIVE_STATUSES)[number]
   )
 
-const matchesQuery = (item: ConsumerAppointmentListItem, needle: string): boolean => {
-  const haystack = `${providerName(item)} ${item.service?.name ?? ''}`.toLowerCase()
-  return haystack.includes(needle)
-}
+/** Case, accents and spacing ignored; a typo or two and any word order tolerated. */
+const matchesQuery = (item: ConsumerAppointmentListItem, needle: string): boolean =>
+  matchesSearch(`${providerName(item)} ${item.service?.name ?? ''}`, needle)
 
 const compare = (
   left: ConsumerAppointmentListItem,
@@ -54,7 +55,7 @@ export const filterAndSortConsumerAppointments = <T extends ConsumerAppointmentL
   options: { q: string; statuses: string[]; sort: ConsumerAppointmentSort; now?: Date }
 ): T[] => {
   const nowMs = (options.now ?? new Date()).getTime()
-  const needle = options.q.trim().toLowerCase()
+  const needle = options.q.trim()
   const hasStatusFilter = options.statuses.length > 0
 
   return items

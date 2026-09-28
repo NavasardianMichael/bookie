@@ -22,7 +22,7 @@ describe('toPhoneNumber', () => {
 })
 
 describe('toOptionalPhoneNumber', () => {
-  it('returns undefined when the number is blank, so a provider can skip the field', () => {
+  it('returns undefined when the number is blank, so an optional field can be skipped', () => {
     expect(toOptionalPhoneNumber('AM', '')).toBeUndefined()
     expect(toOptionalPhoneNumber('AM', '   ')).toBeUndefined()
     expect(toOptionalPhoneNumber(undefined, '77000201')).toBeUndefined()
@@ -50,27 +50,76 @@ describe('toPhoneFormValues', () => {
 
 describe('toOrganizationFields', () => {
   it('sends only the id when an existing organization was picked', () => {
-    expect(toOrganizationFields({ id: 'org-1', name: 'Acme Services' })).toEqual({ organizationId: 'org-1' })
+    expect(toOrganizationFields({ id: 'org-1', name: 'Acme Services' }, undefined)).toEqual({
+      organizationId: 'org-1',
+    })
   })
 
-  it('sends only the name when the provider typed one that may not exist', () => {
-    expect(toOrganizationFields({ name: 'Acme Services' })).toEqual({ organizationName: 'Acme Services' })
-  })
-
-  it('trims the typed name so " Acme " and "Acme" cannot become two organizations', () => {
-    expect(toOrganizationFields({ name: '  Acme Services  ' })).toEqual({ organizationName: 'Acme Services' })
-  })
-
-  it('sends neither field when the value is absent or blank', () => {
-    expect(toOrganizationFields(undefined)).toEqual({})
-    expect(toOrganizationFields({ name: '' })).toEqual({})
-    expect(toOrganizationFields({ name: '   ' })).toEqual({})
-  })
-
-  it('prefers the id over the name when both are present', () => {
+  it('prefers the id over everything else, including new-organization details left behind', () => {
     // A picked organization's label is redundant, and sending both would let a stale
     // label disagree with the row it points at.
-    expect(toOrganizationFields({ id: 'org-1', name: 'Renamed Since' })).toEqual({ organizationId: 'org-1' })
+    expect(
+      toOrganizationFields({ id: 'org-1', name: 'Renamed Since', isNew: true }, { address: '7 Baghramyan Ave' })
+    ).toEqual({ organizationId: 'org-1' })
+  })
+
+  it('sends a new organization with its details, trimmed', () => {
+    expect(
+      toOrganizationFields(
+        { name: '  Acme Services  ', isNew: true },
+        {
+          description: '  Hair and nails ',
+          address: ' 7 Baghramyan Ave ',
+          phoneCode: 'AM',
+          phoneNumber: '10 222333',
+          website: 'acme.am',
+        }
+      )
+    ).toEqual({
+      newOrganization: {
+        name: 'Acme Services',
+        description: 'Hair and nails',
+        address: '7 Baghramyan Ave',
+        phone: '+37410222333',
+        website: 'https://acme.am',
+      },
+    })
+  })
+
+  it("builds the phone from the organization's own country picker", () => {
+    const fields = toOrganizationFields({ name: 'Acme', isNew: true }, { phoneCode: 'DE', phoneNumber: '30 1234567' })
+    expect(fields.newOrganization?.phone).toBe('+49301234567')
+  })
+
+  it('sends no phone for a country with no number, or an invalid one', () => {
+    expect(
+      toOrganizationFields({ name: 'Acme', isNew: true }, { phoneCode: 'AM' }).newOrganization?.phone
+    ).toBeUndefined()
+    expect(
+      toOrganizationFields({ name: 'Acme', isNew: true }, { phoneCode: 'AM', phoneNumber: '12' }).newOrganization?.phone
+    ).toBeUndefined()
+  })
+
+  it('leaves blank details out rather than sending empty strings', () => {
+    expect(toOrganizationFields({ name: 'Acme', isNew: true }, { description: '  ', phoneNumber: '' })).toEqual({
+      newOrganization: {
+        name: 'Acme',
+        description: undefined,
+        address: undefined,
+        phone: undefined,
+        website: undefined,
+      },
+    })
+  })
+
+  it('sends nothing for typed text that was never resolved into a pick or "add as new"', () => {
+    // Validation refuses this state; the payload must not guess an organization out of it.
+    expect(toOrganizationFields({ name: 'Acme Services' }, undefined)).toEqual({})
+  })
+
+  it('sends neither field when the section is closed or the name is blank', () => {
+    expect(toOrganizationFields(undefined, undefined)).toEqual({})
+    expect(toOrganizationFields({ name: '   ', isNew: true }, undefined)).toEqual({})
   })
 })
 

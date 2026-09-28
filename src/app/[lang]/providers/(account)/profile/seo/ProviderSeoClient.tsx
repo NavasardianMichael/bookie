@@ -428,14 +428,14 @@ export const ProviderSeoClient = () => {
                     />
                   </div>
                 )}
-                <div className='flex flex-col gap-1 p-4'>
+                <div className='flex min-w-0 flex-col gap-1 p-4'>
                   <AppText size='caption' tone='muted' className='block truncate'>
                     {previewUrl}
                   </AppText>
-                  <AppText size='body' className='text-brand block font-semibold'>
+                  <AppText size='body' className='text-brand block min-w-0 wrap-break-word font-semibold'>
                     {title || fallback.title || t('previewEmptyTitle')}
                   </AppText>
-                  <AppParagraph size='body-sm' className='m-0'>
+                  <AppParagraph size='body-sm' className='m-0 min-w-0 wrap-break-word'>
                     {description || fallback.description || t('previewEmptyDescription')}
                   </AppParagraph>
                 </div>

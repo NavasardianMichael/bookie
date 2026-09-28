@@ -5,24 +5,24 @@ import { Divider, Form } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { OrganizationValue } from '@interfaces/auth'
+import { NewOrganizationFormValues, OrganizationValue } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
-import { toOptionalPhoneNumber, toOrganizationFields } from '@helpers/registration'
+import { toPhoneNumber } from '@helpers/registration'
 import { AppButton } from '@components/ui/AppButton'
-import { AppFormItem } from '@components/ui/AppFormItem'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { MailIcon, UserIcon } from '@components/ui/icons'
-import { OrganizationAutocomplete } from './OrganizationAutocomplete'
-import { FieldLabel } from '../components/FieldLabel'
 import { GoogleButton } from '../components/GoogleButton'
 import { NewPasswordFields } from '../components/NewPasswordFields'
+import { OrganizationSection } from '../components/OrganizationSection'
 import { PhoneFormValues, PhoneNumberField } from '../components/PhoneNumberField'
 import { RegistrationField } from '../components/RegistrationField'
+import { useSimilarOrganizationCheck } from '../components/useSimilarOrganizationCheck'
 
 type ProviderRegistrationFormValues = PhoneFormValues & {
   organization?: OrganizationValue
+  newOrganization?: NewOrganizationFormValues
   firstName: string
   lastName: string
   email: string
@@ -31,24 +31,25 @@ type ProviderRegistrationFormValues = PhoneFormValues & {
 }
 
 const INITIAL_VALUES: ProviderRegistrationFormValues = {
-  organization: undefined,
   firstName: '',
   lastName: '',
   email: '',
-  password: '',
-  confirmPassword: '',
   code: undefined,
   number: '',
+  password: '',
+  confirmPassword: '',
+  organization: undefined,
 }
-
-const ORGANIZATION_INPUT_ID = 'organization'
 
 /**
  * Provider registration, per `design/initial prototype/provider_registration`.
  *
- * The prototype's "Business Name" is an Organization combobox here, and first and last name
- * are collected alongside it so a provider is never created with the server's placeholder
- * name.
+ * The prototype's "Business Name" is an optional Organization section here, closed behind an
+ * "Add organization" button because a sole trader has none: open, it searches existing
+ * organizations or registers a new one with its public-page details in the same submit —
+ * after asking, when an organization with a similar name already exists.
+ * First and last name are collected so a provider is never created with the server's
+ * placeholder name, and the phone is required, as it is for consumers.
  *
  * **Submitting does not sign you in.** `POST /identity/register` creates the account and
  * mails a verification link; an unverified account cannot hold a session, so the funnel
@@ -65,20 +66,26 @@ export const ProviderRegistrationForm: React.FC = () => {
 
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const emailRules = useFormItemRules('required', 'email')
+  const { resolveOrganization, isChecking, dialog } = useSimilarOrganizationCheck((organization) =>
+    form.setFieldValue('organization', { id: organization.id, name: organization.basic.name })
+  )
 
   const handleFinish = async (values: ProviderRegistrationFormValues) => {
     setSubmitError(null)
+    const organization = await resolveOrganization(values.organization, values.newOrganization)
+    if (!organization) return
+
     try {
       await register({
         role: USER_TYPES.provider,
         email: values.email,
         password: values.password,
-        phone: toOptionalPhoneNumber(values.code, values.number),
+        phone: toPhoneNumber(values.code!, values.number),
         profile: {
           firstName: values.firstName,
           lastName: values.lastName,
           country: values.code,
-          ...toOrganizationFields(values.organization),
+          ...organization,
         },
         locale,
       })
@@ -111,21 +118,6 @@ export const ProviderRegistrationForm: React.FC = () => {
       >
         {submitError !== null && <ErrorAlert error={submitError} />}
 
-        <div className='flex flex-col gap-1.5'>
-          <FieldLabel htmlFor={ORGANIZATION_INPUT_ID} requirement='Optional' className='text-brand font-semibold'>
-            {t('fields.organization')}
-          </FieldLabel>
-          {/* No rule: a provider may be a sole trader, and `resolveOrganizationId` on the
-              server treats a missing organization as "none" rather than an error. */}
-          <AppFormItem name='organization'>
-            <OrganizationAutocomplete
-              id={ORGANIZATION_INPUT_ID}
-              placeholder={t('providerRegistration.organizationPlaceholder')}
-              disabled={isPending}
-            />
-          </AppFormItem>
-        </div>
-
         <RegistrationField
           name='firstName'
           label={t('fields.firstName')}
@@ -152,13 +144,20 @@ export const ProviderRegistrationForm: React.FC = () => {
 
         <RegistrationField
           name='email'
-          label={t('fields.professionalEmail')}
+          label={t('fields.email')}
           requirement='Required'
           placeholder={t('fields.emailPlaceholder')}
           type='email'
           autoComplete='username'
           rules={emailRules}
           icon={<MailIcon className='text-brand-muted h-4 w-4' />}
+          disabled={isPending}
+          labelClassName='text-brand font-semibold'
+        />
+
+        <PhoneNumberField
+          label={t('fields.phone')}
+          requirement='Required'
           disabled={isPending}
           labelClassName='text-brand font-semibold'
         />
@@ -170,17 +169,13 @@ export const ProviderRegistrationForm: React.FC = () => {
           disabled={isPending}
         />
 
-        <PhoneNumberField
-          label={t('fields.phone')}
-          requirement='Optional'
-          required={false}
-          disabled={isPending}
-          labelClassName='text-brand font-semibold'
-        />
+        <OrganizationSection disabled={isPending} labelClassName='text-brand font-semibold' />
 
-        <AppButton type='primary' variant='solid' htmlType='submit' className='mt-4 w-full' loading={isPending}>
+        <AppButton type='primary' variant='solid' htmlType='submit' className='mt-4 w-full' loading={isPending || isChecking}>
           {t('providerRegistration.submit')}
         </AppButton>
+
+        {dialog}
       </Form>
     </>
   )

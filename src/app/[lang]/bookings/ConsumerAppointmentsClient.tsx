@@ -13,6 +13,7 @@ import {
   filterAndSortConsumerAppointments,
 } from '@helpers/consumerAppointments'
 import { generateEntityPath } from '@helpers/entities'
+import { collapseWhitespace } from '@helpers/search'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
@@ -119,8 +120,9 @@ export const ConsumerAppointmentsClient = () => {
 
   const hasFilters = Boolean(search || statuses.length)
 
+  // Trimmed and space-collapsed, so "  anna " is not a different search from "anna".
   const commitSearch = useDebouncedCallback((value: string) => {
-    setSearch(value)
+    setSearch(collapseWhitespace(value))
   }, SEARCH_DEBOUNCE_MS)
 
   const handleSearchChange = useCallback(

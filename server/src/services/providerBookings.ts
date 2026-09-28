@@ -109,27 +109,38 @@ const toSearchTerms = (raw: unknown): string[] =>
  * consumer's email is not, because a provider searching by name should not be able to
  * probe for which addresses have accounts.
  */
-const matchesTerm = (term: string): Prisma.AppointmentWhereInput => ({
-  OR: [
+const matchesTerm = (spellings: readonly string[]): Prisma.AppointmentWhereInput => ({
+  OR: spellings.flatMap((term): Prisma.AppointmentWhereInput[] => [
     { consumer: { firstName: { contains: term, mode: 'insensitive' } } },
     { consumer: { lastName: { contains: term, mode: 'insensitive' } } },
     { guestFirstName: { contains: term, mode: 'insensitive' } },
     { guestLastName: { contains: term, mode: 'insensitive' } },
     { guestEmail: { contains: term, mode: 'insensitive' } },
     { service: { name: { contains: term, mode: 'insensitive' } } },
-  ],
+  ]),
 })
 
 export type ProviderBookingsQuery = {
   where: Prisma.AppointmentWhereInput
+  /** The query's words as matched — what `searchFallback.ts` corrects on an empty result. */
+  terms: string[]
   orderBy: Prisma.AppointmentOrderByWithRelationInput[]
   /** 1-based, as requested. Clamped against the real page count by `resolvePageWindow`. */
   page: number
   perPage: number
 }
 
-export function parseProviderBookingsQuery(providerId: string, query: RawQuery): ProviderBookingsQuery {
+/**
+ * `spellings`, as for Explore, replaces the words of `q` with a set of spellings per word on
+ * the corrected retry (`services/searchFallback.ts`); a term matches if any spelling does.
+ */
+export function parseProviderBookingsQuery(
+  providerId: string,
+  query: RawQuery,
+  spellings?: readonly (readonly string[])[]
+): ProviderBookingsQuery {
   const terms = toSearchTerms(query.q)
+  const matched = spellings ?? terms.map((term) => [term])
   const statuses = asStatuses(query.status)
   const serviceId = asString(query.serviceId)
   const from = asDate(query.from)
@@ -142,11 +153,12 @@ export function parseProviderBookingsQuery(providerId: string, query: RawQuery):
       providerId,
       // Terms live under `AND` so they cannot collide with the `service` key a term
       // owns, and so a two-word search narrows instead of widening.
-      ...(terms.length ? { AND: terms.map(matchesTerm) } : {}),
+      ...(matched.length ? { AND: matched.map(matchesTerm) } : {}),
       ...(statuses.length ? { status: { in: statuses } } : {}),
       ...(serviceId ? { serviceId } : {}),
       ...(from || to ? { startAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } } : {}),
     },
+    terms,
     orderBy: ORDER_BY[asSort(query.sort)],
     page: asPositiveInt(query.page, 1, Number.MAX_SAFE_INTEGER),
     perPage: asPositiveInt(query.perPage, BOOKINGS_PAGE_SIZE, BOOKINGS_MAX_PAGE_SIZE),
@@ -163,12 +175,12 @@ export function parseProviderBookingsQuery(providerId: string, query: RawQuery):
  * empty list in the route, not a create: this is a read, and `resolveConsumerId`
  * already creates the row at book time.
  */
-const matchesConsumerTerm = (term: string): Prisma.AppointmentWhereInput => ({
-  OR: [
+const matchesConsumerTerm = (spellings: readonly string[]): Prisma.AppointmentWhereInput => ({
+  OR: spellings.flatMap((term): Prisma.AppointmentWhereInput[] => [
     { provider: { firstName: { contains: term, mode: 'insensitive' } } },
     { provider: { lastName: { contains: term, mode: 'insensitive' } } },
     { service: { name: { contains: term, mode: 'insensitive' } } },
-  ],
+  ]),
 })
 
 const CONSUMER_ORDER_BY: Record<ProviderBookingsSort, Prisma.AppointmentOrderByWithRelationInput[]> = {
@@ -178,8 +190,13 @@ const CONSUMER_ORDER_BY: Record<ProviderBookingsSort, Prisma.AppointmentOrderByW
   nameAsc: [{ provider: { lastName: 'asc' } }, { provider: { firstName: 'asc' } }],
 }
 
-export function parseConsumerBookingsQuery(consumerId: string, query: RawQuery): ProviderBookingsQuery {
+export function parseConsumerBookingsQuery(
+  consumerId: string,
+  query: RawQuery,
+  spellings?: readonly (readonly string[])[]
+): ProviderBookingsQuery {
   const terms = toSearchTerms(query.q)
+  const matched = spellings ?? terms.map((term) => [term])
   const statuses = asStatuses(query.status)
   const serviceId = asString(query.serviceId)
   const from = asDate(query.from)
@@ -188,11 +205,12 @@ export function parseConsumerBookingsQuery(consumerId: string, query: RawQuery):
   return {
     where: {
       consumerId,
-      ...(terms.length ? { AND: terms.map(matchesConsumerTerm) } : {}),
+      ...(matched.length ? { AND: matched.map(matchesConsumerTerm) } : {}),
       ...(statuses.length ? { status: { in: statuses } } : {}),
       ...(serviceId ? { serviceId } : {}),
       ...(from || to ? { startAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } } : {}),
     },
+    terms,
     orderBy: CONSUMER_ORDER_BY[asSort(query.sort)],
     page: asPositiveInt(query.page, 1, Number.MAX_SAFE_INTEGER),
     perPage: asPositiveInt(query.perPage, BOOKINGS_PAGE_SIZE, BOOKINGS_MAX_PAGE_SIZE),

@@ -39,7 +39,7 @@ describe('getCountryName', () => {
   })
 
   // The whole reason countries are stored as codes rather than names: one row
-  // reads correctly on all 15 language variants of a provider's page. `DE` rather
+  // reads correctly on all 16 language variants of a provider's page. `DE` rather
   // than `AM` because Armenia is spelled identically in English and Spanish, which
   // would make this assert nothing.
   it('renders the same stored value differently per locale', () => {

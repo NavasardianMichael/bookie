@@ -35,6 +35,7 @@ const BOOKING_LOCALES = new Set([
   'uk',
   'pl',
   'th',
+  'ru',
 ])
 
 export const resolveBookingLocale = (value: unknown): string =>

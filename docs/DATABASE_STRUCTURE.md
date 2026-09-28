@@ -8,8 +8,8 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | --- | --- |
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
-| **Organization** | Clinic / facility; M2M with Category |
-| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), SEO overrides + vanity `slug` |
+| **Organization** | Clinic / facility; M2M with Category. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
+| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
 | **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
@@ -91,7 +91,7 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/admin/reviews/reports?status=&page=&perPage=` | **admin** (`ADMIN_EMAILS` allowlist) |
 | PATCH | `/admin/reviews/:id/visibility` | admin — hide/restore, recomputes the aggregate |
 | PATCH | `/admin/reviews/reports/:id` | admin — `resolved` or `dismissed` |
-| GET | `/organizations?q=`, `/organizations/:id` | public |
+| GET | `/organizations?q=`, `/organizations/similar?name=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public |
 | POST | `/contact` | public — contact form; forwards to the mail engine, **stores nothing** |
 | GET/PUT | `/consumer-profile` | consumer |
@@ -112,8 +112,18 @@ would duplicate it and hold free-text PII with no retention policy or reader. A 
 send is therefore reported to the sender (`502`, or `429` passed through) rather than
 banked silently. See the `mail` skill and `server/CLAUDE.md`.
 
-`GET /organizations` returns the full list; `?q=` filters by name (case-insensitive
-`contains`, capped at 20) and backs the provider registration form's Organization combobox.
+`GET /organizations` returns the full list; `?q=` ranks by name and backs the registration
+Organization field's suggestions. Matching ignores case, accents, punctuation and spacing,
+tolerates a typo or two per word (`allowedTypos`: none under 3 letters, 1 up to 5, 2 beyond)
+and any word order; exact and prefix matches rank first (`lib/search.ts#matchScore`). It
+ranks in memory over every organization's id and name — fuzzy SQL would need `pg_trgm`,
+which this deploy does not assume, and the names are a few kilobytes. `?limit=` caps the
+answer (1–20, default 20; the field asks for 5).
+
+`GET /organizations/similar?name=` answers the organizations a new one with that name would
+probably duplicate — the same name however written, a typo or two away, or the same words
+plus one (`isSimilarName`), same name first, at most 3. The registration form asks about
+these before it creates an organization.
 
 ### Provider list — the Explore query
 
@@ -144,6 +154,13 @@ about it are load-bearing:
 - **`q` terms are ANDed, each matching any of** `firstName`, `lastName`,
   `organization.name`, `services.name`, `categories.category.name`. So "sarah massage"
   narrows. `description` is deliberately excluded: longest column, weakest signal.
+- **A search that finds nothing is retried once, typo- and accent-tolerant.** `ILIKE` is
+  case-insensitive but neither, so on an empty result each unknown word may also match its
+  closest known spellings — words from those same fields, cached for a minute — and the
+  count runs again (`services/searchFallback.ts`, `lib/searchCorrection.ts`). "ana
+  petrosian" finds Anna Petrosyan, "jose" finds José. A search that matches pays nothing.
+  Both bookings lists (`GET /provider-profile/bookings`, `/consumer-bookings`) do the same,
+  over the names and services of that calendar only.
 - **The list uses `providerListInclude`, not `providerInclude`.** The lean one drops
   `user`, `services` and `gallery` — three joins per row that `mapBasicProvider` never
   reads, and which a searchable list would otherwise pay for on every keystroke.
@@ -219,7 +236,8 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   `/uploads/<file>` path; sending that string back is a no-op.
 - **Category is a combobox, and optional.** Send `categoryId` for a predefined Category (the same
   rows linked to organizations and providers), or `categoryName` for typed text. The
-  API matches case-insensitively or creates a Category row. An unknown id with no name
+  API links an existing Category with the same name — however cased, spaced, accented or
+  punctuated (`isSameName`) — or creates one, whitespace collapsed. An unknown id with no name
   clears the column. New categories are not auto-linked onto the provider or organization.
   A service is valid with only a title and a duration.
 - **`active` defaults to `true`.** `PUT` `{ active: false }` withdraws the service from
@@ -319,7 +337,7 @@ The slug's three refusals each close a different hole: **ASCII-only** stops a Cy
 homograph rendering as another provider's link; **not UUID-shaped** stops a provider
 claiming another's canonical `/providers/<id>` address (a UUID is hex in hyphen-separated
 groups, so it passes the character rules); **reserved** stops a slug shadowing a route
-segment or one of the 15 locale prefixes. Uniqueness is settled by the index, not the
+segment or one of the 16 locale prefixes. Uniqueness is settled by the index, not the
 validator — two requests can pass validation at the same instant — and the caught `P2002`
 becomes a `409`.
 
@@ -502,6 +520,11 @@ caller's own profile with no confirmation step, because there is nothing to conf
 never verified and has no unique constraint. Email changes send a one-time link; the hashed
 token lives on **User**, and confirming runs the same handler as signup verification.
 
+`Provider.phoneVisible` (default **true**) decides whether that number appears on the public
+profile. It is saved live on `PUT /provider-profile` (not draftable), and
+`mapProviderDetails` omits `phone` when it is false. The owner payload always returns the
+number so settings can still edit it.
+
 ## Registration and sign-in
 
 **Registration and sign-in are separate routes.** `POST /identity/register` creates the
@@ -515,20 +538,41 @@ request, not only at login.
   "role": "provider",                 // or "consumer"; `userType` is accepted as an alias
   "email": "alex@company.com",
   "password": "a-strong-password",
-  // Mandatory for consumers, optional for providers, and an object when present.
-  // Profile data — never verified, never unique.
+  // Mandatory for both roles. Profile data — never verified, never unique.
   "phone": { "code": 374, "number": 77000201 },
   "profile": {
     "firstName": "Alex",
     "lastName": "Morgan",
     "country": "AM",                  // ISO 3166-1 alpha-2; not derivable from phone.code
-    // Provider only, mutually exclusive: an id links an existing organization, a name
-    // matches one case-insensitively or creates it.
+    // Provider only, and mutually exclusive: an id links an existing organization; a
+    // `newOrganization` creates one. Send neither for a sole trader.
     "organizationId": "…",
-    "organizationName": "Acme Services"
+    "newOrganization": {
+      "name": "Acme Services",        // the only required field; capped at 100
+      "description": "…",             // ≤ 300
+      "address": "7 Baghramyan Ave",  // ≤ 200
+      "phone": "+37410222333",        // E.164, else dropped
+      "website": "https://acme.am",   // http(s) only, ≤ 200, else dropped
+      "allowSimilar": true            // the provider saw the similar names and chose to create
+    }
   }
 }
 ```
+
+**A new organization takes the provider's `country`** and is created inside the
+registration transaction, so a failed registration leaves no public organization page.
+One-line fields are trimmed with inner whitespace collapsed, the description trimmed. A
+malformed optional field is dropped rather than refusing the registration
+(`server/src/services/organizations.ts`).
+
+**Duplicates are asked about, then backstopped.** Before submitting, the web form calls
+`GET /organizations/similar`; if anything comes back, the provider joins one
+(`organizationId`) or confirms a new one (`allowSimilar: true`, always created — two real
+clinics can share a name). Without `allowSimilar`, an organization with the same name
+however written (`isSameName`) is linked and the details ignored: the lookup can fail or
+race another registration, and a re-registration of an unverified account must land on the
+organization its first attempt created. An unauthenticated request never edits an existing
+organization. `POST /identity/google/complete` takes the same `profile` fields.
 
 **Every branch answers `{ "value": true }`.** A taken address, a new one, even a failed
 send — all identical. A `409` for a taken address would turn the route into an oracle for
@@ -607,7 +651,7 @@ registration.
 
 Two reasons it is a code rather than a display name:
 
-- **It has to render in 15 languages.** `Intl.DisplayNames` turns one stored `DE` into
+- **It has to render in 16 languages.** `Intl.DisplayNames` turns one stored `DE` into
   Germany, Deutschland, ألمانيا or ドイツ. A stored English name would pin every profile's
   country to English no matter what language the page is in. `src/helpers/country.ts`
   does the rendering and passes non-code values through unchanged, so rows written before

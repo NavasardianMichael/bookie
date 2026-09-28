@@ -1,6 +1,6 @@
 import { Endpoint } from '@interfaces/api'
 import { PhoneNumber } from '@interfaces/app'
-import { PendingGoogleAccount, RegistrationPayload, Session, UserType } from '@interfaces/auth'
+import { PendingGoogleAccount, RegistrationPayload, RegistrationProfile, Session, UserType } from '@interfaces/auth'
 
 /**
  * Registration answers `true` on **every** branch — a taken address, a new one, even a
@@ -94,7 +94,7 @@ export type CompleteGoogleAPI = Endpoint<{
   payload: {
     role: UserType
     phone: PhoneNumber
-    profile: { firstName: string; lastName: string; country?: string; organizationId?: string; organizationName?: string }
+    profile: RegistrationProfile
   }
   response: Session
   processed: Session

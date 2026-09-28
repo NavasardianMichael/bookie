@@ -28,12 +28,16 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Minutes → ISO `PT90M` (schema.org, `<time>`) | `toIsoDuration` | `duration.ts` |
 | Merge Tailwind classes | `cn` | `cn.ts` |
 | Absolute URL on the **site** origin | `absoluteUrl`, `getSiteUrl` | `url.ts` |
+| Typed website (`acme.am`) → absolute `http(s)` URL, or `undefined` | `toWebsiteUrl` | `url.ts` |
+| **Any search a user types into** — filter or rank by typed text, typo- and accent-tolerant | `matchesSearch`, `rankBySearch`, `matchScore` | `search.ts` |
+| Is this the same name (case, accents, spacing, punctuation, word order)? / probably the same (a typo, one word more)? | `isSameName` / `isSimilarName` | `search.ts` |
+| Trim + collapse inner whitespace, as a typed name is stored | `collapseWhitespace` | `search.ts` |
 | Canonical URL of an entity's page | `generateEntityUrl` | `entities.ts` |
 | Root-relative path of an entity's page (for `push`/`Link`) | `generateEntityPath` | `entities.ts` |
 | Country + national number → `{ code, number }` | `toPhoneNumber` | `registration.ts` |
 | Same, but blank → `undefined` | `toOptionalPhoneNumber` | `registration.ts` |
 | `{ code, number }` / `+…` → country Select values | `toPhoneFormValues` | `registration.ts` |
-| Organization combobox value → API fields | `toOrganizationFields` | `registration.ts` |
+| Registration Organization section → `organizationId` / `newOrganization` | `toOrganizationFields` | `registration.ts` |
 | Blank optional string → `undefined` | `toOptionalText` | `registration.ts` |
 | Upload path → loadable URL | `resolveAssetUrl` | `images.ts` |
 | …and never root-relative (JSON-LD, OG) | `resolveAbsoluteAssetUrl` | `images.ts` |
@@ -45,6 +49,9 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Google Maps link from an address | `generateGoogleMapsLink` | `location.ts` |
 | Render a `{ code, number }` phone | `generateFriendlyPhoneNumber` | `phone.ts` |
 | Guest booking digits → `{ code: 0, number }` | `toGuestPhoneNumber` | `phone.ts` |
+| A country's number shape, `+374 XX XXXXXX` (for error copy and placeholders) | `getPhoneNumberPattern` | `phoneValidation.ts` |
+| Is this national number valid after that country's picker? | `isValidNationalPhoneNumber` | `phoneValidation.ts` |
+| Country picker + national number → E.164 (`+37410222333`) | `toE164PhoneNumber` | `phoneValidation.ts` |
 | Accepted payment methods off a `paymentInfo` column | `toPaymentMethods` | `payment.ts` |
 | Copyable card/account number and notes a provider publishes | `toPaymentShare`, `hasPaymentShare`, `acceptsBankTransfer`, `needsPublicShareConfirm` | `payment.ts` |
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
@@ -89,6 +96,11 @@ Everything here is pure and framework-free unless the last column says otherwise
   when `remotePatterns` matches; `next.config.ts` sets `dangerouslyAllowLocalIP`
   when the API host is loopback. Without that, every uploaded avatar 400s through
   `/_next/image` after Save draft.
+- **`search.ts` is the only way to match typed text.** A new search box or filter uses
+  `matchesSearch` / `rankBySearch`, and "does this name already exist?" uses `isSameName`,
+  never `toLowerCase().includes()` or `===` on lowercased strings — those miss "Café" for
+  "cafe", "Acme  Dental" for "Acme Dental" and every typo. It has a **twin**,
+  `server/src/lib/search.ts`, kept identical and pinned by `tests/unit/server/search.spec.ts`.
 - **`url.ts` re-reads `process.env` per call**, so it is safe to stub at any point.
   In the browser `getSiteUrl` uses `window.location.origin` so share links stay
   on the host you are actually on.

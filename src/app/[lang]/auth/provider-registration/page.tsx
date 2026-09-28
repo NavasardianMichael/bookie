@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * `Surface padding='lg'` is already the prototype's card — white fill, hairline border,
  * 12px radius, `shadow-sm` — and `width='auth'` is its 480px column.
  *
- * Copy lives in `Auth.providerRegistration` so all 15 locales render the heading, not
+ * Copy lives in `Auth.providerRegistration` so all 16 locales render the heading, not
  * hardcoded English.
  */
 export default async function ProviderRegistration() {

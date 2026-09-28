@@ -64,7 +64,6 @@
     "fields": {
       "email": "E-mail",
       "emailPlaceholder": "voce@exemplo.com",
-      "professionalEmail": "E-mail profissional",
       "password": "Senha",
       "passwordPlaceholder": "Sua senha",
       "choosePasswordPlaceholder": "Pelo menos 8 caracteres",
@@ -73,8 +72,6 @@
       "firstName": "Nome",
       "lastName": "Sobrenome",
       "phone": "Número de telefone",
-      "mobileNumber": "Número de celular",
-      "organization": "Organização",
       "countryCode": "Código do país"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "As duas senhas não coincidem",
       "passwordNeedsLetterAndNumber": "A senha deve conter pelo menos uma letra e um número",
       "passwordContainsEmail": "A senha não pode conter seu e-mail",
-      "invalidPhone": "Informe um número de telefone válido"
+      "invalidPhone": "Informe um número de telefone válido",
+      "invalidPhoneFormat": "Informe um número de telefone válido, por exemplo {example}"
+    },
+    "organization": {
+      "add": "Adicionar organização",
+      "detach": "Desvincular organização",
+      "name": "Nome da organização",
+      "searchPlaceholder": "Buscar pelo nome",
+      "noMatches": "Nenhuma organização corresponde a esse nome",
+      "addNew": "Adicionar “{name}” como nova organização",
+      "linked": "Organização existente — seu perfil será vinculado a ela.",
+      "chooseOrAdd": "Escolha uma organização da lista ou adicione-a como nova",
+      "newDetails": "Nova organização — estes dados aparecem na página pública dela. Todos são opcionais.",
+      "description": "Descrição",
+      "descriptionPlaceholder": "O que a organização faz",
+      "addressPlaceholder": "Rua, número, cidade",
+      "websitePlaceholder": "exemplo.com.br",
+      "similarTitle": "Esta organização talvez já exista",
+      "similarDescription": "Encontramos uma organização com nome parecido. Entre nela ou crie “{name}” como uma nova.",
+      "useExisting": "Usar esta",
+      "createNew": "Criar uma nova"
     },
     "signIn": {
       "title": "Bem-vindo de volta",
@@ -105,8 +122,7 @@
       "metaTitle": "Crie sua conta de profissional",
       "metaDescription": "Junte-se a milhares de profissionais que gerenciam consultas com facilidade no Bookie.",
       "termsLead": "Ao clicar em \"Criar conta de profissional\", você concorda com nossos",
-      "alreadyHaveAccount": "Já tem uma conta?",
-      "organizationPlaceholder": "Sua organização"
+      "alreadyHaveAccount": "Já tem uma conta?"
     },
     "forgotPassword": {
       "title": "Redefinir sua senha",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "Altere o número de telefone usado para entrar.",
       "label": "Número de telefone",
+      "showOnPublic": "Mostrar telefone no perfil público",
+      "showOnPublicBody": "Quando desativado, os visitantes não verão seu número nem um botão de Ligar na sua página.",
       "sendCode": "Enviar código",
       "otp": "Código de verificação",
       "confirm": "Confirmar alteração",
@@ -696,6 +714,8 @@
     "titleAfter": " profissionais.",
     "searchLabel": "Buscar profissionais",
     "searchPlaceholder": "Qual serviço você está procurando?",
+    "searchButton": "Buscar",
+    "noSuggestions": "Nenhum profissional corresponde a essa busca.",
     "browseCategories": "Explorar categorias",
     "categoriesRail": "Categorias",
     "allServices": "Todos os serviços",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "Nada inativo",
     "emptyInactiveBody": "Todos os serviços estão sendo oferecidos aos clientes.",
     "inactive": "Inativo",
-    "activate": "Ativar {name}",
-    "deactivate": "Desativar {name}"
+    "activateService": "Ativar serviço",
+    "deactivateService": "Desativar serviço",
+    "activateTitle": "Ativar este serviço?",
+    "activateBody": "Os clientes poderão agendá-lo.",
+    "deactivateTitle": "Desativar este serviço?",
+    "deactivateBody": "Os clientes não poderão agendá-lo até você ativá-lo de novo."
   },
   "ProfileCreation": {
     "metaTitle": "Crie seu próprio perfil",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "Não foi possível carregar esta seção.",
       "busySlots": "Não conseguimos verificar quais horários já estão reservados, então alguns podem estar ocupados.",
-      "organizationSearch": "Não conseguimos buscar organizações agora."
+      "organizationSearch": "Não conseguimos buscar organizações agora.",
+      "providerSuggestions": "Não conseguimos carregar sugestões. A busca continua funcionando."
     },
     "conflicts": {
       "bookingUnavailable": "Esse serviço ou horário não está mais disponível. Escolha outro.",

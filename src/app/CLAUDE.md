@@ -13,7 +13,7 @@ layout: `global-error.tsx`, `not-found.tsx`, `icon.tsx`, `icon-maskable/route.ts
 
 **Write paths without the locale.** `ROUTES` is locale-free and `AppLink` adds the prefix;
 `localePath()` (`@i18n/pathname`) does it for raw URL strings. A page's `alternates` come
-from `localizedAlternates()` (`@i18n/metadata`), which also emits the 15 `hreflang` links —
+from `localizedAlternates()` (`@i18n/metadata`), which also emits the 16 `hreflang` links —
 so metadata must be `generateMetadata`, not a static `metadata` object, on any indexable
 route. See `src/i18n/CLAUDE.md`.
 
@@ -23,7 +23,7 @@ route. See `src/i18n/CLAUDE.md`.
 
 **11 routes under `[lang]` prerender to static HTML, one copy per locale; the rest are
 `ƒ`.** Verified against `next build`: the `prerender-manifest` holds **176** routes — 11
-× 15 locales plus the app-root documents (`icon`, `apple-icon`, `opengraph-image`,
+× 16 locales plus the app-root documents (`icon`, `apple-icon`, `opengraph-image`,
 `manifest`, `sitemap`, `robots`, `favicon`, `_not-found`, `_global-error`).
 
 Two things are required together, and `generateStaticParams` alone is not enough:
@@ -40,7 +40,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | Route (under `/[lang]`) | | State |
 |---|---|---|
 | `/` | ƒ | Real — marketing landing (hero, category rail, feature bento, providers, CTA) |
-| `/providers` | ƒ | Real — explore: debounced search, category chip rail, filter + sort, paged |
+| `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
 | `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO |
@@ -294,14 +294,31 @@ Five decisions worth not undoing:
 2. **Only the search box and the sort/filter pair are client islands.** The chips and the
    pager are plain anchors: they work before hydration, they prefetch, and a crawler can
    follow them. `ui/layout/Pagination` is antd-free for exactly that reason.
-3. **The search field is locally controlled and the URL is its output.** Typing cannot
-   wait for `searchParams` to come back or the caret stalls, so `params.q` seeds the
-   first render and is written back only when the URL changes from outside the field
-   (Clear all filters, Back). It `replace`s rather than `push`es — a nine-character
-   search must leave one history entry, not nine — with `scroll: false`.
-4. **The filter sheet is staged, the search is live.** Toggles collect into a draft and
-   only *Show results* navigates, so opening the panel costs no request and two changes
-   cost one. The search box is the opposite because live feedback is its whole point.
+3. **The search field is locally controlled and the URL is its output.** `params.q`
+   seeds the first render and is written back only when the URL changes from outside
+   the field (Clear all filters, Back); `committedRef` is how the field tells that apart
+   from its own submit landing. It `replace`s rather than `push`es, like sort and filter,
+   with `scroll: false`.
+4. **Typing suggests; only a submit searches.** Typing fills an antd `AutoComplete`
+   dropdown with the first `PROVIDER_SUGGESTIONS_LIMIT` (5) matches, fetched on the
+   client by `useProviderSuggestions` through the ordinary `GET /providers` with a small
+   `perPage` — no endpoint of its own. The debounce and stale-answer guard are
+   `@hooks/useDebouncedLookup`, shared with the registration Organization field. A search
+   that finds nothing is retried by the API with typo- and accent-tolerant spellings, so
+   "masage" still suggests the massage therapist. The query comes from `toProviderSuggestionsQuery`,
+   which keeps the current category, filters and sort, so the dropdown previews the grid
+   Enter would produce. Picking a row opens that provider's page. The grid moves only on
+   **Enter** or the **Search** button, which close the dropdown and write `?q=`; the
+   clear button submits `''`, but emptying the box by hand is still just typing. That is
+   the same staging the filter sheet uses — *Show results* is its only navigation — and
+   it replaced a Server Component round-trip per debounced keystroke.
+
+   Enter is handled in the `AutoComplete`'s `onKeyDown`, not the form's `onSubmit`:
+   rc-select handles the key first and `preventDefault`s an Enter that picked a
+   highlighted row, which is how a pick and a submit are told apart. An Enter on a closed
+   list also makes rc-select reopen it, and closing it from the same handler lands both
+   updates in one batch, so the dropdown does not flash. The `<form role='search'>` is
+   there for the button and the landmark.
 5. **Only the results subtree suspends.** `<Suspense>` wraps `ProvidersResults` alone:
    the heading, search box, rail and toolbar are already correct for the new query, so
    re-rendering them would only make the controls flicker. The boundary has **no**
@@ -315,7 +332,7 @@ Where Explore deviates from `design/initial prototype/explore_service_providers`
 
 | Prototype | Built as | Why |
 |---|---|---|
-| Search + **Location** field + Search button | One debounced search field | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button goes with the debounce. |
+| Search + **Location** field + Search button | Search field with a suggestions dropdown + Search button; no Location | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button came back on 2026-09-28, when the grid stopped following every keystroke. It is icon-only below `sm`. |
 | "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Service providers* | Paired with the filter control, per the request; the label still shows from `sm` up. |
 | Rating badge and star on every card | Built (2026-09-15); rating sits in the card body, availability is a pill on the image, top-start | Three statuses from `available` + `openToday`, not remaining slots: Available (green), Closed (orange, no hours today), Fully blocked (red, bookings paused). Remaining-slot math is the same omission as "Next: Today, 2 PM". |
 | "Next: Today, 2 PM" on every card | Omitted | One availability computation per card, per page render. |
@@ -370,8 +387,8 @@ account-type toggle inside a form. The one exception is the Google completion sc
 
 ```
 /auth/account-type-selection      two links, no form state
-   ├─→ /auth/consumer-registration   split screen: name, email, password, mobile
-   └─→ /auth/provider-registration   card: organization, name, email, password, optional phone
+   ├─→ /auth/consumer-registration   split screen: name, email, phone, password
+   └─→ /auth/provider-registration   card: name, email, phone, password, optional organization
                     │
                     ▼  POST /identity/register — mails a link, does NOT sign in
         /auth/verify-email          ?token= → confirms, then → /auth/sign-in
@@ -432,13 +449,21 @@ Each of these is a decision, not an oversight — do not "fix" them back:
 |---|---|---|
 | Google sign-up button + "Or register with…" divider | **Built, both** | Reversed on 2026-09-11. The mockup was right and the original note ("no OAuth exists") expired when the API gained it — `GoogleButton` sits above the divider on both registration screens and on sign-in. |
 | One free-text phone input | Country `Select` + number, joined by `Space.Compact` | A single field cannot be validated against a country's numbering plan. `libphonenumber-js` needs the country. |
-| Provider "Business Name" free text | Organization combobox (debounced `?q=` search) | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text still creates one. |
+| Provider "Business Name" free text | `OrganizationSection`: a dashed **Add organization** button that opens a debounced `?q=` search from the first character (5 suggestions, typo-tolerant, prefix matches first), a **Detach** button, and an "Add “…” as a new organization" row — its own block under a divider, offered even when the name exists — that reveals the new organization's page fields | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text alone resolves nothing — the provider picks an existing organization or explicitly adds a new one, and validation refuses anything in between. A new one is created in the registration transaction with its description, address, phone (its own country picker, preselecting the provider's) and website, and takes the provider's phone country. Organizations have **no email** — the column was dropped on 2026-09-28. **On submit, a new organization's name is looked up** (`useSimilarOrganizationCheck` → `GET /organizations/similar`): if the same or a similar name exists, `SimilarOrganizationsDialog` asks the provider to join it or create theirs anyway, and Cancel returns to the form without submitting. Names are trimmed and whitespace-collapsed on both sides before saving. Sits after the passwords, at the end of the form. Also used by the Google completion step. |
+| Provider phone optional | **Required**, as for consumers | Both registration forms order it name → email → phone → password (the provider's organization section after them), and both label it "Phone number". |
 | Consumer: mobile + **optional** email | First/last name added; email now **required** | Names because `Consumer.firstName`/`lastName` are non-null and the mockup left no way to fill them. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
 | Provider: 3 fields | First/last name added alongside Organization | Same reason: `Provider.firstName`/`lastName` are non-null and were being filled with "New Provider". |
 | Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height, no `size='large'` | `src/styles/CLAUDE.md` invariant 10; `h-[NNpx]` and `size='large'` are grep gates. |
 | `text-5xl` hero headline | `AppTitle size='h1'` | The fluid scale's `display` step is 72px at `lg`, too large for a half-width panel; `h1` caps at 40px. |
 | Terms / Privacy as `href="#"` | Real `/terms` and `/privacy` placeholder routes | A dead anchor in a consent notice is worse than a page saying the document is not published. |
 | Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. The public provider page keeps the bar but drops Explore / Categories / Organizations. |
+
+**The phone number validates on submit, not per keystroke.** A number is invalid at every
+digit but the last, so on-change validation greeted the first digit with an error. The
+field uses `useValidateAfterSubmit` (`src/hooks/`): silent until a submit checks it, then
+live on every change and on a country change. The error names the country's format —
+"Please enter a valid phone number, e.g. +374 XX XXXXXX" — from `getPhoneNumberPattern`.
+The new-organization phone and website, and the organization name itself, work the same way.
 
 Labels are rendered by `FieldLabel` with an explicit `htmlFor`, **not** antd's
 `Form.Item label`. Required fields take a trailing `*`; optional fields carry no mark.
@@ -572,7 +597,7 @@ calls `reportError`, and renders its own message with `errors/RefreshButton` —
 | `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import from `tokens.ts` (via `BookieAppIcon` for the icons). Served at `/icon` etc. with no file extension; `src/proxy.ts` must not locale-prefix those paths. `/icon-maskable` is a Route Handler rather than a metadata file convention, because Next only recognises `icon` / `apple-icon`. |
 | `manifest.ts` | Generated, not a static file. Single-locale — `start_url` and shortcuts are `/<DEFAULT_LOCALE>…`, not `/`, because localePrefix is always and `/` is a 307. `id` stays `'/'` so a later start_url change does not install a second app. No `orientation` lock — that would pin a desktop/tablet install to portrait. |
 | `sw.js/route.ts` | Service worker. Network-only for navigations (booking HTML and the API must not be cached); failed navigations get an inlined offline document from `src/helpers/pwa.ts`. Registered in production only by `ServiceWorkerRegistrar`. `/sw.js` has an extension, so the proxy matcher never sees it. |
-| `sitemap.ts`, `robots.ts` | App-root, locale-agnostic. The sitemap emits every indexable route × 15 locales with full `alternates`; nothing else links to `/th/categories` except its `hreflang` tag, so this is the only way those get crawled. |
+| `sitemap.ts`, `robots.ts` | App-root, locale-agnostic. The sitemap emits every indexable route × 16 locales with full `alternates`; nothing else links to `/th/categories` except its `hreflang` tag, so this is the only way those get crawled. |
 | `routes-overview/` | Guarded with `notFound()` in production. |
 
 ## Structured data

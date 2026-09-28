@@ -37,6 +37,7 @@ import { clearSessionCookie, setSessionCookie } from '../lib/session.js'
 import { hashUrlToken, urlTokensMatch } from '../lib/token.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
+import { findSameNamedOrganization, parseNewOrganization } from '../services/organizations.js'
 import { recomputeProviderRating } from '../services/reviews.js'
 
 export const identityRouter = Router()
@@ -118,7 +119,7 @@ export type RegistrationProfile = {
   email?: unknown
   country?: unknown
   organizationId?: unknown
-  organizationName?: unknown
+  newOrganization?: unknown
 }
 
 /**
@@ -142,8 +143,8 @@ export const asCountryCode = (value: unknown): string | undefined => {
 export type ParsedPhone = { phoneCode: number; phoneNumber: bigint }
 
 /**
- * Phone is **never verified** — informative contact data, not identity. Consumers must
- * send one at registration; providers may omit it. Validated to shape only when present.
+ * Phone is **never verified** — informative contact data, not identity. Every registration
+ * path requires one, for both roles. Validated to shape only.
  *
  * **No uniqueness check, deliberately.** The old `@@unique` existed solely because phone
  * was the identity; a clinic line shared by four providers is ordinary. A unique constraint
@@ -162,27 +163,46 @@ export const asPhone = (value: unknown): ParsedPhone | null => {
 }
 
 /**
- * Resolves the provider registration form's Organization field, which is a combobox:
- * an id means an existing organization was picked, a bare name means the provider typed
- * one that may or may not exist yet. Matching is case-insensitive so "Acme Services" and
- * "acme services" do not become two organizations.
+ * Resolves a provider registration's Organization section: `organizationId` links an
+ * existing organization picked from the suggestions; `newOrganization` registers one with
+ * the details its public page shows (`parseNewOrganization`), taking the provider's
+ * `country`. Neither — or an id that no longer exists — means no organization, which is how
+ * a sole trader registers.
+ *
+ * Before submitting, the web form looks up organizations with a similar name
+ * (`GET /organizations/similar`) and asks the provider to join one or confirm a new one;
+ * a confirmed draft carries `allowSimilar` and is always created. Without it, a draft whose
+ * name matches an existing organization's — however cased, spaced or punctuated
+ * (`findSameNamedOrganization`) — links that one and drops the details. That backstop is
+ * load-bearing: the lookup can fail or race another registration, and re-registering an
+ * unverified account resends the same draft, which must land on the organization the first
+ * attempt created rather than a copy. An existing organization's details are never
+ * overwritten from an unauthenticated request.
+ *
+ * Takes the transaction client, so an organization is created only if the provider is —
+ * a rolled-back registration must not leave a public organization page behind.
  */
-export const resolveOrganizationId = async (profile: RegistrationProfile): Promise<string | undefined> => {
+export const resolveOrganizationId = async (
+  db: Prisma.TransactionClient,
+  profile: RegistrationProfile,
+  country: string | undefined
+): Promise<string | null> => {
   const organizationId = asTrimmedString(profile.organizationId)
   if (organizationId) {
-    const existing = await prisma.organization.findUnique({ where: { id: organizationId } })
+    const existing = await db.organization.findUnique({ where: { id: organizationId }, select: { id: true } })
     if (existing) return existing.id
   }
 
-  const organizationName = asTrimmedString(profile.organizationName)
-  if (!organizationName) return undefined
+  const draft = parseNewOrganization(profile.newOrganization, country)
+  if (!draft) return null
 
-  const matched = await prisma.organization.findFirst({
-    where: { name: { equals: organizationName, mode: 'insensitive' } },
-  })
-  if (matched) return matched.id
+  if (!draft.allowSimilar) {
+    const names = await db.organization.findMany({ select: { id: true, name: true } })
+    const matched = findSameNamedOrganization(names, draft.data.name)
+    if (matched) return matched.id
+  }
 
-  const created = await prisma.organization.create({ data: { name: organizationName } })
+  const created = await db.organization.create({ data: draft.data, select: { id: true } })
   return created.id
 }
 
@@ -346,10 +366,7 @@ identityRouter.post(
     if (!lastName) return fail(res, 'Last name is required')
 
     const phone = asPhone(req.body?.phone ?? (profile as { phone?: unknown }).phone)
-    if (role === 'consumer' && !phone) return fail(res, 'A valid phone code and number are required')
-    if (role === 'provider' && req.body?.phone !== undefined && req.body?.phone !== null && !phone) {
-      return fail(res, 'A valid phone code and number are required')
-    }
+    if (!phone) return fail(res, 'A valid phone code and number are required')
 
     const country = asCountryCode(profile.country)
     const locale = asVerifyLocale(req.body?.locale)
@@ -385,8 +402,6 @@ identityRouter.post(
       return ok(res, true)
     }
 
-    const organizationId = role === 'provider' ? await resolveOrganizationId(profile) : undefined
-
     /**
      * An **unverified** row is overwritten rather than refused.
      *
@@ -408,16 +423,18 @@ identityRouter.post(
           })
 
       // `upsert` on the profile, because a re-registration may have switched role — and the
-      // other role's row, if any, is left alone rather than deleted.
+      // other role's row, if any, is left alone rather than deleted. The organization is part
+      // of what a re-registration overwrites, like the name.
       if (role === 'provider') {
+        const organizationId = await resolveOrganizationId(tx, profile, country)
         await tx.provider.upsert({
           where: { userId: saved.id },
           create: {
             userId: saved.id,
             firstName,
             lastName,
-            phoneCode: phone?.phoneCode ?? null,
-            phoneNumber: phone?.phoneNumber ?? null,
+            phoneCode: phone.phoneCode,
+            phoneNumber: phone.phoneNumber,
             country,
             organizationId,
             weekSchedule: {},
@@ -426,9 +443,10 @@ identityRouter.post(
           update: {
             firstName,
             lastName,
-            phoneCode: phone?.phoneCode ?? null,
-            phoneNumber: phone?.phoneNumber ?? null,
+            phoneCode: phone.phoneCode,
+            phoneNumber: phone.phoneNumber,
             country,
+            organizationId,
           },
         })
       } else {
@@ -438,11 +456,11 @@ identityRouter.post(
             userId: saved.id,
             firstName,
             lastName,
-            phoneCode: phone!.phoneCode,
-            phoneNumber: phone!.phoneNumber,
+            phoneCode: phone.phoneCode,
+            phoneNumber: phone.phoneNumber,
             country,
           },
-          update: { firstName, lastName, phoneCode: phone!.phoneCode, phoneNumber: phone!.phoneNumber, country },
+          update: { firstName, lastName, phoneCode: phone.phoneCode, phoneNumber: phone.phoneNumber, country },
         })
       }
 

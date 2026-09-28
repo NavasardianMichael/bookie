@@ -32,6 +32,7 @@ import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
 import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { ROUTES } from '@constants/routes'
 import { reportError } from '@helpers/reportError'
+import { collapseWhitespace } from '@helpers/search'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppInput } from '@components/ui/AppInput'
@@ -276,8 +277,9 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
     }
   }, [query, isConsumer, setPage])
 
+  // Trimmed and space-collapsed, so "  anna " is not a different search from "anna".
   const commitSearch = useDebouncedCallback((value: string) => {
-    setSearch(value)
+    setSearch(collapseWhitespace(value))
     setPage(1)
   }, SEARCH_DEBOUNCE_MS)
 

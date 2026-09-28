@@ -1,6 +1,7 @@
 import { BasicOrganization } from '@store/organizations/single/types'
 import {
   BasicOrganizationResponse,
+  FindSimilarOrganizationsAPI,
   GetOrganizationAPI,
   GetOrganizationsListAPI,
   SearchOrganizationsAPI,
@@ -30,5 +31,9 @@ export const processOrganizationResponse: GetOrganizationAPI['processor'] = (org
 }
 
 export const processSearchOrganizationsResponse: SearchOrganizationsAPI['processor'] = (response) => {
+  return response.value.map(processBasicOrganizationResponse)
+}
+
+export const processFindSimilarOrganizationsResponse: FindSimilarOrganizationsAPI['processor'] = (response) => {
   return response.value.map(processBasicOrganizationResponse)
 }

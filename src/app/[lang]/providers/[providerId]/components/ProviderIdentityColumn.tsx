@@ -146,7 +146,7 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
               {tPayments('title')}
             </AppTitle>
             {/* Translated labels, not the raw enum with its underscores swapped
-                for spaces — that rendered English on all 15 locales. */}
+                for spaces — that rendered English on all 16 locales. */}
             {!!paymentMethods.length && (
               <AppParagraph size='body-sm' tone='default' className='font-semibold'>
                 {paymentMethods.map((method) => tPayments(`methods.${method}`)).join(', ')}

@@ -17,7 +17,7 @@ type Props = {
  * answers `/admin/*` with 404 to everyone not on the `ADMIN_EMAILS` allowlist. But an
  * indexed moderation URL advertises that the surface exists and invites people to probe
  * it, so it is kept out of search results and out of `sitemap.ts`. It also carries no
- * `alternates`: there is one operator reading this, not fifteen locale variants worth
+ * `alternates`: there is one operator reading this, not sixteen locale variants worth
  * crawling.
  */
 export const generateMetadata: GenerateMetadata<Props> = async (): Promise<Metadata> => {

@@ -53,6 +53,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   const [editServiceModalOpened, setEditServiceModalOpened] = useState(false)
   const [deleteServiceModalOpened, setDeleteServiceModalOpened] = useState(false)
   const deleteServiceIdRef = useRef<string | null>(null)
+  /** The service whose active flag the confirm dialog is about to flip. */
+  const [toggleServiceId, setToggleServiceId] = useState<string | null>(null)
 
   const [filter, setFilter] = useState<Filter>(FILTERS.all)
   const [loadError, setLoadError] = useState<unknown>(null)
@@ -196,10 +198,28 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     [byId, categories.byId, initialValues]
   )
 
-  const onToggleActive = useCallback(
-    (serviceId: string, active: boolean) => putProviderService({ providerId, serviceId, service: { active } }),
-    [providerId, putProviderService]
-  )
+  const toggleService = toggleServiceId ? byId[toggleServiceId] : undefined
+  const nextActive = toggleService ? !toggleService.active : false
+
+  const onToggleActive = useCallback((serviceId: string) => {
+    setToggleServiceId(serviceId)
+  }, [])
+
+  const closeToggleModal = useCallback(() => {
+    setToggleServiceId(null)
+  }, [])
+
+  // Deliberately unguarded, same as delete: AppConfirmModal awaits this, and a
+  // rejection keeps the dialog open rather than closing on a toggle that failed.
+  const onToggleApprove = useCallback(async () => {
+    if (!toggleServiceId || !toggleService) return
+    await putProviderService({
+      providerId,
+      serviceId: toggleServiceId,
+      service: { active: !toggleService.active },
+    })
+    closeToggleModal()
+  }, [closeToggleModal, providerId, putProviderService, toggleService, toggleServiceId])
 
   const onAddServiceClick = useCallback(() => openServiceForm(), [openServiceForm])
 
@@ -322,6 +342,15 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           </>
         ) : null}
       </AppSheet>
+
+      <AppConfirmModal
+        title={nextActive ? t('activateTitle') : t('deactivateTitle')}
+        description={nextActive ? t('activateBody') : t('deactivateBody')}
+        okText={nextActive ? t('activateService') : t('deactivateService')}
+        open={toggleServiceId !== null}
+        onConfirm={onToggleApprove}
+        onCancel={closeToggleModal}
+      />
 
       <AppConfirmModal
         tone='danger'

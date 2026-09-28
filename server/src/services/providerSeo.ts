@@ -53,6 +53,7 @@ const LOCALE_SLUGS = [
   'uk',
   'pl',
   'th',
+  'ru',
 ] as const
 
 /**

@@ -6,8 +6,10 @@ import {
   exploreParamsKey,
   hasActiveExploreParams,
   parseExploreParams,
+  PROVIDER_SUGGESTIONS_LIMIT,
   PROVIDERS_PER_PAGE,
   toProvidersListQuery,
+  toProviderSuggestionsQuery,
 } from '@app/[lang]/providers/exploreParams'
 import { describe, expect, it } from 'vitest'
 
@@ -131,6 +133,35 @@ describe('toProvidersListQuery', () => {
       available: true,
       openToday: true,
     })
+  })
+})
+
+describe('toProviderSuggestionsQuery', () => {
+  it('asks for the first few rows of what Enter would show', () => {
+    expect(toProviderSuggestionsQuery(DEFAULTS, ' hair ')).toEqual({
+      q: 'hair',
+      categoryId: undefined,
+      available: undefined,
+      openToday: undefined,
+      sort: 'recommended',
+      page: 1,
+      perPage: PROVIDER_SUGGESTIONS_LIMIT,
+    })
+  })
+
+  it('keeps the category, filters and sort, so the dropdown previews the same list', () => {
+    expect(
+      toProviderSuggestionsQuery(
+        { categoryId: 'cat-1', available: true, openToday: true, sort: 'topRated' },
+        'anna'
+      )
+    ).toMatchObject({ q: 'anna', categoryId: 'cat-1', available: true, openToday: true, sort: 'topRated' })
+  })
+
+  it('always starts at page 1, whatever page the grid is on', () => {
+    // The search box passes its whole `ExploreParams`, page and all.
+    const onPageFour: ExploreParams = { ...DEFAULTS, page: 4 }
+    expect(toProviderSuggestionsQuery(onPageFour, 'anna').page).toBe(1)
   })
 })
 

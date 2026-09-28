@@ -64,7 +64,6 @@
     "fields": {
       "email": "البريد الإلكتروني",
       "emailPlaceholder": "you@example.com",
-      "professionalEmail": "البريد الإلكتروني المهني",
       "password": "كلمة المرور",
       "passwordPlaceholder": "كلمة المرور الخاصة بك",
       "choosePasswordPlaceholder": "8 أحرف على الأقل",
@@ -73,8 +72,6 @@
       "firstName": "الاسم الأول",
       "lastName": "اسم العائلة",
       "phone": "رقم الهاتف",
-      "mobileNumber": "رقم الجوال",
-      "organization": "المؤسسة",
       "countryCode": "رمز البلد"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
       "passwordNeedsLetterAndNumber": "يجب أن تحتوي كلمة المرور على حرف واحد ورقم واحد على الأقل",
       "passwordContainsEmail": "يجب ألا تحتوي كلمة المرور على عنوان بريدك الإلكتروني",
-      "invalidPhone": "يرجى إدخال رقم هاتف صالح"
+      "invalidPhone": "يرجى إدخال رقم هاتف صالح",
+      "invalidPhoneFormat": "يرجى إدخال رقم هاتف صالح، مثل {example}"
+    },
+    "organization": {
+      "add": "إضافة مؤسسة",
+      "detach": "فصل المؤسسة",
+      "name": "اسم المؤسسة",
+      "searchPlaceholder": "ابحث بالاسم",
+      "noMatches": "لا توجد مؤسسة بهذا الاسم",
+      "addNew": "إضافة «{name}» كمؤسسة جديدة",
+      "linked": "مؤسسة موجودة — سيُدرج ملفك الشخصي ضمنها.",
+      "chooseOrAdd": "اختر مؤسسة من القائمة، أو أضفها كمؤسسة جديدة",
+      "newDetails": "مؤسسة جديدة — تظهر هذه التفاصيل في صفحتها العامة. جميعها اختيارية.",
+      "description": "الوصف",
+      "descriptionPlaceholder": "ما الذي تقدّمه المؤسسة",
+      "addressPlaceholder": "الشارع، المبنى، المدينة",
+      "websitePlaceholder": "example.com",
+      "similarTitle": "قد تكون هذه المؤسسة موجودة بالفعل",
+      "similarDescription": "وجدنا مؤسسة باسم مشابه. انضم إليها، أو أنشئ «{name}» كمؤسسة جديدة.",
+      "useExisting": "استخدام هذه",
+      "createNew": "إنشاء مؤسسة جديدة"
     },
     "signIn": {
       "title": "مرحباً بعودتك",
@@ -105,8 +122,7 @@
       "metaTitle": "إنشاء حساب مقدّم خدمة",
       "metaDescription": "انضم إلى آلاف مقدّمي الخدمات الذين يديرون مواعيدهم بسهولة على Bookie.",
       "termsLead": "بالنقر على «إنشاء حساب مقدّم خدمة» فإنك توافق على",
-      "alreadyHaveAccount": "ألديك حساب بالفعل؟",
-      "organizationPlaceholder": "مؤسستك"
+      "alreadyHaveAccount": "ألديك حساب بالفعل؟"
     },
     "forgotPassword": {
       "title": "إعادة تعيين كلمة المرور",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "غيّر رقم الهاتف المستخدم لتسجيل الدخول.",
       "label": "رقم الهاتف",
+      "showOnPublic": "إظهار الهاتف في الملف العام",
+      "showOnPublicBody": "عند الإيقاف، لن يرى الزوار رقمك ولا زر اتصال في صفحتك.",
       "sendCode": "إرسال الرمز",
       "otp": "رمز التحقق",
       "confirm": "تأكيد التغيير",
@@ -696,6 +714,8 @@
     "titleAfter": ".",
     "searchLabel": "ابحث عن مقدّمي الخدمات",
     "searchPlaceholder": "ما الخدمة التي تبحث عنها؟",
+    "searchButton": "بحث",
+    "noSuggestions": "لا يوجد مقدّمو خدمات يطابقون هذا البحث.",
     "browseCategories": "تصفح الفئات",
     "categoriesRail": "الفئات",
     "allServices": "كل الخدمات",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "لا شيء غير نشط",
     "emptyInactiveBody": "كل الخدمات تُعرض حالياً للعملاء.",
     "inactive": "غير نشطة",
-    "activate": "تفعيل {name}",
-    "deactivate": "تعطيل {name}"
+    "activateService": "تفعيل الخدمة",
+    "deactivateService": "تعطيل الخدمة",
+    "activateTitle": "تفعيل هذه الخدمة؟",
+    "activateBody": "سيتمكن العملاء من حجزها.",
+    "deactivateTitle": "تعطيل هذه الخدمة؟",
+    "deactivateBody": "لن يتمكن العملاء من حجزها حتى تعيد تفعيلها."
   },
   "ProfileCreation": {
     "metaTitle": "أنشئ ملفك الشخصي",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "تعذّر تحميل هذا القسم.",
       "busySlots": "تعذّر التحقق من المواعيد المحجوزة، لذا قد يكون بعض هذه المواعيد محجوزًا.",
-      "organizationSearch": "تعذّر البحث عن المؤسسات حاليًا."
+      "organizationSearch": "تعذّر البحث عن المؤسسات حاليًا.",
+      "providerSuggestions": "تعذّر تحميل الاقتراحات. لا يزال البحث يعمل."
     },
     "conflicts": {
       "bookingUnavailable": "هذه الخدمة أو هذا الموعد لم يعد متاحًا. يرجى اختيار غيره.",

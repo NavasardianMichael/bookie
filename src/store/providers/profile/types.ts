@@ -62,6 +62,13 @@ export type ProviderProfile = {
      * missing value as `false`, which is what the API defaults it to.
      */
     requiresBookingApproval?: boolean
+    /**
+     * Whether `phone` is published on the public profile. On the **owner** payload only —
+     * the public mapper omits a hidden number rather than sending this flag. Optional so
+     * a payload written before the column existed still parses; treat a missing value as
+     * `true`, which is what the API defaults it to.
+     */
+    phoneVisible?: boolean
   }
   services: Normalized<ProviderService>
   personal: ProviderPersonalValues

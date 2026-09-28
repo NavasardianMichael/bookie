@@ -114,7 +114,7 @@ component) and `title` (narrowed to required). What it adds on top of a bare `Mo
   deliberately written without its own try/catch — see `ProviderServices.tsx`. A call site
   with copy of its own throws a `UserFacingError`, which the toast shows verbatim.
 - `Common.confirm` / `Common.cancel` / `Common.close` defaults, so a dialog is translated
-  in all 15 locales without the call site passing `okText`.
+  in all 16 locales without the call site passing `okText`.
 
 A call site that hand-rolls a `Modal` loses all six, which is what the two delete dialogs
 in this repo used to do — one of them titled `"Modal"`, both dismissible mid-request.
@@ -255,7 +255,7 @@ Spacing between form fields is owned by the parent flex `gap` — `theme.ts` set
 `Form.itemMarginBottom: 0`. Do not reintroduce `mb-*!` classes.
 
 **Do not pass `size='large'`** on antd controls, wrappers, or `Spin`. antd's default
-is the app size. The six remaining call sites are deliberate and listed in
+is the app size. The seven remaining call sites are deliberate and listed in
 `src/styles/CLAUDE.md` invariant 10; do not copy them onto a neighbouring control.
 Enforced by `pnpm gates`.
 

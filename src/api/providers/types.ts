@@ -26,6 +26,8 @@ export type PutProviderProfileRequestPayload = Partial<{
   paymentInfo: NonNullable<ProviderProfile['details']['paymentInfo']> | null
   /** Saved live, like the vanity slug — it changes nothing anyone can see. */
   requiresBookingApproval: boolean
+  /** Saved live — whether the contact phone appears on the public profile. */
+  phoneVisible: boolean
 }>
 
 /** Mirrors the sorts `server/src/services/providerSearch.ts` accepts. */

@@ -34,8 +34,8 @@ export const useExplorePending = (): ExplorePendingValue => {
 
 /**
  * Keeps the current result set on screen while the next one streams in. The overlay is
- * what makes a live search feel like filtering; swapping the grid for a skeleton was
- * the alternative, and it threw the previous cards away on every keystroke.
+ * what makes a search or a sort feel like filtering; swapping the grid for a skeleton was
+ * the alternative, and it threw the previous cards away on every query.
  */
 export const ProvidersResultsOverlay: FC<{ children: ReactNode }> = ({ children }) => {
   const { isPending } = useExplorePending()

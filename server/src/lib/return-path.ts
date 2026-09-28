@@ -29,6 +29,7 @@ const VERIFY_LOCALES = new Set([
   'uk',
   'pl',
   'th',
+  'ru',
 ])
 
 export const DEFAULT_VERIFY_LOCALE = 'en'

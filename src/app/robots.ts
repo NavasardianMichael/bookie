@@ -3,7 +3,7 @@ import { ROUTES } from '@constants/routes'
 import { absoluteUrl } from '@helpers/url'
 
 /**
- * Points crawlers at the sitemap, which is the only place the 15 locale variants
+ * Points crawlers at the sitemap, which is the only place the 16 locale variants
  * of each route are enumerated — nothing links to `/th/categories` from an
  * English page except its `hreflang` tag.
  *
@@ -12,7 +12,7 @@ import { absoluteUrl } from '@helpers/url'
  * than a literal leading segment.
  *
  * The auth funnel and the signed-in areas are excluded because they have nothing
- * to index and would burn crawl budget across 15 locales apiece. They are not
+ * to index and would burn crawl budget across 16 locales apiece. They are not
  * secret — the proxy guard and the API's `requireProvider` do that job; robots
  * is a crawling hint, never an access control.
  */

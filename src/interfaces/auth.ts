@@ -1,3 +1,4 @@
+import type { CountryCode } from 'libphonenumber-js'
 import { PhoneNumber } from '@interfaces/app'
 import { SIGN_ON_STEPS, USER_TYPES } from '@constants/auth'
 
@@ -24,33 +25,71 @@ export type RegistrationProfile = {
    * language tag, so `en-GB` would yield the wrong country and `hy` none at all.
    */
   country?: string
-  /** Provider only — set when an existing organization was picked from the combobox. */
+  /** Provider only — an existing organization picked from the suggestions. */
   organizationId?: string
-  /** Provider only — free text the provider typed; creates an organization on success. */
-  organizationName?: string
+  /** Provider only, and never alongside `organizationId` — an organization to create. */
+  newOrganization?: NewOrganizationPayload
 }
 
 /**
- * The provider form's Organization field. Either an organization picked from the combobox
- * (`id` set) or a name typed that does not exist yet, which the server creates.
+ * An organization registered together with the provider, as `POST /identity/register`
+ * takes it. It gets its own public page, so this is what that page shows.
+ *
+ * No `country`: the server gives it the provider's, which is the one picked on the phone
+ * field. Phone is E.164 (`+37410222333`), the shape `Organization.phone` is stored in.
+ */
+export type NewOrganizationPayload = {
+  name: string
+  description?: string
+  address?: string
+  phone?: string
+  website?: string
+  /**
+   * The provider was shown the organizations with a similar name and chose to create this
+   * one anyway. Without it the server links an existing organization with the same name.
+   */
+  allowSimilar?: boolean
+}
+
+/**
+ * The registration Organization field. Three states, and only two of them submit:
+ *
+ * - `id` set — an existing organization was picked from the suggestions;
+ * - `isNew` — the provider chose "add as a new organization", which reveals the rest of
+ *   its fields (`NewOrganizationFormValues`);
+ * - neither — text typed but not yet resolved into one of the above. Validation refuses
+ *   it rather than guessing, so a half-typed name never silently becomes an organization.
  */
 export type OrganizationValue = {
   id?: string
   name: string
+  isNew?: boolean
+}
+
+/**
+ * The new-organization fields beneath the name, under the form's `newOrganization` key. The
+ * phone is a country picker + national number, like the provider's own.
+ */
+export type NewOrganizationFormValues = {
+  description?: string
+  address?: string
+  phoneCode?: CountryCode
+  phoneNumber?: string
+  website?: string
 }
 
 /**
  * What `POST /identity/register` sends.
  *
  * **Phone is not identity** — it is unverified contact data on the profile, with no
- * unique constraint, because a clinic line shared by four providers is ordinary.
- * Consumers must send one; providers may omit it.
+ * unique constraint, because a clinic line shared by four providers is ordinary. Both
+ * roles must send one.
  */
 export type RegistrationPayload = {
   role: UserType
   email: string
   password: string
-  phone?: PhoneNumber
+  phone: PhoneNumber
   profile: RegistrationProfile
   /** Decides which locale the verification link lands in. */
   locale: string

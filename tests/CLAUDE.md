@@ -25,7 +25,10 @@ assert the server's `EMAIL_VERIFY_QUERY` equals the web constant that the verifi
 reads links with. That cross-package pin is the *point* of the test — the two halves of an
 emailed link have no shared type, and when they disagreed the only symptom was a valid link
 reported as expired (see `server/CLAUDE.md`). Reach across like this when a test's subject
-is an agreement between the packages, not merely for convenience.
+is an agreement between the packages, not merely for convenience — `organizations.spec.ts`
+does the same to pin the new-organization length caps to `@constants/form`, and
+`search.spec.ts` runs every case against both twins of the search matcher
+(`src/helpers/search.ts`, `server/src/lib/search.ts`).
 
 ```bash
 pnpm test         # unit + integration — fast, no external dependencies

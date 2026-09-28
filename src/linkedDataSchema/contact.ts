@@ -11,7 +11,7 @@ import { getBreadcrumbLDSchema } from './breadcrumbs'
  *
  * `about` and `isPartOf` resolve to the site-level nodes emitted on the home page. Those
  * `@id`s stay locale-free for the reason `site.ts` gives: one real-world entity that all
- * 15 language variants share. Only this page's own node carries the locale, and its `url`
+ * 16 language variants share. Only this page's own node carries the locale, and its `url`
  * has to agree with the page's canonical — which is why the path goes through
  * `localePath` rather than being used bare.
  */

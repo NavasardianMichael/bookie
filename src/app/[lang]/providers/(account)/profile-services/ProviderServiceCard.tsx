@@ -1,12 +1,11 @@
 'use client'
 
-import { FC, useCallback, useMemo, useState } from 'react'
-import { DeleteOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons'
+import { FC, useCallback, useMemo } from 'react'
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, MoreOutlined, PauseOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Switch, Tag } from 'antd'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
-import { useErrorToast } from '@hooks/useErrorToast'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
 import { resolveAssetUrl } from '@helpers/images'
@@ -20,57 +19,57 @@ type Props = {
   service: ProviderService
   onEdit: (serviceId: string) => void
   onDelete: (serviceId: string) => void
-  onToggleActive: (serviceId: string, active: boolean) => Promise<void>
+  /**
+   * Opens the confirm dialog for activate/deactivate. The parent owns the write —
+   * both the footer switch and the kebab menu item call this, so they share one flow.
+   */
+  onToggleActive: (serviceId: string) => void
 }
 
-const MENU_KEYS = { edit: 'edit', delete: 'delete' } as const
+const MENU_KEYS = { edit: 'edit', toggle: 'toggle', delete: 'delete' } as const
 
 /**
  * One service, as `manage_services` draws it: icon tile and an overflow menu on
  * the top row, name and clamped description in the body, then a ruled footer
- * carrying duration, price and an activate/deactivate switch.
+ * carrying duration, price and the active/inactive switch.
  *
- * The two per-card actions live in a `Dropdown` rather than as a pair of icon
- * buttons because the footer is where status lives, not controls — and a
- * 3-column grid of cards each showing two always-on destructive-adjacent
- * buttons reads as a toolbar rather than a catalogue.
+ * Activate/deactivate can be started from that switch *or* from an ordinary kebab
+ * menu item (the same kind of button as Edit). Neither writes on its own —
+ * confirming is the parent's dialog, the same flow as delete.
  */
 export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onToggleActive }) => {
   const t = useTranslations('Services')
-  const showError = useErrorToast()
   const resolvedImage = resolveAssetUrl(service.image)
   const hasPrice = typeof service.price === 'number'
-  const [isToggling, setIsToggling] = useState(false)
 
   const handleMenuClick = useCallback(
     ({ key }: { key: string }) => {
       if (key === MENU_KEYS.edit) onEdit(service.id)
+      if (key === MENU_KEYS.toggle) onToggleActive(service.id)
       if (key === MENU_KEYS.delete) onDelete(service.id)
     },
-    [onDelete, onEdit, service.id]
+    [onDelete, onEdit, onToggleActive, service.id]
   )
 
-  const handleToggle = useCallback(
-    // Named so the toast's Try again can re-run the same toggle; setting `active` is idempotent.
-    async function toggle(active: boolean): Promise<void> {
-      setIsToggling(true)
-      try {
-        await onToggleActive(service.id, active)
-      } catch (error) {
-        showError(error, { key: `service-active-${service.id}`, onRetry: () => void toggle(active) })
-      } finally {
-        setIsToggling(false)
-      }
-    },
-    [onToggleActive, service.id, showError]
-  )
+  /**
+   * Controlled: `checked` stays on `service.active` until the parent confirms and
+   * the store updates, so a click that only opens the dialog snaps the switch back.
+   */
+  const handleSwitchChange = useCallback(() => {
+    onToggleActive(service.id)
+  }, [onToggleActive, service.id])
 
   const items = useMemo(
     () => [
       { key: MENU_KEYS.edit, icon: <EditOutlined />, label: t('edit') },
+      {
+        key: MENU_KEYS.toggle,
+        icon: service.active ? <PauseOutlined /> : <CheckCircleOutlined />,
+        label: service.active ? t('deactivateService') : t('activateService'),
+      },
       { key: MENU_KEYS.delete, icon: <DeleteOutlined />, label: t('deleteService'), danger: true },
     ],
-    [t]
+    [service.active, t]
   )
 
   return (
@@ -143,9 +142,8 @@ export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onTo
           </Tag>
           <Switch
             checked={service.active}
-            loading={isToggling}
-            onChange={handleToggle}
-            aria-label={t(service.active ? 'deactivate' : 'activate', { name: service.name })}
+            onChange={handleSwitchChange}
+            aria-label={service.active ? t('deactivateService') : t('activateService')}
           />
         </div>
       </div>

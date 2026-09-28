@@ -64,7 +64,6 @@
     "fields": {
       "email": "อีเมล",
       "emailPlaceholder": "you@example.com",
-      "professionalEmail": "อีเมลสำหรับงาน",
       "password": "รหัสผ่าน",
       "passwordPlaceholder": "รหัสผ่านของคุณ",
       "choosePasswordPlaceholder": "อย่างน้อย 8 ตัวอักษร",
@@ -73,8 +72,6 @@
       "firstName": "ชื่อ",
       "lastName": "นามสกุล",
       "phone": "หมายเลขโทรศัพท์",
-      "mobileNumber": "หมายเลขมือถือ",
-      "organization": "องค์กร",
       "countryCode": "รหัสประเทศ"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "รหัสผ่านทั้งสองไม่ตรงกัน",
       "passwordNeedsLetterAndNumber": "รหัสผ่านต้องมีตัวอักษรอย่างน้อยหนึ่งตัวและตัวเลขอย่างน้อยหนึ่งตัว",
       "passwordContainsEmail": "รหัสผ่านต้องไม่มีที่อยู่อีเมลของคุณ",
-      "invalidPhone": "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง"
+      "invalidPhone": "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง",
+      "invalidPhoneFormat": "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง เช่น {example}"
+    },
+    "organization": {
+      "add": "เพิ่มองค์กร",
+      "detach": "ยกเลิกการเชื่อมโยงองค์กร",
+      "name": "ชื่อองค์กร",
+      "searchPlaceholder": "ค้นหาตามชื่อ",
+      "noMatches": "ไม่มีองค์กรที่ตรงกับชื่อนี้",
+      "addNew": "เพิ่ม “{name}” เป็นองค์กรใหม่",
+      "linked": "องค์กรที่มีอยู่แล้ว — โปรไฟล์ของคุณจะแสดงภายใต้องค์กรนี้",
+      "chooseOrAdd": "เลือกองค์กรจากรายการ หรือเพิ่มเป็นองค์กรใหม่",
+      "newDetails": "องค์กรใหม่ — ข้อมูลเหล่านี้จะแสดงในหน้าสาธารณะขององค์กร ทุกช่องไม่บังคับ",
+      "description": "คำอธิบาย",
+      "descriptionPlaceholder": "องค์กรนี้ทำอะไร",
+      "addressPlaceholder": "ถนน อาคาร เมือง",
+      "websitePlaceholder": "example.co.th",
+      "similarTitle": "องค์กรนี้อาจมีอยู่แล้ว",
+      "similarDescription": "เราพบองค์กรที่มีชื่อคล้ายกัน เข้าร่วมองค์กรนั้น หรือสร้าง “{name}” เป็นองค์กรใหม่",
+      "useExisting": "ใช้องค์กรนี้",
+      "createNew": "สร้างใหม่"
     },
     "signIn": {
       "title": "ยินดีต้อนรับกลับมา",
@@ -105,8 +122,7 @@
       "metaTitle": "สร้างบัญชีผู้ให้บริการ",
       "metaDescription": "เข้าร่วมผู้ให้บริการนับพันที่จัดการนัดหมายได้อย่างง่ายดายบน Bookie",
       "termsLead": "เมื่อคลิก \"สร้างบัญชีผู้ให้บริการ\" ถือว่าคุณยอมรับ",
-      "alreadyHaveAccount": "มีบัญชีอยู่แล้ว?",
-      "organizationPlaceholder": "องค์กรของคุณ"
+      "alreadyHaveAccount": "มีบัญชีอยู่แล้ว?"
     },
     "forgotPassword": {
       "title": "ตั้งรหัสผ่านใหม่",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "เปลี่ยนหมายเลขโทรศัพท์ที่ใช้เข้าสู่ระบบ",
       "label": "หมายเลขโทรศัพท์",
+      "showOnPublic": "แสดงเบอร์โทรในโปรไฟล์สาธารณะ",
+      "showOnPublicBody": "เมื่อปิด ผู้เยี่ยมชมจะไม่เห็นหมายเลขหรือปุ่มโทรในหน้าของคุณ",
       "sendCode": "ส่งรหัส",
       "otp": "รหัสยืนยัน",
       "confirm": "ยืนยันการเปลี่ยนแปลง",
@@ -696,6 +714,8 @@
     "titleAfter": "สำหรับคุณ",
     "searchLabel": "ค้นหาผู้ให้บริการ",
     "searchPlaceholder": "คุณกำลังมองหาบริการอะไร?",
+    "searchButton": "ค้นหา",
+    "noSuggestions": "ไม่มีผู้ให้บริการที่ตรงกับการค้นหานี้",
     "browseCategories": "เรียกดูหมวดหมู่",
     "categoriesRail": "หมวดหมู่",
     "allServices": "บริการทั้งหมด",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "ไม่มีบริการที่ปิดใช้งาน",
     "emptyInactiveBody": "ทุกบริการกำลังเสนอให้ลูกค้าในขณะนี้",
     "inactive": "ไม่ใช้งาน",
-    "activate": "เปิดใช้งาน {name}",
-    "deactivate": "ปิดใช้งาน {name}"
+    "activateService": "เปิดใช้งานบริการ",
+    "deactivateService": "ปิดใช้งานบริการ",
+    "activateTitle": "เปิดใช้งานบริการนี้?",
+    "activateBody": "ลูกค้าจะสามารถจองบริการนี้ได้",
+    "deactivateTitle": "ปิดใช้งานบริการนี้?",
+    "deactivateBody": "ลูกค้าจะไม่สามารถจองบริการนี้ได้จนกว่าคุณจะเปิดใช้งานอีกครั้ง"
   },
   "ProfileCreation": {
     "metaTitle": "สร้างโปรไฟล์ของคุณ",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "ไม่สามารถโหลดส่วนนี้ได้",
       "busySlots": "ไม่สามารถตรวจสอบเวลาที่ถูกจองแล้วได้ บางเวลาที่แสดงอาจไม่ว่าง",
-      "organizationSearch": "ไม่สามารถค้นหาองค์กรได้ในขณะนี้"
+      "organizationSearch": "ไม่สามารถค้นหาองค์กรได้ในขณะนี้",
+      "providerSuggestions": "ไม่สามารถโหลดคำแนะนำได้ แต่ยังค้นหาได้ตามปกติ"
     },
     "conflicts": {
       "bookingUnavailable": "บริการหรือเวลานั้นไม่ว่างแล้ว กรุณาเลือกใหม่",

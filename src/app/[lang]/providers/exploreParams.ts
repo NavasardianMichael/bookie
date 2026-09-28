@@ -121,6 +121,25 @@ export const toProvidersListQuery = (params: ExploreParams): ProvidersListQuery 
 })
 
 /**
+ * How many providers the search box offers while the visitor types. The dropdown is a
+ * shortcut to one profile, not a second results page — Enter is the way to all of them.
+ */
+export const PROVIDER_SUGGESTIONS_LIMIT = 5
+
+/** Everything that narrows a result set except the keyword itself and the page. */
+export type ExploreScope = Pick<ExploreParams, 'categoryId' | 'available' | 'openToday' | 'sort'>
+
+/**
+ * The payload for the search box's suggestions: page 1 of what Enter would show, cut to
+ * `PROVIDER_SUGGESTIONS_LIMIT`. Scoped by the current category, filters and sort, so the
+ * dropdown previews the grid it is about to replace rather than a different list.
+ */
+export const toProviderSuggestionsQuery = (scope: ExploreScope, q: string): ProvidersListQuery => ({
+  ...toProvidersListQuery({ ...scope, q: q.trim(), page: 1 }),
+  perPage: PROVIDER_SUGGESTIONS_LIMIT,
+})
+
+/**
  * Identity of a result set. Tests pin that paging and searching produce distinct keys;
  * `withPageReset` used to collapse every page onto one, which hid the next query.
  */

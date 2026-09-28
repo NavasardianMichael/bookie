@@ -6,7 +6,7 @@ import { getSiteUrl } from '@helpers/url'
 /**
  * The distinction pinned here is the one that breaks silently: the page node's `url` must
  * carry the locale so it agrees with that page's canonical, while the `@id`s it references
- * must **not**, because `WebSite` and `Organization` are one entity shared by all 15
+ * must **not**, because `WebSite` and `Organization` are one entity shared by all 16
  * variants. Get it backwards and `isPartOf`/`about` resolve to nothing.
  */
 const nodes = (locale: (typeof LOCALES)[number]) => {

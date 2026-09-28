@@ -68,7 +68,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
     //
     // Consolidated rather than localized, unlike every other indexable route: a
     // provider's name, services and descriptions are theirs and are not
-    // translated, so the 15 locale variants differ only in chrome. They all
+    // translated, so the 16 locale variants differ only in chrome. They all
     // canonical onto one — and carry no hreflang, which would contradict it.
     //
     // PHASE 4: the canonical locale becomes the provider's own saved `locale`,

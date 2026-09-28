@@ -18,7 +18,6 @@ const initialState: OrganizationState = {
       url: '',
     },
     phone: '',
-    email: '',
     country: '',
     logoUrl: '',
     website: '',

@@ -6,6 +6,7 @@ import type { DefaultOptionType } from 'antd/es/select'
 import { useTranslations } from 'next-intl'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { CategoryValue } from '@interfaces/services'
+import { isSameName, matchesSearch } from '@helpers/search'
 
 type Props = {
   /** `value` and `onChange` are injected by the wrapping `Form.Item`. */
@@ -15,20 +16,18 @@ type Props = {
   id?: string
 }
 
-const matchesQuery = (input: string, option?: DefaultOptionType): boolean => {
-  const query = input.trim().toLowerCase()
-  if (!query) return true
-  const haystack = String(option?.value ?? '').toLowerCase()
-  return haystack.includes(query)
-}
+/** Case, accents and spacing ignored; a typo or two and any word order tolerated. */
+const matchesQuery = (input: string, option?: DefaultOptionType): boolean =>
+  matchesSearch(String(option?.value ?? ''), input)
 
 /**
  * Combobox over the predefined Category rows (the same ones linked to organizations
- * and providers), plus free text. Typing an existing name case-insensitively still
- * links it; any other name is created on save.
+ * and providers), plus free text. Typing an existing name — whatever its case, spacing,
+ * accents or punctuation (`isSameName`) — still links it; any other name is created on
+ * save, and the server applies the same comparison before it creates one.
  *
  * The id is resolved by matching the current text against the loaded list rather than
- * in `onSelect`, the same as OrganizationAutocomplete — so antd's event order cannot
+ * in `onSelect` — so antd's event order cannot
  * drop the link, and an exact typed name does not create a duplicate.
  */
 export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabled, id }) => {
@@ -48,7 +47,7 @@ export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabl
     const next = name ?? ''
     const matched = list.allIds
       .map((categoryId) => list.byId[categoryId])
-      .find((category) => category?.name.trim().toLowerCase() === next.trim().toLowerCase())
+      .find((category) => category && isSameName(category.name, next))
     onChange?.({ id: matched?.id, name: next })
   }
 

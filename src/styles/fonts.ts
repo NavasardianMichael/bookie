@@ -28,8 +28,8 @@ import type { Locale } from '@i18n/config'
  * full set of `unicode-range` slices — latin-ext, cyrillic, greek — is always
  * downloaded and self-hosted. `subsets` only decides which of those files get a
  * `<link rel="preload">`. Latin is the right thing to preload because it is the
- * default locale; Polish diacritics and Ukrainian Cyrillic still render from
- * Manrope, one lazy fetch later, under `display: 'swap'`.
+ * default locale; Polish diacritics and Ukrainian and Russian Cyrillic still render
+ * from Manrope, one lazy fetch later, under `display: 'swap'`.
  */
 export const fontSans = Manrope({
   subsets: ['latin'],

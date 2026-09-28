@@ -128,7 +128,6 @@ model Organization {
   country      String                 @default("")
   address      String                 @default("")
   locationUrl  String                 @default("")
-  email        String                 @default("")
   website      String                 @default("")
   logoUrl      String                 @default("")
   createdAt    DateTime               @default(now())
@@ -157,14 +156,16 @@ model Provider {
   description            String?
   imageUrl               String?
 
-  /// Contact phone. Optional at provider registration and **never verified** — it is not
-  /// identity any more, so nothing depends on it being reachable. Consumers still require
-  /// a number (`Consumer.phoneCode` stays NOT NULL).
+  /// Contact phone, **never verified** — it is not identity any more, so nothing depends on
+  /// it being reachable. Required at registration since 2026-09-28, as it always was for
+  /// consumers, but nullable here: providers who registered before that may have none, and
+  /// the profile's phone field stays optional for them (`Consumer.phoneCode` is NOT NULL).
   ///
   /// On the profile rather than on `User` because the two profiles publish it differently:
   /// `mapProviderDetails` puts a provider's number on the *public* `GET /providers/:id`
-  /// payload, while a consumer's reaches only the provider they booked. One shared column
-  /// on `User` published the personal number of anyone holding both profiles.
+  /// payload when `phoneVisible` is true, while a consumer's reaches only the provider
+  /// they booked. One shared column on `User` published the personal number of anyone
+  /// holding both profiles.
   ///
   /// Deliberately **not** unique. A clinic reception line shared by four providers, or a
   /// household sharing a mobile, is ordinary — the old `@@unique` existed only because
@@ -172,6 +173,13 @@ model Provider {
   /// reintroduce an enumeration oracle.
   phoneCode              Int?
   phoneNumber            BigInt?
+
+  /// Whether `phoneCode`/`phoneNumber` appear on the public profile. Defaults to true so
+  /// existing providers keep today's behaviour. Saved live (not draftable), same as
+  /// `requiresBookingApproval` — it changes what the public page shows, but staging it
+  /// behind Publish would leave a number visible after the owner thought they had hidden it.
+  /// The owner payload always carries the number so settings can edit it regardless.
+  phoneVisible           Boolean            @default(true)
 
   /// A **published** contact address, distinct from the identity `User.email`. Unverified,
   /// non-unique, and writable straight from `PUT /provider-profile` — which is precisely

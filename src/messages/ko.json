@@ -64,7 +64,6 @@
     "fields": {
       "email": "이메일",
       "emailPlaceholder": "you@example.com",
-      "professionalEmail": "업무용 이메일",
       "password": "비밀번호",
       "passwordPlaceholder": "비밀번호",
       "choosePasswordPlaceholder": "8자 이상",
@@ -73,8 +72,6 @@
       "firstName": "이름",
       "lastName": "성",
       "phone": "전화번호",
-      "mobileNumber": "휴대폰 번호",
-      "organization": "기관",
       "countryCode": "국가 번호"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "두 비밀번호가 일치하지 않습니다",
       "passwordNeedsLetterAndNumber": "비밀번호에는 영문자와 숫자가 각각 하나 이상 포함되어야 합니다",
       "passwordContainsEmail": "비밀번호에 이메일 주소를 포함할 수 없습니다",
-      "invalidPhone": "유효한 전화번호를 입력하세요"
+      "invalidPhone": "유효한 전화번호를 입력하세요",
+      "invalidPhoneFormat": "유효한 전화번호를 입력하세요 (예: {example})"
+    },
+    "organization": {
+      "add": "기관 추가",
+      "detach": "기관 연결 해제",
+      "name": "기관 이름",
+      "searchPlaceholder": "이름으로 검색",
+      "noMatches": "이 이름과 일치하는 기관이 없어요",
+      "addNew": "“{name}”을(를) 새 기관으로 추가",
+      "linked": "기존 기관이에요. 프로필이 이 기관에 표시돼요.",
+      "chooseOrAdd": "목록에서 기관을 선택하거나 새 기관으로 추가하세요",
+      "newDetails": "새 기관이에요. 이 정보는 기관의 공개 페이지에 표시돼요. 모두 선택 사항이에요.",
+      "description": "소개",
+      "descriptionPlaceholder": "기관이 하는 일",
+      "addressPlaceholder": "도로명, 건물, 도시",
+      "websitePlaceholder": "example.kr",
+      "similarTitle": "이미 등록된 기관일 수 있어요",
+      "similarDescription": "비슷한 이름의 기관을 찾았어요. 해당 기관에 합류하거나 “{name}”을(를) 새 기관으로 만드세요.",
+      "useExisting": "이 기관 사용",
+      "createNew": "새로 만들기"
     },
     "signIn": {
       "title": "다시 오신 것을 환영합니다",
@@ -105,8 +122,7 @@
       "metaTitle": "제공자 계정 만들기",
       "metaDescription": "Bookie에서 예약을 간편하게 관리하는 수천 명의 서비스 제공자와 함께하세요.",
       "termsLead": "\"제공자 계정 만들기\"를 클릭하면 다음에 동의하게 됩니다",
-      "alreadyHaveAccount": "이미 계정이 있으신가요?",
-      "organizationPlaceholder": "소속 기관"
+      "alreadyHaveAccount": "이미 계정이 있으신가요?"
     },
     "forgotPassword": {
       "title": "비밀번호 재설정",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "로그인에 사용하는 전화번호를 변경하세요.",
       "label": "전화번호",
+      "showOnPublic": "공개 프로필에 전화번호 표시",
+      "showOnPublicBody": "끄면 방문자가 페이지에서 번호나 통화 버튼을 볼 수 없습니다.",
       "sendCode": "코드 보내기",
       "otp": "인증 코드",
       "confirm": "변경 확정",
@@ -696,6 +714,8 @@
     "titleAfter": "를 찾아 예약하세요.",
     "searchLabel": "제공자 검색",
     "searchPlaceholder": "어떤 서비스를 찾으세요?",
+    "searchButton": "검색",
+    "noSuggestions": "검색과 일치하는 제공자가 없어요.",
     "browseCategories": "카테고리 둘러보기",
     "categoriesRail": "카테고리",
     "allServices": "모든 서비스",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "비활성 서비스가 없습니다",
     "emptyInactiveBody": "모든 서비스가 현재 고객에게 제공되고 있습니다.",
     "inactive": "비활성",
-    "activate": "{name} 활성화",
-    "deactivate": "{name} 비활성화"
+    "activateService": "서비스 활성화",
+    "deactivateService": "서비스 비활성화",
+    "activateTitle": "이 서비스를 활성화할까요?",
+    "activateBody": "고객이 예약할 수 있게 됩니다.",
+    "deactivateTitle": "이 서비스를 비활성화할까요?",
+    "deactivateBody": "다시 활성화할 때까지 고객이 예약할 수 없습니다."
   },
   "ProfileCreation": {
     "metaTitle": "프로필 만들기",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "이 섹션을 불러오지 못했어요.",
       "busySlots": "이미 예약된 시간을 확인하지 못해서 일부 시간은 이미 예약되었을 수 있어요.",
-      "organizationSearch": "지금은 기관을 검색할 수 없어요."
+      "organizationSearch": "지금은 기관을 검색할 수 없어요.",
+      "providerSuggestions": "추천 항목을 불러올 수 없어요. 검색은 계속 이용할 수 있어요."
     },
     "conflicts": {
       "bookingUnavailable": "해당 서비스나 시간은 더 이상 이용할 수 없어요. 다른 것을 선택해 주세요.",

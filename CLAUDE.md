@@ -57,9 +57,10 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Reusable UI | `src/components/ui/` — see `src/components/CLAUDE.md` |
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
+| Matching typed search text, duplicate-name checks | `src/helpers/search.ts` (twin: `server/src/lib/search.ts`) · empty-search retry `server/src/services/searchFallback.ts` |
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
 | Showing an error (dev details vs production copy, Retry) | `src/helpers/error.ts` (classify) · `src/components/ui/ErrorAlert.tsx`, `ErrorState.tsx` · `src/hooks/useErrorToast.tsx` · `src/components/errors/` — see *Errors* in `src/components/CLAUDE.md` |
-| Error copy, all 15 locales | `Errors.kinds.*` (by failure kind), `Errors.codes.*` (by stable code), `Errors.pages.*` in `src/messages/` |
+| Error copy, all 16 locales | `Errors.kinds.*` (by failure kind), `Errors.codes.*` (by stable code), `Errors.pages.*` in `src/messages/` |
 | Ratings, reviews, the Explore ranking | `server/src/services/reviews.ts` (the Bayesian score + parsers) · `server/src/routes/reviews.ts` · `src/api/reviews/` |
 | Favourites (the heart on a provider card, `/favorites`) | `server/src/routes/favorites.ts` · `src/api/favorites/` · `src/store/favorites/list/` · `src/hooks/useFavoriteProvider.ts` · `src/components/favorites/` — see `src/app/CLAUDE.md` |
 | Bookings page (`/bookings`, both sides of an account) | `src/app/[lang]/bookings/` — see `src/app/CLAUDE.md` |

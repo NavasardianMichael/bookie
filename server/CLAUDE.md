@@ -10,12 +10,14 @@ server/
   src/
     app.ts, index.ts, config.ts, load-env.ts
     routes/       Express routers, one per resource
-    services/     appointments + availability logic, Explore's provider query
+    services/     appointments + availability logic, Explore's provider query, organizations,
+                  searchFallback (the typo-tolerant retry of an empty search)
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
     lib/          api-response, auth-notices, booking-mail, cookie-domain, email-verify,
                   google-oauth, mail, oauth-state, password, password-reset, payment, prisma,
-                  rateLimit, request, return-path, review-mail, session, token
+                  rateLimit, request, return-path, review-mail, search (twin of
+                  src/helpers/search.ts), searchCorrection, session, token
 ```
 
 ## The response envelope is non-negotiable

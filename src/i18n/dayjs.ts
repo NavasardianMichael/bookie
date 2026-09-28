@@ -12,6 +12,7 @@ import 'dayjs/locale/ja'
 import 'dayjs/locale/ko'
 import 'dayjs/locale/pl'
 import 'dayjs/locale/pt-br'
+import 'dayjs/locale/ru'
 import 'dayjs/locale/th'
 import 'dayjs/locale/uk'
 import 'dayjs/locale/zh-cn'
@@ -37,6 +38,7 @@ const DAYJS_LOCALES: Record<Locale, string> = {
   uk: 'uk',
   pl: 'pl',
   th: 'th',
+  ru: 'ru',
 }
 
 /**
@@ -50,8 +52,8 @@ const DAYJS_LOCALES: Record<Locale, string> = {
  * TimePicker read month and weekday names straight off dayjs, not off antd's own
  * `locale` prop.
  *
- * All 15 locales are imported statically rather than loaded on demand. Together
- * they are ~19KB raw (~6KB gzipped), which is cheaper than the class of bugs an
+ * All 16 locales are imported statically rather than loaded on demand. Together
+ * they are ~22KB raw (~6KB gzipped), which is cheaper than the class of bugs an
  * async load creates — a picker opening with English month names for a frame,
  * and a hydration mismatch on anything formatted during the first render.
  *

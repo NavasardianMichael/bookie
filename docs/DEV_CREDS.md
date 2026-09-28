@@ -69,8 +69,8 @@ POST /identity/login
 
 ```jsonc
 // Registration. Does not sign you in — it mails a verification link.
-// `phone` is an object. Consumers must send one; providers may omit it. Profile data
-// now, not identity: it is never verified and has no unique constraint.
+// `phone` is an object, and both roles must send one. Profile data now, not identity:
+// it is never verified and has no unique constraint.
 POST /identity/register
 {
   "role": "provider",
@@ -81,7 +81,7 @@ POST /identity/register
     "firstName": "Alex",
     "lastName": "Morgan",
     "country": "AM",
-    "organizationName": "Acme Services"
+    "newOrganization": { "name": "Acme Services" }
   }
 }
 ```
@@ -95,7 +95,7 @@ route list.
 - **Email is the identity**, stored `citext` so the unique index is case-insensitive in the
   database rather than only in whichever route remembered to lowercase.
 - **Phone moved onto the profiles** (`Provider.phoneCode`/`phoneNumber`, and the same on
-  `Consumer`). Consumers must send one at registration; providers may omit it. Never
+  `Consumer`). Both roles must send one at registration. Never
   verified, and deliberately **not** unique — a clinic line shared by four providers is
   ordinary.
 - The seed is re-runnable (`pnpm install` re-seeds), and re-hashes the local-account

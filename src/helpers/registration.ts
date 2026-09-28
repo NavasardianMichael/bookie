@@ -1,7 +1,10 @@
 import type { CountryCode } from 'libphonenumber-js'
 import { getCountryCallingCode, parsePhoneNumberFromString } from 'libphonenumber-js'
 import { PhoneNumber } from '@interfaces/app'
-import { OrganizationValue, RegistrationProfile } from '@interfaces/auth'
+import { NewOrganizationFormValues, OrganizationValue, RegistrationProfile } from '@interfaces/auth'
+import { toE164PhoneNumber } from '@helpers/phoneValidation'
+import { collapseWhitespace } from '@helpers/search'
+import { toWebsiteUrl } from '@helpers/url'
 
 /**
  * Country code + national number as the API wants them: two numbers, not a formatted string.
@@ -38,22 +41,38 @@ export const toPhoneFormValues = (
   return { code: parsed.country, number: parsed.nationalNumber }
 }
 
-/**
- * Splits the Organization combobox value into the two fields the API distinguishes.
- *
- * An `id` means an existing organization was picked, so the name is redundant and dropped —
- * sending both would let a stale label rename nothing but confuse the payload. Bare text is
- * sent as `organizationName` for the server to match case-insensitively or create. Blank
- * text yields neither field, which is how a provider registers with no organization at all.
- */
-export const toOrganizationFields = (
-  value: OrganizationValue | undefined
-): Pick<RegistrationProfile, 'organizationId' | 'organizationName'> => {
-  if (value?.id) return { organizationId: value.id }
-
-  const name = value?.name?.trim()
-  return name ? { organizationName: name } : {}
-}
-
 /** Drops empty optional strings so the API receives `undefined` rather than `''`. */
 export const toOptionalText = (value: string | undefined): string | undefined => value?.trim() || undefined
+
+/**
+ * Splits the registration Organization field into the two shapes the API distinguishes.
+ *
+ * An `id` means an existing organization was picked, so the name and any new-organization
+ * details are dropped — sending both would let a stale label rename nothing but confuse the
+ * payload. `isNew` sends the name with its details, the phone as E.164 built from its own
+ * country picker. One-line text is trimmed on both sides with inner runs of whitespace
+ * collapsed ("  Acme   Dental " → "Acme Dental"); the server does the same. Anything else —
+ * no section, or text never resolved into a pick — yields neither field, which is how a
+ * provider registers with no organization at all.
+ */
+export const toOrganizationFields = (
+  value: OrganizationValue | undefined,
+  details: NewOrganizationFormValues | undefined
+): Pick<RegistrationProfile, 'organizationId' | 'newOrganization'> => {
+  if (value?.id) return { organizationId: value.id }
+
+  const name = collapseWhitespace(value?.name ?? '')
+  if (!value?.isNew || !name) return {}
+
+  const phoneNumber = toOptionalText(details?.phoneNumber)
+  const address = collapseWhitespace(details?.address ?? '')
+  return {
+    newOrganization: {
+      name,
+      description: toOptionalText(details?.description),
+      address: address || undefined,
+      phone: details?.phoneCode && phoneNumber ? toE164PhoneNumber(details.phoneCode, phoneNumber) : undefined,
+      website: toWebsiteUrl(details?.website),
+    },
+  }
+}

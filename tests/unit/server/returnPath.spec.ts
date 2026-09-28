@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { LOCALES } from '@i18n/config'
 // The one aliased import here, and the point of the last describe block: the web constant is
 // the *consumer* of what this module mints, and only a test that holds both can catch them
 // drifting apart.
@@ -61,7 +62,7 @@ describe('splitLocalePath', () => {
     expect(splitLocalePath(input)).toBeNull()
   })
 
-  it('rejects a locale that is not one of the 15', () => {
+  it('rejects a locale that is not one of the 16', () => {
     expect(splitLocalePath('/xx/auth/sign-in')).toBeNull()
     // `pt-PT` and `zh-TW` are deliberately not locales this app ships.
     expect(splitLocalePath('/pt-PT/auth/sign-in')).toBeNull()
@@ -158,6 +159,16 @@ describe('asVerifyLocale', () => {
 
   it('trims before matching', () => {
     expect(asVerifyLocale('  fr  ')).toBe('fr')
+  })
+
+  /**
+   * `server/` cannot import `src/`, so `VERIFY_LOCALES` is a hand-kept twin of `LOCALES`.
+   * A locale missing here still renders the web app, but every emailed link for it lands on
+   * English — nothing else fails, so this is the only place the omission shows.
+   */
+  it.each([...LOCALES])('accepts the web locale %s', (locale) => {
+    expect(asVerifyLocale(locale)).toBe(locale)
+    expect(splitLocalePath(`/${locale}/auth/sign-in`)?.locale).toBe(locale)
   })
 
   // Never throws and never echoes the input: the result is interpolated straight into a

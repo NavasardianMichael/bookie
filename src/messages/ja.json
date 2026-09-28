@@ -64,7 +64,6 @@
     "fields": {
       "email": "メールアドレス",
       "emailPlaceholder": "you@example.com",
-      "professionalEmail": "仕事用メールアドレス",
       "password": "パスワード",
       "passwordPlaceholder": "パスワード",
       "choosePasswordPlaceholder": "8 文字以上",
@@ -73,8 +72,6 @@
       "firstName": "名",
       "lastName": "姓",
       "phone": "電話番号",
-      "mobileNumber": "携帯電話番号",
-      "organization": "組織",
       "countryCode": "国番号"
     },
     "validation": {
@@ -83,7 +80,27 @@
       "passwordsDoNotMatch": "パスワードが一致しません",
       "passwordNeedsLetterAndNumber": "パスワードには英字と数字をそれぞれ 1 文字以上含めてください",
       "passwordContainsEmail": "パスワードにメールアドレスを含めることはできません",
-      "invalidPhone": "有効な電話番号を入力してください"
+      "invalidPhone": "有効な電話番号を入力してください",
+      "invalidPhoneFormat": "有効な電話番号を入力してください（例: {example}）"
+    },
+    "organization": {
+      "add": "組織を追加",
+      "detach": "組織の関連付けを解除",
+      "name": "組織名",
+      "searchPlaceholder": "名前で検索",
+      "noMatches": "この名前に一致する組織はありません",
+      "addNew": "「{name}」を新しい組織として追加",
+      "linked": "既存の組織です。プロフィールはこの組織に掲載されます。",
+      "chooseOrAdd": "リストから組織を選ぶか、新しい組織として追加してください",
+      "newDetails": "新しい組織です。これらの情報は組織の公開ページに表示されます。すべて任意です。",
+      "description": "紹介文",
+      "descriptionPlaceholder": "組織の事業内容",
+      "addressPlaceholder": "都道府県、市区町村、番地",
+      "websitePlaceholder": "example.jp",
+      "similarTitle": "この組織はすでに登録されている可能性があります",
+      "similarDescription": "似た名前の組織が見つかりました。その組織に参加するか、「{name}」を新しい組織として作成してください。",
+      "useExisting": "この組織を使う",
+      "createNew": "新しく作成"
     },
     "signIn": {
       "title": "おかえりなさい",
@@ -105,8 +122,7 @@
       "metaTitle": "提供者アカウントを作成",
       "metaDescription": "Bookieで予約をかんたんに管理している、何千ものサービス提供者に加わりましょう。",
       "termsLead": "「提供者アカウントを作成」をクリックすると、次に同意したことになります",
-      "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
-      "organizationPlaceholder": "所属組織"
+      "alreadyHaveAccount": "すでにアカウントをお持ちですか？"
     },
     "forgotPassword": {
       "title": "パスワードの再設定",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "ログインに使う電話番号を変更します。",
       "label": "電話番号",
+      "showOnPublic": "公開プロフィールに電話番号を表示",
+      "showOnPublicBody": "オフにすると、訪問者には番号も通話ボタンも表示されません。",
       "sendCode": "コードを送信",
       "otp": "認証コード",
       "confirm": "変更を確定",
@@ -696,6 +714,8 @@
     "titleAfter": "を予約しよう。",
     "searchLabel": "提供者を検索",
     "searchPlaceholder": "どんなサービスをお探しですか？",
+    "searchButton": "検索",
+    "noSuggestions": "検索に一致する提供者はいません。",
     "browseCategories": "カテゴリを見る",
     "categoriesRail": "カテゴリ",
     "allServices": "すべてのサービス",
@@ -843,8 +863,12 @@
     "emptyInactiveTitle": "非公開のサービスはありません",
     "emptyInactiveBody": "すべてのサービスが現在お客様に提供されています。",
     "inactive": "非公開",
-    "activate": "{name} を公開",
-    "deactivate": "{name} を非公開"
+    "activateService": "サービスを公開",
+    "deactivateService": "サービスを非公開",
+    "activateTitle": "このサービスを公開しますか？",
+    "activateBody": "お客様が予約できるようになります。",
+    "deactivateTitle": "このサービスを非公開にしますか？",
+    "deactivateBody": "再度公開するまで、お客様は予約できなくなります。"
   },
   "ProfileCreation": {
     "metaTitle": "プロフィールを作成",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "このセクションを読み込めませんでした。",
       "busySlots": "予約済みの時間を確認できなかったため、表示中の時間の一部はすでに埋まっている可能性があります。",
-      "organizationSearch": "現在、事業者を検索できません。"
+      "organizationSearch": "現在、事業者を検索できません。",
+      "providerSuggestions": "候補を読み込めませんでした。検索は引き続き利用できます。"
     },
     "conflicts": {
       "bookingUnavailable": "そのサービスまたは時間は利用できなくなりました。別のものをお選びください。",

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
-import { Form } from 'antd'
+import { Form, Switch } from 'antd'
 import type { CountryCode } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
 import { changePhoneAPI } from '@api/auth/main'
@@ -44,6 +44,8 @@ type FormValues = {
   code?: CountryCode
   number?: string
   image?: string | File
+  /** Live setting — whether the number appears on the public page. */
+  phoneVisible: boolean
 }
 
 const mergeDraft = (profile: ProviderProfile): FormValues => {
@@ -57,6 +59,8 @@ const mergeDraft = (profile: ProviderProfile): FormValues => {
     code: phone?.code,
     number: phone?.number ?? '',
     image: draft?.imageUrl ?? profile.basic.image,
+    // Absent on a payload written before the column existed; on is the API default.
+    phoneVisible: profile.details.phoneVisible !== false,
   }
 }
 
@@ -140,6 +144,17 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     return { ...data, details: { ...data.details, phone: saved.phone } }
   }
 
+  /**
+   * Visibility is live too — same reason as phone itself. Only write when it changed so a
+   * no-op draft save does not spend a profile PUT on this alone.
+   */
+  const withSavedPhoneVisible = async (data: ProviderProfile, values: FormValues): Promise<ProviderProfile> => {
+    const next = values.phoneVisible
+    const current = data.details.phoneVisible !== false
+    if (next === current) return data
+    return putProviderProfileAPI({ phoneVisible: next })
+  }
+
   const handleSaveDraft = async () => {
     const values = await readValidValues()
     if (!values) return
@@ -153,7 +168,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         description: values.description,
         image: values.image instanceof File ? values.image : undefined,
       })
-      applyResult(await withSavedPhone(data, values))
+      applyResult(await withSavedPhoneVisible(await withSavedPhone(data, values), values))
     } catch (err) {
       setError(err)
     } finally {
@@ -176,7 +191,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         image: values.image instanceof File ? values.image : undefined,
       })
       const data = await putProviderProfileAPI({ mode: 'publish' })
-      applyResult(await withSavedPhone(data, values))
+      applyResult(await withSavedPhoneVisible(await withSavedPhone(data, values), values))
     } catch (err) {
       setError(err)
     } finally {
@@ -263,8 +278,24 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                   <AppTextArea id='description' rows={4} maxLength={MAX_CHARS_FOR_TEXTAREA} />
                 </AppFormItem>
               </div>
-              <div className='md:col-span-2'>
+              <div className='flex flex-col gap-3 md:col-span-2'>
                 <ChangePhoneForm required={false} disabled={pendingAction !== null} />
+                {/*
+                  Provider-only: a consumer has no public page to publish a number on.
+                  Saved live with draft/Publish, same as the number itself — see
+                  `withSavedPhoneVisible`.
+                */}
+                <div className='flex items-center justify-between gap-4'>
+                  <div>
+                    <AppText className='font-bold'>{t('phone.showOnPublic')}</AppText>
+                    <AppParagraph size='body-sm' className='m-0'>
+                      {t('phone.showOnPublicBody')}
+                    </AppParagraph>
+                  </div>
+                  <AppFormItem name='phoneVisible' valuePropName='checked' className='m-0'>
+                    <Switch />
+                  </AppFormItem>
+                </div>
               </div>
               <div className='md:col-span-2'>
                 <EmailVerifyField

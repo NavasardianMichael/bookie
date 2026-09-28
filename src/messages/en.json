@@ -65,7 +65,6 @@
     "fields": {
       "email": "Email",
       "emailPlaceholder": "you@example.com",
-      "professionalEmail": "Professional email",
       "password": "Password",
       "passwordPlaceholder": "Your password",
       "choosePasswordPlaceholder": "At least 8 characters",
@@ -74,8 +73,6 @@
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone number",
-      "mobileNumber": "Mobile number",
-      "organization": "Organization",
       "countryCode": "Country code"
     },
     "validation": {
@@ -84,7 +81,27 @@
       "passwordsDoNotMatch": "The two passwords do not match",
       "passwordNeedsLetterAndNumber": "Password must contain at least one letter and one number",
       "passwordContainsEmail": "Password must not contain your email address",
-      "invalidPhone": "Please enter a valid phone number"
+      "invalidPhone": "Please enter a valid phone number",
+      "invalidPhoneFormat": "Please enter a valid phone number, e.g. {example}"
+    },
+    "organization": {
+      "add": "Add organization",
+      "detach": "Detach organization",
+      "name": "Organization name",
+      "searchPlaceholder": "Search by name",
+      "noMatches": "No organization matches that name",
+      "addNew": "Add “{name}” as a new organization",
+      "linked": "Existing organization — your profile will be listed under it.",
+      "chooseOrAdd": "Choose an organization from the list, or add it as a new one",
+      "newDetails": "New organization — these details go on its public page. All of them are optional.",
+      "description": "Description",
+      "descriptionPlaceholder": "What the organization does",
+      "addressPlaceholder": "Street, building, city",
+      "websitePlaceholder": "example.com",
+      "similarTitle": "This organization may already exist",
+      "similarDescription": "We found an organization with a similar name. Join it, or create “{name}” as a new one.",
+      "useExisting": "Use this one",
+      "createNew": "Create a new one"
     },
     "signIn": {
       "title": "Welcome back",
@@ -106,8 +123,7 @@
       "metaTitle": "Create your provider account",
       "metaDescription": "Join thousands of service providers managing appointments with ease on Bookie.",
       "termsLead": "By clicking \"Create provider account\", you agree to our",
-      "alreadyHaveAccount": "Already have an account?",
-      "organizationPlaceholder": "Your organization"
+      "alreadyHaveAccount": "Already have an account?"
     },
     "forgotPassword": {
       "title": "Reset your password",
@@ -348,6 +364,8 @@
     "phone": {
       "subtitle": "Change the phone number used to sign in.",
       "label": "Phone number",
+      "showOnPublic": "Show phone on public profile",
+      "showOnPublicBody": "When off, visitors will not see your number or a Call button on your page.",
       "sendCode": "Send code",
       "otp": "Verification code",
       "confirm": "Confirm change",
@@ -696,6 +714,8 @@
     "titleAfter": " professionals.",
     "searchLabel": "Search providers",
     "searchPlaceholder": "What service are you looking for?",
+    "searchButton": "Search",
+    "noSuggestions": "No providers match that search.",
     "browseCategories": "Browse categories",
     "categoriesRail": "Categories",
     "allServices": "All services",
@@ -832,8 +852,12 @@
     "noPrice": "No price",
     "active": "Active",
     "inactive": "Inactive",
-    "activate": "Activate {name}",
-    "deactivate": "Deactivate {name}",
+    "activateService": "Activate service",
+    "deactivateService": "Deactivate service",
+    "activateTitle": "Activate this service?",
+    "activateBody": "Clients will be able to book it.",
+    "deactivateTitle": "Deactivate this service?",
+    "deactivateBody": "Clients will no longer be able to book it until you activate it again.",
     "formTitle": "Title",
     "formDescription": "Description",
     "formDuration": "Duration",
@@ -936,7 +960,8 @@
     "sections": {
       "load": "This section could not be loaded.",
       "busySlots": "We could not check which times are already booked, so some of these may be taken.",
-      "organizationSearch": "We could not search organizations right now."
+      "organizationSearch": "We could not search organizations right now.",
+      "providerSuggestions": "We could not load suggestions. Search still works."
     },
     "conflicts": {
       "bookingUnavailable": "That service or time is no longer available. Please choose another.",

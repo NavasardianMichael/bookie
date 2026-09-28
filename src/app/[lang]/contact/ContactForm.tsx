@@ -196,7 +196,7 @@ export const ContactForm = () => {
         `self-end`, not a physical right: the form is a flex column, so this aligns on the
         cross axis and follows `dir` — which puts it on the left in the Arabic build, where
         that *is* the trailing edge. A `ml-auto` or `text-right` would pin it to the right
-        in all 15 locales and read as misplaced in RTL.
+        in all 16 locales and read as misplaced in RTL.
       */}
       <AppButton htmlType='submit' type='primary' loading={isSubmitting} className='self-end'>
         {t('actions.send')}

@@ -15,6 +15,7 @@ import {
 } from '../lib/booking-mail.js'
 import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
+import { collapseWhitespace, isSameName } from '../lib/search.js'
 import { mintOwnerManageToken } from '../lib/token.js'
 import {
   consumerSideBookingInclude,
@@ -43,6 +44,12 @@ import {
 } from '../services/providerBookings.js'
 import { parseProvidersListQuery, resolvePageWindow } from '../services/providerSearch.js'
 import { looksLikeProviderId, parseProviderSeoBody } from '../services/providerSeo.js'
+import {
+  countWithCorrection,
+  loadConsumerBookingsVocabulary,
+  loadExploreVocabulary,
+  loadProviderBookingsVocabulary,
+} from '../services/searchFallback.js'
 
 const upload = multer({ dest: config.uploadDir })
 
@@ -95,14 +102,18 @@ export const providersRouter = Router()
  * `count` runs before `findMany` because the page number has to be clamped against the
  * real total before it can become a `skip` — otherwise `?page=99` answers with an empty
  * grid and a "1 of 4" pager. The two queries are sequential for that reason and not by
- * oversight.
+ * oversight. A search that finds nothing is retried once with its words corrected for
+ * typos and accents (`services/searchFallback.ts`).
  */
 providersRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    const { where, orderBy, page: requestedPage, perPage } = parseProvidersListQuery(req.query)
-
-    const total = await prisma.provider.count({ where })
+    const { query, total } = await countWithCorrection(
+      (spellings) => parseProvidersListQuery(req.query, undefined, spellings),
+      ({ where }) => prisma.provider.count({ where }),
+      loadExploreVocabulary
+    )
+    const { where, orderBy, page: requestedPage, perPage } = query
     const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
 
     const providers = await prisma.provider.findMany({
@@ -364,6 +375,16 @@ providerProfileRouter.put(
       requiresApprovalRaw === undefined
         ? undefined
         : requiresApprovalRaw === true || requiresApprovalRaw === 'true' || requiresApprovalRaw === '1'
+    /**
+     * Live, not draftable — same bargain as `requiresBookingApproval`. Hiding a phone is
+     * what the public page shows *now*; parking it behind Publish would leave the number
+     * on the page after the owner thought they had turned it off.
+     */
+    const phoneVisibleRaw = body.phoneVisible ?? req.body?.phoneVisible
+    const phoneVisible =
+      phoneVisibleRaw === undefined
+        ? undefined
+        : phoneVisibleRaw === true || phoneVisibleRaw === 'true' || phoneVisibleRaw === '1'
     const paymentInfo = parseJson(body.paymentInfo) ?? req.body?.paymentInfo
     const availableRaw = body.available ?? req.body?.available
     const available =
@@ -402,6 +423,7 @@ providerProfileRouter.put(
             ? undefined
             : mergeProviderNotificationPrefs(emailNotificationPrefs),
         requiresBookingApproval,
+        phoneVisible,
         paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
         ...(categoryIds
           ? {
@@ -486,15 +508,18 @@ providerProfileRouter.get(
   '/bookings',
   requireProvider,
   asyncHandler(async (req, res) => {
-    const { where, orderBy, page: requestedPage, perPage } = parseProviderBookingsQuery(
-      req.session!.profileId,
-      req.query
-    )
+    const providerId = req.session!.profileId
 
     // Counted before the page is read, for the same reason as Explore: the requested
     // page has to be clamped against the real total before it can become a `skip`,
-    // or `?page=99` answers with an empty list and a "1 of 4" pager.
-    const total = await prisma.appointment.count({ where })
+    // or `?page=99` answers with an empty list and a "1 of 4" pager. An empty search is
+    // retried with corrected words, as there.
+    const { query, total } = await countWithCorrection(
+      (spellings) => parseProviderBookingsQuery(providerId, req.query, spellings),
+      ({ where }) => prisma.appointment.count({ where }),
+      () => loadProviderBookingsVocabulary(providerId)
+    )
+    const { where, orderBy, page: requestedPage, perPage } = query
     const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
 
     const bookings = await prisma.appointment.findMany({
@@ -560,16 +585,18 @@ providerProfileRouter.get(
   requireProvider,
   asyncHandler(async (req, res) => {
     const consumerId = await findConsumerIdForUser(req.session!.userId)
-    const { where, orderBy, page: requestedPage, perPage } = parseConsumerBookingsQuery(
-      consumerId ?? '',
-      req.query
-    )
 
     if (!consumerId) {
+      const { perPage } = parseConsumerBookingsQuery('', req.query)
       return ok(res, { items: [], total: 0, page: 1, perPage, pageCount: 0 })
     }
 
-    const total = await prisma.appointment.count({ where })
+    const { query, total } = await countWithCorrection(
+      (spellings) => parseConsumerBookingsQuery(consumerId, req.query, spellings),
+      ({ where }) => prisma.appointment.count({ where }),
+      () => loadConsumerBookingsVocabulary(consumerId)
+    )
+    const { where, orderBy, page: requestedPage, perPage } = query
     const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
 
     const bookings = await prisma.appointment.findMany({
@@ -912,14 +939,14 @@ async function resolveServiceCategoryId(
       throw new HttpError(400, `Category name must be at most ${CATEGORY_NAME_MAX} characters`)
     }
 
-    const matched = await prisma.category.findFirst({
-      where: { name: { equals: categoryName, mode: 'insensitive' } },
-      select: { id: true },
-    })
+    // Case, spacing, accents and punctuation do not make a new category — "Hair care",
+    // "hair-care" and "Hair  Care" are one. The table is small enough to compare in memory.
+    const categories = await prisma.category.findMany({ select: { id: true, name: true } })
+    const matched = categories.find((category) => isSameName(category.name, categoryName))
     if (matched) return matched.id
 
     try {
-      const created = await prisma.category.create({ data: { name: categoryName } })
+      const created = await prisma.category.create({ data: { name: collapseWhitespace(categoryName) } })
       return created.id
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

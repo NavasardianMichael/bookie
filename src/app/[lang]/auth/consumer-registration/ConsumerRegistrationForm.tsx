@@ -29,9 +29,9 @@ type ConsumerRegistrationFormValues = PhoneFormValues & {
 const INITIAL_VALUES: ConsumerRegistrationFormValues = {
   firstName: '',
   lastName: '',
+  email: '',
   code: undefined,
   number: '',
-  email: '',
   password: '',
   confirmPassword: '',
 }
@@ -139,14 +139,14 @@ export const ConsumerRegistrationForm: React.FC = () => {
           disabled={isPending}
         />
 
+        <PhoneNumberField label={t('fields.phone')} requirement='Required' disabled={isPending} />
+
         <NewPasswordFields
           emailFieldName='email'
           placeholder={t('fields.choosePasswordPlaceholder')}
           requirement='Required'
           disabled={isPending}
         />
-
-        <PhoneNumberField label={t('fields.mobileNumber')} requirement='Required' disabled={isPending} />
 
         <AppButton type='primary' variant='solid' htmlType='submit' className='w-full' loading={isPending}>
           {t('consumerRegistration.submit')}

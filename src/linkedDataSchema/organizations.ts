@@ -37,7 +37,6 @@ export const getOrganizationLDSchema = (organization: Organization): Graph => {
         logo: resolveAbsoluteAssetUrl(details.logoUrl),
         image: resolveAbsoluteAssetUrl(details.logoUrl),
         telephone: details.phone,
-        email: details.email,
         sameAs: details.website || undefined,
         address: {
           '@type': 'PostalAddress',

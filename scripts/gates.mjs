@@ -142,7 +142,7 @@ const GATES = [
       {
         rel: 'src/app/[lang]/providers/ProviderSearchField.tsx',
         contains: "size='large'",
-        reason: 'Explore search box — listed in src/styles/CLAUDE.md invariant 10.',
+        reason: 'Explore search box and its Search button — listed in src/styles/CLAUDE.md invariant 10.',
       },
       {
         rel: 'src/app/[lang]/providers/[providerId]/components/BookingSlots.tsx',

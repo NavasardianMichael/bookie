@@ -16,7 +16,7 @@ export const useCountries = () => {
         return {
           value: country,
           label: <Country country={country} name={name} />,
-          // React-node `label` is not searchable; this is what `optionFilterProp` reads.
+          // React-node `label` is not searchable; this is what the picker's filter reads.
           searchLabel: `+${getCountryCallingCode(country)} ${name ?? ''} ${country}`,
         }
       })
