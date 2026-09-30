@@ -9,7 +9,6 @@ export const PROVIDER_PROFILE_FORM_INITIAL_VALUES: ProviderProfileFormValues = {
   locationURL: '',
   description: '',
   image: '',
-  email: undefined,
   organizationId: undefined,
   gallery: [],
   weekSchedule: PROVIDER_PROFILE_INITIAL_STATE.details.weekSchedule,

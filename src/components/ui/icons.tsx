@@ -88,6 +88,13 @@ export const HeartPulseIcon = ({ className }: IconProps) => (
   </svg>
 )
 
+/** A plain heart, for favourites. The card's toggle is a client island on `HeartOutlined`. */
+export const HeartIcon = ({ className }: IconProps) => (
+  <svg {...base(className)}>
+    <path d='M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 6.9a4.3 4.3 0 0 1 7.5 2.9C19.5 15.4 12 20 12 20Z' />
+  </svg>
+)
+
 export const SparkleIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>
     <path d='M12 3.5 13.6 9 19 10.6 13.6 12.2 12 17.5 10.4 12.2 5 10.6 10.4 9Z' />

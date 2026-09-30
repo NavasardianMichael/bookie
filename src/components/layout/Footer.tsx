@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import { useTranslations } from 'next-intl'
+import { useAuthStore } from '@store/auth/store'
 import { ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -8,12 +9,19 @@ import { AppText } from '@components/ui/bare/AppText'
 import { Container } from '@components/ui/layout/Container'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
+type FooterLink = {
+  href: string
+  labelKey: string
+  /** Hidden once signed in: a way *into* the app, which a session has no use for. */
+  guestOnly?: boolean
+}
+
 /** Keys into the `Footer` message namespace, not copy — see src/i18n/CLAUDE.md. */
-const FOOTER_COLUMNS: { titleKey: string; links: { href: string; labelKey: string }[] }[] = [
+const FOOTER_COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
   {
     titleKey: 'platform',
     links: [
-      { href: ROUTES.providers, labelKey: 'findProvider' },
+      { href: ROUTES.providers, labelKey: 'findProvider', guestOnly: true },
       { href: ROUTES.categories, labelKey: 'categories' },
       { href: ROUTES.organizations, labelKey: 'organizations' },
     ],
@@ -21,9 +29,9 @@ const FOOTER_COLUMNS: { titleKey: string; links: { href: string; labelKey: strin
   {
     titleKey: 'account',
     links: [
-      { href: ROUTES.signIn, labelKey: 'signIn' },
-      { href: ROUTES.providerRegistration, labelKey: 'joinAsProvider' },
-      { href: ROUTES.consumerRegistration, labelKey: 'createAccount' },
+      { href: ROUTES.signIn, labelKey: 'signIn', guestOnly: true },
+      { href: ROUTES.providerRegistration, labelKey: 'joinAsProvider', guestOnly: true },
+      { href: ROUTES.consumerRegistration, labelKey: 'createAccount', guestOnly: true },
     ],
   },
   {
@@ -36,9 +44,21 @@ const FOOTER_COLUMNS: { titleKey: string; links: { href: string; labelKey: strin
  * Site footer. Public pages only in spirit — auth still shows it so the chrome
  * never jumps when the funnel starts. Links are real routes; prototype columns
  * that pointed at pages we do not have (Pricing, Blog, Careers) are omitted.
+ *
+ * The session comes from the auth store, which the Header's `getMe()` fills — not from
+ * the cookie, as the landing hero does: this renders in the root layout, and a `cookies()`
+ * read there would make every route dynamic. The guest-only links therefore drop out just
+ * after hydration, far below the fold. A column left with no links goes with them, so a
+ * signed-in footer has no bare Account heading.
  */
 export const Footer: FC = () => {
   const t = useTranslations('Footer')
+  const isSignedOn = useAuthStore.use.isSignedOn()
+
+  const columns = FOOTER_COLUMNS.map((column) => ({
+    ...column,
+    links: column.links.filter((link) => !(link.guestOnly && isSignedOn)),
+  })).filter((column) => column.links.length)
 
   return (
     <footer className='border-brand-border bg-surface mt-auto border-t'>
@@ -51,7 +71,7 @@ export const Footer: FC = () => {
             </AppParagraph>
           </div>
 
-          {FOOTER_COLUMNS.map((column) => (
+          {columns.map((column) => (
             <div key={column.titleKey} className='flex flex-col gap-4'>
               <AppText as='strong' size='caption' tone='default' className='uppercase tracking-widest'>
                 {t(column.titleKey)}

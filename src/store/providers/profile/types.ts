@@ -47,6 +47,11 @@ export type ProviderProfile = {
     location: Location
     phone?: PhoneNumber
     country?: string
+    /**
+     * Identity email (`User.email`). On both the public and owner payloads — it is the
+     * only email a provider has, and the public page shows it. Changing it goes through
+     * `/identity/change-email`, never `PUT /provider-profile`.
+     */
     email?: string
     emailVerifiedAt?: string
     gallery: GalleryItem[]

@@ -1,5 +1,6 @@
-import { Container } from '@components/ui/layout'
-import { CardGridSkeleton } from '@components/ui/skeletons/CardGridSkeleton'
+import { Container, ResponsiveGrid, Surface } from '@components/ui/layout'
+
+const FEATURE_PLACEHOLDERS = 6
 
 export default function Loading() {
   return (
@@ -16,8 +17,22 @@ export default function Loading() {
         </div>
         <div className='bg-brand-50 aspect-square w-full flex-1 animate-pulse rounded-4xl' />
       </Container>
-      <Container className='pb-16'>
-        <CardGridSkeleton count={6} />
+      {/* Mirrors `HomeAudienceFeatures`, the first block below the hero. */}
+      <Container className='py-16 md:py-24'>
+        <div className='mb-10 flex max-w-2xl flex-col gap-3 md:mb-12'>
+          <div className='bg-surface-sunken h-3 w-24 animate-pulse rounded-full' />
+          <div className='bg-surface-sunken h-10 w-full max-w-lg animate-pulse rounded-brand' />
+          <div className='bg-surface-sunken h-6 w-full max-w-md animate-pulse rounded-brand' />
+        </div>
+        <ResponsiveGrid>
+          {Array.from({ length: FEATURE_PLACEHOLDERS }, (_, index) => (
+            <Surface key={index} className='flex flex-col gap-3'>
+              <div className='bg-brand-50 size-10 animate-pulse rounded-xl' />
+              <div className='bg-surface-sunken h-5 w-2/3 animate-pulse rounded-full' />
+              <div className='bg-surface-sunken h-10 w-full animate-pulse rounded-brand-sm' />
+            </Surface>
+          ))}
+        </ResponsiveGrid>
       </Container>
     </div>
   )

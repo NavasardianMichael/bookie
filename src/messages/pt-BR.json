@@ -42,7 +42,7 @@
     "homeLink": "Início da Bookie",
     "skipToContent": "Pular para o conteúdo",
     "home": "Início",
-    "providers": "Explorar",
+    "providers": "Profissionais",
     "categories": "Categorias",
     "organizations": "Organizações",
     "signIn": "Entrar",
@@ -50,7 +50,8 @@
     "account": "Conta",
     "accountSettings": "Configurações da conta",
     "bookings": "Agendamentos",
-    "favorites": "Favoritos"
+    "favorites": "Favoritos",
+    "profile": "Perfil"
   },
   "Auth": {
     "continueWithGoogle": "Continuar com o Google",
@@ -232,6 +233,7 @@
     "pickATime": "Escolha um horário",
     "pickATimeHint": "Escolha um dos horários acima para continuar.",
     "bookNow": "Agendar agora",
+    "cannotBookOwn": "Você não pode agendar o seu próprio serviço.",
     "openCount": "{count, plural, one {# disponível} other {# disponíveis}}",
     "noOpenTimesShort": "sem horários disponíveis",
     "requested": "Agendamento solicitado",
@@ -676,28 +678,116 @@
     "joinAsProvider": "Seja um profissional",
     "browseSpecialty": "Explorar por especialidade",
     "categoriesRail": "Categorias",
-    "featuresTitle": "Feito para crescer",
-    "featuresSubtitle": "Tudo o que você precisa para gerenciar seus atendimentos em um só lugar.",
-    "features": {
-      "calendar": {
-        "title": "Agenda inteligente",
-        "body": "Horários, pausas e duração dos serviços viram horários agendáveis. Sem conflitos e em qualquer dispositivo."
+    "audiences": {
+      "consumers": {
+        "overline": "Para clientes",
+        "title": "Encontre o profissional certo e agende em minutos",
+        "subtitle": "Tudo o que você precisa para descobrir, agendar e acompanhar seus atendimentos — com ou sem conta.",
+        "features": {
+          "search": {
+            "title": "Busca que perdoa erros de digitação",
+            "body": "Procure um profissional ou um serviço pelo nome. Maiúsculas, acentos e erros de digitação não atrapalham, e as sugestões aparecem enquanto você digita."
+          },
+          "filters": {
+            "title": "Filtre e ordene",
+            "body": "Refine os resultados por categoria, mostre só profissionais que aceitam agendamentos agora ou que atendem hoje, e ordene pelos mais bem avaliados, mais recentes ou por nome."
+          },
+          "browse": {
+            "title": "Categorias e organizações",
+            "body": "Explore por especialidade ou abra uma clínica, um salão ou um estúdio para ver todos que recebem agendamentos ali."
+          },
+          "profiles": {
+            "title": "Saiba tudo antes de agendar",
+            "body": "As páginas dos profissionais mostram horário de trabalho, local, serviços com duração e preço, formas de pagamento aceitas e avaliações."
+          },
+          "booking": {
+            "title": "Agende em três passos",
+            "body": "Escolha o serviço, o dia e o horário em uma única tela. Os dias sem horários disponíveis ficam marcados, para você nunca perder tempo com uma agenda lotada."
+          },
+          "guest": {
+            "title": "Sem necessidade de conta",
+            "body": "Agende só com seu nome, telefone e e-mail. Deixe observações para o profissional e diga como prefere pagar."
+          },
+          "manage": {
+            "title": "Tudo em um só link",
+            "body": "Cada agendamento tem seu próprio link para ver, cancelar ou remarcar. Compartilhe, copie os detalhes ou mostre um QR code."
+          },
+          "emails": {
+            "title": "Avisos por e-mail",
+            "body": "Receba uma confirmação ao agendar, uma resposta quando o profissional aprovar ou recusar sua solicitação e um aviso quando o horário mudar."
+          },
+          "bookings": {
+            "title": "Seus agendamentos em um só lugar",
+            "body": "Ao entrar na sua conta, veja todos os seus atendimentos, passados e futuros. Busque, filtre por status ou serviço e cancele o que ainda está por vir."
+          },
+          "favorites": {
+            "title": "Favoritos",
+            "body": "Toque no coração de qualquer profissional para salvá-lo e encontre-o de novo na sua página de Favoritos."
+          },
+          "reviews": {
+            "title": "Notas e avaliações",
+            "body": "Avalie seu atendimento e ajude outras pessoas a escolher. Edite ou exclua sua avaliação quando quiser e denuncie as que violam as regras."
+          },
+          "access": {
+            "title": "Seu idioma, em qualquer dispositivo",
+            "body": "Use o Bookie em 16 idiomas, entre com o Google ou com e-mail e instale no celular como um app."
+          }
+        }
       },
-      "booking": {
-        "title": "Agende em alguns toques",
-        "body": "Escolha um serviço, um dia e um horário. O profissional confirma — sem trocar ligações."
-      },
-      "services": {
-        "title": "Cardápio de serviços",
-        "body": "Duração e preço em cada oferta, para que os clientes saibam exatamente o que estão agendando."
-      },
-      "categories": {
-        "title": "Explore por especialidade",
-        "body": "De salões a clínicas, encontre o profissional certo sem adivinhar."
-      },
-      "orgs": {
-        "title": "Organizações",
-        "body": "Estúdios e clínicas ficam listados sob o mesmo teto, com as pessoas que recebem os agendamentos dentro."
+      "providers": {
+        "overline": "Para profissionais",
+        "title": "Gerencie seus agendamentos em um só espaço de trabalho",
+        "subtitle": "Uma página pública, seus serviços e horários e as ferramentas para gerenciar cada atendimento — tudo em um só lugar.",
+        "features": {
+          "profile": {
+            "title": "Sua página pública",
+            "body": "Foto, descrição, categorias, endereço e dados de contato em uma página que os clientes podem encontrar na busca e usar para agendar. Oculte seu número de telefone, se preferir."
+          },
+          "visibility": {
+            "title": "Publique, pause ou despublique",
+            "body": "Pause novos agendamentos sem tirar sua página do ar, ou despublique-a e publique de novo quando quiser."
+          },
+          "link": {
+            "title": "Link curto e SEO",
+            "body": "Compartilhe um link curto para sua página e defina o título e a descrição que os buscadores mostram."
+          },
+          "services": {
+            "title": "Cardápio de serviços",
+            "body": "Adicione serviços com duração, preço, moeda, categoria e imagem. Desative um serviço para ocultá-lo sem excluí-lo."
+          },
+          "hours": {
+            "title": "Horários com pausas",
+            "body": "Defina seus horários para cada dia da semana, com até cinco períodos por dia. Os clientes só veem os horários em que você atende."
+          },
+          "approvals": {
+            "title": "Aprove antes de confirmar",
+            "body": "Ative as aprovações para analisar cada solicitação antes. O horário fica reservado enquanto você decide, e o cliente recebe um e-mail em qualquer caso."
+          },
+          "bookings": {
+            "title": "Calendário de agendamentos",
+            "body": "Veja os agendamentos por dia em um calendário mensal e marque cada um como confirmado, concluído, cancelado ou falta. Os agendamentos que você faz como cliente ficam em uma lista própria."
+          },
+          "alerts": {
+            "title": "Alertas por e-mail",
+            "body": "Receba um e-mail quando um agendamento aguardar sua aprovação ou um cliente mudar para outro horário."
+          },
+          "analytics": {
+            "title": "Análises",
+            "body": "Agendamentos, receita, taxas de conclusão e de faltas, dias e horários mais movimentados, serviços mais agendados e clientes recorrentes."
+          },
+          "payments": {
+            "title": "Receba do seu jeito",
+            "body": "Liste as formas de pagamento presencial que você aceita e, se quiser, compartilhe um número de conta que os clientes possam copiar."
+          },
+          "reviews": {
+            "title": "Responda às avaliações",
+            "body": "Os clientes avaliam seus atendimentos, e uma boa nota faz você subir na lista de profissionais. Responda publicamente a qualquer avaliação."
+          },
+          "organizations": {
+            "title": "Parte de uma organização",
+            "body": "Apareça dentro da sua clínica, salão ou estúdio — entre em uma organização existente ou adicione uma nova ao se cadastrar."
+          }
+        }
       }
     },
     "providersTitle": "Profissionais",
@@ -755,7 +845,15 @@
     "emptyDetailTitle": "Nada por aqui ainda",
     "emptyDetailBody": "Nenhum profissional ou organização está listado em {name} até agora.",
     "organizations": "Organizações",
-    "providers": "Profissionais"
+    "providers": "Profissionais",
+    "names": {
+      "generalPractice": "Clínica geral",
+      "dentistry": "Odontologia",
+      "physiotherapy": "Fisioterapia",
+      "dermatology": "Dermatologia",
+      "cardiology": "Cardiologia",
+      "mentalHealth": "Saúde mental"
+    }
   },
   "Organizations": {
     "metaTitle": "Organizações",

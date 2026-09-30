@@ -181,14 +181,6 @@ model Provider {
   /// The owner payload always carries the number so settings can edit it regardless.
   phoneVisible           Boolean            @default(true)
 
-  /// A **published** contact address, distinct from the identity `User.email`. Unverified,
-  /// non-unique, and writable straight from `PUT /provider-profile` — which is precisely
-  /// why it exists: that route used to write the identity email with no verification, so a
-  /// provider could set it to a victim's address and then request a password reset.
-  /// Setting *this* to someone else's address achieves nothing, because nothing
-  /// authenticates against it. Mirrors `Organization.email`.
-  publicEmail            String?
-
   country                String?
   address                String             @default("")
   locationUrl            String             @default("")

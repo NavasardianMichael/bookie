@@ -5,13 +5,14 @@ import { getCategoriesListAPI } from '@api/categories/main'
 import { getProvidersListAPI } from '@api/providers/main'
 import { currentLocale, localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import { cn } from '@helpers/cn'
+import { translateCategoryName } from '@helpers/categoryName'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { JsonLd } from '@components/ui/bare/JsonLd'
-import { BuildingIcon, CalendarIcon, CheckCircleIcon, ClockIcon, SparkleIcon } from '@components/ui/icons'
-import { ChipRail, Container, ResponsiveGrid, Section, Surface } from '@components/ui/layout'
+import { ChipRail, Container, ResponsiveGrid, Section } from '@components/ui/layout'
+import { HomeAudienceFeatures } from './HomeAudienceFeatures'
+import { loadSession } from './loadSession'
 import { HomeHeroPreview } from '../HomeHeroPreview'
 import { ProviderCard } from '../providers/ProviderCard'
 
@@ -29,22 +30,16 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const FEATURES = [
-  { key: 'calendar', span: 'md:col-span-2', tone: 'light' as const, icon: CalendarIcon },
-  { key: 'booking', span: '', tone: 'brand' as const, icon: CheckCircleIcon },
-  { key: 'services', span: '', tone: 'light' as const, icon: ClockIcon },
-  { key: 'categories', span: '', tone: 'light' as const, icon: SparkleIcon },
-  { key: 'orgs', span: '', tone: 'light' as const, icon: BuildingIcon },
-] as const
-
 export default async function Home() {
-  const [categories, providers, t, tCommon] = await Promise.all([
+  const [categories, providers, session, t, tCommon, tCategories] = await Promise.all([
     getCategoriesListAPI(),
     // The landing page shows a fixed handful, so it asks for exactly that many rather
     // than paging the whole directory down to `HOME_PROVIDER_LIMIT` on the client.
     getProvidersListAPI({ perPage: HOME_PROVIDER_LIMIT }),
+    loadSession(),
     getTranslations('Home'),
     getTranslations('Common'),
+    getTranslations('Categories'),
   ])
 
   const categoryIds = categories.allIds.slice(0, HOME_CATEGORY_LIMIT)
@@ -67,20 +62,25 @@ export default async function Home() {
               </AppTitle>
               <AppParagraph className='max-w-lg text-lg'>{t('body')}</AppParagraph>
             </div>
-            <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
-              <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-48 px-10 py-6'>
-                {t('findProvider')}
-              </AppLink>
-              <AppLink href={ROUTES.providerRegistration} variant='button' className='min-w-48 px-10 py-6'>
-                {t('joinAsProvider')}
-              </AppLink>
-            </div>
+            {!session && (
+              <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
+                <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-48 px-10 py-6'>
+                  {t('findProvider')}
+                </AppLink>
+                <AppLink href={ROUTES.providerRegistration} variant='button' className='min-w-48 px-10 py-6'>
+                  {t('joinAsProvider')}
+                </AppLink>
+              </div>
+            )}
           </div>
           <div className='w-full flex-1'>
             <HomeHeroPreview />
           </div>
         </Container>
       </section>
+
+      <HomeAudienceFeatures audience='consumers' />
+      <HomeAudienceFeatures audience='providers' />
 
       {!!categoryIds.length && (
         <section className='border-brand-border bg-surface border-y py-10'>
@@ -94,7 +94,7 @@ export default async function Home() {
                 return (
                   <li key={category.id} className='shrink-0'>
                     <AppLink href={`${ROUTES.categories}/${category.id}`} variant='chip'>
-                      {category.name}
+                      {translateCategoryName(category.name, tCategories)}
                     </AppLink>
                   </li>
                 )
@@ -104,54 +104,8 @@ export default async function Home() {
         </section>
       )}
 
-      <section className='py-16 md:py-24'>
-        <Container>
-          <div className='mb-12 flex flex-col gap-3'>
-            <AppTitle level='h2' size='h1'>
-              {t('featuresTitle')}
-            </AppTitle>
-            <AppParagraph className='text-lg'>{t('featuresSubtitle')}</AppParagraph>
-          </div>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {FEATURES.map((feature) => {
-              const Icon = feature.icon
-              const isBrand = feature.tone === 'brand'
-
-              return (
-                <Surface
-                  key={feature.key}
-                  padding='lg'
-                  className={cn(
-                    feature.span,
-                    isBrand
-                      ? 'bg-brand border-brand text-white transition-transform hover:scale-[1.01]'
-                      : 'hover:border-brand/30 transition-colors'
-                  )}
-                >
-                  <div
-                    className={
-                      isBrand
-                        ? 'mb-8 flex size-12 items-center justify-center rounded-xl bg-white/20 text-white'
-                        : 'bg-brand-50 text-brand mb-8 flex size-12 items-center justify-center rounded-xl'
-                    }
-                  >
-                    <Icon className='h-6 w-6' />
-                  </div>
-                  <AppTitle level='h3' size='h2' className={isBrand ? 'mb-3 text-white' : 'mb-3'}>
-                    {t(`features.${feature.key}.title`)}
-                  </AppTitle>
-                  <AppParagraph tone={isBrand ? 'inverse' : 'muted'} className='m-0 max-w-sm'>
-                    {t(`features.${feature.key}.body`)}
-                  </AppParagraph>
-                </Surface>
-              )
-            })}
-          </div>
-        </Container>
-      </section>
-
       {!!providerIds.length && (
-        <section className='pb-16 md:pb-24'>
+        <section className='py-16 md:py-24'>
           <Container>
             <Section
               title={t('providersTitle')}
@@ -188,13 +142,15 @@ export default async function Home() {
             {t('ctaBody')}
           </AppParagraph>
           <div className='flex w-full flex-col justify-center gap-3 sm:flex-row'>
-            <AppLink
-              href={ROUTES.accountTypeSelection}
-              variant='button'
-              className='bg-surface text-brand hover:bg-brand-50 min-h-14 px-10 text-base'
-            >
-              {t('getStarted')}
-            </AppLink>
+            {!session && (
+              <AppLink
+                href={ROUTES.accountTypeSelection}
+                variant='button'
+                className='bg-surface text-brand hover:bg-brand-50 min-h-14 px-10 text-base'
+              >
+                {t('getStarted')}
+              </AppLink>
+            )}
             <AppLink
               href={ROUTES.providers}
               variant='button'

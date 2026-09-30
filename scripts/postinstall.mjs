@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Runs after `pnpm install`:
- * 1. prisma generate (always)
- * 2. prisma migrate deploy + db seed when server/.env exists and Postgres is reachable
+ * 1. stop a running API dev server (Windows only — see stopApiDevServer)
+ * 2. prisma generate (always)
+ * 3. prisma migrate deploy + db seed when server/.env exists and Postgres is reachable
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
@@ -30,6 +31,45 @@ function run(label, command, args, { allowFailure = false } = {}) {
 
   return result.status === 0
 }
+
+// The default `port` in server/src/config.ts.
+const API_PORT = 9004
+
+/**
+ * A running API holds Prisma's query engine DLL open, and on Windows `prisma generate`
+ * then fails with EPERM renaming the new engine over it. So stop whichever node process
+ * listens on the API port. `tsx watch` outlives its child and restarts it by itself once
+ * the regenerated client lands. Other platforms can replace a loaded library, so they
+ * skip this.
+ */
+function stopApiDevServer() {
+  if (process.platform !== 'win32') return
+
+  const netstat = spawnSync('netstat', ['-ano'], { encoding: 'utf8' })
+  const pids = new Set()
+  for (const line of netstat.stdout?.split(/\r?\n/) ?? []) {
+    // TCP  [::]:9004  [::]:0  LISTENING  61124 — matched on the zero remote port rather
+    // than the state column, which Windows localises.
+    const [proto, local, remote, , pid] = line.trim().split(/\s+/)
+    if (proto === 'TCP' && local?.endsWith(`:${API_PORT}`) && remote?.endsWith(':0')) {
+      pids.add(pid)
+    }
+  }
+
+  for (const pid of pids) {
+    const task = spawnSync('tasklist', ['/FI', `PID eq ${pid}`, '/FO', 'CSV', '/NH'], {
+      encoding: 'utf8',
+    })
+    if (!task.stdout?.toLowerCase().startsWith('"node.exe"')) {
+      console.warn(`\n[postinstall] :${API_PORT} is held by PID ${pid}, which is not node — leaving it.`)
+      continue
+    }
+    console.log(`\n[postinstall] Stopping the API dev server on :${API_PORT} (PID ${pid})...`)
+    spawnSync('taskkill', ['/PID', pid, '/T', '/F'], { stdio: 'ignore' })
+  }
+}
+
+stopApiDevServer()
 
 run('Generating Prisma client', 'pnpm', ['--filter', 'bookie-server', 'run', 'db:generate'])
 

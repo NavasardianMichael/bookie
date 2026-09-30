@@ -42,7 +42,7 @@
     "homeLink": "Bookie home",
     "skipToContent": "Skip to content",
     "home": "Home",
-    "providers": "Explore",
+    "providers": "Providers",
     "categories": "Categories",
     "organizations": "Organizations",
     "signIn": "Sign In",
@@ -50,7 +50,8 @@
     "account": "Account",
     "accountSettings": "Account settings",
     "bookings": "Bookings",
-    "favorites": "Favorites"
+    "favorites": "Favorites",
+    "profile": "Profile"
   },
   "Auth": {
     "continueWithGoogle": "Continue with Google",
@@ -232,6 +233,7 @@
     "pickATime": "Pick a time",
     "pickATimeHint": "Choose one of the times above to continue.",
     "bookNow": "Book now",
+    "cannotBookOwn": "You cannot book your own service.",
     "openCount": "{count, plural, one {# open} other {# open}}",
     "noOpenTimesShort": "no open times",
     "requested": "Appointment requested",
@@ -676,28 +678,116 @@
     "joinAsProvider": "Join as a provider",
     "browseSpecialty": "Browse by specialty",
     "categoriesRail": "Categories",
-    "featuresTitle": "Designed for growth",
-    "featuresSubtitle": "Everything you need to manage appointments in one place.",
-    "features": {
-      "calendar": {
-        "title": "Smart calendar",
-        "body": "Open hours, breaks and service duration become bookable slots. Collision-free, on every device."
+    "audiences": {
+      "consumers": {
+        "overline": "For clients",
+        "title": "Find the right provider and book in minutes",
+        "subtitle": "Everything you need to discover, book and keep track of appointments — with or without an account.",
+        "features": {
+          "search": {
+            "title": "Search that forgives typos",
+            "body": "Look up a provider or a service by name. Case, accents and spelling slips are forgiven, and suggestions appear as you type."
+          },
+          "filters": {
+            "title": "Filter and sort",
+            "body": "Narrow results by category, to providers taking bookings now or open today, and sort by top rated, newest or name."
+          },
+          "browse": {
+            "title": "Categories and organizations",
+            "body": "Browse by specialty, or open a clinic, salon or studio to see everyone who takes bookings there."
+          },
+          "profiles": {
+            "title": "Know before you book",
+            "body": "Provider pages show working hours, location, services with duration and price, accepted payment methods and reviews."
+          },
+          "booking": {
+            "title": "Book in three steps",
+            "body": "Choose a service, a day and a time on one screen. Days with no open times are marked, so you never chase a full calendar."
+          },
+          "guest": {
+            "title": "No account required",
+            "body": "Book with just your name, phone and email. Add notes for the provider and say how you would like to pay."
+          },
+          "manage": {
+            "title": "Manage from one link",
+            "body": "Every booking gets its own link to view, cancel or reschedule it. Share it, copy the details or show a QR code."
+          },
+          "emails": {
+            "title": "Email updates",
+            "body": "Get a confirmation when you book, an answer when a provider approves or declines your request, and a note when the time changes."
+          },
+          "bookings": {
+            "title": "All your bookings in one place",
+            "body": "Signed in, see every appointment, past and upcoming. Search, filter by status or service, and cancel what is still ahead."
+          },
+          "favorites": {
+            "title": "Favorites",
+            "body": "Tap the heart on any provider to save them, and find them again on your Favorites page."
+          },
+          "reviews": {
+            "title": "Ratings and reviews",
+            "body": "Rate your visit and help others choose. Edit or delete your review any time, and report one that breaks the rules."
+          },
+          "access": {
+            "title": "Your language, any device",
+            "body": "Use Bookie in 16 languages, sign in with Google or email, and install it on your phone like an app."
+          }
+        }
       },
-      "booking": {
-        "title": "Book in a few taps",
-        "body": "Pick a service, a day and a time. The provider confirms — no phone tag."
-      },
-      "services": {
-        "title": "Service menus",
-        "body": "Duration and price on every offering, so clients know exactly what they are booking."
-      },
-      "categories": {
-        "title": "Browse by specialty",
-        "body": "From salons to clinics, find the right kind of provider without guessing."
-      },
-      "orgs": {
-        "title": "Organizations",
-        "body": "Studios and clinics list under one roof, with the people who take bookings inside."
+      "providers": {
+        "overline": "For providers",
+        "title": "Run your bookings from one workspace",
+        "subtitle": "A public page, your services and hours, and the tools to manage every appointment — all in one place.",
+        "features": {
+          "profile": {
+            "title": "Your public page",
+            "body": "Photo, description, categories, address and contact details on a page clients can search for and book. Hide your phone number if you prefer."
+          },
+          "visibility": {
+            "title": "Publish, pause or unlist",
+            "body": "Pause new bookings without unlisting your page, or unpublish it and publish again whenever you are ready."
+          },
+          "link": {
+            "title": "Short link and SEO",
+            "body": "Share a short link to your page, and set the title and description that search engines show."
+          },
+          "services": {
+            "title": "Service menu",
+            "body": "Add services with a duration, price, currency, category and image. Deactivate one to hide it without deleting it."
+          },
+          "hours": {
+            "title": "Working hours with breaks",
+            "body": "Set your hours for each day of the week, with up to five periods a day. Clients only see the times you are open."
+          },
+          "approvals": {
+            "title": "Approve before it is booked",
+            "body": "Turn on approvals to review each request first. The time is held while you decide, and the client is emailed either way."
+          },
+          "bookings": {
+            "title": "Bookings calendar",
+            "body": "See appointments by day on a month calendar and mark each one confirmed, completed, cancelled or missed. Bookings you make as a client get their own list."
+          },
+          "alerts": {
+            "title": "Email alerts",
+            "body": "Get an email when a booking is waiting for your approval or a client moves to a new time."
+          },
+          "analytics": {
+            "title": "Analytics",
+            "body": "Bookings, revenue, completion and missed rates, busiest days and hours, top services and returning clients."
+          },
+          "payments": {
+            "title": "Get paid your way",
+            "body": "List the in-person payment methods you accept, and optionally share an account number clients can copy."
+          },
+          "reviews": {
+            "title": "Reply to reviews",
+            "body": "Clients rate their visits, and a strong rating moves you up the provider list. Reply publicly to any review."
+          },
+          "organizations": {
+            "title": "Part of an organization",
+            "body": "List under your clinic, salon or studio — join an existing organization or add a new one when you sign up."
+          }
+        }
       }
     },
     "providersTitle": "Service providers",
@@ -755,7 +845,15 @@
     "emptyDetailTitle": "Nothing here yet",
     "emptyDetailBody": "No providers or organizations are listed under {name} so far.",
     "organizations": "Organizations",
-    "providers": "Providers"
+    "providers": "Providers",
+    "names": {
+      "generalPractice": "General Practice",
+      "dentistry": "Dentistry",
+      "physiotherapy": "Physiotherapy",
+      "dermatology": "Dermatology",
+      "cardiology": "Cardiology",
+      "mentalHealth": "Mental Health"
+    }
   },
   "Organizations": {
     "metaTitle": "Organizations",

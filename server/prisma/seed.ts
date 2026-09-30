@@ -129,6 +129,8 @@ async function main() {
     'Cardiology',
     'Mental Health',
   ]
+  // Keep in lockstep with `SEEDED_CATEGORY_NAMES` in `src/constants/categories.ts` —
+  // the web app looks up display copy by these English strings.
 
   const categories = await Promise.all(
     categoryNames.map((name) =>
@@ -289,10 +291,6 @@ async function main() {
         imageUrl: '/logo.svg',
         phoneCode: PHONE_CODE,
         phoneNumber,
-        // The *published* contact address, deliberately the same string as the identity
-        // email here but a different column — one is shown on the public profile, the
-        // other is what the account authenticates against.
-        publicEmail: seedEmail(def.firstName, def.lastName),
         country: 'AM',
         address: organizations[def.org]!.address,
         locationUrl: `https://maps.google.com/?q=${encodeURIComponent(organizations[def.org]!.address)}`,
@@ -339,11 +337,9 @@ async function main() {
   }
 
   /**
-   * No published address on the Consumer row. `Provider.publicEmail` exists because a
-   * provider's page shows one; a consumer's only address is the identity `User.email`,
-   * which `seedEmail` derives from the name below. That address is required even for the
-   * Google-only fixture — Google accounts authenticate with a `sub`, not a password, but
-   * they still have an email.
+   * A consumer's only address is the identity `User.email`, which `seedEmail` derives
+   * from the name below. That address is required even for the Google-only fixture —
+   * Google accounts authenticate with a `sub`, not a password, but they still have an email.
    */
   const consumerDefs: Array<{
     firstName: string

@@ -7,6 +7,7 @@ import { Organization as OrganizationType } from '@store/organizations/single/ty
 import { GenerateMetadata } from '@interfaces/components'
 import { currentLocale, localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { translateCategoryName } from '@helpers/categoryName'
 import { getCountryName } from '@helpers/country'
 import { isNotFoundError } from '@helpers/error'
 import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
@@ -42,13 +43,14 @@ const loadOrganization = async (id: OrganizationType['id']) => {
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { organizationId } = await params
-  const [organization, t] = await Promise.all([
+  const [organization, t, tCategories] = await Promise.all([
     loadOrganization(organizationId),
     getTranslations('Organizations'),
+    getTranslations('Categories'),
   ])
 
   const { basic, details } = organization
-  const categoryNames = basic.categories.map((category) => category.name)
+  const categoryNames = basic.categories.map((category) => translateCategoryName(category.name, tCategories))
   const path = `${ROUTES[ROUTE_KEYS.organizations]}/${organizationId}`
   // Only a real upload may override app/opengraph-image.tsx — see the provider page.
   const ogImage = isUploadedAsset(details.logoUrl) ? resolveAbsoluteAssetUrl(details.logoUrl) : undefined
@@ -77,9 +79,10 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
 export default async function Organization({ params }: Props) {
   const { organizationId } = await params
 
-  const [organization, tCommon] = await Promise.all([
+  const [organization, tCommon, tCategories] = await Promise.all([
     loadOrganization(organizationId),
     getTranslations('Common'),
+    getTranslations('Categories'),
   ])
 
   const { basic, details } = organization
@@ -125,7 +128,7 @@ export default async function Organization({ params }: Props) {
               variant='chip'
               className='h-8 min-h-8 px-3 text-caption'
             >
-              {category.name}
+              {translateCategoryName(category.name, tCategories)}
             </AppLink>
           ))}
           actions={

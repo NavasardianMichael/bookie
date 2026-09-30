@@ -8,6 +8,8 @@ type ProviderWithRelations = Provider & {
   organization: Organization | null
   services?: Service[]
   gallery?: { name: string; url: string }[]
+  /** Present when the query included `user` — public detail and owner profile both do. */
+  user?: { email: string; emailVerifiedAt?: Date | null }
 }
 
 const defaultWeekSchedule = {
@@ -85,13 +87,12 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
 }
 
 /**
- * The **public** half of a provider's detail payload.
+ * Contact half of a provider's detail payload.
  *
- * `publicEmail` is a freely-editable contact address, deliberately *not* the identity
- * `User.email`. Keeping them apart is the point: this payload feeds `GET /providers/:id`
- * and the JSON-LD, so emitting the identity email would publish the username half of every
- * provider's credentials into search-indexable structured data. The identity email is
- * emitted only by `mapProviderProfile`, for the owner.
+ * `email` is the identity `User.email` — the same address the account signs in with.
+ * It is on the public payload on purpose: there is no separate published contact email.
+ * Changing it still goes only through `/identity/change-email` (password + verified link);
+ * `PUT /provider-profile` must never write it.
  */
 export function mapProviderDetails(
   provider: ProviderWithRelations & {
@@ -121,7 +122,7 @@ export function mapProviderDetails(
         ? { code: provider.phoneCode!, number: Number(provider.phoneNumber) }
         : undefined,
     country: provider.country ?? undefined,
-    publicEmail: provider.publicEmail ?? undefined,
+    email: provider.user?.email,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
     weekSchedule,
     paymentInfo: provider.paymentInfo ?? undefined,
@@ -180,8 +181,9 @@ export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescrip
 /**
  * A provider as its **own owner** sees it.
  *
- * The identity email and its verification state live here and nowhere else —
- * `mapSingleProvider` feeds the public detail route, and `GET /providers` enumerates it.
+ * `emailVerifiedAt` and `phoneVisible` (plus a hidden phone) live here and nowhere else —
+ * the public mapper already carries `email` for the public page, but verification state
+ * and phone visibility are settings-only.
  *
  * `emailVerifiedAt` used to be spliced on by `routes/providers.ts` *after* the mapper ran,
  * which is why the public and owner payloads disagreed about whether `details` carried it.
@@ -449,12 +451,11 @@ export const consumerSideBookingInclude = {
 } as const
 
 /**
- * For the **public** provider payloads.
+ * For provider **detail** payloads (public page, appointments nested provider, …).
  *
- * `user` is deliberately absent: phone is on the Provider row now, and the only thing left
- * on `User` that these payloads could reach is the identity email, which no public read may
- * load. The public detail route and `GET /appointments` both lose a join as a result.
- * Favourites read `providerListInclude` instead: `/favorites` renders cards, not detail pages.
+ * `user.email` is included because that is the contact address the public profile shows —
+ * there is no separate published email column. Explore cards use `providerListInclude`
+ * instead and never load the user.
  */
 export const providerInclude = {
   categories: { include: { category: true } },
@@ -463,9 +464,10 @@ export const providerInclude = {
   // six call sites read this include and one of them is a public booking page.
   services: { where: { active: true } },
   gallery: true,
+  user: { select: { email: true } },
 } as const
 
-/** `providerInclude` plus the identity email, for the owner's own `GET /provider-profile`. */
+/** `providerInclude` plus verification state, for the owner's own `GET /provider-profile`. */
 export const providerProfileInclude = {
   ...providerInclude,
   services: true, // the owner sees their own deactivated services

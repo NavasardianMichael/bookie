@@ -12,7 +12,6 @@ import { isPublicProviderPage } from '@helpers/routes'
  * pins that.
  */
 export const HEADER_ROUTES: AppRouteName[] = [
-  ROUTE_KEYS.home,
   ROUTE_KEYS.providers,
   ROUTE_KEYS.categories,
   ROUTE_KEYS.organizations,
@@ -29,15 +28,8 @@ export const HEADER_ROUTES: AppRouteName[] = [
  */
 export const HEADER_ACCOUNT_ROUTES: AppRouteName[] = [ROUTE_KEYS.bookings, ROUTE_KEYS.favorites]
 
-/**
- * Sign in and sign up are separate destinations: a returning user gives an email and a
- * password (or uses Google), while registration is role-specific and starts at the
- * account-type chooser.
- */
+/** Guest auth action in the header — registration is reached from the sign-in screen. */
 export const HEADER_SIGN_IN: AppRouteName = ROUTE_KEYS.signIn
-
-/** Rendered as the header's primary call to action rather than a nav link. */
-export const HEADER_CTA: AppRouteName = ROUTE_KEYS.accountTypeSelection
 
 /**
  * Routes the overview page must not list.
@@ -68,8 +60,8 @@ const DEFAULT_CONFIG: HeaderConfig = {
   navRoutes: HEADER_ROUTES,
 }
 
-/** Public booking page: Home stays as the way back; marketplace dests do not. */
-const PUBLIC_PROVIDER_NAV_ROUTES: AppRouteName[] = [ROUTE_KEYS.home]
+/** Public booking page: marketplace dests stay off; the logo is the way back. */
+const PUBLIC_PROVIDER_NAV_ROUTES: AppRouteName[] = []
 
 /**
  * Only the exceptions are listed; everything else falls back to DEFAULT_CONFIG.
@@ -94,7 +86,7 @@ export const getHeaderConfig = (routeName?: AppRouteName, pathname?: string): He
     ...(routeName ? HEADER_CONFIG_OVERRIDES[routeName] : undefined),
   }
 
-  // Not an OVERRIDES entry: Explore and the public page share the `providers`
+  // Not an OVERRIDES entry: Providers list and the public page share the `providers`
   // route name, so the extra segment is what distinguishes them.
   if (pathname && isPublicProviderPage(pathname)) {
     return { ...config, navRoutes: PUBLIC_PROVIDER_NAV_ROUTES }

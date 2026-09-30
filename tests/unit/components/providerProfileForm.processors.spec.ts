@@ -10,7 +10,6 @@ const FILLED: ProviderProfileFormValues = {
   address: '12 Main St',
   locationURL: 'https://maps.example/12-main',
   description: 'Experienced specialist',
-  email: 'anna@example.com',
   organizationId: 'org-1',
   image: '/uploads/anna.png',
   gallery: [],
@@ -53,7 +52,6 @@ describe('processProviderProfileFormToPostPayload', () => {
     const payload = processProviderProfileFormToPostPayload(PROVIDER_PROFILE_FORM_INITIAL_VALUES)
 
     expect(payload.description).toBeUndefined()
-    expect(payload.email).toBeUndefined()
     expect(payload.organizationId).toBeUndefined()
     expect(payload.image).toBeUndefined()
   })

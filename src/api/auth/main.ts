@@ -93,8 +93,12 @@ export const changePasswordAPI: ChangePasswordAPI['api'] = async (params) => {
   return processChangePasswordResponse(data)
 }
 
-export const getMeAPI: GetMeAPI['api'] = async () => {
-  const { data } = await axiosInstance.get<APIResponse<GetMeAPI['response']>>(ENDPOINTS.me)
+export const getMeAPI: GetMeAPI['api'] = async (params) => {
+  const cookie = params ? params.cookie : undefined
+  const { data } = await axiosInstance.get<APIResponse<GetMeAPI['response']>>(
+    ENDPOINTS.me,
+    cookie ? { headers: { Cookie: cookie } } : undefined
+  )
   return processGetMeResponse(data)
 }
 

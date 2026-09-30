@@ -42,7 +42,7 @@
     "homeLink": "Home di Bookie",
     "skipToContent": "Vai al contenuto",
     "home": "Home",
-    "providers": "Esplora",
+    "providers": "Professionisti",
     "categories": "Categorie",
     "organizations": "Organizzazioni",
     "signIn": "Accedi",
@@ -50,7 +50,8 @@
     "account": "Account",
     "accountSettings": "Impostazioni account",
     "bookings": "Prenotazioni",
-    "favorites": "Preferiti"
+    "favorites": "Preferiti",
+    "profile": "Profilo"
   },
   "Auth": {
     "continueWithGoogle": "Continua con Google",
@@ -232,6 +233,7 @@
     "pickATime": "Scegli un orario",
     "pickATimeHint": "Scegli uno degli orari qui sopra per continuare.",
     "bookNow": "Prenota ora",
+    "cannotBookOwn": "Non puoi prenotare il tuo stesso servizio.",
     "openCount": "{count, plural, one {# libero} other {# liberi}}",
     "noOpenTimesShort": "nessun orario disponibile",
     "requested": "Appuntamento richiesto",
@@ -676,28 +678,116 @@
     "joinAsProvider": "Diventa un professionista",
     "browseSpecialty": "Esplora per specialità",
     "categoriesRail": "Categorie",
-    "featuresTitle": "Pensato per crescere",
-    "featuresSubtitle": "Tutto quello che ti serve per gestire gli appuntamenti in un unico posto.",
-    "features": {
-      "calendar": {
-        "title": "Agenda intelligente",
-        "body": "Orari, pause e durata dei servizi diventano slot prenotabili. Senza conflitti, su ogni dispositivo."
+    "audiences": {
+      "consumers": {
+        "overline": "Per i clienti",
+        "title": "Trova il professionista giusto e prenota in pochi minuti",
+        "subtitle": "Tutto ciò che ti serve per scoprire, prenotare e tenere traccia degli appuntamenti — con o senza account.",
+        "features": {
+          "search": {
+            "title": "Una ricerca che perdona i refusi",
+            "body": "Cerca un professionista o un servizio per nome. Maiuscole, accenti ed errori di battitura non sono un problema, e i suggerimenti compaiono mentre scrivi."
+          },
+          "filters": {
+            "title": "Filtra e ordina",
+            "body": "Restringi i risultati per categoria o ai professionisti che accettano prenotazioni ora o sono aperti oggi, e ordina per più apprezzati, più recenti o nome."
+          },
+          "browse": {
+            "title": "Categorie e organizzazioni",
+            "body": "Esplora per specialità, oppure apri una clinica, un salone o uno studio per vedere tutti quelli che ricevono prenotazioni lì."
+          },
+          "profiles": {
+            "title": "Informati prima di prenotare",
+            "body": "Le pagine dei professionisti mostrano orari di lavoro, luogo, servizi con durata e prezzo, metodi di pagamento accettati e recensioni."
+          },
+          "booking": {
+            "title": "Prenota in tre passaggi",
+            "body": "Scegli servizio, giorno e orario in un'unica schermata. I giorni senza orari disponibili sono segnalati, così non dovrai mai rincorrere un calendario pieno."
+          },
+          "guest": {
+            "title": "Nessun account necessario",
+            "body": "Prenota solo con nome, telefono ed email. Aggiungi note per il professionista e indica come preferisci pagare."
+          },
+          "manage": {
+            "title": "Gestisci tutto da un link",
+            "body": "Ogni prenotazione ha il suo link per vederla, annullarla o spostarla. Condividilo, copia i dettagli o mostra un codice QR."
+          },
+          "emails": {
+            "title": "Aggiornamenti via email",
+            "body": "Ricevi una conferma quando prenoti, una risposta quando un professionista approva o rifiuta la tua richiesta e un avviso quando l'orario cambia."
+          },
+          "bookings": {
+            "title": "Tutte le tue prenotazioni in un unico posto",
+            "body": "Dopo l'accesso, vedi tutti i tuoi appuntamenti, passati e futuri. Cerca, filtra per stato o servizio e annulla quelli ancora in programma."
+          },
+          "favorites": {
+            "title": "Preferiti",
+            "body": "Tocca il cuore su qualsiasi professionista per salvarlo e ritrovalo nella tua pagina Preferiti."
+          },
+          "reviews": {
+            "title": "Voti e recensioni",
+            "body": "Valuta il tuo appuntamento e aiuta gli altri a scegliere. Modifica o elimina la tua recensione quando vuoi e segnala quelle che violano le regole."
+          },
+          "access": {
+            "title": "La tua lingua, su ogni dispositivo",
+            "body": "Usa Bookie in 16 lingue, accedi con Google o con l'email e installalo sul telefono come un'app."
+          }
+        }
       },
-      "booking": {
-        "title": "Prenota in pochi tocchi",
-        "body": "Scegli un servizio, un giorno e un orario. Il professionista conferma — senza scambi telefonici."
-      },
-      "services": {
-        "title": "Menu dei servizi",
-        "body": "Durata e prezzo per ogni offerta, così i clienti sanno esattamente cosa stanno prenotando."
-      },
-      "categories": {
-        "title": "Esplora per specialità",
-        "body": "Dai saloni alle cliniche, trova il professionista giusto senza tirare a indovinare."
-      },
-      "orgs": {
-        "title": "Organizzazioni",
-        "body": "Studi e cliniche compaiono sotto lo stesso tetto, con al loro interno le persone che ricevono le prenotazioni."
+      "providers": {
+        "overline": "Per i professionisti",
+        "title": "Gestisci le tue prenotazioni da un unico spazio di lavoro",
+        "subtitle": "Una pagina pubblica, i tuoi servizi e orari e gli strumenti per gestire ogni appuntamento — tutto in un unico posto.",
+        "features": {
+          "profile": {
+            "title": "La tua pagina pubblica",
+            "body": "Foto, descrizione, categorie, indirizzo e contatti su una pagina che i clienti possono cercare e da cui possono prenotare. Se preferisci, nascondi il tuo numero di telefono."
+          },
+          "visibility": {
+            "title": "Pubblica, metti in pausa o ritira",
+            "body": "Metti in pausa le nuove prenotazioni senza rimuovere la tua pagina, oppure ritirala dalla pubblicazione e pubblicala di nuovo quando vuoi."
+          },
+          "link": {
+            "title": "Link breve e SEO",
+            "body": "Condividi un link breve alla tua pagina e imposta il titolo e la descrizione mostrati dai motori di ricerca."
+          },
+          "services": {
+            "title": "Menu dei servizi",
+            "body": "Aggiungi servizi con durata, prezzo, valuta, categoria e immagine. Disattivane uno per nasconderlo senza eliminarlo."
+          },
+          "hours": {
+            "title": "Orari con pause",
+            "body": "Imposta i tuoi orari per ogni giorno della settimana, con un massimo di cinque fasce al giorno. I clienti vedono solo gli orari in cui sei disponibile."
+          },
+          "approvals": {
+            "title": "Approva prima di confermare",
+            "body": "Attiva le approvazioni per esaminare prima ogni richiesta. L'orario resta riservato mentre decidi e il cliente riceve un'email in ogni caso."
+          },
+          "bookings": {
+            "title": "Calendario delle prenotazioni",
+            "body": "Vedi le prenotazioni per giorno su un calendario mensile e segna ciascuna come confermata, completata, annullata o mancata. Quelle che fai come cliente hanno un elenco a parte."
+          },
+          "alerts": {
+            "title": "Avvisi via email",
+            "body": "Ricevi un'email quando una prenotazione attende la tua approvazione o un cliente passa a un nuovo orario."
+          },
+          "analytics": {
+            "title": "Statistiche",
+            "body": "Prenotazioni, fatturato, tassi di completamento e di mancate presenze, giorni e orari più intensi, servizi più prenotati e clienti di ritorno."
+          },
+          "payments": {
+            "title": "Fatti pagare come vuoi",
+            "body": "Elenca i metodi di pagamento di persona che accetti e, se vuoi, condividi un numero di conto che i clienti possono copiare."
+          },
+          "reviews": {
+            "title": "Rispondi alle recensioni",
+            "body": "I clienti valutano i loro appuntamenti e un voto alto ti fa salire nell'elenco dei professionisti. Rispondi pubblicamente a qualsiasi recensione."
+          },
+          "organizations": {
+            "title": "Parte di un'organizzazione",
+            "body": "Compari all'interno della tua clinica, del tuo salone o del tuo studio — unisciti a un'organizzazione esistente o aggiungine una nuova al momento della registrazione."
+          }
+        }
       }
     },
     "providersTitle": "Professionisti",
@@ -755,7 +845,15 @@
     "emptyDetailTitle": "Ancora nulla qui",
     "emptyDetailBody": "Non ci sono ancora professionisti o organizzazioni sotto {name}.",
     "organizations": "Organizzazioni",
-    "providers": "Professionisti"
+    "providers": "Professionisti",
+    "names": {
+      "generalPractice": "Medicina generale",
+      "dentistry": "Odontoiatria",
+      "physiotherapy": "Fisioterapia",
+      "dermatology": "Dermatologia",
+      "cardiology": "Cardiologia",
+      "mentalHealth": "Salute mentale"
+    }
   },
   "Organizations": {
     "metaTitle": "Organizzazioni",

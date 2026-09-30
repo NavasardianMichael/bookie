@@ -6,6 +6,7 @@ import type { DefaultOptionType } from 'antd/es/select'
 import { useTranslations } from 'next-intl'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { CategoryValue } from '@interfaces/services'
+import { translateCategoryName } from '@helpers/categoryName'
 import { isSameName, matchesSearch } from '@helpers/search'
 
 type Props = {
@@ -15,10 +16,6 @@ type Props = {
   disabled?: boolean
   id?: string
 }
-
-/** Case, accents and spacing ignored; a typo or two and any word order tolerated. */
-const matchesQuery = (input: string, option?: DefaultOptionType): boolean =>
-  matchesSearch(String(option?.value ?? ''), input)
 
 /**
  * Combobox over the predefined Category rows (the same ones linked to organizations
@@ -32,15 +29,18 @@ const matchesQuery = (input: string, option?: DefaultOptionType): boolean =>
  */
 export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabled, id }) => {
   const t = useTranslations('Services')
+  const tCategories = useTranslations('Categories')
   const list = useCategoriesListStore.use.list()
 
   const options: DefaultOptionType[] = useMemo(
     () =>
       list.allIds.flatMap((categoryId) => {
         const category = list.byId[categoryId]
-        return category ? [{ value: category.name }] : []
+        if (!category) return []
+        // `value` stays the English DB name (matching + create); `label` is locale copy.
+        return [{ value: category.name, label: translateCategoryName(category.name, tCategories) }]
       }),
-    [list.allIds, list.byId]
+    [list.allIds, list.byId, tCategories]
   )
 
   const handleChange = (name: string | undefined) => {
@@ -48,7 +48,7 @@ export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabl
     const matched = list.allIds
       .map((categoryId) => list.byId[categoryId])
       .find((category) => category && isSameName(category.name, next))
-    onChange?.({ id: matched?.id, name: next })
+    onChange?.({ id: matched?.id, name: matched?.name ?? next })
   }
 
   return (
@@ -60,7 +60,10 @@ export const ProviderServiceFormCategory: FC<Props> = ({ value, onChange, disabl
       disabled={disabled}
       placeholder={t('categoryPlaceholder')}
       allowClear
-      showSearch={{ filterOption: matchesQuery }}
+      showSearch={{
+        filterOption: (input, option) =>
+          matchesSearch(String(option?.value ?? ''), input) || matchesSearch(String(option?.label ?? ''), input),
+      }}
       className='w-full'
     />
   )

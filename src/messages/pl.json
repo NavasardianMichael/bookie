@@ -42,7 +42,7 @@
     "homeLink": "Strona główna Bookie",
     "skipToContent": "Przejdź do treści",
     "home": "Start",
-    "providers": "Przeglądaj",
+    "providers": "Usługodawcy",
     "categories": "Kategorie",
     "organizations": "Organizacje",
     "signIn": "Zaloguj się",
@@ -50,7 +50,8 @@
     "account": "Konto",
     "accountSettings": "Ustawienia konta",
     "bookings": "Rezerwacje",
-    "favorites": "Ulubione"
+    "favorites": "Ulubione",
+    "profile": "Profil"
   },
   "Auth": {
     "continueWithGoogle": "Kontynuuj z Google",
@@ -232,6 +233,7 @@
     "pickATime": "Wybierz godzinę",
     "pickATimeHint": "Wybierz jedną z godzin powyżej, aby kontynuować.",
     "bookNow": "Zarezerwuj teraz",
+    "cannotBookOwn": "Nie możesz zarezerwować własnej usługi.",
     "openCount": "{count, plural, one {# wolny} few {# wolne} many {# wolnych} other {# wolnych}}",
     "noOpenTimesShort": "brak wolnych godzin",
     "requested": "Wizyta zgłoszona",
@@ -676,28 +678,116 @@
     "joinAsProvider": "Dołącz jako usługodawca",
     "browseSpecialty": "Przeglądaj według specjalności",
     "categoriesRail": "Kategorie",
-    "featuresTitle": "Zaprojektowane z myślą o rozwoju",
-    "featuresSubtitle": "Wszystko, czego potrzebujesz do zarządzania wizytami, w jednym miejscu.",
-    "features": {
-      "calendar": {
-        "title": "Inteligentny kalendarz",
-        "body": "Godziny otwarcia, przerwy i czas trwania usługi zamieniają się w wolne terminy. Bez kolizji, na każdym urządzeniu."
+    "audiences": {
+      "consumers": {
+        "overline": "Dla klientów",
+        "title": "Znajdź odpowiedniego usługodawcę i zarezerwuj w kilka minut",
+        "subtitle": "Wszystko, czego potrzebujesz, by odkrywać, rezerwować i śledzić wizyty — z kontem lub bez.",
+        "features": {
+          "search": {
+            "title": "Wyszukiwanie, które wybacza literówki",
+            "body": "Szukaj usługodawcy lub usługi po nazwie. Wielkość liter, znaki diakrytyczne i błędy w pisowni nie przeszkadzają, a podpowiedzi pojawiają się już podczas pisania."
+          },
+          "filters": {
+            "title": "Filtry i sortowanie",
+            "body": "Zawężaj wyniki według kategorii lub do usługodawców, którzy teraz przyjmują rezerwacje albo pracują dziś, i sortuj od najlepiej ocenianych, od najnowszych lub według nazwy."
+          },
+          "browse": {
+            "title": "Kategorie i organizacje",
+            "body": "Przeglądaj według specjalności albo otwórz stronę kliniki, salonu lub studia, by zobaczyć wszystkich, którzy przyjmują tam rezerwacje."
+          },
+          "profiles": {
+            "title": "Wiedz, zanim zarezerwujesz",
+            "body": "Strony usługodawców pokazują godziny pracy, lokalizację, usługi z czasem trwania i ceną, akceptowane metody płatności oraz opinie."
+          },
+          "booking": {
+            "title": "Rezerwacja w trzech krokach",
+            "body": "Wybierz usługę, dzień i godzinę na jednym ekranie. Dni bez wolnych terminów są oznaczone, więc nie tracisz czasu na przeglądanie pełnego kalendarza."
+          },
+          "guest": {
+            "title": "Bez zakładania konta",
+            "body": "Zarezerwuj, podając tylko imię, telefon i e-mail. Dodaj uwagi dla usługodawcy i wskaż, jak chcesz zapłacić."
+          },
+          "manage": {
+            "title": "Wszystko pod jednym linkiem",
+            "body": "Każda rezerwacja ma własny link, pod którym możesz ją zobaczyć, anulować lub przełożyć. Udostępnij go, skopiuj szczegóły albo pokaż kod QR."
+          },
+          "emails": {
+            "title": "Powiadomienia e-mail",
+            "body": "Dostaniesz potwierdzenie po rezerwacji, odpowiedź, gdy usługodawca zatwierdzi lub odrzuci Twoje zgłoszenie, i wiadomość, gdy zmieni się godzina."
+          },
+          "bookings": {
+            "title": "Wszystkie rezerwacje w jednym miejscu",
+            "body": "Po zalogowaniu widzisz wszystkie swoje wizyty — minione i nadchodzące. Szukaj, filtruj według statusu lub usługi i anuluj te, które są jeszcze przed Tobą."
+          },
+          "favorites": {
+            "title": "Ulubione",
+            "body": "Dotknij serca przy dowolnym usługodawcy, aby go zapisać, i łatwo wracaj do niego na stronie „Ulubione”."
+          },
+          "reviews": {
+            "title": "Oceny i opinie",
+            "body": "Oceń wizytę i pomóż innym w wyborze. W każdej chwili edytuj lub usuń swoją opinię i zgłoś taką, która łamie zasady."
+          },
+          "access": {
+            "title": "Twój język, każde urządzenie",
+            "body": "Korzystaj z Bookie w 16 językach, loguj się przez Google lub e-mail i zainstaluj serwis na telefonie jak aplikację."
+          }
+        }
       },
-      "booking": {
-        "title": "Rezerwuj w kilku dotknięciach",
-        "body": "Wybierz usługę, dzień i godzinę. Usługodawca potwierdza — bez telefonów tam i z powrotem."
-      },
-      "services": {
-        "title": "Menu usług",
-        "body": "Czas trwania i cena przy każdej ofercie, żeby klienci dokładnie wiedzieli, co rezerwują."
-      },
-      "categories": {
-        "title": "Przeglądaj według specjalności",
-        "body": "Od salonów po kliniki — znajdź odpowiedni rodzaj usługodawcy bez zgadywania."
-      },
-      "orgs": {
-        "title": "Organizacje",
-        "body": "Studia i kliniki pod jednym dachem, wraz z osobami, które przyjmują rezerwacje."
+      "providers": {
+        "overline": "Dla usługodawców",
+        "title": "Zarządzaj rezerwacjami w jednym panelu",
+        "subtitle": "Publiczna strona, Twoje usługi i godziny pracy oraz narzędzia do obsługi każdej wizyty — wszystko w jednym miejscu.",
+        "features": {
+          "profile": {
+            "title": "Twoja strona publiczna",
+            "body": "Zdjęcie, opis, kategorie, adres i dane kontaktowe na stronie, na której klienci mogą Cię wyszukać i zarezerwować wizytę. Jeśli wolisz, ukryj numer telefonu."
+          },
+          "visibility": {
+            "title": "Publikuj, wstrzymuj, ukrywaj",
+            "body": "Wstrzymaj nowe rezerwacje bez usuwania strony z listy albo cofnij jej publikację i opublikuj ją ponownie, kiedy tylko zechcesz."
+          },
+          "link": {
+            "title": "Krótki link i SEO",
+            "body": "Udostępniaj krótki link do swojej strony i ustaw tytuł oraz opis, które pokazują wyszukiwarki."
+          },
+          "services": {
+            "title": "Menu usług",
+            "body": "Dodawaj usługi z czasem trwania, ceną, walutą, kategorią i zdjęciem. Dezaktywuj usługę, aby ją ukryć bez usuwania."
+          },
+          "hours": {
+            "title": "Godziny pracy z przerwami",
+            "body": "Ustaw godziny dla każdego dnia tygodnia — do pięciu przedziałów dziennie. Klienci widzą tylko te godziny, w których pracujesz."
+          },
+          "approvals": {
+            "title": "Rezerwacja po Twoim zatwierdzeniu",
+            "body": "Włącz zatwierdzanie, aby najpierw sprawdzać każde zgłoszenie. Termin jest zarezerwowany, dopóki decydujesz, a klient w każdym przypadku dostaje e-mail."
+          },
+          "bookings": {
+            "title": "Kalendarz rezerwacji",
+            "body": "Zobacz wizyty z podziałem na dni w kalendarzu miesięcznym i oznaczaj każdą jako potwierdzoną, zakończoną, anulowaną lub opuszczoną. Rezerwacje, które składasz jako klient, mają osobną listę."
+          },
+          "alerts": {
+            "title": "Alerty e-mail",
+            "body": "Otrzymuj e-mail, gdy rezerwacja czeka na Twoje zatwierdzenie lub klient przenosi wizytę na inną godzinę."
+          },
+          "analytics": {
+            "title": "Statystyki",
+            "body": "Rezerwacje, przychód, odsetek zakończonych i opuszczonych wizyt, najbardziej zajęte dni i godziny, najpopularniejsze usługi oraz powracający klienci."
+          },
+          "payments": {
+            "title": "Płatności na Twoich zasadach",
+            "body": "Wymień akceptowane metody płatności na miejscu i opcjonalnie udostępnij numer konta, który klienci mogą skopiować."
+          },
+          "reviews": {
+            "title": "Odpowiadaj na opinie",
+            "body": "Klienci oceniają wizyty, a wysoka ocena przesuwa Cię wyżej na liście usługodawców. Odpowiadaj publicznie na każdą opinię."
+          },
+          "organizations": {
+            "title": "W ramach organizacji",
+            "body": "Występuj pod szyldem swojej kliniki, salonu lub studia — przy rejestracji dołącz do istniejącej organizacji albo dodaj nową."
+          }
+        }
       }
     },
     "providersTitle": "Usługodawcy",
@@ -755,7 +845,15 @@
     "emptyDetailTitle": "Jeszcze tu pusto",
     "emptyDetailBody": "Na razie żaden usługodawca ani organizacja nie są wpisane w {name}.",
     "organizations": "Organizacje",
-    "providers": "Usługodawcy"
+    "providers": "Usługodawcy",
+    "names": {
+      "generalPractice": "Medycyna ogólna",
+      "dentistry": "Stomatologia",
+      "physiotherapy": "Fizjoterapia",
+      "dermatology": "Dermatologia",
+      "cardiology": "Kardiologia",
+      "mentalHealth": "Zdrowie psychiczne"
+    }
   },
   "Organizations": {
     "metaTitle": "Organizacje",

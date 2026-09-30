@@ -2,12 +2,11 @@ import { FC } from 'react'
 import { cn } from '@helpers/cn'
 import { generateGoogleMapsLink } from '@helpers/location'
 import { AppLink } from './bare/AppLink'
-import { GlobeIcon, MailIcon, MapPinIcon, PhoneIcon } from './icons'
+import { GlobeIcon, MapPinIcon, PhoneIcon } from './icons'
 
 export type ContactActionsProps = {
   phone?: string
   address?: string
-  email?: string
   website?: string
   className?: string
 }
@@ -24,9 +23,13 @@ type Action = {
  * high-intent actions, which is both far shorter and directly tappable.
  *
  * Server-safe: real anchors styled as buttons, no antd Button — so the tel: and
- * mailto: hrefs are in the markup a crawler reads, not added at hydration.
+ * maps hrefs are in the markup a crawler reads, not added at hydration.
+ *
+ * Email is not an action here — the public provider card already exposes it as a
+ * mailto link in the facts list, and a third button was wrapping under Call /
+ * Directions for no extra reach.
  */
-export const ContactActions: FC<ContactActionsProps> = ({ phone, address, email, website, className }) => {
+export const ContactActions: FC<ContactActionsProps> = ({ phone, address, website, className }) => {
   const actions: Action[] = [
     phone && { key: 'call', href: `tel:${phone}`, label: 'Call', icon: <PhoneIcon /> },
     address && {
@@ -35,7 +38,6 @@ export const ContactActions: FC<ContactActionsProps> = ({ phone, address, email,
       label: 'Directions',
       icon: <MapPinIcon />,
     },
-    email && { key: 'email', href: `mailto:${email}`, label: 'Email', icon: <MailIcon /> },
     website && { key: 'website', href: website, label: 'Website', icon: <GlobeIcon /> },
   ].filter(Boolean) as Action[]
 

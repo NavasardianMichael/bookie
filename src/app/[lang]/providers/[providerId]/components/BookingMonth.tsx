@@ -38,6 +38,10 @@ type Props = {
  * information, and dropping it would reflow the grid out of its weekday columns.
  * Disabled cells do not fire hover, so the reason tooltip wraps a span, not the button.
  *
+ * The leading and trailing days borrowed from the neighbouring months follow the same
+ * rule, so the first days of next month are bookable from this one. Picking one pages
+ * the grid to its month — `BookingPanel.handleSelectDay` does that, not this grid.
+ *
  * Days travel as `DAY_KEY_FORMAT` strings, not `Date`s: that is already the key
  * `countSlotsByDay` returns, and it keeps date parsing to the single call site
  * that needs a real `Date` (`BookingPanel`, feeding `getSlotsForDate`).
@@ -129,16 +133,14 @@ export const BookingMonth: FC<Props> = ({
             const isClosed = !isOpenOnDate(weekSchedule, date)
             const isSelected = key === selectedDayKey
             const isToday = date.isSame(today, 'day')
-            const disabled = isOutside || isPast || !count
-            const disableReason = isOutside
-              ? undefined
-              : isPast
-                ? tBooking('dayPast')
-                : isClosed
-                  ? tBooking('dayClosed')
-                  : !count
-                    ? tBooking('dayNoSlots')
-                    : undefined
+            const disabled = isPast || !count
+            const disableReason = isPast
+              ? tBooking('dayPast')
+              : isClosed
+                ? tBooking('dayClosed')
+                : !count
+                  ? tBooking('dayNoSlots')
+                  : undefined
 
             const cell = (
               <button
@@ -153,7 +155,9 @@ export const BookingMonth: FC<Props> = ({
                   'focus-visible:ring-brand/40 focus-visible:z-1 focus-visible:ring-2 focus-visible:outline-none',
                   disabled ? 'cursor-not-allowed' : 'cursor-pointer',
                   !disabled && !isSelected && 'hover:bg-brand-50',
-                  isSelected && 'bg-brand ring-brand ring-2 ring-inset'
+                  isSelected && 'bg-brand ring-brand ring-2 ring-inset',
+                  // Days borrowed from the neighbouring months stay pickable but recede.
+                  isOutside && !isSelected && 'bg-surface-sunken'
                 )}
               >
                 <span

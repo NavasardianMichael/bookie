@@ -1,6 +1,7 @@
 'use client'
 
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
+import { AppstoreOutlined, BankOutlined, CalendarOutlined, HeartOutlined, TeamOutlined } from '@ant-design/icons'
 import { useTranslations } from 'next-intl'
 import { AppRouteName } from '@interfaces/routes'
 import { ROUTES } from '@constants/routes'
@@ -12,6 +13,14 @@ type Props = {
   orientation: 'horizontal' | 'vertical'
   isActive: (route: string) => boolean
   onNavigate?: () => void
+}
+
+const NAV_ICONS: Partial<Record<AppRouteName, ReactNode>> = {
+  providers: <TeamOutlined aria-hidden />,
+  categories: <AppstoreOutlined aria-hidden />,
+  organizations: <BankOutlined aria-hidden />,
+  bookings: <CalendarOutlined aria-hidden />,
+  favorites: <HeartOutlined aria-hidden />,
 }
 
 /**
@@ -27,13 +36,14 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
   return (
     <nav
       aria-label={isVertical ? t('mobileNavigation') : t('mainNavigation')}
-      // Tighter below `lg`: a signed-in bar carries six destinations and an avatar, which
+      // Tighter below `lg`: a signed-in bar carries five destinations and an avatar, which
       // overflowed a 768px viewport at the full gap.
-      className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-5 lg:gap-8')}
+      className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-4 lg:gap-6')}
     >
       {routes.map((name) => {
         const route = ROUTES[name]
         const active = isActive(route)
+        const icon = NAV_ICONS[name]
 
         return (
           <AppLink
@@ -43,8 +53,10 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
             onClick={onNavigate}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'text-body-sm font-semibold transition-colors',
-              isVertical ? 'flex items-center rounded-brand-sm px-3' : 'inline-flex min-h-11 items-center',
+              'text-sm font-semibold transition-colors',
+              isVertical
+                ? 'flex items-center gap-2 rounded-brand-sm px-3'
+                : 'inline-flex min-h-11 items-center gap-1.5',
               active
                 ? isVertical
                   ? 'bg-brand-50 text-brand'
@@ -55,6 +67,8 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
                   )
             )}
           >
+            {/* Icons only from `lg`: between `md` and `lg` the bar is tight and labels alone fit. */}
+            {icon ? <span className={cn(!isVertical && 'hidden lg:inline-flex')}>{icon}</span> : null}
             {t(name)}
           </AppLink>
         )

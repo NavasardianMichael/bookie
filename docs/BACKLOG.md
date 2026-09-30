@@ -370,6 +370,16 @@ Needs a real browser or device:
 
 ## Infrastructure
 
+- **No `[lang]` route prerenders any more.** Found 2026-09-28: `next build` on a clean
+  checkout of `c28e276` (a fresh worktree, no env files) reports every `/[lang]/*` route as
+  `ƒ`, and `.next/prerender-manifest.json` holds **11** routes — only the app-root
+  documents. `src/app/CLAUDE.md` and the *Rendering* section of `docs/DEPLOYMENT.md` still
+  claim 176 (11 routes × 16 locales + the root documents), with `/terms`, `/contact` and the
+  auth steps as `●`. `next build --debug-prerender` names no bailout, so the cause is not
+  found yet; start from the two conditions those docs say must hold together
+  (`generateStaticParams` in the root layout, `lang()` from `next/root-params` in
+  `i18n/request.ts`) and bisect back from `c28e276`. Not asserted by a `KNOWN BUG:` test —
+  the unit suite does not run a build.
 - **No CI workflow.** There is no `.github/` directory at all. Now that `pnpm verify` is
   one command that needs no database and no secrets, a workflow is about 25 lines:
   `pnpm install --frozen-lockfile && pnpm verify`. Until it exists, the gates and the

@@ -4,12 +4,12 @@ import { getHeaderConfig, HEADER_ACCOUNT_ROUTES, HEADER_ROUTES, withAccountRoute
 import { ROUTE_KEYS } from '@constants/routes'
 
 describe('getHeaderConfig', () => {
-  it('keeps marketplace nav on Explore', () => {
+  it('keeps marketplace nav on the Providers list', () => {
     expect(getHeaderConfig(ROUTE_KEYS.providers, '/providers').navRoutes).toEqual(HEADER_ROUTES)
   })
 
-  it('drops Explore, Categories and Organizations on a public provider page', () => {
-    expect(getHeaderConfig(ROUTE_KEYS.providers, '/providers/abc').navRoutes).toEqual([ROUTE_KEYS.home])
+  it('drops marketplace destinations on a public provider page', () => {
+    expect(getHeaderConfig(ROUTE_KEYS.providers, '/providers/abc').navRoutes).toEqual([])
   })
 
   it('keeps marketplace nav on the provider workspace', () => {
@@ -39,7 +39,7 @@ describe('withAccountRoutes', () => {
    */
   it('keeps them on the public provider page, where the marketplace nav is dropped', () => {
     const { navRoutes } = getHeaderConfig(ROUTE_KEYS.providers, '/providers/abc')
-    expect(withAccountRoutes(navRoutes, true)).toEqual([ROUTE_KEYS.home, ...HEADER_ACCOUNT_ROUTES])
+    expect(withAccountRoutes(navRoutes, true)).toEqual([...HEADER_ACCOUNT_ROUTES])
   })
 })
 

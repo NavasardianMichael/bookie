@@ -184,9 +184,8 @@ const isAppointmentConsumer = async (
  * booked under either identity, and the row is also the only source that stays right
  * for the approve/reject sends that happen minutes or days later.
  *
- * `to` is the booker and `providerTo` the professional — both `User.email`, never
- * `publicEmail`, which nothing authenticates and anyone can set. Either can be absent:
- * a guest may book with a phone and no address at all.
+ * `to` is the booker and `providerTo` the professional — both `User.email`. Either can
+ * be absent: a guest may book with a phone and no address at all.
  */
 const buildBookingNotice = async (appointmentId: string) => {
   const row = await prisma.appointment.findUnique({
@@ -515,7 +514,7 @@ const serializeManaged = (
 
 /**
  * Best-effort, like create. The row is already saved — a down engine must not
- * fail the PATCH. The provider address is `User.email`, never `publicEmail`.
+ * fail the PATCH. The provider address is `User.email`.
  * The manage URL stays the same token: it is a capability handle, not a hash of
  * the slot, so it is not sent to the provider.
  */

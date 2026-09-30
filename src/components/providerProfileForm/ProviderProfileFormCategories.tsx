@@ -4,8 +4,10 @@ import { useMemo } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Divider, Select, Space } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
+import { useTranslations } from 'next-intl'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { Category } from '@store/categories/single/types'
+import { translateCategoryName } from '@helpers/categoryName'
 import { SelectSuffix } from '@components/shared/SelectSuffix'
 import { AppLink } from '@components/ui/bare/AppLink'
 
@@ -25,15 +27,16 @@ type Props = {
 const MAX_COUNT = 3
 
 export const ProviderProfileFormCategories: React.FC<Props> = ({ value = [], onChange, disabled }) => {
+  const t = useTranslations('Categories')
   const { list } = useCategoriesListStore()
 
   const options: DefaultOptionType[] = useMemo(
     () =>
       list.allIds.map((categoryId) => {
         const category = list.byId[categoryId]
-        return { value: category.id, label: category.name }
+        return { value: category.id, label: translateCategoryName(category.name, t) }
       }),
-    [list.allIds, list.byId]
+    [list.allIds, list.byId, t]
   )
 
   return (

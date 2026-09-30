@@ -398,20 +398,8 @@ providerProfileRouter.put(
         firstName: body.firstName ?? body.FirstName,
         lastName: body.lastName ?? body.LastName,
         description: body.description ?? body.Description,
-        /**
-         * **`publicEmail`, never the identity email.**
-         *
-         * This line used to write `email` — the login identifier — straight from a
-         * multipart body with no verification. That was an account-takeover vector: set
-         * your email to a victim's address, then request a password reset and receive it.
-         *
-         * `publicEmail` is the published contact address the profile page and the JSON-LD
-         * render. Nothing authenticates against it, so writing it unverified is harmless.
-         * The identity email changes only through `/identity/change-email/send` +
-         * `/confirm`, which require the current password and a verified click on the new
-         * address.
-         */
-        publicEmail: body.publicEmail ?? body.PublicEmail,
+        // Identity email is never written here — only `/identity/change-email/send` +
+        // `/confirm` may change `User.email` (current password + verified click).
         address: body.address ?? body.Address,
         locationUrl: body.locationURL ?? body.LocationURL,
         organizationId: body.organizationId ?? body.OrganizationId ?? undefined,

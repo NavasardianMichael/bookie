@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { getCategoriesListAPI } from '@api/categories/main'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { translateCategoryName } from '@helpers/categoryName'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { ChipRail, PageShell, Section } from '@components/ui/layout'
@@ -49,10 +50,11 @@ type Props = {
  */
 export default async function Providers({ searchParams }: Props) {
   const params = parseExploreParams(await searchParams)
-  const [categories, t, tCommon] = await Promise.all([
+  const [categories, t, tCommon, tCategories] = await Promise.all([
     getCategoriesListAPI(),
     getTranslations('Explore'),
     getTranslations('Common'),
+    getTranslations('Categories'),
   ])
 
   return (
@@ -103,7 +105,7 @@ export default async function Providers({ searchParams }: Props) {
                       aria-current={isActive ? 'true' : undefined}
                       className={isActive ? 'bg-brand border-brand text-white hover:text-white' : undefined}
                     >
-                      {category.name}
+                      {translateCategoryName(category.name, tCategories)}
                     </AppLink>
                   </li>
                 )

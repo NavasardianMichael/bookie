@@ -29,6 +29,11 @@ type Props = {
   onConfirm: () => void
   /** Defaults to `Booking.bookNow`. Manage-page reschedule passes a different label. */
   confirmLabel?: string
+  /**
+   * The signed-in viewer owns this page. The API refuses the write; the button is
+   * disabled and a hint is shown so they do not fill the confirm sheet for nothing.
+   */
+  cannotBookOwn?: boolean
 }
 
 /**
@@ -50,6 +55,7 @@ export const BookingSlots: FC<Props> = ({
   onSelect,
   onConfirm,
   confirmLabel,
+  cannotBookOwn = false,
 }) => {
   const t = useTranslations('Booking')
   const handleSelect = useCallback(
@@ -151,16 +157,23 @@ export const BookingSlots: FC<Props> = ({
 
           {/* Full width on mobile through Tailwind, not antd's `block`: that emits an
               unlayered `.ant-btn-block { width: 100% }`, which `md:w-auto` cannot beat. */}
-          <AppButton
-            type='primary'
-            size='large'
-            disabled={!selectedStart}
-            loading={isBooking}
-            onClick={onConfirm}
-            className='w-full md:w-auto'
-          >
-            {confirmLabel ?? t('bookNow')}
-          </AppButton>
+          <div className='flex w-full flex-col gap-2 md:w-auto md:items-end'>
+            <AppButton
+              type='primary'
+              size='large'
+              disabled={!selectedStart || cannotBookOwn}
+              loading={isBooking}
+              onClick={onConfirm}
+              className='w-full md:w-auto'
+            >
+              {confirmLabel ?? t('bookNow')}
+            </AppButton>
+            {cannotBookOwn ? (
+              <AppParagraph size='body-sm' className='m-0 text-center md:text-end'>
+                {t('cannotBookOwn')}
+              </AppParagraph>
+            ) : null}
+          </div>
         </div>
       )}
     </Surface>

@@ -76,7 +76,6 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
     }
   }, [getCategoriesList, getOrganizationsList, optionsAttempt])
 
-  const emailMaxCharsCountRuleSet = useFormItemRules('email', 'maxCharsForInput')
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
@@ -147,26 +146,11 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
       </AppFormSection>
 
       <AppFormSection title={t('optional')}>
-        <Row gutter={[16, 0]}>
-          <Col xs={24} md={12}>
-            <AppFormItem name='email' label={t('email')} rules={emailMaxCharsCountRuleSet}>
-              <AppInput
-                type='email'
-                disabled={isSubmitting}
-                autoComplete='email'
-                inputMode='email'
-                enterKeyHint='next'
-              />
-            </AppFormItem>
-          </Col>
-          <Col xs={24} md={12}>
-            {/* `organizationId`, not `organization` — the name has to match the values key
-                the payload builder reads, or the selection is silently never submitted. */}
-            <AppFormItem name='organizationId' label={t('organization')} rules={inputTextMaxCharsCountRuleSet}>
-              <ProviderProfileOrganization disabled={isSubmitting} />
-            </AppFormItem>
-          </Col>
-        </Row>
+        {/* `organizationId`, not `organization` — the name has to match the values key
+            the payload builder reads, or the selection is silently never submitted. */}
+        <AppFormItem name='organizationId' label={t('organization')} rules={inputTextMaxCharsCountRuleSet}>
+          <ProviderProfileOrganization disabled={isSubmitting} />
+        </AppFormItem>
 
         <AppFormItem name='description' label={t('notes')} rules={textareaMaxCharsCountRuleSet}>
           <AppTextArea disabled={isSubmitting} autoSize={{ minRows: 3, maxRows: 5 }} maxLength={MAX_CHARS_FOR_TEXTAREA} />

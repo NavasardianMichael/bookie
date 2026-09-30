@@ -53,7 +53,12 @@ export type ChangePasswordAPI = Endpoint<{
 }>
 
 export type GetMeAPI = Endpoint<{
-  payload: void
+  /**
+   * The browser sends the session cookie on its own, so client callers pass nothing. A
+   * Server Component has no cookie jar and must forward it — transport-only, as
+   * `GetFavoriteProvidersAPI`'s is.
+   */
+  payload: void | { cookie?: string }
   response: Session
   processed: Session
 }>

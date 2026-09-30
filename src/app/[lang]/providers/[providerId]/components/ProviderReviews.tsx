@@ -130,7 +130,7 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
                       <span className='bg-brand-100 h-1.5 min-w-0 flex-1 overflow-hidden rounded-full'>
                         {/* Inline width: the value is a datum, not a design decision, and
                           there is no Tailwind class for an arbitrary percentage. */}
-                        <span className='bg-rating block h-full rounded-full' style={{ width: `${percent}%` }} />
+                        <span className='bg-brand block h-full rounded-full' style={{ width: `${percent}%` }} />
                       </span>
                       <AppText size='caption' tone='muted' numeric className='w-6 shrink-0 text-end'>
                         {count}

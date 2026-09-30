@@ -359,7 +359,8 @@ request. They are simply near-free to serve now: no API call, no render.
 
 | Route group                                                   | Now | Target                                   | Blocker                                               |
 | ------------------------------------------------------------- | --- | ---------------------------------------- | ----------------------------------------------------- |
-| `/`, `/categories`, `/organizations`                          | `ƒ` | ISR, short TTL                           | none — `export const revalidate`                      |
+| `/categories`, `/organizations`                               | `ƒ` | ISR, short TTL                           | none — `export const revalidate`                      |
+| `/`                                                           | `ƒ` | PPR: static page, hero buttons streamed  | reads the session cookie to hide the hero's sign-up buttons — needs `cacheComponents`, with that read behind `Suspense` |
 | `/providers/[id]`, `/categories/[id]`, `/organizations/[id]`  | `ƒ` | PPR: static shell, streamed availability | needs `revalidateTag` from the API on provider update |
 | `/auth/sign-in`, `/auth/reset-password`, `/auth/verify-email` | `ƒ` | stays `ƒ`                                | read `searchParams` — dynamic by definition           |
 | `/providers` (explore)                                        | `ƒ` | stays `ƒ`                                | reads `searchParams`                                  |

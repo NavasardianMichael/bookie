@@ -203,7 +203,10 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     <div className='flex flex-col gap-6'>
       <div className='bg-brand text-white relative overflow-hidden rounded-2xl p-8 shadow-lg'>
         <div className='pe-20'>
-          <AppText size='caption' className='mb-4 inline-block rounded-full bg-white/20 px-3 py-1 font-bold tracking-widest text-white uppercase'>
+          <AppText
+            size='caption'
+            className='mb-4 inline-block rounded-full bg-white/20 px-3 py-1 font-bold tracking-widest text-white uppercase'
+          >
             {profile?.listed === false ? t('listing.statusUnlisted') : t('listing.statusActive')}
           </AppText>
           <AppTitle level='h2' size='h2' className='text-white'>
@@ -274,7 +277,11 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 <FieldLabel htmlFor='description' requirement='Optional'>
                   {t('profile.description')}
                 </FieldLabel>
-                <AppFormItem name='description' rules={descriptionRules} messageVariables={{ label: t('profile.description') }}>
+                <AppFormItem
+                  name='description'
+                  rules={descriptionRules}
+                  messageVariables={{ label: t('profile.description') }}
+                >
                   <AppTextArea id='description' rows={4} maxLength={MAX_CHARS_FOR_TEXTAREA} />
                 </AppFormItem>
               </div>
@@ -287,7 +294,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 */}
                 <div className='flex items-center justify-between gap-4'>
                   <div>
-                    <AppText className='font-bold'>{t('phone.showOnPublic')}</AppText>
+                    <AppText className='text-sm font-semibold text-gray-600'>{t('phone.showOnPublic')}</AppText>
                     <AppParagraph size='body-sm' className='m-0'>
                       {t('phone.showOnPublicBody')}
                     </AppParagraph>
@@ -305,9 +312,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                   disabled={pendingAction !== null}
                   onVerified={(email, emailVerifiedAt) => {
                     setProfile((prev) =>
-                      prev
-                        ? { ...prev, details: { ...prev.details, email, emailVerifiedAt } }
-                        : prev
+                      prev ? { ...prev, details: { ...prev.details, email, emailVerifiedAt } } : prev
                     )
                   }}
                 />

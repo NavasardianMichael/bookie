@@ -11,7 +11,6 @@ export type PutProviderProfileRequestPayload = Partial<{
   firstName: string
   lastName: string
   description: string
-  email: string
   address: string
   locationURL: string
   organizationId: Organization['id']

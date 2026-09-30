@@ -67,14 +67,14 @@ export const RatingStars: FC<RatingStarsProps> = ({ value, size = 'md', label, c
     >
       {row('text-rating-empty')}
       <span
-        className='absolute inset-y-0 start-0 overflow-hidden'
+        className='absolute inset-y-0 inset-s-0 overflow-hidden'
         // Inline because the width is a datum, not a design decision — it is the rating
         // itself. There is no Tailwind class for "86%", and an arbitrary-value class
         // would be a new one compiled per distinct average. `start-0` rather than
         // `inset-0`: that also sets the end edge, which fights this width.
         style={{ width: `${(clamped / STAR_COUNT) * 100}%` }}
       >
-        {row('text-rating')}
+        {row('text-brand')}
       </span>
     </span>
   )

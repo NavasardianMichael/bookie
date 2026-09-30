@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { SingleProvider } from '@store/providers/single/types'
 import { currentLocale } from '@i18n/metadata'
 import { ROUTE_KEYS } from '@constants/routes'
+import { translateCategoryName } from '@helpers/categoryName'
 import { getCountryName } from '@helpers/country'
 import { generateEntityPath } from '@helpers/entities'
 import { isUploadedAsset, resolveAssetUrl } from '@helpers/images'
@@ -42,20 +43,22 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
   // Only a real upload is a portrait; the seeded `/logo.svg` gets the placeholder.
   const image = isUploadedAsset(basic.image) ? resolveAssetUrl(basic.image) : undefined
   const phone = details.phone ? generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' }) : undefined
+  const email = details.email
   const mapsHref = generateGoogleMapsLink(details.location.address)
   // Stored as an ISO code, so it reads in whatever language the page is in.
   const countryName = getCountryName(details.country, await currentLocale())
 
-  const [tPayments, tCommon, tProvider] = await Promise.all([
+  const [tPayments, tCommon, tProvider, tCategories] = await Promise.all([
     getTranslations('Settings.payments'),
     getTranslations('Common'),
     getTranslations('Provider'),
+    getTranslations('Categories'),
   ])
   const paymentMethods = toPaymentMethods(details.paymentInfo)
   const paymentShare = toPaymentShare(details.paymentInfo)
   const showTransferDetails = acceptsBankTransfer(details.paymentInfo) && hasPaymentShare(paymentShare)
   const showPayments = !!paymentMethods.length || showTransferDetails
-  const showFacts = Boolean(organization || categories?.length || details.location.address || phone)
+  const showFacts = Boolean(organization || categories?.length || details.location.address || phone || email)
 
   return (
     <aside className='flex flex-col gap-6'>
@@ -108,7 +111,7 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
                       variant='plain'
                       className={APP_LINK_META_CLASS}
                     >
-                      {category.name}
+                      {translateCategoryName(category.name, tCategories)}
                     </AppLink>
                   </span>
                 ))}
@@ -125,6 +128,16 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
                 </AppLink>
               </AppParagraph>
             )}
+            {email && (
+              <AppParagraph size='body-sm' className='m-0'>
+                <AppText as='strong' tone='default'>
+                  {tCommon('email')}:{' '}
+                </AppText>
+                <AppLink href={`mailto:${email}`} variant='plain' className={APP_LINK_META_CLASS}>
+                  {email}
+                </AppLink>
+              </AppParagraph>
+            )}
             {phone && (
               <AppParagraph size='body-sm' className='m-0'>
                 <AppText as='strong' tone='default'>
@@ -138,7 +151,7 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
           </div>
         )}
 
-        <ContactActions phone={phone} address={details.location.address} email={details.email} className='mt-6' />
+        <ContactActions phone={phone} address={details.location.address} className='mt-6' />
 
         {showPayments && (
           <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>

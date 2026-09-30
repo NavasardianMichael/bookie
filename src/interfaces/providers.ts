@@ -17,7 +17,6 @@ export type ProviderProfileFormValues = {
    * `File`, so declaring this `string` alone was the type lying about what the field holds.
    */
   image?: ProviderProfile['basic']['image'] | File
-  email?: ProviderProfile['details']['email']
   organizationId?: Organization['id']
   gallery?: (ProviderProfile['details']['gallery'][number] | File)[]
   weekSchedule: ProviderProfile['details']['weekSchedule']

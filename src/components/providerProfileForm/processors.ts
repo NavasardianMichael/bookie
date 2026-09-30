@@ -12,7 +12,6 @@ export const processProviderProfileFormToPostPayload = (
   if (formValues.address) processedPayload.address = formValues.address
   if (formValues.locationURL) processedPayload.locationURL = formValues.locationURL
   if (formValues.description) processedPayload.description = formValues.description
-  if (formValues.email) processedPayload.email = formValues.email
   if (formValues.image) processedPayload.image = formValues.image
   if (formValues.gallery) processedPayload.gallery = formValues.gallery
   if (formValues.organizationId) processedPayload.organizationId = formValues.organizationId

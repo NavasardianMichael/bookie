@@ -1,20 +1,24 @@
 'use client'
 
 import { FC, useCallback, useState } from 'react'
-import { MenuOutlined } from '@ant-design/icons'
+import { MenuOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
 import { useTranslations } from 'next-intl'
 import { AppRouteName } from '@interfaces/routes'
-import { HEADER_CTA, HEADER_SIGN_IN } from '@constants/header'
+import { HEADER_SIGN_IN } from '@constants/header'
 import { ROUTES } from '@constants/routes'
+import { cn } from '@helpers/cn'
+import { LanguageSwitcher } from '@components/layout/LanguageSwitcher'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { NavLinks } from './NavLinks'
 
 type Props = {
   routes: AppRouteName[]
   isActive: (route: string) => boolean
-  /** Hides Sign In / Get Started, which would otherwise sit under Bookings and Favorites. */
+  /** Hides Sign In, which would otherwise sit under Bookings and Favorites. */
   isSignedOn: boolean
+  /** Settings home for the signed-in role — shown as the first drawer item. */
+  profileHref?: string
 }
 
 /**
@@ -26,12 +30,14 @@ type Props = {
  * sibling combinator while the icon bars were descendants of the label.
  * antd's Drawer provides all of it and is already in the bundle.
  */
-export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn }) => {
+export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref }) => {
   const t = useTranslations('Nav')
   const [open, setOpen] = useState(false)
 
   const close = useCallback(() => setOpen(false), [])
   const toggle = useCallback(() => setOpen((prev) => !prev), [])
+
+  const profileActive = Boolean(profileHref && isActive(profileHref))
 
   return (
     <>
@@ -56,16 +62,31 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn }) => {
         classNames={{ body: 'p-3 overscroll-contain' }}
       >
         <div className='flex flex-col gap-4'>
-          <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
+          <div className='flex flex-col gap-1'>
+            {isSignedOn && profileHref && (
+              <AppLink
+                href={profileHref}
+                variant='plain'
+                onClick={close}
+                aria-current={profileActive ? 'page' : undefined}
+                className={cn(
+                  'flex items-center gap-2 rounded-brand-sm px-3 text-sm font-semibold transition-colors',
+                  profileActive
+                    ? 'bg-brand-50 text-brand'
+                    : 'text-brand-text hover:bg-surface-sunken hover:text-brand active:bg-surface-sunken'
+                )}
+              >
+                <UserOutlined aria-hidden />
+                {t('profile')}
+              </AppLink>
+            )}
+            <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
+          </div>
+          <LanguageSwitcher className='w-full' variant='borderless' />
           {!isSignedOn && (
-            <>
-              <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
-                {t(HEADER_SIGN_IN)}
-              </AppLink>
-              <AppLink href={ROUTES[HEADER_CTA]} variant='button' tone='primary' block onClick={close}>
-                {t(HEADER_CTA)}
-              </AppLink>
-            </>
+            <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
+              {t(HEADER_SIGN_IN)}
+            </AppLink>
           )}
         </div>
       </Drawer>

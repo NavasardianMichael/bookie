@@ -6,6 +6,7 @@ import { DEFAULT_LOCALE } from '@i18n/config'
 import { consolidatedAlternates } from '@i18n/metadata'
 import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { translateCategoryName } from '@helpers/categoryName'
 import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
 import { ProviderDetails } from './components/Details'
 import { ProviderReviews } from './components/ProviderReviews'
@@ -23,12 +24,17 @@ type Props = {
 
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Promise<Metadata> => {
   const { providerId } = await params
-  const [provider, tProvider] = await Promise.all([loadProvider(providerId), getTranslations('Provider')])
+  const [provider, tProvider, tCategories] = await Promise.all([
+    loadProvider(providerId),
+    getTranslations('Provider'),
+    getTranslations('Categories'),
+  ])
 
   const { basic, details, seo } = provider
   const fullName = `${basic.firstName} ${basic.lastName}`
   const organizationName = basic.organization?.basic.name
-  const categoryNames = basic.categories?.map((category) => category.name) ?? []
+  const categoryNames =
+    basic.categories?.map((category) => translateCategoryName(category.name, tCategories)) ?? []
   // Built from the resolved entity's id, never from the route segment: this route also
   // serves `/providers/<slug>`, and taking the canonical from the segment would give one
   // page two canonicals depending on which address the visitor arrived by.

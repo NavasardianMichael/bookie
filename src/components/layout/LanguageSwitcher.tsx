@@ -11,7 +11,7 @@ import { usePathname, useRouter } from '@i18n/navigation'
 const OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }))
 
 /**
- * The only way a user changes language, since the locale is not in the URL.
+ * Language picker used in the header and the footer.
  *
  * Labels are endonyms and deliberately not translated — someone who cannot read
  * the current UI language still has to be able to find their own.
@@ -30,7 +30,13 @@ const OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[l
  * `useTransition` keeps the old text on screen during the round trip instead of
  * flashing a spinner over the whole shell.
  */
-export const LanguageSwitcher: FC = () => {
+type Props = {
+  className?: string
+  /** Header uses `borderless`; footer keeps the default outlined field. */
+  variant?: 'outlined' | 'borderless' | 'filled'
+}
+
+export const LanguageSwitcher: FC<Props> = ({ className = 'min-w-44', variant = 'outlined' }) => {
   const t = useTranslations('Language')
   const locale = useLocale() as Locale
   const router = useRouter()
@@ -51,9 +57,10 @@ export const LanguageSwitcher: FC = () => {
       options={OPTIONS}
       onChange={handleChange}
       loading={isPending}
+      variant={variant}
       popupMatchSelectWidth={false}
       prefix={<GlobalOutlined aria-hidden />}
-      className='min-w-44'
+      className={className}
     />
   )
 }

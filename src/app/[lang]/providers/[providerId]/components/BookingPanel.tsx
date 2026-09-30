@@ -11,9 +11,11 @@ import { ProviderBusyInterval } from '@api/providers/types'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { useErrorToast } from '@hooks/useErrorToast'
+import { USER_TYPES } from '@constants/auth'
 import { BUSY_WINDOW_PADDING_DAYS } from '@constants/booking'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { countSlotsByDay, dropBusySlots, getSlotsForDate, getSlotsForDateRange, isSlotTakenError } from '@helpers/booking'
+import { buildMonthCells } from '@helpers/calendar'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
@@ -123,22 +125,26 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
 
-  const monthSlots = useMemo(
-    () =>
-      dropBusySlots(
-        getSlotsForDateRange({
-          weekSchedule: details?.weekSchedule,
-          start: month.startOf('month').toDate(),
-          end: month.endOf('month').add(1, 'day').startOf('day').toDate(),
-          durationMinutes,
-        }),
-        busy
-      ),
-    [busy, details?.weekSchedule, durationMinutes, month]
-  )
+  /**
+   * Stepped over the whole grid, not just the month: the days spilling in from the
+   * neighbouring months are pickable too, so each needs its own answer to whether it is
+   * bookable. The busy window's padding already covers them.
+   */
+  const gridSlots = useMemo(() => {
+    const cells = buildMonthCells(month)
+    return dropBusySlots(
+      getSlotsForDateRange({
+        weekSchedule: details?.weekSchedule,
+        start: cells[0].date.toDate(),
+        end: cells[cells.length - 1].date.add(1, 'day').toDate(),
+        durationMinutes,
+      }),
+      busy
+    )
+  }, [busy, details?.weekSchedule, durationMinutes, month])
 
   const slotCountByDay = useMemo(() => {
-    const counts = countSlotsByDay(monthSlots)
+    const counts = countSlotsByDay(gridSlots)
     if (!requestedStarts.length) return counts
 
     const remaining = new Map(counts)
@@ -149,13 +155,22 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
       remaining.set(key, current - 1)
     })
     return remaining
-  }, [monthSlots, requestedStarts])
+  }, [gridSlots, requestedStarts])
 
-  /** Insertion order is chronological, so the first entry is the earliest open day. */
+  const isInVisibleMonth = useCallback(
+    (dayKey: string) => dayjs(dayKey, DAY_KEY_FORMAT).isSame(month, 'month'),
+    [month]
+  )
+
+  /**
+   * Insertion order is chronological, so the first in-month entry is the earliest open
+   * day. The grid's spill-over days are skipped — the fallback lands on the month the
+   * visitor paged to, not on a leading day from the one before it.
+   */
   const firstOpenDayKey = useMemo(() => {
-    for (const [key, count] of slotCountByDay) if (count > 0) return key
+    for (const [key, count] of slotCountByDay) if (count > 0 && isInVisibleMonth(key)) return key
     return null
-  }, [slotCountByDay])
+  }, [isInVisibleMonth, slotCountByDay])
 
   /**
    * Derived, never synced into state by an effect: the visitor's pick holds only
@@ -171,9 +186,11 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
    * visible in the grid above them.
    */
   const selectedDayKey = useMemo(() => {
-    if (pickedDayKey && (slotCountByDay.get(pickedDayKey) ?? 0) > 0) return pickedDayKey
+    if (pickedDayKey && isInVisibleMonth(pickedDayKey) && (slotCountByDay.get(pickedDayKey) ?? 0) > 0) {
+      return pickedDayKey
+    }
     return firstOpenDayKey
-  }, [firstOpenDayKey, pickedDayKey, slotCountByDay])
+  }, [firstOpenDayKey, isInVisibleMonth, pickedDayKey, slotCountByDay])
 
   const selectedDate = useMemo(
     () => (selectedDayKey ? dayjs(selectedDayKey, DAY_KEY_FORMAT).startOf('day').toDate() : null),
@@ -217,6 +234,11 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
   const isSignedOn = useAuthStore.use.isSignedOn()
   const isAuthPending = useAuthStore.use.isPending()
   const accountEmail = useAuthStore.use.email()
+  const userType = useAuthStore.use.userType()
+  const profileId = useAuthStore.use.profileId()
+  // Same rule as the favourite heart and `POST /appointments`: a provider session
+  // cannot book the page it owns.
+  const cannotBookOwn = userType === USER_TYPES.provider && profileId === providerId
 
   /** Empty means the provider never configured a set; the picker then enables every method. */
   const paymentMethodOptions = useMemo(() => toPaymentMethods(details?.paymentInfo), [details?.paymentInfo])
@@ -246,10 +268,19 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
     validSelectedStart,
   ])
 
-  const handleSelectDay = useCallback((dayKey: string) => {
-    setPickedDayKey(dayKey)
-    setSelectedStart(null)
-  }, [])
+  /**
+   * A spill-over day belongs to the neighbouring month, so picking one pages the grid
+   * there — the same move a date picker makes. The pick then holds, because it is an
+   * open day of the month now on screen.
+   */
+  const handleSelectDay = useCallback(
+    (dayKey: string) => {
+      setPickedDayKey(dayKey)
+      setSelectedStart(null)
+      if (!isInVisibleMonth(dayKey)) setMonth(dayjs(dayKey, DAY_KEY_FORMAT).startOf('month'))
+    },
+    [isInVisibleMonth]
+  )
 
   const handleCloseConfirm = useCallback(() => {
     setIsConfirmOpen(false)
@@ -264,7 +295,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
    * identify) who they are.
    */
   const handleOpenConfirm = useCallback(() => {
-    if (!validSelectedStart || !providerId || !booking) return
+    if (!validSelectedStart || !providerId || !booking || cannotBookOwn) return
 
     if (!selectedServiceId) {
       notification.warning({
@@ -276,7 +307,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
 
     setConfirmBooking(booking)
     setIsConfirmOpen(true)
-  }, [booking, notification, providerId, selectedServiceId, t, validSelectedStart])
+  }, [booking, cannotBookOwn, notification, providerId, selectedServiceId, t, validSelectedStart])
 
   const handleSubmitBooking = useCallback(
     async (submission: BookingConfirmSubmission) => {
@@ -380,6 +411,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         isBooking={isBooking}
         onSelect={setSelectedStart}
         onConfirm={handleOpenConfirm}
+        cannotBookOwn={cannotBookOwn}
       />
 
       <BookingConfirmSheet

@@ -27,6 +27,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Minutes → `"1 h 30 min"` | `formatDuration` | `duration.ts` |
 | Minutes → ISO `PT90M` (schema.org, `<time>`) | `toIsoDuration` | `duration.ts` |
 | Merge Tailwind classes | `cn` | `cn.ts` |
+| Localise a seeded category's English DB name | `translateCategoryName` | `categoryName.ts` |
 | Absolute URL on the **site** origin | `absoluteUrl`, `getSiteUrl` | `url.ts` |
 | Typed website (`acme.am`) → absolute `http(s)` URL, or `undefined` | `toWebsiteUrl` | `url.ts` |
 | **Any search a user types into** — filter or rank by typed text, typo- and accent-tolerant | `matchesSearch`, `rankBySearch`, `matchScore` | `search.ts` |

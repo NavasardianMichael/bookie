@@ -35,6 +35,8 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, p
     if (!pending) onClose()
   }
 
+  // Drawer defaults the X to the start of the title row; `end` puts it on the
+  // trailing edge so it lines up with Modal's absolute top-end close.
   const closable = { 'aria-label': t('close'), disabled: pending }
 
   if (isDesktop) {
@@ -66,7 +68,7 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, p
       placement='bottom'
       size='92dvh'
       className={className}
-      closable={closable}
+      closable={{ ...closable, placement: 'end' }}
       mask={{ closable: !pending }}
       keyboard={!pending}
       styles={{ body: { overflowY: 'auto' } }}

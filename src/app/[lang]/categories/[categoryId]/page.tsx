@@ -8,6 +8,7 @@ import { Category as CategoryType } from '@store/categories/single/types'
 import { GenerateMetadata } from '@interfaces/components'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { translateCategoryName } from '@helpers/categoryName'
 import { isNotFoundError } from '@helpers/error'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { EmptyState } from '@components/ui/EmptyState'
@@ -38,18 +39,19 @@ const loadCategory = async (id: CategoryType['id']) => {
 export const generateMetadata: GenerateMetadata<Props> = async ({ params }) => {
   const { categoryId } = await params
   const [category, t] = await Promise.all([loadCategory(categoryId), getTranslations('Categories')])
+  const name = translateCategoryName(category.name, t)
 
-  const description = t('detailMetaDescription', { name: category.name })
+  const description = t('detailMetaDescription', { name })
 
   return {
-    title: category.name,
+    title: name,
     description,
-    keywords: ['Bookie', category.name, 'appointments', 'booking'].join(', '),
-    classification: category.name,
+    keywords: ['Bookie', name, 'appointments', 'booking'].join(', '),
+    classification: name,
     alternates: await localizedAlternates(`${ROUTES[ROUTE_KEYS.categories]}/${categoryId}`),
     openGraph: {
       type: 'website',
-      title: category.name,
+      title: name,
       description,
       url: `${ROUTES[ROUTE_KEYS.categories]}/${categoryId}`,
     },
@@ -60,17 +62,18 @@ export default async function Category({ params }: Props) {
   const { categoryId } = await params
 
   const [category, t] = await Promise.all([loadCategory(categoryId), getTranslations('Categories')])
+  const name = translateCategoryName(category.name, t)
 
   const isEmpty = !category.organizations.length && !category.providers.length
 
   return (
     <PageShell as='article' className='flex flex-col gap-8'>
-      <JsonLd data={getCategoryLDSchema(category)} />
+      <JsonLd data={getCategoryLDSchema({ ...category, name })} />
 
-      <PageHeader title={category.name} />
+      <PageHeader title={name} />
 
       {isEmpty && (
-        <EmptyState title={t('emptyDetailTitle')} description={t('emptyDetailBody', { name: category.name })} />
+        <EmptyState title={t('emptyDetailTitle')} description={t('emptyDetailBody', { name })} />
       )}
 
       {/* The same cards render through the same grid as the list pages — they used

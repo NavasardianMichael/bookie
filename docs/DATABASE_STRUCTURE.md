@@ -479,8 +479,7 @@ break every emailed link and 409 against the old row's own slot). Overlap is cre
 check, excluding this id, and only while the status is one of `LIVE_STATUSES` —
 `pending` included, because a request still awaiting a decision is upcoming and its
 maker must be able to move or drop it while they wait. After a reschedule, best-effort mail goes to the booker (guest email
-or the consumer's `User.email`) and the provider's identity `User.email` — never
-`publicEmail`. A send failure still returns 200.
+or the consumer's `User.email`) and the provider's identity `User.email`. A send failure still returns 200.
 
 Request body adds `notes` (trimmed, **max 300**, matching `MAX_CHARS_FOR_TEXTAREA`),
 `paymentMethods` (narrowed server-side to what the provider accepts — the client

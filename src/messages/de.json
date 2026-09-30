@@ -42,7 +42,7 @@
     "homeLink": "Bookie Startseite",
     "skipToContent": "Zum Inhalt springen",
     "home": "Start",
-    "providers": "Entdecken",
+    "providers": "Anbieter",
     "categories": "Kategorien",
     "organizations": "Organisationen",
     "signIn": "Anmelden",
@@ -50,7 +50,8 @@
     "account": "Konto",
     "accountSettings": "Kontoeinstellungen",
     "bookings": "Buchungen",
-    "favorites": "Favoriten"
+    "favorites": "Favoriten",
+    "profile": "Profil"
   },
   "Auth": {
     "continueWithGoogle": "Mit Google fortfahren",
@@ -232,6 +233,7 @@
     "pickATime": "Zeit wählen",
     "pickATimeHint": "Wählen Sie oben eine der Zeiten, um fortzufahren.",
     "bookNow": "Jetzt buchen",
+    "cannotBookOwn": "Du kannst deinen eigenen Service nicht buchen.",
     "openCount": "{count, plural, one {# frei} other {# frei}}",
     "noOpenTimesShort": "keine freien Zeiten",
     "requested": "Termin angefragt",
@@ -676,28 +678,116 @@
     "joinAsProvider": "Als Anbieter mitmachen",
     "browseSpecialty": "Nach Fachgebiet stöbern",
     "categoriesRail": "Kategorien",
-    "featuresTitle": "Für Wachstum entwickelt",
-    "featuresSubtitle": "Alles, was Sie zur Verwaltung von Terminen brauchen — an einem Ort.",
-    "features": {
-      "calendar": {
-        "title": "Smarter Kalender",
-        "body": "Öffnungszeiten, Pausen und Leistungsdauer werden zu buchbaren Zeitfenstern. Kollisionsfrei, auf jedem Gerät."
+    "audiences": {
+      "consumers": {
+        "overline": "Für Kunden",
+        "title": "Den passenden Anbieter finden und in Minuten buchen",
+        "subtitle": "Alles, was Sie brauchen, um Termine zu entdecken, zu buchen und im Blick zu behalten — mit oder ohne Konto.",
+        "features": {
+          "search": {
+            "title": "Suche, die Tippfehler verzeiht",
+            "body": "Suchen Sie einen Anbieter oder eine Leistung nach Namen. Groß- und Kleinschreibung, Akzente und Tippfehler spielen keine Rolle, und Vorschläge erscheinen schon beim Tippen."
+          },
+          "filters": {
+            "title": "Filtern und sortieren",
+            "body": "Filtern Sie nach Kategorie oder zeigen Sie nur Anbieter, die gerade Buchungen annehmen oder heute geöffnet haben. Sortieren Sie nach bester Bewertung, Neuheit oder Name."
+          },
+          "browse": {
+            "title": "Kategorien und Organisationen",
+            "body": "Stöbern Sie nach Fachgebiet, oder öffnen Sie eine Praxis, einen Salon oder ein Studio, um alle zu sehen, die dort Buchungen annehmen."
+          },
+          "profiles": {
+            "title": "Vor der Buchung alles wissen",
+            "body": "Anbieterseiten zeigen Öffnungszeiten, Ort, Leistungen mit Dauer und Preis, akzeptierte Zahlungsmethoden und Bewertungen."
+          },
+          "booking": {
+            "title": "In drei Schritten buchen",
+            "body": "Wählen Sie Leistung, Tag und Uhrzeit auf einem einzigen Bildschirm. Tage ohne freie Zeiten sind markiert — so suchen Sie nie vergeblich in einem vollen Kalender."
+          },
+          "guest": {
+            "title": "Kein Konto erforderlich",
+            "body": "Buchen Sie nur mit Name, Telefonnummer und E-Mail. Fügen Sie Anmerkungen für den Anbieter hinzu und geben Sie an, wie Sie zahlen möchten."
+          },
+          "manage": {
+            "title": "Alles über einen Link",
+            "body": "Jede Buchung hat einen eigenen Link, über den Sie sie ansehen, stornieren oder verschieben können. Teilen Sie ihn, kopieren Sie die Details oder zeigen Sie einen QR-Code."
+          },
+          "emails": {
+            "title": "Updates per E-Mail",
+            "body": "Sie erhalten eine Bestätigung bei der Buchung, eine Antwort, wenn ein Anbieter Ihre Anfrage freigibt oder ablehnt, und eine Nachricht, wenn sich die Uhrzeit ändert."
+          },
+          "bookings": {
+            "title": "Alle Buchungen an einem Ort",
+            "body": "Angemeldet sehen Sie alle Ihre Termine, vergangene und bevorstehende. Suchen Sie, filtern Sie nach Status oder Leistung und stornieren Sie, was noch bevorsteht."
+          },
+          "favorites": {
+            "title": "Favoriten",
+            "body": "Tippen Sie bei einem beliebigen Anbieter auf das Herz, um ihn zu speichern, und finden Sie ihn auf Ihrer Favoriten-Seite wieder."
+          },
+          "reviews": {
+            "title": "Sterne und Bewertungen",
+            "body": "Bewerten Sie Ihren Termin und helfen Sie anderen bei der Wahl. Bearbeiten oder löschen Sie Ihre Bewertung jederzeit, und melden Sie Bewertungen, die gegen die Regeln verstoßen."
+          },
+          "access": {
+            "title": "Ihre Sprache, auf jedem Gerät",
+            "body": "Nutzen Sie Bookie in 16 Sprachen, melden Sie sich mit Google oder per E-Mail an und installieren Sie es wie eine App auf Ihrem Handy."
+          }
+        }
       },
-      "booking": {
-        "title": "In wenigen Tipps buchen",
-        "body": "Leistung, Tag und Uhrzeit wählen. Der Anbieter bestätigt — ohne Telefonkette."
-      },
-      "services": {
-        "title": "Leistungsmenüs",
-        "body": "Dauer und Preis bei jedem Angebot, damit Kunden genau wissen, was sie buchen."
-      },
-      "categories": {
-        "title": "Nach Fachgebiet stöbern",
-        "body": "Vom Salon bis zur Klinik — finden Sie die richtige Anbieterart, ohne zu raten."
-      },
-      "orgs": {
-        "title": "Organisationen",
-        "body": "Studios und Praxen unter einem Dach, mit den Personen, die drinnen Termine annehmen."
+      "providers": {
+        "overline": "Für Anbieter",
+        "title": "Alle Buchungen in einem Arbeitsbereich verwalten",
+        "subtitle": "Eine öffentliche Seite, Ihre Leistungen und Zeiten und die Werkzeuge, um jeden Termin zu verwalten — alles an einem Ort.",
+        "features": {
+          "profile": {
+            "title": "Ihre öffentliche Seite",
+            "body": "Foto, Beschreibung, Kategorien, Adresse und Kontaktdaten auf einer Seite, die Kunden über die Suche finden und von der aus sie buchen können. Ihre Telefonnummer können Sie auf Wunsch ausblenden."
+          },
+          "visibility": {
+            "title": "Veröffentlichen, pausieren, offline nehmen",
+            "body": "Pausieren Sie neue Buchungen, ohne Ihre Seite auszulisten, oder nehmen Sie sie offline und veröffentlichen Sie sie wieder, sobald Sie bereit sind."
+          },
+          "link": {
+            "title": "Kurzlink und SEO",
+            "body": "Teilen Sie einen Kurzlink zu Ihrer Seite und legen Sie Titel und Beschreibung fest, die Suchmaschinen anzeigen."
+          },
+          "services": {
+            "title": "Leistungsmenü",
+            "body": "Fügen Sie Leistungen mit Dauer, Preis, Währung, Kategorie und Bild hinzu. Deaktivieren Sie eine Leistung, um sie auszublenden, ohne sie zu löschen."
+          },
+          "hours": {
+            "title": "Arbeitszeiten mit Pausen",
+            "body": "Legen Sie Ihre Zeiten für jeden Wochentag fest, mit bis zu fünf Zeiträumen pro Tag. Kunden sehen nur die Zeiten, in denen Sie geöffnet haben."
+          },
+          "approvals": {
+            "title": "Erst freigeben, dann buchen",
+            "body": "Aktivieren Sie Freigaben, um jede Anfrage zuerst zu prüfen. Der Termin bleibt reserviert, während Sie entscheiden, und der Kunde erhält in jedem Fall eine E-Mail."
+          },
+          "bookings": {
+            "title": "Buchungskalender",
+            "body": "Sehen Sie Termine nach Tag in einem Monatskalender und markieren Sie jeden als bestätigt, abgeschlossen, storniert oder verpasst. Buchungen, die Sie selbst als Kunde vornehmen, erscheinen in einer eigenen Liste."
+          },
+          "alerts": {
+            "title": "E-Mail-Benachrichtigungen",
+            "body": "Sie erhalten eine E-Mail, wenn eine Buchung auf Ihre Freigabe wartet oder ein Kunde auf eine neue Uhrzeit wechselt."
+          },
+          "analytics": {
+            "title": "Statistiken",
+            "body": "Buchungen, Umsatz, Abschluss- und Verpasst-Quote, gefragteste Tage und Uhrzeiten, meistgebuchte Leistungen und wiederkehrende Kunden."
+          },
+          "payments": {
+            "title": "Bezahlt werden, wie Sie möchten",
+            "body": "Geben Sie an, welche Zahlungsmethoden vor Ort Sie akzeptieren, und teilen Sie optional eine Kontonummer, die Kunden kopieren können."
+          },
+          "reviews": {
+            "title": "Auf Bewertungen antworten",
+            "body": "Kunden bewerten ihre Termine, und eine starke Bewertung bringt Sie in der Anbieterliste weiter nach oben. Antworten Sie öffentlich auf jede Bewertung."
+          },
+          "organizations": {
+            "title": "Teil einer Organisation",
+            "body": "Erscheinen Sie unter Ihrer Praxis, Ihrem Salon oder Studio — treten Sie bei der Registrierung einer bestehenden Organisation bei oder legen Sie eine neue an."
+          }
+        }
       }
     },
     "providersTitle": "Dienstleister",
@@ -755,7 +845,15 @@
     "emptyDetailTitle": "Hier ist noch nichts",
     "emptyDetailBody": "Bisher sind keine Anbieter oder Organisationen unter {name} gelistet.",
     "organizations": "Organisationen",
-    "providers": "Anbieter"
+    "providers": "Anbieter",
+    "names": {
+      "generalPractice": "Allgemeinmedizin",
+      "dentistry": "Zahnmedizin",
+      "physiotherapy": "Physiotherapie",
+      "dermatology": "Dermatologie",
+      "cardiology": "Kardiologie",
+      "mentalHealth": "Psychische Gesundheit"
+    }
   },
   "Organizations": {
     "metaTitle": "Organisationen",

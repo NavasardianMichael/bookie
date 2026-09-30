@@ -4,6 +4,13 @@ export const USER_TYPES = {
 } as const
 
 /**
+ * The session cookie the API mints (`cookieName` in `server/src/config.ts`). It is
+ * httpOnly, so only server code — `src/proxy.ts` and Server Components — can see it, and
+ * seeing it proves only that a session *may* exist: the JWT inside is verified by the API.
+ */
+export const SESSION_COOKIE = 'bookie_session'
+
+/**
  * The sign-on funnel's steps, one per route that actually exists.
  *
  * Registration stays role-specific — a consumer and a provider fill different forms — but

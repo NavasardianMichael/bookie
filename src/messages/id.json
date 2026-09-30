@@ -42,7 +42,7 @@
     "homeLink": "Beranda Bookie",
     "skipToContent": "Lewati ke konten",
     "home": "Beranda",
-    "providers": "Jelajahi",
+    "providers": "Penyedia",
     "categories": "Kategori",
     "organizations": "Organisasi",
     "signIn": "Masuk",
@@ -50,7 +50,8 @@
     "account": "Akun",
     "accountSettings": "Pengaturan akun",
     "bookings": "Pemesanan",
-    "favorites": "Favorit"
+    "favorites": "Favorit",
+    "profile": "Profil"
   },
   "Auth": {
     "continueWithGoogle": "Lanjutkan dengan Google",
@@ -232,6 +233,7 @@
     "pickATime": "Pilih waktu",
     "pickATimeHint": "Pilih salah satu waktu di atas untuk melanjutkan.",
     "bookNow": "Pesan sekarang",
+    "cannotBookOwn": "Anda tidak dapat memesan layanan sendiri.",
     "openCount": "{count, plural, one {# tersedia} other {# tersedia}}",
     "noOpenTimesShort": "tidak ada waktu tersedia",
     "requested": "Janji temu diminta",
@@ -676,28 +678,116 @@
     "joinAsProvider": "Gabung sebagai penyedia",
     "browseSpecialty": "Telusuri berdasarkan spesialisasi",
     "categoriesRail": "Kategori",
-    "featuresTitle": "Dirancang untuk pertumbuhan",
-    "featuresSubtitle": "Semua yang Anda butuhkan untuk mengelola janji temu, dalam satu tempat.",
-    "features": {
-      "calendar": {
-        "title": "Kalender cerdas",
-        "body": "Jam buka, jeda, dan durasi layanan menjadi slot yang dapat dipesan. Bebas benturan, di setiap perangkat."
+    "audiences": {
+      "consumers": {
+        "overline": "Untuk klien",
+        "title": "Temukan penyedia yang tepat dan pesan dalam hitungan menit",
+        "subtitle": "Semua yang Anda butuhkan untuk menemukan, memesan, dan memantau janji temu — dengan atau tanpa akun.",
+        "features": {
+          "search": {
+            "title": "Pencarian tahan salah ketik",
+            "body": "Cari penyedia atau layanan berdasarkan nama. Huruf besar-kecil, aksen, dan salah eja tetap dikenali, dan saran muncul saat Anda mengetik."
+          },
+          "filters": {
+            "title": "Filter dan urutkan",
+            "body": "Persempit hasil berdasarkan kategori, ke penyedia yang tersedia sekarang atau aktif hari ini, lalu urutkan menurut rating tertinggi, terbaru, atau nama."
+          },
+          "browse": {
+            "title": "Kategori dan organisasi",
+            "body": "Telusuri berdasarkan spesialisasi, atau buka klinik, salon, atau studio untuk melihat semua orang yang menerima pemesanan di sana."
+          },
+          "profiles": {
+            "title": "Kenali sebelum memesan",
+            "body": "Halaman penyedia menampilkan jam kerja, lokasi, layanan beserta durasi dan harganya, metode pembayaran yang diterima, serta ulasan."
+          },
+          "booking": {
+            "title": "Pesan dalam tiga langkah",
+            "body": "Pilih layanan, hari, dan waktu dalam satu layar. Hari tanpa waktu tersedia diberi tanda, jadi Anda tidak perlu menelusuri kalender yang sudah penuh."
+          },
+          "guest": {
+            "title": "Tanpa perlu akun",
+            "body": "Pesan hanya dengan nama, nomor telepon, dan email. Tambahkan catatan untuk penyedia dan beri tahu cara Anda ingin membayar."
+          },
+          "manage": {
+            "title": "Kelola dari satu tautan",
+            "body": "Setiap pemesanan punya tautan sendiri untuk melihat, membatalkan, atau menjadwalkan ulang. Bagikan tautannya, salin detailnya, atau tunjukkan kode QR."
+          },
+          "emails": {
+            "title": "Pembaruan lewat email",
+            "body": "Dapatkan konfirmasi saat Anda memesan, jawaban saat penyedia menyetujui atau menolak permintaan Anda, dan pemberitahuan saat waktunya berubah."
+          },
+          "bookings": {
+            "title": "Semua pemesanan di satu tempat",
+            "body": "Setelah masuk, lihat setiap janji temu, yang lalu maupun yang akan datang. Cari, filter berdasarkan status atau layanan, dan batalkan yang masih akan datang."
+          },
+          "favorites": {
+            "title": "Favorit",
+            "body": "Ketuk ikon hati di penyedia mana pun untuk menyimpannya, lalu temukan lagi di halaman Favorit Anda."
+          },
+          "reviews": {
+            "title": "Penilaian dan ulasan",
+            "body": "Nilai kunjungan Anda dan bantu orang lain memilih. Ubah atau hapus ulasan Anda kapan saja, dan laporkan ulasan yang melanggar aturan."
+          },
+          "access": {
+            "title": "Bahasa Anda, perangkat apa pun",
+            "body": "Gunakan Bookie dalam 16 bahasa, masuk dengan Google atau email, dan pasang di ponsel Anda seperti aplikasi."
+          }
+        }
       },
-      "booking": {
-        "title": "Pesan dalam beberapa ketukan",
-        "body": "Pilih layanan, hari, dan waktu. Penyedia mengonfirmasi — tanpa saling telepon."
-      },
-      "services": {
-        "title": "Menu layanan",
-        "body": "Durasi dan harga di setiap penawaran, sehingga klien tahu persis apa yang mereka pesan."
-      },
-      "categories": {
-        "title": "Telusuri berdasarkan spesialisasi",
-        "body": "Dari salon hingga klinik, temukan jenis penyedia yang tepat tanpa menebak."
-      },
-      "orgs": {
-        "title": "Organisasi",
-        "body": "Studio dan klinik terdaftar di satu tempat, bersama orang-orang yang menerima pemesanan di dalamnya."
+      "providers": {
+        "overline": "Untuk penyedia",
+        "title": "Kelola pemesanan dari satu ruang kerja",
+        "subtitle": "Halaman publik, layanan dan jam kerja Anda, serta alat untuk mengelola setiap janji temu — semuanya di satu tempat.",
+        "features": {
+          "profile": {
+            "title": "Halaman publik Anda",
+            "body": "Foto, deskripsi, kategori, alamat, dan kontak di halaman yang dapat dicari dan dipesan klien. Sembunyikan nomor telepon Anda jika mau."
+          },
+          "visibility": {
+            "title": "Terbitkan, jeda, atau tarik dari daftar",
+            "body": "Jeda pemesanan baru tanpa menghapus halaman Anda dari daftar, atau batalkan penerbitannya dan terbitkan lagi kapan pun Anda siap."
+          },
+          "link": {
+            "title": "Tautan pendek dan SEO",
+            "body": "Bagikan tautan pendek ke halaman Anda, dan atur judul serta deskripsi yang ditampilkan mesin pencari."
+          },
+          "services": {
+            "title": "Menu layanan",
+            "body": "Tambahkan layanan dengan durasi, harga, mata uang, kategori, dan gambar. Nonaktifkan layanan untuk menyembunyikannya tanpa menghapusnya."
+          },
+          "hours": {
+            "title": "Jam kerja dengan jeda",
+            "body": "Atur jam kerja untuk setiap hari dalam seminggu, hingga 5 rentang per hari. Klien hanya melihat waktu saat Anda buka."
+          },
+          "approvals": {
+            "title": "Setujui sebelum dipesan",
+            "body": "Aktifkan persetujuan untuk meninjau setiap permintaan terlebih dahulu. Waktunya ditahan selama Anda memutuskan, dan klien menerima email apa pun keputusannya."
+          },
+          "bookings": {
+            "title": "Kalender pemesanan",
+            "body": "Lihat janji temu per hari di kalender bulanan dan tandai masing-masing sebagai dikonfirmasi, selesai, dibatalkan, atau terlewat. Pemesanan yang Anda buat sebagai klien punya daftarnya sendiri."
+          },
+          "alerts": {
+            "title": "Notifikasi email",
+            "body": "Dapatkan email saat ada pemesanan yang menunggu persetujuan Anda atau klien pindah ke waktu baru."
+          },
+          "analytics": {
+            "title": "Analitik",
+            "body": "Pemesanan, pendapatan, tingkat penyelesaian dan tingkat terlewat, hari dan jam tersibuk, layanan teratas, serta klien yang kembali."
+          },
+          "payments": {
+            "title": "Terima pembayaran sesuai cara Anda",
+            "body": "Cantumkan metode pembayaran tatap muka yang Anda terima, dan jika mau, bagikan nomor rekening yang dapat disalin klien."
+          },
+          "reviews": {
+            "title": "Balas ulasan",
+            "body": "Klien menilai kunjungan mereka, dan penilaian yang tinggi menaikkan posisi Anda di daftar penyedia. Balas ulasan mana pun secara publik."
+          },
+          "organizations": {
+            "title": "Bagian dari organisasi",
+            "body": "Tampil di bawah klinik, salon, atau studio Anda — bergabung dengan organisasi yang sudah ada atau tambahkan yang baru saat mendaftar."
+          }
+        }
       }
     },
     "providersTitle": "Penyedia layanan",
@@ -755,7 +845,15 @@
     "emptyDetailTitle": "Belum ada apa pun di sini",
     "emptyDetailBody": "Sejauh ini belum ada penyedia atau organisasi yang terdaftar di {name}.",
     "organizations": "Organisasi",
-    "providers": "Penyedia"
+    "providers": "Penyedia",
+    "names": {
+      "generalPractice": "Praktik umum",
+      "dentistry": "Kedokteran gigi",
+      "physiotherapy": "Fisioterapi",
+      "dermatology": "Dermatologi",
+      "cardiology": "Kardiologi",
+      "mentalHealth": "Kesehatan mental"
+    }
   },
   "Organizations": {
     "metaTitle": "Organisasi",

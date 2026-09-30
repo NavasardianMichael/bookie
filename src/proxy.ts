@@ -5,6 +5,7 @@ import { isLocale, LOCALE_COOKIE } from '@i18n/config'
 import { matchAcceptLanguage } from '@i18n/matchAcceptLanguage'
 import { splitLocaleFromPathname } from '@i18n/pathname'
 import { routing } from '@i18n/routing'
+import { SESSION_COOKIE } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 
 /**
@@ -24,8 +25,8 @@ import { ROUTES } from '@constants/routes'
  *    authorization layer. Real enforcement stays server-side in `requireAuth` /
  *    `requireProvider` / `requireConsumer`, which every protected endpoint already runs;
  *    this exists so a signed-out visitor sees the sign-in screen instead of an onboarding
- *    form that will fail on submit. The cookie is httpOnly, so this is the only place in
- *    the frontend that can see it at all.
+ *    form that will fail on submit. The cookie is httpOnly, so no client code can see it —
+ *    only this and Server Components (the landing page, to hide its sign-up buttons).
  *
  *    **This runs on the web host, and the cookie is minted by the API on another one** —
  *    `bookie.<domain>` vs `api.bookie.<domain>` in production, both `localhost` in dev.
@@ -38,8 +39,6 @@ import { ROUTES } from '@constants/routes'
  * 3. **Hand off to next-intl**, which validates the prefix and keeps its locale cookie in
  *    step with the URL.
  */
-const SESSION_COOKIE = 'bookie_session'
-
 const PROTECTED_PREFIXES = [
   ROUTES.providerProfileCreation,
   ROUTES.providerServices,

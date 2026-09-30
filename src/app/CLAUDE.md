@@ -39,7 +39,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 
 | Route (under `/[lang]`) | | State |
 |---|---|---|
-| `/` | ƒ | Real — marketing landing (hero, category rail, feature bento, providers, CTA) |
+| `/` | ƒ | Real — marketing landing (hero, feature lists for clients and for providers, category rail, providers, CTA). The hero's sign-up buttons are guest-only, from a server-side session read. See [The landing page](#the-landing-page--) |
 | `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
@@ -80,7 +80,7 @@ autosave (Discard / Save, plus Save draft / Publish for providers). Providers ma
 publish their own card or account number on the public page after confirming a
 save dialog that those details will be public;
 the app never collects a *client's* card. Provider `listed` hides Explore + public 404;
-`available` only pauses bookings. The Header swaps Sign In / Get Started for an avatar
+`available` only pauses bookings. The Header swaps the language switcher + Sign In for an avatar
 when `getMe()` succeeds.
 
 **Two of the provider tabs are not settings.** `Approvals` and `Analytics` are for running
@@ -257,16 +257,16 @@ too, so they moved into route groups that do not contain this page: `[lang]/(hom
 unchanged.
 
 **Header nav on this page is not the marketplace nav.** Explore, Categories and
-Organizations stay off the bar so they do not compete with booking. Home, the lockup,
-and Sign In / Get Started (or the avatar) remain. Explore itself (`/providers` exactly)
+Organizations stay off the bar so they do not compete with booking. The lockup,
+and the language switcher + Sign In (or the avatar) remain. Providers itself (`/providers` exactly)
 keeps the full nav — `matchRouteName` maps both URLs to `providers`, so the extra
 segment is what `getHeaderConfig` uses. Config lives in `src/constants/header.ts`.
 
 **Bookings and Favorites follow the session, not the route.** `HEADER_ACCOUNT_ROUTES` is
 appended to whatever `navRoutes` a route shows, by `withAccountRoutes`, once the session is
 signed in. So they stay on the public provider page, beside the avatar they belong with,
-and a guest never sees them. The mobile drawer gets the same list and drops Sign In / Get
-Started once signed in. Six destinations plus an avatar overflowed 768px, so below `lg`
+and a guest never sees them. The mobile drawer gets the same list and drops Sign In
+once signed in. Five destinations plus an avatar overflowed 768px, so below `lg`
 the bar tightens its gaps and hides the provider's name beside the avatar.
 
 ### Explore's state is the query string
@@ -345,7 +345,7 @@ then `BookingPanel`, which is `BookingMonth` over `BookingSlots`:
 | Step | Question | Notes |
 |---|---|---|
 | `ServicePicker` | What? | Native radios in labels; everything inside a label is phrasing content, so a service name is a `<strong>`, not a heading |
-| `BookingMonth` | Which day? | Month grid, Monday-first. A day with no open slots is `disabled`, not hidden |
+| `BookingMonth` | Which day? | Month grid, Monday-first. A day with no open slots is `disabled`, not hidden. The spill-over days from the neighbouring months follow the same rule — slots are stepped across the whole grid — and picking one pages the grid to its month |
 | `BookingSlots` | Which time? | Every open time in one flat grid — no paging, no "view more". "Book now" **opens the sheet**; it does not book |
 | `BookingConfirmSheet` | Confirm, annotate, identify | `BookingSummary` (a real `<dl>` of the pick, including preferred payment) + notes + payment methods, plus name/phone/email when the visitor is anonymous. After create, share / copy URL / copy details / generate QR replace the old manage-link + View booking CTA |
 
@@ -372,6 +372,30 @@ Three things not to undo here:
    returns, and it keeps date parsing to the single site that needs a real `Date`. Any
    module that parses one must `dayjs.extend(customParseFormat)` itself — `booking.ts`
    extends it for `booking.ts` only.
+
+### The landing page — `/`
+
+Hero → *For clients* → *For providers* → category rail → providers → CTA band. The two
+audience blocks are one Server Component, `(home)/HomeAudienceFeatures.tsx`, over
+`Home.audiences.<consumers|providers>` in every catalogue.
+
+Two things not to undo:
+
+1. **The sign-up actions are for guests only — the hero's Find a provider / Join as a
+   provider and the CTA band's Get started — and the session is read on the server.** `(home)/loadSession.ts` answers `null` without the
+   `SESSION_COOKIE` (no API call, so guests and crawlers pay nothing) and otherwise
+   verifies the cookie with `getMeAPI({ cookie })`, in parallel with the page's two list
+   fetches. A client island reading `useAuthStore` would paint the buttons for every
+   signed-in hard load and then yank them out once the Header's `getMe()` landed — a flash
+   plus a layout jump in the hero. The cost is that `/` reads `cookies()`; see the
+   rendering roadmap in [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md). The footer drops its
+   guest-only links (Find a provider, Sign in, Join as a provider, Create account) on every
+   page, but from the auth store — see `Footer.tsx` for why the root layout must not read
+   the cookie.
+2. **The feature lists claim only what ships.** Each entry was checked against the tree,
+   not the settings UI: reminder emails, for one, have a preference toggle but no sender,
+   so neither list mentions them. A new entry needs its key in `FEATURES` and its copy in
+   all 16 catalogues (`tests/unit/i18n/catalogues.spec.ts` fails otherwise).
 
 ## The sign-on funnel
 
