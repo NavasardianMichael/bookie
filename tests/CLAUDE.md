@@ -26,9 +26,17 @@ reads links with. That cross-package pin is the *point* of the test — the two 
 emailed link have no shared type, and when they disagreed the only symptom was a valid link
 reported as expired (see `server/CLAUDE.md`). Reach across like this when a test's subject
 is an agreement between the packages, not merely for convenience — `organizations.spec.ts`
-does the same to pin the new-organization length caps to `@constants/form`, and
+does the same to pin the new-organization length caps to `@constants/form`,
 `search.spec.ts` runs every case against both twins of the search matcher
-(`src/helpers/search.ts`, `server/src/lib/search.ts`).
+(`src/helpers/search.ts`, `server/src/lib/search.ts`), `planErrors.spec.ts` pins the plan
+codes, the plan order and the Plan tab link, and `providerSeo.spec.ts` checks every `ROUTES`
+segment is a reserved slug.
+
+The plan rules are reachable here because `server/src/services/plans.ts` is pure and takes
+`now` — including the Prisma `where` that counts the booking allowance
+(`bookingsThisMonthWhere`), which is how "cancelled bookings do not count" is tested without
+a database. The counts themselves, and the routes' wiring, are not reachable from
+`pnpm test` (see `docs/BACKLOG.md`).
 
 ```bash
 pnpm test         # unit + integration — fast, no external dependencies

@@ -201,7 +201,17 @@ model Provider {
   /// everyone except the owner. Independent of `available` (pause bookings).
   /// New accounts start unlisted; they appear only after Publish page.
   listed                 Boolean            @default(false)
+  /// What the provider is subscribed to. **Never read directly to gate a feature** — go
+  /// through `services/plans.ts#getEntitlements`, which also applies `planExpiresAt`.
+  /// Assigned by an admin today (`PATCH /admin/providers/:id/plan`); see docs/BILLING.md.
   plan                   Plan               @default(free)
+  /// When a paid plan lapses back to `free`. Null = no end. Applied lazily at read time
+  /// (`effectivePlan`) rather than swept by a job — there is no scheduler here.
+  planExpiresAt          DateTime?
+  /// The monthly booking-allowance emails, 80% and 100%. "Sent this month" means the stamp
+  /// is on or after the UTC month's start; claimed by compare-and-set (`services/planUsage.ts`).
+  bookingCapWarnedAt     DateTime?
+  bookingCapReachedAt    DateTime?
   organizationId         String?
   organization           Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   weekSchedule           Json               @default("{}")
@@ -431,6 +441,8 @@ model Appointment {
   review          Review?
 
   @@index([providerId, startAt])
+  /// The monthly booking allowance counts by creation time (`services/plans.ts#bookingsThisMonthWhere`).
+  @@index([providerId, createdAt])
 }
 
 /// A consumer's rating of a provider (or an organization), anchored to the appointment

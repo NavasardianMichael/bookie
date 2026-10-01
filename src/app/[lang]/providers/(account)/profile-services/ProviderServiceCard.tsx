@@ -24,6 +24,11 @@ type Props = {
    * both the footer switch and the kebab menu item call this, so they share one flow.
    */
   onToggleActive: (serviceId: string) => void
+  /**
+   * The plan's active-service cap is reached, so an inactive service cannot be switched
+   * on. Deactivating stays possible — it is how a provider makes room.
+   */
+  activationLocked?: boolean
 }
 
 const MENU_KEYS = { edit: 'edit', toggle: 'toggle', delete: 'delete' } as const
@@ -37,10 +42,17 @@ const MENU_KEYS = { edit: 'edit', toggle: 'toggle', delete: 'delete' } as const
  * menu item (the same kind of button as Edit). Neither writes on its own —
  * confirming is the parent's dialog, the same flow as delete.
  */
-export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onToggleActive }) => {
+export const ProviderServiceCard: FC<Props> = ({
+  service,
+  onEdit,
+  onDelete,
+  onToggleActive,
+  activationLocked = false,
+}) => {
   const t = useTranslations('Services')
   const resolvedImage = resolveAssetUrl(service.image)
   const hasPrice = typeof service.price === 'number'
+  const toggleDisabled = !service.active && activationLocked
 
   const handleMenuClick = useCallback(
     ({ key }: { key: string }) => {
@@ -66,10 +78,11 @@ export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onTo
         key: MENU_KEYS.toggle,
         icon: service.active ? <PauseOutlined /> : <CheckCircleOutlined />,
         label: service.active ? t('deactivateService') : t('activateService'),
+        disabled: toggleDisabled,
       },
       { key: MENU_KEYS.delete, icon: <DeleteOutlined />, label: t('deleteService'), danger: true },
     ],
-    [service.active, t]
+    [service.active, t, toggleDisabled]
   )
 
   return (
@@ -143,6 +156,7 @@ export const ProviderServiceCard: FC<Props> = ({ service, onEdit, onDelete, onTo
           <Switch
             checked={service.active}
             onChange={handleSwitchChange}
+            disabled={toggleDisabled}
             aria-label={service.active ? t('deactivateService') : t('activateService')}
           />
         </div>

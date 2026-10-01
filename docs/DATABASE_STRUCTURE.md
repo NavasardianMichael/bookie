@@ -9,11 +9,11 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
-| **Provider** | Professional profile, `weekSchedule` JSON, plan, optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
+| **Provider** | Professional profile, `weekSchedule` JSON, `plan` + `planExpiresAt` and the two booking-allowance notice stamps (see [Plans and entitlements](#plans-and-entitlements)), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
 | **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
-| **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot) and overlap index. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
+| **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot), the overlap index `[providerId, startAt]` and `[providerId, createdAt]` for the monthly booking allowance. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
 
@@ -79,10 +79,12 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
 | GET | `/provider-profile/consumer-bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments they booked as a client; empty if the User has no Consumer row |
 | GET | `/provider-profile/consumer-bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for that client-side list |
-| GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound) |
+| GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound). Clamped to the plan's `analyticsHistoryDays`, measured from now |
 | PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
-| PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug` |
-| POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only) |
+| PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug`. Setting or changing the slug needs the plan's `customSlug` (`403` / `4102`); unchanged and cleared slugs always pass |
+| GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }` |
+| GET | `/plans` | public — the catalogue, cheapest first: `[{ id, entitlements }]`. No prices yet |
+| POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only). Creating an active service, or reactivating one, past the plan's `maxActiveServices` is `403` / `4101` |
 | GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
 | POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled |
 | PATCH/DELETE | `/reviews/:id` | author only |
@@ -91,6 +93,8 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/admin/reviews/reports?status=&page=&perPage=` | **admin** (`ADMIN_EMAILS` allowlist) |
 | PATCH | `/admin/reviews/:id/visibility` | admin — hide/restore, recomputes the aggregate |
 | PATCH | `/admin/reviews/reports/:id` | admin — `resolved` or `dismissed` |
+| GET | `/admin/providers?q=&page=&perPage=` | admin — providers by name / account email / slug, with `plan`, `effectivePlan`, `planExpiresAt` |
+| PATCH | `/admin/providers/:id/plan` | admin — `{ plan, planExpiresAt? }` (a future ISO instant or `null`; dropped for `free`). The only writer of `plan` until a payment provider is wired in |
 | GET | `/organizations?q=`, `/organizations/similar?name=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public |
 | POST | `/contact` | public — contact form; forwards to the mail engine, **stores nothing** |
@@ -111,6 +115,12 @@ honeypot filled in, rate-limits 5/hour per IP, then forwards to the mail engine'
 would duplicate it and hold free-text PII with no retention policy or reader. A failed
 send is therefore reported to the sender (`502`, or `429` passed through) rather than
 banked silently. See the `mail` skill and `server/CLAUDE.md`.
+
+It also takes an optional `topic` and `plan`, both **allowlisted** (`topic: 'planUpgrade'`
+and a plan id; anything else is dropped). The server writes the subject from them —
+`Plan upgrade request — basic — Anna Petrosyan` — and adds the session's provider id to
+the details. A free-text subject is never accepted. This is how a plan is requested until a
+payment provider exists (see [Plans and entitlements](#plans-and-entitlements)).
 
 `GET /organizations` returns the full list; `?q=` ranks by name and backs the registration
 Organization field's suggestions. Matching ignores case, accents, punctuation and spacing,
@@ -256,7 +266,9 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 
 - **`listed`** — when `false`, the provider is hidden from Explore and public detail 404s for everyone except the owner (Preview). New accounts start unlisted. Copy URL, publish/unpublish, and delete page live on the Profile settings hero — there is no Listing sidebar tab.
 - **`DELETE /provider-profile`** — removes the page. `409` when appointments exist (`Appointment.providerId` has no `onDelete`). A User with no remaining Consumer profile is removed with the page.
-- **`available`** — pause new bookings; independent of listing.
+- **`available`** — pause new bookings; independent of listing. Enforced by
+  `POST /appointments` (see [When online booking is closed](#when-online-booking-is-closed));
+  it used to be read by Explore alone while bookings kept arriving.
 - **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
 - **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], payToNumber?, notes? }`.
   **`methods` is plural** — a provider accepts a set, not one preference, and the booking
@@ -347,6 +359,32 @@ call — `GET /providers/:idOrSlug` already accepts either form. The canonical s
 **id** URL either way, because `generateMetadata` builds it from the resolved entity rather
 than the route segment, so the two addresses never compete in an index. Temporary rather
 than permanent because a 308 is cached by the browser and would outlive a slug change.
+
+## Plans and entitlements
+
+Only providers are billed. The strategy, the catalogue and the roadmap are in
+[BILLING.md](BILLING.md); the schema side is this:
+
+| Column | Meaning |
+|---|---|
+| `Provider.plan` | `free` \| `basic` \| `standard` \| `premium`, default `free`. Written only by `PATCH /admin/providers/:id/plan` today |
+| `Provider.planExpiresAt` | When a paid plan lapses to `free`. Null = no end. Applied **on read** (`effectivePlan`), never by a job |
+| `Provider.bookingCapWarnedAt` / `bookingCapReachedAt` | The 80% and 100% allowance emails. "Sent this month" = stamp ≥ the UTC month's start; claimed by compare-and-set |
+| `Appointment @@index([providerId, createdAt])` | The monthly allowance counts by creation time |
+
+Every limit is read through `getEntitlements` in `server/src/services/plans.ts` — never
+`Provider.plan` directly. Where each is enforced:
+
+| Limit | Enforced at | Refusal |
+|---|---|---|
+| `maxActiveServices` | service create (if active) and inactive → active | `403`, code `4101` |
+| `customSlug` | `PATCH /provider-profile/seo` when the slug is set or changed | `403`, code `4102` |
+| `maxBookingsPerMonth` | `POST /appointments`, after the paused check and before the overlap check | `409`, code `4202` (see [When online booking is closed](#when-online-booking-is-closed)) |
+| `analyticsHistoryDays` | `GET /provider-profile/analytics` | clamped, not refused |
+
+**On downgrade nothing is withdrawn.** Over-cap services stay live and editable — only
+adding or reactivating is blocked; a slug set before slugs were paid keeps resolving, and
+`GET /providers/:idOrSlug` never looks at the plan; bookings are never cancelled.
 
 ## Favourites
 
@@ -468,6 +506,24 @@ mirrored in `src/constants/booking.ts`, pinned by `tests/unit/server/bookingErro
 The sheet matches on it to offer "pick another time" and refresh the grid, rather than
 showing a raw error — matching on `409` alone would catch a withdrawn service too, which
 is not a failure another slot can fix.
+
+### When online booking is closed
+
+`GET /providers/:id` carries `details.onlineBooking: 'open' | 'paused' | 'full'`
+(`resolveOnlineBooking` in `mappers/entities.ts`). `paused` is the provider's own
+`available: false`; `full` is a spent monthly booking allowance. The page swaps its
+calendar for a notice pointing at the provider's phone and email, and the JSON-LD drops its
+`ReserveAction`. **Neither value names a plan** — the payload is public and the visitor is
+not the one who pays.
+
+`POST /appointments` refuses both, before the overlap check, with a `409` whose envelope
+`code` is `BOOKING_ERROR.bookingPaused` (`4201`) or `.bookingFull` (`4202`) —
+`server/src/lib/booking-errors.ts`, mirrored as `BOOKING_ERROR_CODES` in
+`src/constants/booking.ts` and pinned by `tests/unit/server/bookingErrors.spec.ts`. A code,
+not a matched message: the sheet reacts by closing and handing over to the notice, since no
+other slot or service would go through. A **reschedule** is never refused for either — it
+moves a booking that already exists — which is why only `GET /providers/:id` resolves
+`full` and the manage page's nested provider sees `open` or `paused`.
 
 `GET /appointments/manage/:token` is public and returns enough to render the summary
 and the public booking panels (appointment + `mapSingleProvider`).

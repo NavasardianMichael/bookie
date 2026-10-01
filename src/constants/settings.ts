@@ -39,11 +39,12 @@ export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
 ]
 
 /**
- * Running the business sits above configuring it: Approvals and Analytics are opened
- * daily, the tabs around them are opened once. Bookings used to head that group and moved
- * out to `/bookings`, in the header. `match: 'exact'` on the profile home is load-bearing —
- * `/providers/profile` is a prefix of every nested tab, so without it the Profile item
- * lights up on all of them.
+ * Running the business sits above configuring it: Approvals is opened daily (and
+ * carries a queue that goes stale if nobody opens it), so it stays first after Profile.
+ * Analytics is useful but not a queue, so it sits at the end. Bookings used to head that
+ * group and moved out to `/bookings`, in the header. `match: 'exact'` on the profile home
+ * is load-bearing — `/providers/profile` is a prefix of every nested tab, so without it
+ * the Profile item lights up on all of them.
  */
 export const PROVIDER_SETTINGS_NAV: {
   route: keyof typeof ROUTES
@@ -51,15 +52,15 @@ export const PROVIDER_SETTINGS_NAV: {
   aliases?: (keyof typeof ROUTES)[]
 }[] = [
   { route: ROUTE_KEYS.providerProfile, match: 'exact' },
-  // First after Profile, above Analytics: the only tab with a queue that goes stale if
-  // nobody opens it.
   { route: ROUTE_KEYS.providerProfileApprovals },
-  { route: ROUTE_KEYS.providerProfileAnalytics },
   { route: ROUTE_KEYS.providerProfileAvailability },
   { route: ROUTE_KEYS.providerServices },
   { route: ROUTE_KEYS.providerProfileSeo },
   { route: ROUTE_KEYS.providerProfileNotifications },
   { route: ROUTE_KEYS.providerProfilePayments },
+  { route: ROUTE_KEYS.providerProfileAnalytics },
+  // Last: opened when a limit is hit or an upgrade is wanted, never as routine.
+  { route: ROUTE_KEYS.providerProfilePlan },
 ]
 
 export const toSettingsNavItems = (

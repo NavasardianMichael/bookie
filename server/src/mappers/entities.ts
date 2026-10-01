@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import type { Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
+import { effectivePlan, getEntitlements, type PlanFields } from '../services/plans.js'
 import { isOpenToday } from '../services/providerSearch.js'
 import { reviewAuthorName } from '../services/reviews.js'
 
@@ -138,8 +139,28 @@ export function mapProviderDetails(
   }
 }
 
-export function mapSingleProvider(provider: ProviderWithRelations) {
-  const details = mapProviderDetails(provider)
+/**
+ * Whether the public page offers its calendar, and if not, why — in words that say
+ * nothing about the provider's plan. `paused` is the provider's own switch, `full` a
+ * monthly booking allowance reached; to a visitor both read "contact them directly".
+ */
+export type OnlineBooking = 'open' | 'paused' | 'full'
+
+export const resolveOnlineBooking = (provider: { available: boolean }, bookingsFull = false): OnlineBooking => {
+  if (!provider.available) return 'paused'
+  return bookingsFull ? 'full' : 'open'
+}
+
+/**
+ * `bookingsFull` is resolved by `GET /providers/:id` alone, because it costs a count.
+ * Every other caller — the manage page's nested provider — gets `open` or `paused`: a
+ * reschedule moves a booking that already exists, so an allowance never closes it.
+ */
+export function mapSingleProvider(provider: ProviderWithRelations, options: { bookingsFull?: boolean } = {}) {
+  const details = {
+    ...mapProviderDetails(provider),
+    onlineBooking: resolveOnlineBooking(provider, options.bookingsFull),
+  }
 
   const services = provider.services ?? []
   const normalized = services.reduce(
@@ -194,7 +215,8 @@ export function mapProviderProfile(
   provider: ProviderWithRelations & {
     user: { email: string; emailVerifiedAt: Date | null }
     phoneVisible?: boolean
-  }
+  },
+  now: Date = new Date()
 ) {
   const single = mapSingleProvider(provider)
   // The public mapper omits a hidden phone; the owner still needs the number to edit it
@@ -212,7 +234,22 @@ export function mapProviderProfile(
       phone,
       phoneVisible: provider.phoneVisible !== false,
     },
-    personal: { plan: provider.plan },
+    personal: mapProviderPlan(provider, now),
+  }
+}
+
+/**
+ * A provider's plan as its owner sees it — on `personal`, which only the owner payload
+ * carries. `plan` is what was assigned; `effectivePlan` is what applies right now, which
+ * differs only once `planExpiresAt` has passed. `entitlements` are the limits of the
+ * *effective* plan, so a client never re-derives them (and never needs the catalogue).
+ */
+export function mapProviderPlan(provider: PlanFields, now: Date) {
+  return {
+    plan: provider.plan,
+    effectivePlan: effectivePlan(provider, now),
+    planExpiresAt: provider.planExpiresAt?.toISOString(),
+    entitlements: getEntitlements(provider, now),
   }
 }
 
@@ -540,6 +577,34 @@ export function mapReview(review: ReviewWithAuthor, viewerConsumerId?: string) {
     // timestamps itself and without a second date on every unedited review.
     updatedAt: review.updatedAt.getTime() === review.createdAt.getTime() ? undefined : review.updatedAt.toISOString(),
     isMine: Boolean(viewerConsumerId) && review.consumerId === viewerConsumerId,
+  }
+}
+
+/**
+ * A row of the admin plan screen: enough to find the right account and see what it is on.
+ * The account email is here because it is how an operator matches an invoice or a support
+ * request to a provider — the route is behind `requireAdmin`, and nothing else maps it.
+ */
+export function mapAdminProvider(
+  provider: PlanFields & {
+    id: string
+    firstName: string
+    lastName: string
+    slug: string | null
+    listed: boolean
+    user: { email: string }
+  },
+  now: Date
+) {
+  return {
+    id: provider.id,
+    name: `${provider.firstName} ${provider.lastName}`.trim(),
+    email: provider.user.email,
+    slug: provider.slug ?? undefined,
+    listed: provider.listed,
+    plan: provider.plan,
+    effectivePlan: effectivePlan(provider, now),
+    planExpiresAt: provider.planExpiresAt?.toISOString(),
   }
 }
 

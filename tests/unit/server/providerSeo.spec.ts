@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { LOCALES } from '@i18n/config'
+import { ROUTES } from '@constants/routes'
 import {
   looksLikeProviderId,
   MAX_SEO_DESCRIPTION,
@@ -141,6 +142,19 @@ describe('parseProviderSeoBody — the slug is an address', () => {
   it('reserves every locale code', () => {
     for (const locale of LOCALES) {
       expect(RESERVED_SLUGS.has(locale.toLowerCase()), locale).toBe(true)
+    }
+  })
+
+  /**
+   * The same twin problem for routes. `/p/<slug>` rewrites to `/providers/<slug>`, so a
+   * slug that equals a segment under `/providers/` is a vanity link to that page — the list
+   * had fallen behind by five segments, `profile-services` (a settings page) among them.
+   */
+  it('reserves every first route segment, and every segment under /providers/', () => {
+    for (const path of Object.values(ROUTES)) {
+      const [first, second] = path.split('/').filter(Boolean)
+      if (first) expect(RESERVED_SLUGS.has(first), path).toBe(true)
+      if (first === 'providers' && second) expect(RESERVED_SLUGS.has(second), path).toBe(true)
     }
   })
 })

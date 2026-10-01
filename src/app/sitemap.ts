@@ -18,6 +18,7 @@ const INDEXABLE_ROUTE_KEYS = [
   ROUTE_KEYS.providers,
   ROUTE_KEYS.categories,
   ROUTE_KEYS.organizations,
+  ROUTE_KEYS.pricing,
   ROUTE_KEYS.contact,
   ROUTE_KEYS.terms,
   ROUTE_KEYS.privacy,
@@ -30,6 +31,7 @@ const CHANGE_FREQUENCY: Partial<Record<(typeof INDEXABLE_ROUTE_KEYS)[number], Me
     [ROUTE_KEYS.providers]: 'daily',
     [ROUTE_KEYS.categories]: 'weekly',
     [ROUTE_KEYS.organizations]: 'daily',
+    [ROUTE_KEYS.pricing]: 'monthly',
     [ROUTE_KEYS.terms]: 'yearly',
     [ROUTE_KEYS.privacy]: 'yearly',
   }

@@ -91,6 +91,12 @@ export type AnalyticsRange = {
    * because there is no earlier window of equal length to compare with.
    */
   unbounded: boolean
+  /**
+   * Whether the previous window may be read at all. False when unbounded, and when the
+   * plan's analytics history ends inside it — reading it anyway would leak exactly the
+   * history the plan does not include, one delta at a time.
+   */
+  comparable: boolean
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -119,18 +125,33 @@ const isAllQuery = (raw: unknown): boolean => {
  * Presets bound how far *back* to look; they do not cut off upcoming bookings. `all`
  * drops the lower bound as well, so every appointment the provider has ever taken
  * (and every one still ahead) is in the totals.
+ *
+ * `historyDays` is the plan's `analyticsHistoryDays` (`services/plans.ts`), `null` for no
+ * limit. Its floor is measured from **now**, never from the requested `to` — otherwise a
+ * `to` a year back would carry the whole window past it. Nothing before the floor is read:
+ * `from` is raised to it, `all` stops at it, and the previous window is skipped when it
+ * would reach behind it. Clamped rather than refused, like every other bad value here.
  */
-export function parseAnalyticsRange(query: Record<string, unknown>, now: Date): AnalyticsRange {
+export function parseAnalyticsRange(
+  query: Record<string, unknown>,
+  now: Date,
+  historyDays: number | null = null
+): AnalyticsRange {
+  const floor = historyDays === null ? undefined : new Date(now.getTime() - historyDays * DAY_MS)
+
   if (isAllQuery(query.all)) {
+    if (floor) return { from: floor, to: now, previousFrom: floor, unbounded: false, comparable: false }
     return {
       from: new Date(0),
       to: now,
       previousFrom: new Date(0),
       unbounded: true,
+      comparable: false,
     }
   }
 
-  const to = asDate(query.to) ?? now
+  const requestedTo = asDate(query.to) ?? now
+  const to = floor && requestedTo <= floor ? now : requestedTo
   const requestedFrom = asDate(query.from)
 
   const earliest = new Date(to.getTime() - MAX_RANGE_DAYS * DAY_MS)
@@ -139,14 +160,17 @@ export function parseAnalyticsRange(query: Record<string, unknown>, now: Date): 
   // A `from` after `to`, or one further back than the cap, resolves to the default
   // rather than erroring: this is a dashboard, and an unreadable query string should
   // show the usual month, not a 400.
-  const from =
+  const unclamped =
     requestedFrom && requestedFrom < to && requestedFrom >= earliest ? requestedFrom : fallback
+  const from = floor && unclamped < floor ? floor : unclamped
+  const previousFrom = new Date(from.getTime() - (to.getTime() - from.getTime()))
 
   return {
     from,
     to,
-    previousFrom: new Date(from.getTime() - (to.getTime() - from.getTime())),
+    previousFrom,
     unbounded: false,
+    comparable: !floor || previousFrom >= floor,
   }
 }
 

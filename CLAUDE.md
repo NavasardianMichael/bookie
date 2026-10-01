@@ -64,7 +64,8 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Ratings, reviews, the Explore ranking | `server/src/services/reviews.ts` (the Bayesian score + parsers) · `server/src/routes/reviews.ts` · `src/api/reviews/` |
 | Favourites (the heart on a provider card, `/favorites`) | `server/src/routes/favorites.ts` · `src/api/favorites/` · `src/store/favorites/list/` · `src/hooks/useFavoriteProvider.ts` · `src/components/favorites/` — see `src/app/CLAUDE.md` |
 | Bookings page (`/bookings`, both sides of an account) | `src/app/[lang]/bookings/` — see `src/app/CLAUDE.md` |
-| Review moderation (the only admin surface) | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/reviews/` — see `server/CLAUDE.md` |
+| Admin: review moderation and plan assignment | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/reviews/`, `admin/providers/` — see `server/CLAUDE.md` |
+| Plans, limits, `/pricing`, the Plan tab (only providers pay) | `docs/BILLING.md` · `server/src/services/plans.ts` (catalogue + every rule) · `src/api/plans/` · `src/components/plans/` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |

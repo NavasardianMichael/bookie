@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "Der Termin ist für Sie reserviert, solange er geprüft wird. Sie erhalten eine E-Mail, sobald eine Antwort vorliegt.",
     "approvalNoticeTitle": "Dieser Anbieter prüft Buchungen",
     "approvalNoticeBody": "Ihre Buchung wird als Anfrage gesendet. Der Termin bleibt bis zur Antwort für Sie reserviert.",
-    "submitRequest": "Buchungsanfrage senden"
+    "submitRequest": "Buchungsanfrage senden",
+    "closed": {
+      "servicesTitle": "Leistungen",
+      "pausedTitle": "Online-Buchung ist pausiert",
+      "pausedBody": "{name} nimmt derzeit keine Online-Buchungen an. Nehmen Sie direkt Kontakt auf, um einen Termin zu vereinbaren.",
+      "fullTitle": "Online-Buchungen sind diesen Monat ausgeschöpft",
+      "fullBody": "{name} kann in diesem Monat keine weiteren Online-Buchungen annehmen. Nehmen Sie direkt Kontakt auf, um einen Termin zu vereinbaren.",
+      "call": "{phone} anrufen",
+      "email": "E-Mail senden"
+    }
   },
   "Footer": {
     "blurb": "Eine Plattform, um Dienstleistungen in der Nähe zu finden oder den eigenen Buchungskalender zu führen.",
@@ -285,7 +294,8 @@
     "joinAsProvider": "Als Anbieter mitmachen",
     "createAccount": "Konto erstellen",
     "company": "Unternehmen",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "pricing": "Preise"
   },
   "Contact": {
     "metaTitle": "Kontaktieren Sie uns",
@@ -310,6 +320,10 @@
       "title": "Nachricht gesendet",
       "body": "Danke für Ihre Nachricht. Wir antworten an Ihre E-Mail, in der Regel innerhalb von 5 Werktagen.",
       "sendAnother": "Weitere Nachricht senden"
+    },
+    "topics": {
+      "planUpgrade": "Anfrage: Tarif {plan}",
+      "planUpgradeMessage": "Hallo, ich möchte meine Seite auf den Tarif {plan} umstellen."
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "Freigaben",
       "analytics": "Statistiken",
       "seo": "SEO",
-      "history": "Verlauf"
+      "history": "Verlauf",
+      "plan": "Tarif"
     },
     "workspace": {
       "onProviderTitle": "Sie sind in Ihrem Anbieterbereich",
@@ -601,7 +616,8 @@
       "clientsTotal": "Gesamt",
       "clientsReturning": "Wiederkehrend",
       "leadTime": "Typischerweise {hours, plural, one {# Stunde} other {# Stunden}} im Voraus gebucht.",
-      "noLeadTime": "Nicht genug Buchungen, um zu sagen, wie weit im Voraus gebucht wird."
+      "noLeadTime": "Nicht genug Buchungen, um zu sagen, wie weit im Voraus gebucht wird.",
+      "rangeLocked": "Ihr Tarif enthält Statistiken für diesen Zeitraum: {days, plural, =365 {12 Monate} other {# Tage}}. <link>Tarife ansehen</link>"
     },
     "history": {
       "title": "Verlauf",
@@ -634,7 +650,9 @@
       "slugLength": "Muss zwischen {min} und {max} Zeichen lang sein.",
       "slugPattern": "Verwenden Sie Kleinbuchstaben, Zahlen und einzelne Bindestriche dazwischen.",
       "slugChangeWarning": "Speichern ersetzt Ihren aktuellen Link. Wer /p/{slug} nutzt, erreicht Ihre Seite nicht mehr.",
-      "saved": "Sucheinstellungen gespeichert."
+      "saved": "Sucheinstellungen gespeichert.",
+      "slugLocked": "Ein eigener Link ist in den kostenpflichtigen Tarifen enthalten, daher nutzt Ihre Seite ihren Standardlink. <link>Tarife ansehen</link>",
+      "slugLockedKept": "Ihr eigener Link funktioniert weiterhin, aber um ihn zu ändern, brauchen Sie einen kostenpflichtigen Tarif. <link>Tarife ansehen</link>"
     },
     "signOutTitle": "Abmelden?",
     "signOutBody": "Sie müssen sich erneut anmelden, um Ihr Konto zu verwalten.",
@@ -648,6 +666,23 @@
       "googleOnly": "Dieses Konto meldet sich mit Google an. Legen Sie zuerst ein Passwort fest, um die Löschung zu bestätigen.",
       "hasAppointments": "Sie haben Termine. Stornieren Sie diese, bevor Sie Ihr Konto löschen.",
       "wrongPassword": "Das aktuelle Passwort ist falsch"
+    },
+    "plan": {
+      "title": "Tarif",
+      "subtitle": "Ihr Tarif, Ihre Nutzung in diesem Monat und was jeder Tarif enthält.",
+      "currentPlan": "Aktueller Tarif",
+      "activeUntil": "Aktiv bis {date}",
+      "lapsed": "Ihr Tarif {plan} ist am {date} abgelaufen. Sie nutzen jetzt den kostenlosen Tarif.",
+      "bookingsFullTitle": "Ihre Seite nimmt diesen Monat keine Online-Buchungen mehr an",
+      "bookingsFullBody": "Sie haben alle Online-Buchungen dieses Monats genutzt. Kunden, die Ihre Seite besuchen, werden bis {date} gebeten, Sie direkt zu kontaktieren – oder bis Ihr Tarif erweitert wird.",
+      "activeServices": "Aktive Leistungen",
+      "bookingsThisMonth": "Online-Buchungen diesen Monat",
+      "usedOfLimit": "{used} von {limit}",
+      "servicesFull": "Limit erreicht – deaktivieren Sie eine Leistung, um eine weitere hinzuzufügen",
+      "resetsOn": "Wird am {date} zurückgesetzt",
+      "comparePlans": "Tarife vergleichen",
+      "requestUpgrade": "Höheren Tarif anfragen",
+      "manualNote": "Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten."
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "Pausieren Sie neue Buchungen, ohne Ihre Seite auszulisten, oder nehmen Sie sie offline und veröffentlichen Sie sie wieder, sobald Sie bereit sind."
           },
           "link": {
-            "title": "Kurzlink und SEO",
-            "body": "Teilen Sie einen Kurzlink zu Ihrer Seite und legen Sie Titel und Beschreibung fest, die Suchmaschinen anzeigen."
+            "title": "SEO und eigener Link",
+            "body": "Legen Sie Titel und Beschreibung fest, die Suchmaschinen anzeigen. Mit einem kostenpflichtigen Tarif wählen Sie außerdem einen kurzen eigenen Link für Ihre Seite."
           },
           "services": {
             "title": "Leistungsmenü",
@@ -966,7 +1001,9 @@
     "activateTitle": "Diesen Service aktivieren?",
     "activateBody": "Kunden können ihn buchen.",
     "deactivateTitle": "Diesen Service deaktivieren?",
-    "deactivateBody": "Kunden können ihn nicht mehr buchen, bis Sie ihn wieder aktivieren."
+    "deactivateBody": "Kunden können ihn nicht mehr buchen, bis Sie ihn wieder aktivieren.",
+    "activeOfLimit": "Aktive Leistungen in Ihrem Tarif: {count} von {limit}.",
+    "limitReached": "Um eine weitere hinzuzufügen, deaktivieren Sie eine oder <link>wechseln Sie in einen höheren Tarif</link>."
   },
   "ProfileCreation": {
     "metaTitle": "Eigenes Profil erstellen",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "Das aktuelle Passwort ist falsch.",
       "emailTaken": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
       "hasAppointments": "Es sind noch Termine vorhanden. Bitte sagen Sie diese zuerst ab.",
-      "slotTaken": "Diese Uhrzeit wurde gerade vergeben. Bitte wählen Sie eine andere."
+      "slotTaken": "Diese Uhrzeit wurde gerade vergeben. Bitte wählen Sie eine andere.",
+      "bookingPaused": "Dieser Anbieter nimmt derzeit keine Online-Buchungen an. Bitte nehmen Sie direkt Kontakt auf.",
+      "bookingFull": "Dieser Anbieter kann in diesem Monat keine weiteren Online-Buchungen annehmen. Bitte nehmen Sie direkt Kontakt auf.",
+      "serviceLimit": "Sie haben das Limit aktiver Leistungen Ihres Tarifs erreicht. Deaktivieren Sie eine Leistung oder wechseln Sie in einen höheren Tarif, um eine weitere hinzuzufügen.",
+      "featureLocked": "Diese Funktion ist in Ihrem Tarif nicht enthalten. Wechseln Sie in einen höheren Tarif, um sie zu nutzen."
     },
     "pages": {
       "provider": "Die Seite dieses Anbieters konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
@@ -1089,6 +1130,60 @@
     "resolve": "Bestätigen und schließen",
     "dismiss": "Meldung ablehnen",
     "actionError": "Das hat nicht geklappt. Bitte erneut versuchen.",
-    "pagesLabel": "Meldungsseiten"
+    "pagesLabel": "Meldungsseiten",
+    "nav": {
+      "label": "Admin-Bereiche",
+      "reviews": "Gemeldete Bewertungen",
+      "providers": "Anbieter-Tarife"
+    },
+    "providers": {
+      "metaTitle": "Anbieter-Tarife",
+      "metaDescription": "Tarife und Testzeiträume für Anbieter festlegen.",
+      "title": "Anbieter-Tarife",
+      "searchLabel": "Anbieter suchen",
+      "searchPlaceholder": "Name, E-Mail oder Link",
+      "empty": "Keine Anbieter gefunden",
+      "emptyHint": "Versuchen Sie einen anderen Namen, eine andere E-Mail oder einen anderen Link.",
+      "unlisted": "Nicht veröffentlicht",
+      "ended": "{plan} endete am {date}",
+      "until": "Bis {date}",
+      "planLabel": "Tarif",
+      "lastDayLabel": "Letzter Tag",
+      "noEnd": "Kein Enddatum",
+      "save": "Tarif speichern",
+      "saved": "Tarif gespeichert",
+      "pagesLabel": "Anbieterseiten"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "Kostenlos",
+      "basic": "Basic",
+      "standard": "Standard",
+      "premium": "Premium"
+    },
+    "features": {
+      "maxActiveServices": "Aktive Leistungen",
+      "maxBookingsPerMonth": "Online-Buchungen pro Monat",
+      "analyticsHistoryDays": "Statistik-Verlauf",
+      "customSlug": "Eigener Seitenlink"
+    },
+    "unlimited": "Unbegrenzt",
+    "fullHistory": "Gesamter Verlauf",
+    "days": "{count, plural, =365 {12 Monate} other {# Tage}}",
+    "included": "Enthalten",
+    "notIncluded": "Nicht enthalten",
+    "current": "Ihr Tarif",
+    "requestTitle": "Tarif {plan} anfragen"
+  },
+  "Pricing": {
+    "metaTitle": "Preise für Anbieter",
+    "metaDescription": "Bookie-Tarife für Dienstleister – von kostenlos bis Premium – und was jeder enthält. Buchen ist für Kunden immer kostenlos.",
+    "title": "Tarife für Anbieter",
+    "subtitle": "Starten Sie kostenlos und wechseln Sie in einen höheren Tarif, wenn sich Ihr Kalender füllt. Kunden zahlen nie für eine Buchung.",
+    "startFree": "Kostenlos starten",
+    "requestPlan": "Diesen Tarif anfragen",
+    "clientsFree": "Kunden zahlen nie etwas, um über Bookie zu buchen.",
+    "manualNote": "Kostenpflichtige Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten."
   }
 }

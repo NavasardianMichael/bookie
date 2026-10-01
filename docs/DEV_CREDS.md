@@ -39,6 +39,25 @@ example `david.hakobyan@bookie.am`. The Google fixture has an email too; it has 
 a real OAuth callback. Trying the shared password on that address is how you exercise the
 Google-only error path.
 
+## Plans on the seeded providers
+
+The seed spreads the four plans across the providers (`providerDefs` in
+`server/prisma/seed.ts`), none with an expiry. Sign in as one on the plan you want to test:
+
+| Plan | Providers |
+| --- | --- |
+| Free — 3 active services, 50 bookings a month, 30-day analytics, no custom link | `david.hakobyan`, `tigran.martirosyan`, `gor.poghosyan` |
+| Basic | `armen.grigoryan`, `sona.melikyan`, `mariam.tonoyan` |
+| Standard | `anna.petrosyan` (the main login above), `narine.avetisyan`, `ani.danielyan`, `levon.babayan` |
+| Premium | `lilit.sargsyan`, `vardan.khachatryan` |
+
+All `@bookie.am`. The seed does not touch an existing provider (`update: {}`), so a plan
+changed from `/admin/providers` survives a re-seed.
+
+**Admin** is not a seeded role. Put your dev account's email in `ADMIN_EMAILS` in
+`server/.env` (comma-separated) to open `/admin/reviews` and `/admin/providers`; anyone else
+gets 404s and an empty screen.
+
 ## Emails in development
 
 There is no SMTP locally. `MAIL_API_KEY` ships empty in `server/.env.example`, so
@@ -46,7 +65,8 @@ There is no SMTP locally. `MAIL_API_KEY` ships empty in `server/.env.example`, s
 
 - **Verification link** — printed to the API console. Registration does *not* sign you in;
   an unverified account cannot hold a session, so the funnel continues from that link.
-- **Password reset**, **email-change** and the notice mails behave the same way.
+- **Password reset**, **email-change** and the notice mails behave the same way — including
+  the 80% / 100% booking-allowance emails, logged as `[mail] Booking allowance …`.
 
 A seeded account never needs any of this — it is verified already.
 

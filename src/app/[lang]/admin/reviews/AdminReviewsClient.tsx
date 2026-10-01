@@ -31,7 +31,7 @@ const STATUS_LABEL_KEY: Record<ReviewReportStatus, 'statusOpen' | 'statusResolve
 }
 
 /**
- * The review moderation queue — the app's only admin screen.
+ * The review moderation queue — one of the two admin screens, beside plan assignment.
  *
  * A client component rather than a Server Component, unusually for this codebase, and
  * deliberately: every row is worked by acting on it and seeing the result, so the page is

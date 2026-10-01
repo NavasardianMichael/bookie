@@ -1,8 +1,9 @@
 import { AxiosError, isAxiosError } from 'axios'
 import { APIResponse, AppError } from '@interfaces/api'
 import { AUTH_ERROR_CODES } from '@constants/auth'
-import { SLOT_TAKEN_MESSAGE } from '@constants/booking'
+import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { ErrorKind, RETRYABLE_ERROR_KINDS } from '@constants/errors'
+import { PLAN_ERROR_CODES } from '@constants/plans'
 
 const UNKNOWN_ERROR_MESSAGE = 'An unknown error occurred'
 
@@ -189,8 +190,15 @@ export const classifyError = (e: unknown): ClassifiedError => {
   }
 }
 
-const AUTH_CODE_NAMES = new Map<number, keyof typeof AUTH_ERROR_CODES>(
-  (Object.entries(AUTH_ERROR_CODES) as [keyof typeof AUTH_ERROR_CODES, number][]).map(([name, code]) => [code, name])
+/**
+ * Every stable application code the `Errors.codes` catalogue has copy for, keyed to its
+ * name there. Each family's names are its constant's keys, so they must not collide
+ * across families — `tests/unit/helpers/error.spec.ts` resolves every one.
+ */
+const CODE_NAMES = new Map<number, string>(
+  [AUTH_ERROR_CODES, BOOKING_ERROR_CODES, PLAN_ERROR_CODES].flatMap((codes) =>
+    Object.entries(codes).map(([name, code]): [number, string] => [code, name])
+  )
 )
 
 /**
@@ -201,8 +209,8 @@ const AUTH_CODE_NAMES = new Map<number, keyof typeof AUTH_ERROR_CODES>(
  * as `isSlotTakenError` does, because the booking route answers 409 for other reasons too.
  */
 export const resolveErrorCopyKey = (error: ClassifiedError): string => {
-  const authName = AUTH_CODE_NAMES.get(error.code)
-  if (authName) return `codes.${authName}`
+  const codeName = CODE_NAMES.get(error.code)
+  if (codeName) return `codes.${codeName}`
   if (isSlotTaken(error)) return 'codes.slotTaken'
   return `kinds.${error.kind}`
 }
@@ -215,8 +223,11 @@ const isSlotTaken = (error: ClassifiedError): boolean => error.status === 409 &&
  * 1. a `UserFacingError`'s own message;
  * 2. the call site's override for a stable application code (`4004`) — a code that is
  *    not merely the HTTP status repeated;
- * 3. slot taken — more specific than any 409 a call site anticipates, so a
- *    reschedule's "this booking can no longer be changed" override cannot mask it;
+ * 3. the catalogue's copy for a stable application code, then slot taken — each more
+ *    specific than any status a call site anticipates, so a booking sheet's generic
+ *    "that service or time is no longer available" 409 cannot mask "this provider is
+ *    not taking bookings online", nor a reschedule's "can no longer be changed" mask a
+ *    taken slot;
  * 4. the call site's override for the HTTP status, then for the kind;
  * 5. the catalogue.
  *
@@ -230,7 +241,7 @@ export const resolveErrorText = (
   if (error.userMessage) return error.userMessage
   const codeOverride = error.code !== error.status ? overrides?.[error.code] : undefined
   if (codeOverride) return codeOverride
-  if (isSlotTaken(error)) return translate('codes.slotTaken')
+  if (CODE_NAMES.has(error.code) || isSlotTaken(error)) return translate(resolveErrorCopyKey(error))
   const override = (error.status ? overrides?.[error.status] : undefined) ?? overrides?.[error.kind]
   return override ?? translate(resolveErrorCopyKey(error))
 }

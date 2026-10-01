@@ -1,8 +1,9 @@
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
+import { BookingClosedReason, OnlineBooking } from '@interfaces/booking'
 import { WeekDay } from '@interfaces/schedule'
-import { SLOT_TAKEN_MESSAGE } from '@constants/booking'
+import { BOOKING_ERROR_CODES, ONLINE_BOOKING, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from './schedule'
 
@@ -163,3 +164,24 @@ export const dropBusySlots = (slots: BookingSlot[], busy: BusyInterval[]): Booki
  */
 export const isSlotTakenError = (error: { code: number; message: string }): boolean =>
   error.code === 409 && error.message === SLOT_TAKEN_MESSAGE
+
+/**
+ * Why a failed booking write means the provider is not taking bookings online at all —
+ * `undefined` for every other failure. Like `isSlotTakenError` it takes `processError`'s
+ * output; unlike it, it reads a stable code rather than a message, so no status check is
+ * needed alongside.
+ */
+export const getBookingClosedReason = (error: { code: number }): BookingClosedReason | undefined => {
+  if (error.code === BOOKING_ERROR_CODES.bookingPaused) return ONLINE_BOOKING.paused
+  if (error.code === BOOKING_ERROR_CODES.bookingFull) return ONLINE_BOOKING.full
+  return undefined
+}
+
+/**
+ * A payload written before `onlineBooking` existed took bookings, so a missing value is
+ * open. A type guard, so the `false` branch is already narrowed to the closed reason.
+ */
+export const isOnlineBookingOpen = (
+  onlineBooking: OnlineBooking | undefined
+): onlineBooking is typeof ONLINE_BOOKING.open | undefined =>
+  onlineBooking === undefined || onlineBooking === ONLINE_BOOKING.open

@@ -7,8 +7,9 @@ import {
 import { BasicCategory, Category } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location, PhoneNumber } from '@interfaces/app'
+import { OnlineBooking } from '@interfaces/booking'
 import { Normalized } from '@interfaces/commons'
-import { Plan } from '@interfaces/plans'
+import { ProviderPlan } from '@interfaces/plans'
 import { WeekDay } from '@interfaces/schedule'
 import { PaymentInfo, ProviderDraft, ProviderEmailNotificationPrefs } from '@interfaces/settings'
 import { StateCommonProps } from '@interfaces/store'
@@ -74,6 +75,14 @@ export type ProviderProfile = {
      * `true`, which is what the API defaults it to.
      */
     phoneVisible?: boolean
+    /**
+     * Whether the public page offers its calendar: `paused` when the provider switched
+     * `available` off, `full` when their monthly booking allowance is spent. Plan-neutral
+     * on purpose — it is on the **public** payload, and a visitor sees the same "contact
+     * the provider" either way. Optional so an older payload parses; treat a missing
+     * value as `open`.
+     */
+    onlineBooking?: OnlineBooking
   }
   services: Normalized<ProviderService>
   personal: ProviderPersonalValues
@@ -139,9 +148,12 @@ export type ProviderService = {
   active: boolean
 }
 
-type ProviderPersonalValues = {
-  plan: Plan
-}
+/**
+ * Owner-only, and where the plan lives. Everything past `plan` is optional so the empty
+ * initial state needs no web copy of the catalogue; a tab that gates on `entitlements`
+ * reads the loaded profile, never the default.
+ */
+type ProviderPersonalValues = Pick<ProviderPlan, 'plan'> & Partial<Omit<ProviderPlan, 'plan'>>
 
 export type ProviderProfileActions = {
   // setProviderProfileData: (payload: Partial<ProviderProfileState>) => void

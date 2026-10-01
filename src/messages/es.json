@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "La hora queda reservada para ti mientras el profesional la revisa. Recibirás un correo en cuanto responda.",
     "approvalNoticeTitle": "Este profesional revisa las reservas",
     "approvalNoticeBody": "Tu reserva se envía como solicitud. La hora queda reservada para ti hasta que responda.",
-    "submitRequest": "Enviar solicitud de reserva"
+    "submitRequest": "Enviar solicitud de reserva",
+    "closed": {
+      "servicesTitle": "Servicios",
+      "pausedTitle": "Las reservas en línea están en pausa",
+      "pausedBody": "{name} no acepta reservas en línea en este momento. Contacta directamente para acordar una hora.",
+      "fullTitle": "No quedan reservas en línea este mes",
+      "fullBody": "{name} no puede aceptar más reservas en línea este mes. Contacta directamente para acordar una hora.",
+      "call": "Llamar al {phone}",
+      "email": "Enviar un correo"
+    }
   },
   "Footer": {
     "blurb": "Una sola plataforma para encontrar servicios locales o gestionar tu agenda de reservas.",
@@ -285,7 +294,8 @@
     "joinAsProvider": "Únete como profesional",
     "createAccount": "Crear una cuenta",
     "company": "Empresa",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "pricing": "Precios"
   },
   "Contact": {
     "metaTitle": "Contáctanos",
@@ -310,6 +320,10 @@
       "title": "Mensaje enviado",
       "body": "Gracias por escribirnos. Responderemos a tu correo electrónico, normalmente en un plazo de 5 días laborables.",
       "sendAnother": "Enviar otro mensaje"
+    },
+    "topics": {
+      "planUpgrade": "Solicitud: plan {plan}",
+      "planUpgradeMessage": "Hola, me gustaría pasar mi página al plan {plan}."
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "Aprobaciones",
       "analytics": "Analíticas",
       "seo": "SEO",
-      "history": "Historial"
+      "history": "Historial",
+      "plan": "Plan"
     },
     "workspace": {
       "onProviderTitle": "Estás en tu espacio de profesional",
@@ -601,7 +616,8 @@
       "clientsTotal": "Total",
       "clientsReturning": "Repiten",
       "leadTime": "Suelen reservar con {hours, plural, one {# hora} other {# horas}} de antelación.",
-      "noLeadTime": "Aún no hay suficientes reservas para saber con cuánta antelación reserva la gente."
+      "noLeadTime": "Aún no hay suficientes reservas para saber con cuánta antelación reserva la gente.",
+      "rangeLocked": "Tu plan incluye analíticas de este periodo: {days, plural, =365 {12 meses} other {# días}}. <link>Ver planes</link>"
     },
     "history": {
       "title": "Historial",
@@ -634,7 +650,9 @@
       "slugLength": "Debe tener entre {min} y {max} caracteres.",
       "slugPattern": "Usa letras minúsculas, números y guiones simples entre ellos.",
       "slugChangeWarning": "Al guardar sustituirás tu enlace actual. Quien use /p/{slug} ya no llegará a tu página.",
-      "saved": "Ajustes de búsqueda guardados."
+      "saved": "Ajustes de búsqueda guardados.",
+      "slugLocked": "El enlace personalizado forma parte de los planes de pago, así que tu página usa su enlace estándar. <link>Ver planes</link>",
+      "slugLockedKept": "Tu enlace personalizado sigue funcionando, pero para cambiarlo necesitas un plan de pago. <link>Ver planes</link>"
     },
     "signOutTitle": "¿Cerrar sesión?",
     "signOutBody": "Tendrás que iniciar sesión de nuevo para gestionar tu cuenta.",
@@ -648,6 +666,23 @@
       "googleOnly": "Esta cuenta inicia sesión con Google. Establece una contraseña primero para confirmar la eliminación.",
       "hasAppointments": "Tienes citas registradas. Cancélalas antes de eliminar tu cuenta.",
       "wrongPassword": "La contraseña actual es incorrecta"
+    },
+    "plan": {
+      "title": "Plan",
+      "subtitle": "Tu plan, lo que has usado este mes y lo que incluye cada plan.",
+      "currentPlan": "Plan actual",
+      "activeUntil": "Activo hasta el {date}",
+      "lapsed": "Tu plan {plan} terminó el {date}. Ahora estás en el plan gratuito.",
+      "bookingsFullTitle": "Tu página no acepta reservas en línea este mes",
+      "bookingsFullBody": "Has usado todas las reservas en línea de este mes. A los clientes que visiten tu página se les pide que te contacten directamente hasta el {date} o hasta que mejores tu plan.",
+      "activeServices": "Servicios activos",
+      "bookingsThisMonth": "Reservas en línea este mes",
+      "usedOfLimit": "{used} de {limit}",
+      "servicesFull": "Límite alcanzado: desactiva un servicio para añadir otro",
+      "resetsOn": "Se renueva el {date}",
+      "comparePlans": "Comparar planes",
+      "requestUpgrade": "Solicitar mejora",
+      "manualNote": "Por ahora, nuestro equipo gestiona los planes. Envía una solicitud y te responderemos por correo para activarlo."
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "Pausa las nuevas reservas sin despublicar tu página, o despublícala y vuelve a publicarla cuando quieras."
           },
           "link": {
-            "title": "Enlace corto y SEO",
-            "body": "Comparte un enlace corto a tu página y define el título y la descripción que muestran los buscadores."
+            "title": "SEO y enlace personalizado",
+            "body": "Define el título y la descripción que muestran los buscadores. Con un plan de pago, elige también un enlace corto personalizado para tu página."
           },
           "services": {
             "title": "Menú de servicios",
@@ -966,7 +1001,9 @@
     "activateTitle": "¿Activar este servicio?",
     "activateBody": "Los clientes podrán reservarlo.",
     "deactivateTitle": "¿Desactivar este servicio?",
-    "deactivateBody": "Los clientes no podrán reservarlo hasta que lo actives de nuevo."
+    "deactivateBody": "Los clientes no podrán reservarlo hasta que lo actives de nuevo.",
+    "activeOfLimit": "Servicios activos en tu plan: {count} de {limit}.",
+    "limitReached": "Para añadir otro, desactiva uno o <link>mejora tu plan</link>."
   },
   "ProfileCreation": {
     "metaTitle": "Crea tu propio perfil",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "La contraseña actual es incorrecta.",
       "emailTaken": "Ya existe una cuenta con este correo.",
       "hasAppointments": "Tienes citas registradas. Cancélalas primero.",
-      "slotTaken": "Esa hora se acaba de reservar. Elige otra."
+      "slotTaken": "Esa hora se acaba de reservar. Elige otra.",
+      "bookingPaused": "Este profesional no acepta reservas en línea en este momento. Contacta directamente para reservar.",
+      "bookingFull": "Este profesional no puede aceptar más reservas en línea este mes. Contacta directamente para reservar.",
+      "serviceLimit": "Has alcanzado el límite de servicios activos de tu plan. Desactiva un servicio o mejora tu plan para añadir otro.",
+      "featureLocked": "Esta función no está incluida en tu plan. Mejora tu plan para usarla."
     },
     "pages": {
       "provider": "No pudimos cargar la página de este profesional. Vuelve a intentarlo.",
@@ -1089,6 +1130,60 @@
     "resolve": "Aceptar y cerrar",
     "dismiss": "Descartar denuncia",
     "actionError": "No ha funcionado. Inténtalo de nuevo.",
-    "pagesLabel": "Páginas de denuncias"
+    "pagesLabel": "Páginas de denuncias",
+    "nav": {
+      "label": "Secciones de administración",
+      "reviews": "Reseñas denunciadas",
+      "providers": "Planes de profesionales"
+    },
+    "providers": {
+      "metaTitle": "Planes de profesionales",
+      "metaDescription": "Asigna planes y periodos de prueba a los profesionales.",
+      "title": "Planes de profesionales",
+      "searchLabel": "Buscar profesionales",
+      "searchPlaceholder": "Nombre, correo o enlace",
+      "empty": "No se encontraron profesionales",
+      "emptyHint": "Prueba con otro nombre, correo o enlace.",
+      "unlisted": "No publicado",
+      "ended": "{plan}: terminó el {date}",
+      "until": "Hasta el {date}",
+      "planLabel": "Plan",
+      "lastDayLabel": "Último día",
+      "noEnd": "Sin fecha de fin",
+      "save": "Guardar plan",
+      "saved": "Plan guardado",
+      "pagesLabel": "Páginas de profesionales"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "Gratis",
+      "basic": "Básico",
+      "standard": "Estándar",
+      "premium": "Premium"
+    },
+    "features": {
+      "maxActiveServices": "Servicios activos",
+      "maxBookingsPerMonth": "Reservas en línea al mes",
+      "analyticsHistoryDays": "Historial de analíticas",
+      "customSlug": "Enlace personalizado"
+    },
+    "unlimited": "Ilimitado",
+    "fullHistory": "Historial completo",
+    "days": "{count, plural, =365 {12 meses} other {# días}}",
+    "included": "Incluido",
+    "notIncluded": "No incluido",
+    "current": "Tu plan",
+    "requestTitle": "Solicitar el plan {plan}"
+  },
+  "Pricing": {
+    "metaTitle": "Precios para profesionales",
+    "metaDescription": "Planes de Bookie para profesionales, de gratis a premium, y lo que incluye cada uno. Reservar siempre es gratis para los clientes.",
+    "title": "Planes para profesionales",
+    "subtitle": "Empieza gratis y sube de plan cuando se llene tu agenda. Los clientes nunca pagan por reservar.",
+    "startFree": "Empezar gratis",
+    "requestPlan": "Solicitar este plan",
+    "clientsFree": "Los clientes nunca pagan nada por reservar a través de Bookie.",
+    "manualNote": "Por ahora, nuestro equipo gestiona los planes de pago. Envía una solicitud y te responderemos por correo para activarlo."
   }
 }

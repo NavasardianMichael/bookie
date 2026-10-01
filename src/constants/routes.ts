@@ -1,6 +1,8 @@
 export const ROUTE_KEYS = {
   home: 'home',
   contact: 'contact',
+  /** The plan catalogue for providers. Consumers never pay, so the footer hides it from them. */
+  pricing: 'pricing',
   terms: 'terms',
   privacy: 'privacy',
   categories: 'categories',
@@ -44,6 +46,12 @@ export const ROUTE_KEYS = {
   providerProfileSeo: 'providerProfileSeo',
   providerProfileNotifications: 'providerProfileNotifications',
   providerProfilePayments: 'providerProfilePayments',
+  /**
+   * The provider's plan, this month's usage, and the upgrade request. Linked from the
+   * booking-allowance emails, so the path is also spelled in
+   * `server/src/lib/return-path.ts` and pinned by `tests/unit/server/planErrors.spec.ts`.
+   */
+  providerProfilePlan: 'providerProfilePlan',
   /** Vanity link. `/p/<slug>` redirects to the provider's canonical profile URL. */
   providerVanity: 'providerVanity',
   /** Public booking manage page. `/b/<token>` — capability URL, not the appointment id. */
@@ -54,6 +62,8 @@ export const ROUTE_KEYS = {
    * grant, because `/admin/*` answers 404 rather than 403 to everyone else.
    */
   adminReviews: 'adminReviews',
+  /** Plan assignment. Same guard as `adminReviews`: the API's allowlist, answering 404. */
+  adminProviders: 'adminProviders',
 
   logout: 'logout',
   auth: 'auth',
@@ -76,6 +86,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   // Main
   [ROUTE_KEYS.home]: '/',
   [ROUTE_KEYS.contact]: '/contact',
+  [ROUTE_KEYS.pricing]: '/pricing',
   [ROUTE_KEYS.terms]: '/terms',
   [ROUTE_KEYS.privacy]: '/privacy',
   [ROUTE_KEYS.categories]: '/categories',
@@ -101,9 +112,11 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfileSeo]: '/providers/profile/seo',
   [ROUTE_KEYS.providerProfileNotifications]: '/providers/profile/notifications',
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
+  [ROUTE_KEYS.providerProfilePlan]: '/providers/profile/plan',
   [ROUTE_KEYS.providerVanity]: '/p',
   [ROUTE_KEYS.bookingManage]: '/b',
   [ROUTE_KEYS.adminReviews]: '/admin/reviews',
+  [ROUTE_KEYS.adminProviders]: '/admin/providers',
 
   // Auth
   [ROUTE_KEYS.logout]: '/auth/logout',

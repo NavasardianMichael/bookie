@@ -19,6 +19,7 @@ import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
@@ -145,6 +146,13 @@ export const ProviderSeoClient = () => {
   const [previewImage, setPreviewImage] = useState<string | undefined>()
   const [persistedSlug, setPersistedSlug] = useState('')
   const [profileId, setProfileId] = useState<string | null>(null)
+  /**
+   * A custom link is a paid feature (`entitlements.customSlug`). Without it the field is
+   * read-only and the slug is left out of the save entirely — so a free provider's
+   * grandfathered slug, set before links were paid, keeps working through every save of
+   * the title. The API enforces the same rule; this only saves the provider a refusal.
+   */
+  const [slugLocked, setSlugLocked] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<unknown>(null)
@@ -200,6 +208,7 @@ export const ProviderSeoClient = () => {
         setPreviewImage(resolveAvatarSrc(portrait || undefined))
         setPersistedSlug(profile.seo?.slug ?? '')
         setProfileId(profile.id)
+        setSlugLocked(profile.personal.entitlements?.customSlug === false)
         setSaved(values)
         form.setFieldsValue(values)
         setLoadError(null)
@@ -267,8 +276,9 @@ export const ProviderSeoClient = () => {
         seoTitle: values.seoTitle.trim(),
         seoDescription: values.seoDescription.trim(),
         // The id is the page's default address, not a vanity slug. Sending it would be
-        // rejected — a slug must not look like a profile id.
-        slug: !segment || segment === profileId?.toLowerCase() ? '' : segment,
+        // rejected — a slug must not look like a profile id. Omitted, not cleared, when
+        // the plan has no custom link: absent leaves whatever is stored alone.
+        ...(slugLocked ? {} : { slug: !segment || segment === profileId?.toLowerCase() ? '' : segment }),
       })
       const applied = toFormValues(next, fallback)
       applied.slug = next.slug || profileId || ''
@@ -349,7 +359,11 @@ export const ProviderSeoClient = () => {
               label={t('vanityUrl')}
               extra={
                 <AppText className='text-xs' tone='muted'>
-                  {t('slugHint', { min: MIN_SLUG, max: MAX_SLUG })}
+                  {slugLocked
+                    ? t.rich(persistedSlug ? 'slugLockedKept' : 'slugLocked', {
+                        link: (chunks) => <AppLink href={ROUTES.providerProfilePlan}>{chunks}</AppLink>,
+                      })
+                    : t('slugHint', { min: MIN_SLUG, max: MAX_SLUG })}
                 </AppText>
               }
               rules={[
@@ -372,6 +386,7 @@ export const ProviderSeoClient = () => {
                 urlPrefix={`${getSiteUrl()}${localePath(activeLocale, ROUTES.providerVanity)}/`}
                 placeholder={fallback.slug || t('slugPlaceholder')}
                 maxLength={MAX_SLUG}
+                readOnly={slugLocked}
                 suffix={
                   <span className='inline-flex items-center'>
                     <AppButton

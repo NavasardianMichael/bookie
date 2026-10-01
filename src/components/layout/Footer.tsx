@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
+import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -14,6 +15,8 @@ type FooterLink = {
   labelKey: string
   /** Hidden once signed in: a way *into* the app, which a session has no use for. */
   guestOnly?: boolean
+  /** Hidden from consumer sessions: clients never pay, so plans are not their concern. */
+  providersOnly?: boolean
 }
 
 /** Keys into the `Footer` message namespace, not copy — see src/i18n/CLAUDE.md. */
@@ -24,6 +27,7 @@ const FOOTER_COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
       { href: ROUTES.providers, labelKey: 'findProvider', guestOnly: true },
       { href: ROUTES.categories, labelKey: 'categories' },
       { href: ROUTES.organizations, labelKey: 'organizations' },
+      { href: ROUTES.pricing, labelKey: 'pricing', providersOnly: true },
     ],
   },
   {
@@ -43,21 +47,24 @@ const FOOTER_COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
 /**
  * Site footer. Public pages only in spirit — auth still shows it so the chrome
  * never jumps when the funnel starts. Links are real routes; prototype columns
- * that pointed at pages we do not have (Pricing, Blog, Careers) are omitted.
+ * that pointed at pages we do not have (Blog, Careers) are omitted. Pricing is linked
+ * for guests and providers, never for a consumer session — clients never pay us.
  *
  * The session comes from the auth store, which the Header's `getMe()` fills — not from
  * the cookie, as the landing hero does: this renders in the root layout, and a `cookies()`
- * read there would make every route dynamic. The guest-only links therefore drop out just
- * after hydration, far below the fold. A column left with no links goes with them, so a
- * signed-in footer has no bare Account heading.
+ * read there would make every route dynamic. The guest-only and provider-only links
+ * therefore settle just after hydration, far below the fold. A column left with no links
+ * goes with them, so a signed-in footer has no bare Account heading.
  */
 export const Footer: FC = () => {
   const t = useTranslations('Footer')
   const isSignedOn = useAuthStore.use.isSignedOn()
+  const userType = useAuthStore.use.userType()
+  const isConsumer = isSignedOn && userType === USER_TYPES.consumer
 
   const columns = FOOTER_COLUMNS.map((column) => ({
     ...column,
-    links: column.links.filter((link) => !(link.guestOnly && isSignedOn)),
+    links: column.links.filter((link) => !(link.guestOnly && isSignedOn) && !(link.providersOnly && isConsumer)),
   })).filter((column) => column.links.length)
 
   return (

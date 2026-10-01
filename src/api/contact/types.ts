@@ -1,4 +1,12 @@
 import { Endpoint } from '@interfaces/api'
+import { Plan } from '@interfaces/plans'
+
+/**
+ * What a message is about, when the page sending it knows. The server builds the subject
+ * line from it — a free-text subject is never accepted. Mirrors `TOPICS` in
+ * `server/src/routes/contact.ts`; an unknown value is simply dropped there.
+ */
+export type ContactTopic = 'planUpgrade'
 
 /**
  * There is no `Contact` entity and no store slice for this domain — the page writes and
@@ -17,6 +25,9 @@ export type PostContactMessageRequestPayload = {
    * the tell a bot looks for.
    */
   website?: string
+  topic?: ContactTopic
+  /** With `topic: 'planUpgrade'`, the plan being asked for. */
+  plan?: Plan
 }
 
 export type PostContactMessageAPI = Endpoint<{

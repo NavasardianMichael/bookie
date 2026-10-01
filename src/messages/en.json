@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "The time is held for you while the provider reviews it. You will get an email as soon as they respond.",
     "approvalNoticeTitle": "This provider reviews bookings",
     "approvalNoticeBody": "Your booking is sent as a request. The time is held for you until they respond.",
-    "submitRequest": "Send booking request"
+    "submitRequest": "Send booking request",
+    "closed": {
+      "servicesTitle": "Services",
+      "pausedTitle": "Online booking is paused",
+      "pausedBody": "{name} is not taking bookings online right now. Get in touch directly to arrange a time.",
+      "fullTitle": "Online booking is full this month",
+      "fullBody": "{name} cannot take any more online bookings this month. Get in touch directly to arrange a time.",
+      "call": "Call {phone}",
+      "email": "Send an email"
+    }
   },
   "Footer": {
     "blurb": "A single platform to find local services or run a booking calendar.",
@@ -285,7 +294,8 @@
     "joinAsProvider": "Join as a provider",
     "createAccount": "Create an account",
     "company": "Company",
-    "contact": "Contact"
+    "contact": "Contact",
+    "pricing": "Pricing"
   },
   "Contact": {
     "metaTitle": "Contact us",
@@ -310,6 +320,10 @@
       "title": "Message sent",
       "body": "Thanks for getting in touch. We will reply to your email, usually within 5 business days.",
       "sendAnother": "Send another message"
+    },
+    "topics": {
+      "planUpgrade": "Request: {plan} plan",
+      "planUpgradeMessage": "Hello, I would like to move my page to the {plan} plan."
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "Approvals",
       "analytics": "Analytics",
       "seo": "SEO",
-      "history": "History"
+      "history": "History",
+      "plan": "Plan"
     },
     "workspace": {
       "onProviderTitle": "You are in your provider workspace",
@@ -601,7 +616,8 @@
       "clientsTotal": "Total",
       "clientsReturning": "Returning",
       "leadTime": "Typically booked {hours, plural, one {# hour} other {# hours}} ahead.",
-      "noLeadTime": "Not enough bookings to say how far ahead people book."
+      "noLeadTime": "Not enough bookings to say how far ahead people book.",
+      "rangeLocked": "Your plan includes analytics for this period: {days, plural, =365 {12 months} other {# days}}. <link>See plans</link>"
     },
     "history": {
       "title": "History",
@@ -634,7 +650,9 @@
       "slugLength": "Must be between {min} and {max} characters.",
       "slugPattern": "Use lowercase letters, numbers and single hyphens between them.",
       "slugChangeWarning": "Saving this replaces your current link. Anyone using /p/{slug} will no longer reach your page.",
-      "saved": "Search settings saved."
+      "saved": "Search settings saved.",
+      "slugLocked": "A custom link is part of the paid plans, so your page uses its standard link. <link>See plans</link>",
+      "slugLockedKept": "Your custom link keeps working, but changing it needs a paid plan. <link>See plans</link>"
     },
     "signOutTitle": "Sign out?",
     "signOutBody": "You will need to sign in again to manage your account.",
@@ -648,6 +666,23 @@
       "googleOnly": "This account signs in with Google. Set a password first to confirm deletion.",
       "hasAppointments": "You have appointments on record. Cancel them before deleting your account.",
       "wrongPassword": "Current password is incorrect"
+    },
+    "plan": {
+      "title": "Plan",
+      "subtitle": "Your plan, what you have used this month, and what each plan includes.",
+      "currentPlan": "Current plan",
+      "activeUntil": "Active until {date}",
+      "lapsed": "Your {plan} plan ended on {date}. You are on the free plan now.",
+      "bookingsFullTitle": "Your page is not taking online bookings this month",
+      "bookingsFullBody": "You have used all of this month's online bookings. Clients who visit your page are asked to contact you directly until {date}, or until your plan is upgraded.",
+      "activeServices": "Active services",
+      "bookingsThisMonth": "Online bookings this month",
+      "usedOfLimit": "{used} of {limit}",
+      "servicesFull": "Limit reached — deactivate a service to add another",
+      "resetsOn": "Resets on {date}",
+      "comparePlans": "Compare plans",
+      "requestUpgrade": "Request upgrade",
+      "manualNote": "Plans are arranged by our team for now. Send a request and we will reply by email to set it up."
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "Pause new bookings without unlisting your page, or unpublish it and publish again whenever you are ready."
           },
           "link": {
-            "title": "Short link and SEO",
-            "body": "Share a short link to your page, and set the title and description that search engines show."
+            "title": "SEO and a custom link",
+            "body": "Set the title and description search engines show. On a paid plan, choose a short custom link for your page too."
           },
           "services": {
             "title": "Service menu",
@@ -966,7 +1001,9 @@
     "categoryPlaceholder": "Type or pick a category",
     "currencyPlaceholder": "Type or pick a currency",
     "onboardingDone": "Finished setting up? Your profile is live — see what clients see.",
-    "viewProfile": "View my profile"
+    "viewProfile": "View my profile",
+    "activeOfLimit": "Active services on your plan: {count} of {limit}.",
+    "limitReached": "To add another, deactivate one or <link>upgrade your plan</link>."
   },
   "ProfileCreation": {
     "metaTitle": "Create Your Own Profile",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "The current password is incorrect.",
       "emailTaken": "An account with this email already exists.",
       "hasAppointments": "You have appointments on record. Cancel them first.",
-      "slotTaken": "That time has just been taken. Please choose another time."
+      "slotTaken": "That time has just been taken. Please choose another time.",
+      "bookingPaused": "This provider is not taking bookings online right now. Contact them directly to book.",
+      "bookingFull": "This provider cannot take any more online bookings this month. Contact them directly to book.",
+      "serviceLimit": "Your plan's limit on active services is reached. Deactivate a service or upgrade your plan to add another.",
+      "featureLocked": "This feature is not included in your plan. Upgrade your plan to use it."
     },
     "pages": {
       "provider": "We could not load this provider's page. Please try again.",
@@ -1089,6 +1130,60 @@
     "resolve": "Uphold and close",
     "dismiss": "Dismiss report",
     "actionError": "That did not work. Please try again.",
-    "pagesLabel": "Report pages"
+    "pagesLabel": "Report pages",
+    "nav": {
+      "label": "Admin sections",
+      "reviews": "Reported reviews",
+      "providers": "Provider plans"
+    },
+    "providers": {
+      "metaTitle": "Provider plans",
+      "metaDescription": "Assign plans and trial periods to providers.",
+      "title": "Provider plans",
+      "searchLabel": "Search providers",
+      "searchPlaceholder": "Name, email or link",
+      "empty": "No providers found",
+      "emptyHint": "Try another name, email or link.",
+      "unlisted": "Unlisted",
+      "ended": "{plan} ended {date}",
+      "until": "Until {date}",
+      "planLabel": "Plan",
+      "lastDayLabel": "Last day",
+      "noEnd": "No end date",
+      "save": "Save plan",
+      "saved": "Plan saved",
+      "pagesLabel": "Provider pages"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "Free",
+      "basic": "Basic",
+      "standard": "Standard",
+      "premium": "Premium"
+    },
+    "features": {
+      "maxActiveServices": "Active services",
+      "maxBookingsPerMonth": "Online bookings a month",
+      "analyticsHistoryDays": "Analytics history",
+      "customSlug": "Custom page link"
+    },
+    "unlimited": "Unlimited",
+    "fullHistory": "Full history",
+    "days": "{count, plural, =365 {12 months} other {# days}}",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "current": "Your plan",
+    "requestTitle": "Request the {plan} plan"
+  },
+  "Pricing": {
+    "metaTitle": "Pricing for providers",
+    "metaDescription": "Bookie plans for service providers, from free to premium, and what each one includes. Booking is always free for clients.",
+    "title": "Plans for providers",
+    "subtitle": "Start free and move up when your calendar fills. Clients never pay to book.",
+    "startFree": "Start free",
+    "requestPlan": "Request this plan",
+    "clientsFree": "Clients never pay anything to book through Bookie.",
+    "manualNote": "Paid plans are arranged by our team for now. Send a request and we will reply by email to set it up."
   }
 }

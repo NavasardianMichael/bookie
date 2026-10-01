@@ -5,7 +5,8 @@ and every URL names its language (`/en/providers`, `/es/providers`). Message cat
 live in `src/messages/<locale>.json`, one file per locale, `en.json` is the source of truth.
 Non-auth namespaces: `Language`, `Common`, `Nav`, `Booking`, `Footer`, `Contact`, `Settings`,
 `Bookings`, `Favorites`, `Home`, `Explore`, `Categories`, `Organizations`, `Provider`, `Legal`,
-`Services`, `ProfileCreation`, `Validation`, `Errors`. `Bookings` holds only the `/bookings`
+`Services`, `ProfileCreation`, `Validation`, `Errors`, `Admin`, `Plans` (plan names and the
+feature labels shared by `/pricing` and the Plan tab), `Pricing`. `Bookings` holds only the `/bookings`
 page's own chrome (title, view switch); its panels still read `Settings.bookings` and
 `Settings.appointments`, from when they were settings tabs. Auth screens still hardcode copy except
 `Auth.validation` (password policy), `Validation` (shared field rules), and

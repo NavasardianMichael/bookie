@@ -7,6 +7,8 @@ import { useFormatter, useTranslations } from 'next-intl'
 import { getProviderAnalyticsAPI } from '@api/analytics/main'
 import { CurrencyTotal, ProviderAnalytics } from '@api/analytics/types'
 import { getProviderProfileAPI } from '@api/providers/main'
+import { ROUTES } from '@constants/routes'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { BarChart, BarChartDatum } from '@components/ui/bare/BarChart'
 import { EmptyState } from '@components/ui/EmptyState'
@@ -44,6 +46,12 @@ export const ProviderAnalyticsClient = () => {
   const [revision, setRevision] = useState(0)
   const [namesError, setNamesError] = useState<unknown>(null)
   const [namesRevision, setNamesRevision] = useState(0)
+  /**
+   * How far back the plan lets this tab look — `null` is unlimited, `undefined` is not
+   * known yet. Read off the same profile request as the service names. The API clamps to
+   * it regardless; this only greys out the presets it would clamp.
+   */
+  const [historyDays, setHistoryDays] = useState<number | null | undefined>(undefined)
 
   /**
    * The window as one memoized object, which (with the retry counter below) is the
@@ -105,6 +113,7 @@ export const ProviderAnalyticsClient = () => {
         setServiceNames(
           Object.fromEntries(profile.services.allIds.map((id) => [id, profile.services.byId[id]?.name ?? id]))
         )
+        setHistoryDays(profile.personal.entitlements?.analyticsHistoryDays)
         setNamesError(null)
       })
       .catch((err: unknown) => {
@@ -182,6 +191,8 @@ export const ProviderAnalyticsClient = () => {
 
   const topServices = useMemo(() => (data?.topServices ?? []).slice(0, 5), [data])
 
+  const historyLimited = typeof historyDays === 'number'
+
   return (
     <div className='flex flex-col gap-6'>
       <PageHeader
@@ -192,12 +203,25 @@ export const ProviderAnalyticsClient = () => {
             value={preset}
             onChange={setPreset}
             options={[
-              { value: 'all', label: t('rangeAll') },
-              ...RANGE_DAYS.map((days) => ({ value: String(days) as RangePreset, label: t('range', { days }) })),
+              { value: 'all', label: t('rangeAll'), disabled: historyLimited },
+              ...RANGE_DAYS.map((days) => ({
+                value: String(days) as RangePreset,
+                label: t('range', { days }),
+                disabled: historyLimited && days > historyDays,
+              })),
             ]}
           />
         }
       />
+
+      {historyLimited && (
+        <AppText size='body-sm' tone='muted'>
+          {t.rich('rangeLocked', {
+            days: historyDays,
+            link: (chunks) => <AppLink href={ROUTES.providerProfilePlan}>{chunks}</AppLink>,
+          })}
+        </AppText>
+      )}
 
       {/* A failed read replaces the empty state and the previous window's figures alike —
           both would describe a range other than the one selected. */}

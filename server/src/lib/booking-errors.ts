@@ -19,3 +19,22 @@
  * offer that, so the spelling is a contract — not a sentence to reword in place.
  */
 export const SLOT_TAKEN_MESSAGE = 'Time slot not available'
+
+/**
+ * "This provider is not taking bookings online right now" — a refusal no choice of slot
+ * or service can fix, so the booking sheet swaps its calendar for a notice pointing at
+ * the provider's contact details.
+ *
+ * Stable codes carried in the envelope's `code`, the way `AUTH_ERROR` is, rather than a
+ * matched message: the status is `409` like every other refusal on this route, and a code
+ * is the contract `SLOT_TAKEN_MESSAGE` would be if it were written today. Mirrored in
+ * `src/constants/booking.ts`, pinned by `tests/unit/server/bookingErrors.spec.ts`.
+ *
+ * - `bookingPaused` — the provider switched `available` off.
+ * - `bookingFull` — the provider's plan allows no more bookings this month. The message
+ *   the client shows never names the plan: the visitor is not the one who pays.
+ */
+export const BOOKING_ERROR = {
+  bookingPaused: 4201,
+  bookingFull: 4202,
+} as const

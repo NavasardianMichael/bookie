@@ -231,6 +231,42 @@ asserting the two constants match is the fix rather than a record of a defect.
 
 ---
 
+## Plans and billing — what Phase 1 left open
+
+Phase 1 (plans, limits, admin assignment, the Plan tab, `/pricing`) shipped 2026-10-01; the
+roadmap beyond it — Paddle, reminders, credits, team plans — is in
+[BILLING.md](BILLING.md). These are the edges Phase 1 knowingly stops at:
+
+- **The booking allowance is a soft cap.** `createAppointment` counts, then inserts, with
+  no transaction — two submits in the same instant can go one past the cap, exactly as they
+  can double-book past the overlap check. One per-provider lock closes both:
+  `$transaction` + `SELECT … FROM "Provider" WHERE id = $1 FOR UPDATE` around count,
+  overlap and insert. It would be the codebase's first raw SQL, so it was not slipped in.
+- **The allowance month is the UTC month.** `Provider` has no timezone column, so a provider
+  east of Greenwich sees it reset a few hours into their own 1st. Same root cause as the
+  analytics `tz` parameter.
+- **Explore cannot show "full".** The card's availability pill reads `available` only; a
+  full provider still looks Available until the page opens. Showing it needs a count per
+  card per page render.
+- **No audit trail for plan changes.** `PATCH /admin/providers/:id/plan` logs the acting
+  `userId` to the console and nothing else. A `PlanChange` table becomes worth it once
+  Paddle writes plans too.
+- **Guest bookings can spend a free provider's allowance.** `POST /appointments` is public
+  and rate-limited to 20/hour per address, so a hostile visitor could fill 50 in a few
+  hours. A pending booking counts; declining it gives the place back.
+- **Un-cancelling can exceed the cap.** `PATCH /appointments/:id` lets the provider move a
+  cancelled booking back to a live status without an allowance check. Accepted for a soft
+  cap.
+- **Unlisted providers are still bookable by a direct `POST /appointments`.** The page 404s
+  for visitors, but the write does not check `listed`. Pre-existing; noticed while adding
+  the paused check.
+- **Enforcement has no database test.** Every rule is a pure function in
+  `server/src/services/plans.ts` with unit tests, but the counts, the route wiring and the
+  admin route's 404 for non-admins are not reachable from `pnpm test` — the same gap as #4
+  and the seed guard below.
+
+---
+
 ## Errors — what the 2026-09-23 pass left open
 
 The error pipeline (`src/components/CLAUDE.md` → *Errors*, `server/CLAUDE.md` → *What a
@@ -380,11 +416,12 @@ Needs a real browser or device:
   (`generateStaticParams` in the root layout, `lang()` from `next/root-params` in
   `i18n/request.ts`) and bisect back from `c28e276`. Not asserted by a `KNOWN BUG:` test —
   the unit suite does not run a build.
-- **No CI workflow.** There is no `.github/` directory at all. Now that `pnpm verify` is
-  one command that needs no database and no secrets, a workflow is about 25 lines:
-  `pnpm install --frozen-lockfile && pnpm verify`. Until it exists, the gates and the
-  server typecheck run only when someone remembers — the Husky pre-commit hook still only
-  runs `eslint --fix` on staged files.
+- ~~**No CI workflow.**~~ — done: `.github/workflows/ci.yml` runs `pnpm verify`'s steps on
+  every pull request, and `deploy.yml` deploys on push to `master`. (This entry was still
+  open on 2026-10-01 after both had shipped; corrected while adding the plans work.)
+- **A stale `.next/dev/types/validator.ts` breaks `next build` the same way** after
+  switching branches: it is written by `next dev` and still names the routes of whatever
+  tree the dev server last saw. Deleting `.next/dev/types` is safe — `next dev` rewrites it.
 - ~~**`pnpm typecheck` does not cover `server/`.**~~ — done 2026-09-11. The five
   `InputJsonValue` errors this entry listed in `server/src/routes/providers.ts` were
   already fixed by the email/password identity work; `tsc -p server` exits 0. The gap that

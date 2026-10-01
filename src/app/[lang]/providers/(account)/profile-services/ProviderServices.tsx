@@ -8,13 +8,16 @@ import { listAppointmentsAPI } from '@api/appointments/main'
 import { useCategoriesListStore } from '@store/categories/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
+import { ROUTES } from '@constants/routes'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
+import { hasRoomFor } from '@helpers/plans'
 import { reportError } from '@helpers/reportError'
 import { processProviderServiceFormToRequestPayload } from '@components/providerServiceForm/processors'
 import { ProviderServiceForm } from '@components/providerServiceForm/ProviderServiceForm'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { EmptyState } from '@components/ui/EmptyState'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
@@ -40,6 +43,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   const {
     id: providerId,
     services,
+    personal,
     getProviderProfileData,
     postProviderService,
     putProviderService,
@@ -103,6 +107,15 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   }, [])
 
   const serviceList = useMemo(() => allIds.map((serviceId) => byId[serviceId]).filter(Boolean), [allIds, byId])
+  const activeCount = useMemo(() => serviceList.filter((service) => service.active).length, [serviceList])
+
+  /**
+   * The plan's cap on active services. `undefined` until the profile has loaded, which is
+   * read as "no cap yet" rather than as a lock — the API refuses an over-cap write either
+   * way, and locking controls before we know would flash them disabled for everyone.
+   */
+  const serviceLimit = personal.entitlements ? personal.entitlements.maxActiveServices : null
+  const atServiceLimit = !hasRoomFor(activeCount, serviceLimit)
 
   const visibleServices = useMemo(
     () =>
@@ -223,21 +236,21 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
 
   const onAddServiceClick = useCallback(() => openServiceForm(), [openServiceForm])
 
+  // A new service is created active, so at the cap there is nothing Add could save.
   const addServiceButton = (
-    <AppButton type='primary' icon={<PlusOutlined />} onClick={onAddServiceClick}>
+    <AppButton type='primary' icon={<PlusOutlined />} onClick={onAddServiceClick} disabled={atServiceLimit}>
       {t('addNew')}
     </AppButton>
   )
 
-  const tabItems = useMemo(() => {
-    const active = serviceList.filter((service) => service.active).length
-
-    return [
+  const tabItems = useMemo(
+    () => [
       { key: FILTERS.all, label: t('tabAll', { count: serviceList.length }) },
-      { key: FILTERS.active, label: t('tabActive', { count: active }) },
-      { key: FILTERS.inactive, label: t('tabInactive', { count: serviceList.length - active }) },
-    ]
-  }, [serviceList, t])
+      { key: FILTERS.active, label: t('tabActive', { count: activeCount }) },
+      { key: FILTERS.inactive, label: t('tabInactive', { count: serviceList.length - activeCount }) },
+    ],
+    [activeCount, serviceList.length, t]
+  )
 
   return (
     <div className='flex w-full flex-col gap-8'>
@@ -246,6 +259,16 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         subtitle={t('subtitle')}
         actions={addServiceButton}
       />
+
+      {serviceLimit !== null && (
+        <AppText size='body-sm' tone={atServiceLimit ? 'default' : 'muted'}>
+          {t('activeOfLimit', { count: activeCount, limit: serviceLimit })}{' '}
+          {atServiceLimit &&
+            t.rich('limitReached', {
+              link: (chunks) => <AppLink href={ROUTES.providerProfilePlan}>{chunks}</AppLink>,
+            })}
+        </AppText>
+      )}
 
       <ResponsiveGrid min='sm' gap='md'>
         <StatTile
@@ -285,9 +308,11 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                   onEdit={openServiceForm}
                   onDelete={onDeleteService}
                   onToggleActive={onToggleActive}
+                  activationLocked={atServiceLimit}
                 />
               ))}
 
+              {!atServiceLimit && (
               <li className='min-w-0'>
                 <button
                   type='button'
@@ -305,6 +330,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                   </AppText>
                 </button>
               </li>
+              )}
             </ResponsiveGrid>
           ) : (
             <EmptyState

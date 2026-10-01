@@ -11,13 +11,16 @@ server/
     app.ts, index.ts, config.ts, load-env.ts
     routes/       Express routers, one per resource
     services/     appointments + availability logic, Explore's provider query, organizations,
-                  searchFallback (the typo-tolerant retry of an empty search)
+                  searchFallback (the typo-tolerant retry of an empty search), plans (the
+                  catalogue and every limit rule — pure), planUsage (its counts and stamps),
+                  planNotices (the booking-allowance emails)
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
-    lib/          api-response, auth-notices, booking-mail, cookie-domain, email-verify,
-                  google-oauth, mail, oauth-state, password, password-reset, payment, prisma,
-                  rateLimit, request, return-path, review-mail, search (twin of
-                  src/helpers/search.ts), searchCorrection, session, token
+    lib/          api-response, auth-notices, booking-errors, booking-mail, cookie-domain,
+                  email-verify, google-oauth, mail, oauth-state, password, password-reset,
+                  payment, plan-errors, plan-mail, prisma, rateLimit, request, return-path,
+                  review-mail, search (twin of src/helpers/search.ts), searchCorrection,
+                  session, token
 ```
 
 ## The response envelope is non-negotiable
@@ -199,6 +202,7 @@ answered `Invalid return path`. Do not put the role back; pinned by
 `tests/unit/server/returnPath.spec.ts`.
 | Password reset | `buildPasswordResetUrl` | `PASSWORD_RESET_QUERY` (`token`) | `app/[lang]/auth/reset-password` |
 | Booking approval request | `buildApprovalsUrl` | *(path, not a param)* `PROVIDER_APPROVALS_PATH` | `app/[lang]/providers/(account)/profile/approvals` |
+| Booking allowance (80% / 100%) | `buildPlanUrl` | *(path, not a param)* `PROVIDER_PLAN_PATH` | `app/[lang]/providers/(account)/profile/plan` — pinned by `tests/unit/server/planErrors.spec.ts` |
 
 The approvals link is the same trap with a path instead of a query param, and it is pinned
 the same way: the builder lives in `lib/return-path.ts` — the only half a unit test can
@@ -206,8 +210,11 @@ reach — and `tests/unit/server/bookingErrors.spec.ts` asserts it equals
 `ROUTES.providerProfileApprovals`. `lib/booking-mail.ts` re-exports it, so call sites did
 not change.
 
-`tests/unit/server/bookingErrors.spec.ts` pins a second cross-package string for the same
-reason: `SLOT_TAKEN_MESSAGE`, which is thrown by `services/appointments.ts` and matched by
+`tests/unit/server/bookingErrors.spec.ts` pins `BOOKING_ERROR` (`4201` paused, `4202`
+full) against the web's `BOOKING_ERROR_CODES` the same way: the booking sheet swaps its
+calendar for the contact notice on either, so a renumbering on one side leaves a visitor
+retrying a page that cannot book. It also pins a second cross-package string:
+`SLOT_TAKEN_MESSAGE`, which is thrown by `services/appointments.ts` and matched by
 `src/helpers/booking.ts#isSlotTakenError` to tell "somebody took that time" apart from every
 other 409 the booking route answers. It lives in `lib/booking-errors.ts`, a module that
 imports nothing, purely so the test can hold both sides at once. Renaming it alone
@@ -263,10 +270,36 @@ route cannot be turned into a scan of one provider's whole history. It replaced
 `getProviderAvailability`, whose fixed 30-minute grid no client could use; see
 `docs/BACKLOG.md` #6 for why two slot engines existed and what closing it changed.
 
-## `/admin/*` — the one admin surface
+## Plans — every limit goes through `getEntitlements`
 
-`routes/admin.ts`, behind `requireAdmin` (`middleware/auth.ts`). Three routes, all about
-moderating reviews: list reports, hide/restore a review, close a report.
+`services/plans.ts` holds the catalogue and every rule (pure, `now` injected, unit-tested);
+`services/planUsage.ts` counts and stamps; `services/planNotices.ts` sends the allowance
+emails. Strategy and catalogue: [docs/BILLING.md](../docs/BILLING.md). Four rules:
+
+- **Never read `Provider.plan` to gate a feature.** `getEntitlements(provider, now)` applies
+  `planExpiresAt` too; a direct read would keep granting a lapsed plan.
+- **Nothing consumer-facing is ever withdrawn by a plan.** Over-cap services stay live and
+  editable (`takesServiceSlot` only blocks an inactive → active move), a grandfathered slug
+  keeps resolving and survives SEO saves (`needsCustomSlug`), and slug resolution never
+  looks at the plan. Block growth, never remove.
+- **A visitor is never told about a plan.** A spent allowance closes the online calendar
+  with `BOOKING_ERROR.bookingFull` and a plan-neutral `details.onlineBooking: 'full'` — the
+  public payload carries no plan, limit or count (`tests/unit/server/mappers.spec.ts`).
+- **The booking allowance is a soft cap.** Count and insert are not one transaction; an
+  overshoot of one under a simultaneous submit is accepted, like the overlap race.
+
+The allowance emails are **not gated on `emailNotificationPrefs`**, for the reason the
+approval-request email is not: once the page stops taking bookings, they are the only way
+the provider learns clients are being turned away. They are sent fire-and-forget after the
+booking route answers.
+
+## `/admin/*` — the admin surface
+
+`routes/admin.ts`, behind `requireAdmin` (`middleware/auth.ts`). Two jobs: **review
+moderation** (list reports, hide/restore a review, close a report) and **plan assignment**
+(`GET /admin/providers`, `PATCH /admin/providers/:id/plan`) — until a payment provider is
+wired in, the only writer of `Provider.plan`. A plan write is logged with the acting
+`userId`, because there is no audit table.
 
 - **Admin is not a role.** `SessionPayload.role` is only `consumer | provider`; an admin
   signs in with whichever account they already have and is recognised by their identity

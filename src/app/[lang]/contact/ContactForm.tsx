@@ -1,13 +1,15 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Form } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { postContactMessageAPI } from '@api/contact/main'
+import { ContactTopic } from '@api/contact/types'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { Plan } from '@interfaces/plans'
 import { MAX_CHARS_FOR_CONTACT_MESSAGE } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
@@ -30,8 +32,19 @@ type ContactFormValues = {
 /** The keys prefill may write. `message` is never one of them. */
 type PrefillableField = 'firstName' | 'lastName' | 'email'
 
-export const ContactForm = () => {
+type Props = {
+  /**
+   * Set when another page opens this form for a purpose — the Plan tab's upgrade request.
+   * It travels with the message so the server can write the subject line, and it seeds an
+   * empty message once so the visitor is not left wondering what to say.
+   */
+  topic?: ContactTopic
+  plan?: Plan
+}
+
+export const ContactForm: FC<Props> = ({ topic, plan }) => {
   const t = useTranslations('Contact')
+  const tPlans = useTranslations('Plans')
   const [form] = Form.useForm<ContactFormValues>()
   const isSignedOn = useAuthStore.use.isSignedOn()
   const firstName = useAuthStore.use.firstName()
@@ -81,6 +94,15 @@ export const ContactForm = () => {
     applyPrefill()
   }, [isSignedOn, applyPrefill])
 
+  const planName = plan ? tPlans(`names.${plan}`) : undefined
+
+  /** A starting sentence for a topic, written only into an empty message — never over one. */
+  const topicMessage = topic === 'planUpgrade' && planName ? t('topics.planUpgradeMessage', { plan: planName }) : undefined
+
+  useEffect(() => {
+    if (topicMessage && !form.getFieldValue('message')) form.setFieldsValue({ message: topicMessage })
+  }, [form, topicMessage])
+
   const handleFinish = async (values: ContactFormValues) => {
     setIsSubmitting(true)
     setError(null)
@@ -91,6 +113,8 @@ export const ContactForm = () => {
         email: values.email.trim(),
         message: values.message,
         website: values.website ?? '',
+        topic,
+        plan,
       })
       setIsSent(true)
     } catch (err) {
@@ -109,6 +133,7 @@ export const ContactForm = () => {
     // `resetFields` clears the prefilled name and email too, so put them back rather than
     // making a signed-in visitor retype what the session already holds.
     applyPrefill()
+    if (topicMessage) form.setFieldsValue({ message: topicMessage })
   }
 
   if (isSent) {
@@ -136,6 +161,13 @@ export const ContactForm = () => {
       className='flex flex-col gap-4'
     >
       {error !== null && <ErrorAlert error={error} />}
+
+      {/* Read-only: the topic is the page's, and the server writes the subject from it. */}
+      {topic === 'planUpgrade' && planName && (
+        <AppParagraph size='body-sm' tone='default' className='m-0 font-semibold'>
+          {t('topics.planUpgrade', { plan: planName })}
+        </AppParagraph>
+      )}
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         <div className='flex flex-col gap-1.5'>

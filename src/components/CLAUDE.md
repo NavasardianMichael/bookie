@@ -37,6 +37,11 @@ Outside the tiers, `errors/` holds error *wiring* rather than visuals — `Route
 Server Component that failed inline). See *Errors* below. `bare/ErrorDetails` is the
 antd-free collapsible that shows the original error in development.
 
+`plans/` is shared by `/pricing` and the provider Plan tab. `PlanComparisonTable` is
+antd-free and hook-only, so `/pricing` renders every limit into the HTML while the Plan tab's
+client island renders the same table; `PlanUpgradeSheet` is the request form in an
+`AppSheet` (no checkout exists yet — see `docs/BILLING.md`).
+
 **`bare/BarChart` is antd-free for the same reason `StatTile` is** — a page whose numbers
 are known before render should put them in the HTML, not produce them after hydration. It
 is drawn in **divs, not SVG**: a bar chart is a row of rectangles on a shared baseline,
@@ -127,7 +132,8 @@ and nowhere else.
 
 A failure is written for two readers. **Production shows friendly, translated copy**, chosen
 by what *kind* of failure it was (`Errors.kinds.*`) or by a stable code (`Errors.codes.*` —
-the `AUTH_ERROR_CODES`, slot taken), with Retry where retrying can help and Reload where
+the `AUTH_ERROR_CODES`, `BOOKING_ERROR_CODES`, `PLAN_ERROR_CODES`, slot taken), with Retry
+where retrying can help and Reload where
 a deploy changed the page's code. **Development shows the same copy plus the original
 error** — server message, `status · METHOD path · code`, stack — collapsed under
 *Developer details*. The server's own `message` is English and often written for
@@ -156,7 +162,10 @@ Four rules that keep it honest:
   load must not render its defaults — Save would write them over the real data — and a list
   that failed to load must not also say it is empty.
 - **Copy of a call site's own** goes in as `overrides` (`{ 409: t('slugTaken') }`) or as a
-  thrown `UserFacingError`; both beat the generic kind copy and stay translated.
+  thrown `UserFacingError`; both beat the generic kind copy and stay translated. A
+  **status** override does not beat a stable code's catalogue copy — `{ 409: … }` on the
+  booking sheet cannot mask "not taking bookings online" — only an override keyed on the
+  code itself does (`resolveErrorText`).
 - **`ErrorAlert` is the only inline error block.** No antd `Alert type='error'`, no
   `role='alert'` div.
 

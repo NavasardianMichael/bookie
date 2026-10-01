@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "该时段已为你保留，等待对方处理。对方回复后会立即发邮件通知你。",
     "approvalNoticeTitle": "该服务方会审核预约",
     "approvalNoticeBody": "你的预约将作为申请提交。在对方回复前，该时段为你保留。",
-    "submitRequest": "提交预约申请"
+    "submitRequest": "提交预约申请",
+    "closed": {
+      "servicesTitle": "服务",
+      "pausedTitle": "在线预约已暂停",
+      "pausedBody": "{name} 目前不接受在线预约。请直接联系以约定时间。",
+      "fullTitle": "本月在线预约已满",
+      "fullBody": "{name} 本月无法再接受在线预约。请直接联系以约定时间。",
+      "call": "拨打 {phone}",
+      "email": "发送邮件"
+    }
   },
   "Footer": {
     "blurb": "一个平台，既能找到身边的服务，也能管理您的预约日程。",
@@ -285,7 +294,8 @@
     "joinAsProvider": "成为服务提供者",
     "createAccount": "创建账户",
     "company": "公司",
-    "contact": "联系我们"
+    "contact": "联系我们",
+    "pricing": "价格"
   },
   "Contact": {
     "metaTitle": "联系我们",
@@ -310,6 +320,10 @@
       "title": "消息已发送",
       "body": "感谢您的来信。我们会回复您的电子邮箱，通常在 5 个工作日内。",
       "sendAnother": "再发送一条消息"
+    },
+    "topics": {
+      "planUpgrade": "申请：{plan}",
+      "planUpgradeMessage": "你好，我想将我的页面升级到{plan}。"
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "审批",
       "analytics": "数据分析",
       "seo": "SEO",
-      "history": "历史记录"
+      "history": "历史记录",
+      "plan": "套餐"
     },
     "workspace": {
       "onProviderTitle": "你正在服务方工作区",
@@ -601,7 +616,8 @@
       "clientsTotal": "总计",
       "clientsReturning": "回头客",
       "leadTime": "通常提前 {hours, plural, one {# 小时} other {# 小时}} 预约。",
-      "noLeadTime": "预约数量不足以判断提前预约的时间。"
+      "noLeadTime": "预约数量不足以判断提前预约的时间。",
+      "rangeLocked": "你的套餐包含此时段的数据分析：{days, plural, =365 {12 个月} other {# 天}}。<link>查看套餐</link>"
     },
     "history": {
       "title": "历史记录",
@@ -634,7 +650,9 @@
       "slugLength": "长度须在 {min} 到 {max} 个字符之间。",
       "slugPattern": "只能使用小写字母、数字以及它们之间的单个连字符。",
       "slugChangeWarning": "保存后将替换当前链接。使用 /p/{slug} 的人将无法再打开您的主页。",
-      "saved": "搜索设置已保存。"
+      "saved": "搜索设置已保存。",
+      "slugLocked": "自定义链接属于付费套餐，因此你的页面使用标准链接。<link>查看套餐</link>",
+      "slugLockedKept": "你的自定义链接仍然有效，但修改它需要付费套餐。<link>查看套餐</link>"
     },
     "signOutTitle": "退出登录？",
     "signOutBody": "您需要重新登录才能管理账户。",
@@ -648,6 +666,23 @@
       "googleOnly": "此账户通过 Google 登录。请先设置密码以确认删除。",
       "hasAppointments": "您还有预约记录。请先取消后再删除账户。",
       "wrongPassword": "当前密码不正确"
+    },
+    "plan": {
+      "title": "套餐",
+      "subtitle": "你的套餐、本月用量，以及各套餐包含的内容。",
+      "currentPlan": "当前套餐",
+      "activeUntil": "有效期至 {date}",
+      "lapsed": "你的{plan}已于 {date} 结束。现在你使用的是免费版。",
+      "bookingsFullTitle": "你的页面本月不再接受在线预约",
+      "bookingsFullBody": "你已用完本月的在线预约名额。在 {date} 之前或套餐升级之前，访问你页面的客户会被告知直接联系你。",
+      "activeServices": "有效服务",
+      "bookingsThisMonth": "本月在线预约",
+      "usedOfLimit": "{used} / {limit}",
+      "servicesFull": "已达上限——停用一项服务即可再添加",
+      "resetsOn": "{date} 重置",
+      "comparePlans": "比较套餐",
+      "requestUpgrade": "申请升级",
+      "manualNote": "目前套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。"
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "可以暂停新预约而不下架主页，也可以下架主页，准备好后随时重新发布。"
           },
           "link": {
-            "title": "短链接与 SEO",
-            "body": "分享主页的短链接，并设置搜索引擎显示的标题和描述。"
+            "title": "SEO 与自定义链接",
+            "body": "设置搜索引擎显示的标题和描述。使用付费套餐时，还可以为你的页面选择一个简短的自定义链接。"
           },
           "services": {
             "title": "服务菜单",
@@ -966,7 +1001,9 @@
     "activateTitle": "启用这项服务？",
     "activateBody": "客户将可以预约它。",
     "deactivateTitle": "停用这项服务？",
-    "deactivateBody": "在您重新启用之前，客户将无法预约它。"
+    "deactivateBody": "在您重新启用之前，客户将无法预约它。",
+    "activeOfLimit": "你的套餐中的有效服务：{count} / {limit}。",
+    "limitReached": "如需再添加，请停用一项服务或<link>升级套餐</link>。"
   },
   "ProfileCreation": {
     "metaTitle": "创建您的主页",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "当前密码不正确。",
       "emailTaken": "该邮箱已注册账户。",
       "hasAppointments": "你有预约记录。请先取消这些预约。",
-      "slotTaken": "该时间刚刚被预约。请另选一个时间。"
+      "slotTaken": "该时间刚刚被预约。请另选一个时间。",
+      "bookingPaused": "该服务提供者目前不接受在线预约。请直接联系预约。",
+      "bookingFull": "该服务提供者本月无法再接受在线预约。请直接联系预约。",
+      "serviceLimit": "已达到你套餐的有效服务上限。停用一项服务或升级套餐即可再添加。",
+      "featureLocked": "你的套餐不包含此功能。升级套餐即可使用。"
     },
     "pages": {
       "provider": "无法加载该服务提供者的页面。请重试。",
@@ -1089,6 +1130,60 @@
     "resolve": "采纳并关闭",
     "dismiss": "驳回举报",
     "actionError": "操作失败，请重试。",
-    "pagesLabel": "举报分页"
+    "pagesLabel": "举报分页",
+    "nav": {
+      "label": "管理栏目",
+      "reviews": "被举报的评价",
+      "providers": "服务提供者套餐"
+    },
+    "providers": {
+      "metaTitle": "服务提供者套餐",
+      "metaDescription": "为服务提供者分配套餐和试用期。",
+      "title": "服务提供者套餐",
+      "searchLabel": "搜索服务提供者",
+      "searchPlaceholder": "姓名、邮箱或链接",
+      "empty": "未找到服务提供者",
+      "emptyHint": "试试其他姓名、邮箱或链接。",
+      "unlisted": "未发布",
+      "ended": "{plan}已于 {date} 结束",
+      "until": "至 {date}",
+      "planLabel": "套餐",
+      "lastDayLabel": "最后一天",
+      "noEnd": "无结束日期",
+      "save": "保存套餐",
+      "saved": "套餐已保存",
+      "pagesLabel": "服务提供者分页"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "免费版",
+      "basic": "基础版",
+      "standard": "标准版",
+      "premium": "高级版"
+    },
+    "features": {
+      "maxActiveServices": "有效服务",
+      "maxBookingsPerMonth": "每月在线预约",
+      "analyticsHistoryDays": "数据分析历史",
+      "customSlug": "自定义链接"
+    },
+    "unlimited": "不限",
+    "fullHistory": "全部历史",
+    "days": "{count, plural, =365 {12 个月} other {# 天}}",
+    "included": "包含",
+    "notIncluded": "不包含",
+    "current": "你的套餐",
+    "requestTitle": "申请{plan}"
+  },
+  "Pricing": {
+    "metaTitle": "服务提供者价格",
+    "metaDescription": "Bookie 为服务提供者准备的套餐，从免费版到高级版，以及各自包含的内容。客户预约始终免费。",
+    "title": "服务提供者套餐",
+    "subtitle": "免费开始，日程排满时再升级。客户预约从不付费。",
+    "startFree": "免费开始",
+    "requestPlan": "申请此套餐",
+    "clientsFree": "客户通过 Bookie 预约无需支付任何费用。",
+    "manualNote": "目前付费套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。"
   }
 }

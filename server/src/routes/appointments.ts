@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { config } from '../config.js'
 import { ok } from '../lib/api-response.js'
+import { BOOKING_ERROR } from '../lib/booking-errors.js'
 import {
   buildApprovalsUrl,
   buildBookingManageUrl,
@@ -21,6 +22,7 @@ import { mapBasicProvider, mapSingleProvider, providerInclude } from '../mappers
 import { hasSessionCookie, requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { createAppointment, type GuestBooker, rescheduleAppointment } from '../services/appointments.js'
+import { notifyBookingAllowance } from '../services/planNotices.js'
 import { BOOKING_STATUSES, isBookingStatus } from '../services/providerBookings.js'
 
 export const appointmentsRouter = Router()
@@ -221,6 +223,17 @@ const buildBookingNotice = async (appointmentId: string) => {
   }
 }
 
+/**
+ * The provider's monthly-allowance email, if one is due (`services/planNotices.ts`).
+ * Fire-and-forget: the booking's own response must not wait on a second provider email,
+ * and a failure costs a notice, never the booking — so it is caught and logged here.
+ */
+const announceAllowance = (providerId: string, locale: string): void => {
+  void notifyBookingAllowance(providerId, locale).catch((error: unknown) => {
+    console.error('[mail] booking allowance notice failed', error)
+  })
+}
+
 /** Guest contact details, or undefined when the booking names a real Consumer. */
 const mapGuest = (appointment: {
   guestFirstName: string | null
@@ -371,6 +384,7 @@ appointmentsRouter.post(
     }
 
     const guestBooker = req.session ? undefined : parseGuest(guest)
+    const locale = resolveBookingLocale(req.body?.locale)
 
     const { appointment, manageToken, requiresApproval } = await createAppointment({
       // Identity comes from the session whenever there is one. Guest fields in the
@@ -382,7 +396,14 @@ appointmentsRouter.post(
       startAt: start,
       notes: parseNotes(notes),
       paymentMethods,
+    }).catch((error: unknown) => {
+      // A refusal for a spent allowance still tells the provider, once a month — it is
+      // the only signal they get when a lapsed plan leaves them already past the new cap.
+      if (error instanceof HttpError && error.code === BOOKING_ERROR.bookingFull) announceAllowance(providerId, locale)
+      throw error
     })
+
+    announceAllowance(appointment.providerId, locale)
 
     /**
      * Mail is best-effort. The row is already committed — a down engine, a missing
@@ -398,7 +419,6 @@ appointmentsRouter.post(
     let emailSent = false
     try {
       const notice = await buildBookingNotice(appointment.id)
-      const locale = resolveBookingLocale(req.body?.locale)
 
       if (notice?.to) {
         const manageUrl = buildBookingManageUrl(config.corsOrigin, locale, manageToken)

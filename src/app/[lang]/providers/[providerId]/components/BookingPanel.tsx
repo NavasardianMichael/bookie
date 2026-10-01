@@ -11,10 +11,18 @@ import { ProviderBusyInterval } from '@api/providers/types'
 import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { useErrorToast } from '@hooks/useErrorToast'
+import { BookingClosedReason } from '@interfaces/booking'
 import { USER_TYPES } from '@constants/auth'
 import { BUSY_WINDOW_PADDING_DAYS } from '@constants/booking'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
-import { countSlotsByDay, dropBusySlots, getSlotsForDate, getSlotsForDateRange, isSlotTakenError } from '@helpers/booking'
+import {
+  countSlotsByDay,
+  dropBusySlots,
+  getBookingClosedReason,
+  getSlotsForDate,
+  getSlotsForDateRange,
+  isSlotTakenError,
+} from '@helpers/booking'
 import { buildMonthCells } from '@helpers/calendar'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
@@ -38,6 +46,12 @@ type Props = {
    * it is not a filter over an already-built calendar.
    */
   selectedServiceId?: string
+  /**
+   * A submit was refused because the provider is not taking bookings online — paused, or
+   * their monthly allowance spent while this page was open. `ProviderDetails` swaps this
+   * panel for the contact notice, which is the only way forward from there.
+   */
+  onBookingClosed: (reason: BookingClosedReason) => void
 }
 
 /**
@@ -48,7 +62,7 @@ type Props = {
  * month grid picks the day in place and the open times sit in the panel under
  * it, both visible at once alongside the service picked above.
  */
-export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
+export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) => {
   const t = useTranslations('Booking')
   const tErrors = useTranslations('Errors')
   const locale = useLocale()
@@ -370,6 +384,20 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
           return
         }
 
+        /**
+         * The provider stopped taking bookings online while the sheet was open. No other
+         * time or service would go through either, so the sheet closes and the panel hands
+         * over to the contact notice. The toast carries the catalogue copy for the code,
+         * which the generic 409 override below cannot mask (`resolveErrorText`).
+         */
+        const closedReason = getBookingClosedReason(processed)
+        if (closedReason) {
+          setIsConfirmOpen(false)
+          toast(error, { title: t('failed') })
+          onBookingClosed(closedReason)
+          return
+        }
+
         // Sheet deliberately left open, so what was typed survives a failed submit —
         // a guest who lost their details to a 409 would have to retype all four fields.
         toast(error, { title: t('failed'), overrides: { 409: tErrors('conflicts.bookingUnavailable') } })
@@ -377,7 +405,18 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId }) => {
         setIsBooking(false)
       }
     },
-    [accountEmail, confirmBooking?.startISO, locale, notification, providerId, selectedServiceId, t, tErrors, toast]
+    [
+      accountEmail,
+      confirmBooking?.startISO,
+      locale,
+      notification,
+      onBookingClosed,
+      providerId,
+      selectedServiceId,
+      t,
+      tErrors,
+      toast,
+    ]
   )
 
   return (

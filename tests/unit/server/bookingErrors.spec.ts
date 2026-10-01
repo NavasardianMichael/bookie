@@ -2,24 +2,27 @@ import { describe, expect, it } from 'vitest'
 // The one aliased import, and the whole point of this file: the web constant is the
 // *consumer* of what the server throws, and only a test holding both can catch them
 // drifting apart. Same reasoning as `returnPath.spec.ts` — see `server/CLAUDE.md`.
-import { SLOT_TAKEN_MESSAGE as WEB_SLOT_TAKEN_MESSAGE } from '@constants/booking'
+import {
+  BOOKING_ERROR_CODES as WEB_BOOKING_ERROR_CODES,
+  SLOT_TAKEN_MESSAGE as WEB_SLOT_TAKEN_MESSAGE,
+} from '@constants/booking'
 import { ROUTES } from '@constants/routes'
-import { isSlotTakenError } from '@helpers/booking'
+import { getBookingClosedReason, isSlotTakenError } from '@helpers/booking'
 // Relative, not aliased: `server/` is a separate package. This module imports nothing at
 // all, which is what keeps it reachable here and is the stated reason it exists.
-import { SLOT_TAKEN_MESSAGE } from '../../../server/src/lib/booking-errors'
+import { BOOKING_ERROR, SLOT_TAKEN_MESSAGE } from '../../../server/src/lib/booking-errors'
 // `return-path.ts`, not `booking-mail.ts`, which re-exports it: that one pulls in config
 // and the mail client and is out of reach here. Moving the constant is what made this
 // assertion possible at all.
 import { buildApprovalsUrl, PROVIDER_APPROVALS_PATH } from '../../../server/src/lib/return-path'
 
 /**
- * Two agreements between the API and the web app that nothing else can check.
+ * Three agreements between the API and the web app that nothing else can check.
  *
- * Both are plain strings crossing a package boundary with no shared type, so a rename on
+ * Each is a plain value crossing a package boundary with no shared type, so a rename on
  * one side typechecks, lints, builds and ships — and the symptom is silent in each case:
- * a recoverable "pick another time" degrades into a raw red toast, and an emailed
- * approval link lands on a 404.
+ * a recoverable "pick another time" degrades into a raw red toast, a closed page keeps
+ * offering its calendar, and an emailed approval link lands on a 404.
  */
 describe('the slot-taken message', () => {
   it('is spelled the same on both sides of the wire', () => {
@@ -44,6 +47,21 @@ describe('the slot-taken message', () => {
   it('does not swallow the other 409s the booking route can answer', () => {
     expect(isSlotTakenError({ code: 409, message: 'This service is no longer available' })).toBe(false)
     expect(isSlotTakenError({ code: 409, message: 'A phone number is required to book' })).toBe(false)
+  })
+})
+
+/**
+ * The booking sheet swaps its calendar for the contact notice on either of these, so a
+ * renumbering on one side alone would leave a visitor retrying a page that cannot book.
+ */
+describe('the booking-closed codes', () => {
+  it('are numbered the same on both sides of the wire', () => {
+    expect(WEB_BOOKING_ERROR_CODES).toEqual(BOOKING_ERROR)
+  })
+
+  it('are each recognised by the booking sheet', () => {
+    expect(getBookingClosedReason({ code: BOOKING_ERROR.bookingPaused })).toBe('paused')
+    expect(getBookingClosedReason({ code: BOOKING_ERROR.bookingFull })).toBe('full')
   })
 })
 

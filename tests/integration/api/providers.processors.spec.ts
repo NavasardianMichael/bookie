@@ -131,4 +131,17 @@ describe('processProviderProfileResponse', () => {
 
     expect(processProviderProfileResponse(envelope(profile) as never).personal).toEqual({ plan: 'free' })
   })
+
+  // The SEO, services and analytics tabs gate on these without a second request.
+  it('keeps the effective plan and its entitlements on the personal slice', () => {
+    const personal = {
+      plan: 'basic',
+      effectivePlan: 'free',
+      planExpiresAt: '2026-09-01T00:00:00.000Z',
+      entitlements: { maxActiveServices: 3, maxBookingsPerMonth: 50, analyticsHistoryDays: 30, customSlug: false },
+    }
+    const profile = { ...basicProvider('p1'), details: {}, personal, services: undefined }
+
+    expect(processProviderProfileResponse(envelope(profile) as never).personal).toEqual(personal)
+  })
 })

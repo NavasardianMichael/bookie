@@ -26,6 +26,10 @@ route. See `src/i18n/CLAUDE.md`.
 × 16 locales plus the app-root documents (`icon`, `apple-icon`, `opengraph-image`,
 `manifest`, `sitemap`, `robots`, `favicon`, `_not-found`, `_global-error`).
 
+> **Currently false.** Since at least `c28e276` every `[lang]` route builds as `ƒ` and the
+> manifest holds 11 entries (re-checked 2026-10-01 on a clean `HEAD`). The `●` marks in the
+> table below are the intended state. Cause unknown — see `docs/BACKLOG.md` → *Infrastructure*.
+
 Two things are required together, and `generateStaticParams` alone is not enough:
 `generateStaticParams` in the root layout, **and `i18n/request.ts` reading `lang()` from
 `next/root-params`**. That is what keeps next-intl off `headers()`, a dynamic API that
@@ -43,7 +47,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
-| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO |
+| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO / Plan |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
 | `/b/[token]` | ƒ | Real — public booking manage page (view / cancel / reschedule). Capability token, not the appointment id. **A page**, not a 307. Reschedule PATCHes the same row and keeps this URL; "Back to booking" is an in-page control above the title, not a route. |
@@ -55,9 +59,11 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/bookings` | ƒ | Real — every appointment on the account, whichever side the session holds. Header destination when signed in, `noindex`, proxy-guarded. See [Bookings](#bookings--bookings) |
 | `/favorites` | ƒ | Real — providers the account saved with the heart on a provider card. A Server Component grid of `ProviderCard`s over `GET /favorites`, cookie forwarded; a revoked cookie's 401 redirects to sign-in. Header destination when signed in, `noindex`, proxy-guarded |
 | `/contact` | ● | Real — contact form; prefilled from the session, `POST /contact` |
+| `/pricing` | ƒ | Real — the plan comparison table over `GET /plans`, server-rendered; per-column actions are the only islands (Free → provider registration, paid → the request sheet). Indexed and in the sitemap; the footer hides its link from consumer sessions. See `docs/BILLING.md` |
 | `/terms`, `/privacy` | ● | Placeholders — registration's consent notice must link somewhere real |
 | `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password` and `verify-email`, which read `searchParams` |
 | `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state — `AdminReviewsClient` reads that 404 as an empty list, not as an error; any other failure shows with a Retry |
+| `/admin/providers` | ƒ | Real — plan assignment: search providers, set a plan and its last day. Same guard and same 404-as-empty reading as `/admin/reviews`; `AdminNav` links the two |
 | `/routes-overview` | ● | Dev aid; `notFound()` in production |
 
 **Account settings** live under `/consumers/profile` and `/providers/profile` (route group
@@ -80,21 +86,28 @@ autosave (Discard / Save, plus Save draft / Publish for providers). Providers ma
 publish their own card or account number on the public page after confirming a
 save dialog that those details will be public;
 the app never collects a *client's* card. Provider `listed` hides Explore + public 404;
-`available` only pauses bookings. The Header swaps the language switcher + Sign In for an avatar
+`available` only pauses bookings — the API refuses them and the public page shows the
+closed notice (below). The Header swaps the language switcher + Sign In for an avatar
 when `getMe()` succeeds.
 
 **Two of the provider tabs are not settings.** `Approvals` and `Analytics` are for running
-the business rather than configuring it, and `PROVIDER_SETTINGS_NAV` puts them above the
-configuration tabs for that reason. They share the shell because a second nav and a second
-shell would be two mental models for one workspace — not because they are settings.
-Bookings was the third and moved out to `/bookings` (see below). Both sides of an account
-open it daily, and the settings shell is neither side's daily page.
+the business rather than configuring it. They share the shell because a second nav and a
+second shell would be two mental models for one workspace — not because they are settings.
+`PROVIDER_SETTINGS_NAV` keeps Approvals first after Profile (its queue goes stale) and
+puts Analytics at the end. Bookings was the third and moved out to `/bookings` (see
+below). Both sides of an account open it daily, and the settings shell is neither side's
+daily page.
 
 | Tab | Route | Shape |
 |---|---|---|
 | Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
-| SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo` |
+| SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo`. The slug field is read-only without the plan's `customSlug`, and the slug is then left out of the save |
+| Plan | `/providers/profile/plan` | Current plan and expiry, this month's usage meters, the comparison table, *Request upgrade* (the contact form with `topic: 'planUpgrade'`). `GET /provider-profile/plan` + `GET /plans`. Last in the nav |
+
+The services page and the Analytics and SEO tabs gate on `personal.entitlements` from the
+owner profile they already load — no extra request. Each control the plan does not allow is
+disabled with a line linking to the Plan tab; the API refuses the same write regardless.
 
 Three decisions in there worth not undoing:
 
@@ -202,7 +215,7 @@ Four things hold it together:
   `profiles`, because `role` cannot answer the question. Offering the switch to a provider
   who has never booked would point at a record that does not exist.
 - **The destination comes from a table**, `src/helpers/workspace.ts`, not from rewriting
-  the path. The consumer side has two tabs to the provider side's eight, so "swap the
+  the path. The consumer side has two tabs to the provider side's nine, so "swap the
   first segment" would invent `/consumers/profile/analytics`. A tab with no counterpart
   falls back to the other side's home. Pinned by `tests/unit/helpers/workspace.spec.ts`,
   including that every destination is a declared `ROUTES` entry and never a retired
@@ -348,6 +361,14 @@ then `BookingPanel`, which is `BookingMonth` over `BookingSlots`:
 | `BookingMonth` | Which day? | Month grid, Monday-first. A day with no open slots is `disabled`, not hidden. The spill-over days from the neighbouring months follow the same rule — slots are stepped across the whole grid — and picking one pages the grid to its month |
 | `BookingSlots` | Which time? | Every open time in one flat grid — no paging, no "view more". "Book now" **opens the sheet**; it does not book |
 | `BookingConfirmSheet` | Confirm, annotate, identify | `BookingSummary` (a real `<dl>` of the pick, including preferred payment) + notes + payment methods, plus name/phone/email when the visitor is anonymous. After create, share / copy URL / copy details / generate QR replace the old manage-link + View booking CTA |
+
+**When the provider is not taking bookings online, `BookingClosedNotice` replaces
+`BookingPanel`.** `details.onlineBooking` is `paused` (their `available` switch) or `full`
+(their monthly allowance spent); either way the notice says so without naming a plan and
+offers the provider's phone and email. `ServicePicker` stays, retitled *Services*: it is
+the page's only list of what they offer. A submit refused mid-visit with
+`BOOKING_ERROR_CODES` closes the sheet and flips to the notice locally
+(`getBookingClosedReason`), since no other time would go through either.
 
 Three things not to undo here:
 

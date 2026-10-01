@@ -1,6 +1,8 @@
+import en from '@messages/en.json'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AUTH_ERROR_CODES } from '@constants/auth'
-import { SLOT_TAKEN_MESSAGE } from '@constants/booking'
+import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
+import { PLAN_ERROR_CODES } from '@constants/plans'
 import {
   buildErrorDetails,
   classifyError,
@@ -198,6 +200,28 @@ describe('resolveErrorCopyKey', () => {
     expect(resolveErrorCopyKey(classified)).toBe('codes.slotTaken')
   })
 
+  it.each(Object.entries(BOOKING_ERROR_CODES))('names the catalogue copy for booking code %s', (name, code) => {
+    const classified = classifyError(axiosError({ status: 409, data: envelope(code, 'closed') }))
+    expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
+  })
+
+  // Every family shares one `codes.*` namespace, so a name must not appear twice and
+  // every name must have copy.
+  it.each(Object.entries(PLAN_ERROR_CODES))('names the catalogue copy for plan code %s', (name, code) => {
+    const classified = classifyError(axiosError({ status: 403, data: envelope(code, 'plan') }))
+    expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
+  })
+
+  it('has catalogue copy for every stable code, under a unique name', () => {
+    const names = [
+      ...Object.keys(AUTH_ERROR_CODES),
+      ...Object.keys(BOOKING_ERROR_CODES),
+      ...Object.keys(PLAN_ERROR_CODES),
+    ]
+    expect(new Set(names).size).toBe(names.length)
+    names.forEach((name) => expect(en.Errors.codes).toHaveProperty(name))
+  })
+
   // A withdrawn service also answers 409; telling that visitor to pick another time is a loop.
   it('leaves every other 409 as a generic conflict', () => {
     const classified = classifyError(axiosError({ status: 409, data: envelope(409, 'Service is not available') }))
@@ -234,6 +258,13 @@ describe('resolveErrorText', () => {
   it('keeps slot taken ahead of a 409 override', () => {
     const slotTaken = classifyError(axiosError({ status: 409, data: envelope(409, SLOT_TAKEN_MESSAGE) }))
     expect(resolveErrorText(slotTaken, translate, { 409: 'Booking locked' })).toBe('t:codes.slotTaken')
+  })
+
+  // The booking sheet passes a generic 409 override; "not taking bookings online" is more
+  // specific and must still read as itself.
+  it('keeps a stable code ahead of an override on its status', () => {
+    const paused = classifyError(axiosError({ status: 409, data: envelope(BOOKING_ERROR_CODES.bookingPaused, 'x') }))
+    expect(resolveErrorText(paused, translate, { 409: 'Unavailable' })).toBe('t:codes.bookingPaused')
   })
 
   it('lets a stable application code override beat everything but a UserFacingError', () => {

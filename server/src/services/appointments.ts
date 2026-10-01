@@ -1,4 +1,5 @@
-import { SLOT_TAKEN_MESSAGE } from '../lib/booking-errors.js'
+import { isBookingAllowanceSpent } from './planUsage.js'
+import { BOOKING_ERROR, SLOT_TAKEN_MESSAGE } from '../lib/booking-errors.js'
 import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
 import { hashUrlToken, mintUrlToken } from '../lib/token.js'
@@ -84,6 +85,29 @@ export async function createAppointment(input: {
   if (!service) throw new HttpError(404, 'Service not found', 404)
   if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
 
+  const provider = await prisma.provider.findUnique({ where: { id: input.providerId } })
+
+  /**
+   * `available: false` is the provider's own "pause new bookings" switch. It used to be
+   * read by Explore alone — the card's Fully blocked pill, the filter, the sort — while
+   * this write ignored it, so a paused provider kept receiving bookings from anyone who
+   * opened their page. Checked before the overlap: "pick another time" is no help when
+   * no time will do.
+   */
+  if (provider?.available === false) {
+    throw new HttpError(409, 'This provider is not taking online bookings right now', BOOKING_ERROR.bookingPaused)
+  }
+
+  /**
+   * The plan's monthly allowance (`services/plans.ts`). A soft cap: the count and the insert
+   * are not one transaction, so two submits in the same instant can take it one past —
+   * the same race the overlap check below already accepts (docs/BACKLOG.md). The visitor
+   * is told only that online booking is closed this month, never why.
+   */
+  if (provider && (await isBookingAllowanceSpent(provider, new Date()))) {
+    throw new HttpError(409, 'This provider cannot take more online bookings this month', BOOKING_ERROR.bookingFull)
+  }
+
   const endAt = addMinutes(input.startAt, service.durationMinutes)
 
   const conflict = await findOverlappingAppointment({
@@ -97,8 +121,6 @@ export async function createAppointment(input: {
   // withdrawn service included — and a second spelling degrades that back to a generic
   // red toast. `lib/booking-errors.ts` explains why it lives in a module of its own.
   if (conflict) throw new HttpError(409, SLOT_TAKEN_MESSAGE, 409)
-
-  const provider = await prisma.provider.findUnique({ where: { id: input.providerId } })
 
   /**
    * The approval gate. `pending` waits for the owner's decision on the approvals tab;

@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "Waktunya ditahan untuk Anda selama penyedia meninjaunya. Anda akan menerima email begitu mereka menjawab.",
     "approvalNoticeTitle": "Penyedia ini meninjau pemesanan",
     "approvalNoticeBody": "Pemesanan Anda dikirim sebagai permintaan. Waktunya ditahan untuk Anda sampai ada jawaban.",
-    "submitRequest": "Kirim permintaan pemesanan"
+    "submitRequest": "Kirim permintaan pemesanan",
+    "closed": {
+      "servicesTitle": "Layanan",
+      "pausedTitle": "Pemesanan online dijeda",
+      "pausedBody": "{name} sedang tidak menerima pemesanan online. Hubungi langsung untuk mengatur waktu.",
+      "fullTitle": "Pemesanan online bulan ini sudah penuh",
+      "fullBody": "{name} tidak dapat menerima pemesanan online lagi bulan ini. Hubungi langsung untuk mengatur waktu.",
+      "call": "Telepon {phone}",
+      "email": "Kirim email"
+    }
   },
   "Footer": {
     "blurb": "Satu platform untuk menemukan layanan di sekitar Anda atau mengelola kalender pemesanan Anda.",
@@ -285,7 +294,8 @@
     "joinAsProvider": "Gabung sebagai penyedia",
     "createAccount": "Buat akun",
     "company": "Perusahaan",
-    "contact": "Kontak"
+    "contact": "Kontak",
+    "pricing": "Harga"
   },
   "Contact": {
     "metaTitle": "Hubungi kami",
@@ -310,6 +320,10 @@
       "title": "Pesan terkirim",
       "body": "Terima kasih telah menghubungi kami. Kami akan membalas email Anda, biasanya dalam 5 hari kerja.",
       "sendAnother": "Kirim pesan lain"
+    },
+    "topics": {
+      "planUpgrade": "Permintaan: paket {plan}",
+      "planUpgradeMessage": "Halo, saya ingin memindahkan halaman saya ke paket {plan}."
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "Persetujuan",
       "analytics": "Analitik",
       "seo": "SEO",
-      "history": "Riwayat"
+      "history": "Riwayat",
+      "plan": "Paket"
     },
     "workspace": {
       "onProviderTitle": "Anda berada di ruang kerja penyedia",
@@ -601,7 +616,8 @@
       "clientsTotal": "Total",
       "clientsReturning": "Kembali",
       "leadTime": "Biasanya dipesan {hours, plural, one {# jam} other {# jam}} sebelumnya.",
-      "noLeadTime": "Pemesanan belum cukup untuk menentukan seberapa jauh sebelumnya orang memesan."
+      "noLeadTime": "Pemesanan belum cukup untuk menentukan seberapa jauh sebelumnya orang memesan.",
+      "rangeLocked": "Paket Anda mencakup analitik untuk periode ini: {days, plural, =365 {12 bulan} other {# hari}}. <link>Lihat paket</link>"
     },
     "history": {
       "title": "Riwayat",
@@ -634,7 +650,9 @@
       "slugLength": "Harus antara {min} dan {max} karakter.",
       "slugPattern": "Gunakan huruf kecil, angka, dan tanda hubung tunggal di antaranya.",
       "slugChangeWarning": "Menyimpan ini menggantikan tautan Anda saat ini. Siapa pun yang menggunakan /p/{slug} tidak akan sampai ke halaman Anda.",
-      "saved": "Pengaturan pencarian disimpan."
+      "saved": "Pengaturan pencarian disimpan.",
+      "slugLocked": "Tautan khusus termasuk dalam paket berbayar, jadi halaman Anda memakai tautan standarnya. <link>Lihat paket</link>",
+      "slugLockedKept": "Tautan khusus Anda tetap berfungsi, tetapi untuk mengubahnya diperlukan paket berbayar. <link>Lihat paket</link>"
     },
     "signOutTitle": "Keluar?",
     "signOutBody": "Anda perlu masuk lagi untuk mengelola akun.",
@@ -648,6 +666,23 @@
       "googleOnly": "Akun ini masuk dengan Google. Tetapkan kata sandi terlebih dahulu untuk mengonfirmasi penghapusan.",
       "hasAppointments": "Anda memiliki janji temu. Batalkan dulu sebelum menghapus akun.",
       "wrongPassword": "Kata sandi saat ini salah"
+    },
+    "plan": {
+      "title": "Paket",
+      "subtitle": "Paket Anda, pemakaian bulan ini, dan isi setiap paket.",
+      "currentPlan": "Paket saat ini",
+      "activeUntil": "Aktif hingga {date}",
+      "lapsed": "Paket {plan} Anda berakhir pada {date}. Sekarang Anda menggunakan paket gratis.",
+      "bookingsFullTitle": "Halaman Anda tidak menerima pemesanan online bulan ini",
+      "bookingsFullBody": "Anda sudah memakai semua pemesanan online bulan ini. Klien yang mengunjungi halaman Anda diminta menghubungi Anda langsung hingga {date}, atau sampai paket Anda ditingkatkan.",
+      "activeServices": "Layanan aktif",
+      "bookingsThisMonth": "Pemesanan online bulan ini",
+      "usedOfLimit": "{used} dari {limit}",
+      "servicesFull": "Batas tercapai — nonaktifkan satu layanan untuk menambah yang lain",
+      "resetsOn": "Direset pada {date}",
+      "comparePlans": "Bandingkan paket",
+      "requestUpgrade": "Ajukan peningkatan",
+      "manualNote": "Untuk saat ini, paket diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya."
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "Jeda pemesanan baru tanpa menghapus halaman Anda dari daftar, atau batalkan penerbitannya dan terbitkan lagi kapan pun Anda siap."
           },
           "link": {
-            "title": "Tautan pendek dan SEO",
-            "body": "Bagikan tautan pendek ke halaman Anda, dan atur judul serta deskripsi yang ditampilkan mesin pencari."
+            "title": "SEO dan tautan khusus",
+            "body": "Atur judul dan deskripsi yang ditampilkan mesin pencari. Dengan paket berbayar, pilih juga tautan pendek khusus untuk halaman Anda."
           },
           "services": {
             "title": "Menu layanan",
@@ -966,7 +1001,9 @@
     "activateTitle": "Aktifkan layanan ini?",
     "activateBody": "Klien akan dapat memesannya.",
     "deactivateTitle": "Nonaktifkan layanan ini?",
-    "deactivateBody": "Klien tidak akan dapat memesannya sampai Anda mengaktifkannya lagi."
+    "deactivateBody": "Klien tidak akan dapat memesannya sampai Anda mengaktifkannya lagi.",
+    "activeOfLimit": "Layanan aktif di paket Anda: {count} dari {limit}.",
+    "limitReached": "Untuk menambah layanan lain, nonaktifkan satu atau <link>tingkatkan paket Anda</link>."
   },
   "ProfileCreation": {
     "metaTitle": "Buat Profil Anda Sendiri",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "Kata sandi saat ini salah.",
       "emailTaken": "Akun dengan email ini sudah ada.",
       "hasAppointments": "Anda memiliki janji temu yang tercatat. Batalkan terlebih dahulu.",
-      "slotTaken": "Waktu itu baru saja dipesan. Silakan pilih waktu lain."
+      "slotTaken": "Waktu itu baru saja dipesan. Silakan pilih waktu lain.",
+      "bookingPaused": "Penyedia ini sedang tidak menerima pemesanan online. Hubungi langsung untuk memesan.",
+      "bookingFull": "Penyedia ini tidak dapat menerima pemesanan online lagi bulan ini. Hubungi langsung untuk memesan.",
+      "serviceLimit": "Batas layanan aktif pada paket Anda sudah tercapai. Nonaktifkan satu layanan atau tingkatkan paket untuk menambah layanan lain.",
+      "featureLocked": "Fitur ini tidak termasuk dalam paket Anda. Tingkatkan paket untuk menggunakannya."
     },
     "pages": {
       "provider": "Kami tidak dapat memuat halaman penyedia ini. Silakan coba lagi.",
@@ -1089,6 +1130,60 @@
     "resolve": "Terima dan tutup",
     "dismiss": "Tolak laporan",
     "actionError": "Tidak berhasil. Silakan coba lagi.",
-    "pagesLabel": "Halaman laporan"
+    "pagesLabel": "Halaman laporan",
+    "nav": {
+      "label": "Bagian admin",
+      "reviews": "Ulasan yang dilaporkan",
+      "providers": "Paket penyedia"
+    },
+    "providers": {
+      "metaTitle": "Paket penyedia",
+      "metaDescription": "Tetapkan paket dan masa uji coba untuk penyedia.",
+      "title": "Paket penyedia",
+      "searchLabel": "Cari penyedia",
+      "searchPlaceholder": "Nama, email, atau tautan",
+      "empty": "Penyedia tidak ditemukan",
+      "emptyHint": "Coba nama, email, atau tautan lain.",
+      "unlisted": "Tidak dipublikasikan",
+      "ended": "{plan} berakhir {date}",
+      "until": "Hingga {date}",
+      "planLabel": "Paket",
+      "lastDayLabel": "Hari terakhir",
+      "noEnd": "Tanpa tanggal berakhir",
+      "save": "Simpan paket",
+      "saved": "Paket disimpan",
+      "pagesLabel": "Halaman penyedia"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "Gratis",
+      "basic": "Dasar",
+      "standard": "Standar",
+      "premium": "Premium"
+    },
+    "features": {
+      "maxActiveServices": "Layanan aktif",
+      "maxBookingsPerMonth": "Pemesanan online per bulan",
+      "analyticsHistoryDays": "Riwayat analitik",
+      "customSlug": "Tautan khusus"
+    },
+    "unlimited": "Tanpa batas",
+    "fullHistory": "Seluruh riwayat",
+    "days": "{count, plural, =365 {12 bulan} other {# hari}}",
+    "included": "Termasuk",
+    "notIncluded": "Tidak termasuk",
+    "current": "Paket Anda",
+    "requestTitle": "Ajukan paket {plan}"
+  },
+  "Pricing": {
+    "metaTitle": "Harga untuk penyedia",
+    "metaDescription": "Paket Bookie untuk penyedia layanan, dari gratis hingga premium, beserta isinya. Pemesanan selalu gratis bagi klien.",
+    "title": "Paket untuk penyedia",
+    "subtitle": "Mulai gratis dan tingkatkan saat jadwal Anda mulai penuh. Klien tidak pernah membayar untuk memesan.",
+    "startFree": "Mulai gratis",
+    "requestPlan": "Ajukan paket ini",
+    "clientsFree": "Klien tidak pernah membayar apa pun untuk memesan melalui Bookie.",
+    "manualNote": "Untuk saat ini, paket berbayar diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya."
   }
 }

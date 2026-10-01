@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "Le créneau vous est réservé pendant que le professionnel l'examine. Vous recevrez un e-mail dès sa réponse.",
     "approvalNoticeTitle": "Ce professionnel examine les réservations",
     "approvalNoticeBody": "Votre réservation est envoyée sous forme de demande. Le créneau vous est réservé jusqu'à sa réponse.",
-    "submitRequest": "Envoyer la demande"
+    "submitRequest": "Envoyer la demande",
+    "closed": {
+      "servicesTitle": "Prestations",
+      "pausedTitle": "La réservation en ligne est suspendue",
+      "pausedBody": "{name} n’accepte pas de réservations en ligne pour le moment. Prenez contact directement pour convenir d’un horaire.",
+      "fullTitle": "La réservation en ligne est complète ce mois-ci",
+      "fullBody": "{name} ne peut plus accepter de réservations en ligne ce mois-ci. Prenez contact directement pour convenir d’un horaire.",
+      "call": "Appeler le {phone}",
+      "email": "Envoyer un e-mail"
+    }
   },
   "Footer": {
     "blurb": "Une seule plateforme pour trouver des services près de chez vous ou gérer votre agenda de réservations.",
@@ -285,7 +294,8 @@
     "joinAsProvider": "Devenir professionnel",
     "createAccount": "Créer un compte",
     "company": "Entreprise",
-    "contact": "Contact"
+    "contact": "Contact",
+    "pricing": "Tarifs"
   },
   "Contact": {
     "metaTitle": "Contactez-nous",
@@ -310,6 +320,10 @@
       "title": "Message envoyé",
       "body": "Merci de nous avoir contactés. Nous répondrons à votre e-mail, généralement sous 5 jours ouvrés.",
       "sendAnother": "Envoyer un autre message"
+    },
+    "topics": {
+      "planUpgrade": "Demande : formule {plan}",
+      "planUpgradeMessage": "Bonjour, je souhaite passer ma page à la formule {plan}."
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "Approbations",
       "analytics": "Statistiques",
       "seo": "SEO",
-      "history": "Historique"
+      "history": "Historique",
+      "plan": "Formule"
     },
     "workspace": {
       "onProviderTitle": "Vous êtes dans votre espace professionnel",
@@ -601,7 +616,8 @@
       "clientsTotal": "Total",
       "clientsReturning": "Fidèles",
       "leadTime": "Réservent en général {hours, plural, one {# heure} other {# heures}} à l'avance.",
-      "noLeadTime": "Pas encore assez de réservations pour dire à quelle distance les gens réservent."
+      "noLeadTime": "Pas encore assez de réservations pour dire à quelle distance les gens réservent.",
+      "rangeLocked": "Votre formule inclut les statistiques sur cette période : {days, plural, =365 {12 mois} other {# jours}}. <link>Voir les formules</link>"
     },
     "history": {
       "title": "Historique",
@@ -634,7 +650,9 @@
       "slugLength": "Doit contenir entre {min} et {max} caractères.",
       "slugPattern": "Utilisez des lettres minuscules, des chiffres et de simples traits d'union entre eux.",
       "slugChangeWarning": "L'enregistrement remplace votre lien actuel. Toute personne utilisant /p/{slug} n'atteindra plus votre page.",
-      "saved": "Paramètres de recherche enregistrés."
+      "saved": "Paramètres de recherche enregistrés.",
+      "slugLocked": "Le lien personnalisé fait partie des formules payantes : votre page utilise donc son lien standard. <link>Voir les formules</link>",
+      "slugLockedKept": "Votre lien personnalisé continue de fonctionner, mais le modifier nécessite une formule payante. <link>Voir les formules</link>"
     },
     "signOutTitle": "Se déconnecter ?",
     "signOutBody": "Vous devrez vous reconnecter pour gérer votre compte.",
@@ -648,6 +666,23 @@
       "googleOnly": "Ce compte se connecte avec Google. Définissez d’abord un mot de passe pour confirmer la suppression.",
       "hasAppointments": "Vous avez des rendez-vous enregistrés. Annulez-les avant de supprimer votre compte.",
       "wrongPassword": "Le mot de passe actuel est incorrect"
+    },
+    "plan": {
+      "title": "Formule",
+      "subtitle": "Votre formule, ce que vous avez utilisé ce mois-ci et ce que comprend chaque formule.",
+      "currentPlan": "Formule actuelle",
+      "activeUntil": "Active jusqu’au {date}",
+      "lapsed": "Votre formule {plan} a pris fin le {date}. Vous êtes désormais sur la formule gratuite.",
+      "bookingsFullTitle": "Votre page n’accepte plus de réservations en ligne ce mois-ci",
+      "bookingsFullBody": "Vous avez utilisé toutes les réservations en ligne de ce mois. Les clients qui consultent votre page sont invités à vous contacter directement jusqu’au {date}, ou jusqu’au passage à une formule supérieure.",
+      "activeServices": "Prestations actives",
+      "bookingsThisMonth": "Réservations en ligne ce mois-ci",
+      "usedOfLimit": "{used} sur {limit}",
+      "servicesFull": "Limite atteinte — désactivez une prestation pour en ajouter une autre",
+      "resetsOn": "Remise à zéro le {date}",
+      "comparePlans": "Comparer les formules",
+      "requestUpgrade": "Demander une formule supérieure",
+      "manualNote": "Pour l’instant, les formules sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer."
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "Mettez les nouvelles réservations en pause sans dépublier votre page, ou dépubliez-la et republiez-la quand vous le souhaitez."
           },
           "link": {
-            "title": "Lien court et SEO",
-            "body": "Partagez un lien court vers votre page, et définissez le titre et la description affichés par les moteurs de recherche."
+            "title": "Référencement et lien personnalisé",
+            "body": "Définissez le titre et la description affichés par les moteurs de recherche. Avec une formule payante, choisissez aussi un lien court personnalisé pour votre page."
           },
           "services": {
             "title": "Menu de prestations",
@@ -966,7 +1001,9 @@
     "activateTitle": "Activer ce service ?",
     "activateBody": "Les clients pourront le réserver.",
     "deactivateTitle": "Désactiver ce service ?",
-    "deactivateBody": "Les clients ne pourront plus le réserver tant que vous ne l'aurez pas réactivé."
+    "deactivateBody": "Les clients ne pourront plus le réserver tant que vous ne l'aurez pas réactivé.",
+    "activeOfLimit": "Prestations actives dans votre formule : {count} sur {limit}.",
+    "limitReached": "Pour en ajouter une autre, désactivez-en une ou <link>passez à une formule supérieure</link>."
   },
   "ProfileCreation": {
     "metaTitle": "Créez votre propre profil",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "Le mot de passe actuel est incorrect.",
       "emailTaken": "Un compte existe déjà avec cette adresse e-mail.",
       "hasAppointments": "Vous avez des rendez-vous enregistrés. Annulez-les d'abord.",
-      "slotTaken": "Cet horaire vient d’être réservé. Veuillez en choisir un autre."
+      "slotTaken": "Cet horaire vient d’être réservé. Veuillez en choisir un autre.",
+      "bookingPaused": "Ce professionnel n’accepte pas de réservations en ligne pour le moment. Prenez contact directement pour réserver.",
+      "bookingFull": "Ce professionnel ne peut plus accepter de réservations en ligne ce mois-ci. Prenez contact directement pour réserver.",
+      "serviceLimit": "Vous avez atteint la limite de prestations actives de votre formule. Désactivez une prestation ou passez à une formule supérieure pour en ajouter une autre.",
+      "featureLocked": "Cette fonctionnalité n’est pas incluse dans votre formule. Passez à une formule supérieure pour l’utiliser."
     },
     "pages": {
       "provider": "Impossible de charger la page de ce professionnel. Veuillez réessayer.",
@@ -1089,6 +1130,60 @@
     "resolve": "Confirmer et clore",
     "dismiss": "Rejeter le signalement",
     "actionError": "Cela n’a pas fonctionné. Veuillez réessayer.",
-    "pagesLabel": "Pages de signalements"
+    "pagesLabel": "Pages de signalements",
+    "nav": {
+      "label": "Sections d’administration",
+      "reviews": "Avis signalés",
+      "providers": "Formules des professionnels"
+    },
+    "providers": {
+      "metaTitle": "Formules des professionnels",
+      "metaDescription": "Attribuez des formules et des périodes d’essai aux professionnels.",
+      "title": "Formules des professionnels",
+      "searchLabel": "Rechercher des professionnels",
+      "searchPlaceholder": "Nom, e-mail ou lien",
+      "empty": "Aucun professionnel trouvé",
+      "emptyHint": "Essayez un autre nom, e-mail ou lien.",
+      "unlisted": "Non publié",
+      "ended": "{plan} : fin le {date}",
+      "until": "Jusqu’au {date}",
+      "planLabel": "Formule",
+      "lastDayLabel": "Dernier jour",
+      "noEnd": "Sans date de fin",
+      "save": "Enregistrer la formule",
+      "saved": "Formule enregistrée",
+      "pagesLabel": "Pages des professionnels"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "Gratuit",
+      "basic": "Essentiel",
+      "standard": "Standard",
+      "premium": "Premium"
+    },
+    "features": {
+      "maxActiveServices": "Prestations actives",
+      "maxBookingsPerMonth": "Réservations en ligne par mois",
+      "analyticsHistoryDays": "Historique des statistiques",
+      "customSlug": "Lien personnalisé"
+    },
+    "unlimited": "Illimité",
+    "fullHistory": "Historique complet",
+    "days": "{count, plural, =365 {12 mois} other {# jours}}",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "current": "Votre formule",
+    "requestTitle": "Demander la formule {plan}"
+  },
+  "Pricing": {
+    "metaTitle": "Tarifs pour les professionnels",
+    "metaDescription": "Les formules Bookie pour les professionnels, de la gratuite à la premium, et ce que chacune comprend. La réservation reste toujours gratuite pour les clients.",
+    "title": "Formules pour les professionnels",
+    "subtitle": "Commencez gratuitement et passez à la formule supérieure quand votre agenda se remplit. Les clients ne paient jamais pour réserver.",
+    "startFree": "Commencer gratuitement",
+    "requestPlan": "Demander cette formule",
+    "clientsFree": "Les clients ne paient jamais rien pour réserver via Bookie.",
+    "manualNote": "Pour l’instant, les formules payantes sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer."
   }
 }

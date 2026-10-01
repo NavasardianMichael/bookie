@@ -34,6 +34,8 @@ import {
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderBusyIntervals } from '../services/appointments.js'
+import { assertServiceSlot, assertSlugChange, getEntitlements, takesServiceSlot } from '../services/plans.js'
+import { countActiveServices, isBookingAllowanceSpent } from '../services/planUsage.js'
 import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
 import {
   asTimeZone,
@@ -204,7 +206,11 @@ providersRouter.get(
       throw new HttpError(404, 'Provider not found', 404)
     }
 
-    return ok(res, mapSingleProvider(provider))
+    // Only here, because it costs a count — and only while the page is otherwise taking
+    // bookings, since `paused` already says everything a visitor needs.
+    const bookingsFull = provider.available && (await isBookingAllowanceSpent(provider, new Date()))
+
+    return ok(res, mapSingleProvider(provider, { bookingsFull }))
   })
 )
 
@@ -767,8 +773,16 @@ providerProfileRouter.get(
   requireProvider,
   asyncHandler(async (req, res) => {
     const timeZone = asTimeZone(req.query.tz)
-    const range = parseAnalyticsRange(req.query, new Date())
     const providerId = req.session!.profileId
+    const now = new Date()
+
+    const provider = await prisma.provider.findUnique({
+      where: { id: providerId },
+      select: { plan: true, planExpiresAt: true },
+    })
+    if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
+    // The plan bounds how far back this may look; `parseAnalyticsRange` clamps to it.
+    const range = parseAnalyticsRange(req.query, now, getEntitlements(provider, now).analyticsHistoryDays)
 
     // Two reads rather than one over the union: the previous window feeds only the
     // delta on each tile, so it is fetched with the same narrow select and bucketed by
@@ -776,13 +790,14 @@ providerProfileRouter.get(
     //
     // No `lte: range.to` on the current window: a preset is how far back to look, and
     // upcoming bookings after now still belong on this dashboard. All (`unbounded`)
-    // drops the lower bound too. Previous-period deltas stay a past-only comparison.
+    // drops the lower bound too. Previous-period deltas stay a past-only comparison, and
+    // are skipped when the plan's history does not reach back that far (`comparable`).
     const [rows, previousRows] = await Promise.all([
       prisma.appointment.findMany({
         where: range.unbounded ? { providerId } : { providerId, startAt: { gte: range.from } },
         select: ANALYTICS_SELECT,
       }),
-      range.unbounded
+      !range.comparable
         ? Promise.resolve([])
         : prisma.appointment.findMany({
             where: { providerId, startAt: { gte: range.previousFrom, lt: range.from } },
@@ -811,6 +826,21 @@ providerProfileRouter.patch(
   asyncHandler(async (req, res) => {
     const data = parseProviderSeoBody(req.body)
     if (!Object.keys(data).length) throw new HttpError(400, 'Nothing to update', 400)
+
+    /**
+     * A custom link is a paid feature. Unchanged and cleared slugs always pass
+     * (`needsCustomSlug`), which is what keeps a free provider's grandfathered slug — set
+     * before slugs were paid — alive through every save of this tab. Resolving a slug
+     * (`GET /providers/:idOrSlug`) never looks at the plan: a printed link must not break.
+     */
+    if (data.slug !== undefined) {
+      const current = await prisma.provider.findUnique({
+        where: { id: req.session!.profileId },
+        select: { slug: true, plan: true, planExpiresAt: true },
+      })
+      if (!current) throw new HttpError(404, 'Provider profile not found', 404)
+      assertSlugChange(current.slug, data.slug, getEntitlements(current, new Date()))
+    }
 
     try {
       const provider = await prisma.provider.update({
@@ -953,14 +983,32 @@ async function resolveServiceCategoryId(
 }
 
 /** Scoped by `providerId` so one provider can never address another's service. */
-async function findOwnService(providerId: string, serviceId: string | undefined): Promise<string> {
+async function findOwnService(
+  providerId: string,
+  serviceId: string | undefined
+): Promise<{ id: string; active: boolean }> {
   if (!serviceId) throw new HttpError(400, 'Service id is required')
   const service = await prisma.service.findFirst({
     where: { id: serviceId, providerId },
-    select: { id: true },
+    select: { id: true, active: true },
   })
   if (!service) throw new HttpError(404, 'Service not found', 404)
-  return service.id
+  return service
+}
+
+/**
+ * The plan's cap on active services, checked only when a write puts one more on the page
+ * (`takesServiceSlot`). A downgraded provider above their new cap keeps every live service
+ * and can still edit them — they just cannot add or reactivate one until they are under it.
+ * Nothing consumer-facing is ever withdrawn by a plan change (docs/BILLING.md).
+ */
+async function assertRoomForActiveService(providerId: string): Promise<void> {
+  const provider = await prisma.provider.findUnique({
+    where: { id: providerId },
+    select: { plan: true, planExpiresAt: true },
+  })
+  if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
+  assertServiceSlot(await countActiveServices(providerId), getEntitlements(provider, new Date()))
 }
 
 providersRouter.post(
@@ -981,6 +1029,9 @@ providersRouter.post(
     assertDuration(duration)
     assertPrice(price)
 
+    const active = readBoolean(body, 'active') ?? true
+    if (takesServiceSlot(false, active)) await assertRoomForActiveService(providerId)
+
     const service = await prisma.service.create({
       data: {
         providerId,
@@ -991,7 +1042,7 @@ providersRouter.post(
         price: price ?? null,
         currency: readText(body, 'currency') ?? null,
         imageUrl: uploadedImageUrl(req) ?? null,
-        active: readBoolean(body, 'active') ?? true,
+        active,
       },
     })
 
@@ -1005,14 +1056,17 @@ providersRouter.put(
   upload.single('image'),
   asyncHandler(async (req, res) => {
     const providerId = assertOwnProvider(req)
-    const serviceId = await findOwnService(providerId, req.params.serviceId)
+    const { id: serviceId, active: wasActive } = await findOwnService(providerId, req.params.serviceId)
     const body = req.body as Record<string, unknown>
 
     const name = readText(body, 'name')
     if (hasField(body, 'name') && !name) throw new HttpError(400, 'Service name is required')
 
-    const categoryId = await resolveServiceCategoryId(body)
     const active = readBoolean(body, 'active')
+    // Before the category is resolved, which can create a Category row as a side effect.
+    if (active !== undefined && takesServiceSlot(wasActive, active)) await assertRoomForActiveService(providerId)
+
+    const categoryId = await resolveServiceCategoryId(body)
 
     const duration = readNumber(body, 'duration')
     if (duration !== undefined) {
@@ -1051,7 +1105,7 @@ providersRouter.delete(
   requireProvider,
   asyncHandler(async (req, res) => {
     const providerId = assertOwnProvider(req)
-    const serviceId = await findOwnService(providerId, req.params.serviceId)
+    const { id: serviceId } = await findOwnService(providerId, req.params.serviceId)
 
     // `Appointment.serviceId` is a required FK with no `onDelete`, so Postgres would
     // reject this with a P2003 the error handler renders as a bare 500. Answer the

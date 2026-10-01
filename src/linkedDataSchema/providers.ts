@@ -3,6 +3,7 @@ import { BasicProvider } from '@store/providers/list/types'
 import { ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { isOnlineBookingOpen } from '@helpers/booking'
 import { formatDuration } from '@helpers/duration'
 import { generateEntityUrl } from '@helpers/entities'
 import { resolveAbsoluteAssetUrl } from '@helpers/images'
@@ -178,19 +179,22 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
         }
       : undefined,
     // The explicit "this page takes bookings" signal. Without it a crawler has to
-    // infer bookability from the calendar, which is client-rendered.
-    potentialAction: {
-      '@type': 'ReserveAction',
-      name: `Book an appointment with ${fullName}`,
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: pageUrl,
-      },
-      result: {
-        '@type': 'Reservation',
-        name: `Appointment with ${fullName}`,
-      },
-    },
+    // infer bookability from the calendar, which is client-rendered. Withheld while the
+    // page is not taking bookings online — a claim the page itself would contradict.
+    potentialAction: isOnlineBookingOpen(provider.details.onlineBooking)
+      ? {
+          '@type': 'ReserveAction',
+          name: `Book an appointment with ${fullName}`,
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: pageUrl,
+          },
+          result: {
+            '@type': 'Reservation',
+            name: `Appointment with ${fullName}`,
+          },
+        }
+      : undefined,
   }
 
   return {

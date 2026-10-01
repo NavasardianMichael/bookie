@@ -1,8 +1,10 @@
 import { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { GenerateMetadata } from '@interfaces/components'
+import { ROUTE_KEYS } from '@constants/routes'
 import { PageShell } from '@components/ui/layout'
 import { AdminReviewsClient } from './AdminReviewsClient'
+import { AdminNav } from '../AdminNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +35,7 @@ export const generateMetadata: GenerateMetadata<Props> = async (): Promise<Metad
 export default function AdminReviewsPage() {
   return (
     <PageShell className='flex flex-col gap-6'>
+      <AdminNav current={ROUTE_KEYS.adminReviews} />
       <AdminReviewsClient />
     </PageShell>
   )

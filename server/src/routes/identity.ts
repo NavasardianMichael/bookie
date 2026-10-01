@@ -49,8 +49,9 @@ identityRouter.use('/google', googleRouter)
  * merely display — it has to render a "resend verification" button for one 403 and a plain
  * message for another, and string-matching an error message is not a contract.
  *
- * Every other route in this codebase passes the HTTP status as the envelope's `code`. This
- * router deliberately deviates; mirrored in `src/api/auth/types.ts`.
+ * Most routes pass the HTTP status as the envelope's `code`. This router deviates, as do
+ * the two other families a client must react to — `BOOKING_ERROR` (`lib/booking-errors.ts`)
+ * and `PLAN_ERROR` (`lib/plan-errors.ts`); mirrored in `src/constants/auth.ts`.
  */
 export const AUTH_ERROR = {
   invalidCredentials: 4001,

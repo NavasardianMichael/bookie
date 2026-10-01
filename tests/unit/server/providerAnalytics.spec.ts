@@ -67,6 +67,57 @@ describe('parseAnalyticsRange', () => {
     expect(range.unbounded).toBe(true)
     expect(range.to).toEqual(NOW)
   })
+
+  it('compares with the previous window when nothing limits history', () => {
+    expect(parseAnalyticsRange({}, NOW).comparable).toBe(true)
+    expect(parseAnalyticsRange({}, NOW, null).comparable).toBe(true)
+    expect(parseAnalyticsRange({ all: 'true' }, NOW).comparable).toBe(false)
+  })
+})
+
+/**
+ * The plan's `analyticsHistoryDays`. The floor is measured from now, and nothing behind it
+ * may be read — not by `from`, not by `all`, not by a `to` moved into the past, and not by
+ * the previous window behind a delta.
+ */
+describe('parseAnalyticsRange — plan history limit', () => {
+  const floor = new Date(NOW.getTime() - 30 * DAY_MS)
+
+  it('leaves a window inside the history alone', () => {
+    const range = parseAnalyticsRange({ from: new Date(NOW.getTime() - 7 * DAY_MS).toISOString() }, NOW, 30)
+    expect(range.from).toEqual(new Date(NOW.getTime() - 7 * DAY_MS))
+    expect(range.comparable).toBe(true)
+  })
+
+  it('raises a from behind the floor up to it', () => {
+    const range = parseAnalyticsRange({ from: new Date(NOW.getTime() - 90 * DAY_MS).toISOString() }, NOW, 30)
+    expect(range.from).toEqual(floor)
+  })
+
+  it('stops all at the floor instead of reading everything', () => {
+    const range = parseAnalyticsRange({ all: 'true' }, NOW, 30)
+    expect(range.unbounded).toBe(false)
+    expect(range.from).toEqual(floor)
+    expect(range.to).toEqual(NOW)
+    expect(range.comparable).toBe(false)
+  })
+
+  // Measuring from `to` instead of now would let a hand-edited `to` carry the whole
+  // window a year back.
+  it('does not let a to in the past escape the floor', () => {
+    const range = parseAnalyticsRange(
+      { from: '2025-08-01T00:00:00Z', to: '2025-09-01T00:00:00Z' },
+      NOW,
+      30
+    )
+    expect(range.from.getTime()).toBeGreaterThanOrEqual(floor.getTime())
+    expect(range.to).toEqual(NOW)
+  })
+
+  it('skips the previous window when it would reach behind the floor', () => {
+    expect(parseAnalyticsRange({}, NOW, 30).comparable).toBe(false)
+    expect(parseAnalyticsRange({}, NOW, 365).comparable).toBe(true)
+  })
 })
 
 describe('revenue is grouped by currency and never summed across them', () => {

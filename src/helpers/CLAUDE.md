@@ -17,6 +17,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | Remove slots a booking already holds | `dropBusySlots` | `booking.ts` |
 | Was a failed booking "someone got there first" | `isSlotTakenError` | `booking.ts` |
+| Was a failed booking refused because the provider is not taking bookings online (paused / full) | `getBookingClosedReason` | `booking.ts` |
+| Does the public page offer its calendar (`details.onlineBooking`, missing = open) | `isOnlineBookingOpen` | `booking.ts` |
 | Consumer appointments tab: upcoming + search/status/sort | `filterAndSortConsumerAppointments` | `consumerAppointments.ts` |
 | Booking details list + copy-as-text | `buildBookingSummaryFields`, `formatBookingSummaryPlainText` | `bookingSummary.ts` |
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
@@ -69,6 +71,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Server Component: an API 404 → `notFound()` | `isNotFoundError` | `error.ts` |
 | antd's `validateFields` rejection (the one error a submit may drop) | `isFormValidationError` | `error.ts` |
 | PNG data URL of a string (booking QR) | `toQrDataUrl` | `qr.ts` |
+| A plan's last day ↔ its expiry instant (UTC midnight after it) | `toPlanExpiryISO`, `toPlanLastDay`, `toPlanLastDayValue` | `plans.ts` |
+| Usage against a plan limit (`null` = unlimited) | `usagePercent`, `hasRoomFor` | `plans.ts` |
 | Check a password against the shared policy | `checkPasswordPolicy` | `password.ts` |
 
 ## Things to know before using them

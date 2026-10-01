@@ -1,6 +1,7 @@
 'use client'
 
 import { FC, ReactNode, useEffect, useMemo } from 'react'
+import { CrownOutlined } from '@ant-design/icons'
 import { Badge } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useProviderApprovalsStore } from '@store/providers/approvals/store'
@@ -79,6 +80,7 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
           [ROUTE_KEYS.providerProfileSeo]: t('nav.seo'),
           [ROUTE_KEYS.providerProfileNotifications]: t('nav.notifications'),
           [ROUTE_KEYS.providerProfilePayments]: t('nav.payments'),
+          [ROUTE_KEYS.providerProfilePlan]: t('nav.plan'),
         },
         {
           [ROUTE_KEYS.providerProfile]: <UserIcon className='h-5 w-5' />,
@@ -89,6 +91,8 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
           [ROUTE_KEYS.providerProfileSeo]: <GlobeIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfileNotifications]: <BellIcon className='h-5 w-5' />,
           [ROUTE_KEYS.providerProfilePayments]: <CreditCardIcon className='h-5 w-5' />,
+          // antd, not `ui/icons.tsx`: a new glyph on a client island (src/components/CLAUDE.md).
+          [ROUTE_KEYS.providerProfilePlan]: <CrownOutlined className='text-xl' />,
         }
       ),
     [pendingApprovals, t]

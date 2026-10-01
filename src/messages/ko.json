@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "검토하는 동안 그 시간은 확보되어 있습니다. 답변이 오는 대로 이메일로 알려드립니다.",
     "approvalNoticeTitle": "이 제공자는 예약을 검토합니다",
     "approvalNoticeBody": "예약은 신청으로 전송됩니다. 답변이 올 때까지 그 시간은 확보됩니다.",
-    "submitRequest": "예약 신청 보내기"
+    "submitRequest": "예약 신청 보내기",
+    "closed": {
+      "servicesTitle": "서비스",
+      "pausedTitle": "온라인 예약이 일시 중지되었습니다",
+      "pausedBody": "{name} 님은 현재 온라인 예약을 받지 않습니다. 시간을 정하려면 직접 연락해 주세요.",
+      "fullTitle": "이번 달 온라인 예약이 마감되었습니다",
+      "fullBody": "{name} 님은 이번 달에 더 이상 온라인 예약을 받을 수 없습니다. 시간을 정하려면 직접 연락해 주세요.",
+      "call": "전화하기: {phone}",
+      "email": "이메일 보내기"
+    }
   },
   "Footer": {
     "blurb": "주변 서비스를 찾는 것도, 예약 일정을 관리하는 것도 하나의 플랫폼에서.",
@@ -285,7 +294,8 @@
     "joinAsProvider": "서비스 제공자로 참여",
     "createAccount": "계정 만들기",
     "company": "회사",
-    "contact": "문의하기"
+    "contact": "문의하기",
+    "pricing": "요금"
   },
   "Contact": {
     "metaTitle": "문의하기",
@@ -310,6 +320,10 @@
       "title": "메시지를 보냈습니다",
       "body": "연락해 주셔서 감사합니다. 남겨 주신 이메일로 답변드리며, 보통 영업일 기준 5일 내입니다.",
       "sendAnother": "다른 메시지 보내기"
+    },
+    "topics": {
+      "planUpgrade": "신청: {plan} 요금제",
+      "planUpgradeMessage": "안녕하세요. 제 페이지를 {plan} 요금제로 변경하고 싶습니다."
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "승인",
       "analytics": "분석",
       "seo": "SEO",
-      "history": "기록"
+      "history": "기록",
+      "plan": "요금제"
     },
     "workspace": {
       "onProviderTitle": "제공자 워크스페이스입니다",
@@ -601,7 +616,8 @@
       "clientsTotal": "전체",
       "clientsReturning": "재방문",
       "leadTime": "보통 {hours, plural, one {#시간} other {#시간}} 전에 예약해요.",
-      "noLeadTime": "예약 수가 적어 얼마나 미리 예약하는지 알기 어려워요."
+      "noLeadTime": "예약 수가 적어 얼마나 미리 예약하는지 알기 어려워요.",
+      "rangeLocked": "현재 요금제에는 이 기간의 분석이 포함됩니다: {days, plural, =365 {12개월} other {#일}}. <link>요금제 보기</link>"
     },
     "history": {
       "title": "기록",
@@ -634,7 +650,9 @@
       "slugLength": "{min}자에서 {max}자 사이여야 해요.",
       "slugPattern": "소문자, 숫자, 그리고 그 사이에 오는 단일 하이픈만 사용할 수 있어요.",
       "slugChangeWarning": "저장하면 현재 링크가 대체돼요. /p/{slug}을(를) 사용하던 사람은 페이지에 도달할 수 없어요.",
-      "saved": "검색 설정을 저장했어요."
+      "saved": "검색 설정을 저장했어요.",
+      "slugLocked": "맞춤 링크는 유료 요금제에 포함되어 있어 페이지는 기본 링크를 사용합니다. <link>요금제 보기</link>",
+      "slugLockedKept": "맞춤 링크는 계속 작동하지만 변경하려면 유료 요금제가 필요합니다. <link>요금제 보기</link>"
     },
     "signOutTitle": "로그아웃할까요?",
     "signOutBody": "계정을 관리하려면 다시 로그인해야 합니다.",
@@ -648,6 +666,23 @@
       "googleOnly": "이 계정은 Google로 로그인합니다. 삭제를 확인하려면 먼저 비밀번호를 설정하세요.",
       "hasAppointments": "예약이 남아 있습니다. 계정을 삭제하기 전에 취소하세요.",
       "wrongPassword": "현재 비밀번호가 올바르지 않습니다"
+    },
+    "plan": {
+      "title": "요금제",
+      "subtitle": "내 요금제, 이번 달 사용량, 요금제별 포함 내용입니다.",
+      "currentPlan": "현재 요금제",
+      "activeUntil": "{date}까지 유효",
+      "lapsed": "{plan} 요금제가 {date}에 종료되었습니다. 지금은 무료 요금제를 사용 중입니다.",
+      "bookingsFullTitle": "이번 달에는 페이지에서 온라인 예약을 받지 않습니다",
+      "bookingsFullBody": "이번 달 온라인 예약을 모두 사용했습니다. {date}까지 또는 요금제를 업그레이드할 때까지 페이지를 방문한 고객에게 직접 연락하도록 안내됩니다.",
+      "activeServices": "활성 서비스",
+      "bookingsThisMonth": "이번 달 온라인 예약",
+      "usedOfLimit": "{used} / {limit}",
+      "servicesFull": "한도 도달 — 서비스를 하나 비활성화하면 추가할 수 있습니다",
+      "resetsOn": "{date} 초기화",
+      "comparePlans": "요금제 비교",
+      "requestUpgrade": "업그레이드 신청",
+      "manualNote": "현재 요금제는 저희 팀이 직접 설정합니다. 신청하시면 이메일로 연락드려 설정해 드립니다."
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "페이지를 내리지 않고 새 예약만 잠시 중단하거나, 게시를 중단했다가 준비되면 언제든 다시 게시할 수 있어요."
           },
           "link": {
-            "title": "짧은 링크와 SEO",
-            "body": "페이지의 짧은 링크를 공유하고, 검색 엔진에 표시될 제목과 설명을 설정하세요."
+            "title": "SEO와 맞춤 링크",
+            "body": "검색 엔진에 표시되는 제목과 설명을 설정하세요. 유료 요금제에서는 페이지용 짧은 맞춤 링크도 선택할 수 있습니다."
           },
           "services": {
             "title": "서비스 메뉴",
@@ -966,7 +1001,9 @@
     "activateTitle": "이 서비스를 활성화할까요?",
     "activateBody": "고객이 예약할 수 있게 됩니다.",
     "deactivateTitle": "이 서비스를 비활성화할까요?",
-    "deactivateBody": "다시 활성화할 때까지 고객이 예약할 수 없습니다."
+    "deactivateBody": "다시 활성화할 때까지 고객이 예약할 수 없습니다.",
+    "activeOfLimit": "요금제의 활성 서비스: {count} / {limit}.",
+    "limitReached": "추가하려면 서비스를 하나 비활성화하거나 <link>요금제를 업그레이드</link>하세요."
   },
   "ProfileCreation": {
     "metaTitle": "프로필 만들기",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "현재 비밀번호가 올바르지 않습니다.",
       "emailTaken": "이 이메일로 등록된 계정이 이미 있어요.",
       "hasAppointments": "예약 기록이 있어요. 먼저 예약을 취소해 주세요.",
-      "slotTaken": "방금 다른 분이 그 시간을 예약했어요. 다른 시간을 선택해 주세요."
+      "slotTaken": "방금 다른 분이 그 시간을 예약했어요. 다른 시간을 선택해 주세요.",
+      "bookingPaused": "이 제공자는 현재 온라인 예약을 받지 않습니다. 예약하려면 직접 연락해 주세요.",
+      "bookingFull": "이 제공자는 이번 달에 더 이상 온라인 예약을 받을 수 없습니다. 예약하려면 직접 연락해 주세요.",
+      "serviceLimit": "요금제의 활성 서비스 한도에 도달했습니다. 서비스를 하나 비활성화하거나 요금제를 업그레이드하면 추가할 수 있습니다.",
+      "featureLocked": "이 기능은 현재 요금제에 포함되어 있지 않습니다. 요금제를 업그레이드하면 사용할 수 있습니다."
     },
     "pages": {
       "provider": "이 제공자의 페이지를 불러오지 못했어요. 다시 시도해 주세요.",
@@ -1089,6 +1130,60 @@
     "resolve": "인정하고 종료",
     "dismiss": "신고 기각",
     "actionError": "처리하지 못했습니다. 다시 시도해 주세요.",
-    "pagesLabel": "신고 페이지"
+    "pagesLabel": "신고 페이지",
+    "nav": {
+      "label": "관리 메뉴",
+      "reviews": "신고된 리뷰",
+      "providers": "제공자 요금제"
+    },
+    "providers": {
+      "metaTitle": "제공자 요금제",
+      "metaDescription": "제공자에게 요금제와 체험 기간을 지정합니다.",
+      "title": "제공자 요금제",
+      "searchLabel": "제공자 검색",
+      "searchPlaceholder": "이름, 이메일 또는 링크",
+      "empty": "제공자를 찾을 수 없습니다",
+      "emptyHint": "다른 이름, 이메일 또는 링크로 검색해 보세요.",
+      "unlisted": "비공개",
+      "ended": "{plan} 종료: {date}",
+      "until": "{date}까지",
+      "planLabel": "요금제",
+      "lastDayLabel": "마지막 날",
+      "noEnd": "종료일 없음",
+      "save": "요금제 저장",
+      "saved": "요금제를 저장했습니다",
+      "pagesLabel": "제공자 페이지"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "무료",
+      "basic": "베이직",
+      "standard": "스탠다드",
+      "premium": "프리미엄"
+    },
+    "features": {
+      "maxActiveServices": "활성 서비스",
+      "maxBookingsPerMonth": "월간 온라인 예약",
+      "analyticsHistoryDays": "분석 기록 기간",
+      "customSlug": "맞춤 링크"
+    },
+    "unlimited": "무제한",
+    "fullHistory": "전체 기록",
+    "days": "{count, plural, =365 {12개월} other {#일}}",
+    "included": "포함",
+    "notIncluded": "미포함",
+    "current": "내 요금제",
+    "requestTitle": "{plan} 요금제 신청"
+  },
+  "Pricing": {
+    "metaTitle": "제공자 요금 안내",
+    "metaDescription": "무료부터 프리미엄까지 서비스 제공자를 위한 Bookie 요금제와 각 요금제의 포함 내용입니다. 고객의 예약은 언제나 무료입니다.",
+    "title": "제공자를 위한 요금제",
+    "subtitle": "무료로 시작하고 일정이 채워지면 업그레이드하세요. 고객은 예약에 비용을 내지 않습니다.",
+    "startFree": "무료로 시작",
+    "requestPlan": "이 요금제 신청",
+    "clientsFree": "고객은 Bookie로 예약할 때 어떤 비용도 내지 않습니다.",
+    "manualNote": "현재 유료 요금제는 저희 팀이 직접 설정합니다. 신청하시면 이메일로 연락드려 설정해 드립니다."
   }
 }

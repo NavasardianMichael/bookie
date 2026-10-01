@@ -5,6 +5,7 @@ import { escapeHtml, isMailConfigured, sendInternalMail } from '../lib/mail.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
 import { asBoundedString, asTrimmedString, isEmail } from '../lib/request.js'
 import { asyncHandler } from '../middleware/error.js'
+import { PLAN_ORDER } from '../services/plans.js'
 
 /**
  * The public contact page's only endpoint.
@@ -45,6 +46,19 @@ const htmlBodyFor = (message: string, email: string): string =>
   `<p><strong>Email</strong><br/>${escapeHtml(email)}</p>` +
   `<p style="white-space:pre-wrap">${escapeHtml(message)}</p>`
 
+/**
+ * What a message is about, when the page sending it knows — today only the Plan tab's
+ * upgrade request. **Allowlisted, never a free-text subject**: the subject line is ours,
+ * and a visitor-supplied one would let anyone dress a message up as something it is not.
+ * Until a payment provider is wired in, these requests are how a plan is sold
+ * (docs/BILLING.md); the subject names the plan so the inbox can be worked at a glance.
+ */
+const TOPICS = ['planUpgrade'] as const
+type Topic = (typeof TOPICS)[number]
+
+const asTopic = (raw: unknown): Topic | undefined => TOPICS.find((topic) => topic === raw)
+const asPlan = (raw: unknown) => PLAN_ORDER.find((plan) => plan === raw)
+
 contactRouter.post(
   '/',
   asyncHandler(async (req, res) => {
@@ -71,6 +85,10 @@ contactRouter.post(
     const email = asTrimmedString(req.body?.email)?.toLowerCase()
     if (!email || !isEmail(email)) return fail(res, 'Valid email required')
 
+    // An unknown topic or plan is dropped, not refused: the message itself still matters.
+    const topic = asTopic(req.body?.topic)
+    const plan = topic === 'planUpgrade' ? asPlan(req.body?.plan) : undefined
+
     /**
      * Counted **after** validation, and after the honeypot, so only a submission that is
      * actually about to be mailed spends from the budget.
@@ -96,17 +114,28 @@ contactRouter.post(
       if (config.nodeEnv === 'production') {
         return fail(res, 'Contact is temporarily unavailable. Please try again later.', 503, 503)
       }
-      console.log(`[contact] ${firstName} ${lastName} <${email}>\n${message}`)
+      console.log(`[contact] ${topic ? `${topic} ${plan ?? ''} ` : ''}${firstName} ${lastName} <${email}>\n${message}`)
       return ok(res, true)
     }
 
     const result = await sendInternalMail({
-      subject: `Contact form — ${firstName} ${lastName}`,
+      subject:
+        topic === 'planUpgrade'
+          ? `Plan upgrade request — ${plan ?? 'plan not chosen'} — ${firstName} ${lastName}`
+          : `Contact form — ${firstName} ${lastName}`,
       body: htmlBodyFor(message, email),
       senderEmail: email,
       firstName,
       lastName,
-      details: { signedIn: Boolean(req.session), role: req.session?.role },
+      details: {
+        signedIn: Boolean(req.session),
+        role: req.session?.role,
+        // The provider id from the session, never the body — it is what the admin plan
+        // screen is searched by, and a body field could name somebody else's page.
+        ...(topic
+          ? { topic, plan, providerId: req.session?.role === 'provider' ? req.session.profileId : undefined }
+          : {}),
+      },
     })
 
     if (!result.ok) {

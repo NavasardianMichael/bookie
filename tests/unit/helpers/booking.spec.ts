@@ -1,14 +1,43 @@
 import dayjs from 'dayjs'
 import { describe, expect, it } from 'vitest'
 import { at, day, LONG_AGO, makeWeekSchedule, MONDAY, SUNDAY, TUESDAY } from '@test/setup/fixtures'
+import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import {
   countSlotsByDay,
   dropBusySlots,
+  getBookingClosedReason,
   getSlotsForDate,
   getSlotsForDateRange,
   getWeekDay,
+  isOnlineBookingOpen,
   isOpenOnDate,
 } from '@helpers/booking'
+
+describe('getBookingClosedReason', () => {
+  it('names why online booking is closed, from the stable code', () => {
+    expect(getBookingClosedReason({ code: BOOKING_ERROR_CODES.bookingPaused })).toBe('paused')
+    expect(getBookingClosedReason({ code: BOOKING_ERROR_CODES.bookingFull })).toBe('full')
+  })
+
+  // A taken slot is fixed by another time; a closed page is not. They must not blur.
+  it('is undefined for every other failure, the plain 409s included', () => {
+    expect(getBookingClosedReason({ code: 409 })).toBeUndefined()
+    expect(getBookingClosedReason({ code: -1 })).toBeUndefined()
+    expect(getBookingClosedReason({ code: 409, message: SLOT_TAKEN_MESSAGE } as { code: number })).toBeUndefined()
+  })
+})
+
+describe('isOnlineBookingOpen', () => {
+  it('is open for open, and for a payload written before the field existed', () => {
+    expect(isOnlineBookingOpen('open')).toBe(true)
+    expect(isOnlineBookingOpen(undefined)).toBe(true)
+  })
+
+  it('is closed for either closed reason', () => {
+    expect(isOnlineBookingOpen('paused')).toBe(false)
+    expect(isOnlineBookingOpen('full')).toBe(false)
+  })
+})
 
 describe('getWeekDay', () => {
   // dayjs indexes 0 = Sunday; WEEK_DAYS_LIST is Monday-first. The `(day() + 6) % 7`

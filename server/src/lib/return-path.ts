@@ -160,6 +160,15 @@ const withLocale = (origin: string, locale: string, path: string): string =>
 export const buildApprovalsUrl = (origin: string, locale: string): string =>
   withLocale(origin, locale, PROVIDER_APPROVALS_PATH)
 
+/**
+ * The provider's Plan tab — where the booking-allowance emails send them. The same pairing
+ * as the approvals link: the page is `ROUTES.providerProfilePlan`, and
+ * `tests/unit/server/planErrors.spec.ts` holds the two together.
+ */
+export const PROVIDER_PLAN_PATH = '/providers/profile/plan'
+
+export const buildPlanUrl = (origin: string, locale: string): string => withLocale(origin, locale, PROVIDER_PLAN_PATH)
+
 /** The provider's public page — where a declined booker goes to pick another time. */
 export const buildProviderPageUrl = (origin: string, locale: string, providerId: string): string =>
   withLocale(origin, locale, `/providers/${providerId}`)

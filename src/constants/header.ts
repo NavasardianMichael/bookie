@@ -35,12 +35,12 @@ export const HEADER_SIGN_IN: AppRouteName = ROUTE_KEYS.signIn
  * Routes the overview page must not list.
  *
  * `/routes-overview` is described as a dev aid but it is prerendered and publicly
- * reachable, so anything named here is published. `adminReviews` is excluded for the
- * same reason `requireAdmin` answers 404 rather than 403: the moderation surface should
- * not advertise that it exists. Guarding it is the API's job — this only stops us
- * handing out the address.
+ * reachable, so anything named here is published. The admin pages are excluded for the
+ * same reason `requireAdmin` answers 404 rather than 403: the admin surface should not
+ * advertise that it exists. Guarding it is the API's job — this only stops us handing
+ * out the address.
  */
-const OVERVIEW_EXCLUDED: AppRouteName[] = [ROUTE_KEYS.adminReviews]
+const OVERVIEW_EXCLUDED: AppRouteName[] = [ROUTE_KEYS.adminReviews, ROUTE_KEYS.adminProviders]
 
 /** Dev aid only (`/routes-overview`), so these stay raw route names — not user copy. */
 export const OVERVIEW_ROUTES: AppRouteName[] = (Object.keys(ROUTES) as AppRouteName[]).filter(

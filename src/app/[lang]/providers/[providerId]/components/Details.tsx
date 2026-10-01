@@ -4,9 +4,13 @@ import { FC, useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { SingleProvider } from '@store/providers/single/types'
+import { BookingClosedReason } from '@interfaces/booking'
+import { isOnlineBookingOpen } from '@helpers/booking'
+import { generateFriendlyPhoneNumber } from '@helpers/phone'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { Surface } from '@components/ui/layout/Surface'
+import { BookingClosedNotice } from './BookingClosedNotice'
 import { BookingPanel } from './BookingPanel'
 import { ServicePicker } from './ServicePicker'
 
@@ -38,6 +42,19 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
 
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(() => services[0]?.id)
 
+  /**
+   * Seeded from the payload, and closed locally when a submit is refused because the
+   * provider paused or ran out of allowance while this page was open — so the visitor is
+   * moved to the contact notice rather than left with a calendar that cannot book.
+   */
+  const [closedReason, setClosedReason] = useState<BookingClosedReason | undefined>(() => {
+    const { onlineBooking } = initialState.details
+    return isOnlineBookingOpen(onlineBooking) ? undefined : onlineBooking
+  })
+
+  const { basic, details } = initialState
+  const phone = details.phone ? generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' }) : undefined
+
   useEffect(() => {
     providerStore.setSingleProviderState(JSON.parse(JSON.stringify(initialState)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,20 +64,33 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
     <>
       {!!services.length && (
         <Surface>
+          {/* The picker stays when booking is closed: it is the page's only list of what
+              this provider offers, and that is still worth reading before phoning them. */}
           <div className='mb-5'>
             <AppTitle level='h3' size='h3'>
-              {t('chooseService')}
+              {closedReason ? t('closed.servicesTitle') : t('chooseService')}
             </AppTitle>
-            <AppParagraph size='body-sm' className='m-0'>
-              {t('chooseServiceHint')}
-            </AppParagraph>
+            {!closedReason && (
+              <AppParagraph size='body-sm' className='m-0'>
+                {t('chooseServiceHint')}
+              </AppParagraph>
+            )}
           </div>
 
           <ServicePicker services={services} value={selectedServiceId} onChange={setSelectedServiceId} />
         </Surface>
       )}
 
-      <BookingPanel selectedServiceId={selectedServiceId} />
+      {closedReason ? (
+        <BookingClosedNotice
+          reason={closedReason}
+          providerName={`${basic.firstName} ${basic.lastName}`.trim()}
+          phone={phone}
+          email={details.email}
+        />
+      ) : (
+        <BookingPanel selectedServiceId={selectedServiceId} onBookingClosed={setClosedReason} />
+      )}
     </>
   )
 }

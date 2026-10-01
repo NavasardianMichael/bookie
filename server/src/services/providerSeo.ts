@@ -62,21 +62,32 @@ const LOCALE_SLUGS = [
  * Three groups, all for the same reason — a slug becomes a URL segment, and a segment
  * that collides with a real one is a route hijack rather than a vanity link:
  *
- * 1. every first path segment in the app's own route table;
+ * 1. every first path segment in the app's own route table, plus every segment under
+ *    `/providers/` — `/p/<slug>` rewrites to `/providers/<slug>`, so a provider holding
+ *    `profile-services` would have been a vanity link to somebody's settings page;
  * 2. every locale code, since `/<locale>/…` is how every page in the app is addressed;
  * 3. the infrastructure names a visitor would read as ours rather than a provider's.
+ *
+ * Group 1 is pinned to `ROUTES` by `tests/unit/server/providerSeo.spec.ts`, which is what
+ * stops it drifting again: it had fallen five segments behind before that test existed.
  */
 export const RESERVED_SLUGS: ReadonlySet<string> = new Set<string>([
   // Route segments — mirrors `ROUTES` in `src/constants/routes.ts`.
   'p',
+  'b',
   'providers',
   'provider-categories',
   'profile',
+  'profile-creation',
+  'profile-services',
   'categories',
   'organizations',
   'consumers',
+  'bookings',
+  'favorites',
   'auth',
   'contact',
+  'pricing',
   'terms',
   'privacy',
   'routes-overview',
@@ -100,6 +111,7 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set<string>([
   'settings',
   'account',
   'billing',
+  'plans',
   'bookie',
 ])
 

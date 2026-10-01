@@ -271,7 +271,16 @@
     "awaitingApprovalBody": "確認の間、その時間は確保されています。返答があり次第メールでお知らせします。",
     "approvalNoticeTitle": "この提供者は予約を確認します",
     "approvalNoticeBody": "ご予約は申し込みとして送信されます。返答があるまで、その時間は確保されます。",
-    "submitRequest": "予約を申し込む"
+    "submitRequest": "予約を申し込む",
+    "closed": {
+      "servicesTitle": "サービス",
+      "pausedTitle": "オンライン予約は一時停止中です",
+      "pausedBody": "{name}は現在オンライン予約を受け付けていません。日時の調整は直接お問い合わせください。",
+      "fullTitle": "今月のオンライン予約は受付を終了しました",
+      "fullBody": "{name}は今月これ以上オンライン予約を受け付けられません。日時の調整は直接お問い合わせください。",
+      "call": "{phone} に電話する",
+      "email": "メールを送る"
+    }
   },
   "Footer": {
     "blurb": "近くのサービスを見つけるのも、予約カレンダーを管理するのも、これひとつで。",
@@ -285,7 +294,8 @@
     "joinAsProvider": "提供者として登録",
     "createAccount": "アカウントを作成",
     "company": "会社情報",
-    "contact": "お問い合わせ"
+    "contact": "お問い合わせ",
+    "pricing": "料金"
   },
   "Contact": {
     "metaTitle": "お問い合わせ",
@@ -310,6 +320,10 @@
       "title": "メッセージを送信しました",
       "body": "お問い合わせありがとうございます。ご記入のメールアドレスへ、通常 5 営業日以内にご連絡します。",
       "sendAnother": "別のメッセージを送信"
+    },
+    "topics": {
+      "planUpgrade": "お申し込み：{plan}プラン",
+      "planUpgradeMessage": "こんにちは。ページを{plan}プランに変更したいです。"
     }
   },
   "Settings": {
@@ -331,7 +345,8 @@
       "approvals": "承認",
       "analytics": "分析",
       "seo": "SEO",
-      "history": "履歴"
+      "history": "履歴",
+      "plan": "プラン"
     },
     "workspace": {
       "onProviderTitle": "提供者ワークスペースを表示しています",
@@ -601,7 +616,8 @@
       "clientsTotal": "合計",
       "clientsReturning": "リピーター",
       "leadTime": "通常 {hours, plural, one {# 時間} other {# 時間}} 前に予約されています。",
-      "noLeadTime": "予約数が少ないため、事前予約の目安を算出できません。"
+      "noLeadTime": "予約数が少ないため、事前予約の目安を算出できません。",
+      "rangeLocked": "ご利用のプランでは、この期間の分析を確認できます：{days, plural, =365 {12 か月} other {# 日間}}。<link>プランを見る</link>"
     },
     "history": {
       "title": "履歴",
@@ -634,7 +650,9 @@
       "slugLength": "{min} 〜 {max} 文字で入力してください。",
       "slugPattern": "小文字、数字、およびそれらの間の単一のハイフンのみ使用できます。",
       "slugChangeWarning": "保存すると現在のリンクが置き換わります。/p/{slug} を使用中の方はページに到達できなくなります。",
-      "saved": "検索設定を保存しました。"
+      "saved": "検索設定を保存しました。",
+      "slugLocked": "カスタムリンクは有料プランの機能のため、ページには標準のリンクが使われます。<link>プランを見る</link>",
+      "slugLockedKept": "カスタムリンクは引き続き使えますが、変更するには有料プランが必要です。<link>プランを見る</link>"
     },
     "signOutTitle": "ログアウトしますか？",
     "signOutBody": "アカウントを管理するには、再度ログインする必要があります。",
@@ -648,6 +666,23 @@
       "googleOnly": "このアカウントは Google でログインしています。削除を確認するには、先にパスワードを設定してください。",
       "hasAppointments": "予約が残っています。アカウントを削除する前にキャンセルしてください。",
       "wrongPassword": "現在のパスワードが正しくありません"
+    },
+    "plan": {
+      "title": "プラン",
+      "subtitle": "ご利用中のプラン、今月の利用状況、各プランの内容です。",
+      "currentPlan": "現在のプラン",
+      "activeUntil": "{date}まで有効",
+      "lapsed": "{plan}プランは{date}に終了しました。現在はフリープランです。",
+      "bookingsFullTitle": "今月はページでオンライン予約を受け付けていません",
+      "bookingsFullBody": "今月のオンライン予約をすべて使い切りました。{date}まで、またはプランをアップグレードするまで、ページを訪れたお客様には直接連絡するよう案内されます。",
+      "activeServices": "有効なサービス",
+      "bookingsThisMonth": "今月のオンライン予約",
+      "usedOfLimit": "{used} / {limit}",
+      "servicesFull": "上限に達しました — サービスを停止すると追加できます",
+      "resetsOn": "{date}にリセット",
+      "comparePlans": "プランを比較",
+      "requestUpgrade": "アップグレードを申し込む",
+      "manualNote": "現在、プランはスタッフが手動で設定しています。お申し込みいただければ、メールでご連絡のうえ設定します。"
     }
   },
   "Bookings": {
@@ -748,8 +783,8 @@
             "body": "ページを非公開にせずに新規予約だけを一時停止したり、公開を停止して、準備ができたらいつでも再公開したりできます。"
           },
           "link": {
-            "title": "短縮リンクと SEO",
-            "body": "ページへの短縮リンクを共有し、検索エンジンに表示されるタイトルと説明文を設定できます。"
+            "title": "SEO とカスタムリンク",
+            "body": "検索エンジンに表示されるタイトルと説明を設定できます。有料プランなら、ページ用の短いカスタムリンクも選べます。"
           },
           "services": {
             "title": "サービスメニュー",
@@ -966,7 +1001,9 @@
     "activateTitle": "このサービスを公開しますか？",
     "activateBody": "お客様が予約できるようになります。",
     "deactivateTitle": "このサービスを非公開にしますか？",
-    "deactivateBody": "再度公開するまで、お客様は予約できなくなります。"
+    "deactivateBody": "再度公開するまで、お客様は予約できなくなります。",
+    "activeOfLimit": "プランで有効なサービス：{count} / {limit}。",
+    "limitReached": "追加するには、サービスを1つ停止するか<link>プランをアップグレード</link>してください。"
   },
   "ProfileCreation": {
     "metaTitle": "プロフィールを作成",
@@ -1045,7 +1082,11 @@
       "reauthRequired": "現在のパスワードが正しくありません。",
       "emailTaken": "このメールアドレスのアカウントはすでに存在します。",
       "hasAppointments": "予約が登録されています。先にキャンセルしてください。",
-      "slotTaken": "その時間はたった今予約されました。別の時間をお選びください。"
+      "slotTaken": "その時間はたった今予約されました。別の時間をお選びください。",
+      "bookingPaused": "この提供者は現在オンライン予約を受け付けていません。予約は直接お問い合わせください。",
+      "bookingFull": "この提供者は今月これ以上オンライン予約を受け付けられません。予約は直接お問い合わせください。",
+      "serviceLimit": "ご利用のプランで有効にできるサービス数の上限に達しました。サービスを停止するか、プランをアップグレードすると追加できます。",
+      "featureLocked": "この機能はご利用のプランに含まれていません。プランをアップグレードするとご利用いただけます。"
     },
     "pages": {
       "provider": "この提供者のページを読み込めませんでした。もう一度お試しください。",
@@ -1089,6 +1130,60 @@
     "resolve": "認めて完了",
     "dismiss": "報告を却下",
     "actionError": "実行できませんでした。もう一度お試しください。",
-    "pagesLabel": "報告のページ"
+    "pagesLabel": "報告のページ",
+    "nav": {
+      "label": "管理セクション",
+      "reviews": "報告されたレビュー",
+      "providers": "提供者のプラン"
+    },
+    "providers": {
+      "metaTitle": "提供者のプラン",
+      "metaDescription": "提供者にプランとお試し期間を割り当てます。",
+      "title": "提供者のプラン",
+      "searchLabel": "提供者を検索",
+      "searchPlaceholder": "名前、メール、リンク",
+      "empty": "提供者が見つかりません",
+      "emptyHint": "別の名前、メール、リンクでお試しください。",
+      "unlisted": "非公開",
+      "ended": "{plan}は{date}に終了",
+      "until": "{date}まで",
+      "planLabel": "プラン",
+      "lastDayLabel": "最終日",
+      "noEnd": "終了日なし",
+      "save": "プランを保存",
+      "saved": "プランを保存しました",
+      "pagesLabel": "提供者のページ"
+    }
+  },
+  "Plans": {
+    "names": {
+      "free": "フリー",
+      "basic": "ベーシック",
+      "standard": "スタンダード",
+      "premium": "プレミアム"
+    },
+    "features": {
+      "maxActiveServices": "有効なサービス",
+      "maxBookingsPerMonth": "月間オンライン予約",
+      "analyticsHistoryDays": "分析データの期間",
+      "customSlug": "カスタムリンク"
+    },
+    "unlimited": "無制限",
+    "fullHistory": "全期間",
+    "days": "{count, plural, =365 {12 か月} other {# 日間}}",
+    "included": "含まれる",
+    "notIncluded": "含まれない",
+    "current": "ご利用中のプラン",
+    "requestTitle": "{plan}プランを申し込む"
+  },
+  "Pricing": {
+    "metaTitle": "提供者向け料金",
+    "metaDescription": "提供者向けの Bookie のプラン（フリーからプレミアムまで）と、それぞれの内容。お客様の予約はいつでも無料です。",
+    "title": "提供者向けプラン",
+    "subtitle": "無料で始めて、予約が増えたらアップグレード。お客様が予約で料金を払うことはありません。",
+    "startFree": "無料で始める",
+    "requestPlan": "このプランを申し込む",
+    "clientsFree": "Bookie での予約に、お客様が料金を払うことはありません。",
+    "manualNote": "現在、有料プランはスタッフが手動で設定しています。お申し込みいただければ、メールでご連絡のうえ設定します。"
   }
 }
