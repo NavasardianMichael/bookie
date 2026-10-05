@@ -1,13 +1,15 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import { config, isGoogleOAuthConfigured } from './config.js'
+import { config, isGoogleOAuthConfigured, isPaddleConfigured, isTelegramConfigured } from './config.js'
 import { fail, ok } from './lib/api-response.js'
 import { optionalAuth } from './middleware/auth.js'
 import { requireSameOrigin } from './middleware/csrf.js'
 import { errorHandler } from './middleware/error.js'
 import { adminRouter } from './routes/admin.js'
 import { appointmentsRouter } from './routes/appointments.js'
+import { billingRouter, paddleWebhookRouter } from './routes/billing.js'
+import { calendarRouter, providerCalendarRouter } from './routes/calendar.js'
 import { categoriesRouter } from './routes/categories.js'
 import { consumerProfileRouter } from './routes/consumers.js'
 import { contactRouter } from './routes/contact.js'
@@ -17,6 +19,7 @@ import { organizationsRouter } from './routes/organizations.js'
 import { plansRouter, providerPlanRouter } from './routes/plans.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
 import { providerReviewsRouter, reviewsRouter } from './routes/reviews.js'
+import { telegramRouter, telegramWebhookRouter } from './routes/telegram.js'
 
 export function createApp() {
   const app = express()
@@ -34,6 +37,21 @@ export function createApp() {
     })
   )
   app.use(cookieParser())
+
+  /**
+   * Server-to-server webhooks, mounted **before** the JSON parser and `requireSameOrigin`:
+   *
+   * - Paddle signs the raw bytes of its body, so it must reach the route unparsed — once
+   *   `express.json` has consumed the stream, the signature can no longer be checked.
+   * - Neither Paddle nor Telegram sends `Origin` or `Referer`, and `requireSameOrigin`
+   *   refuses such a POST in production. Each route authenticates its caller instead: an
+   *   HMAC signature, and `setWebhook`'s secret token.
+   *
+   * Mounted on their exact paths so nothing else can reach a route registered here.
+   */
+  app.use('/billing/webhook', express.raw({ type: 'application/json', limit: '1mb' }), paddleWebhookRouter)
+  app.use('/telegram/webhook', express.json({ limit: '1mb' }), telegramWebhookRouter)
+
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
   app.use('/uploads', express.static(config.uploadDir))
@@ -47,7 +65,12 @@ export function createApp() {
     // `google` tells the web app whether to render the Google button. Reported from the
     // server's own config rather than mirrored into a `NEXT_PUBLIC_` variable, so
     // "is Google sign-in available" has exactly one source of truth.
-    ok(res, { status: 'ok', google: isGoogleOAuthConfigured() })
+    ok(res, {
+      status: 'ok',
+      google: isGoogleOAuthConfigured(),
+      billing: isPaddleConfigured(),
+      telegram: isTelegramConfigured(),
+    })
   })
 
   app.use('/identity', identityRouter)
@@ -63,7 +86,12 @@ export function createApp() {
   // Same arrangement as the reviews pair above: `GET /provider-profile/plan` lives in
   // `routes/plans.ts` with the rest of the plan surface, and no path overlaps.
   app.use('/provider-profile', providerPlanRouter)
+  // The calendar-feed controls; `routes/calendar.ts` also serves the feed itself below.
+  app.use('/provider-profile', providerCalendarRouter)
   app.use('/plans', plansRouter)
+  app.use('/billing', billingRouter)
+  app.use('/telegram', telegramRouter)
+  app.use('/calendar', calendarRouter)
   app.use('/organizations', organizationsRouter)
   app.use('/categories', categoriesRouter)
   app.use('/contact', contactRouter)

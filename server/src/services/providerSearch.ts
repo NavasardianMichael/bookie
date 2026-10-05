@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client'
+import { SUPPORTED_TIME_ZONES, toTimeZone, weekdayInZone, type WeekdayName } from '../lib/time-zone.js'
 
 /**
  * The Explore list's query contract: what `GET /providers` accepts, and the Prisma
@@ -111,15 +112,25 @@ export const PUBLIC_PROVIDER_WHERE: Prisma.ProviderWhereInput = {
  */
 const WEEKDAYS_SUNDAY_FIRST = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
 
+/**
+ * The server process's own weekday — what "today" meant for every provider before
+ * `Provider.timeZone` existed, and still means for one who has not set it.
+ */
 export const weekdayOf = (now: Date): (typeof WEEKDAYS_SUNDAY_FIRST)[number] => WEEKDAYS_SUNDAY_FIRST[now.getDay()]!
+
+/** Today's weekday for one provider: in their zone when they set one, the server's otherwise. */
+const providerWeekday = (now: Date, timeZone?: string | null): WeekdayName => {
+  const zone = toTimeZone(timeZone)
+  return zone ? weekdayInZone(now, zone) : weekdayOf(now)
+}
 
 /**
  * Same predicate as `openTodayWhere`: today's weekday has an `'HH:mm'` start.
  * Used by `mapBasicProvider` so the card's Closed state matches the filter.
  */
-export function isOpenToday(weekSchedule: unknown, now: Date = new Date()): boolean {
+export function isOpenToday(weekSchedule: unknown, now: Date = new Date(), timeZone?: string | null): boolean {
   if (!weekSchedule || typeof weekSchedule !== 'object' || Array.isArray(weekSchedule)) return false
-  const day = (weekSchedule as Record<string, { availability?: { start?: unknown } }>)[weekdayOf(now)]
+  const day = (weekSchedule as Record<string, { availability?: { start?: unknown } }>)[providerWeekday(now, timeZone)]
   const start = day?.availability?.start
   return typeof start === 'string' && start.includes(':')
 }
@@ -130,12 +141,34 @@ export function isOpenToday(weekSchedule: unknown, now: Date = new Date()): bool
  * accounts store `weekSchedule: {}`) do not match. This is not remaining-slot
  * math — that cannot stay in `count`/`findMany` without breaking pagination.
  */
-const openTodayWhere = (now: Date): Prisma.ProviderWhereInput => ({
+const hasHoursOn = (weekday: WeekdayName): Prisma.ProviderWhereInput => ({
   weekSchedule: {
-    path: [weekdayOf(now), 'availability', 'start'],
+    path: [weekday, 'availability', 'start'],
     string_contains: ':',
   },
 })
+
+/**
+ * "Open today" where today depends on the provider: at any instant the world spans two or
+ * three weekdays, and Prisma cannot compute a weekday per row. So the zones are grouped by
+ * the weekday it is in each of them *now*, and each group is one `IN` branch. That works
+ * only because a stored zone is always a member of `SUPPORTED_TIME_ZONES` — `toTimeZone`
+ * canonicalises on write. A provider with no zone keeps the server's weekday.
+ */
+const openTodayWhere = (now: Date): Prisma.ProviderWhereInput => {
+  const zonesByWeekday = new Map<WeekdayName, string[]>()
+  SUPPORTED_TIME_ZONES.forEach((zone) => {
+    const weekday = weekdayInZone(now, zone)
+    zonesByWeekday.set(weekday, [...(zonesByWeekday.get(weekday) ?? []), zone])
+  })
+
+  return {
+    OR: [
+      { timeZone: null, ...hasHoursOn(weekdayOf(now)) },
+      ...[...zonesByWeekday].map(([weekday, zones]) => ({ timeZone: { in: zones }, ...hasHoursOn(weekday) })),
+    ],
+  }
+}
 
 /**
  * `spellings` replaces the words of `q` with a set of spellings per word — the corrected

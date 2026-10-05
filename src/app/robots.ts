@@ -28,6 +28,8 @@ export default function robots(): MetadataRoute.Robots {
         `/*${ROUTES.providerServices}`,
         `/*${ROUTES.bookings}`,
         `/*${ROUTES.favorites}`,
+        // Checkout and its return page: transient steps of a payment, nothing to index.
+        '/*/billing/',
         // The whole subtree, not just the profile page. Consumers are private
         // parties to a booking and have no public presence at all — no directory,
         // no detail page, and no API that would serve one. This is belt to that

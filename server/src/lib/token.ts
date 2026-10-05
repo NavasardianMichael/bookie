@@ -69,3 +69,21 @@ export const readOwnerManageAppointmentId = (token: string, secret: string): str
   if (!timingSafeHexEqual(mac, expected)) return null
   return appointmentId
 }
+
+/**
+ * The `/start` payload of a Telegram Connect link. Telegram caps it at 64 characters from
+ * `[A-Za-z0-9_-]`, so this is 24 random bytes as base64url (32 characters, 192 bits) rather
+ * than `mintUrlToken`'s hex. Stored as `hashUrlToken(token)`, like the emailed links.
+ */
+export const mintTelegramLinkToken = (): string => randomBytes(24).toString('base64url')
+
+/**
+ * The private calendar feed's token — an HMAC of the provider id and `calendarFeedVersion`,
+ * so nothing is stored and the provider can always see their URL again. Bumping the version
+ * revokes every URL handed out before. Same construction as `mintOwnerManageToken`.
+ */
+export const mintCalendarFeedToken = (providerId: string, version: number, secret: string): string =>
+  hmacHex(secret, `calendar-feed:${providerId}:${version}`)
+
+export const calendarFeedTokenMatches = (token: string, providerId: string, version: number, secret: string): boolean =>
+  timingSafeHexEqual(token, mintCalendarFeedToken(providerId, version, secret))

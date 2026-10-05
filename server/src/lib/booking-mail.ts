@@ -8,6 +8,8 @@ import { config } from '../config.js'
  * for the same reason. Call sites import them from this module regardless.
  */
 export { buildApprovalsUrl, buildProviderPageUrl, PROVIDER_APPROVALS_PATH } from './return-path.js'
+/** Same move: `time-format.ts` is reachable from a unit test, this module is not. */
+export { formatBookingWhen } from './time-format.js'
 
 /**
  * Booking mail after `POST /appointments` and after a public reschedule.
@@ -126,16 +128,6 @@ ${input.manageUrl}
   if (result.ok) logBookingLink(input.to, input.manageUrl)
   return result
 }
-
-export const formatBookingWhen = (startAt: Date): string =>
-  new Intl.DateTimeFormat('en', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(startAt)
 
 const rescheduleGuestSubject = 'Your booking has been updated'
 

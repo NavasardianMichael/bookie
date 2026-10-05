@@ -2,10 +2,14 @@
 
 import { FC, useCallback, useMemo } from 'react'
 import dayjs from 'dayjs'
-import { useTranslations } from 'next-intl'
-import { SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
+import { useLocale, useTranslations } from 'next-intl'
+import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
+import { TimeFormat } from '@interfaces/schedule'
+import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { BookingSlot } from '@helpers/booking'
 import { cn } from '@helpers/cn'
+import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
+import { formatTimeZoneName, inTimeZone, isSameWallClock } from '@helpers/timeZone'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -24,6 +28,14 @@ type Props = {
   serviceName?: string
   /** Pre-formatted, e.g. `70 USD`. Absent when the service carries no price. */
   servicePrice?: string
+  /**
+   * The provider's IANA zone — the clock every time here is written on, and the one the
+   * header names. Absent for a provider who never set one: the slots were then stepped in
+   * the visitor's own zone, so that is the zone named instead.
+   */
+  timeZone?: string
+  /** The provider's 12/24-hour choice (`details.timeFormat`); absent, the reader's locale decides. */
+  timeFormat?: TimeFormat
   isBooking: boolean
   onSelect: (startISO: string) => void
   onConfirm: () => void
@@ -51,6 +63,8 @@ export const BookingSlots: FC<Props> = ({
   requestedStarts,
   serviceName,
   servicePrice,
+  timeZone,
+  timeFormat,
   isBooking,
   onSelect,
   onConfirm,
@@ -58,6 +72,20 @@ export const BookingSlots: FC<Props> = ({
   cannotBookOwn = false,
 }) => {
   const t = useTranslations('Booking')
+  const locale = useLocale()
+  const viewerTimeZone = useViewerTimeZone()
+  const timeDisplayFormat = getTimeDisplayFormat(resolveTimeFormat(timeFormat, locale))
+  /**
+   * Which clock the grid is on, said in words: `Armenia Standard Time (GMT+4)`. This used
+   * to read "Local time", which was true only of the visitor's own clock — the one the hours
+   * were wrongly stepped in — and said nothing about whose time a booker abroad was picking.
+   */
+  const shownTimeZone = timeZone ?? viewerTimeZone
+  const timeZoneLabel = useMemo(
+    () => (shownTimeZone ? formatTimeZoneName(shownTimeZone, locale) : null),
+    [locale, shownTimeZone]
+  )
+
   const handleSelect = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       const { start } = event.currentTarget.dataset
@@ -66,16 +94,51 @@ export const BookingSlots: FC<Props> = ({
     [onSelect]
   )
 
+  /**
+   * The picked time on the visitor's own clock, when it reads differently from the
+   * provider's — a booker in another zone should not have to do the arithmetic to know
+   * when to turn up. The date is added only when the two clocks are on different days.
+   */
+  const viewerTime = useMemo(() => {
+    if (!selectedStart || !timeZone || !viewerTimeZone) return null
+    if (isSameWallClock(timeZone, viewerTimeZone, new Date(selectedStart))) return null
+    const theirs = inTimeZone(selectedStart, timeZone)
+    const yours = inTimeZone(selectedStart, viewerTimeZone)
+    const sameDay = theirs.format(DAY_KEY_FORMAT) === yours.format(DAY_KEY_FORMAT)
+    return t('yourTime', { time: yours.format(sameDay ? timeDisplayFormat : `MMM D, ${timeDisplayFormat}`) })
+  }, [selectedStart, t, timeDisplayFormat, timeZone, viewerTimeZone])
+
   const summary = useMemo(() => {
     if (!selectedStart) return null
+    const start = inTimeZone(selectedStart, timeZone)
     return [
-      dayjs(selectedStart).format('MMM D'),
-      dayjs(selectedStart).format(SCHEDULE_DISPLAY_FORMAT),
+      start.format('MMM D'),
+      viewerTime ? `${start.format(timeDisplayFormat)} (${viewerTime})` : start.format(timeDisplayFormat),
       serviceName && servicePrice ? `${serviceName} (${servicePrice})` : serviceName,
     ]
       .filter(Boolean)
       .join(' • ')
-  }, [selectedStart, serviceName, servicePrice])
+  }, [selectedStart, serviceName, servicePrice, timeDisplayFormat, timeZone, viewerTime])
+
+  const hasService = Boolean(serviceName)
+  // Name only what is still missing — both, or the one left — so the strip does not
+  // ask for a time when the service above is still empty.
+  const promptTitle = selectedStart
+    ? hasService
+      ? t('readyToConfirm')
+      : t('pickAService')
+    : hasService
+      ? t('pickATime')
+      : t('pickServiceAndTime')
+  // Same missing-selection rule as the title; the booking summary only lands once both are set.
+  const promptHint =
+    selectedStart && hasService
+      ? summary
+      : selectedStart
+        ? t('pickAServiceHint')
+        : hasService
+          ? t('pickATimeHint')
+          : t('pickServiceAndTimeHint')
 
   return (
     <Surface className='flex flex-col gap-6'>
@@ -89,10 +152,12 @@ export const BookingSlots: FC<Props> = ({
           </AppParagraph>
         </div>
 
-        <AppText size='body-sm' tone='muted' className='flex shrink-0 items-center gap-2'>
-          <ClockIcon aria-hidden className='h-4 w-4' />
-          {t('localTime')}
-        </AppText>
+        {timeZoneLabel && (
+          <AppText size='body-sm' tone='muted' className='flex min-w-0 items-center gap-2'>
+            <ClockIcon aria-hidden className='h-4 w-4 shrink-0' />
+            {t('timesShownIn', { zone: timeZoneLabel })}
+          </AppText>
+        )}
       </div>
 
       {!date ? (
@@ -124,7 +189,7 @@ export const BookingSlots: FC<Props> = ({
                       : 'border-brand-border text-brand-text hover:border-brand hover:text-brand cursor-pointer active:scale-[0.98]'
                 )}
               >
-                {dayjs(slot.start).format(SCHEDULE_DISPLAY_FORMAT)}
+                {inTimeZone(slot.start, timeZone).format(timeDisplayFormat)}
               </button>
             )
           })}
@@ -147,10 +212,10 @@ export const BookingSlots: FC<Props> = ({
             </span>
             <div className='min-w-0'>
               <AppTitle level='h4' size='body'>
-                {selectedStart ? t('readyToConfirm') : t('pickATime')}
+                {promptTitle}
               </AppTitle>
               <AppParagraph size='body-sm' className='m-0'>
-                {summary ?? t('pickATimeHint')}
+                {promptHint}
               </AppParagraph>
             </div>
           </div>
@@ -161,7 +226,7 @@ export const BookingSlots: FC<Props> = ({
             <AppButton
               type='primary'
               size='large'
-              disabled={!selectedStart || cannotBookOwn}
+              disabled={!selectedStart || !hasService || cannotBookOwn}
               loading={isBooking}
               onClick={onConfirm}
               className='w-full md:w-auto'

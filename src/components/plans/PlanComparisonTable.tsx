@@ -3,9 +3,10 @@ import { useFormatter, useTranslations } from 'next-intl'
 import { Entitlements, Plan, PlanCatalogueEntry } from '@interfaces/plans'
 import { cn } from '@helpers/cn'
 import { AppText } from '@components/ui/bare/AppText'
+import { PlanPrice } from './PlanPrice'
 
 type Props = {
-  /** `GET /plans`, cheapest first. Rendered in that order — the API decides it. */
+  /** `GET /plans`, cheapest first, with prices. Rendered in that order — the API decides it. */
   plans: PlanCatalogueEntry[]
   /** Highlighted as "your plan" — the Plan tab passes the effective plan; `/pricing` passes nothing. */
   currentPlan?: Plan
@@ -21,15 +22,20 @@ const FEATURE_ROWS: (keyof Entitlements)[] = [
   'maxBookingsPerMonth',
   'analyticsHistoryDays',
   'customSlug',
+  'telegramNotifications',
+  'calendarFeed',
+  'removeBranding',
 ]
 
 /**
- * Every plan side by side, one row per limit — the same table on `/pricing` and on the
- * provider's Plan tab, so the two can never describe the plans differently.
+ * Every plan side by side, its monthly price under its name and one row per limit or
+ * feature — the same table on `/pricing` and on the provider's Plan tab, so the two can
+ * never describe the plans differently.
  *
  * antd-free and hook-only (no `'use client'`), so `/pricing` renders it as HTML a crawler
  * reads, and the Plan tab's client island can render it too. The values come from the API
- * (`GET /plans`); nothing here knows a limit. A real `<table>` in an `overflow-x-auto` box:
+ * (`GET /plans`); nothing here knows a limit or a price. Only `PlanPrice` hydrates, to swap
+ * in the visitor's local currency. A real `<table>` in an `overflow-x-auto` box:
  * four plans do not fit a phone's width, and a table is the one thing allowed to scroll.
  */
 export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderAction, caption, className }) => {
@@ -37,7 +43,7 @@ export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderActio
   const format = useFormatter()
 
   const cell = (key: keyof Entitlements, value: Entitlements[keyof Entitlements]): string => {
-    if (key === 'customSlug') return value ? t('included') : t('notIncluded')
+    if (typeof value === 'boolean') return value ? t('included') : t('notIncluded')
     if (value === null) return key === 'analyticsHistoryDays' ? t('fullHistory') : t('unlimited')
     if (key === 'analyticsHistoryDays') return t('days', { count: Number(value) })
     return format.number(Number(value))
@@ -50,7 +56,7 @@ export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderActio
         <thead>
           <tr>
             <th scope='col' className='w-1/5' />
-            {plans.map(({ id }) => (
+            {plans.map(({ id, price }) => (
               <th
                 key={id}
                 scope='col'
@@ -68,6 +74,7 @@ export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderActio
                 <AppText size='body' tone='default' className='block font-bold'>
                   {t(`names.${id}`)}
                 </AppText>
+                <PlanPrice plan={id} price={price} />
               </th>
             ))}
           </tr>

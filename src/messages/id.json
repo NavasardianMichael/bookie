@@ -183,6 +183,7 @@
       "service": "Layanan",
       "date": "Tanggal",
       "time": "Waktu",
+      "timeZone": "Zona waktu",
       "duration": "Durasi",
       "durationValue": "{minutes} mnt",
       "price": "Harga",
@@ -224,12 +225,17 @@
     "chooseDate": "Pilih tanggal",
     "availableTimes": "Waktu tersedia",
     "noDatePicked": "Belum ada tanggal dipilih",
-    "localTime": "Waktu setempat",
+    "timesShownIn": "Zona waktu: {zone}",
+    "yourTime": "{time} waktu Anda",
     "pickDateFirst": "Pilih tanggal terlebih dahulu",
     "pickDateFirstBody": "Pilih hari pada kalender di atas dan waktu tersedia akan muncul di sini.",
     "noOpenTimes": "Tidak ada waktu tersedia pada hari ini",
     "noOpenTimesBody": "Coba hari lain — hari yang tersedia dapat Anda pilih.",
     "readyToConfirm": "Siap konfirmasi?",
+    "pickAService": "Pilih layanan",
+    "pickAServiceHint": "Pilih layanan di atas untuk melanjutkan.",
+    "pickServiceAndTime": "Pilih layanan dan waktu",
+    "pickServiceAndTimeHint": "Pilih layanan di atas, lalu salah satu waktu di sini untuk melanjutkan.",
     "pickATime": "Pilih waktu",
     "pickATimeHint": "Pilih salah satu waktu di atas untuk melanjutkan.",
     "bookNow": "Pesan sekarang",
@@ -280,7 +286,8 @@
       "fullBody": "{name} tidak dapat menerima pemesanan online lagi bulan ini. Hubungi langsung untuk mengatur waktu.",
       "call": "Telepon {phone}",
       "email": "Kirim email"
-    }
+    },
+    "addToCalendar": "Tambahkan ke kalender"
   },
   "Footer": {
     "blurb": "Satu platform untuk menemukan layanan di sekitar Anda atau mengelola kalender pemesanan Anda.",
@@ -295,7 +302,10 @@
     "createAccount": "Buat akun",
     "company": "Perusahaan",
     "contact": "Kontak",
-    "pricing": "Harga"
+    "pricing": "Harga",
+    "terms": "Ketentuan Layanan",
+    "privacy": "Kebijakan Privasi",
+    "refund": "Kebijakan Pengembalian Dana"
   },
   "Contact": {
     "metaTitle": "Hubungi kami",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "Coba status atau kata pencarian lain."
     },
     "notifications": {
-      "subtitle": "Pilih email mana yang ingin Anda terima.",
+      "subtitle": "Pilih notifikasi yang ingin Anda terima, melalui email dan Telegram.",
       "emailPrefs": "Preferensi Notifikasi",
       "remindersTitle": "Pengingat Janji Temu",
-      "remindersBody": "Dapatkan email sebelum pemesanan dimulai.",
+      "remindersBody": "Dapatkan pengingat sebelum pemesanan dimulai.",
       "remindersLeadLabel": "Ingatkan saya",
       "remindersMinutes": "{count} menit",
       "remindersHours": "{count, plural, one {# jam} other {# jam}}",
       "changesTitle": "Perubahan Pemesanan",
       "changesBody": "Pembaruan saat pemesanan diubah atau dibatalkan.",
       "newBookingTitle": "Pemesanan Baru",
-      "newBookingBody": "Email saat klien memesan dengan Anda."
+      "newBookingBody": "Saat klien memesan dengan Anda.",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "Terima notifikasi pemesanan di Telegram selain melalui email.",
+      "telegramConsumerBody": "Terima pengingat dan pembaruan pemesanan di Telegram selain melalui email.",
+      "telegramLocked": "Notifikasi Telegram tentang bisnis Anda tersedia mulai paket Dasar. <plan>Lihat paket</plan>",
+      "telegramUnavailable": "Notifikasi Telegram sedang tidak tersedia.",
+      "telegramConnect": "Hubungkan Telegram",
+      "telegramOpen": "Buka Telegram",
+      "telegramOpenHint": "Buka Telegram dan tekan Mulai untuk menyelesaikan penghubungan. Tautan berlaku selama 15 menit.",
+      "telegramWaiting": "Menunggu Telegram…",
+      "telegramConnected": "Terhubung",
+      "telegramConnectedAs": "Terhubung sebagai @{username}",
+      "telegramDisconnect": "Putuskan",
+      "telegramConnectFailed": "Kami tidak dapat mulai menghubungkan Telegram",
+      "telegramDisconnectFailed": "Kami tidak dapat memutuskan Telegram",
+      "calendarTitle": "Sinkronisasi kalender",
+      "calendarBody": "Berlangganan pemesanan Anda dari Google Calendar, Apple Calendar, atau Outlook. Pemesanan baru dan perubahan akan muncul di sana secara otomatis.",
+      "calendarLocked": "Sinkronisasi kalender tersedia mulai paket Dasar. <plan>Lihat paket</plan>",
+      "calendarCopy": "Salin tautan kalender",
+      "calendarHint": "Di aplikasi kalender Anda, tambahkan kalender dari URL dan tempel tautan ini. Rahasiakan tautan ini: siapa pun yang memilikinya dapat melihat pemesanan Anda.",
+      "calendarReset": "Atur ulang tautan",
+      "calendarResetTitle": "Atur ulang tautan kalender Anda?",
+      "calendarResetBody": "Tautan saat ini langsung berhenti berfungsi. Kalender yang berlangganan tautan ini berhenti diperbarui sampai Anda menambahkan tautan yang baru."
     },
     "payments": {
       "title": "Pembayaran",
@@ -457,6 +489,15 @@
       "recurringBody": "Hari dan jam yang bisa dipesan klien. Hingga 5 rentang per hari jika ada jeda.",
       "pauseTitle": "Menerima pemesanan",
       "pauseBody": "Nonaktifkan untuk menjeda pemesanan baru sementara tanpa menghapus halaman Anda dari daftar.",
+      "timeZone": "Zona waktu",
+      "timeZoneHint": "Jam kerja Anda mengikuti zona ini. Pengunjung melihat dan memesan waktu dalam zona ini, di mana pun mereka berada.",
+      "timeZonePlaceholder": "Cari kota, zona waktu, atau selisih waktu",
+      "timeZoneSuggested": "Zona waktu Anda belum disimpan. Kami mengisinya dengan zona perangkat ini — publikasikan untuk menerapkannya di halaman publik Anda.",
+      "timeZoneDeviceDiffers": "Zona waktu perangkat ini: {zone}.",
+      "timeFormat": "Format waktu",
+      "timeFormatHint": "Cara waktu ditampilkan di halaman publik Anda, di email pemesanan, dan di pemesanan Anda.",
+      "timeFormat12": "12 jam ({time})",
+      "timeFormat24": "24 jam ({time})",
       "to": "sampai",
       "unavailable": "Tidak tersedia",
       "addRange": "Tambah jam",
@@ -682,7 +723,23 @@
       "resetsOn": "Direset pada {date}",
       "comparePlans": "Bandingkan paket",
       "requestUpgrade": "Ajukan peningkatan",
-      "manualNote": "Untuk saat ini, paket diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya."
+      "manualNote": "Untuk saat ini, paket diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya.",
+      "renewsOn": "Diperpanjang pada {date}",
+      "cancelsOn": "Dibatalkan — berakhir pada {date}",
+      "manageBilling": "Kelola penagihan",
+      "portalFailed": "Kami tidak dapat membuka halaman penagihan",
+      "paymentFailedTitle": "Pembayaran terakhir Anda tidak berhasil",
+      "paymentFailedBody": "Perbarui metode pembayaran Anda melalui “Kelola penagihan” untuk mempertahankan paket {plan}. Paddle akan mencoba menagih kartu Anda lagi.",
+      "cancelInPortal": "Batalkan langganan",
+      "upgrade": "Tingkatkan",
+      "switch": "Ganti",
+      "switchTitle": "Beralih ke paket {plan}?",
+      "switchBody": "Perubahan langsung berlaku. Selisih untuk sisa bulan ini otomatis ditagihkan atau dikreditkan ke metode pembayaran Anda.",
+      "switchConfirm": "Ganti paket",
+      "switchingTitle": "Beralih ke {plan}…",
+      "switchPendingTitle": "Perubahan paket Anda sedang diproses",
+      "switchPendingBody": "Paddle telah menerimanya, dan mungkin perlu beberapa menit hingga muncul di sini. Muat ulang halaman sebentar lagi.",
+      "billingNote": "Pembayaran ditangani oleh Paddle. Batalkan, ganti kartu, atau unduh faktur melalui “Kelola penagihan”."
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# bintang} other {# bintang}}",
       "pagesLabel": "Halaman ulasan",
       "loadError": "Ulasan tidak dapat dimuat. Silakan coba lagi."
-    }
+    },
+    "poweredBy": "Halaman pemesanan oleh Bookie",
+    "poweredByCta": "Buat milik Anda gratis"
   },
   "Legal": {
     "termsMetaTitle": "Ketentuan Layanan",
     "termsMetaDescription": "Ketentuan yang mengatur penggunaan Bookie oleh Anda.",
     "termsTitle": "Ketentuan Layanan",
-    "unpublished": "Belum diterbitkan.",
-    "termsBody": "Ketentuan layanan Bookie masih diselesaikan. Sampai diterbitkan di sini, pertanyaan tentang cara platform dapat digunakan dijawab langsung — hubungi kami melalui <contact>halaman kontak</contact>.",
     "privacyMetaTitle": "Kebijakan Privasi",
     "privacyMetaDescription": "Apa yang Bookie kumpulkan dan bagaimana data itu ditangani.",
     "privacyTitle": "Kebijakan Privasi",
-    "privacyBody": "Kebijakan privasi Bookie masih diselesaikan. Registrasi mengumpulkan nomor telepon, nama, dan opsional alamat email; nomor telepon adalah yang mengidentifikasi sebuah akun. Untuk hal lainnya, hubungi kami melalui <contact>halaman kontak</contact>."
+    "lastUpdated": "Terakhir diperbarui {date}",
+    "refundMetaTitle": "Kebijakan Pengembalian Dana",
+    "refundMetaDescription": "Cara kerja pembatalan dan pengembalian dana untuk paket berbayar Bookie.",
+    "refundTitle": "Kebijakan Pengembalian Dana",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "Penerimaan Ketentuan ini",
+          "p1": "Dengan mengakses atau menggunakan Bookie (“Layanan”), Anda menyetujui Ketentuan Layanan ini dan <privacy>Kebijakan Privasi</privacy> kami. Jika Anda tidak setuju, mohon jangan gunakan Layanan."
+        },
+        "service": {
+          "title": "Layanan",
+          "p1": "Bookie adalah platform pemesanan online. Penyedia layanan menerbitkan halaman pemesanan berisi layanan dan jam kerja mereka, dan klien menemukan penyedia serta membuat janji temu dengan mereka. Bookie hanya menyediakan platform: layanan itu sendiri diberikan oleh penyedia, yang sepenuhnya bertanggung jawab atasnya."
+        },
+        "accounts": {
+          "title": "Akun",
+          "p1": "Anda memerlukan akun untuk menerbitkan halaman pemesanan atau menyimpan semua pemesanan Anda di satu tempat; klien juga dapat memesan tanpa akun. Anda bertanggung jawab untuk menjaga kerahasiaan detail masuk Anda, atas semua yang dilakukan melalui akun Anda, dan untuk menjaga keakuratan informasi Anda. Kami dapat menangguhkan atau menutup akun yang melanggar Ketentuan ini."
+        },
+        "bookings": {
+          "title": "Pemesanan",
+          "p1": "Pemesanan adalah kesepakatan antara klien dan penyedia. Penyedia menetapkan sendiri layanan, harga, jadwal, dan ketentuan pembatalan mereka, serta dibayar langsung oleh klien mereka — Bookie tidak menerima pembayaran untuk janji temu. Bookie bukan pihak dalam kesepakatan tersebut dan tidak bertanggung jawab atas layanan penyedia maupun kehadiran klien."
+        },
+        "content": {
+          "title": "Konten Anda",
+          "p1": "Penyedia bertanggung jawab atas apa yang mereka terbitkan — deskripsi, harga, foto, dan detail kontak — dan harus memiliki hak untuk menerbitkannya. Klien bertanggung jawab atas ulasan yang mereka tulis, yang harus menggambarkan pengalaman nyata. Kami dapat menyembunyikan ulasan atau menghapus konten yang melanggar hukum, menyesatkan, atau kasar."
+        },
+        "acceptableUse": {
+          "title": "Penggunaan yang dapat diterima",
+          "p1": "Anda setuju untuk tidak melanggar hukum apa pun melalui Layanan, menyamar sebagai siapa pun, membuat pemesanan yang tidak ingin Anda tepati, mengunggah kode berbahaya atau konten yang merugikan, mencoba memperoleh akses tidak sah ke sistem Bookie atau akun orang lain, atau melakukan scraping terhadap Layanan dengan cara yang membebaninya secara tidak wajar."
+        },
+        "plans": {
+          "title": "Paket dan pembayaran",
+          "p1": "Pemesanan selalu gratis bagi klien. Penyedia dapat menggunakan Bookie secara gratis atau berlangganan paket berbayar, yang ditagih bulanan hingga dibatalkan, dengan harga yang tercantum di <pricing>halaman harga</pricing> kami. Pajak dapat berlaku tergantung lokasi Anda. Anda dapat mengganti atau membatalkan paket kapan saja dari pengaturan Paket Anda; pembatalan berlaku pada akhir bulan yang telah Anda bayar. Untuk pengembalian dana, lihat <refund>Kebijakan Pengembalian Dana</refund> kami.",
+          "p2": "Proses pesanan kami dilakukan oleh reseller online kami, Paddle.com. Paddle.com adalah Merchant of Record untuk semua pesanan kami. Paddle menangani semua pertanyaan layanan pelanggan dan menangani pengembalian."
+        },
+        "planChanges": {
+          "title": "Perubahan paket dan harga",
+          "p1": "Kami dapat mengubah paket atau harga kami. Perubahan harga berlaku untuk langganan yang sudah ada mulai periode penagihan berikutnya, dan kami akan memberi tahu Anda melalui email sebelum perubahan itu berlaku. Beralih ke paket yang lebih kecil, atau mengakhiri paket, tidak pernah menghilangkan apa yang sudah dilihat klien Anda: pemesanan tetap ada, dan halaman Anda tetap berfungsi dalam batas paket Gratis."
+        },
+        "intellectualProperty": {
+          "title": "Kekayaan intelektual",
+          "p1": "Anda tetap memiliki apa yang Anda terbitkan di Bookie, dan Anda memberi kami lisensi untuk menghosting, menampilkan, dan memprosesnya semata-mata untuk menyediakan Layanan. Platform, perangkat lunak, dan desain Bookie tetap menjadi milik kami."
+        },
+        "termination": {
+          "title": "Mengakhiri penggunaan Bookie",
+          "p1": "Anda dapat menghapus akun Anda kapan saja dari pengaturan akun. Kami dapat menangguhkan atau mengakhiri akses Anda jika Anda melanggar Ketentuan ini. Dalam hal itu, paket berbayar berakhir pada akhir periode penagihan yang sedang berjalan."
+        },
+        "disclaimer": {
+          "title": "Tanpa jaminan",
+          "p1": "Layanan disediakan “sebagaimana adanya” dan “sebagaimana tersedia”, tanpa jaminan dalam bentuk apa pun. Kami tidak menjamin bahwa Layanan akan bebas gangguan atau bebas kesalahan, atau bahwa pemesanan apa pun akan terlaksana."
+        },
+        "liability": {
+          "title": "Batasan tanggung jawab",
+          "p1": "Sejauh diizinkan oleh hukum, Bookie tidak bertanggung jawab atas kerugian tidak langsung, insidental, khusus, konsekuensial, atau yang bersifat hukuman, maupun atas sengketa apa pun antara klien dan penyedia. Total tanggung jawab kami atas klaim apa pun terbatas pada jumlah yang Anda bayarkan kepada kami dalam dua belas bulan sebelum klaim tersebut."
+        },
+        "changes": {
+          "title": "Perubahan Ketentuan ini",
+          "p1": "Kami dapat memperbarui Ketentuan ini. Kami akan menerbitkan versi baru di sini dengan tanggal baru. Terus menggunakan Layanan setelah pembaruan berarti Anda menerima Ketentuan yang baru."
+        },
+        "contact": {
+          "title": "Kontak",
+          "p1": "Ada pertanyaan tentang Ketentuan ini? <contact>Hubungi kami</contact>."
+        }
+      }
+    },
+    "privacy": {
+      "intro": "Bookie (“kami”) berkomitmen untuk melindungi privasi Anda. Kebijakan ini menjelaskan apa yang kami kumpulkan, alasannya, dengan siapa kami membagikannya, dan pilihan yang Anda miliki.",
+      "sections": {
+        "collect": {
+          "title": "Apa yang kami kumpulkan",
+          "p1": "<b>Informasi akun:</b> nama, alamat email, nomor telepon, dan kata sandi Anda, yang hanya disimpan sebagai hash satu arah. Jika Anda masuk dengan Google, kami menerima pengenal akun Google dan alamat email Anda.",
+          "p2": "<b>Halaman penyedia:</b> apa yang diterbitkan penyedia — deskripsi, foto, layanan, harga, jam kerja, alamat, dan detail kontak — memang dirancang untuk publik.",
+          "p3": "<b>Pemesanan:</b> layanan, waktu, catatan, dan metode pembayaran pilihan dari setiap pemesanan, serta — untuk pemesanan yang dibuat tanpa akun — nama, nomor telepon, dan alamat email opsional yang dimasukkan bersamanya.",
+          "p4": "<b>Ulasan</b> yang ditulis klien tentang penyedia, serta laporan terkait ulasan.",
+          "p5": "<b>Telegram:</b> jika Anda menghubungkan Telegram untuk notifikasi, pengenal obrolan dan nama pengguna Telegram Anda.",
+          "p6": "<b>Penagihan:</b> untuk penyedia dengan paket berbayar, pengenal pelanggan dan langganan dari Paddle serta status langganan. Detail pembayaran dikirim ke Paddle dan tidak pernah sampai ke kami."
+        },
+        "use": {
+          "title": "Cara kami menggunakannya",
+          "p1": "Untuk menjalankan akun dan pemesanan Anda; untuk mengirim email pemesanan — konfirmasi, perubahan, pembatalan, dan pengingat — dan, jika Anda menghubungkannya, pemberitahuan yang sama di Telegram; untuk menampilkan halaman penyedia dan ulasan kepada publik; untuk memproses langganan; untuk menjaga keamanan Layanan dan mencegah penyalahgunaan; dan untuk membalas Anda saat Anda menghubungi kami."
+        },
+        "sharing": {
+          "title": "Dengan siapa kami membagikannya",
+          "p1": "Kami tidak menjual data pribadi Anda. Kami hanya membagikannya kepada layanan yang menjalankan sebagian Bookie untuk kami, dan hanya sebanyak yang mereka perlukan:",
+          "p2": "<b>Paddle</b> — reseller dan Merchant of Record kami, untuk pembayaran langganan, faktur, dan pajak. Paddle menangani detail pembayaran berdasarkan kebijakan privasinya sendiri.",
+          "p3": "<b>Layanan pengiriman email kami</b> — mengirim email akun dan pemesanan.",
+          "p4": "<b>Telegram</b> — mengirimkan notifikasi, hanya jika Anda menghubungkannya.",
+          "p5": "<b>Google</b> — menangani proses masuk Anda, hanya jika Anda memilih untuk melanjutkan dengan Google.",
+          "p6": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
+        },
+        "cookies": {
+          "title": "Cookie",
+          "p1": "Kami hanya menggunakan cookie yang benar-benar diperlukan: satu cookie yang membuat Anda tetap masuk hingga 7 hari, cookie berumur pendek yang menyimpan proses masuk Google yang sedang berlangsung, dan satu cookie yang mengingat bahasa Anda. Kami tidak menggunakan cookie iklan atau analitik."
+        },
+        "retention": {
+          "title": "Berapa lama kami menyimpannya",
+          "p1": "Kami menyimpan data Anda selama akun Anda ada. Menghapus akun dari pengaturan akan menghapus akun dan profil Anda; akun klien yang memiliki janji temu tercatat harus membatalkannya terlebih dahulu. Catatan penagihan juga disimpan oleh Paddle sesuai ketentuan hukum perpajakan."
+        },
+        "rights": {
+          "title": "Hak Anda",
+          "p1": "Anda dapat melihat dan memperbaiki sebagian besar data Anda di pengaturan, dan menghapus akun Anda di sana. Untuk salinan data Anda, atau permintaan lain terkait data tersebut, <contact>hubungi kami</contact>."
+        },
+        "security": {
+          "title": "Keamanan",
+          "p1": "Semua data dikirim melalui HTTPS. Kata sandi hanya disimpan sebagai hash Argon2id, tautan yang kami kirim melalui email hanya dapat digunakan sekali dan memiliki masa berlaku, dan upaya masuk dibatasi jumlahnya."
+        },
+        "children": {
+          "title": "Anak-anak",
+          "p1": "Bookie tidak ditujukan untuk anak di bawah 13 tahun, dan kami tidak dengan sengaja mengumpulkan data mereka. Jika Anda yakin seorang anak telah memberikan data pribadi kepada kami, hubungi kami dan kami akan menghapusnya."
+        },
+        "changes": {
+          "title": "Perubahan kebijakan ini",
+          "p1": "Kami dapat memperbarui kebijakan ini. Kami akan menerbitkan versi baru di sini dengan tanggal baru."
+        },
+        "contact": {
+          "title": "Kontak",
+          "p1": "Ada pertanyaan tentang privasi Anda? <contact>Hubungi kami</contact>."
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "Paket berbayar",
+          "p1": "Paket berbayar Bookie untuk penyedia adalah langganan bulanan, yang ditagih di muka oleh Paddle, reseller dan Merchant of Record kami. Klien tidak pernah membayar apa pun kepada Bookie."
+        },
+        "cancel": {
+          "title": "Pembatalan",
+          "p1": "Anda dapat membatalkan kapan saja melalui “Kelola penagihan” di pengaturan Paket Anda. Anda tetap memiliki paket Anda hingga akhir bulan yang telah Anda bayar, dan Anda tidak akan ditagih lagi."
+        },
+        "eligibility": {
+          "title": "Pengembalian dana",
+          "p1": "Jika Anda tidak puas dengan paket berbayar, ajukan pengembalian dana dalam 14 hari sejak pembayaran pertama Anda untuk paket tersebut dan kami akan mengembalikan pembayaran itu sepenuhnya. Setelah itu, kami mengembalikan setiap tagihan yang dibuat karena kesalahan — misalnya pembayaran ganda, atau perpanjangan setelah Anda membatalkan."
+        },
+        "planChanges": {
+          "title": "Mengganti paket",
+          "p1": "Penggantian paket dihitung secara prorata: beralih ke paket yang lebih tinggi menagih selisih untuk sisa bulan tersebut, dan beralih ke paket yang lebih rendah mengkreditkan selisihnya ke pembayaran Anda berikutnya."
+        },
+        "request": {
+          "title": "Cara mengajukan pengembalian dana",
+          "p1": "<contact>Hubungi kami</contact> dengan alamat email akun Bookie Anda dan tanggal tagihan, dan kami akan membalas dalam 2 hari kerja. Anda juga dapat menghubungi Paddle melalui tanda terima yang mereka kirimkan ke email Anda."
+        },
+        "processing": {
+          "title": "Cara pengembalian dana dibayarkan",
+          "p1": "Pengembalian dana yang disetujui dilakukan oleh Paddle ke metode pembayaran asli Anda. Tergantung bank Anda, dana dapat memerlukan 5–10 hari kerja untuk masuk."
+        },
+        "contact": {
+          "title": "Kontak",
+          "p1": "Ada pertanyaan tentang kebijakan ini? <contact>Hubungi kami</contact>."
+        }
+      }
+    }
   },
   "Services": {
     "title": "Kelola layanan",
@@ -1013,6 +1221,8 @@
     "aboutYou": "Tentang Anda",
     "whatYouDo": "Apa yang Anda kerjakan",
     "whenYouWork": "Kapan Anda bekerja",
+    "timeZone": "Zona waktu",
+    "timeZoneHint": "Jam kerja Anda mengikuti zona ini. Pengunjung melihat waktu dalam zona ini, di mana pun mereka berada.",
     "where": "Lokasi",
     "optional": "Opsional",
     "firstName": "Nama Depan",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "Penyedia ini sedang tidak menerima pemesanan online. Hubungi langsung untuk memesan.",
       "bookingFull": "Penyedia ini tidak dapat menerima pemesanan online lagi bulan ini. Hubungi langsung untuk memesan.",
       "serviceLimit": "Batas layanan aktif pada paket Anda sudah tercapai. Nonaktifkan satu layanan atau tingkatkan paket untuk menambah layanan lain.",
-      "featureLocked": "Fitur ini tidak termasuk dalam paket Anda. Tingkatkan paket untuk menggunakannya."
+      "featureLocked": "Fitur ini tidak termasuk dalam paket Anda. Tingkatkan paket untuk menggunakannya.",
+      "notConfigured": "Pembayaran online sedang tidak tersedia. Sebagai gantinya, ajukan paket ini dan kami akan mengaturnya untuk Anda.",
+      "alreadySubscribed": "Anda sudah memiliki langganan. Ganti paket dari pengaturan Paket Anda.",
+      "noSubscription": "Tidak ada langganan aktif yang dapat diubah."
     },
     "pages": {
       "provider": "Kami tidak dapat memuat halaman penyedia ini. Silakan coba lagi.",
@@ -1152,7 +1365,9 @@
       "noEnd": "Tanpa tanggal berakhir",
       "save": "Simpan paket",
       "saved": "Paket disimpan",
-      "pagesLabel": "Halaman penyedia"
+      "pagesLabel": "Halaman penyedia",
+      "paddle": "Paddle",
+      "paddleNote": "Ditagih melalui Paddle: perubahan manual di sini akan ditimpa oleh pembaruan langganan berikutnya."
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "Layanan aktif",
       "maxBookingsPerMonth": "Pemesanan online per bulan",
       "analyticsHistoryDays": "Riwayat analitik",
-      "customSlug": "Tautan khusus"
+      "customSlug": "Tautan khusus",
+      "telegramNotifications": "Notifikasi Telegram",
+      "calendarFeed": "Sinkronisasi kalender (iCal)",
+      "removeBranding": "Tanpa branding Bookie di halaman Anda"
     },
     "unlimited": "Tanpa batas",
     "fullHistory": "Seluruh riwayat",
@@ -1174,16 +1392,90 @@
     "included": "Termasuk",
     "notIncluded": "Tidak termasuk",
     "current": "Paket Anda",
-    "requestTitle": "Ajukan paket {plan}"
+    "requestTitle": "Ajukan paket {plan}",
+    "freeForever": "Gratis selamanya",
+    "perMonth": "/ bulan"
   },
   "Pricing": {
     "metaTitle": "Harga untuk penyedia",
-    "metaDescription": "Paket Bookie untuk penyedia layanan, dari gratis hingga premium, beserta isinya. Pemesanan selalu gratis bagi klien.",
+    "metaDescription": "Paket Bookie untuk penyedia layanan: mulai gratis, atau tingkatkan untuk lebih banyak layanan, pemesanan tanpa batas, notifikasi Telegram, dan sinkronisasi kalender. Pemesanan selalu gratis bagi klien.",
     "title": "Paket untuk penyedia",
     "subtitle": "Mulai gratis dan tingkatkan saat jadwal Anda mulai penuh. Klien tidak pernah membayar untuk memesan.",
     "startFree": "Mulai gratis",
     "requestPlan": "Ajukan paket ini",
     "clientsFree": "Klien tidak pernah membayar apa pun untuk memesan melalui Bookie.",
-    "manualNote": "Untuk saat ini, paket berbayar diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya."
+    "manualNote": "Untuk saat ini, paket berbayar diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya.",
+    "getStarted": "Mulai",
+    "choosePlan": "Pilih {plan}",
+    "seeYourPlan": "Lihat paket Anda",
+    "checkoutFailed": "Kami tidak dapat memulai pembayaran",
+    "billedMonthly": "Paket berbayar ditagih bulanan. Ganti atau batalkan kapan saja.",
+    "localCurrencyNote": "Harga dalam mata uang lokal Anda dan sudah termasuk pajak jika berlaku.",
+    "usdNote": "Harga dalam dolar AS. Pajak ditambahkan saat pembayaran jika berlaku.",
+    "includedTitle": "Termasuk di setiap paket",
+    "includedSubtitle": "Sudah termasuk di paket Gratis — paket berbayar menambahkan kapasitas dan kemudahan di atasnya.",
+    "included": {
+      "publicPage": "Halaman pemesanan Anda sendiri",
+      "onlineBooking": "Pemesanan online 24 jam",
+      "clientsFree": "Klien memesan gratis, dengan atau tanpa akun",
+      "approvals": "Setujui pemesanan sebelum masuk ke kalender Anda",
+      "emailNotifications": "Notifikasi email untuk pemesanan baru, perubahan, dan pembatalan",
+      "reminders": "Pengingat janji temu untuk Anda dan klien Anda",
+      "clientCalendar": "File untuk menambahkan ke kalender bagi klien Anda",
+      "reviews": "Ulasan dan penilaian klien",
+      "analytics": "Analitik pemesanan",
+      "explore": "Tampil di pencarian penyedia Bookie",
+      "languages": "Halaman pemesanan dalam 16 bahasa"
+    },
+    "faqTitle": "Pertanyaan seputar penagihan",
+    "faq": {
+      "clientsPay": {
+        "q": "Apakah klien saya membayar sesuatu?",
+        "a": "Tidak. Pemesanan melalui Bookie selalu gratis bagi klien, di setiap paket. Hanya penyedia yang memilih paket."
+      },
+      "cancel": {
+        "q": "Bisakah saya membatalkan kapan saja?",
+        "a": "Ya. Batalkan melalui “Kelola penagihan” di pengaturan Paket Anda. Paket Anda tetap aktif hingga akhir bulan yang telah Anda bayar, lalu akun Anda beralih ke paket Gratis."
+      },
+      "downgrade": {
+        "q": "Apa yang terjadi pada halaman saya jika saya beralih ke paket yang lebih kecil?",
+        "a": "Tidak ada yang terlihat oleh klien Anda yang dihilangkan. Layanan di atas batas baru tetap tayang dan dapat diedit — Anda hanya tidak dapat menambah layanan lagi sampai jumlahnya di bawah batas. Pemesanan tidak pernah dibatalkan karena perubahan paket."
+      },
+      "switching": {
+        "q": "Bisakah saya mengganti paket nanti?",
+        "a": "Ya, kapan saja dari pengaturan Paket Anda. Perubahan langsung berlaku, dan selisih untuk sisa bulan tersebut ditagihkan atau dikreditkan secara otomatis."
+      },
+      "paymentProcessor": {
+        "q": "Siapa yang menangani pembayaran?",
+        "a": "Pembayaran diproses oleh Paddle, reseller dan Merchant of Record kami. Paddle menerima kartu dan metode pembayaran lokal lainnya, mengirimkan tanda terima dan faktur Anda, serta menangani pajak penjualan dan PPN."
+      },
+      "currency": {
+        "q": "Dalam mata uang apa saya akan membayar?",
+        "a": "Jika didukung oleh Paddle, harga ditampilkan dan ditagih dalam mata uang lokal Anda, termasuk pajak yang berlaku di tempat Anda. Jika tidak, harga ditampilkan dalam dolar AS, belum termasuk pajak."
+      },
+      "failedPayment": {
+        "q": "Bagaimana jika pembayaran gagal?",
+        "a": "Paddle akan mencoba menagih kartu Anda lagi dan mengirimi Anda email. Paket Anda tetap berfungsi selama seminggu sementara Anda memperbarui metode pembayaran; setelah itu akun Anda beralih ke paket Gratis sampai ada pembayaran yang berhasil."
+      },
+      "refunds": {
+        "q": "Bisakah saya mendapatkan pengembalian dana?",
+        "a": "Ya — ajukan dalam 14 hari sejak pembayaran pertama Anda untuk sebuah paket, atau kapan saja jika ada tagihan yang dibuat karena kesalahan. Lihat <refund>kebijakan pengembalian dana</refund> kami."
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "Pembayaran",
+    "checkoutOpening": "Membuka halaman pembayaran yang aman…",
+    "checkoutSecure": "Pembayaran ditangani oleh Paddle, reseller kami. Detail kartu Anda tidak pernah sampai ke Bookie.",
+    "checkoutUnavailableTitle": "Halaman pembayaran tidak dapat dibuka",
+    "checkoutUnavailableBody": "Tidak ada biaya yang ditagihkan. Kembali ke paket Anda dan coba lagi sebentar lagi.",
+    "backToPlan": "Kembali ke paket Anda",
+    "returnTitle": "Pembayaran",
+    "confirmingTitle": "Mengonfirmasi pembayaran Anda…",
+    "confirmingBody": "Biasanya hanya butuh beberapa detik. Harap biarkan halaman ini tetap terbuka.",
+    "activeTitle": "Anda menggunakan paket {plan}",
+    "activeBody": "Terima kasih! Semua yang termasuk dalam paket Anda kini tersedia. Paddle telah mengirimkan tanda terima ke email Anda.",
+    "receivedTitle": "Pembayaran diterima",
+    "receivedBody": "Terima kasih! Pembaruan paket Anda mungkin memerlukan beberapa menit. Paddle telah mengirimkan tanda terima ke email Anda."
   }
 }

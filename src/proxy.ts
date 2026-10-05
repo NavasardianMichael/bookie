@@ -46,6 +46,8 @@ const PROTECTED_PREFIXES = [
   ROUTES.consumerProfile,
   ROUTES.bookings,
   ROUTES.favorites,
+  // Not `billingCheckout`: Paddle links there from its own emails, signed in or not.
+  ROUTES.billingReturn,
 ]
 
 const handleI18nRouting = createMiddleware(routing)

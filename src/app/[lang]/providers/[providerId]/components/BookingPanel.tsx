@@ -27,11 +27,19 @@ import { buildMonthCells } from '@helpers/calendar'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { dayKeyOf } from '@helpers/timeZone'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { BookingConfirmSheet, BookingConfirmSubmission, BookingCreated } from './BookingConfirmSheet'
 import { BookingMonth } from './BookingMonth'
 import { BookingSlots } from './BookingSlots'
 import { BookingSummaryData } from './BookingSummary'
+import {
+  BOOKING_CALENDAR_ID,
+  BOOKING_SERVICES_ID,
+  BOOKING_TIMES_ID,
+  PUBLIC_BOOK_NOW_EVENT,
+  scrollToBookingSection,
+} from './publicBookingCta'
 
 // Mandatory for the day-key parse below — `booking.ts` extends it for its own
 // module only, and without it `dayjs(key, DAY_KEY_FORMAT)` is an Invalid Date.
@@ -138,6 +146,13 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
 
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
+  /**
+   * The zone the provider's hours are written in. Every slot is stepped, counted, keyed and
+   * shown in it, so a visitor abroad books the provider's 09:00 rather than their own.
+   * Undefined for a provider who never set one — the visitor's zone, as before.
+   */
+  const timeZone = details?.timeZone
+  const timeFormat = details?.timeFormat
 
   /**
    * Stepped over the whole grid, not just the month: the days spilling in from the
@@ -152,24 +167,25 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
         start: cells[0].date.toDate(),
         end: cells[cells.length - 1].date.add(1, 'day').toDate(),
         durationMinutes,
+        timeZone,
       }),
       busy
     )
-  }, [busy, details?.weekSchedule, durationMinutes, month])
+  }, [busy, details?.weekSchedule, durationMinutes, month, timeZone])
 
   const slotCountByDay = useMemo(() => {
-    const counts = countSlotsByDay(gridSlots)
+    const counts = countSlotsByDay(gridSlots, timeZone)
     if (!requestedStarts.length) return counts
 
     const remaining = new Map(counts)
     requestedStarts.forEach((iso) => {
-      const key = dayjs(iso).format(DAY_KEY_FORMAT)
+      const key = dayKeyOf(iso, timeZone)
       const current = remaining.get(key)
       if (!current) return
       remaining.set(key, current - 1)
     })
     return remaining
-  }, [gridSlots, requestedStarts])
+  }, [gridSlots, requestedStarts, timeZone])
 
   const isInVisibleMonth = useCallback(
     (dayKey: string) => dayjs(dayKey, DAY_KEY_FORMAT).isSame(month, 'month'),
@@ -215,11 +231,11 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     () =>
       selectedDate
         ? dropBusySlots(
-            getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes }),
+            getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes, timeZone }),
             busy
           )
         : [],
-    [busy, details?.weekSchedule, durationMinutes, selectedDate]
+    [busy, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
   )
 
   /**
@@ -264,6 +280,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
       serviceName: service?.name,
       serviceDescription: service?.description,
       startISO: validSelectedStart,
+      timeZone,
+      timeFormat,
       durationMinutes,
       price: servicePrice,
       address: details?.location?.address,
@@ -279,6 +297,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     service?.description,
     service?.name,
     servicePrice,
+    timeFormat,
+    timeZone,
     validSelectedStart,
   ])
 
@@ -322,6 +342,27 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     setConfirmBooking(booking)
     setIsConfirmOpen(true)
   }, [booking, cannotBookOwn, notification, providerId, selectedServiceId, t, validSelectedStart])
+
+  /**
+   * Identity-column Book now (mobile). Scrolls to the first incomplete step; only opens
+   * the sheet when service and time are already picked — same gate as the in-panel CTA.
+   */
+  useEffect(() => {
+    const onPublicBookNow = () => {
+      if (!selectedServiceId && document.getElementById(BOOKING_SERVICES_ID)) {
+        scrollToBookingSection(BOOKING_SERVICES_ID)
+        return
+      }
+      if (!validSelectedStart) {
+        scrollToBookingSection(selectedDate ? BOOKING_TIMES_ID : BOOKING_CALENDAR_ID)
+        return
+      }
+      handleOpenConfirm()
+    }
+
+    window.addEventListener(PUBLIC_BOOK_NOW_EVENT, onPublicBookNow)
+    return () => window.removeEventListener(PUBLIC_BOOK_NOW_EVENT, onPublicBookNow)
+  }, [handleOpenConfirm, selectedDate, selectedServiceId, validSelectedStart])
 
   const handleSubmitBooking = useCallback(
     async (submission: BookingConfirmSubmission) => {
@@ -421,15 +462,18 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
 
   return (
     <>
-      <BookingMonth
-        month={month}
-        selectedDayKey={selectedDayKey}
-        slotCountByDay={slotCountByDay}
-        weekSchedule={details?.weekSchedule}
-        serviceName={service?.name}
-        onSelectDay={handleSelectDay}
-        onMonthChange={setMonth}
-      />
+      <div id={BOOKING_CALENDAR_ID}>
+        <BookingMonth
+          month={month}
+          selectedDayKey={selectedDayKey}
+          slotCountByDay={slotCountByDay}
+          weekSchedule={details?.weekSchedule}
+          timeZone={timeZone}
+          serviceName={service?.name}
+          onSelectDay={handleSelectDay}
+          onMonthChange={setMonth}
+        />
+      </div>
 
       {busyError !== null && (
         <ErrorAlert
@@ -440,18 +484,22 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
         />
       )}
 
-      <BookingSlots
-        date={selectedDate}
-        slots={daySlots}
-        selectedStart={validSelectedStart}
-        requestedStarts={requestedStarts}
-        serviceName={service?.name}
-        servicePrice={servicePrice}
-        isBooking={isBooking}
-        onSelect={setSelectedStart}
-        onConfirm={handleOpenConfirm}
-        cannotBookOwn={cannotBookOwn}
-      />
+      <div id={BOOKING_TIMES_ID}>
+        <BookingSlots
+          date={selectedDate}
+          slots={daySlots}
+          selectedStart={validSelectedStart}
+          requestedStarts={requestedStarts}
+          serviceName={service?.name}
+          servicePrice={servicePrice}
+          timeZone={timeZone}
+          timeFormat={timeFormat}
+          isBooking={isBooking}
+          onSelect={setSelectedStart}
+          onConfirm={handleOpenConfirm}
+          cannotBookOwn={cannotBookOwn}
+        />
+      </div>
 
       <BookingConfirmSheet
         open={isConfirmOpen}

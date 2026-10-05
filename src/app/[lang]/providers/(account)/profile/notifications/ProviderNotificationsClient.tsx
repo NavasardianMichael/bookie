@@ -4,10 +4,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { Form, Switch } from 'antd'
 import { useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
+import { Entitlements } from '@interfaces/plans'
 import { ProviderEmailNotificationPrefs } from '@interfaces/settings'
 import { DEFAULT_PROVIDER_NOTIFICATION_PREFS, toAppointmentReminderLeadMinutes } from '@constants/settings'
 import { AppointmentReminderPref } from '@components/settings/AppointmentReminderPref'
+import { CalendarFeed } from '@components/settings/CalendarFeed'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
+import { TelegramConnect } from '@components/settings/TelegramConnect'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -36,6 +39,8 @@ export const ProviderNotificationsClient = () => {
   const [error, setError] = useState<unknown>(null)
   const [loadError, setLoadError] = useState<unknown>(null)
   const [revision, setRevision] = useState(0)
+  // The plan's convenience features: Telegram for the provider's own notices, the iCal feed.
+  const [entitlements, setEntitlements] = useState<Entitlements | null>(null)
 
   // `loading` is derived from the request's identity, never set at the top of the effect.
   const request = useMemo(() => ({ revision }), [revision])
@@ -56,6 +61,7 @@ export const ProviderNotificationsClient = () => {
         }
         setSaved(prefs)
         form.setFieldsValue(prefs)
+        setEntitlements(profile.personal.entitlements ?? null)
         setLoadError(null)
       })
       .catch((err: unknown) => {
@@ -119,6 +125,14 @@ export const ProviderNotificationsClient = () => {
           </Form>
         )}
       </Surface>
+
+      {/* Channels and feeds: independent of the form, each saves on its own action. */}
+      {entitlements && (
+        <>
+          <TelegramConnect descriptionKey='telegramProviderBody' businessLocked={!entitlements.telegramNotifications} />
+          <CalendarFeed included={entitlements.calendarFeed} />
+        </>
+      )}
 
       {/* No Save over settings that never loaded: it would write the empty defaults. */}
       {loadError === null && (

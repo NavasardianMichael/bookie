@@ -8,10 +8,16 @@
 #   SSH_HOST, SSH_USER, SSH_KEY, SSH_PORT (optional, default 22)
 #   APP_DIR          deployment root, e.g. /home/michael/apps/bookie
 #   ENV_API_BASE64   base64 of the API env file — DATABASE_URL, JWT_SECRET,
-#                    CORS_ORIGIN, MAIL_*, GOOGLE_*. NODE_ENV/PORT/HOST/UPLOAD_DIR
-#                    are appended below, so do not put them in the secret.
+#                    CORS_ORIGIN, MAIL_*, GOOGLE_*, PADDLE_*, TELEGRAM_*.
+#                    NODE_ENV/PORT/HOST/UPLOAD_DIR are appended below, so do not
+#                    put them in the secret.
 #   NEXT_PUBLIC_API_URL    e.g. https://api.bookie.mnavasardian.com
 #   NEXT_PUBLIC_SITE_URL   e.g. https://bookie.mnavasardian.com
+#
+# OPTIONAL (Secrets or Variables) — Paddle checkout; without them the checkout page
+# reports itself unavailable and plans are requested through the contact form:
+#   NEXT_PUBLIC_PADDLE_CLIENT_TOKEN   live client-side token (public by design)
+#   NEXT_PUBLIC_PADDLE_ENV            `production`, matching the API's PADDLE_SANDBOX
 #
 # The two NEXT_PUBLIC_* values are inlined into the browser bundle, so they are
 # public by construction. They may live as repository Secrets or Variables —
@@ -134,6 +140,8 @@ jobs:
     env:
       NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || vars.NEXT_PUBLIC_API_URL }}
       NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || vars.NEXT_PUBLIC_SITE_URL }}
+      NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || vars.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN }}
+      NEXT_PUBLIC_PADDLE_ENV: ${{ secrets.NEXT_PUBLIC_PADDLE_ENV || vars.NEXT_PUBLIC_PADDLE_ENV }}
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5

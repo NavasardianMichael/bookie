@@ -1,6 +1,7 @@
 import { AxiosError, isAxiosError } from 'axios'
 import { APIResponse, AppError } from '@interfaces/api'
 import { AUTH_ERROR_CODES } from '@constants/auth'
+import { BILLING_ERROR_CODES } from '@constants/billing'
 import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { ErrorKind, RETRYABLE_ERROR_KINDS } from '@constants/errors'
 import { PLAN_ERROR_CODES } from '@constants/plans'
@@ -196,7 +197,7 @@ export const classifyError = (e: unknown): ClassifiedError => {
  * across families — `tests/unit/helpers/error.spec.ts` resolves every one.
  */
 const CODE_NAMES = new Map<number, string>(
-  [AUTH_ERROR_CODES, BOOKING_ERROR_CODES, PLAN_ERROR_CODES].flatMap((codes) =>
+  [AUTH_ERROR_CODES, BOOKING_ERROR_CODES, PLAN_ERROR_CODES, BILLING_ERROR_CODES].flatMap((codes) =>
     Object.entries(codes).map(([name, code]): [number, string] => [code, name])
   )
 )

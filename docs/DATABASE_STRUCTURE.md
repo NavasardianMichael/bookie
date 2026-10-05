@@ -6,14 +6,14 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 
 | Model | Purpose |
 | --- | --- |
-| **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, optional 1:1 Consumer/Provider |
+| **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, the linked Telegram chat (`telegramChatId` unique, `telegramUsername`, `telegramLinkedAt`) and its one live Connect token (`telegramLinkTokenHash`, `telegramLinkExpiresAt` — see [docs/NOTIFICATIONS.md](NOTIFICATIONS.md)), optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
-| **Provider** | Professional profile, `weekSchedule` JSON, `plan` + `planExpiresAt` and the two booking-allowance notice stamps (see [Plans and entitlements](#plans-and-entitlements)), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
+| **Provider** | Professional profile, `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
 | **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
-| **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot), the overlap index `[providerId, startAt]` and `[providerId, createdAt]` for the monthly booking allowance. `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
+| **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot), the overlap index `[providerId, startAt]`, `[providerId, createdAt]` for the monthly booking allowance, and `[status, startAt]` for the reminder job. `providerRemindedAt` / `bookerRemindedAt` stamp each side's reminder (claimed by compare-and-set; a reschedule clears both). `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
 
@@ -61,7 +61,7 @@ generic messages append the original error's message. The table is in `server/CL
 | POST | `/identity/forgot-password` | public — always answers the same, to avoid an enumeration oracle |
 | POST | `/identity/reset-password` | public — `{ token, password }`; bumps `tokenVersion` |
 | POST | `/identity/change-password` | session |
-| GET | `/identity/me` | session — `{ role, profileId, firstName, lastName, image? }` |
+| GET | `/identity/me` | session — `{ role, profileId, firstName, lastName, image?, timeFormat?, email, … }` |
 | POST | `/identity/logout` | session |
 | PATCH | `/identity/phone` | session — phone is profile data now, not identity |
 | POST | `/identity/change-email/send` | session — `{ email, returnPath }`; emails a link (dev: API console) |
@@ -82,8 +82,19 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound). Clamped to the plan's `analyticsHistoryDays`, measured from now |
 | PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug`. Setting or changing the slug needs the plan's `customSlug` (`403` / `4102`); unchanged and cleared slugs always pass |
-| GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }` |
-| GET | `/plans` | public — the catalogue, cheapest first: `[{ id, entitlements }]`. No prices yet |
+| GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, billing: { status, periodEndsAt?, cancelsAt?, manageable } \| null, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }` |
+| GET | `/plans` | public — the catalogue, cheapest first: `[{ id, entitlements, price: { amountCents, currency, interval }, purchasable }]`. `price` is the USD display fallback; `purchasable` is whether Paddle sells it here |
+| GET | `/provider-profile/calendar-feed` | provider — `{ url }` of the private iCal feed; needs the plan's `calendarFeed` (`403` / `4102`) |
+| POST | `/provider-profile/calendar-feed/rotate` | provider — bumps `calendarFeedVersion`, revoking the old URL; answers the new `{ url }` |
+| GET | `/calendar/:providerId/:token.ics` | public capability URL — `text/calendar` of live bookings, −30 d to +365 d. `404` for a bad token or a plan without `calendarFeed` |
+| GET | `/billing/prices` | public, rate-limited — Paddle's localized monthly total per paid plan for the caller's IP, `{ basic, standard, premium }`, `null` where unknown |
+| POST | `/billing/checkout` | provider — `{ plan, locale }` → `201 { checkoutUrl }` (a Paddle transaction). `409` / `4302` while a subscription is live; `503` / `4301` when the plan is not sold |
+| POST | `/billing/change-plan` | provider — `{ plan }` → `202`; prorated now, the webhook applies it. `409` / `4303` without a live subscription |
+| POST | `/billing/portal` | provider — `{ url }` into Paddle's customer portal (temporary; never cache) |
+| POST | `/billing/webhook` | Paddle only — raw body, `Paddle-Signature` HMAC; mounted ahead of the JSON parser and `requireSameOrigin`. See [BILLING.md](BILLING.md) |
+| GET | `/telegram/status` | session — `{ available, linked, username? }` |
+| POST/DELETE | `/telegram/link` | session — POST answers a one-time `t.me/<bot>?start=<token>` link (15 min); DELETE unlinks |
+| POST | `/telegram/webhook` | Telegram only — checked against `X-Telegram-Bot-Api-Secret-Token`; mounted ahead of `requireSameOrigin`. Handles `/start <token>` and `/stop` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only). Creating an active service, or reactivating one, past the plan's `maxActiveServices` is `403` / `4101` |
 | GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
 | POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled |
@@ -94,7 +105,7 @@ generic messages append the original error's message. The table is in `server/CL
 | PATCH | `/admin/reviews/:id/visibility` | admin — hide/restore, recomputes the aggregate |
 | PATCH | `/admin/reviews/reports/:id` | admin — `resolved` or `dismissed` |
 | GET | `/admin/providers?q=&page=&perPage=` | admin — providers by name / account email / slug, with `plan`, `effectivePlan`, `planExpiresAt` |
-| PATCH | `/admin/providers/:id/plan` | admin — `{ plan, planExpiresAt? }` (a future ISO instant or `null`; dropped for `free`). The only writer of `plan` until a payment provider is wired in |
+| PATCH | `/admin/providers/:id/plan` | admin — `{ plan, planExpiresAt? }` (a future ISO instant or `null`; dropped for `free`). Rows carry `billing: 'paddle'` while a subscription is live, whose next webhook event overwrites a manual change |
 | GET | `/organizations?q=`, `/organizations/similar?name=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public |
 | POST | `/contact` | public — contact form; forwards to the mail engine, **stores nothing** |
@@ -148,7 +159,7 @@ these before it creates an organization.
 | `q` | free text, split on whitespace into at most 5 terms | — |
 | `categoryId` | a `Category.id` | — |
 | `available` | `true` / `1` | off |
-| `openToday` | `true` / `1` — `weekSchedule` has hours on today's weekday | off |
+| `openToday` | `true` / `1` — `weekSchedule` has hours on today's weekday, in the provider's zone | off |
 | `sort` | `recommended` · `topRated` · `nameAsc` · `nameDesc` · `newest` | `recommended` |
 | `page` | 1-based | 1 |
 | `perPage` | 1-48 | 9 |
@@ -180,7 +191,11 @@ about it are load-bearing:
   JSON path on `weekSchedule.<day>.availability.start` containing `:` (so `''` and a
   missing key miss). Remaining-slot math is deliberately not this filter — it cannot
   stay inside `count`/`findMany` without breaking pagination. `now` is the server
-  clock; tests inject it. `mapBasicProvider` puts the same predicate on each row as
+  clock; tests inject it. "Today" is each **provider's** weekday: Prisma cannot compute a
+  weekday per row, so the filter groups every zone in `lib/time-zone.ts#SUPPORTED_TIME_ZONES`
+  by the weekday it is in now and ORs one `timeZone IN (…)` branch per group, plus a
+  `timeZone: null` branch on the server's weekday. That only works because a stored zone is
+  always canonical (see [Time zones](#time-zones)). `mapBasicProvider` puts the same predicate on each row as
   `basic.openToday`, so the card can show Available / Closed / Fully blocked without
   a second schedule payload.
 
@@ -269,7 +284,11 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 - **`available`** — pause new bookings; independent of listing. Enforced by
   `POST /appointments` (see [When online booking is closed](#when-online-booking-is-closed));
   it used to be read by Explore alone while bookings kept arriving.
-- **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
+- **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
+- **`timeZone`** — the IANA zone `weekSchedule` is written in. Draftable, because it moves
+  every published hour; also written live by onboarding's first save. See [Time zones](#time-zones).
+- **`timeFormat`** — `h12` / `h24` (Prisma enum `TimeFormat`), nullable. Draftable with
+  `timeZone`, beside which it is edited. See [12- or 24-hour clock](#12--or-24-hour-clock).
 - **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], payToNumber?, notes? }`.
   **`methods` is plural** — a provider accepts a set, not one preference, and the booking
   sheet offers exactly that set. `payToNumber` is a provider-authored card or account
@@ -317,11 +336,12 @@ pair is its "Booked by me" view, offered when `GET /identity/me` reports
 
 Three things about these that are easy to get wrong:
 
-- **`tz` is a required part of the contract, not a nicety.** `startAt` is stored in UTC and
-  `Provider` has no timezone column, so bucketing by the raw instant puts an evening
-  booking on the following day for anyone east of Greenwich. The client sends
-  `Intl.DateTimeFormat().resolvedOptions().timeZone`; an unknown value falls back to UTC
-  rather than throwing.
+- **`tz` is a required part of the contract, not a nicety.** `startAt` is stored in UTC, so
+  bucketing by the raw instant puts an evening booking on the following day for anyone east
+  of Greenwich. The client sends `Intl.DateTimeFormat().resolvedOptions().timeZone`; an
+  unknown value falls back to UTC rather than throwing. It is the **reader's** zone, not
+  `Provider.timeZone`: the workspace formats every row on the browser's clock, and the counts
+  beside them must agree about which day a booking is on.
 - **Revenue is returned per currency and never summed.** `Service.currency` is free-form
   text, so one combined total would be a wrong number rather than a rough one.
 - **Analytics is bucketed in memory, not in SQL.** One provider's bookings over the longest
@@ -367,8 +387,12 @@ Only providers are billed. The strategy, the catalogue and the roadmap are in
 
 | Column | Meaning |
 |---|---|
-| `Provider.plan` | `free` \| `basic` \| `standard` \| `premium`, default `free`. Written only by `PATCH /admin/providers/:id/plan` today |
-| `Provider.planExpiresAt` | When a paid plan lapses to `free`. Null = no end. Applied **on read** (`effectivePlan`), never by a job |
+| `Provider.plan` | `free` \| `basic` \| `standard` \| `premium`, default `free`. Written by `POST /billing/webhook` (from the Paddle subscription) and by `PATCH /admin/providers/:id/plan` |
+| `Provider.planExpiresAt` | When a paid plan lapses to `free`. Null = no end. Applied **on read** (`effectivePlan`), never by a job. For a Paddle subscription: period end + 3 days, or the scheduled cancellation, or period start + 7 days while past due |
+| `Provider.paddleCustomerId` / `paddleSubscriptionId` | Paddle ids, written by the webhook. The subscription id is unique; the customer survives a cancellation so the next checkout reuses it |
+| `Provider.billingStatus` | Enum `BillingStatus` (`active` \| `trialing` \| `past_due` \| `paused` \| `canceled`) — Paddle's status, for display |
+| `Provider.billingPeriodEndsAt` / `billingCancelsAt` | The renewal date, and a scheduled cancellation's date — the Plan tab's "Renews on" / "Ends on" |
+| `Provider.billingEventAt` | `occurred_at` of the last webhook event applied; an older one is ignored |
 | `Provider.bookingCapWarnedAt` / `bookingCapReachedAt` | The 80% and 100% allowance emails. "Sent this month" = stamp ≥ the UTC month's start; claimed by compare-and-set |
 | `Appointment @@index([providerId, createdAt])` | The monthly allowance counts by creation time |
 
@@ -580,6 +604,65 @@ profile. It is saved live on `PUT /provider-profile` (not draftable), and
 `mapProviderDetails` omits `phone` when it is false. The owner payload always returns the
 number so settings can still edit it.
 
+## Time zones
+
+`weekSchedule` is wall-clock `'HH:mm'` with no zone of its own. `Provider.timeZone` (IANA,
+nullable, added 2026-10-04) says which clock it is on. Before it existed, every visitor's
+browser read "09:00" on *its* clock, so a booker abroad was offered hours the provider does
+not keep, and booking emails printed the API server's zone (UTC in production).
+
+| Where | Which zone | Why |
+| --- | --- | --- |
+| Public booking grid, slots, "today", the confirm sheet and copy-as-text, `/b/:token` reschedule | `Provider.timeZone`, named on screen (`Armenia Standard Time (GMT+4)`) | The hours are on the provider's clock, and the appointment happens there. A visitor in another zone also sees their own time for the picked slot |
+| Working hours on the public profile | `Provider.timeZone`, named under the list | Same hours |
+| Booking emails and Telegram (`lib/time-format.ts#formatBookingWhen`) | `Provider.timeZone`, with its short name (`GMT+4`); `UTC` when unset | An email is read away from any page that would say which clock it means |
+| Explore's open-today filter and the card's Available/Closed | The provider's weekday in `Provider.timeZone` | See [the Explore query](#routes-express-default-9004) |
+| `/bookings`, Approvals, Analytics, the workspace calendars (`tz` param) | The **reader's** browser zone | Rows and counts must agree, and they are the reader's diary |
+| The monthly booking allowance | UTC | Not moved yet — `docs/BACKLOG.md` |
+
+**Null keeps the old reading.** A row from before the column has no zone, and nothing on it
+says where the provider is (`country` has no zone, and several countries span many). Such a
+provider's hours are read in each visitor's own zone — exactly what every page did before —
+and the label names that zone. The Availability tab suggests the device's zone and starts
+dirty, so confirming it is one Publish. Onboarding sends the device's zone with the first
+schedule. The seed gives every seeded provider `Asia/Yerevan`.
+
+**Stored canonical.** `PUT /provider-profile` accepts `timeZone` in all three modes (draft,
+publish, live), answers `400` for a name `Intl` cannot read, and stores what
+`resolvedOptions()` resolves it to (`lib/time-zone.ts#toTimeZone`): `US/Eastern` becomes
+`America/New_York`, `Asia/Kolkata` becomes Node's `Asia/Calcutta`. That keeps every stored
+zone inside `SUPPORTED_TIME_ZONES`, which the open-today filter depends on. The picker
+(`ProviderProfileTimeZone`) adds a stored zone on top when the browser's catalogue spells it
+differently.
+
+The client maths is `src/helpers/timeZone.ts` (`zonedTimeToDate`, `inTimeZone`, `dayKeyOf`,
+`calendarDayOf`, the labels); `getSlotsForDate` and `countSlotsByDay` take the zone.
+
+## 12- or 24-hour clock
+
+`Provider.timeFormat` (`h12` / `h24`, nullable, added 2026-10-05) is the clock every time
+shown for a provider is printed on. It is chosen beside the time zone on the Availability
+tab, drafted with it, and goes out on Publish: it changes what the public page shows. It
+says *how* a time is written, never *which zone* — the table above still decides that.
+
+| Where | Reads it from |
+| --- | --- |
+| Public profile: working hours, slot grid, "your time", confirm sheet and copy-as-text | `details.timeFormat` on the public payload |
+| `/b/:token` — the summary, the reschedule grid and its confirm dialog | the same, through `mapSingleProvider` |
+| Booking emails and Telegram notices (`lib/time-format.ts#formatBookingWhen`) | the row, selected with `timeZone` |
+| The provider's `/bookings` (both sides), Approvals, the Analytics hour chart | `GET /identity/me` → the auth store; Publish updates the store |
+| The Availability tab's own hour pickers | the toggle, live, before anything is saved |
+
+**Null follows the reader.** Nobody has chosen on a row from before the column, so a null
+prints each reader's locale convention (`en`, `ar`, `ko` 12-hour; `hy`, `de`, `ru` and the
+rest 24-hour) — and English, 12-hour, in emails, which are English. The Availability tab shows
+the provider's own locale convention selected, so saving that tab records what they saw.
+Onboarding has no toggle; its pickers use the locale's clock.
+
+`PUT /provider-profile` accepts `timeFormat` in `draft` and `publish` modes and answers `400`
+for anything but `h12` / `h24`. The client half is `src/helpers/timeFormat.ts`; the server twin
+`server/src/lib/time-format.ts` is pinned to it by `tests/unit/server/timeFormat.spec.ts`.
+
 ## Registration and sign-in
 
 **Registration and sign-in are separate routes.** `POST /identity/register` creates the
@@ -664,13 +747,11 @@ Both **redirect**; they never answer JSON, so failures come back as `?error=<cod
   `/auth/complete-registration`, because Google supplies neither a role nor a phone and
   both profile tables need them. Nothing is written until `POST /identity/google/complete`.
 
-`GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` from the
-session cookie, which is how the client recovers its role after a refresh (the cookie is
-httpOnly) and how the Header renders an avatar without a second fetch.
-
-`GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` from the
-session cookie, which is how the client recovers its role after a refresh (the cookie is
-httpOnly) and how the Header renders an avatar without a second fetch.
+`GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` and the account
+flags (`email`, `hasPassword`, `hasGoogle`, `profiles`, …) from the session cookie, which is
+how the client recovers its role after a refresh (the cookie is httpOnly) and how the Header
+renders an avatar without a second fetch. A provider session also carries the published
+`timeFormat`, so the workspace prints times on the clock the public page uses.
 
 ## Local setup
 

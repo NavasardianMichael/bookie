@@ -2,9 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import { AppLink } from '@components/ui/bare/AppLink'
-import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { PageHeader, PageShell } from '@components/ui/layout'
+import { LegalDocument } from '@components/legal/LegalDocument'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Legal')
@@ -17,20 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Placeholder with a live URL — see the note in `terms/page.tsx`. Registration links here
- * from its consent notice, so the route has to resolve.
+ * The Privacy Policy. Registration's consent notice links here; Paddle requires it too. It
+ * names what the app actually holds — keep it in step with the schema and the processors.
  */
-export default async function Privacy() {
-  const t = await getTranslations('Legal')
-
-  return (
-    <PageShell as='article' width='prose' className='flex flex-col gap-6'>
-      <PageHeader title={t('privacyTitle')} subtitle={t('unpublished')} />
-      <AppParagraph>
-        {t.rich('privacyBody', {
-          contact: (chunks) => <AppLink href={ROUTES.contact}>{chunks}</AppLink>,
-        })}
-      </AppParagraph>
-    </PageShell>
-  )
+export default function Privacy() {
+  return <LegalDocument document='privacy' />
 }

@@ -38,7 +38,10 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
       aria-label={isVertical ? t('mobileNavigation') : t('mainNavigation')}
       // Tighter below `lg`: a signed-in bar carries five destinations and an avatar, which
       // overflowed a 768px viewport at the full gap.
-      className={cn('flex', isVertical ? 'flex-col gap-1' : 'items-center gap-4 lg:gap-6')}
+      className={cn(
+        'flex',
+        isVertical ? 'flex-col divide-y divide-brand-border' : 'items-center gap-4 lg:gap-6'
+      )}
     >
       {routes.map((name) => {
         const route = ROUTES[name]
@@ -55,7 +58,7 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
             className={cn(
               'text-sm font-semibold transition-colors',
               isVertical
-                ? 'flex items-center gap-2 rounded-brand-sm px-3'
+                ? 'flex items-center gap-2 rounded-brand-sm px-3 py-3'
                 : 'inline-flex min-h-11 items-center gap-1.5',
               active
                 ? isVertical

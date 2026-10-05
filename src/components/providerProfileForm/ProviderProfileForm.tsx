@@ -7,6 +7,7 @@ import { useCategoriesListStore } from '@store/categories/list/store'
 import { useOrganizationsListStore } from '@store/organizations/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { useRouter } from '@i18n/navigation'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
@@ -24,6 +25,7 @@ import { ProviderProfileFormGallery } from './ProviderProfileFormGallery'
 import { ProviderProfileImage } from './ProviderProfileFormImage'
 import { ProviderProfileLocationInput } from './ProviderProfileFormLocation'
 import { ProviderProfileOrganization } from './ProviderProfileFormOrganization'
+import { ProviderProfileTimeZone } from './ProviderProfileTimeZone'
 import { ProviderProfileWeekSchedule } from './ProviderProfileWeekSchedule'
 
 type Props = {
@@ -75,6 +77,16 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
       cancelled = true
     }
   }, [getCategoriesList, getOrganizationsList, optionsAttempt])
+
+  /**
+   * The hours below are written in the provider's zone, and the device is the best first
+   * guess at it. Filled after hydration rather than as an initial value: the server render
+   * would otherwise preselect the API host's zone and the client then disagree with it.
+   */
+  const viewerTimeZone = useViewerTimeZone()
+  useEffect(() => {
+    if (viewerTimeZone && !form.getFieldValue('timeZone')) form.setFieldValue('timeZone', viewerTimeZone)
+  }, [form, viewerTimeZone])
 
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
@@ -140,6 +152,9 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
       </AppFormSection>
 
       <AppFormSection title={t('whenYouWork')}>
+        <AppFormItem name='timeZone' label={t('timeZone')} extra={t('timeZoneHint')}>
+          <ProviderProfileTimeZone disabled={isSubmitting} />
+        </AppFormItem>
         <AppFormItem name='weekSchedule'>
           <ProviderProfileWeekSchedule />
         </AppFormItem>

@@ -16,8 +16,12 @@ export const SCHEDULE_VALUE_FORMAT = 'HH:mm'
 /** Max bookable periods on one weekday (availability + gaps persisted as breaks). */
 export const MAX_DAY_RANGES = 5
 
-/** How schedule times are shown in pickers. Keeps the meridiem so 12-hour input is unambiguous. */
-export const SCHEDULE_DISPLAY_FORMAT = 'hh:mm A'
+/**
+ * The clocks a provider can print their times on (`details.timeFormat`). `h12`/`h24` because
+ * the Prisma enum they mirror cannot start a value with a digit. Formatting with one goes
+ * through `@helpers/timeFormat`.
+ */
+export const TIME_FORMATS = ['h12', 'h24'] as const
 
 /** Keys a calendar day in lookup maps (slot counts, day-cell affordances). */
 export const DAY_KEY_FORMAT = 'YYYY-MM-DD'

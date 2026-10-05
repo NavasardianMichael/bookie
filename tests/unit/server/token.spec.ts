@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  calendarFeedTokenMatches,
   isOwnerManageToken,
+  mintCalendarFeedToken,
   mintOwnerManageToken,
   readOwnerManageAppointmentId,
 } from '../../../server/src/lib/token'
@@ -32,3 +34,25 @@ describe('owner manage tokens', () => {
     expect(readOwnerManageAppointmentId('deadbeef'.repeat(8), SECRET)).toBeNull()
   })
 })
+
+describe('mintCalendarFeedToken', () => {
+  const SECRET = 'test-secret'
+
+  it('is stable for the same provider and version, so the URL can be shown again', () => {
+    expect(mintCalendarFeedToken('prov-1', 0, SECRET)).toBe(mintCalendarFeedToken('prov-1', 0, SECRET))
+    expect(calendarFeedTokenMatches(mintCalendarFeedToken('prov-1', 0, SECRET), 'prov-1', 0, SECRET)).toBe(true)
+  })
+
+  // Bumping `calendarFeedVersion` is what revokes every URL handed out before.
+  it('stops matching once the version moves on', () => {
+    expect(calendarFeedTokenMatches(mintCalendarFeedToken('prov-1', 0, SECRET), 'prov-1', 1, SECRET)).toBe(false)
+  })
+
+  it('is bound to its provider and secret', () => {
+    const token = mintCalendarFeedToken('prov-1', 0, SECRET)
+    expect(calendarFeedTokenMatches(token, 'prov-2', 0, SECRET)).toBe(false)
+    expect(calendarFeedTokenMatches(token, 'prov-1', 0, 'other-secret')).toBe(false)
+    expect(calendarFeedTokenMatches('short', 'prov-1', 0, SECRET)).toBe(false)
+  })
+})
+

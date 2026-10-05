@@ -61,6 +61,12 @@ describe('mapSingleProvider', () => {
     expect(mapSingleProvider(providerRow(), { bookingsFull: true }).details.onlineBooking).toBe('full')
   })
 
+  // The booking grid and the hours list format with it, so it is public like `timeZone`.
+  it("publishes the provider's clock, and leaves it out until they choose one", () => {
+    expect(mapSingleProvider(providerRow({ timeFormat: 'h24' })).details.timeFormat).toBe('h24')
+    expect(mapSingleProvider(providerRow({ timeFormat: null })).details.timeFormat).toBeUndefined()
+  })
+
   // The public payload is read by anyone. A visitor learns that booking is closed, never
   // which plan the provider is on — that is between the provider and us.
   it('never carries the plan', () => {

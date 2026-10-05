@@ -40,7 +40,12 @@ export const HEADER_SIGN_IN: AppRouteName = ROUTE_KEYS.signIn
  * advertise that it exists. Guarding it is the API's job — this only stops us handing
  * out the address.
  */
-const OVERVIEW_EXCLUDED: AppRouteName[] = [ROUTE_KEYS.adminReviews, ROUTE_KEYS.adminProviders]
+const OVERVIEW_EXCLUDED: AppRouteName[] = [
+  ROUTE_KEYS.adminReviews,
+  ROUTE_KEYS.adminProviders,
+  ROUTE_KEYS.billingCheckout,
+  ROUTE_KEYS.billingReturn,
+]
 
 /** Dev aid only (`/routes-overview`), so these stay raw route names — not user copy. */
 export const OVERVIEW_ROUTES: AppRouteName[] = (Object.keys(ROUTES) as AppRouteName[]).filter(

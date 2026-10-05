@@ -144,10 +144,18 @@ to `localhost:9004` / `:7004` and ship a bundle whose session probe asked Chrome
 "Apps on device" on every page. Deploy now fails closed if either origin is missing,
 loopback, or `http://`.
 
-`ENV_API_BASE64` holds `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `MAIL_*` and
-`GOOGLE_*` — the keys are documented in `server/.env.example`. Do **not** put `NODE_ENV`,
+`ENV_API_BASE64` holds `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `MAIL_*`, `GOOGLE_*`,
+`PADDLE_*` and `TELEGRAM_*` — the keys are documented in `server/.env.example`. Do **not** put `NODE_ENV`,
 `PORT`, `HOST` or `UPLOAD_DIR` in it: the deploy strips and rewrites those four so they
 cannot drift from the ports and paths the systemd units use.
+
+**Payments and Telegram are optional at deploy time.** Without `PADDLE_*` every paid plan is
+requested through the contact form; without `TELEGRAM_*` notices go by email only. Turning
+them on is [docs/PADDLE_SETUP.md](PADDLE_SETUP.md) and [docs/NOTIFICATIONS.md](NOTIFICATIONS.md):
+the Paddle webhook is `https://api.<domain>/billing/webhook`, the Telegram one
+`https://api.<domain>/telegram/webhook` (registered once with `setWebhook`). Paddle.js also
+needs two optional repository Secrets or Variables, inlined at build time like the origins:
+`NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` and `NEXT_PUBLIC_PADDLE_ENV` (`production` for live).
 
 For the Google credential, `server/.env.example` carries the full console walkthrough —
 which scopes to request, and what to put in **Authorized redirect URIs** (one entry per
@@ -339,7 +347,13 @@ sudo systemctl restart bookie-web                     # same shape for api
 - **`trust proxy` is 1** (`server/src/app.ts`), matching exactly one hop. Add another proxy
   in front and the rate limiters start bucketing every client together again.
 - **One API process only.** `server/src/lib/rateLimit.ts` is in-memory and per-process; a
-  second instance doubles every limit. Move it to Redis first.
+  second instance doubles every limit. Move it to Redis first. The appointment-reminder job
+  also runs inside the API (`server/src/jobs/reminderJob.ts`); its sends are claimed by
+  compare-and-set, so a second process would not double-send, but set
+  `REMINDERS_ENABLED=false` on all but one.
+- **Never put the webhooks behind anything that rewrites the body.** `/billing/webhook` is
+  verified against the raw bytes Paddle signed; a proxy that re-encodes JSON breaks every
+  signature.
 - **`shared/uploads` is state.** It lives outside the releases on purpose. Back it up.
 
 ## Rendering

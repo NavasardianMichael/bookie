@@ -183,6 +183,7 @@
       "service": "Leistung",
       "date": "Datum",
       "time": "Uhrzeit",
+      "timeZone": "Zeitzone",
       "duration": "Dauer",
       "durationValue": "{minutes} Min.",
       "price": "Preis",
@@ -224,12 +225,17 @@
     "chooseDate": "Datum wählen",
     "availableTimes": "Verfügbare Zeiten",
     "noDatePicked": "Noch kein Datum gewählt",
-    "localTime": "Ortszeit",
+    "timesShownIn": "Zeitzone: {zone}",
+    "yourTime": "{time} bei Ihnen",
     "pickDateFirst": "Wählen Sie zuerst ein Datum",
     "pickDateFirstBody": "Wählen Sie oben im Kalender einen Tag, und die freien Zeiten erscheinen hier.",
     "noOpenTimes": "Keine freien Zeiten an diesem Tag",
     "noOpenTimesBody": "Versuchen Sie einen anderen Tag – auswählbare Tage haben freie Zeiten.",
     "readyToConfirm": "Bereit zu bestätigen?",
+    "pickAService": "Leistung wählen",
+    "pickAServiceHint": "Wählen Sie oben eine Leistung, um fortzufahren.",
+    "pickServiceAndTime": "Leistung und Zeit wählen",
+    "pickServiceAndTimeHint": "Wählen Sie oben eine Leistung und dann hier eine der Zeiten, um fortzufahren.",
     "pickATime": "Zeit wählen",
     "pickATimeHint": "Wählen Sie oben eine der Zeiten, um fortzufahren.",
     "bookNow": "Jetzt buchen",
@@ -280,7 +286,8 @@
       "fullBody": "{name} kann in diesem Monat keine weiteren Online-Buchungen annehmen. Nehmen Sie direkt Kontakt auf, um einen Termin zu vereinbaren.",
       "call": "{phone} anrufen",
       "email": "E-Mail senden"
-    }
+    },
+    "addToCalendar": "Zum Kalender hinzufügen"
   },
   "Footer": {
     "blurb": "Eine Plattform, um Dienstleistungen in der Nähe zu finden oder den eigenen Buchungskalender zu führen.",
@@ -295,7 +302,10 @@
     "createAccount": "Konto erstellen",
     "company": "Unternehmen",
     "contact": "Kontakt",
-    "pricing": "Preise"
+    "pricing": "Preise",
+    "terms": "Nutzungsbedingungen",
+    "privacy": "Datenschutzerklärung",
+    "refund": "Rückerstattungsrichtlinie"
   },
   "Contact": {
     "metaTitle": "Kontaktieren Sie uns",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "Versuchen Sie einen anderen Status oder Suchbegriff."
     },
     "notifications": {
-      "subtitle": "Wählen Sie, welche E-Mails Sie erhalten möchten.",
+      "subtitle": "Wählen Sie, worüber Sie per E-Mail und über Telegram informiert werden.",
       "emailPrefs": "Benachrichtigungseinstellungen",
       "remindersTitle": "Terminerinnerungen",
-      "remindersBody": "Erhalten Sie eine E-Mail, bevor ein Termin beginnt.",
+      "remindersBody": "Erhalten Sie eine Erinnerung, bevor ein Termin beginnt.",
       "remindersLeadLabel": "Erinnern",
       "remindersMinutes": "{count} Minuten",
       "remindersHours": "{count, plural, one {# Stunde} other {# Stunden}}",
       "changesTitle": "Buchungsänderungen",
       "changesBody": "Updates, wenn eine Buchung geändert oder storniert wird.",
       "newBookingTitle": "Neue Buchungen",
-      "newBookingBody": "E-Mail, wenn ein Kunde bei Ihnen bucht."
+      "newBookingBody": "Wenn ein Kunde bei Ihnen bucht.",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "Erhalten Sie Ihre Buchungsbenachrichtigungen zusätzlich zur E-Mail auch in Telegram.",
+      "telegramConsumerBody": "Erhalten Sie Erinnerungen und Buchungsupdates zusätzlich zur E-Mail auch in Telegram.",
+      "telegramLocked": "Telegram-Benachrichtigungen zu Ihrem Geschäft sind ab dem Tarif Basic enthalten. <plan>Tarife ansehen</plan>",
+      "telegramUnavailable": "Telegram-Benachrichtigungen sind derzeit nicht verfügbar.",
+      "telegramConnect": "Telegram verbinden",
+      "telegramOpen": "Telegram öffnen",
+      "telegramOpenHint": "Öffnen Sie Telegram und tippen Sie auf „Starten“, um die Verbindung abzuschließen. Der Link ist 15 Minuten lang gültig.",
+      "telegramWaiting": "Warten auf Telegram…",
+      "telegramConnected": "Verbunden",
+      "telegramConnectedAs": "Verbunden als @{username}",
+      "telegramDisconnect": "Trennen",
+      "telegramConnectFailed": "Die Verbindung mit Telegram konnte nicht gestartet werden",
+      "telegramDisconnectFailed": "Telegram konnte nicht getrennt werden",
+      "calendarTitle": "Kalender-Synchronisierung",
+      "calendarBody": "Abonnieren Sie Ihre Buchungen in Google Calendar, Apple Calendar oder Outlook. Neue Buchungen und Änderungen erscheinen dort automatisch.",
+      "calendarLocked": "Die Kalender-Synchronisierung ist ab dem Tarif Basic enthalten. <plan>Tarife ansehen</plan>",
+      "calendarCopy": "Kalenderlink kopieren",
+      "calendarHint": "Fügen Sie in Ihrer Kalender-App einen Kalender per URL hinzu und setzen Sie diesen Link ein. Halten Sie ihn privat: Jeder, der ihn hat, kann Ihre Buchungen sehen.",
+      "calendarReset": "Link zurücksetzen",
+      "calendarResetTitle": "Kalenderlink zurücksetzen?",
+      "calendarResetBody": "Der aktuelle Link funktioniert sofort nicht mehr. Kalender, die ihn abonniert haben, werden erst wieder aktualisiert, wenn Sie den neuen hinzufügen."
     },
     "payments": {
       "title": "Zahlungen",
@@ -457,6 +489,15 @@
       "recurringBody": "Tage und Stunden, die Kunden buchen können. Bis zu 5 Zeiträume pro Tag, wenn Sie Pausen einlegen.",
       "pauseTitle": "Buchungen annehmen",
       "pauseBody": "Deaktivieren Sie dies, um neue Buchungen vorübergehend zu pausieren, ohne Ihre Seite auszulisten.",
+      "timeZone": "Zeitzone",
+      "timeZoneHint": "Ihre Zeiten gelten in dieser Zeitzone. Besucher sehen und buchen Termine darin, egal wo sie sind.",
+      "timeZonePlaceholder": "Stadt, Zeitzone oder UTC-Versatz suchen",
+      "timeZoneSuggested": "Ihre Zeitzone ist noch nicht gespeichert. Wir haben die dieses Geräts eingetragen – veröffentlichen Sie, um sie auf Ihre öffentliche Seite zu übernehmen.",
+      "timeZoneDeviceDiffers": "Zeitzone dieses Geräts: {zone}.",
+      "timeFormat": "Zeitformat",
+      "timeFormatHint": "So werden Uhrzeiten auf Ihrer öffentlichen Seite, in Buchungs-E-Mails und in Ihren Buchungen angezeigt.",
+      "timeFormat12": "12-Stunden ({time})",
+      "timeFormat24": "24-Stunden ({time})",
       "to": "bis",
       "unavailable": "Nicht verfügbar",
       "addRange": "Zeiten hinzufügen",
@@ -682,7 +723,23 @@
       "resetsOn": "Wird am {date} zurückgesetzt",
       "comparePlans": "Tarife vergleichen",
       "requestUpgrade": "Höheren Tarif anfragen",
-      "manualNote": "Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten."
+      "manualNote": "Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten.",
+      "renewsOn": "Verlängert sich am {date}",
+      "cancelsOn": "Gekündigt – endet am {date}",
+      "manageBilling": "Abrechnung verwalten",
+      "portalFailed": "Die Abrechnung konnte nicht geöffnet werden",
+      "paymentFailedTitle": "Ihre letzte Zahlung ist fehlgeschlagen",
+      "paymentFailedBody": "Aktualisieren Sie Ihre Zahlungsmethode unter „Abrechnung verwalten“, um den Tarif {plan} zu behalten. Paddle versucht erneut, Ihre Karte zu belasten.",
+      "cancelInPortal": "Abo kündigen",
+      "upgrade": "Upgraden",
+      "switch": "Wechseln",
+      "switchTitle": "Zum Tarif {plan} wechseln?",
+      "switchBody": "Die Änderung gilt sofort. Die Differenz für den Rest dieses Monats wird Ihrer Zahlungsmethode automatisch belastet oder gutgeschrieben.",
+      "switchConfirm": "Tarif wechseln",
+      "switchingTitle": "Wechsel zu {plan}…",
+      "switchPendingTitle": "Ihr Tarifwechsel wird verarbeitet",
+      "switchPendingBody": "Paddle hat ihn angenommen; es kann einige Minuten dauern, bis er hier angezeigt wird. Aktualisieren Sie die Seite gleich noch einmal.",
+      "billingNote": "Zahlungen werden von Paddle abgewickelt. Unter „Abrechnung verwalten“ können Sie kündigen, Ihre Karte ändern oder Rechnungen herunterladen."
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# Stern} other {# Sterne}}",
       "pagesLabel": "Bewertungsseiten",
       "loadError": "Die Bewertungen konnten nicht geladen werden. Bitte erneut versuchen."
-    }
+    },
+    "poweredBy": "Buchungsseite von Bookie",
+    "poweredByCta": "Eigene kostenlos erstellen"
   },
   "Legal": {
     "termsMetaTitle": "Nutzungsbedingungen",
     "termsMetaDescription": "Die Bedingungen für die Nutzung von Bookie.",
     "termsTitle": "Nutzungsbedingungen",
-    "unpublished": "Noch nicht veröffentlicht.",
-    "termsBody": "Die Nutzungsbedingungen von Bookie werden noch finalisiert. Bis sie hier veröffentlicht sind, beantworten wir Fragen zur Nutzung der Plattform direkt — erreichen Sie uns über die <contact>Kontaktseite</contact>.",
     "privacyMetaTitle": "Datenschutzerklärung",
     "privacyMetaDescription": "Was Bookie erhebt und wie damit umgegangen wird.",
     "privacyTitle": "Datenschutzerklärung",
-    "privacyBody": "Die Datenschutzerklärung von Bookie wird noch finalisiert. Bei der Registrierung werden eine Telefonnummer, ein Name und optional eine E-Mail-Adresse erfasst; die Telefonnummer identifiziert das Konto. Für alles Weitere erreichen Sie uns über die <contact>Kontaktseite</contact>."
+    "lastUpdated": "Zuletzt aktualisiert am {date}",
+    "refundMetaTitle": "Rückerstattungsrichtlinie",
+    "refundMetaDescription": "So funktionieren Kündigungen und Rückerstattungen bei den kostenpflichtigen Tarifen von Bookie.",
+    "refundTitle": "Rückerstattungsrichtlinie",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "Annahme dieser Bedingungen",
+          "p1": "Durch den Zugriff auf Bookie („der Dienst“) oder dessen Nutzung stimmen Sie diesen Nutzungsbedingungen und unserer <privacy>Datenschutzerklärung</privacy> zu. Wenn Sie nicht einverstanden sind, nutzen Sie den Dienst bitte nicht."
+        },
+        "service": {
+          "title": "Der Dienst",
+          "p1": "Bookie ist eine Online-Buchungsplattform. Dienstleister veröffentlichen eine Buchungsseite mit ihren Leistungen und Arbeitszeiten, und Kunden finden Anbieter und buchen Termine bei ihnen. Bookie stellt ausschließlich die Plattform bereit: Die Leistungen selbst werden von den Anbietern erbracht, die allein dafür verantwortlich sind."
+        },
+        "accounts": {
+          "title": "Konten",
+          "p1": "Sie benötigen ein Konto, um eine Buchungsseite zu veröffentlichen oder Ihre Buchungen an einem Ort zu verwalten; Kunden können auch ohne Konto buchen. Sie sind dafür verantwortlich, Ihre Anmeldedaten vertraulich zu behandeln, für alles, was unter Ihrem Konto geschieht, und dafür, dass Ihre Angaben korrekt sind. Wir können Konten sperren oder schließen, die gegen diese Bedingungen verstoßen."
+        },
+        "bookings": {
+          "title": "Buchungen",
+          "p1": "Eine Buchung ist eine Vereinbarung zwischen einem Kunden und einem Anbieter. Anbieter legen ihre Leistungen, Preise, Zeitpläne und Stornierungsbedingungen selbst fest und werden direkt von ihren Kunden bezahlt – Bookie nimmt keine Zahlungen für Termine entgegen. Bookie ist nicht Partei dieser Vereinbarung und ist weder für die Leistungen eines Anbieters noch für das Erscheinen eines Kunden verantwortlich."
+        },
+        "content": {
+          "title": "Ihre Inhalte",
+          "p1": "Anbieter sind für das verantwortlich, was sie veröffentlichen – Beschreibungen, Preise, Fotos und Kontaktdaten – und müssen das Recht haben, es zu veröffentlichen. Kunden sind für die Bewertungen verantwortlich, die sie schreiben; diese müssen eine tatsächliche Erfahrung beschreiben. Wir können Bewertungen ausblenden oder Inhalte entfernen, die rechtswidrig, irreführend oder missbräuchlich sind."
+        },
+        "acceptableUse": {
+          "title": "Zulässige Nutzung",
+          "p1": "Sie verpflichten sich, über den Dienst nicht gegen Gesetze zu verstoßen, sich nicht als eine andere Person auszugeben, keine Buchungen vorzunehmen, die Sie nicht wahrnehmen wollen, keinen Schadcode und keine schädlichen Inhalte hochzuladen, nicht zu versuchen, sich unbefugten Zugriff auf die Systeme von Bookie oder die Konten anderer Personen zu verschaffen, und den Dienst nicht auf eine Weise automatisiert auszulesen (Scraping), die ihn unangemessen belastet."
+        },
+        "plans": {
+          "title": "Tarife und Zahlungen",
+          "p1": "Buchen ist für Kunden immer kostenlos. Anbieter können Bookie kostenlos nutzen oder einen kostenpflichtigen Tarif abonnieren, der bis zur Kündigung monatlich abgerechnet wird, zu den Preisen auf unserer <pricing>Preisseite</pricing>. Je nach Ihrem Standort können Steuern anfallen. Sie können Ihren Tarif jederzeit in Ihren Tarifeinstellungen wechseln oder kündigen; eine Kündigung wird zum Ende des bezahlten Monats wirksam. Informationen zu Rückerstattungen finden Sie in unserer <refund>Rückerstattungsrichtlinie</refund>.",
+          "p2": "Unser Bestellprozess wird von unserem Online-Wiederverkäufer Paddle.com durchgeführt. Paddle.com ist der Merchant of Record für alle unsere Bestellungen. Paddle bearbeitet alle Kundenserviceanfragen und wickelt Rückgaben ab."
+        },
+        "planChanges": {
+          "title": "Änderungen an Tarifen und Preisen",
+          "p1": "Wir können unsere Tarife oder Preise ändern. Eine Preisänderung gilt für ein bestehendes Abonnement ab dessen nächstem Abrechnungszeitraum, und wir informieren Sie vorher per E-Mail darüber. Der Wechsel in einen kleineren Tarif oder dessen Beendigung nimmt nie etwas weg, was Ihre Kunden bereits sehen: Buchungen bleiben bestehen, und Ihre Seite funktioniert im Rahmen der Limits des kostenlosen Tarifs weiter."
+        },
+        "intellectualProperty": {
+          "title": "Geistiges Eigentum",
+          "p1": "Sie bleiben Eigentümer dessen, was Sie auf Bookie veröffentlichen, und gewähren uns eine Lizenz, es ausschließlich zur Bereitstellung des Dienstes zu hosten, anzuzeigen und zu verarbeiten. Die Bookie-Plattform, die Software und das Design bleiben unser Eigentum."
+        },
+        "termination": {
+          "title": "Beendigung Ihrer Nutzung von Bookie",
+          "p1": "Sie können Ihr Konto jederzeit in Ihren Kontoeinstellungen löschen. Wir können Ihren Zugang sperren oder beenden, wenn Sie gegen diese Bedingungen verstoßen. Ein kostenpflichtiger Tarif endet dann mit Ablauf seines aktuellen Abrechnungszeitraums."
+        },
+        "disclaimer": {
+          "title": "Keine Gewährleistung",
+          "p1": "Der Dienst wird „wie besehen“ und „wie verfügbar“ bereitgestellt, ohne jegliche Gewährleistung. Wir garantieren nicht, dass er ununterbrochen oder fehlerfrei funktioniert oder dass eine Buchung tatsächlich stattfindet."
+        },
+        "liability": {
+          "title": "Haftungsbeschränkung",
+          "p1": "Soweit gesetzlich zulässig, haftet Bookie weder für indirekte, zufällige, besondere, Folge- oder Strafschäden noch für Streitigkeiten zwischen einem Kunden und einem Anbieter. Unsere Gesamthaftung für jeden Anspruch ist auf den Betrag begrenzt, den Sie uns in den zwölf Monaten davor gezahlt haben."
+        },
+        "changes": {
+          "title": "Änderungen dieser Bedingungen",
+          "p1": "Wir können diese Bedingungen aktualisieren. Die neue Fassung veröffentlichen wir hier mit neuem Datum. Wenn Sie den Dienst nach einer Aktualisierung weiter nutzen, akzeptieren Sie die neuen Bedingungen."
+        },
+        "contact": {
+          "title": "Kontakt",
+          "p1": "Fragen zu diesen Bedingungen? <contact>Kontaktieren Sie uns</contact>."
+        }
+      }
+    },
+    "privacy": {
+      "intro": "Bookie („wir“, „uns“) setzt sich für den Schutz Ihrer Privatsphäre ein. Diese Erklärung beschreibt, was wir erheben, warum, mit wem wir es teilen und welche Wahlmöglichkeiten Sie haben.",
+      "sections": {
+        "collect": {
+          "title": "Was wir erheben",
+          "p1": "<b>Kontodaten:</b> Ihr Name, Ihre E-Mail-Adresse, Ihre Telefonnummer und Ihr Passwort, das ausschließlich als Einweg-Hash gespeichert wird. Wenn Sie sich mit Google anmelden, erhalten wir die Kennung Ihres Google-Kontos und Ihre E-Mail-Adresse.",
+          "p2": "<b>Anbieterseiten:</b> Was ein Anbieter veröffentlicht – Beschreibung, Fotos, Leistungen, Preise, Arbeitszeiten, Adresse und Kontaktdaten –, ist bewusst öffentlich.",
+          "p3": "<b>Buchungen:</b> die Leistung, die Uhrzeit, die Anmerkungen und die bevorzugte Zahlungsmethode jeder Buchung sowie – bei einer Buchung ohne Konto – der dabei angegebene Name, die Telefonnummer und die optionale E-Mail-Adresse.",
+          "p4": "<b>Bewertungen</b>, die Kunden über Anbieter schreiben, sowie Meldungen zu Bewertungen.",
+          "p5": "<b>Telegram:</b> Wenn Sie Telegram für Benachrichtigungen verbinden, Ihre Telegram-Chat-Kennung und Ihr Benutzername.",
+          "p6": "<b>Abrechnung:</b> bei Anbietern mit kostenpflichtigem Tarif die Kunden- und Abonnementkennungen von Paddle sowie der Abonnementstatus. Zahlungsdaten gehen an Paddle und erreichen uns nie."
+        },
+        "use": {
+          "title": "Wie wir sie verwenden",
+          "p1": "Um Ihr Konto und Ihre Buchungen zu verwalten; um Buchungs-E-Mails zu senden – Bestätigungen, Änderungen, Stornierungen und Erinnerungen – und, falls Sie es verbunden haben, dieselben Hinweise über Telegram; um Anbieterseiten und Bewertungen öffentlich anzuzeigen; um Abonnements abzuwickeln; um den Dienst sicher zu halten und Missbrauch zu verhindern; und um Ihnen zu antworten, wenn Sie uns kontaktieren."
+        },
+        "sharing": {
+          "title": "Mit wem wir sie teilen",
+          "p1": "Wir verkaufen Ihre personenbezogenen Daten nicht. Wir geben sie nur an die Dienste weiter, die Teile von Bookie für uns betreiben, und nur in dem Umfang, den diese benötigen:",
+          "p2": "<b>Paddle</b> – unser Wiederverkäufer und Merchant of Record, für Abonnementzahlungen, Rechnungen und Steuern. Paddle verarbeitet Zahlungsdaten gemäß seiner eigenen Datenschutzerklärung.",
+          "p3": "<b>Unser E-Mail-Versanddienst</b> – versendet Konto- und Buchungs-E-Mails.",
+          "p4": "<b>Telegram</b> – stellt Benachrichtigungen zu, nur wenn Sie es verbinden.",
+          "p5": "<b>Google</b> – meldet Sie an, nur wenn Sie „Mit Google fortfahren“ wählen.",
+          "p6": "Die Details einer Buchung werden mit dem Anbieter geteilt, bei dem sie vorgenommen wird, und die öffentlichen Kontaktdaten des Anbieters mit dem Kunden – genau darin besteht eine Buchung."
+        },
+        "cookies": {
+          "title": "Cookies",
+          "p1": "Wir verwenden ausschließlich unbedingt erforderliche Cookies: eines, das Sie bis zu 7 Tage lang angemeldet hält, kurzlebige Cookies, die eine laufende Google-Anmeldung speichern, und eines, das sich Ihre Sprache merkt. Wir verwenden keine Werbe- oder Analyse-Cookies."
+        },
+        "retention": {
+          "title": "Wie lange wir sie aufbewahren",
+          "p1": "Wir bewahren Ihre Daten auf, solange Ihr Konto besteht. Wenn Sie Ihr Konto in Ihren Einstellungen löschen, werden das Konto und Ihr Profil gelöscht; bei einem Kundenkonto mit erfassten Terminen müssen diese zuerst storniert werden. Abrechnungsdaten werden außerdem von Paddle aufbewahrt, wie es das Steuerrecht verlangt."
+        },
+        "rights": {
+          "title": "Ihre Rechte",
+          "p1": "Die meisten Ihrer Daten können Sie in Ihren Einstellungen einsehen und korrigieren und dort auch Ihr Konto löschen. Für eine Kopie Ihrer Daten oder jedes andere Anliegen dazu <contact>kontaktieren Sie uns</contact>."
+        },
+        "security": {
+          "title": "Sicherheit",
+          "p1": "Alle Daten werden über HTTPS übertragen. Passwörter werden ausschließlich als Argon2id-Hashes gespeichert, Links, die wir per E-Mail senden, sind nur einmal verwendbar und laufen ab, und Anmeldeversuche sind in ihrer Häufigkeit begrenzt."
+        },
+        "children": {
+          "title": "Kinder",
+          "p1": "Bookie richtet sich nicht an Kinder unter 13 Jahren, und wir erheben nicht wissentlich Daten von ihnen. Wenn Sie glauben, dass uns ein Kind personenbezogene Daten übermittelt hat, kontaktieren Sie uns, und wir löschen sie."
+        },
+        "changes": {
+          "title": "Änderungen dieser Erklärung",
+          "p1": "Wir können diese Erklärung aktualisieren. Die neue Fassung veröffentlichen wir hier mit neuem Datum."
+        },
+        "contact": {
+          "title": "Kontakt",
+          "p1": "Fragen zum Schutz Ihrer Daten? <contact>Kontaktieren Sie uns</contact>."
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "Kostenpflichtige Tarife",
+          "p1": "Die kostenpflichtigen Tarife von Bookie für Anbieter sind monatliche Abonnements, die im Voraus von Paddle, unserem Wiederverkäufer und Merchant of Record, abgerechnet werden. Kunden zahlen Bookie nie etwas."
+        },
+        "cancel": {
+          "title": "Kündigung",
+          "p1": "Sie können jederzeit unter „Abrechnung verwalten“ in Ihren Tarifeinstellungen kündigen. Sie behalten Ihren Tarif bis zum Ende des bezahlten Monats, und es wird Ihnen nichts mehr berechnet."
+        },
+        "eligibility": {
+          "title": "Rückerstattungen",
+          "p1": "Wenn Sie mit einem kostenpflichtigen Tarif nicht zufrieden sind, beantragen Sie innerhalb von 14 Tagen nach Ihrer ersten Zahlung dafür eine Rückerstattung, und wir erstatten diese Zahlung vollständig. Danach erstatten wir jede irrtümlich erfolgte Abbuchung – zum Beispiel eine doppelte Zahlung oder eine Verlängerung nach Ihrer Kündigung."
+        },
+        "planChanges": {
+          "title": "Tarifwechsel",
+          "p1": "Tarifwechsel werden anteilig berechnet: Beim Wechsel in einen höheren Tarif wird die Differenz für den Rest des Monats berechnet, beim Wechsel in einen niedrigeren Tarif wird sie Ihnen auf Ihre nächsten Zahlungen gutgeschrieben."
+        },
+        "request": {
+          "title": "So beantragen Sie eine Rückerstattung",
+          "p1": "<contact>Kontaktieren Sie uns</contact> mit der E-Mail-Adresse Ihres Bookie-Kontos und dem Datum der Abbuchung, und wir antworten innerhalb von 2 Werktagen. Sie können Paddle auch über den Beleg erreichen, den Paddle Ihnen per E-Mail gesendet hat."
+        },
+        "processing": {
+          "title": "Wie Rückerstattungen ausgezahlt werden",
+          "p1": "Genehmigte Rückerstattungen werden von Paddle auf Ihre ursprüngliche Zahlungsmethode vorgenommen. Je nach Bank kann es 5–10 Werktage dauern, bis sie eingehen."
+        },
+        "contact": {
+          "title": "Kontakt",
+          "p1": "Fragen zu dieser Richtlinie? <contact>Kontaktieren Sie uns</contact>."
+        }
+      }
+    }
   },
   "Services": {
     "title": "Leistungen verwalten",
@@ -1013,6 +1221,8 @@
     "aboutYou": "Über Sie",
     "whatYouDo": "Was Sie tun",
     "whenYouWork": "Wann Sie arbeiten",
+    "timeZone": "Zeitzone",
+    "timeZoneHint": "Ihre Arbeitszeiten gelten in dieser Zeitzone. Besucher sehen Termine darin, egal wo sie sind.",
     "where": "Wo",
     "optional": "Optional",
     "firstName": "Vorname",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "Dieser Anbieter nimmt derzeit keine Online-Buchungen an. Bitte nehmen Sie direkt Kontakt auf.",
       "bookingFull": "Dieser Anbieter kann in diesem Monat keine weiteren Online-Buchungen annehmen. Bitte nehmen Sie direkt Kontakt auf.",
       "serviceLimit": "Sie haben das Limit aktiver Leistungen Ihres Tarifs erreicht. Deaktivieren Sie eine Leistung oder wechseln Sie in einen höheren Tarif, um eine weitere hinzuzufügen.",
-      "featureLocked": "Diese Funktion ist in Ihrem Tarif nicht enthalten. Wechseln Sie in einen höheren Tarif, um sie zu nutzen."
+      "featureLocked": "Diese Funktion ist in Ihrem Tarif nicht enthalten. Wechseln Sie in einen höheren Tarif, um sie zu nutzen.",
+      "notConfigured": "Online-Zahlungen sind derzeit nicht verfügbar. Fragen Sie den Tarif stattdessen an, und wir richten ihn für Sie ein.",
+      "alreadySubscribed": "Sie haben bereits ein Abonnement. Wechseln Sie den Tarif in Ihren Tarifeinstellungen.",
+      "noSubscription": "Es gibt kein aktives Abonnement, das geändert werden kann."
     },
     "pages": {
       "provider": "Die Seite dieses Anbieters konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
@@ -1152,7 +1365,9 @@
       "noEnd": "Kein Enddatum",
       "save": "Tarif speichern",
       "saved": "Tarif gespeichert",
-      "pagesLabel": "Anbieterseiten"
+      "pagesLabel": "Anbieterseiten",
+      "paddle": "Paddle",
+      "paddleNote": "Abrechnung über Paddle: Eine manuelle Änderung hier wird bei der nächsten Aktualisierung des Abonnements überschrieben."
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "Aktive Leistungen",
       "maxBookingsPerMonth": "Online-Buchungen pro Monat",
       "analyticsHistoryDays": "Statistik-Verlauf",
-      "customSlug": "Eigener Seitenlink"
+      "customSlug": "Eigener Seitenlink",
+      "telegramNotifications": "Telegram-Benachrichtigungen",
+      "calendarFeed": "Kalender-Synchronisierung (iCal)",
+      "removeBranding": "Kein Bookie-Branding auf Ihrer Seite"
     },
     "unlimited": "Unbegrenzt",
     "fullHistory": "Gesamter Verlauf",
@@ -1174,16 +1392,90 @@
     "included": "Enthalten",
     "notIncluded": "Nicht enthalten",
     "current": "Ihr Tarif",
-    "requestTitle": "Tarif {plan} anfragen"
+    "requestTitle": "Tarif {plan} anfragen",
+    "freeForever": "Für immer kostenlos",
+    "perMonth": "/ Monat"
   },
   "Pricing": {
     "metaTitle": "Preise für Anbieter",
-    "metaDescription": "Bookie-Tarife für Dienstleister – von kostenlos bis Premium – und was jeder enthält. Buchen ist für Kunden immer kostenlos.",
+    "metaDescription": "Bookie-Tarife für Dienstleister: Starten Sie kostenlos oder wechseln Sie in einen höheren Tarif für mehr Leistungen, unbegrenzte Buchungen, Telegram-Benachrichtigungen und Kalender-Synchronisierung. Buchen ist für Kunden immer kostenlos.",
     "title": "Tarife für Anbieter",
     "subtitle": "Starten Sie kostenlos und wechseln Sie in einen höheren Tarif, wenn sich Ihr Kalender füllt. Kunden zahlen nie für eine Buchung.",
     "startFree": "Kostenlos starten",
     "requestPlan": "Diesen Tarif anfragen",
     "clientsFree": "Kunden zahlen nie etwas, um über Bookie zu buchen.",
-    "manualNote": "Kostenpflichtige Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten."
+    "manualNote": "Kostenpflichtige Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten.",
+    "getStarted": "Loslegen",
+    "choosePlan": "{plan} wählen",
+    "seeYourPlan": "Zu Ihrem Tarif",
+    "checkoutFailed": "Der Bezahlvorgang konnte nicht gestartet werden",
+    "billedMonthly": "Kostenpflichtige Tarife werden monatlich abgerechnet. Wechseln oder kündigen Sie jederzeit.",
+    "localCurrencyNote": "Die Preise sind in Ihrer Landeswährung angegeben und enthalten gegebenenfalls anfallende Steuern.",
+    "usdNote": "Die Preise sind in US-Dollar angegeben. Gegebenenfalls anfallende Steuern werden beim Bezahlen hinzugefügt.",
+    "includedTitle": "In jedem Tarif enthalten",
+    "includedSubtitle": "Schon im kostenlosen Tarif enthalten – kostenpflichtige Tarife bieten zusätzlich mehr Kapazität und Komfort.",
+    "included": {
+      "publicPage": "Ihre eigene Buchungsseite",
+      "onlineBooking": "Online-Buchung rund um die Uhr",
+      "clientsFree": "Kunden buchen kostenlos, mit oder ohne Konto",
+      "approvals": "Buchungen freigeben, bevor sie in Ihrem Kalender landen",
+      "emailNotifications": "E-Mail-Benachrichtigungen bei neuen Buchungen, Änderungen und Stornierungen",
+      "reminders": "Terminerinnerungen für Sie und Ihre Kunden",
+      "clientCalendar": "Kalendereinträge zum Download für Ihre Kunden",
+      "reviews": "Kundenbewertungen und Sterne",
+      "analytics": "Buchungsstatistiken",
+      "explore": "Eintrag in der Anbietersuche von Bookie",
+      "languages": "Buchungsseiten in 16 Sprachen"
+    },
+    "faqTitle": "Fragen zur Abrechnung",
+    "faq": {
+      "clientsPay": {
+        "q": "Zahlen meine Kunden etwas?",
+        "a": "Nein. Buchen über Bookie ist für Kunden immer kostenlos, in jedem Tarif. Nur Anbieter wählen einen Tarif."
+      },
+      "cancel": {
+        "q": "Kann ich jederzeit kündigen?",
+        "a": "Ja. Kündigen Sie unter „Abrechnung verwalten“ in Ihren Tarifeinstellungen. Ihr Tarif bleibt bis zum Ende des bezahlten Monats aktiv, danach wechselt Ihr Konto zum kostenlosen Tarif."
+      },
+      "downgrade": {
+        "q": "Was passiert mit meiner Seite, wenn ich in einen kleineren Tarif wechsle?",
+        "a": "Nichts, was Ihre Kunden sehen, wird entfernt. Leistungen über dem neuen Limit bleiben online und bearbeitbar – Sie können nur keine weiteren hinzufügen, bis Sie wieder unter dem Limit liegen. Buchungen werden durch einen Tarifwechsel nie storniert."
+      },
+      "switching": {
+        "q": "Kann ich den Tarif später wechseln?",
+        "a": "Ja, jederzeit in Ihren Tarifeinstellungen. Die Änderung gilt sofort, und die Differenz für den Rest des Monats wird automatisch berechnet oder gutgeschrieben."
+      },
+      "paymentProcessor": {
+        "q": "Wer wickelt die Zahlung ab?",
+        "a": "Zahlungen werden von Paddle abgewickelt, unserem Wiederverkäufer und Merchant of Record. Paddle akzeptiert Karten und andere lokale Zahlungsmethoden, sendet Ihnen Belege und Rechnungen und kümmert sich um Verkaufs- und Mehrwertsteuer."
+      },
+      "currency": {
+        "q": "In welcher Währung zahle ich?",
+        "a": "Wo Paddle es unterstützt, werden die Preise in Ihrer Landeswährung angezeigt und berechnet, einschließlich der an Ihrem Standort anfallenden Steuern. Andernfalls werden sie in US-Dollar vor Steuern angezeigt."
+      },
+      "failedPayment": {
+        "q": "Was passiert, wenn eine Zahlung fehlschlägt?",
+        "a": "Paddle versucht erneut, Ihre Karte zu belasten, und informiert Sie per E-Mail. Ihr Tarif bleibt eine Woche lang aktiv, während Sie Ihre Zahlungsmethode aktualisieren; danach wechselt Ihr Konto zum kostenlosen Tarif, bis eine Zahlung erfolgreich ist."
+      },
+      "refunds": {
+        "q": "Kann ich eine Rückerstattung erhalten?",
+        "a": "Ja – fragen Sie innerhalb von 14 Tagen nach Ihrer ersten Zahlung für einen Tarif an oder jederzeit, wenn eine Abbuchung irrtümlich erfolgt ist. Siehe unsere <refund>Rückerstattungsrichtlinie</refund>."
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "Kasse",
+    "checkoutOpening": "Die sichere Kasse wird geöffnet…",
+    "checkoutSecure": "Zahlungen werden von Paddle, unserem Wiederverkäufer, abgewickelt. Ihre Kartendaten erreichen Bookie nie.",
+    "checkoutUnavailableTitle": "Die Kasse konnte nicht geöffnet werden",
+    "checkoutUnavailableBody": "Es wurde nichts berechnet. Kehren Sie zu Ihrem Tarif zurück und versuchen Sie es gleich noch einmal.",
+    "backToPlan": "Zurück zu Ihrem Tarif",
+    "returnTitle": "Zahlung",
+    "confirmingTitle": "Ihre Zahlung wird bestätigt…",
+    "confirmingBody": "Das dauert in der Regel nur wenige Sekunden. Bitte lassen Sie diese Seite geöffnet.",
+    "activeTitle": "Sie nutzen jetzt den Tarif {plan}",
+    "activeBody": "Vielen Dank! Alles, was Ihr Tarif enthält, steht Ihnen jetzt zur Verfügung. Paddle hat Ihnen einen Beleg per E-Mail gesendet.",
+    "receivedTitle": "Zahlung eingegangen",
+    "receivedBody": "Vielen Dank! Es kann einige Minuten dauern, bis Ihr Tarif aktualisiert ist. Paddle hat Ihnen einen Beleg per E-Mail gesendet."
   }
 }

@@ -38,9 +38,20 @@ Server Component that failed inline). See *Errors* below. `bare/ErrorDetails` is
 antd-free collapsible that shows the original error in development.
 
 `plans/` is shared by `/pricing` and the provider Plan tab. `PlanComparisonTable` is
-antd-free and hook-only, so `/pricing` renders every limit into the HTML while the Plan tab's
-client island renders the same table; `PlanUpgradeSheet` is the request form in an
-`AppSheet` (no checkout exists yet — see `docs/BILLING.md`).
+antd-free and hook-only, so `/pricing` renders every limit and price into the HTML while the
+Plan tab's client island renders the same table. `PlanPrice` is its one hydrating cell: the
+USD price first, Paddle's localized total once `usePlanPrices` answers (one request per page
+for all four cells). `PricingIncluded` and `PricingFaq` are antd-free too — the FAQ is native
+`<details>`, like `bare/ErrorDetails`. `PlanUpgradeSheet` is the request form in an
+`AppSheet`, kept for a plan this deployment does not sell through Paddle (`purchasable:
+false`); otherwise buying goes through `useStartCheckout` — see `docs/BILLING.md`.
+
+`legal/LegalDocument` renders Terms, Privacy and the Refund Policy from `src/constants/legal.ts`
+and `Legal.*` — antd-free, so the whole text is in the server HTML Paddle's reviewers read.
+`brand/PoweredByBookie` is the line under a Free provider's public page; it reads the
+plan-neutral `details.showPoweredBy`, never the plan. `settings/TelegramConnect` and
+`settings/CalendarFeed` are the Notifications tab's two self-saving blocks — each acts on its
+own button rather than the tab's Save.
 
 **`bare/BarChart` is antd-free for the same reason `StatTile` is** — a page whose numbers
 are known before render should put them in the HTML, not produce them after hydration. It

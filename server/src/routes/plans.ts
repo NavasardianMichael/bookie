@@ -1,10 +1,11 @@
 import { Router } from 'express'
+import { isPlanPurchasable } from './billing.js'
 import { ok } from '../lib/api-response.js'
 import { prisma } from '../lib/prisma.js'
-import { mapProviderPlan } from '../mappers/entities.js'
+import { mapProviderBilling, mapProviderPlan } from '../mappers/entities.js'
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
-import { bookingPeriod, PLAN_CATALOGUE, PLAN_ORDER } from '../services/plans.js'
+import { bookingPeriod, isPaidPlan, PLAN_CATALOGUE, PLAN_ORDER, PLAN_PRICES } from '../services/plans.js'
 import { countActiveServices, countBookingsThisMonth } from '../services/planUsage.js'
 
 /**
@@ -14,16 +15,25 @@ import { countActiveServices, countBookingsThisMonth } from '../services/planUsa
 export const plansRouter = Router()
 
 /**
- * Every plan and its limits, cheapest first — what `/pricing` and the Plan tab's table
- * render. Public: it describes the product, not anyone's account. No prices yet; plans are
- * assigned by an admin until a payment provider is wired in (docs/BILLING.md).
+ * Every plan, cheapest first, with its limits and its monthly price — what `/pricing` and the
+ * Plan tab's table render. Public: it describes the product, not anyone's account.
+ *
+ * `price` is the USD display fallback (`PLAN_PRICES`); the visitor's localized total comes
+ * from `GET /billing/prices`. `purchasable` says whether this deployment can sell the plan
+ * through Paddle — when it cannot (no key, no price id), the web offers the contact-form
+ * request instead of a checkout. Free is never purchasable.
  */
 plansRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
     return ok(
       res,
-      PLAN_ORDER.map((id) => ({ id, entitlements: PLAN_CATALOGUE[id] }))
+      PLAN_ORDER.map((id) => ({
+        id,
+        entitlements: PLAN_CATALOGUE[id],
+        price: PLAN_PRICES[id],
+        purchasable: isPaidPlan(id) && isPlanPurchasable(id),
+      }))
     )
   })
 )
@@ -50,7 +60,14 @@ providerPlanRouter.get(
     const providerId = req.session!.profileId
     const provider = await prisma.provider.findUnique({
       where: { id: providerId },
-      select: { plan: true, planExpiresAt: true },
+      select: {
+        plan: true,
+        planExpiresAt: true,
+        paddleCustomerId: true,
+        billingStatus: true,
+        billingPeriodEndsAt: true,
+        billingCancelsAt: true,
+      },
     })
     if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
 
@@ -63,6 +80,7 @@ providerPlanRouter.get(
 
     return ok(res, {
       ...mapProviderPlan(provider, now),
+      billing: mapProviderBilling(provider),
       usage: {
         activeServices,
         bookingsThisMonth,

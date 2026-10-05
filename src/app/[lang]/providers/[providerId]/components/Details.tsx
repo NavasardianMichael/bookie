@@ -12,6 +12,7 @@ import { AppTitle } from '@components/ui/bare/AppTitle'
 import { Surface } from '@components/ui/layout/Surface'
 import { BookingClosedNotice } from './BookingClosedNotice'
 import { BookingPanel } from './BookingPanel'
+import { BOOKING_SERVICES_ID } from './publicBookingCta'
 import { ServicePicker } from './ServicePicker'
 
 type Props = {
@@ -40,7 +41,9 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
     [initialState.services]
   )
 
-  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(() => services[0]?.id)
+  // Start empty so the confirm strip can ask for a service (and a time) rather than
+  // silently booking whatever happened to be first in the catalogue.
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>()
 
   /**
    * Seeded from the payload, and closed locally when a submit is refused because the
@@ -63,22 +66,24 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
   return (
     <>
       {!!services.length && (
-        <Surface>
-          {/* The picker stays when booking is closed: it is the page's only list of what
-              this provider offers, and that is still worth reading before phoning them. */}
-          <div className='mb-5'>
-            <AppTitle level='h3' size='h3'>
-              {closedReason ? t('closed.servicesTitle') : t('chooseService')}
-            </AppTitle>
-            {!closedReason && (
-              <AppParagraph size='body-sm' className='m-0'>
-                {t('chooseServiceHint')}
-              </AppParagraph>
-            )}
-          </div>
+        <div id={BOOKING_SERVICES_ID}>
+          <Surface>
+            {/* The picker stays when booking is closed: it is the page's only list of what
+                this provider offers, and that is still worth reading before phoning them. */}
+            <div className='mb-5'>
+              <AppTitle level='h3' size='h3'>
+                {closedReason ? t('closed.servicesTitle') : t('chooseService')}
+              </AppTitle>
+              {!closedReason && (
+                <AppParagraph size='body-sm' className='m-0'>
+                  {t('chooseServiceHint')}
+                </AppParagraph>
+              )}
+            </div>
 
-          <ServicePicker services={services} value={selectedServiceId} onChange={setSelectedServiceId} />
-        </Surface>
+            <ServicePicker services={services} value={selectedServiceId} onChange={setSelectedServiceId} />
+          </Surface>
+        </div>
       )}
 
       {closedReason ? (

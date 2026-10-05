@@ -106,6 +106,13 @@ key, `400` validation (with an `errors` array), `429` rate limited, `500` engine
    a silently dropped email.
 6. If the route is public, add a rate limit (rule 2).
 
+**A booking notice is not a new mail type — it is a `Notice`.** Anything about a booking
+(new, changed, cancelled, reminded) goes to its reader on email *and* Telegram, under their
+preferences and plan. Write its words once in `lib/booking-notices.ts` and send it with
+`services/notify.ts#deliver`, which renders both channels (`lib/notice-render.ts`) and picks
+them through `services/noticeRules.ts`. Hand-writing another `text`/`html` pair in
+`booking-mail.ts` would leave the Telegram copy to drift. See `docs/NOTIFICATIONS.md`.
+
 ## Environment
 
 `server/.env.example` carries the placeholders; `server/src/config.ts` reads them.

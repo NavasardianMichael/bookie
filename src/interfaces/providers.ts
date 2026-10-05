@@ -20,4 +20,6 @@ export type ProviderProfileFormValues = {
   organizationId?: Organization['id']
   gallery?: (ProviderProfile['details']['gallery'][number] | File)[]
   weekSchedule: ProviderProfile['details']['weekSchedule']
+  /** The zone `weekSchedule` is written in; filled with the device's zone on first paint. */
+  timeZone?: ProviderProfile['details']['timeZone']
 }

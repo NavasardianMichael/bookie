@@ -1,5 +1,6 @@
 import type { CountryCode } from 'libphonenumber-js'
 import { PhoneNumber } from '@interfaces/app'
+import { TimeFormat } from '@interfaces/schedule'
 import { SIGN_ON_STEPS, USER_TYPES } from '@constants/auth'
 
 export type UserType = (typeof USER_TYPES)[keyof typeof USER_TYPES]
@@ -104,6 +105,8 @@ export type Session = {
   lastName?: string
   /** Provider portrait path, when present. */
   image?: string
+  /** The provider's published 12/24-hour choice. Provider sessions only; absent until chosen. */
+  timeFormat?: TimeFormat
   email?: string
   emailVerified?: boolean
   authProvider?: 'local' | 'google'

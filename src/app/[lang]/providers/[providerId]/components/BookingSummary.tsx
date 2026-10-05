@@ -1,13 +1,16 @@
 'use client'
 
 import { FC, useMemo } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
+import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
 import {
   type BookingSummaryData,
   type BookingSummaryField,
   buildBookingSummaryFields,
 } from '@helpers/bookingSummary'
 import { generateGoogleMapsLink } from '@helpers/location'
+import { resolveTimeFormat } from '@helpers/timeFormat'
+import { formatTimeZoneName } from '@helpers/timeZone'
 import { AppDescriptionList, AppDescriptionListItem } from '@components/ui/bare/AppDescriptionList'
 import { CopyableLinkValue } from '@components/ui/CopyableLinkValue'
 
@@ -17,23 +20,34 @@ export const useBookingSummaryFields = (data: BookingSummaryData): BookingSummar
   const t = useTranslations('Booking')
   const tCommon = useTranslations('Common')
   const tMethods = useTranslations('Settings.payments.methods')
+  const locale = useLocale()
+  // A provider with no zone of their own is read in the visitor's (`getSlotsForDate`), so
+  // that is the zone to name — still worth a row, since the text is copied off the page.
+  const viewerTimeZone = useViewerTimeZone()
+  const timeZone = data.timeZone ?? viewerTimeZone
+  const timeFormat = resolveTimeFormat(data.timeFormat, locale)
 
   return useMemo(
     () =>
-      buildBookingSummaryFields(data, {
-        provider: t('summary.provider'),
-        service: t('summary.service'),
-        date: t('summary.date'),
-        time: t('summary.time'),
-        duration: t('summary.duration'),
-        durationValue: (minutes) => t('summary.durationValue', { minutes }),
-        price: t('summary.price'),
-        location: t('summary.location'),
-        phone: tCommon('phone'),
-        preferredPayment: t('summary.preferredPayment'),
-        paymentMethod: (method) => tMethods(method),
-      }),
-    [data, t, tCommon, tMethods]
+      buildBookingSummaryFields(
+        { ...data, timeZone, timeFormat },
+        {
+          provider: t('summary.provider'),
+          service: t('summary.service'),
+          date: t('summary.date'),
+          time: t('summary.time'),
+          timeZone: t('summary.timeZone'),
+          timeZoneName: (zone, at) => formatTimeZoneName(zone, locale, at),
+          duration: t('summary.duration'),
+          durationValue: (minutes) => t('summary.durationValue', { minutes }),
+          price: t('summary.price'),
+          location: t('summary.location'),
+          phone: tCommon('phone'),
+          preferredPayment: t('summary.preferredPayment'),
+          paymentMethod: (method) => tMethods(method),
+        }
+      ),
+    [data, locale, t, tCommon, tMethods, timeFormat, timeZone]
   )
 }
 

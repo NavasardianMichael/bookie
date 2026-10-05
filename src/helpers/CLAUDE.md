@@ -15,6 +15,14 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
 | Provider card status (available / fully blocked / closed) | `getProviderAvailabilityStatus` | `providerAvailability.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
+| A provider's wall-clock time on a day → the instant | `zonedTimeToDate` | `timeZone.ts` |
+| An instant on a zone's clock, for formatting (`inTimeZone(start, tz).format(getTimeDisplayFormat(…))`) | `inTimeZone` | `timeZone.ts` |
+| **Printing any time of day for a provider** — their 12/24-hour choice, or the locale's when unset | `resolveTimeFormat` → `getTimeDisplayFormat` (dayjs, TimePicker) / `getHourCycle` (`Intl`, next-intl) | `timeFormat.ts` |
+| A locale's own clock · a schedule `'HH:mm'` as a `Date` for an `Intl` formatter (Server Components) | `getLocaleTimeFormat`, `scheduleTimeToDate` | `timeFormat.ts` |
+| `YYYY-MM-DD` of an instant in a zone / the month-grid carrier for that day | `dayKeyOf`, `calendarDayOf` | `timeZone.ts` |
+| `Armenia Standard Time (GMT+4)` / `GMT+4`, localised by `Intl` | `formatTimeZoneName`, `formatUtcOffset` | `timeZone.ts` |
+| Do two zones read the same right now · zone offset · is it a zone · the picker's list | `isSameWallClock`, `zoneOffsetMs`, `isTimeZone`, `listTimeZones` | `timeZone.ts` |
+| The visitor's zone (client; `undefined` through SSR and hydration) | `useViewerTimeZone` | `src/hooks/` — `getRuntimeTimeZone` underneath |
 | Remove slots a booking already holds | `dropBusySlots` | `booking.ts` |
 | Was a failed booking "someone got there first" | `isSlotTakenError` | `booking.ts` |
 | Was a failed booking refused because the provider is not taking bookings online (paused / full) | `getBookingClosedReason` | `booking.ts` |
@@ -87,8 +95,22 @@ Everything here is pure and framework-free unless the last column says otherwise
   helper is the same, so copy-as-text cannot drift from the details list.
 - **`qr.ts#toQrDataUrl` is on-demand.** Call it from a click (`BookingShareActions`),
   never at module load — the PNG is not cheap and there is nothing useful to encode yet.
-- **Slots are `Date` objects anchored in local time** (`dayjs(date).startOf('day')`),
-  while schedules are wall-clock `'HH:mm'` strings with no date and no zone.
+- **Schedules are wall-clock `'HH:mm'` on the provider's clock; slots are instants.**
+  `getSlotsForDate` / `getSlotsForDateRange` / `countSlotsByDay` take the provider's
+  `timeZone` (`details.timeZone`) and step and key in it; without one they use the
+  runtime's zone, which is right only for a provider who never set theirs. The `date` they
+  take — and every month-grid cell — is a local-midnight **carrier** for a calendar day.
+  Show a slot with `inTimeZone(slot.start, timeZone).format(...)`: a bare `dayjs(slot.start)`
+  prints the visitor's clock, which is the bug `Provider.timeZone` fixed.
+- **A time of day is never formatted with a literal `'hh:mm A'` or `'HH:mm'`.** The pattern
+  comes from `timeFormat.ts` with `details.timeFormat` (the public pages and `/b/:token`) or the
+  auth store's `timeFormat` (the provider's own workspace), so the provider's 12/24-hour choice
+  reaches it. `'HH:mm'` stays only as the *stored* schedule format (`SCHEDULE_VALUE_FORMAT`)
+  and in `<time datetime>`. `getTimeDisplayFormat` prints the meridiem in the active dayjs
+  locale, so it is client-only; a Server Component uses `getHourCycle` with next-intl's
+  formatter (`WorkingHours`). Twin: `server/src/lib/time-format.ts`.
+- **`timeZone.ts#inTimeZone` returns a UTC-mode dayjs** whose fields read as the zone's wall
+  clock. Format it and do day maths on it; never `.toDate()` it — its instant is shifted.
 - **`calendar.ts` shares the grid maths between the two calendars, not the markup.**
   `BookingMonth` (public booking) disables days with no open slots and refuses to page into
   the past; `ProviderBookingsCalendar` (booking history) does neither and badges each day

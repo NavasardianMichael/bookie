@@ -9,18 +9,30 @@ server/
   prisma/schema.prisma, seed.ts
   src/
     app.ts, index.ts, config.ts, load-env.ts
-    routes/       Express routers, one per resource
+    routes/       Express routers, one per resource — billing (+ the Paddle webhook), telegram
+                  (+ the bot's webhook) and calendar (the iCal feed) among them
     services/     appointments + availability logic, Explore's provider query, organizations,
                   searchFallback (the typo-tolerant retry of an empty search), plans (the
-                  catalogue and every limit rule — pure), planUsage (its counts and stamps),
-                  planNotices (the booking-allowance emails)
+                  catalogue, prices and every limit rule — pure), planUsage (its counts and
+                  stamps), planNotices (the booking-allowance emails), billing (Paddle
+                  subscription → plan — pure) + billingSync (applies a webhook event),
+                  noticeRules (who gets which channel — pure), notify (sends), bookingNotify
+                  (every booking notice), reminders (when one is due — pure)
+    jobs/         reminderJob — the one background job, started by index.ts
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
-    lib/          api-response, auth-notices, booking-errors, booking-mail, cookie-domain,
-                  email-verify, google-oauth, mail, oauth-state, password, password-reset,
-                  payment, plan-errors, plan-mail, prisma, rateLimit, request, return-path,
+    lib/          api-response, auth-notices, billing-errors, booking-errors, booking-mail,
+                  booking-notices (the words of every booking notice), cookie-domain,
+                  email-verify, google-oauth, ics, mail, notice-render (one notice → email
+                  and Telegram), oauth-state, paddle (the only Paddle client), paddle-signature,
+                  password, password-reset, payment (in-person methods, not billing),
+                  plan-errors, plan-mail, prisma, rateLimit, request, return-path,
                   review-mail, search (twin of src/helpers/search.ts), searchCorrection,
-                  session, token
+                  session, telegram (the only Bot API client), telegram-updates, time-format
+                  (Provider.timeFormat: validate, and the time every notice prints; twin of
+                  src/helpers/timeFormat.ts), time-zone (Provider.timeZone: validate +
+                  canonicalise; twin of src/helpers/timeZone.ts),
+                  token
 ```
 
 ## The response envelope is non-negotiable
@@ -203,6 +215,8 @@ answered `Invalid return path`. Do not put the role back; pinned by
 | Password reset | `buildPasswordResetUrl` | `PASSWORD_RESET_QUERY` (`token`) | `app/[lang]/auth/reset-password` |
 | Booking approval request | `buildApprovalsUrl` | *(path, not a param)* `PROVIDER_APPROVALS_PATH` | `app/[lang]/providers/(account)/profile/approvals` |
 | Booking allowance (80% / 100%) | `buildPlanUrl` | *(path, not a param)* `PROVIDER_PLAN_PATH` | `app/[lang]/providers/(account)/profile/plan` — pinned by `tests/unit/server/planErrors.spec.ts` |
+| Provider notices (new booking, change, cancellation, reminder) | `buildBookingsUrl` | *(path)* `BOOKINGS_PATH` | `app/[lang]/bookings` — pinned by `tests/unit/server/billingErrors.spec.ts` |
+| Paddle checkout (`checkout.url`, + Paddle's `?_ptxn=`) | `buildBillingCheckoutUrl` | *(path)* `BILLING_CHECKOUT_PATH`; `_ptxn` is Paddle's | `app/[lang]/billing/checkout` — pinned by `billingErrors.spec.ts` |
 
 The approvals link is the same trap with a path instead of a query param, and it is pinned
 the same way: the builder lives in `lib/return-path.ts` — the only half a unit test can
@@ -297,9 +311,10 @@ booking route answers.
 
 `routes/admin.ts`, behind `requireAdmin` (`middleware/auth.ts`). Two jobs: **review
 moderation** (list reports, hide/restore a review, close a report) and **plan assignment**
-(`GET /admin/providers`, `PATCH /admin/providers/:id/plan`) — until a payment provider is
-wired in, the only writer of `Provider.plan`. A plan write is logged with the acting
-`userId`, because there is no audit table.
+(`GET /admin/providers`, `PATCH /admin/providers/:id/plan`) — one of the two writers of
+`Provider.plan`; the Paddle webhook is the other, and overwrites a manual assignment on a
+provider with a live subscription at its next event (the row says `billing: 'paddle'`). A
+plan write is logged with the acting `userId`, because there is no audit table.
 
 - **Admin is not a role.** `SessionPayload.role` is only `consumer | provider`; an admin
   signs in with whichever account they already have and is recognised by their identity
@@ -316,6 +331,58 @@ wired in, the only writer of `Provider.plan`. A plan write is logged with the ac
 - **Hiding is a `hiddenAt` timestamp, never a delete**, and it recomputes the provider's
   aggregate in the same transaction — a review removed for abuse must stop dragging the
   score it was written to damage, and a wrongly hidden one has to be restorable.
+
+## Webhooks are mounted before the JSON parser and `requireSameOrigin`
+
+`POST /billing/webhook` (Paddle) and `POST /telegram/webhook` are the only routes called by
+another server, and `app.ts` mounts both **ahead of** `express.json()` and
+`requireSameOrigin`, on their exact paths:
+
+- **Paddle signs the raw bytes.** Its route gets `express.raw`; once `express.json` has
+  consumed the stream, the HMAC can no longer be checked. `lib/paddle-signature.ts` verifies
+  against every secret in `PADDLE_WEBHOOK_SECRET`, so a rotation can run two destinations.
+- **Neither sends `Origin` or `Referer`**, which `requireSameOrigin` refuses in production.
+  Each authenticates its caller instead — the HMAC, and `setWebhook`'s secret token.
+- **A webhook answers 2xx to anything it cannot act on**, and 5xx only when applying failed on
+  our side, so the sender retries exactly what can still succeed.
+
+Do not move them below the parser "for consistency", and do not add a third webhook
+anywhere else.
+
+## Third-party secrets each have one reader
+
+The rule `lib/mail.ts` keeps for `MAIL_API_KEY` holds for every credential: one module reads
+it from `config`, never returns, logs or puts it in an error. `PADDLE_API_KEY` →
+`lib/paddle.ts`; `TELEGRAM_BOT_TOKEN` → `lib/telegram.ts` (it is part of every request URL,
+so a failure logs Telegram's description, never the URL); `GOOGLE_CLIENT_SECRET` →
+`lib/google-oauth.ts`. Each is empty in a fresh clone and the feature reports itself
+unavailable rather than throwing — `isPaddleConfigured()`, `isTelegramConfigured()`, and
+`/health` reports both.
+
+## Billing — the webhook is the only writer of billing state
+
+`routes/billing.ts` only *asks* Paddle for things — a checkout, a plan switch, a portal link.
+What a provider holds is written by `POST /billing/webhook` alone, through
+`services/billingSync.ts`, from the subscription snapshot every `subscription.*` event
+carries (`services/billing.ts#subscriptionToFields`). It writes `plan` and `planExpiresAt`,
+so `getEntitlements` reads billing exactly as it reads an admin assignment. Out-of-order
+and repeated events are handled by `billingEventAt` and by a snapshot being idempotent — no
+events table. The full state table is in [docs/BILLING.md](../docs/BILLING.md).
+
+## Notifications — email and Telegram, decided in one place
+
+`services/noticeRules.ts#channelsFor` decides who gets which channel; `services/bookingNotify.ts`
+is every booking notice after the fact. A provider's own Telegram needs the plan's
+`telegramNotifications`; a client's never depends on any plan. **Every notice is
+best-effort** — the booking is committed — and is fired without awaiting where the response
+should not wait. There is no SMS. See [docs/NOTIFICATIONS.md](../docs/NOTIFICATIONS.md).
+
+**The reminder job is the API's one background job** (`jobs/reminderJob.ts`), started by
+`index.ts` and never by `createApp`. Everything else stays computed on read — plan expiry
+included — because a single process with no scheduler is still the design. The job claims
+each send by compare-and-set on `Appointment.providerRemindedAt` / `bookerRemindedAt` before
+sending, so it is at-most-once even with a second poller. Any new code that moves a booking
+to a new time must clear both stamps, as `rescheduleAppointment` does.
 
 ## Production
 

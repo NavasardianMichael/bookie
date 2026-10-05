@@ -1,3 +1,4 @@
+import { BILLING_STATUSES } from '@constants/billing'
 import { PLANS } from '@constants/plans'
 
 export type Plan = (typeof PLANS)[keyof typeof PLANS]
@@ -15,12 +16,50 @@ export type Entitlements = {
   analyticsHistoryDays: number | null
   /** May set or change the vanity `/p/<slug>`. */
   customSlug: boolean
+  /** The provider's own notices also reach their linked Telegram. */
+  telegramNotifications: boolean
+  /** A private iCal feed of the provider's bookings. */
+  calendarFeed: boolean
+  /** The public page drops its "Booking page by Bookie" line. */
+  removeBranding: boolean
 }
 
-/** One row of `GET /plans`, cheapest first. No price yet — plans are assigned by an admin. */
+/** The USD display price of a plan, in cents, billed monthly. Free is `0`. */
+export type PlanPrice = {
+  amountCents: number
+  currency: 'USD'
+  interval: 'month'
+}
+
+/**
+ * One row of `GET /plans`, cheapest first. `price` is the USD fallback; the visitor's
+ * localized total comes from `GET /billing/prices`. `purchasable` is whether this deployment
+ * sells the plan through Paddle — when not, a paid plan is requested through the contact form.
+ */
 export type PlanCatalogueEntry = {
   id: Plan
   entitlements: Entitlements
+  price: PlanPrice
+  purchasable: boolean
+}
+
+/** A plan that can be bought — every one but Free. */
+export type PaidPlan = Exclude<Plan, typeof PLANS.free>
+
+export type BillingStatus = (typeof BILLING_STATUSES)[keyof typeof BILLING_STATUSES]
+
+/**
+ * The provider's Paddle subscription, on `GET /provider-profile/plan`. `null` for a
+ * provider who never subscribed (an admin-assigned plan has no billing). `manageable` is
+ * whether the billing portal can be opened.
+ */
+export type ProviderBilling = {
+  status: BillingStatus
+  /** ISO instant: the current period's end — the next renewal while active. */
+  periodEndsAt?: string
+  /** ISO instant: set while a cancellation is scheduled; the plan runs until then. */
+  cancelsAt?: string
+  manageable: boolean
 }
 
 /**
@@ -44,7 +83,7 @@ export type PlanUsage = {
   periodEnd: string
 }
 
-export type ProviderPlanWithUsage = ProviderPlan & { usage: PlanUsage }
+export type ProviderPlanWithUsage = ProviderPlan & { usage: PlanUsage; billing: ProviderBilling | null }
 
 /** A row of the admin plan screen — `GET /admin/providers`. */
 export type AdminProvider = {
@@ -56,6 +95,8 @@ export type AdminProvider = {
   plan: Plan
   effectivePlan: Plan
   planExpiresAt?: string
+  /** `'paddle'` while a Paddle subscription is live — its webhook overwrites a manual change. */
+  billing?: 'paddle'
 }
 
 export type AdminProvidersList = {

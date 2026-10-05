@@ -10,15 +10,17 @@ import { App, Tag } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useLocale, useTranslations } from 'next-intl'
-import { patchManagedAppointmentAPI } from '@api/appointments/main'
+import { buildBookingCalendarFileUrl, patchManagedAppointmentAPI } from '@api/appointments/main'
 import { BookingStatus, ManagedAppointmentPayload } from '@api/appointments/types'
 import { Locale } from '@i18n/config'
 import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS } from '@constants/routes'
-import { DAY_KEY_FORMAT, SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
+import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { countSlotsByDay, getSlotsForDate, getSlotsForDateRange } from '@helpers/booking'
 import { generateEntityPath } from '@helpers/entities'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
+import { calendarDayOf, dayKeyOf, formatUtcOffset, inTimeZone } from '@helpers/timeZone'
 import { absoluteUrl } from '@helpers/url'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
@@ -67,6 +69,9 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
 
   const { appointment, provider } = payload
   const { basic, details, services } = provider
+  /** The provider's zone: the booking, the grid and every new time are on their clock. */
+  const timeZone = details?.timeZone
+  const timeFormat = details?.timeFormat
   const canEdit = isEditable(appointment.status)
 
   const serviceList = useMemo(
@@ -77,9 +82,11 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(() =>
     services.allIds.includes(appointment.service.id) ? appointment.service.id : services.allIds[0]
   )
-  const [month, setMonth] = useState<Dayjs>(() => dayjs(appointment.time.startDate).startOf('month'))
+  const [month, setMonth] = useState<Dayjs>(() =>
+    calendarDayOf(appointment.time.startDate, timeZone).startOf('month')
+  )
   const [pickedDayKey, setPickedDayKey] = useState<string | null>(() =>
-    dayjs(appointment.time.startDate).format(DAY_KEY_FORMAT)
+    dayKeyOf(appointment.time.startDate, timeZone)
   )
   const [selectedStart, setSelectedStart] = useState<string | null>(appointment.time.startDate)
 
@@ -93,11 +100,12 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
         start: month.startOf('month').toDate(),
         end: month.endOf('month').add(1, 'day').startOf('day').toDate(),
         durationMinutes,
+        timeZone,
       }),
-    [details?.weekSchedule, durationMinutes, month]
+    [details?.weekSchedule, durationMinutes, month, timeZone]
   )
 
-  const slotCountByDay = useMemo(() => countSlotsByDay(monthSlots), [monthSlots])
+  const slotCountByDay = useMemo(() => countSlotsByDay(monthSlots, timeZone), [monthSlots, timeZone])
 
   const firstOpenDayKey = useMemo(() => {
     for (const [key, count] of slotCountByDay) if (count > 0) return key
@@ -116,8 +124,10 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
 
   const daySlots = useMemo(
     () =>
-      selectedDate ? getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes }) : [],
-    [details?.weekSchedule, durationMinutes, selectedDate]
+      selectedDate
+        ? getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes, timeZone })
+        : [],
+    [details?.weekSchedule, durationMinutes, selectedDate, timeZone]
   )
 
   const validSelectedStart = useMemo(
@@ -141,6 +151,8 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
       serviceName: appointment.service.name,
       serviceDescription: appointment.service.description,
       startISO: appointment.time.startDate,
+      timeZone,
+      timeFormat,
       durationMinutes: appointment.time.duration,
       price: bookedPrice,
       address: details?.location?.address,
@@ -159,6 +171,8 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
     basic.lastName,
     details?.location?.address,
     phone,
+    timeFormat,
+    timeZone,
   ])
 
   const handleSelectDay = useCallback((dayKey: string) => {
@@ -168,22 +182,25 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
 
   const openEdit = useCallback(() => {
     setSelectedServiceId(appointment.service.id)
-    setMonth(dayjs(appointment.time.startDate).startOf('month'))
-    setPickedDayKey(dayjs(appointment.time.startDate).format(DAY_KEY_FORMAT))
+    setMonth(calendarDayOf(appointment.time.startDate, timeZone).startOf('month'))
+    setPickedDayKey(dayKeyOf(appointment.time.startDate, timeZone))
     setSelectedStart(appointment.time.startDate)
     setIsEditing(true)
-  }, [appointment.service.id, appointment.time.startDate])
+  }, [appointment.service.id, appointment.time.startDate, timeZone])
 
+  /** The confirm dialog stands alone, so its time names its zone (`GMT+4`). */
   const rescheduleWhen = useMemo(() => {
     if (!validSelectedStart) return ''
+    const start = inTimeZone(validSelectedStart, timeZone)
+    const time = start.format(getTimeDisplayFormat(resolveTimeFormat(timeFormat, locale)))
     return [
-      dayjs(validSelectedStart).format('dddd, D MMMM'),
-      dayjs(validSelectedStart).format(SCHEDULE_DISPLAY_FORMAT),
+      start.format('dddd, D MMMM'),
+      timeZone ? `${time} ${formatUtcOffset(timeZone, locale, new Date(validSelectedStart))}` : time,
       service?.name,
     ]
       .filter(Boolean)
       .join(' • ')
-  }, [service?.name, validSelectedStart])
+  }, [locale, service?.name, timeFormat, timeZone, validSelectedStart])
 
   const handleReschedule = useCallback(async () => {
     if (!validSelectedStart || !selectedServiceId) return
@@ -240,6 +257,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
 
         <BookingShareActions
           manageUrl={absoluteUrl(localePath(locale, generateEntityPath(ROUTE_KEYS.bookingManage, token)))}
+          calendarFileUrl={appointment.status === 'cancelled' ? undefined : buildBookingCalendarFileUrl(token, locale)}
           booking={summary}
         />
 
@@ -284,6 +302,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
             selectedDayKey={selectedDayKey}
             slotCountByDay={slotCountByDay}
             weekSchedule={details?.weekSchedule}
+            timeZone={timeZone}
             serviceName={service?.name}
             onSelectDay={handleSelectDay}
             onMonthChange={setMonth}
@@ -296,6 +315,8 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
             requestedStarts={[]}
             serviceName={service?.name}
             servicePrice={servicePrice}
+            timeZone={timeZone}
+            timeFormat={timeFormat}
             isBooking={false}
             confirmLabel={t('confirmNewTime')}
             onSelect={setSelectedStart}

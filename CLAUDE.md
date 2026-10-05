@@ -65,7 +65,12 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Favourites (the heart on a provider card, `/favorites`) | `server/src/routes/favorites.ts` · `src/api/favorites/` · `src/store/favorites/list/` · `src/hooks/useFavoriteProvider.ts` · `src/components/favorites/` — see `src/app/CLAUDE.md` |
 | Bookings page (`/bookings`, both sides of an account) | `src/app/[lang]/bookings/` — see `src/app/CLAUDE.md` |
 | Admin: review moderation and plan assignment | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/reviews/`, `admin/providers/` — see `server/CLAUDE.md` |
-| Plans, limits, `/pricing`, the Plan tab (only providers pay) | `docs/BILLING.md` · `server/src/services/plans.ts` (catalogue + every rule) · `src/api/plans/` · `src/components/plans/` |
+| Plans, prices, limits, `/pricing`, the Plan tab (only providers pay) | `docs/BILLING.md` · `server/src/services/plans.ts` (catalogue, prices, every rule) · `src/api/plans/` · `src/components/plans/` |
+| Paddle subscriptions — checkout, webhook, switch, billing portal | `docs/PADDLE_SETUP.md` (operator setup) · `server/src/routes/billing.ts` · `server/src/services/billing.ts` (pure: state → plan) + `billingSync.ts` · `server/src/lib/paddle.ts` (the only key reader) · `src/api/billing/` · `src/app/[lang]/billing/` · `src/hooks/useStartCheckout.ts`, `useAwaitPlan.ts`, `usePlanPrices.ts` |
+| Notifications — who gets which email / Telegram, the reminder job | `docs/NOTIFICATIONS.md` · `server/src/services/noticeRules.ts` (pure: channels) · `notify.ts` · `bookingNotify.ts` · `server/src/lib/booking-notices.ts` (the words) · `server/src/jobs/reminderJob.ts` |
+| Telegram (Connect, the bot's webhook) | `server/src/routes/telegram.ts` · `server/src/lib/telegram.ts` (the only token reader) · `src/api/telegram/` · `src/components/settings/TelegramConnect.tsx` |
+| Calendar — the provider's iCal feed, a client's `.ics` | `server/src/routes/calendar.ts` · `server/src/lib/ics.ts` · `src/api/calendar/` · `src/components/settings/CalendarFeed.tsx` |
+| Terms, Privacy, Refund Policy | `src/components/legal/LegalDocument.tsx` + `src/constants/legal.ts` · copy in `Legal.*` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |
@@ -198,8 +203,14 @@ is mechanically checkable.
 - **A hex or magic px belongs in `src/styles/tokens.ts` and nowhere else.**
 - **Ant Design `Form` owns form state and validation.** Formik was removed on
   2026-09-11 and is no longer a dependency.
-- Time is wall-clock `'HH:mm'` strings for schedules, local-anchored `Date` for slots.
-  `dayjs` is the only time library — `temporal-polyfill` is a FullCalendar peer dep with
+- **A time of day prints on the provider's 12/24-hour clock (`Provider.timeFormat`).** Take
+  the pattern from `src/helpers/timeFormat.ts`, never a literal `'hh:mm A'` / `'HH:mm'`; null
+  means the reader's locale decides. Where it reaches: *12- or 24-hour clock* in
+  `docs/DATABASE_STRUCTURE.md`.
+- **Schedules are wall-clock `'HH:mm'` in `Provider.timeZone`; slots are instants.** Step,
+  key and show them through `src/helpers/timeZone.ts` with `details.timeZone` — never bare
+  `dayjs(slot.start).format(...)`, which prints the *visitor's* clock. Who sees which zone:
+  *Time zones* in `docs/DATABASE_STRUCTURE.md`. `dayjs` is the only time library — `temporal-polyfill` is a FullCalendar peer dep with
   zero usages in `src/`.
 - **The locale is a path segment.** Every route lives under `app/[lang]/` and every URL
   names its language, English included. `ROUTES` stays locale-free — the prefix is added

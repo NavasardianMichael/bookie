@@ -13,6 +13,7 @@ import {
   sendBookingRescheduledToGuestEmail,
   sendBookingRescheduledToProviderEmail,
 } from '../lib/booking-mail.js'
+import { buildIcsCalendar } from '../lib/ics.js'
 import { prisma } from '../lib/prisma.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
 import { asBoundedString, asTrimmedString, isEmail } from '../lib/request.js'
@@ -22,6 +23,12 @@ import { mapBasicProvider, mapSingleProvider, providerInclude } from '../mappers
 import { hasSessionCookie, requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { createAppointment, type GuestBooker, rescheduleAppointment } from '../services/appointments.js'
+import {
+  notifyBookingCancelled,
+  notifyBookingCreated,
+  notifyBookingRescheduledTelegram,
+  rescheduleEmailWanted,
+} from '../services/bookingNotify.js'
 import { notifyBookingAllowance } from '../services/planNotices.js'
 import { BOOKING_STATUSES, isBookingStatus } from '../services/providerBookings.js'
 
@@ -200,7 +207,9 @@ const buildBookingNotice = async (appointmentId: string) => {
       guestLastName: true,
       service: { select: { name: true } },
       consumer: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
-      provider: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
+      provider: {
+        select: { firstName: true, lastName: true, timeZone: true, timeFormat: true, user: { select: { email: true } } },
+      },
     },
   })
   if (!row) return null
@@ -219,7 +228,7 @@ const buildBookingNotice = async (appointmentId: string) => {
     providerFirstName: row.provider.firstName,
     providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
     serviceName: row.service.name,
-    when: formatBookingWhen(row.startAt),
+    when: formatBookingWhen(row.startAt, row.provider.timeZone, row.provider.timeFormat),
   }
 }
 
@@ -448,6 +457,10 @@ appointmentsRouter.post(
       console.error('[mail] booking confirmation failed', error)
     }
 
+    // The provider's new-booking notice and every Telegram copy (`services/bookingNotify.ts`).
+    // Not awaited: the booking's response must not wait on a second round of sends.
+    void notifyBookingCreated(appointment.id, locale, requiresApproval)
+
     return ok(
       res,
       {
@@ -537,14 +550,19 @@ const serializeManaged = (
  * fail the PATCH. The provider address is `User.email`.
  * The manage URL stays the same token: it is a capability handle, not a hash of
  * the slot, so it is not sent to the provider.
+ *
+ * Each side's email is silenced by its own `bookingChanges` preference (a guest has none and
+ * always gets it); the Telegram copies follow the same preference in `bookingNotify.ts`.
  */
 const notifyReschedule = async (appointmentId: string, manageToken: string, locale: string) => {
   const notice = await buildBookingNotice(appointmentId)
   if (!notice) return
 
   const manageUrl = buildBookingManageUrl(config.corsOrigin, locale, manageToken)
+  const wanted = await rescheduleEmailWanted(appointmentId)
+  void notifyBookingRescheduledTelegram(appointmentId, locale)
 
-  if (notice.to) {
+  if (notice.to && wanted.booker) {
     await sendBookingRescheduledToGuestEmail({
       to: notice.to,
       firstName: notice.bookerFirstName,
@@ -553,6 +571,7 @@ const notifyReschedule = async (appointmentId: string, manageToken: string, loca
       manageUrl,
     })
   }
+  if (!wanted.provider) return
   await sendBookingRescheduledToProviderEmail({
     to: notice.providerTo,
     providerFirstName: notice.providerFirstName,
@@ -567,6 +586,37 @@ appointmentsRouter.get(
   asyncHandler(async (req, res) => {
     const appointment = await findByManageToken(req.params.token)
     return ok(res, serializeManaged(appointment))
+  })
+)
+
+/**
+ * The booking as a calendar file — "Add to calendar" on the manage page and after booking.
+ * Free for every client, unlike the provider's subscribed feed (`routes/calendar.ts`): it is
+ * the client's own appointment, behind the same capability token as the page itself.
+ */
+appointmentsRouter.get(
+  '/manage/:token/ics',
+  asyncHandler(async (req, res) => {
+    const appointment = await findByManageToken(req.params.token)
+    const providerName = `${appointment.provider.firstName} ${appointment.provider.lastName}`.trim()
+    const ics = buildIcsCalendar({
+      events: [
+        {
+          uid: `${appointment.id}@bookie`,
+          start: appointment.startAt,
+          end: appointment.endAt,
+          summary: `${appointment.service.name} — ${providerName}`,
+          location: appointment.provider.address || undefined,
+          url: buildBookingManageUrl(config.corsOrigin, resolveBookingLocale(req.query.locale), req.params.token),
+          status: appointment.status === 'pending' ? 'TENTATIVE' : 'CONFIRMED',
+          stamp: appointment.updatedAt,
+        },
+      ],
+    })
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8')
+    res.setHeader('Content-Disposition', 'attachment; filename="booking.ics"')
+    res.setHeader('Cache-Control', 'no-store')
+    res.send(ics)
   })
 )
 
@@ -603,6 +653,8 @@ appointmentsRouter.patch(
         where: { id: existing.id },
         data: { status: 'cancelled' },
       })
+      // The manage link is the booker's, so it is the provider who is told.
+      void notifyBookingCancelled(existing.id, 'booker', resolveBookingLocale(req.body?.locale))
     } else if (wantsReschedule) {
       if (!serviceId || !startAt) {
         throw new HttpError(400, 'serviceId and startAt required to reschedule', 400)
@@ -678,6 +730,13 @@ appointmentsRouter.patch(
       where: { id: appointment.id },
       data: { status: requested },
     })
+
+    // A live booking cancelled from either side's list: the *other* side is told. A provider
+    // cancelling a booking they made as someone's client is acting as the booker here.
+    if (requested === 'cancelled' && UPCOMING_STATUSES.includes(appointment.status)) {
+      const cancelledBy = isProviderOwner ? 'provider' : 'booker'
+      void notifyBookingCancelled(appointment.id, cancelledBy, resolveBookingLocale(req.body?.locale))
+    }
 
     return ok(res, { id: updated.id, status: updated.status })
   })

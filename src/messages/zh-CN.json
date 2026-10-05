@@ -183,6 +183,7 @@
       "service": "服务",
       "date": "日期",
       "time": "时间",
+      "timeZone": "时区",
       "duration": "时长",
       "durationValue": "{minutes} 分钟",
       "price": "价格",
@@ -224,12 +225,17 @@
     "chooseDate": "选择日期",
     "availableTimes": "可预约时段",
     "noDatePicked": "尚未选择日期",
-    "localTime": "本地时间",
+    "timesShownIn": "时区：{zone}",
+    "yourTime": "您当地时间 {time}",
     "pickDateFirst": "请先选择日期",
     "pickDateFirstBody": "在上方日历选择一天，可预约时段会显示在这里。",
     "noOpenTimes": "此日没有可预约时段",
     "noOpenTimesBody": "请尝试其他日期——可选的日期即为有空余的日期。",
     "readyToConfirm": "准备好确认了吗？",
+    "pickAService": "选择一项服务",
+    "pickAServiceHint": "在上方选择一项服务以继续。",
+    "pickServiceAndTime": "选择服务和时间",
+    "pickServiceAndTimeHint": "先在上方选择一项服务，再在此处选择一个时间以继续。",
     "pickATime": "选择一个时间",
     "pickATimeHint": "从上方选择一个时间以继续。",
     "bookNow": "立即预约",
@@ -280,7 +286,8 @@
       "fullBody": "{name} 本月无法再接受在线预约。请直接联系以约定时间。",
       "call": "拨打 {phone}",
       "email": "发送邮件"
-    }
+    },
+    "addToCalendar": "添加到日历"
   },
   "Footer": {
     "blurb": "一个平台，既能找到身边的服务，也能管理您的预约日程。",
@@ -295,7 +302,10 @@
     "createAccount": "创建账户",
     "company": "公司",
     "contact": "联系我们",
-    "pricing": "价格"
+    "pricing": "价格",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
+    "refund": "退款政策"
   },
   "Contact": {
     "metaTitle": "联系我们",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "试试其他状态或搜索词。"
     },
     "notifications": {
-      "subtitle": "选择您希望接收的邮件类型。",
+      "subtitle": "选择您希望通过邮件和 Telegram 接收哪些通知。",
       "emailPrefs": "通知偏好",
       "remindersTitle": "预约提醒",
-      "remindersBody": "在预约开始前收到邮件提醒。",
+      "remindersBody": "在预约开始前收到提醒。",
       "remindersLeadLabel": "提醒我",
       "remindersMinutes": "{count} 分钟",
       "remindersHours": "{count, plural, one {# 小时} other {# 小时}}",
       "changesTitle": "预约变更",
       "changesBody": "预约被更改或取消时通知。",
       "newBookingTitle": "新预约",
-      "newBookingBody": "有客户向您预约时通知您。"
+      "newBookingBody": "有客户向您预约时通知您。",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "除邮件外，也在 Telegram 中接收预约通知。",
+      "telegramConsumerBody": "除邮件外，也在 Telegram 中接收提醒和预约动态。",
+      "telegramLocked": "基础版及以上套餐包含关于您业务的 Telegram 通知。<plan>查看套餐</plan>",
+      "telegramUnavailable": "Telegram 通知暂不可用。",
+      "telegramConnect": "连接 Telegram",
+      "telegramOpen": "打开 Telegram",
+      "telegramOpenHint": "打开 Telegram 并点击“开始”以完成连接。链接 15 分钟内有效。",
+      "telegramWaiting": "正在等待 Telegram…",
+      "telegramConnected": "已连接",
+      "telegramConnectedAs": "已连接为 @{username}",
+      "telegramDisconnect": "断开连接",
+      "telegramConnectFailed": "无法开始连接 Telegram",
+      "telegramDisconnectFailed": "无法断开 Telegram",
+      "calendarTitle": "日历同步",
+      "calendarBody": "在 Google Calendar、Apple Calendar 或 Outlook 中订阅您的预约。新预约和变更会自动显示在那里。",
+      "calendarLocked": "基础版及以上套餐包含日历同步。<plan>查看套餐</plan>",
+      "calendarCopy": "复制日历链接",
+      "calendarHint": "在您的日历应用中选择通过 URL 添加日历，然后粘贴此链接。请妥善保管：任何拥有此链接的人都能看到您的预约。",
+      "calendarReset": "重置链接",
+      "calendarResetTitle": "重置您的日历链接？",
+      "calendarResetBody": "当前链接将立即失效。订阅该链接的日历将停止更新，直到您添加新链接。"
     },
     "payments": {
       "title": "收付款",
@@ -457,6 +489,15 @@
       "recurringBody": "客户可预约的日期和时段。若有休息，每天最多可添加 5 个时段。",
       "pauseTitle": "接受新预约",
       "pauseBody": "关闭以暂停新预约，同时不会下架您的主页。",
+      "timeZone": "时区",
+      "timeZoneHint": "您的营业时间以此时区为准。访客无论身在何处，都按此时区查看和预约时间。",
+      "timeZonePlaceholder": "搜索城市、时区或时差",
+      "timeZoneSuggested": "您的时区尚未保存。我们已填入此设备的时区，发布后即可应用到您的公开主页。",
+      "timeZoneDeviceDiffers": "此设备的时区：{zone}",
+      "timeFormat": "时间格式",
+      "timeFormatHint": "时间在您的公开页面、预约邮件和预约列表中的显示方式。",
+      "timeFormat12": "12 小时制（{time}）",
+      "timeFormat24": "24 小时制（{time}）",
       "to": "至",
       "unavailable": "不可预约",
       "addRange": "添加时段",
@@ -682,7 +723,23 @@
       "resetsOn": "{date} 重置",
       "comparePlans": "比较套餐",
       "requestUpgrade": "申请升级",
-      "manualNote": "目前套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。"
+      "manualNote": "目前套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。",
+      "renewsOn": "{date} 续订",
+      "cancelsOn": "已取消——{date} 到期",
+      "manageBilling": "管理账单",
+      "portalFailed": "无法打开账单管理",
+      "paymentFailedTitle": "你的上一笔付款未成功",
+      "paymentFailedBody": "请在“管理账单”中更新付款方式，以保留{plan}。Paddle 会再次尝试从你的银行卡扣款。",
+      "cancelInPortal": "取消订阅",
+      "upgrade": "升级",
+      "switch": "切换",
+      "switchTitle": "切换到{plan}？",
+      "switchBody": "更改立即生效。本月剩余时间的差额将自动从你的付款方式中补扣或退回。",
+      "switchConfirm": "切换套餐",
+      "switchingTitle": "正在切换到{plan}…",
+      "switchPendingTitle": "你的套餐更改正在处理中",
+      "switchPendingBody": "Paddle 已接受此更改，可能需要几分钟才会在这里显示。请稍后刷新页面。",
+      "billingNote": "付款由 Paddle 处理。可在“管理账单”中取消订阅、更换银行卡或下载发票。"
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# 星} other {# 星}}",
       "pagesLabel": "评价分页",
       "loadError": "无法加载评价，请重试。"
-    }
+    },
+    "poweredBy": "预约页面由 Bookie 提供",
+    "poweredByCta": "免费创建你的页面"
   },
   "Legal": {
     "termsMetaTitle": "服务条款",
     "termsMetaDescription": "使用 Bookie 需遵守的条款。",
     "termsTitle": "服务条款",
-    "unpublished": "尚未发布。",
-    "termsBody": "Bookie 的服务条款仍在完善中。在正式发布前，如对平台使用有疑问，请直接<contact>通过联系页面</contact>与我们联系。",
     "privacyMetaTitle": "隐私政策",
     "privacyMetaDescription": "Bookie 收集哪些信息以及如何处理。",
     "privacyTitle": "隐私政策",
-    "privacyBody": "Bookie 的隐私政策仍在完善中。注册时会收集电话号码、姓名以及可选的电子邮箱；电话号码是账户的标识。其他问题请<contact>通过联系页面</contact>与我们联系。"
+    "lastUpdated": "最后更新：{date}",
+    "refundMetaTitle": "退款政策",
+    "refundMetaDescription": "Bookie 付费套餐的取消和退款方式。",
+    "refundTitle": "退款政策",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "接受本条款",
+          "p1": "访问或使用 Bookie（“本服务”）即表示您同意本服务条款及我们的<privacy>隐私政策</privacy>。如果您不同意，请勿使用本服务。"
+        },
+        "service": {
+          "title": "本服务",
+          "p1": "Bookie 是一个在线预约平台。服务提供者发布包含其服务项目和营业时间的预约页面，客户查找服务提供者并向其预约。Bookie 仅提供平台：服务本身由服务提供者提供，并由其独自承担全部责任。"
+        },
+        "accounts": {
+          "title": "账户",
+          "p1": "发布预约页面或在一个地方管理您的预约需要账户；客户也可以不注册账户直接预约。您有责任对您的登录信息保密，对您账户下进行的一切活动负责，并确保您的信息准确无误。对于违反本条款的账户，我们可能会暂停或关闭。"
+        },
+        "bookings": {
+          "title": "预约",
+          "p1": "预约是客户与服务提供者之间的约定。服务提供者自行设定其服务、价格、日程和取消条款，并直接由客户向其付款——Bookie 不收取任何预约款项。Bookie 不是该约定的当事方，不对服务提供者的服务或客户是否到场承担责任。"
+        },
+        "content": {
+          "title": "您的内容",
+          "p1": "服务提供者须对其发布的内容——描述、价格、照片和联系方式——负责，并须拥有发布这些内容的权利。客户须对其撰写的评价负责，评价必须描述真实经历。对于违法、误导性或侮辱性的内容，我们可能会隐藏相关评价或将其删除。"
+        },
+        "acceptableUse": {
+          "title": "可接受的使用",
+          "p1": "您同意不会利用本服务从事任何违法行为、冒充他人、进行无意履约的预约、上传恶意代码或有害内容、试图未经授权访问 Bookie 的系统或他人的账户，或以对本服务造成不合理负载的方式抓取本服务的数据。"
+        },
+        "plans": {
+          "title": "套餐与付款",
+          "p1": "客户预约始终免费。服务提供者可以免费使用 Bookie，也可以按照我们<pricing>价格页面</pricing>上的价格订阅付费套餐，付费套餐按月计费，直至取消。根据您所在的地区，可能需要缴纳税费。您可以随时在套餐设置中切换或取消套餐；取消将在已付费月份结束时生效。有关退款，请参阅我们的<refund>退款政策</refund>。",
+          "p2": "我们的订购流程由我们的在线经销商 Paddle.com 执行。Paddle.com 是我们所有订单的记录商户（Merchant of Record）。Paddle 负责处理所有客户服务咨询及退货事宜。"
+        },
+        "planChanges": {
+          "title": "套餐和价格变更",
+          "p1": "我们可能会更改套餐或价格。价格变更将从现有订阅的下一个计费周期起适用，并且我们会在生效前通过电子邮件通知您。换成更低的套餐或终止套餐，都不会移除客户已经能看到的内容：预约将保留，您的页面也会在免费版的限额内继续运行。"
+        },
+        "intellectualProperty": {
+          "title": "知识产权",
+          "p1": "您在 Bookie 上发布的内容仍归您所有，您授予我们托管、展示和处理这些内容的许可，仅用于提供本服务。Bookie 平台、软件和设计仍为我们的财产。"
+        },
+        "termination": {
+          "title": "停止使用 Bookie",
+          "p1": "您可以随时在账户设置中删除您的账户。如果您违反本条款，我们可能会暂停或终止您的访问权限。在此情况下，付费套餐将在当前计费周期结束时终止。"
+        },
+        "disclaimer": {
+          "title": "免责声明",
+          "p1": "本服务按“现状”和“现有可用”的基础提供，不附带任何形式的保证。我们不保证本服务不会中断或没有错误，也不保证任何预约一定会实现。"
+        },
+        "liability": {
+          "title": "责任限制",
+          "p1": "在法律允许的最大范围内，Bookie 不对任何间接、附带、特殊、后果性或惩罚性损害承担责任，也不对客户与服务提供者之间的任何纠纷承担责任。对于任何索赔，我们的全部责任以您在该索赔发生前十二个月内向我们支付的金额为限。"
+        },
+        "changes": {
+          "title": "本条款的变更",
+          "p1": "我们可能会更新本条款。新版本将在此发布并注明新的日期。更新后继续使用本服务，即表示您接受新条款。"
+        },
+        "contact": {
+          "title": "联系方式",
+          "p1": "对本条款有疑问？<contact>联系我们</contact>。"
+        }
+      }
+    },
+    "privacy": {
+      "intro": "Bookie（“我们”）致力于保护您的隐私。本政策说明我们收集哪些信息、收集的原因、与谁共享，以及您拥有哪些选择。",
+      "sections": {
+        "collect": {
+          "title": "我们收集的信息",
+          "p1": "<b>账户信息：</b>您的姓名、电子邮箱地址、电话号码和密码，其中密码仅以单向哈希形式存储。如果您使用 Google 登录，我们会收到您的 Google 账户标识符和电子邮箱地址。",
+          "p2": "<b>服务提供者页面：</b>服务提供者发布的内容——描述、照片、服务、价格、营业时间、地址和联系方式——在设计上即为公开信息。",
+          "p3": "<b>预约：</b>每项预约的服务、时间、备注和首选付款方式；对于未登录账户的预约，还包括随预约填写的姓名、电话号码和可选的电子邮箱地址。",
+          "p4": "客户撰写的关于服务提供者的<b>评价</b>，以及针对评价的举报。",
+          "p5": "<b>Telegram：</b>如果您连接 Telegram 以接收通知，则包括您的 Telegram 聊天标识符和用户名。",
+          "p6": "<b>账单：</b>对于使用付费套餐的服务提供者，包括 Paddle 的客户标识符和订阅标识符以及订阅状态。付款信息直接提交给 Paddle，绝不会传到我们这里。"
+        },
+        "use": {
+          "title": "我们如何使用这些信息",
+          "p1": "用于运行您的账户和预约；发送预约邮件——确认、变更、取消和提醒——如果您已连接 Telegram，还会在 Telegram 上发送相同的通知；向公众展示服务提供者页面和评价；处理订阅；保障本服务的安全并防止滥用；以及在您联系我们时回复您。"
+        },
+        "sharing": {
+          "title": "我们与谁共享",
+          "p1": "我们不会出售您的个人数据。我们仅与为我们运行 Bookie 部分功能的服务共享数据，且仅限于其所需的范围：",
+          "p2": "<b>Paddle</b>——我们的经销商和记录商户（Merchant of Record），用于订阅付款、开具发票和处理税务。Paddle 根据其自身的隐私政策处理付款信息。",
+          "p3": "<b>我们的邮件发送服务</b>——发送账户和预约相关邮件。",
+          "p4": "<b>Telegram</b>——发送通知，仅在您连接后使用。",
+          "p5": "<b>Google</b>——为您完成登录，仅在您选择使用 Google 继续时使用。",
+          "p6": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
+        },
+        "cookies": {
+          "title": "Cookie",
+          "p1": "我们仅使用绝对必要的 Cookie：一个用于让您保持登录状态最长 7 天，若干短期 Cookie 用于保存进行中的 Google 登录，另一个用于记住您的语言。我们不使用任何广告或分析 Cookie。"
+        },
+        "retention": {
+          "title": "我们保存多久",
+          "p1": "只要您的账户存在，我们就会保存您的数据。在设置中删除账户会同时删除账户及您的个人资料；如果客户账户中有预约记录，需要先取消这些预约。账单记录也会由 Paddle 按税法要求保存。"
+        },
+        "rights": {
+          "title": "您的权利",
+          "p1": "您可以在设置中查看和更正大部分数据，也可以在那里删除您的账户。如需获取您数据的副本或提出与数据相关的其他请求，请<contact>联系我们</contact>。"
+        },
+        "security": {
+          "title": "安全",
+          "p1": "所有数据均通过 HTTPS 传输。密码仅以 Argon2id 哈希形式存储，我们通过邮件发送的链接均为一次性且会过期，登录尝试也有频率限制。"
+        },
+        "children": {
+          "title": "儿童",
+          "p1": "Bookie 不面向 13 岁以下的儿童，我们也不会在知情的情况下收集他们的数据。如果您认为有儿童向我们提供了个人数据，请联系我们，我们会将其删除。"
+        },
+        "changes": {
+          "title": "本政策的变更",
+          "p1": "我们可能会更新本政策。新版本将在此发布并注明新的日期。"
+        },
+        "contact": {
+          "title": "联系方式",
+          "p1": "对您的隐私有疑问？<contact>联系我们</contact>。"
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "付费套餐",
+          "p1": "Bookie 面向服务提供者的付费套餐为月度订阅，由我们的经销商和记录商户（Merchant of Record）Paddle 预先收费。客户从不向 Bookie 支付任何费用。"
+        },
+        "cancel": {
+          "title": "取消",
+          "p1": "您可以随时在套餐设置的“管理账单”中取消。您的套餐将保留至已付费月份结束，之后不会再次扣费。"
+        },
+        "eligibility": {
+          "title": "退款",
+          "p1": "如果您对付费套餐不满意，请在首次支付该套餐费用后 14 天内申请退款，我们将全额退还该笔款项。此后，对于任何误扣款项——例如重复付款，或在您取消后仍发生的续订扣款——我们都会退款。"
+        },
+        "planChanges": {
+          "title": "切换套餐",
+          "p1": "切换套餐按比例计费：升级时按本月剩余时间补扣差额，降级时差额将抵扣您之后的付款。"
+        },
+        "request": {
+          "title": "如何申请退款",
+          "p1": "请<contact>联系我们</contact>，并提供您 Bookie 账户的电子邮箱地址和扣款日期，我们将在 2 个工作日内回复。您也可以通过 Paddle 发送给您的收据邮件联系 Paddle。"
+        },
+        "processing": {
+          "title": "退款如何支付",
+          "p1": "经批准的退款将由 Paddle 退回至您的原付款方式。视您的银行而定，到账可能需要 5–10 个工作日。"
+        },
+        "contact": {
+          "title": "联系方式",
+          "p1": "对本政策有疑问？<contact>联系我们</contact>。"
+        }
+      }
+    }
   },
   "Services": {
     "title": "管理服务",
@@ -1013,6 +1221,8 @@
     "aboutYou": "关于您",
     "whatYouDo": "您提供的服务",
     "whenYouWork": "您的工作时间",
+    "timeZone": "时区",
+    "timeZoneHint": "您的工作时间以此时区为准。访客无论身在何处，都按此时区查看时间。",
     "where": "地点",
     "optional": "选填",
     "firstName": "名字",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "该服务提供者目前不接受在线预约。请直接联系预约。",
       "bookingFull": "该服务提供者本月无法再接受在线预约。请直接联系预约。",
       "serviceLimit": "已达到你套餐的有效服务上限。停用一项服务或升级套餐即可再添加。",
-      "featureLocked": "你的套餐不包含此功能。升级套餐即可使用。"
+      "featureLocked": "你的套餐不包含此功能。升级套餐即可使用。",
+      "notConfigured": "在线支付暂不可用。请改为申请该套餐，我们会为你开通。",
+      "alreadySubscribed": "你已有订阅。请在套餐设置中切换套餐。",
+      "noSubscription": "没有可更改的有效订阅。"
     },
     "pages": {
       "provider": "无法加载该服务提供者的页面。请重试。",
@@ -1152,7 +1365,9 @@
       "noEnd": "无结束日期",
       "save": "保存套餐",
       "saved": "套餐已保存",
-      "pagesLabel": "服务提供者分页"
+      "pagesLabel": "服务提供者分页",
+      "paddle": "Paddle",
+      "paddleNote": "通过 Paddle 计费：此处的手动更改会在订阅下次更新时被覆盖。"
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "有效服务",
       "maxBookingsPerMonth": "每月在线预约",
       "analyticsHistoryDays": "数据分析历史",
-      "customSlug": "自定义链接"
+      "customSlug": "自定义链接",
+      "telegramNotifications": "Telegram 通知",
+      "calendarFeed": "日历同步（iCal）",
+      "removeBranding": "页面不显示 Bookie 标识"
     },
     "unlimited": "不限",
     "fullHistory": "全部历史",
@@ -1174,16 +1392,90 @@
     "included": "包含",
     "notIncluded": "不包含",
     "current": "你的套餐",
-    "requestTitle": "申请{plan}"
+    "requestTitle": "申请{plan}",
+    "freeForever": "永久免费",
+    "perMonth": "/ 月"
   },
   "Pricing": {
     "metaTitle": "服务提供者价格",
-    "metaDescription": "Bookie 为服务提供者准备的套餐，从免费版到高级版，以及各自包含的内容。客户预约始终免费。",
+    "metaDescription": "Bookie 为服务提供者准备的套餐：免费开始，或升级以获得更多服务、不限次数的预约、Telegram 通知和日历同步。客户预约始终免费。",
     "title": "服务提供者套餐",
     "subtitle": "免费开始，日程排满时再升级。客户预约从不付费。",
     "startFree": "免费开始",
     "requestPlan": "申请此套餐",
     "clientsFree": "客户通过 Bookie 预约无需支付任何费用。",
-    "manualNote": "目前付费套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。"
+    "manualNote": "目前付费套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。",
+    "getStarted": "开始使用",
+    "choosePlan": "选择{plan}",
+    "seeYourPlan": "查看你的套餐",
+    "checkoutFailed": "无法发起结账",
+    "billedMonthly": "付费套餐按月计费，可随时切换或取消。",
+    "localCurrencyNote": "价格以你的当地货币显示，适用时已含税。",
+    "usdNote": "价格以美元显示。适用时，税费将在结账时另行加收。",
+    "includedTitle": "所有套餐均包含",
+    "includedSubtitle": "免费版即包含以下功能——付费套餐在此基础上提供更多额度和便利。",
+    "included": {
+      "publicPage": "专属预约页面",
+      "onlineBooking": "全天候在线预约",
+      "clientsFree": "客户免费预约，有无账户均可",
+      "approvals": "预约进入日历前先由你审批",
+      "emailNotifications": "新预约、变更和取消的邮件通知",
+      "reminders": "为你和你的客户发送预约提醒",
+      "clientCalendar": "为客户提供可添加到日历的文件",
+      "reviews": "客户评价与评分",
+      "analytics": "预约数据分析",
+      "explore": "出现在 Bookie 的服务提供者搜索中",
+      "languages": "预约页面支持 16 种语言"
+    },
+    "faqTitle": "账单常见问题",
+    "faq": {
+      "clientsPay": {
+        "q": "我的客户需要付费吗？",
+        "a": "不需要。无论哪个套餐，客户通过 Bookie 预约始终免费。只有服务提供者需要选择套餐。"
+      },
+      "cancel": {
+        "q": "我可以随时取消吗？",
+        "a": "可以。在套餐设置的“管理账单”中取消即可。你的套餐在已付费月份结束前仍然有效，之后账户将转为免费版。"
+      },
+      "downgrade": {
+        "q": "如果我换成更低的套餐，我的页面会怎样？",
+        "a": "客户能看到的内容都不会被移除。超出新上限的服务仍保持上线且可编辑——只是在数量降到上限以内之前，你无法再添加新服务。更换套餐绝不会取消任何预约。"
+      },
+      "switching": {
+        "q": "以后可以更换套餐吗？",
+        "a": "可以，随时在套餐设置中更换。更改立即生效，本月剩余时间的差额将自动补扣或计入抵扣。"
+      },
+      "paymentProcessor": {
+        "q": "由谁处理付款？",
+        "a": "付款由 Paddle 处理，它是我们的经销商和记录商户（Merchant of Record）。Paddle 支持银行卡及其他本地付款方式，会向你发送收据和发票，并负责处理销售税和增值税。"
+      },
+      "currency": {
+        "q": "我将用哪种货币付款？",
+        "a": "在 Paddle 支持的情况下，价格以你的当地货币显示和收取，并包含你所在地区适用的税费。否则，价格以美元显示，不含税。"
+      },
+      "failedPayment": {
+        "q": "如果付款失败怎么办？",
+        "a": "Paddle 会再次尝试从你的银行卡扣款，并发邮件通知你。在你更新付款方式期间，套餐会继续正常使用一周；之后，你的账户将转为免费版，直到付款成功。"
+      },
+      "refunds": {
+        "q": "可以退款吗？",
+        "a": "可以——在首次支付某个套餐的费用后 14 天内申请，或在发生误扣款时随时申请。详见我们的<refund>退款政策</refund>。"
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "结账",
+    "checkoutOpening": "正在打开安全结账页面…",
+    "checkoutSecure": "付款由我们的经销商 Paddle 处理。你的银行卡信息绝不会传到 Bookie。",
+    "checkoutUnavailableTitle": "无法打开结账页面",
+    "checkoutUnavailableBody": "未产生任何扣款。请返回你的套餐，稍后再试。",
+    "backToPlan": "返回你的套餐",
+    "returnTitle": "付款",
+    "confirmingTitle": "正在确认你的付款…",
+    "confirmingBody": "通常只需几秒钟。请保持此页面打开。",
+    "activeTitle": "你正在使用{plan}",
+    "activeBody": "谢谢！套餐包含的所有功能现已可用。Paddle 已通过邮件向你发送收据。",
+    "receivedTitle": "已收到付款",
+    "receivedBody": "谢谢！套餐更新可能需要几分钟。Paddle 已通过邮件向你发送收据。"
   }
 }

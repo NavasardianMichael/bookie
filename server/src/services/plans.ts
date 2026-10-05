@@ -30,27 +30,71 @@ export type Entitlements = {
   analyticsHistoryDays: number | null
   /** May set or change the vanity `/p/<slug>`. Without it the page keeps its id URL. */
   customSlug: boolean
+  /**
+   * The provider's own notices also reach their linked Telegram. Email is never gated, and
+   * neither is a *client's* Telegram — clients never pay (docs/NOTIFICATIONS.md).
+   */
+  telegramNotifications: boolean
+  /** A private iCal feed of the provider's bookings (`GET /calendar/:providerId/:token`). */
+  calendarFeed: boolean
+  /** The public page drops its "Booking page by Bookie" line. */
+  removeBranding: boolean
 }
 
 /**
  * The limits are placeholders to be tuned, and this is the only place they live. Each one
  * must be non-decreasing along `PLAN_ORDER` — an upgrade that takes something away is a
  * bug, and `plans.spec.ts` fails on it.
+ *
+ * Paid plans sell capacity and convenience, never the basics: every plan, Free included,
+ * gets every email (new booking, changes, reminders for the provider and their clients).
  */
+const PAID_CONVENIENCE = { telegramNotifications: true, calendarFeed: true, removeBranding: true } as const
+
 export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
-  free: { maxActiveServices: 3, maxBookingsPerMonth: 50, analyticsHistoryDays: 30, customSlug: false },
-  basic: { maxActiveServices: 10, maxBookingsPerMonth: 300, analyticsHistoryDays: 365, customSlug: true },
-  standard: { maxActiveServices: 30, maxBookingsPerMonth: null, analyticsHistoryDays: null, customSlug: true },
-  premium: { maxActiveServices: null, maxBookingsPerMonth: null, analyticsHistoryDays: null, customSlug: true },
+  free: {
+    maxActiveServices: 3,
+    maxBookingsPerMonth: 50,
+    analyticsHistoryDays: 30,
+    customSlug: false,
+    telegramNotifications: false,
+    calendarFeed: false,
+    removeBranding: false,
+  },
+  basic: { maxActiveServices: 10, maxBookingsPerMonth: 300, analyticsHistoryDays: 365, customSlug: true, ...PAID_CONVENIENCE },
+  standard: { maxActiveServices: 30, maxBookingsPerMonth: null, analyticsHistoryDays: null, customSlug: true, ...PAID_CONVENIENCE },
+  premium: { maxActiveServices: null, maxBookingsPerMonth: null, analyticsHistoryDays: null, customSlug: true, ...PAID_CONVENIENCE },
 }
+
+/**
+ * What each plan costs, in USD cents, billed monthly. The **display fallback** only: what a
+ * provider is charged is the Paddle price behind `PADDLE_PRICE_ID_<PLAN>`, which Paddle may
+ * also localize (`GET /billing/prices`). Change a price in both places together —
+ * `docs/PADDLE_SETUP.md`. Cents, because a float `4.99` is not `4.99`.
+ */
+export type PlanPrice = { amountCents: number; currency: 'USD'; interval: 'month' }
+
+export const PLAN_PRICES: Readonly<Record<Plan, PlanPrice>> = {
+  free: { amountCents: 0, currency: 'USD', interval: 'month' },
+  basic: { amountCents: 499, currency: 'USD', interval: 'month' },
+  standard: { amountCents: 1499, currency: 'USD', interval: 'month' },
+  premium: { amountCents: 2499, currency: 'USD', interval: 'month' },
+}
+
+/** The plans that can be bought — every one but `free`. */
+export type PaidPlan = Exclude<Plan, 'free'>
+
+export const PAID_PLANS = PLAN_ORDER.filter((plan): plan is PaidPlan => plan !== 'free')
+
+export const isPaidPlan = (value: unknown): value is PaidPlan => PAID_PLANS.includes(value as PaidPlan)
 
 export type PlanFields = { plan: Plan; planExpiresAt: Date | null }
 
 /**
  * The plan in force right now: the stored one, or `free` once a paid plan's expiry has
- * passed. Computed on read rather than written back by a job — this API has no scheduler
- * and must stay one process — so an expiry takes effect on the very next request, with no
- * window where a lapsed plan still grants anything.
+ * passed. Computed on read rather than swept by a job — the reminder sender is the API's only
+ * job, and an expiry needs none — so it takes effect on the very next request, with no window
+ * where a lapsed plan still grants anything.
  */
 export const effectivePlan = (provider: PlanFields, now: Date): Plan =>
   provider.plan !== 'free' && provider.planExpiresAt !== null && provider.planExpiresAt <= now ? 'free' : provider.plan
@@ -63,8 +107,8 @@ export const hasRoomFor = (used: number, limit: number | null): boolean => limit
 
 /**
  * The window the monthly booking allowance counts over: the current **UTC** calendar month,
- * `[start, end)`. UTC because `Provider` has no timezone column; a provider east of
- * Greenwich sees their allowance reset a few hours into their own 1st (docs/BACKLOG.md).
+ * `[start, end)`. UTC: the allowance does not read `Provider.timeZone` yet, so a provider
+ * east of Greenwich sees it reset a few hours into their own 1st (docs/BACKLOG.md).
  */
 export const bookingPeriod = (now: Date): { start: Date; end: Date } => ({
   start: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
@@ -146,6 +190,19 @@ export const capNoticesDue = (input: {
   if (used >= capWarningThreshold(limit) && !sentSince(warnedAt, periodStart)) return ['warned']
   return []
 }
+
+/**
+ * The allowance-notice stamps to clear when a plan write changes the **effective** plan, so
+ * the new plan's thresholds can notify again. Re-saving the same plan clears nothing, or a
+ * provider would be told twice in a month that they are nearly full. Shared by the admin
+ * route and the Paddle webhook — the two writers of `plan`.
+ */
+export const planChangeStampReset = (
+  current: PlanFields,
+  next: PlanFields,
+  now: Date
+): { bookingCapWarnedAt: null; bookingCapReachedAt: null } | Record<string, never> =>
+  effectivePlan(current, now) !== effectivePlan(next, now) ? { bookingCapWarnedAt: null, bookingCapReachedAt: null } : {}
 
 const isPlan = (value: unknown): value is Plan => PLAN_ORDER.includes(value as Plan)
 

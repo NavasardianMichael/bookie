@@ -5,6 +5,17 @@ export const ROUTE_KEYS = {
   pricing: 'pricing',
   terms: 'terms',
   privacy: 'privacy',
+  /** Required, with Terms and Privacy, for Paddle to approve the site for live payments. */
+  refundPolicy: 'refundPolicy',
+  /**
+   * Where Paddle sends a checkout: the page loads Paddle.js, which opens the overlay on
+   * seeing `?_ptxn=`. Also the "default payment link" in Paddle's settings, so it is
+   * **public** — Paddle links to it from its own emails too. Spelled in
+   * `server/src/lib/return-path.ts` (`BILLING_CHECKOUT_PATH`) and pinned by a test.
+   */
+  billingCheckout: 'billingCheckout',
+  /** Waits for the webhook after a payment, until the plan bought is the plan in force. */
+  billingReturn: 'billingReturn',
   categories: 'categories',
   providerCategories: 'providerCategories',
   providers: 'providers',
@@ -89,6 +100,9 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.pricing]: '/pricing',
   [ROUTE_KEYS.terms]: '/terms',
   [ROUTE_KEYS.privacy]: '/privacy',
+  [ROUTE_KEYS.refundPolicy]: '/refund-policy',
+  [ROUTE_KEYS.billingCheckout]: '/billing/checkout',
+  [ROUTE_KEYS.billingReturn]: '/billing/return',
   [ROUTE_KEYS.categories]: '/categories',
   [ROUTE_KEYS.providerCategories]: '/provider-categories',
   [ROUTE_KEYS.providers]: '/providers',

@@ -907,6 +907,11 @@ identityRouter.get(
       // carries `imageUrl`/`draft`. Passing the bare union trips TypeScript's weak-type
       // check, because the Consumer branch shares no property with the parameter type.
       image: 'imageUrl' in profile ? sessionPortrait(profile) : undefined,
+      /**
+       * The published 12/24-hour choice, so the provider's own workspace prints times on the
+       * clock their public page uses. Provider sessions only; absent until they choose.
+       */
+      timeFormat: 'timeFormat' in profile ? (profile.timeFormat ?? undefined) : undefined,
       email: user.email,
       emailVerified: Boolean(user.emailVerifiedAt),
       authProvider: user.authProvider,

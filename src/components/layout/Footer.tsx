@@ -40,7 +40,13 @@ const FOOTER_COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
   },
   {
     titleKey: 'company',
-    links: [{ href: ROUTES.contact, labelKey: 'contact' }],
+    // The legal pages are linked from every page because Paddle's site review looks for them.
+    links: [
+      { href: ROUTES.contact, labelKey: 'contact' },
+      { href: ROUTES.terms, labelKey: 'terms' },
+      { href: ROUTES.privacy, labelKey: 'privacy' },
+      { href: ROUTES.refundPolicy, labelKey: 'refund' },
+    ],
   },
 ]
 

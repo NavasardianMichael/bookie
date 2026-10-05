@@ -16,6 +16,10 @@ export type PutProviderProfileRequestPayload = Partial<{
   organizationId: Organization['id']
   categoryIds: Category['id'][]
   weekSchedule: ProviderProfile['details']['weekSchedule']
+  /** IANA name; the API stores it canonical and answers 400 for one `Intl` does not know. */
+  timeZone: NonNullable<ProviderProfile['details']['timeZone']>
+  /** Drafted and published with `timeZone`; the API answers 400 for anything but `h12`/`h24`. */
+  timeFormat: NonNullable<ProviderProfile['details']['timeFormat']>
   image: ProviderProfile['basic']['image'] | File
   gallery: (ProviderProfile['details']['gallery'][number] | File)[]
   mode: 'draft' | 'publish' | 'listing'

@@ -1,6 +1,7 @@
-import dayjs from 'dayjs'
+import { TimeFormat } from '@interfaces/schedule'
 import { PaymentMethod } from '@interfaces/settings'
-import { SCHEDULE_DISPLAY_FORMAT } from '@constants/schedule'
+import { getTimeDisplayFormat } from './timeFormat'
+import { inTimeZone } from './timeZone'
 
 export type BookingSummaryData = {
   providerName: string
@@ -8,6 +9,17 @@ export type BookingSummaryData = {
   serviceDescription?: string
   /** ISO start of the picked slot. */
   startISO: string
+  /**
+   * The provider's IANA zone. Date and time are written on *their* clock and the zone gets
+   * a row of its own, because this text is copied and shared away from the page that labels
+   * it. Absent: the runtime's zone, and no row.
+   */
+  timeZone?: string
+  /**
+   * The provider's clock. `useBookingSummaryFields` resolves an unchosen one to the reader's
+   * locale before it gets here; absent, 12-hour.
+   */
+  timeFormat?: TimeFormat
   durationMinutes: number
   /** Pre-formatted, e.g. `70 USD`. Absent when the service carries no price. */
   price?: string
@@ -23,6 +35,9 @@ export type BookingSummaryLabels = {
   service: string
   date: string
   time: string
+  timeZone: string
+  /** `Armenia Standard Time (GMT+4)` — injected so the locale stays out of this module. */
+  timeZoneName: (timeZone: string, at: Date) => string
   duration: string
   durationValue: (minutes: number) => string
   price: string
@@ -47,8 +62,9 @@ export const buildBookingSummaryFields = (
   data: BookingSummaryData,
   labels: BookingSummaryLabels
 ): BookingSummaryField[] => {
-  const start = dayjs(data.startISO)
+  const start = inTimeZone(data.startISO, data.timeZone)
   const end = start.add(data.durationMinutes, 'minute')
+  const timeDisplayFormat = getTimeDisplayFormat(data.timeFormat ?? 'h12')
 
   const rows: (BookingSummaryField | null)[] = [
     { key: 'provider', label: labels.provider, text: data.providerName },
@@ -63,8 +79,15 @@ export const buildBookingSummaryFields = (
     {
       key: 'time',
       label: labels.time,
-      text: `${start.format(SCHEDULE_DISPLAY_FORMAT)} – ${end.format(SCHEDULE_DISPLAY_FORMAT)}`,
+      text: `${start.format(timeDisplayFormat)} – ${end.format(timeDisplayFormat)}`,
     },
+    data.timeZone
+      ? {
+          key: 'timeZone',
+          label: labels.timeZone,
+          text: labels.timeZoneName(data.timeZone, new Date(data.startISO)),
+        }
+      : null,
     {
       key: 'duration',
       label: labels.duration,

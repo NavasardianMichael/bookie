@@ -183,6 +183,7 @@
       "service": "Service",
       "date": "Date",
       "time": "Time",
+      "timeZone": "Time zone",
       "duration": "Duration",
       "durationValue": "{minutes} min",
       "price": "Price",
@@ -224,12 +225,17 @@
     "chooseDate": "Choose a date",
     "availableTimes": "Available times",
     "noDatePicked": "No date picked yet",
-    "localTime": "Local time",
+    "timesShownIn": "Times shown in {zone}",
+    "yourTime": "{time} your time",
     "pickDateFirst": "Pick a date first",
     "pickDateFirstBody": "Choose a day in the calendar above and its open times show up here.",
     "noOpenTimes": "No open times on this day",
     "noOpenTimesBody": "Try another day — days with availability are the ones you can select.",
     "readyToConfirm": "Ready to confirm?",
+    "pickAService": "Pick a service",
+    "pickAServiceHint": "Choose a service above to continue.",
+    "pickServiceAndTime": "Pick a service and time",
+    "pickServiceAndTimeHint": "Choose a service above, then one of the times here, to continue.",
     "pickATime": "Pick a time",
     "pickATimeHint": "Choose one of the times above to continue.",
     "bookNow": "Book now",
@@ -280,7 +286,8 @@
       "fullBody": "{name} cannot take any more online bookings this month. Get in touch directly to arrange a time.",
       "call": "Call {phone}",
       "email": "Send an email"
-    }
+    },
+    "addToCalendar": "Add to calendar"
   },
   "Footer": {
     "blurb": "A single platform to find local services or run a booking calendar.",
@@ -295,7 +302,10 @@
     "createAccount": "Create an account",
     "company": "Company",
     "contact": "Contact",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy"
   },
   "Contact": {
     "metaTitle": "Contact us",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "Try a different status or search term."
     },
     "notifications": {
-      "subtitle": "Choose which emails you want to receive.",
+      "subtitle": "Choose what you hear about, by email and on Telegram.",
       "emailPrefs": "Notification Preferences",
       "remindersTitle": "Appointment Reminders",
-      "remindersBody": "Get an email before a booking starts.",
+      "remindersBody": "Get a reminder before a booking starts.",
       "remindersLeadLabel": "Notify me",
       "remindersMinutes": "{count} minutes",
       "remindersHours": "{count, plural, one {# hour} other {# hours}}",
       "changesTitle": "Booking Changes",
       "changesBody": "Updates when a booking is changed or cancelled.",
       "newBookingTitle": "New Bookings",
-      "newBookingBody": "Email when a client books with you."
+      "newBookingBody": "When a client books with you.",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "Get your booking notifications in Telegram as well as by email.",
+      "telegramConsumerBody": "Get reminders and booking updates in Telegram as well as by email.",
+      "telegramLocked": "Telegram notifications about your business are included from the Basic plan. <plan>See plans</plan>",
+      "telegramUnavailable": "Telegram notifications are not available right now.",
+      "telegramConnect": "Connect Telegram",
+      "telegramOpen": "Open Telegram",
+      "telegramOpenHint": "Open Telegram and press Start to finish connecting. The link works for 15 minutes.",
+      "telegramWaiting": "Waiting for Telegram…",
+      "telegramConnected": "Connected",
+      "telegramConnectedAs": "Connected as @{username}",
+      "telegramDisconnect": "Disconnect",
+      "telegramConnectFailed": "We could not start connecting Telegram",
+      "telegramDisconnectFailed": "We could not disconnect Telegram",
+      "calendarTitle": "Calendar sync",
+      "calendarBody": "Subscribe to your bookings from Google Calendar, Apple Calendar or Outlook. New bookings and changes show up there automatically.",
+      "calendarLocked": "Calendar sync is included from the Basic plan. <plan>See plans</plan>",
+      "calendarCopy": "Copy calendar link",
+      "calendarHint": "In your calendar app, add a calendar from a URL and paste this link. Keep it private: anyone who has it can see your bookings.",
+      "calendarReset": "Reset link",
+      "calendarResetTitle": "Reset your calendar link?",
+      "calendarResetBody": "The current link stops working right away. Calendars subscribed to it stop updating until you add the new one."
     },
     "payments": {
       "title": "Payments",
@@ -457,6 +489,15 @@
       "recurringBody": "Open days and hours clients can book. Add up to 5 periods on a day if you take breaks.",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
+      "timeZone": "Time zone",
+      "timeZoneHint": "Your hours are on this clock. Visitors see and book times in it, wherever they are.",
+      "timeZonePlaceholder": "Search a city, zone or offset",
+      "timeZoneSuggested": "Your time zone isn't saved yet. We've filled in this device's — publish to apply it to your public page.",
+      "timeZoneDeviceDiffers": "This device is set to {zone}.",
+      "timeFormat": "Time format",
+      "timeFormatHint": "How times appear on your public page, in booking emails and in your bookings.",
+      "timeFormat12": "12-hour ({time})",
+      "timeFormat24": "24-hour ({time})",
       "to": "to",
       "unavailable": "Unavailable",
       "addRange": "Add hours",
@@ -682,7 +723,23 @@
       "resetsOn": "Resets on {date}",
       "comparePlans": "Compare plans",
       "requestUpgrade": "Request upgrade",
-      "manualNote": "Plans are arranged by our team for now. Send a request and we will reply by email to set it up."
+      "manualNote": "Plans are arranged by our team for now. Send a request and we will reply by email to set it up.",
+      "renewsOn": "Renews on {date}",
+      "cancelsOn": "Cancelled — ends on {date}",
+      "manageBilling": "Manage billing",
+      "portalFailed": "We could not open billing",
+      "paymentFailedTitle": "Your last payment did not go through",
+      "paymentFailedBody": "Update your payment method under Manage billing to keep the {plan} plan. Paddle will try your card again.",
+      "cancelInPortal": "Cancel subscription",
+      "upgrade": "Upgrade",
+      "switch": "Switch",
+      "switchTitle": "Switch to the {plan} plan?",
+      "switchBody": "The change applies right away. The difference for the rest of this month is charged or credited to your payment method automatically.",
+      "switchConfirm": "Switch plan",
+      "switchingTitle": "Switching to {plan}…",
+      "switchPendingTitle": "Your plan change is on its way",
+      "switchPendingBody": "Paddle has accepted it, and it can take a few minutes to show here. Refresh the page in a moment.",
+      "billingNote": "Payments are handled by Paddle. Cancel, change your card or download invoices under Manage billing."
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# star} other {# stars}}",
       "pagesLabel": "Review pages",
       "loadError": "We could not load the reviews. Please try again."
-    }
+    },
+    "poweredBy": "Booking page by Bookie",
+    "poweredByCta": "Create yours free"
   },
   "Legal": {
     "termsMetaTitle": "Terms of Service",
     "termsMetaDescription": "The terms that govern your use of Bookie.",
     "termsTitle": "Terms of Service",
-    "unpublished": "Not yet published.",
-    "termsBody": "Bookie's terms of service are still being finalised. Until they are published here, questions about how the platform may be used are answered directly — reach us via the <contact>contact page</contact>.",
     "privacyMetaTitle": "Privacy Policy",
     "privacyMetaDescription": "What Bookie collects and how it is handled.",
     "privacyTitle": "Privacy Policy",
-    "privacyBody": "Bookie's privacy policy is still being finalised. Registration collects a phone number, a name and optionally an email address; the phone number is what identifies an account. For anything else, reach us via the <contact>contact page</contact>."
+    "lastUpdated": "Last updated {date}",
+    "refundMetaTitle": "Refund Policy",
+    "refundMetaDescription": "How cancellations and refunds work for Bookie's paid plans.",
+    "refundTitle": "Refund Policy",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "Acceptance of these Terms",
+          "p1": "By accessing or using Bookie (“the Service”), you agree to these Terms of Service and to our <privacy>Privacy Policy</privacy>. If you do not agree, please do not use the Service."
+        },
+        "service": {
+          "title": "The Service",
+          "p1": "Bookie is an online booking platform. Service providers publish a booking page with their services and working hours, and clients find providers and book appointments with them. Bookie provides the platform only: the services themselves are delivered by the providers, who are solely responsible for them."
+        },
+        "accounts": {
+          "title": "Accounts",
+          "p1": "You need an account to publish a booking page or to keep your bookings in one place; clients can also book without one. You are responsible for keeping your sign-in details confidential, for everything done under your account, and for keeping your information accurate. We may suspend or close accounts that break these Terms."
+        },
+        "bookings": {
+          "title": "Bookings",
+          "p1": "A booking is an arrangement between a client and a provider. Providers set their own services, prices, schedules and cancellation terms, and are paid directly by their clients — Bookie does not take payments for appointments. Bookie is not a party to that arrangement and is not responsible for a provider's services or a client's attendance."
+        },
+        "content": {
+          "title": "Your content",
+          "p1": "Providers are responsible for what they publish — descriptions, prices, photos and contact details — and must have the right to publish it. Clients are responsible for the reviews they write, which must describe a real experience. We may hide reviews or remove content that is unlawful, misleading or abusive."
+        },
+        "acceptableUse": {
+          "title": "Acceptable use",
+          "p1": "You agree not to break any law through the Service, impersonate anyone, make bookings you do not intend to keep, upload malicious code or harmful content, try to gain unauthorized access to Bookie's systems or other people's accounts, or scrape the Service in a way that places unreasonable load on it."
+        },
+        "plans": {
+          "title": "Plans and payments",
+          "p1": "Booking is always free for clients. Providers can use Bookie for free or subscribe to a paid plan, billed monthly until cancelled, at the prices on our <pricing>pricing page</pricing>. Taxes may apply depending on where you are. You can switch or cancel your plan at any time from your Plan settings; a cancellation takes effect at the end of the month you have paid for. For refunds, see our <refund>Refund Policy</refund>.",
+          "p2": "Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns."
+        },
+        "planChanges": {
+          "title": "Changes to plans and prices",
+          "p1": "We may change our plans or prices. A price change applies to an existing subscription from its next billing period, and we will tell you by email before it does. Moving to a smaller plan, or ending one, never takes away what your clients already see: bookings stay, and your page keeps working within the Free plan's limits."
+        },
+        "intellectualProperty": {
+          "title": "Intellectual property",
+          "p1": "You keep ownership of what you publish on Bookie, and you give us a license to host, display and process it only to provide the Service. The Bookie platform, software and design remain our property."
+        },
+        "termination": {
+          "title": "Ending your use of Bookie",
+          "p1": "You can delete your account at any time from your account settings. We may suspend or end your access if you break these Terms. A paid plan then ends at the close of its current billing period."
+        },
+        "disclaimer": {
+          "title": "No warranties",
+          "p1": "The Service is provided “as is” and “as available”, without warranties of any kind. We do not guarantee that it will be uninterrupted or error-free, or that any booking will take place."
+        },
+        "liability": {
+          "title": "Limitation of liability",
+          "p1": "To the fullest extent the law allows, Bookie is not liable for indirect, incidental, special, consequential or punitive damages, or for any dispute between a client and a provider. Our total liability for any claim is limited to what you paid us in the twelve months before it."
+        },
+        "changes": {
+          "title": "Changes to these Terms",
+          "p1": "We may update these Terms. We will publish the new version here with a new date. Continuing to use the Service after an update means you accept the new Terms."
+        },
+        "contact": {
+          "title": "Contact",
+          "p1": "Questions about these Terms? <contact>Contact us</contact>."
+        }
+      }
+    },
+    "privacy": {
+      "intro": "Bookie (“we”, “us”) is committed to protecting your privacy. This policy explains what we collect, why, who we share it with, and the choices you have.",
+      "sections": {
+        "collect": {
+          "title": "What we collect",
+          "p1": "<b>Account information:</b> your name, email address, phone number and password, which is stored only as a one-way hash. If you sign in with Google, we receive your Google account identifier and email address.",
+          "p2": "<b>Provider pages:</b> what a provider publishes — description, photos, services, prices, working hours, address and contact details — is public by design.",
+          "p3": "<b>Bookings:</b> the service, time, notes and preferred payment method of each booking, and — for a booking made without an account — the name, phone number and optional email address entered with it.",
+          "p4": "<b>Reviews</b> clients write about providers, and reports about reviews.",
+          "p5": "<b>Telegram:</b> if you connect Telegram for notifications, your Telegram chat identifier and username.",
+          "p6": "<b>Billing:</b> for providers on a paid plan, Paddle's customer and subscription identifiers and the subscription status. Payment details go to Paddle and never reach us."
+        },
+        "use": {
+          "title": "How we use it",
+          "p1": "To run your account and your bookings; to send booking emails — confirmations, changes, cancellations and reminders — and, if you connected it, the same notices on Telegram; to show provider pages and reviews to the public; to process subscriptions; to keep the Service secure and prevent abuse; and to answer you when you contact us."
+        },
+        "sharing": {
+          "title": "Who we share it with",
+          "p1": "We do not sell your personal data. We share it only with the services that run parts of Bookie for us, and only as much as they need:",
+          "p2": "<b>Paddle</b> — our reseller and Merchant of Record, for subscription payments, invoices and tax. Paddle handles payment details under its own privacy policy.",
+          "p3": "<b>Our email delivery service</b> — sends account and booking emails.",
+          "p4": "<b>Telegram</b> — delivers notifications, only if you connect it.",
+          "p5": "<b>Google</b> — signs you in, only if you choose to continue with Google.",
+          "p6": "A booking's details are shared with the provider it is made with, and the provider's public contact details with the client — that is what a booking is."
+        },
+        "cookies": {
+          "title": "Cookies",
+          "p1": "We use strictly necessary cookies only: one that keeps you signed in for up to 7 days, short-lived ones that hold a Google sign-in in progress, and one that remembers your language. We use no advertising or analytics cookies."
+        },
+        "retention": {
+          "title": "How long we keep it",
+          "p1": "We keep your data while your account exists. Deleting your account from your settings deletes it and your profile; a client account with appointments on record needs those cancelled first. Billing records are also kept by Paddle as tax law requires."
+        },
+        "rights": {
+          "title": "Your rights",
+          "p1": "You can see and correct most of your data in your settings, and delete your account there. For a copy of your data, or any other request about it, <contact>contact us</contact>."
+        },
+        "security": {
+          "title": "Security",
+          "p1": "Everything travels over HTTPS. Passwords are stored only as Argon2id hashes, links we email are single-use and expire, and sign-in attempts are rate-limited."
+        },
+        "children": {
+          "title": "Children",
+          "p1": "Bookie is not directed at children under 13, and we do not knowingly collect their data. If you believe a child has given us personal data, contact us and we will delete it."
+        },
+        "changes": {
+          "title": "Changes to this policy",
+          "p1": "We may update this policy. We will publish the new version here with a new date."
+        },
+        "contact": {
+          "title": "Contact",
+          "p1": "Questions about your privacy? <contact>Contact us</contact>."
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "Paid plans",
+          "p1": "Bookie's paid plans for providers are monthly subscriptions, billed in advance by Paddle, our reseller and Merchant of Record. Clients never pay Bookie anything."
+        },
+        "cancel": {
+          "title": "Cancelling",
+          "p1": "You can cancel at any time under Manage billing on your Plan settings. You keep your plan until the end of the month you have paid for, and you are not charged again."
+        },
+        "eligibility": {
+          "title": "Refunds",
+          "p1": "If you are not happy with a paid plan, ask for a refund within 14 days of your first payment for it and we will refund that payment in full. After that, we refund any charge made by mistake — for example a duplicate payment, or a renewal after you had cancelled."
+        },
+        "planChanges": {
+          "title": "Switching plans",
+          "p1": "Switching plans is prorated: moving up charges the difference for the rest of the month, and moving down credits it against your next payments."
+        },
+        "request": {
+          "title": "How to ask for a refund",
+          "p1": "<contact>Contact us</contact> with the email address of your Bookie account and the date of the charge, and we will reply within 2 business days. You can also reach Paddle from the receipt they emailed you."
+        },
+        "processing": {
+          "title": "How refunds are paid",
+          "p1": "Approved refunds are made by Paddle to your original payment method. Depending on your bank, they can take 5–10 business days to arrive."
+        },
+        "contact": {
+          "title": "Contact",
+          "p1": "Questions about this policy? <contact>Contact us</contact>."
+        }
+      }
+    }
   },
   "Services": {
     "title": "Manage services",
@@ -1013,6 +1221,8 @@
     "aboutYou": "About you",
     "whatYouDo": "What you do",
     "whenYouWork": "When you work",
+    "timeZone": "Time zone",
+    "timeZoneHint": "Your working hours are on this clock. Visitors see times in it, wherever they are.",
     "where": "Where",
     "optional": "Optional",
     "firstName": "First Name",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "This provider is not taking bookings online right now. Contact them directly to book.",
       "bookingFull": "This provider cannot take any more online bookings this month. Contact them directly to book.",
       "serviceLimit": "Your plan's limit on active services is reached. Deactivate a service or upgrade your plan to add another.",
-      "featureLocked": "This feature is not included in your plan. Upgrade your plan to use it."
+      "featureLocked": "This feature is not included in your plan. Upgrade your plan to use it.",
+      "notConfigured": "Online payments are not available right now. Request the plan instead and we will set it up for you.",
+      "alreadySubscribed": "You already have a subscription. Switch plans from your Plan settings.",
+      "noSubscription": "There is no active subscription to change."
     },
     "pages": {
       "provider": "We could not load this provider's page. Please try again.",
@@ -1152,7 +1365,9 @@
       "noEnd": "No end date",
       "save": "Save plan",
       "saved": "Plan saved",
-      "pagesLabel": "Provider pages"
+      "pagesLabel": "Provider pages",
+      "paddle": "Paddle",
+      "paddleNote": "Billed through Paddle: a manual change here is overwritten by the subscription's next update."
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "Active services",
       "maxBookingsPerMonth": "Online bookings a month",
       "analyticsHistoryDays": "Analytics history",
-      "customSlug": "Custom page link"
+      "customSlug": "Custom page link",
+      "telegramNotifications": "Telegram notifications",
+      "calendarFeed": "Calendar sync (iCal)",
+      "removeBranding": "No Bookie branding on your page"
     },
     "unlimited": "Unlimited",
     "fullHistory": "Full history",
@@ -1174,16 +1392,90 @@
     "included": "Included",
     "notIncluded": "Not included",
     "current": "Your plan",
-    "requestTitle": "Request the {plan} plan"
+    "requestTitle": "Request the {plan} plan",
+    "freeForever": "Free forever",
+    "perMonth": "/ month"
   },
   "Pricing": {
     "metaTitle": "Pricing for providers",
-    "metaDescription": "Bookie plans for service providers, from free to premium, and what each one includes. Booking is always free for clients.",
+    "metaDescription": "Bookie plans for service providers: start free, or upgrade for more services, unlimited bookings, Telegram notifications and calendar sync. Booking is always free for clients.",
     "title": "Plans for providers",
     "subtitle": "Start free and move up when your calendar fills. Clients never pay to book.",
     "startFree": "Start free",
     "requestPlan": "Request this plan",
     "clientsFree": "Clients never pay anything to book through Bookie.",
-    "manualNote": "Paid plans are arranged by our team for now. Send a request and we will reply by email to set it up."
+    "manualNote": "Paid plans are arranged by our team for now. Send a request and we will reply by email to set it up.",
+    "getStarted": "Get started",
+    "choosePlan": "Choose {plan}",
+    "seeYourPlan": "See your plan",
+    "checkoutFailed": "We could not start the checkout",
+    "billedMonthly": "Paid plans are billed monthly. Switch or cancel at any time.",
+    "localCurrencyNote": "Prices are in your local currency and include tax where it applies.",
+    "usdNote": "Prices are in US dollars. Tax is added at checkout where it applies.",
+    "includedTitle": "Included in every plan",
+    "includedSubtitle": "Free included — paid plans add capacity and conveniences on top.",
+    "included": {
+      "publicPage": "Your own booking page",
+      "onlineBooking": "Online booking around the clock",
+      "clientsFree": "Clients book for free, with or without an account",
+      "approvals": "Approve bookings before they reach your calendar",
+      "emailNotifications": "Email notifications for new bookings, changes and cancellations",
+      "reminders": "Appointment reminders for you and your clients",
+      "clientCalendar": "Add-to-calendar files for your clients",
+      "reviews": "Client reviews and ratings",
+      "analytics": "Booking analytics",
+      "explore": "Listed in Bookie's provider search",
+      "languages": "Booking pages in 16 languages"
+    },
+    "faqTitle": "Billing questions",
+    "faq": {
+      "clientsPay": {
+        "q": "Do my clients pay anything?",
+        "a": "No. Booking through Bookie is always free for clients, on every plan. Only providers choose a plan."
+      },
+      "cancel": {
+        "q": "Can I cancel at any time?",
+        "a": "Yes. Cancel under Manage billing on your Plan settings. Your plan stays active until the end of the month you have paid for, then your account moves to Free."
+      },
+      "downgrade": {
+        "q": "What happens to my page if I move to a smaller plan?",
+        "a": "Nothing your clients can see is taken away. Services above the new limit stay live and editable — you just cannot add more until you are under it. Bookings are never cancelled by a plan change."
+      },
+      "switching": {
+        "q": "Can I change plans later?",
+        "a": "Yes, at any time from your Plan settings. The change applies right away, and the difference for the rest of the month is charged or credited automatically."
+      },
+      "paymentProcessor": {
+        "q": "Who handles the payment?",
+        "a": "Payments are processed by Paddle, our reseller and Merchant of Record. Paddle accepts cards and other local payment methods, sends your receipts and invoices, and handles sales tax and VAT."
+      },
+      "currency": {
+        "q": "Which currency will I pay in?",
+        "a": "Where Paddle supports it, prices are shown and charged in your local currency, including any tax that applies where you are. Otherwise they are shown in US dollars, before tax."
+      },
+      "failedPayment": {
+        "q": "What if a payment fails?",
+        "a": "Paddle tries your card again and emails you. Your plan keeps working for a week while you update your payment method; after that your account moves to Free until a payment goes through."
+      },
+      "refunds": {
+        "q": "Can I get a refund?",
+        "a": "Yes — ask within 14 days of your first payment for a plan, or any time a charge was made by mistake. See our <refund>refund policy</refund>."
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "Checkout",
+    "checkoutOpening": "Opening the secure checkout…",
+    "checkoutSecure": "Payments are handled by Paddle, our reseller. Your card details never reach Bookie.",
+    "checkoutUnavailableTitle": "The checkout could not open",
+    "checkoutUnavailableBody": "Nothing has been charged. Go back to your plan and try again in a moment.",
+    "backToPlan": "Back to your plan",
+    "returnTitle": "Payment",
+    "confirmingTitle": "Confirming your payment…",
+    "confirmingBody": "This usually takes a few seconds. Please keep this page open.",
+    "activeTitle": "You are on the {plan} plan",
+    "activeBody": "Thank you! Everything your plan includes is available now. Paddle has emailed you a receipt.",
+    "receivedTitle": "Payment received",
+    "receivedBody": "Thank you! It can take a few minutes for your plan to update. Paddle has emailed you a receipt."
   }
 }

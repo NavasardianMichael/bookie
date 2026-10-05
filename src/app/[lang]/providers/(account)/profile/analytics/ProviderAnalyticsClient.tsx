@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Segmented } from 'antd'
 import dayjs from 'dayjs'
-import { useFormatter, useTranslations } from 'next-intl'
+import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { getProviderAnalyticsAPI } from '@api/analytics/main'
 import { CurrencyTotal, ProviderAnalytics } from '@api/analytics/types'
 import { getProviderProfileAPI } from '@api/providers/main'
+import { useAuthStore } from '@store/auth/store'
 import { ROUTES } from '@constants/routes'
+import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { BarChart, BarChartDatum } from '@components/ui/bare/BarChart'
@@ -38,6 +40,8 @@ type RangePreset = 'all' | `${(typeof RANGE_DAYS)[number]}`
 export const ProviderAnalyticsClient = () => {
   const t = useTranslations('Settings.analytics')
   const format = useFormatter()
+  const locale = useLocale()
+  const timeFormat = resolveTimeFormat(useAuthStore.use.timeFormat(), locale)
 
   const [preset, setPreset] = useState<RangePreset>('30')
   const [data, setData] = useState<ProviderAnalytics | null>(null)
@@ -180,13 +184,17 @@ export const ProviderAnalyticsClient = () => {
 
   const hourData: BarChartDatum[] = useMemo(
     () =>
-      (data?.byHour ?? []).map((entry) => ({
-        key: String(entry.hour),
-        label: String(entry.hour).padStart(2, '0'),
-        name: `${String(entry.hour).padStart(2, '0')}:00`,
-        value: entry.bookings,
-      })),
-    [data]
+      (data?.byHour ?? []).map((entry) => {
+        // On the provider's own clock: `9 AM` on the axis and `09:00 AM` in the tooltip, or `09` / `09:00`.
+        const hour = dayjs().hour(entry.hour).minute(0)
+        return {
+          key: String(entry.hour),
+          label: hour.format(timeFormat === 'h24' ? 'HH' : 'h A'),
+          name: hour.format(getTimeDisplayFormat(timeFormat)),
+          value: entry.bookings,
+        }
+      }),
+    [data, timeFormat]
   )
 
   const topServices = useMemo(() => (data?.topServices ?? []).slice(0, 5), [data])

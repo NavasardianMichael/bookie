@@ -1,6 +1,7 @@
 import en from '@messages/en.json'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AUTH_ERROR_CODES } from '@constants/auth'
+import { BILLING_ERROR_CODES } from '@constants/billing'
 import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { PLAN_ERROR_CODES } from '@constants/plans'
 import {
@@ -212,11 +213,17 @@ describe('resolveErrorCopyKey', () => {
     expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
   })
 
+  it.each(Object.entries(BILLING_ERROR_CODES))('names the catalogue copy for billing code %s', (name, code) => {
+    const classified = classifyError(axiosError({ status: 409, data: envelope(code, 'billing') }))
+    expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
+  })
+
   it('has catalogue copy for every stable code, under a unique name', () => {
     const names = [
       ...Object.keys(AUTH_ERROR_CODES),
       ...Object.keys(BOOKING_ERROR_CODES),
       ...Object.keys(PLAN_ERROR_CODES),
+      ...Object.keys(BILLING_ERROR_CODES),
     ]
     expect(new Set(names).size).toBe(names.length)
     names.forEach((name) => expect(en.Errors.codes).toHaveProperty(name))

@@ -8,6 +8,7 @@ import { ConsumerEmailNotificationPrefs } from '@interfaces/settings'
 import { DEFAULT_CONSUMER_NOTIFICATION_PREFS, toAppointmentReminderLeadMinutes } from '@constants/settings'
 import { AppointmentReminderPref } from '@components/settings/AppointmentReminderPref'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
+import { TelegramConnect } from '@components/settings/TelegramConnect'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -134,6 +135,9 @@ export const ConsumerNotificationsClient = () => {
           </Form>
         )}
       </Surface>
+
+      {/* Clients never pay, so a client's Telegram is never behind a plan. */}
+      <TelegramConnect descriptionKey='telegramConsumerBody' />
 
       <SettingsActionBar
         dirty={dirty}

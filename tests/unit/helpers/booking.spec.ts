@@ -128,6 +128,64 @@ describe('getSlotsForDate', () => {
   })
 })
 
+/**
+ * Hours are wall-clock in the **provider's** zone. Before `Provider.timeZone` they were read in
+ * the runtime's — the visitor's browser — so a booker abroad was offered the provider's 09:00
+ * at their own 09:00. TZ is pinned to UTC here, so any non-UTC answer came from `timeZone`.
+ */
+describe("getSlotsForDate in the provider's zone", () => {
+  const schedule = makeWeekSchedule({ monday: day('09:00', '12:00'), sunday: day('09:00', '11:00') })
+
+  it('reads the hours on the provider clock, whatever zone the runtime is in', () => {
+    const slots = getSlotsForDate({
+      weekSchedule: schedule,
+      date: MONDAY,
+      durationMinutes: 60,
+      now: LONG_AGO,
+      timeZone: 'Asia/Yerevan',
+    })
+
+    // 09:00, 10:00 and 11:00 in Yerevan (UTC+4).
+    expect(slots.map((slot) => slot.start.toISOString())).toEqual([
+      '2026-03-02T05:00:00.000Z',
+      '2026-03-02T06:00:00.000Z',
+      '2026-03-02T07:00:00.000Z',
+    ])
+    expect(slots[0].end.toISOString()).toBe('2026-03-02T06:00:00.000Z')
+  })
+
+  it('follows the zone across its DST change', () => {
+    // 2026-03-08 is the day New York springs forward at 02:00, from UTC-5 to UTC-4.
+    const slots = getSlotsForDate({
+      weekSchedule: schedule,
+      date: SUNDAY,
+      durationMinutes: 60,
+      now: LONG_AGO,
+      timeZone: 'America/New_York',
+    })
+
+    expect(slots.map((slot) => slot.start.toISOString())).toEqual([
+      '2026-03-08T13:00:00.000Z',
+      '2026-03-08T14:00:00.000Z',
+    ])
+  })
+
+  it('drops what is already past on the provider clock', () => {
+    const slots = getSlotsForDate({
+      weekSchedule: schedule,
+      date: MONDAY,
+      durationMinutes: 60,
+      now: new Date('2026-03-02T05:30:00.000Z'), // 09:30 in Yerevan
+      timeZone: 'Asia/Yerevan',
+    })
+
+    expect(slots.map((slot) => slot.start.toISOString())).toEqual([
+      '2026-03-02T06:00:00.000Z',
+      '2026-03-02T07:00:00.000Z',
+    ])
+  })
+})
+
 describe('getSlotsForDateRange', () => {
   const schedule = makeWeekSchedule({
     monday: day('09:00', '11:00'),
@@ -192,6 +250,15 @@ describe('countSlotsByDay', () => {
 
   it('is keyed by SUNDAY as a plain date, not a weekday name', () => {
     expect([...countSlotsByDay([{ start: SUNDAY, end: SUNDAY }]).keys()]).toEqual(['2026-03-08'])
+  })
+
+  // 21:00 UTC is already 01:00 the next day in Yerevan: the slot belongs to the day it was
+  // stepped for, or the grid would badge a day the provider is not open on.
+  it("keys a slot by the day it falls on in the provider's zone", () => {
+    const late = { start: new Date('2026-03-02T21:00:00Z'), end: new Date('2026-03-02T22:00:00Z') }
+
+    expect([...countSlotsByDay([late], 'Asia/Yerevan').keys()]).toEqual(['2026-03-03'])
+    expect([...countSlotsByDay([late]).keys()]).toEqual(['2026-03-02'])
   })
 })
 

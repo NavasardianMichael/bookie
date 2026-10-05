@@ -231,26 +231,49 @@ asserting the two constants match is the fix rather than a record of a defect.
 
 ---
 
-## Plans and billing — what Phase 1 left open
+## Plans, billing and notifications — what was knowingly left open
 
-Phase 1 (plans, limits, admin assignment, the Plan tab, `/pricing`) shipped 2026-10-01; the
-roadmap beyond it — Paddle, reminders, credits, team plans — is in
-[BILLING.md](BILLING.md). These are the edges Phase 1 knowingly stops at:
+Phase 1 (plans, limits, admin assignment, the Plan tab, `/pricing`) shipped 2026-10-01;
+Phases 2 and 3 (Paddle subscriptions, prices, legal pages; reminders, Telegram, the iCal
+feed, the branding line) on 2026-10-04. The roadmap is in [BILLING.md](BILLING.md). These
+are the edges they knowingly stop at:
 
 - **The booking allowance is a soft cap.** `createAppointment` counts, then inserts, with
   no transaction — two submits in the same instant can go one past the cap, exactly as they
   can double-book past the overlap check. One per-provider lock closes both:
   `$transaction` + `SELECT … FROM "Provider" WHERE id = $1 FOR UPDATE` around count,
   overlap and insert. It would be the codebase's first raw SQL, so it was not slipped in.
-- **The allowance month is the UTC month.** `Provider` has no timezone column, so a provider
-  east of Greenwich sees it reset a few hours into their own 1st. Same root cause as the
-  analytics `tz` parameter.
+- **The allowance month is the UTC month.** A provider east of Greenwich sees it reset a few
+  hours into their own 1st. `Provider.timeZone` now exists (2026-10-04), so the fix is to
+  bound `services/plans.ts#bookingPeriod` with `providerBookings.ts#monthRangeInZone` in the
+  provider's zone (UTC while it is null) — and the 80%/100% stamps' "sent this month" check
+  with it, or a notice can fire twice across the two month starts.
 - **Explore cannot show "full".** The card's availability pill reads `available` only; a
   full provider still looks Available until the page opens. Showing it needs a count per
   card per page render.
 - **No audit trail for plan changes.** `PATCH /admin/providers/:id/plan` logs the acting
-  `userId` to the console and nothing else. A `PlanChange` table becomes worth it once
-  Paddle writes plans too.
+  `userId`, and the Paddle webhook logs each event it applies, to the console and nothing
+  else. Now that Paddle writes plans too, a `PlanChange` table is worth adding: today a
+  disputed plan change can only be reconstructed from server logs and Paddle's dashboard.
+- **No Paddle event log.** The webhook applies subscription *snapshots* idempotently and
+  orders them by `occurred_at`, so it needs no events table to be correct — but nothing
+  records which events arrived. Paddle's dashboard (live) is the only history.
+- **A price lives twice.** `PLAN_PRICES` (the display fallback) and the Paddle price behind
+  each `PADDLE_PRICE_ID_*` must be changed together; nothing checks they agree. A startup
+  check against Paddle's `GET /prices/{id}` would catch a drift.
+- **`GET /billing/prices` is uncached.** Each `/pricing` visit is one Paddle preview,
+  rate-limited per IP (60/min). Caching by country would need the IP → country lookup
+  Paddle does for us, so it was left until traffic says otherwise.
+- **Notifications are English, links default to `/en`.** Every email and Telegram message is
+  English, and reminders (sent by a job, with no request to read a locale from) link to the
+  English pages: neither profile stores a language. A `User.locale` column, written from the
+  `NEXT_LOCALE` cookie on sign-in, would fix both — the catalogue copy exists for the UI.
+- **A failed reminder is not retried.** The job claims the send before making it, so a mail
+  or Telegram outage at that minute loses the reminder. Deliberate (a late duplicate is
+  worse), but a retry with the claim released on failure is possible.
+- **Reminders reach only what is in the next sweep batch.** 200 bookings per minute; a burst
+  beyond that is drained over the following minutes, so a 15-minute reminder could arrive
+  late on a very busy instance.
 - **Guest bookings can spend a free provider's allowance.** `POST /appointments` is public
   and rate-limited to 20/hour per address, so a hostile visitor could fill 50 in a few
   hours. A pending booking counts; declining it gives the place back.

@@ -50,8 +50,8 @@ const htmlBodyFor = (message: string, email: string): string =>
  * What a message is about, when the page sending it knows — today only the Plan tab's
  * upgrade request. **Allowlisted, never a free-text subject**: the subject line is ours,
  * and a visitor-supplied one would let anyone dress a message up as something it is not.
- * Until a payment provider is wired in, these requests are how a plan is sold
- * (docs/BILLING.md); the subject names the plan so the inbox can be worked at a glance.
+ * Where Paddle does not sell a plan (no key or price configured), these requests are how it
+ * is sold (docs/BILLING.md); the subject names the plan so the inbox can be worked at a glance.
  */
 const TOPICS = ['planUpgrade'] as const
 type Topic = (typeof TOPICS)[number]

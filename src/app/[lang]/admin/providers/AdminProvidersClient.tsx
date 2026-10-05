@@ -20,8 +20,9 @@ const PER_PAGE = 20
 const SEARCH_DEBOUNCE_MS = 300
 
 /**
- * Plan assignment — the second admin screen, and until a payment provider is wired in,
- * the only way a provider gets a paid plan (docs/BILLING.md).
+ * Plan assignment — the second admin screen: a paid plan by hand (a trial, a comp, or where
+ * Paddle does not sell it). A provider billed through Paddle is tagged, because the next
+ * webhook event overwrites a manual change (docs/BILLING.md).
  *
  * Built like `AdminReviewsClient`: a client island, no guard of its own (the API answers
  * 404 to anyone off the allowlist, read here as an empty list), and loading derived from

@@ -1,4 +1,5 @@
 import { PhoneNumber } from '@interfaces/app'
+import { TimeFormat } from '@interfaces/schedule'
 
 /** Preferred in-person payment method. */
 export type PaymentMethod = 'cash' | 'card_on_site' | 'bank_transfer'
@@ -45,6 +46,10 @@ export type ProviderDraft = {
   description?: string | null
   imageUrl?: string | null
   weekSchedule?: unknown
+  /** Drafted with `weekSchedule` — it decides what instant each of those hours is. */
+  timeZone?: string
+  /** Drafted with `timeZone`, beside which it is edited. */
+  timeFormat?: TimeFormat
   available?: boolean
   paymentInfo?: PaymentInfo | null
 }
@@ -59,4 +64,14 @@ export type ConfirmOtpPayload = {
 
 export type ChangeEmailPayload = {
   email: string
+}
+
+/**
+ * The account's Telegram link — `GET /telegram/status`. One per account, shared by both
+ * workspaces. `available` is false when the deployment has no bot configured.
+ */
+export type TelegramStatus = {
+  available: boolean
+  linked: boolean
+  username?: string
 }

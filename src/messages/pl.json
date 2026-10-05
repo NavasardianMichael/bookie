@@ -183,6 +183,7 @@
       "service": "Usługa",
       "date": "Data",
       "time": "Godzina",
+      "timeZone": "Strefa czasowa",
       "duration": "Czas trwania",
       "durationValue": "{minutes} min",
       "price": "Cena",
@@ -224,12 +225,17 @@
     "chooseDate": "Wybierz datę",
     "availableTimes": "Dostępne godziny",
     "noDatePicked": "Nie wybrano jeszcze daty",
-    "localTime": "Czas lokalny",
+    "timesShownIn": "Strefa czasowa: {zone}",
+    "yourTime": "{time} u Ciebie",
     "pickDateFirst": "Najpierw wybierz datę",
     "pickDateFirstBody": "Wybierz dzień w kalendarzu powyżej, a wolne godziny pojawią się tutaj.",
     "noOpenTimes": "Brak wolnych godzin w tym dniu",
     "noOpenTimesBody": "Spróbuj innego dnia — dni z dostępnością to te, które możesz wybrać.",
     "readyToConfirm": "Gotowe do potwierdzenia?",
+    "pickAService": "Wybierz usługę",
+    "pickAServiceHint": "Wybierz usługę powyżej, aby kontynuować.",
+    "pickServiceAndTime": "Wybierz usługę i godzinę",
+    "pickServiceAndTimeHint": "Wybierz usługę powyżej, a potem jedną z godzin tutaj, aby kontynuować.",
     "pickATime": "Wybierz godzinę",
     "pickATimeHint": "Wybierz jedną z godzin powyżej, aby kontynuować.",
     "bookNow": "Zarezerwuj teraz",
@@ -280,7 +286,8 @@
       "fullBody": "{name} nie może przyjąć więcej rezerwacji online w tym miesiącu. Skontaktuj się bezpośrednio, aby ustalić termin.",
       "call": "Zadzwoń: {phone}",
       "email": "Wyślij e-mail"
-    }
+    },
+    "addToCalendar": "Dodaj do kalendarza"
   },
   "Footer": {
     "blurb": "Jedna platforma, aby znaleźć usługi w okolicy albo prowadzić własny kalendarz rezerwacji.",
@@ -295,7 +302,10 @@
     "createAccount": "Załóż konto",
     "company": "Firma",
     "contact": "Kontakt",
-    "pricing": "Cennik"
+    "pricing": "Cennik",
+    "terms": "Regulamin",
+    "privacy": "Polityka prywatności",
+    "refund": "Polityka zwrotów"
   },
   "Contact": {
     "metaTitle": "Skontaktuj się z nami",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "Spróbuj innego statusu lub frazy."
     },
     "notifications": {
-      "subtitle": "Wybierz, które e-maile chcesz otrzymywać.",
+      "subtitle": "Wybierz, o czym chcesz otrzymywać powiadomienia — e-mailem i w Telegramie.",
       "emailPrefs": "Preferencje powiadomień",
       "remindersTitle": "Przypomnienia o wizytach",
-      "remindersBody": "Otrzymuj e-mail przed rozpoczęciem rezerwacji.",
+      "remindersBody": "Otrzymuj przypomnienie przed rozpoczęciem rezerwacji.",
       "remindersLeadLabel": "Przypomnij mi",
       "remindersMinutes": "{count} minut",
       "remindersHours": "{count, plural, one {# godzina} few {# godziny} other {# godzin}}",
       "changesTitle": "Zmiany rezerwacji",
       "changesBody": "Aktualizacje, gdy rezerwacja zostanie zmieniona lub anulowana.",
       "newBookingTitle": "Nowe rezerwacje",
-      "newBookingBody": "E-mail, gdy klient dokona u Ciebie rezerwacji."
+      "newBookingBody": "Gdy klient dokona u Ciebie rezerwacji.",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "Otrzymuj powiadomienia o rezerwacjach w Telegramie, a nie tylko e-mailem.",
+      "telegramConsumerBody": "Otrzymuj przypomnienia i informacje o rezerwacjach w Telegramie, a nie tylko e-mailem.",
+      "telegramLocked": "Powiadomienia w Telegramie o Twojej działalności są dostępne od planu Podstawowego. <plan>Zobacz plany</plan>",
+      "telegramUnavailable": "Powiadomienia w Telegramie są w tej chwili niedostępne.",
+      "telegramConnect": "Połącz z Telegramem",
+      "telegramOpen": "Otwórz Telegram",
+      "telegramOpenHint": "Otwórz Telegram i naciśnij Start, aby dokończyć łączenie. Link jest ważny przez 15 minut.",
+      "telegramWaiting": "Czekamy na Telegram…",
+      "telegramConnected": "Połączono",
+      "telegramConnectedAs": "Połączono jako @{username}",
+      "telegramDisconnect": "Rozłącz",
+      "telegramConnectFailed": "Nie udało się rozpocząć łączenia z Telegramem",
+      "telegramDisconnectFailed": "Nie udało się odłączyć Telegrama",
+      "calendarTitle": "Synchronizacja kalendarza",
+      "calendarBody": "Subskrybuj swoje rezerwacje w Google Calendar, Apple Calendar lub Outlook. Nowe rezerwacje i zmiany pojawią się tam automatycznie.",
+      "calendarLocked": "Synchronizacja kalendarza jest dostępna od planu Podstawowego. <plan>Zobacz plany</plan>",
+      "calendarCopy": "Kopiuj link do kalendarza",
+      "calendarHint": "W aplikacji kalendarza dodaj kalendarz z adresu URL i wklej ten link. Nie udostępniaj go: każdy, kto go ma, może zobaczyć Twoje rezerwacje.",
+      "calendarReset": "Zresetuj link",
+      "calendarResetTitle": "Zresetować link do kalendarza?",
+      "calendarResetBody": "Obecny link natychmiast przestanie działać. Kalendarze, które go subskrybują, przestaną się aktualizować, dopóki nie dodasz nowego."
     },
     "payments": {
       "title": "Płatności",
@@ -457,6 +489,15 @@
       "recurringBody": "Dni i godziny, które klienci mogą rezerwować. Do 5 przedziałów dziennie, jeśli robisz przerwy.",
       "pauseTitle": "Przyjmowanie rezerwacji",
       "pauseBody": "Wyłącz, aby tymczasowo wstrzymać nowe rezerwacje bez usuwania strony z listy.",
+      "timeZone": "Strefa czasowa",
+      "timeZoneHint": "Twoje godziny pracy są w tej strefie. Odwiedzający widzą i rezerwują terminy w tej strefie, gdziekolwiek są.",
+      "timeZonePlaceholder": "Szukaj miasta, strefy lub przesunięcia",
+      "timeZoneSuggested": "Strefa czasowa nie jest jeszcze zapisana. Wpisaliśmy strefę tego urządzenia — opublikuj, aby zastosować ją na stronie publicznej.",
+      "timeZoneDeviceDiffers": "Strefa czasowa tego urządzenia: {zone}.",
+      "timeFormat": "Format godziny",
+      "timeFormatHint": "Sposób wyświetlania godzin na Twojej stronie publicznej, w e-mailach o rezerwacjach i w Twoich rezerwacjach.",
+      "timeFormat12": "12-godzinny ({time})",
+      "timeFormat24": "24-godzinny ({time})",
       "to": "do",
       "unavailable": "Niedostępny",
       "addRange": "Dodaj godziny",
@@ -682,7 +723,23 @@
       "resetsOn": "Odnowienie: {date}",
       "comparePlans": "Porównaj plany",
       "requestUpgrade": "Poproś o wyższy plan",
-      "manualNote": "Na razie plany włącza nasz zespół. Wyślij prośbę, a odpowiemy e-mailem, aby go aktywować."
+      "manualNote": "Na razie plany włącza nasz zespół. Wyślij prośbę, a odpowiemy e-mailem, aby go aktywować.",
+      "renewsOn": "Odnowienie: {date}",
+      "cancelsOn": "Anulowany — kończy się: {date}",
+      "manageBilling": "Zarządzaj płatnościami",
+      "portalFailed": "Nie udało się otworzyć ustawień płatności",
+      "paymentFailedTitle": "Twoja ostatnia płatność nie powiodła się",
+      "paymentFailedBody": "Zaktualizuj metodę płatności w sekcji „Zarządzaj płatnościami”, aby zachować plan {plan}. Paddle ponowi obciążenie karty.",
+      "cancelInPortal": "Anuluj subskrypcję",
+      "upgrade": "Ulepsz",
+      "switch": "Zmień",
+      "switchTitle": "Przejść na plan {plan}?",
+      "switchBody": "Zmiana działa od razu. Różnica za pozostałą część miesiąca zostanie automatycznie pobrana z Twojej metody płatności lub zaliczona na Twoją korzyść.",
+      "switchConfirm": "Zmień plan",
+      "switchingTitle": "Przechodzenie na plan {plan}…",
+      "switchPendingTitle": "Zmiana planu jest w toku",
+      "switchPendingBody": "Paddle ją przyjął, ale jej pojawienie się tutaj może potrwać kilka minut. Odśwież stronę za chwilę.",
+      "billingNote": "Płatności obsługuje Paddle. Anuluj, zmień kartę lub pobierz faktury w sekcji „Zarządzaj płatnościami”."
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# gwiazdka} other {# gwiazdek}}",
       "pagesLabel": "Strony opinii",
       "loadError": "Nie udało się wczytać opinii. Spróbuj ponownie."
-    }
+    },
+    "poweredBy": "Strona rezerwacji stworzona w Bookie",
+    "poweredByCta": "Utwórz własną za darmo"
   },
   "Legal": {
     "termsMetaTitle": "Regulamin",
     "termsMetaDescription": "Warunki korzystania z Bookie.",
     "termsTitle": "Regulamin",
-    "unpublished": "Jeszcze nieopublikowane.",
-    "termsBody": "Regulamin Bookie jest nadal opracowywany. Do czasu jego publikacji tutaj odpowiadamy na pytania o korzystanie z platformy bezpośrednio — napisz do nas przez <contact>stronę kontaktową</contact>.",
     "privacyMetaTitle": "Polityka prywatności",
     "privacyMetaDescription": "Co Bookie zbiera i jak są przetwarzane te dane.",
     "privacyTitle": "Polityka prywatności",
-    "privacyBody": "Polityka prywatności Bookie jest nadal opracowywana. Rejestracja zbiera numer telefonu, imię i opcjonalnie adres e-mail; to numer telefonu identyfikuje konto. W innych sprawach napisz do nas przez <contact>stronę kontaktową</contact>."
+    "lastUpdated": "Ostatnia aktualizacja: {date}",
+    "refundMetaTitle": "Polityka zwrotów",
+    "refundMetaDescription": "Jak działają anulowanie i zwroty w płatnych planach Bookie.",
+    "refundTitle": "Polityka zwrotów",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "Akceptacja Regulaminu",
+          "p1": "Uzyskując dostęp do Bookie („Serwis”) lub korzystając z niego, akceptujesz niniejszy Regulamin oraz naszą <privacy>Politykę prywatności</privacy>. Jeśli się nie zgadzasz, nie korzystaj z Serwisu."
+        },
+        "service": {
+          "title": "Serwis",
+          "p1": "Bookie to internetowa platforma rezerwacji. Usługodawcy publikują stronę rezerwacji ze swoimi usługami i godzinami pracy, a klienci znajdują usługodawców i rezerwują u nich wizyty. Bookie zapewnia wyłącznie platformę: same usługi świadczą usługodawcy, którzy ponoszą za nie wyłączną odpowiedzialność."
+        },
+        "accounts": {
+          "title": "Konta",
+          "p1": "Konto jest potrzebne, aby opublikować stronę rezerwacji lub mieć wszystkie swoje rezerwacje w jednym miejscu; klienci mogą też rezerwować bez konta. Odpowiadasz za zachowanie poufności swoich danych logowania, za wszystko, co dzieje się na Twoim koncie, oraz za poprawność swoich danych. Możemy zawiesić lub zamknąć konta naruszające niniejszy Regulamin."
+        },
+        "bookings": {
+          "title": "Rezerwacje",
+          "p1": "Rezerwacja to umowa między klientem a usługodawcą. Usługodawcy sami ustalają swoje usługi, ceny, harmonogramy i warunki odwołania, a klienci płacą im bezpośrednio — Bookie nie przyjmuje płatności za wizyty. Bookie nie jest stroną tej umowy i nie odpowiada za usługi usługodawcy ani za stawienie się klienta."
+        },
+        "content": {
+          "title": "Twoje treści",
+          "p1": "Usługodawcy odpowiadają za to, co publikują — opisy, ceny, zdjęcia i dane kontaktowe — i muszą mieć prawo do ich publikacji. Klienci odpowiadają za pisane przez siebie opinie, które muszą opisywać rzeczywiste doświadczenia. Możemy ukrywać opinie lub usuwać treści niezgodne z prawem, wprowadzające w błąd lub obraźliwe."
+        },
+        "acceptableUse": {
+          "title": "Dozwolone korzystanie",
+          "p1": "Zobowiązujesz się nie łamać prawa za pośrednictwem Serwisu, nie podszywać się pod nikogo, nie dokonywać rezerwacji, z których nie zamierzasz skorzystać, nie przesyłać złośliwego kodu ani szkodliwych treści, nie próbować uzyskać nieuprawnionego dostępu do systemów Bookie ani kont innych osób oraz nie pobierać automatycznie danych z Serwisu (scraping) w sposób, który nadmiernie go obciąża."
+        },
+        "plans": {
+          "title": "Plany i płatności",
+          "p1": "Rezerwacja jest zawsze bezpłatna dla klientów. Usługodawcy mogą korzystać z Bookie za darmo lub wykupić subskrypcję płatnego planu, rozliczaną co miesiąc aż do anulowania, według cen podanych na naszej <pricing>stronie z cennikiem</pricing>. W zależności od Twojej lokalizacji mogą obowiązywać podatki. Możesz zmienić lub anulować plan w dowolnym momencie w ustawieniach planu; anulowanie wchodzi w życie z końcem opłaconego miesiąca. Informacje o zwrotach znajdziesz w naszej <refund>Polityce zwrotów</refund>.",
+          "p2": "Proces zamówienia prowadzi nasz internetowy odsprzedawca Paddle.com. Paddle.com jest Merchant of Record (sprzedawcą) w odniesieniu do wszystkich naszych zamówień. Paddle odpowiada na wszystkie zapytania z zakresu obsługi klienta i obsługuje zwroty."
+        },
+        "planChanges": {
+          "title": "Zmiany planów i cen",
+          "p1": "Możemy zmieniać nasze plany lub ceny. Zmiana ceny dotyczy istniejącej subskrypcji od następnego okresu rozliczeniowego, a poinformujemy Cię o niej e-mailem, zanim to nastąpi. Przejście na niższy plan lub jego zakończenie nigdy nie odbiera tego, co już widzą Twoi klienci: rezerwacje pozostają, a Twoja strona nadal działa w ramach limitów planu Darmowego."
+        },
+        "intellectualProperty": {
+          "title": "Własność intelektualna",
+          "p1": "Zachowujesz prawa do tego, co publikujesz w Bookie, i udzielasz nam licencji na hostowanie, wyświetlanie i przetwarzanie tych treści wyłącznie w celu świadczenia Serwisu. Platforma, oprogramowanie i projekt Bookie pozostają naszą własnością."
+        },
+        "termination": {
+          "title": "Zakończenie korzystania z Bookie",
+          "p1": "Możesz usunąć swoje konto w dowolnym momencie w ustawieniach konta. Możemy zawiesić lub zakończyć Twój dostęp, jeśli naruszysz niniejszy Regulamin. Płatny plan kończy się wtedy z końcem bieżącego okresu rozliczeniowego."
+        },
+        "disclaimer": {
+          "title": "Brak gwarancji",
+          "p1": "Serwis jest udostępniany „w stanie, w jakim jest” i „w miarę dostępności”, bez jakichkolwiek gwarancji. Nie gwarantujemy, że będzie działał bez przerw i błędów ani że jakakolwiek rezerwacja dojdzie do skutku."
+        },
+        "liability": {
+          "title": "Ograniczenie odpowiedzialności",
+          "p1": "W najszerszym zakresie dozwolonym przez prawo Bookie nie ponosi odpowiedzialności za szkody pośrednie, przypadkowe, szczególne, wynikowe ani o charakterze karnym, ani za jakiekolwiek spory między klientem a usługodawcą. Nasza łączna odpowiedzialność z tytułu jakiegokolwiek roszczenia jest ograniczona do kwoty zapłaconej nam przez Ciebie w ciągu dwunastu miesięcy poprzedzających to roszczenie."
+        },
+        "changes": {
+          "title": "Zmiany Regulaminu",
+          "p1": "Możemy aktualizować niniejszy Regulamin. Nową wersję opublikujemy tutaj z nową datą. Dalsze korzystanie z Serwisu po aktualizacji oznacza akceptację nowego Regulaminu."
+        },
+        "contact": {
+          "title": "Kontakt",
+          "p1": "Masz pytania dotyczące Regulaminu? <contact>Skontaktuj się z nami</contact>."
+        }
+      }
+    },
+    "privacy": {
+      "intro": "Bookie („my”, „nas”) dba o ochronę Twojej prywatności. Niniejsza polityka wyjaśnia, jakie dane zbieramy, w jakim celu, komu je udostępniamy i jakie masz możliwości wyboru.",
+      "sections": {
+        "collect": {
+          "title": "Jakie dane zbieramy",
+          "p1": "<b>Dane konta:</b> imię i nazwisko, adres e-mail, numer telefonu oraz hasło, które przechowujemy wyłącznie w postaci jednokierunkowego skrótu (hash). Jeśli logujesz się przez Google, otrzymujemy identyfikator Twojego konta Google i adres e-mail.",
+          "p2": "<b>Strony usługodawców:</b> to, co publikuje usługodawca — opis, zdjęcia, usługi, ceny, godziny pracy, adres i dane kontaktowe — jest z założenia publiczne.",
+          "p3": "<b>Rezerwacje:</b> usługa, termin, uwagi i preferowana metoda płatności każdej rezerwacji, a w przypadku rezerwacji dokonanej bez konta — imię i nazwisko, numer telefonu i opcjonalny adres e-mail podane przy niej.",
+          "p4": "<b>Opinie</b>, które klienci piszą o usługodawcach, oraz zgłoszenia dotyczące opinii.",
+          "p5": "<b>Telegram:</b> jeśli połączysz Telegram w celu otrzymywania powiadomień — identyfikator Twojego czatu w Telegramie i nazwa użytkownika.",
+          "p6": "<b>Rozliczenia:</b> w przypadku usługodawców z płatnym planem — identyfikatory klienta i subskrypcji w Paddle oraz status subskrypcji. Dane płatnicze trafiają do Paddle i nigdy nie docierają do nas."
+        },
+        "use": {
+          "title": "Jak je wykorzystujemy",
+          "p1": "Aby prowadzić Twoje konto i rezerwacje; aby wysyłać e-maile dotyczące rezerwacji — potwierdzenia, zmiany, odwołania i przypomnienia — oraz, jeśli połączysz Telegram, te same powiadomienia w Telegramie; aby publicznie wyświetlać strony usługodawców i opinie; aby obsługiwać subskrypcje; aby dbać o bezpieczeństwo Serwisu i zapobiegać nadużyciom; oraz aby odpowiadać, gdy się z nami kontaktujesz."
+        },
+        "sharing": {
+          "title": "Komu je udostępniamy",
+          "p1": "Nie sprzedajemy Twoich danych osobowych. Udostępniamy je wyłącznie usługom, które obsługują dla nas części Bookie, i tylko w niezbędnym dla nich zakresie:",
+          "p2": "<b>Paddle</b> — nasz odsprzedawca i Merchant of Record, w zakresie płatności za subskrypcje, faktur i podatków. Paddle przetwarza dane płatnicze zgodnie z własną polityką prywatności.",
+          "p3": "<b>Nasz dostawca wysyłki e-maili</b> — wysyła e-maile dotyczące konta i rezerwacji.",
+          "p4": "<b>Telegram</b> — dostarcza powiadomienia, tylko jeśli go połączysz.",
+          "p5": "<b>Google</b> — obsługuje logowanie, tylko jeśli zdecydujesz się kontynuować przez Google.",
+          "p6": "Szczegóły rezerwacji są udostępniane usługodawcy, u którego jej dokonano, a publiczne dane kontaktowe usługodawcy — klientowi. Na tym właśnie polega rezerwacja."
+        },
+        "cookies": {
+          "title": "Pliki cookie",
+          "p1": "Używamy wyłącznie niezbędnych plików cookie: jednego, który utrzymuje sesję logowania do 7 dni, krótkotrwałych, które przechowują trwające logowanie przez Google, oraz jednego, który zapamiętuje Twój język. Nie używamy reklamowych ani analitycznych plików cookie."
+        },
+        "retention": {
+          "title": "Jak długo je przechowujemy",
+          "p1": "Przechowujemy Twoje dane, dopóki istnieje Twoje konto. Usunięcie konta w ustawieniach usuwa je wraz z Twoim profilem; w przypadku konta klienta z zapisanymi wizytami trzeba je najpierw odwołać. Dane rozliczeniowe są również przechowywane przez Paddle zgodnie z wymogami prawa podatkowego."
+        },
+        "rights": {
+          "title": "Twoje prawa",
+          "p1": "Większość swoich danych możesz przeglądać i poprawiać w ustawieniach, a także usunąć tam swoje konto. Aby otrzymać kopię swoich danych lub złożyć inne żądanie ich dotyczące, <contact>skontaktuj się z nami</contact>."
+        },
+        "security": {
+          "title": "Bezpieczeństwo",
+          "p1": "Cała komunikacja odbywa się przez HTTPS. Hasła są przechowywane wyłącznie jako skróty Argon2id, linki wysyłane przez nas e-mailem są jednorazowe i wygasają, a liczba prób logowania jest ograniczona."
+        },
+        "children": {
+          "title": "Dzieci",
+          "p1": "Bookie nie jest skierowany do dzieci poniżej 13 lat i nie zbieramy świadomie ich danych. Jeśli uważasz, że dziecko przekazało nam dane osobowe, skontaktuj się z nami, a je usuniemy."
+        },
+        "changes": {
+          "title": "Zmiany niniejszej polityki",
+          "p1": "Możemy aktualizować niniejszą politykę. Nową wersję opublikujemy tutaj z nową datą."
+        },
+        "contact": {
+          "title": "Kontakt",
+          "p1": "Masz pytania dotyczące prywatności? <contact>Skontaktuj się z nami</contact>."
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "Płatne plany",
+          "p1": "Płatne plany Bookie dla usługodawców to miesięczne subskrypcje, rozliczane z góry przez Paddle, naszego odsprzedawcę i Merchant of Record. Klienci nigdy nic nie płacą Bookie."
+        },
+        "cancel": {
+          "title": "Anulowanie",
+          "p1": "Możesz anulować w dowolnym momencie w sekcji „Zarządzaj płatnościami” w ustawieniach planu. Zachowujesz swój plan do końca opłaconego miesiąca i nie pobierzemy już kolejnej opłaty."
+        },
+        "eligibility": {
+          "title": "Zwroty",
+          "p1": "Jeśli płatny plan Ci nie odpowiada, poproś o zwrot w ciągu 14 dni od pierwszej płatności za ten plan, a zwrócimy tę płatność w całości. Po tym czasie zwracamy każdą opłatę pobraną przez pomyłkę — na przykład podwójną płatność lub odnowienie po anulowaniu."
+        },
+        "planChanges": {
+          "title": "Zmiana planu",
+          "p1": "Zmiana planu jest rozliczana proporcjonalnie: przejście na wyższy plan oznacza dopłatę różnicy za resztę miesiąca, a przejście na niższy — zaliczenie różnicy na poczet kolejnych płatności."
+        },
+        "request": {
+          "title": "Jak poprosić o zwrot",
+          "p1": "<contact>Skontaktuj się z nami</contact>, podając adres e-mail swojego konta Bookie i datę pobrania opłaty, a odpowiemy w ciągu 2 dni roboczych. Możesz też skontaktować się z Paddle przez potwierdzenie płatności, które wysłał Ci e-mailem."
+        },
+        "processing": {
+          "title": "Jak wypłacane są zwroty",
+          "p1": "Zatwierdzone zwroty Paddle przekazuje na Twoją pierwotną metodę płatności. W zależności od banku środki mogą dotrzeć w ciągu 5–10 dni roboczych."
+        },
+        "contact": {
+          "title": "Kontakt",
+          "p1": "Masz pytania dotyczące tej polityki? <contact>Skontaktuj się z nami</contact>."
+        }
+      }
+    }
   },
   "Services": {
     "title": "Zarządzaj usługami",
@@ -1013,6 +1221,8 @@
     "aboutYou": "O Tobie",
     "whatYouDo": "Czym się zajmujesz",
     "whenYouWork": "Kiedy pracujesz",
+    "timeZone": "Strefa czasowa",
+    "timeZoneHint": "Twoje godziny pracy są w tej strefie. Odwiedzający widzą terminy w tej strefie, gdziekolwiek są.",
     "where": "Gdzie",
     "optional": "Opcjonalne",
     "firstName": "Imię",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "Ten usługodawca nie przyjmuje teraz rezerwacji online. Skontaktuj się bezpośrednio, aby zarezerwować.",
       "bookingFull": "Ten usługodawca nie może przyjąć więcej rezerwacji online w tym miesiącu. Skontaktuj się bezpośrednio, aby zarezerwować.",
       "serviceLimit": "Osiągnięto limit aktywnych usług w Twoim planie. Dezaktywuj jedną usługę lub przejdź na wyższy plan, aby dodać kolejną.",
-      "featureLocked": "Ta funkcja nie jest dostępna w Twoim planie. Przejdź na wyższy plan, aby z niej korzystać."
+      "featureLocked": "Ta funkcja nie jest dostępna w Twoim planie. Przejdź na wyższy plan, aby z niej korzystać.",
+      "notConfigured": "Płatności online są w tej chwili niedostępne. Zamiast tego poproś o plan, a my go dla Ciebie włączymy.",
+      "alreadySubscribed": "Masz już subskrypcję. Zmień plan w ustawieniach planu.",
+      "noSubscription": "Nie ma aktywnej subskrypcji do zmiany."
     },
     "pages": {
       "provider": "Nie udało się załadować strony tego usługodawcy. Spróbuj ponownie.",
@@ -1152,7 +1365,9 @@
       "noEnd": "Bez daty końcowej",
       "save": "Zapisz plan",
       "saved": "Plan zapisany",
-      "pagesLabel": "Strony usługodawców"
+      "pagesLabel": "Strony usługodawców",
+      "paddle": "Paddle",
+      "paddleNote": "Rozliczany przez Paddle: ręczna zmiana tutaj zostanie nadpisana przy następnej aktualizacji subskrypcji."
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "Aktywne usługi",
       "maxBookingsPerMonth": "Rezerwacje online miesięcznie",
       "analyticsHistoryDays": "Historia statystyk",
-      "customSlug": "Własny link"
+      "customSlug": "Własny link",
+      "telegramNotifications": "Powiadomienia w Telegramie",
+      "calendarFeed": "Synchronizacja kalendarza (iCal)",
+      "removeBranding": "Brak oznaczeń Bookie na Twojej stronie"
     },
     "unlimited": "Bez limitu",
     "fullHistory": "Cała historia",
@@ -1174,16 +1392,90 @@
     "included": "W planie",
     "notIncluded": "Brak",
     "current": "Twój plan",
-    "requestTitle": "Poproś o plan {plan}"
+    "requestTitle": "Poproś o plan {plan}",
+    "freeForever": "Za darmo na zawsze",
+    "perMonth": "/ mies."
   },
   "Pricing": {
     "metaTitle": "Cennik dla usługodawców",
-    "metaDescription": "Plany Bookie dla usługodawców — od darmowego po premium — i co zawiera każdy z nich. Rezerwacja jest zawsze bezpłatna dla klientów.",
+    "metaDescription": "Plany Bookie dla usługodawców: zacznij za darmo lub przejdź na wyższy plan, aby mieć więcej usług, nielimitowane rezerwacje, powiadomienia w Telegramie i synchronizację kalendarza. Rezerwacja jest zawsze bezpłatna dla klientów.",
     "title": "Plany dla usługodawców",
     "subtitle": "Zacznij za darmo i przejdź na wyższy plan, gdy kalendarz się zapełni. Klienci nigdy nie płacą za rezerwację.",
     "startFree": "Zacznij za darmo",
     "requestPlan": "Poproś o ten plan",
     "clientsFree": "Klienci nigdy nic nie płacą za rezerwację przez Bookie.",
-    "manualNote": "Na razie płatne plany włącza nasz zespół. Wyślij prośbę, a odpowiemy e-mailem, aby go aktywować."
+    "manualNote": "Na razie płatne plany włącza nasz zespół. Wyślij prośbę, a odpowiemy e-mailem, aby go aktywować.",
+    "getStarted": "Zacznij",
+    "choosePlan": "Wybierz plan {plan}",
+    "seeYourPlan": "Zobacz swój plan",
+    "checkoutFailed": "Nie udało się rozpocząć płatności",
+    "billedMonthly": "Płatne plany są rozliczane co miesiąc. Możesz je zmienić lub anulować w dowolnym momencie.",
+    "localCurrencyNote": "Ceny są podane w Twojej lokalnej walucie i zawierają podatek, jeśli ma on zastosowanie.",
+    "usdNote": "Ceny są podane w dolarach amerykańskich. Podatek, jeśli ma zastosowanie, jest doliczany przy płatności.",
+    "includedTitle": "W każdym planie",
+    "includedSubtitle": "Wszystko to masz już w planie Darmowym — płatne plany dodają większe limity i udogodnienia.",
+    "included": {
+      "publicPage": "Własna strona rezerwacji",
+      "onlineBooking": "Rezerwacje online przez całą dobę",
+      "clientsFree": "Klienci rezerwują za darmo, z kontem lub bez",
+      "approvals": "Zatwierdzanie rezerwacji, zanim trafią do Twojego kalendarza",
+      "emailNotifications": "Powiadomienia e-mail o nowych rezerwacjach, zmianach i odwołaniach",
+      "reminders": "Przypomnienia o wizytach dla Ciebie i Twoich klientów",
+      "clientCalendar": "Pliki do dodania wizyty do kalendarza dla Twoich klientów",
+      "reviews": "Opinie i oceny klientów",
+      "analytics": "Statystyki rezerwacji",
+      "explore": "Obecność w wyszukiwarce usługodawców Bookie",
+      "languages": "Strony rezerwacji w 16 językach"
+    },
+    "faqTitle": "Pytania o płatności",
+    "faq": {
+      "clientsPay": {
+        "q": "Czy moi klienci za coś płacą?",
+        "a": "Nie. Rezerwacja przez Bookie jest zawsze bezpłatna dla klientów, w każdym planie. Plan wybierają tylko usługodawcy."
+      },
+      "cancel": {
+        "q": "Czy mogę anulować w dowolnym momencie?",
+        "a": "Tak. Anuluj w sekcji „Zarządzaj płatnościami” w ustawieniach planu. Twój plan pozostaje aktywny do końca opłaconego miesiąca, a potem konto przechodzi na plan Darmowy."
+      },
+      "downgrade": {
+        "q": "Co stanie się z moją stroną, jeśli przejdę na niższy plan?",
+        "a": "Nic, co widzą Twoi klienci, nie zniknie. Usługi ponad nowy limit pozostają widoczne i można je edytować — po prostu nie możesz dodawać kolejnych, dopóki nie zejdziesz poniżej limitu. Zmiana planu nigdy nie anuluje rezerwacji."
+      },
+      "switching": {
+        "q": "Czy mogę później zmienić plan?",
+        "a": "Tak, w dowolnym momencie w ustawieniach planu. Zmiana działa od razu, a różnica za resztę miesiąca jest automatycznie dopłacana lub zaliczana na poczet kolejnych płatności."
+      },
+      "paymentProcessor": {
+        "q": "Kto obsługuje płatności?",
+        "a": "Płatności obsługuje Paddle, nasz odsprzedawca i Merchant of Record. Paddle przyjmuje karty i inne lokalne metody płatności, wysyła Twoje potwierdzenia płatności i faktury oraz rozlicza podatek od sprzedaży i VAT."
+      },
+      "currency": {
+        "q": "W jakiej walucie zapłacę?",
+        "a": "Tam, gdzie Paddle to obsługuje, ceny są wyświetlane i pobierane w Twojej lokalnej walucie, łącznie z podatkiem obowiązującym w Twojej lokalizacji. W przeciwnym razie są podawane w dolarach amerykańskich, bez podatku."
+      },
+      "failedPayment": {
+        "q": "Co jeśli płatność się nie powiedzie?",
+        "a": "Paddle ponowi obciążenie karty i wyśle Ci e-mail. Twój plan działa jeszcze przez tydzień, w czasie którego możesz zaktualizować metodę płatności; potem konto przechodzi na plan Darmowy, dopóki płatność nie zostanie zrealizowana."
+      },
+      "refunds": {
+        "q": "Czy mogę otrzymać zwrot pieniędzy?",
+        "a": "Tak — poproś o niego w ciągu 14 dni od pierwszej płatności za plan lub w dowolnym momencie, jeśli opłata została pobrana przez pomyłkę. Zobacz naszą <refund>politykę zwrotów</refund>."
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "Płatność",
+    "checkoutOpening": "Otwieranie bezpiecznej płatności…",
+    "checkoutSecure": "Płatności obsługuje Paddle, nasz odsprzedawca. Dane Twojej karty nigdy nie trafiają do Bookie.",
+    "checkoutUnavailableTitle": "Nie udało się otworzyć płatności",
+    "checkoutUnavailableBody": "Nic nie zostało pobrane. Wróć do swojego planu i spróbuj ponownie za chwilę.",
+    "backToPlan": "Wróć do swojego planu",
+    "returnTitle": "Płatność",
+    "confirmingTitle": "Potwierdzanie płatności…",
+    "confirmingBody": "Zwykle trwa to kilka sekund. Nie zamykaj tej strony.",
+    "activeTitle": "Korzystasz z planu {plan}",
+    "activeBody": "Dziękujemy! Wszystko, co obejmuje Twój plan, jest już dostępne. Paddle wysłał Ci potwierdzenie płatności e-mailem.",
+    "receivedTitle": "Płatność otrzymana",
+    "receivedBody": "Dziękujemy! Aktualizacja planu może potrwać kilka minut. Paddle wysłał Ci potwierdzenie płatności e-mailem."
   }
 }

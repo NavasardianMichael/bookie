@@ -90,6 +90,7 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set<string>([
   'pricing',
   'terms',
   'privacy',
+  'refund-policy',
   'routes-overview',
   // Locale codes.
   ...LOCALE_SLUGS,

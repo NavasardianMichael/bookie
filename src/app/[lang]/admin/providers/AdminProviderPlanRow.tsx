@@ -79,6 +79,7 @@ export const AdminProviderPlanRow: FC<Props> = ({ provider, onSaved }) => {
         <div className='flex flex-wrap items-center gap-2'>
           {!provider.listed && <Tag>{t('unlisted')}</Tag>}
           <Tag color={PLAN_TAG_COLORS[provider.effectivePlan]}>{tPlans(`names.${provider.effectivePlan}`)}</Tag>
+          {provider.billing === 'paddle' && <Tag color='cyan'>{t('paddle')}</Tag>}
           {provider.planExpiresAt &&
             (lapsed ? (
               <Tag color='red'>
@@ -123,6 +124,13 @@ export const AdminProviderPlanRow: FC<Props> = ({ provider, onSaved }) => {
           {t('save')}
         </AppButton>
       </div>
+
+      {/* A live subscription's next webhook event rewrites the plan, so a manual change is temporary. */}
+      {provider.billing === 'paddle' && (
+        <AppText size='caption' tone='muted'>
+          {t('paddleNote')}
+        </AppText>
+      )}
     </Surface>
   )
 }

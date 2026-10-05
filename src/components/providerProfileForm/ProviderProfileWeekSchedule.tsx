@@ -5,15 +5,20 @@ import { EditOutlined, MinusCircleFilled, PlusOutlined } from '@ant-design/icons
 import { Checkbox, CheckboxProps, Col, Flex, Row, TimePicker, Typography } from 'antd'
 import { RangePickerProps } from 'antd/es/date-picker'
 import { Rule } from 'antd/es/form'
-import { useTranslations } from 'next-intl'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { useLocale, useTranslations } from 'next-intl'
 import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
 import { WeekDay } from '@interfaces/schedule'
-import { SCHEDULE_DISPLAY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
+import { SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from '@helpers/schedule'
+import { getLocaleTimeFormat, getTimeDisplayFormat } from '@helpers/timeFormat'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppSheet } from '@components/ui/AppSheet'
 import { WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS } from './constants'
+
+dayjs.extend(customParseFormat)
 
 /**
  * Injected by `Form.Item` — see `ProviderProfileFormCategories` for why a custom control
@@ -32,6 +37,9 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
   const t = useTranslations('ProfileCreation')
   const tDays = useTranslations('Settings.availability.days')
   const tCommon = useTranslations('Common')
+  // No clock has been chosen yet at sign-up — that is the Availability tab's — so the locale's.
+  const timeFormat = getLocaleTimeFormat(useLocale())
+  const timeDisplayFormat = getTimeDisplayFormat(timeFormat)
   const [isEditScheduleModalOpened, setIsEditScheduleModalOpened] = useState(false)
   const [selectedDays, setSelectedDays] = useState<Partial<Record<WeekDay, boolean>>>({})
   const [tempAvailability, setTempAvailability] = useState<RangePickerProps['value']>([undefined, undefined])
@@ -165,10 +173,10 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
       </Typography.Paragraph>
       <TimePicker.RangePicker
         className='grow'
-        use12Hours
+        use12Hours={timeFormat === 'h12'}
         showNow
         value={tempAvailability}
-        format={SCHEDULE_DISPLAY_FORMAT}
+        format={timeDisplayFormat}
         onChange={onAvailabilityChange}
         minuteStep={5}
         separator={'-'}
@@ -182,10 +190,10 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
           <Flex gap={8} key={index} align='center'>
             <TimePicker.RangePicker
               className='grow'
-              use12Hours
+              use12Hours={timeFormat === 'h12'}
               showNow
               value={range}
-              format={SCHEDULE_DISPLAY_FORMAT}
+              format={timeDisplayFormat}
               onChange={(dates, dateStrings) => onRangeChange(dates, dateStrings, index)}
               minuteStep={5}
               separator={'-'}
@@ -270,7 +278,9 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
                   <Flex key={day} gap={4}>
                     <Typography.Text className='font-semibold tnum'>{tDays(day)}: </Typography.Text>
                     <Typography.Text className='tnum'>
-                      {splittedSchedule.map((range) => `${range.start} - ${range.end}`).join(' | ') || '-'}
+                      {splittedSchedule
+                        .map((range) => [range.start, range.end].map((time) => dayjs(time, SCHEDULE_VALUE_FORMAT).format(timeDisplayFormat)).join(' - '))
+                        .join(' | ') || '-'}
                     </Typography.Text>
                   </Flex>
                 )

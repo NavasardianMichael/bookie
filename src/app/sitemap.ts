@@ -22,6 +22,7 @@ const INDEXABLE_ROUTE_KEYS = [
   ROUTE_KEYS.contact,
   ROUTE_KEYS.terms,
   ROUTE_KEYS.privacy,
+  ROUTE_KEYS.refundPolicy,
 ] as const
 
 /** Marketing surfaces change more than legal boilerplate; crawlers use this as a hint. */
@@ -34,6 +35,7 @@ const CHANGE_FREQUENCY: Partial<Record<(typeof INDEXABLE_ROUTE_KEYS)[number], Me
     [ROUTE_KEYS.pricing]: 'monthly',
     [ROUTE_KEYS.terms]: 'yearly',
     [ROUTE_KEYS.privacy]: 'yearly',
+    [ROUTE_KEYS.refundPolicy]: 'yearly',
   }
 
 /**

@@ -14,6 +14,17 @@ enum Plan {
   premium
 }
 
+/// A Paddle subscription's `status`, mirrored by the billing webhook. Display and
+/// bookkeeping only — what a provider may do is still `plan` + `planExpiresAt` through
+/// `getEntitlements`, which the webhook writes from this (`services/billing.ts`).
+enum BillingStatus {
+  active
+  trialing
+  past_due
+  paused
+  canceled
+}
+
 /// The lifecycle of a booking.
 ///
 /// `pending` is the only value that is not reached by default: it is written at create
@@ -42,6 +53,13 @@ enum AppointmentStatus {
 enum AuthProvider {
   local
   google
+}
+
+/// `Provider.timeFormat`: the clock a provider's times are printed on. Named `h12`/`h24`
+/// because an enum value cannot start with a digit; `lib/time-format.ts` maps them to `Intl`.
+enum TimeFormat {
+  h12
+  h24
 }
 
 model User {
@@ -104,6 +122,20 @@ model User {
   /// wants anyway.
   passwordResetTokenHash     String?      @unique
   passwordResetExpiresAt     DateTime?
+
+  /// The Telegram chat notifications go to (docs/NOTIFICATIONS.md). On the `User`, not a
+  /// profile: one person, one Telegram, whichever workspace a notice is about. A string,
+  /// because chat ids exceed 32 bits and JSON has no BigInt. Unique so one chat cannot be
+  /// claimed by two accounts — linking it to a second account moves it.
+  telegramChatId             String?      @unique
+  /// Shown on the Notifications tab as "Connected as @…". Telegram usernames are optional.
+  telegramUsername           String?
+  telegramLinkedAt           DateTime?
+  /// The `/start` payload of the Connect deep link, hashed — the same one-live-token pattern
+  /// as the two links above. Telegram caps the payload at 64 characters, which is why it is
+  /// a random token rather than a signed one.
+  telegramLinkTokenHash      String?      @unique
+  telegramLinkExpiresAt      DateTime?
 
   createdAt                  DateTime     @default(now())
   updatedAt                  DateTime     @updatedAt
@@ -203,20 +235,55 @@ model Provider {
   listed                 Boolean            @default(false)
   /// What the provider is subscribed to. **Never read directly to gate a feature** — go
   /// through `services/plans.ts#getEntitlements`, which also applies `planExpiresAt`.
-  /// Assigned by an admin today (`PATCH /admin/providers/:id/plan`); see docs/BILLING.md.
+  /// Written by the Paddle webhook from a provider's subscription, and by an admin
+  /// (`PATCH /admin/providers/:id/plan`); see docs/BILLING.md.
   plan                   Plan               @default(free)
   /// When a paid plan lapses back to `free`. Null = no end. Applied lazily at read time
-  /// (`effectivePlan`) rather than swept by a job — there is no scheduler here.
+  /// (`effectivePlan`) rather than swept by a job. For a Paddle subscription it is the
+  /// billing period's end plus grace (`services/billing.ts`).
   planExpiresAt          DateTime?
   /// The monthly booking-allowance emails, 80% and 100%. "Sent this month" means the stamp
   /// is on or after the UTC month's start; claimed by compare-and-set (`services/planUsage.ts`).
   bookingCapWarnedAt     DateTime?
   bookingCapReachedAt    DateTime?
+  /// Paddle Billing (docs/PADDLE_SETUP.md), written only by `POST /billing/webhook`, which
+  /// also writes `plan` and `planExpiresAt` from the same subscription snapshot. The customer
+  /// survives a cancellation so a later checkout reuses it; it is indexed, not unique,
+  /// because Paddle keys customers by email and owes us no promise of one per provider.
+  paddleCustomerId       String?
+  paddleSubscriptionId   String?            @unique
+  billingStatus          BillingStatus?
+  /// The current billing period's end — the next renewal, shown on the Plan tab.
+  billingPeriodEndsAt    DateTime?
+  /// Set while a cancellation is scheduled; the plan runs until then.
+  billingCancelsAt       DateTime?
+  /// `occurred_at` of the last webhook event applied. Paddle may deliver out of order, so
+  /// an older event than this is ignored rather than allowed to roll the state back.
+  billingEventAt         DateTime?
+  /// Bumped to revoke the private calendar feed URL, whose token is an HMAC of this
+  /// (`lib/token.ts#mintCalendarFeedToken`) — nothing secret is stored.
+  calendarFeedVersion    Int                @default(0)
   organizationId         String?
   organization           Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   weekSchedule           Json               @default("{}")
-  /// Unpublished edits: firstName, lastName, description, imageUrl, weekSchedule,
-  /// available, paymentInfo. Publish copies these onto the live columns.
+  /// The IANA zone `weekSchedule` is written in (`Asia/Yerevan`). A schedule is wall-clock
+  /// `'HH:mm'` with no zone of its own, so without this every visitor's browser read "09:00"
+  /// in *its* zone and a booker abroad was offered hours the provider does not keep.
+  ///
+  /// Stored canonical (`lib/time-zone.ts#toTimeZone`), because Explore's open-today filter
+  /// groups providers by zone with an `IN` list built from the same `Intl` catalogue.
+  /// Draftable alongside `weekSchedule` — changing it moves every published hour, so it
+  /// goes out on Publish with the hours it reinterprets. Null on rows written before the
+  /// column existed: those fall back to the viewer's zone, the behaviour they always had.
+  timeZone               String?
+  /// 12- or 24-hour clock for every time shown for this provider: the public page's hours and
+  /// slots, the manage link, booking emails and Telegram, and the provider's own workspace.
+  /// Null = never chosen, which follows the reader's locale (`en` 12-hour, `hy` 24-hour).
+  /// Draftable alongside `timeZone`, the field it sits beside on the Availability tab:
+  /// it changes what the public page shows, so it goes out on Publish.
+  timeFormat             TimeFormat?
+  /// Unpublished edits: firstName, lastName, description, imageUrl, weekSchedule, timeZone,
+  /// timeFormat, available, paymentInfo. Publish copies these onto the live columns.
   draft                  Json?
   /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges, newBooking }`
   emailNotificationPrefs Json               @default("{}")
@@ -282,6 +349,7 @@ model Provider {
   @@index([listed, available, updatedAt])
   @@index([listed, lastName, firstName])
   @@index([listed, ratingScore])
+  @@index([paddleCustomerId])
 }
 
 model ProviderCategory {
@@ -436,11 +504,18 @@ model Appointment {
   /// sha256 of the capability URL token. The raw value is returned once on create
   /// and never persisted — `GET`/`PATCH /appointments/manage/:token` look up this hash.
   manageTokenHash String            @unique
+  /// When each side's appointment reminder went out (`jobs/reminderJob.ts`). Claimed by
+  /// compare-and-set before sending, so a reminder goes once however many pollers run, and
+  /// cleared by a reschedule so the new time is reminded of afresh.
+  providerRemindedAt DateTime?
+  bookerRemindedAt   DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   review          Review?
 
   @@index([providerId, startAt])
+  /// The reminder job's sweep: live bookings starting within the next day, across providers.
+  @@index([status, startAt])
   /// The monthly booking allowance counts by creation time (`services/plans.ts#bookingsThisMonthWhere`).
   @@index([providerId, createdAt])
 }

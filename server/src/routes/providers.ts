@@ -16,6 +16,8 @@ import {
 import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
 import { collapseWhitespace, isSameName } from '../lib/search.js'
+import { type TimeFormat, toTimeFormat } from '../lib/time-format.js'
+import { toTimeZone } from '../lib/time-zone.js'
 import { mintOwnerManageToken } from '../lib/token.js'
 import {
   consumerSideBookingInclude,
@@ -34,6 +36,7 @@ import {
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderBusyIntervals } from '../services/appointments.js'
+import { notifyBookingDecisionTelegram } from '../services/bookingNotify.js'
 import { assertServiceSlot, assertSlugChange, getEntitlements, takesServiceSlot } from '../services/plans.js'
 import { countActiveServices, isBookingAllowanceSpent } from '../services/planUsage.js'
 import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
@@ -81,6 +84,27 @@ const readJsonField = <T = unknown>(value: unknown, field: string): T | undefine
 }
 
 /**
+ * `timeZone` off a profile write: absent or `''` leaves the column alone, anything else
+ * must be a zone `Intl` knows and is stored canonical (`lib/time-zone.ts`). A bad name is
+ * a 400 rather than silently `UTC` — `asTimeZone` falls back for a *read* parameter, but
+ * here the fallback would quietly move every published hour to Greenwich.
+ */
+const readTimeZoneField = (value: unknown): string | undefined => {
+  if (value === undefined || value === null || value === '') return undefined
+  const timeZone = toTimeZone(value)
+  if (!timeZone) throw new HttpError(400, 'timeZone must be an IANA time zone', 400)
+  return timeZone
+}
+
+/** `timeFormat` off a profile write: absent or `''` leaves it alone, anything but `h12`/`h24` is a 400. */
+const readTimeFormatField = (value: unknown): TimeFormat | undefined => {
+  if (value === undefined || value === null || value === '') return undefined
+  const timeFormat = toTimeFormat(value)
+  if (!timeFormat) throw new HttpError(400, 'timeFormat must be h12 or h24', 400)
+  return timeFormat
+}
+
+/**
  * The unpublished-edits overlay. **Deliberately has no `email` key**, and `patch` below is
  * built by explicit per-field assignments rather than by spreading the request body — so an
  * `email` sent to this route cannot reach the draft JSON and reappear at publish time.
@@ -92,6 +116,10 @@ type ProviderDraft = {
   description?: string | null
   imageUrl?: string | null
   weekSchedule?: unknown
+  /** Drafted with `weekSchedule`: it decides what instant every one of those hours is. */
+  timeZone?: string
+  /** Drafted with `timeZone`, beside which it is edited; it changes what the public page prints. */
+  timeFormat?: TimeFormat
   available?: boolean
   paymentInfo?: unknown
 }
@@ -300,6 +328,8 @@ providerProfileRouter.put(
 
       const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule ?? req.body?.weekSchedule
       const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
+      const timeZone = readTimeZoneField(body.timeZone ?? req.body?.timeZone)
+      const timeFormat = readTimeFormatField(body.timeFormat ?? req.body?.timeFormat)
       const paymentInfo =
         parseJson(typeof body.paymentInfo === 'string' ? body.paymentInfo : undefined) ??
         (typeof req.body?.paymentInfo === 'object' ? req.body.paymentInfo : undefined)
@@ -319,6 +349,8 @@ providerProfileRouter.put(
       }
       if (imageUrl) patch.imageUrl = imageUrl
       if (weekSchedule) patch.weekSchedule = weekSchedule
+      if (timeZone) patch.timeZone = timeZone
+      if (timeFormat) patch.timeFormat = timeFormat
       if (available !== undefined) patch.available = available
       if (paymentInfo !== undefined) patch.paymentInfo = paymentInfo
 
@@ -344,6 +376,10 @@ providerProfileRouter.put(
           description: patch.description === undefined ? existing.description : patch.description,
           imageUrl: patch.imageUrl === undefined ? existing.imageUrl : patch.imageUrl,
           weekSchedule: (patch.weekSchedule as object | undefined) ?? existing.weekSchedule ?? undefined,
+          // Re-checked rather than trusted: a draft written before this field existed, or
+          // edited by hand, must not publish a zone `Intl` cannot read.
+          timeZone: toTimeZone(patch.timeZone) ?? existing.timeZone,
+          timeFormat: toTimeFormat(patch.timeFormat) ?? existing.timeFormat,
           available: patch.available ?? existing.available,
           paymentInfo:
             patch.paymentInfo === undefined
@@ -367,6 +403,8 @@ providerProfileRouter.put(
     const categoryIds = readJsonField<string[]>(categoryIdsRaw, 'categoryIds')
     const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule
     const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
+    // Onboarding writes the first schedule live, and the zone it is written in with it.
+    const timeZone = readTimeZoneField(body.timeZone ?? req.body?.timeZone)
     const emailNotificationPrefs =
       parseJson(body.emailNotificationPrefs) ?? req.body?.emailNotificationPrefs
     /**
@@ -410,6 +448,7 @@ providerProfileRouter.put(
         locationUrl: body.locationURL ?? body.LocationURL,
         organizationId: body.organizationId ?? body.OrganizationId ?? undefined,
         weekSchedule: weekSchedule ?? undefined,
+        timeZone,
         imageUrl: imageUrl ?? undefined,
         available: available ?? undefined,
         emailNotificationPrefs:
@@ -665,7 +704,7 @@ const notifyBookingDecision = async (
       guestFirstName: true,
       service: { select: { name: true } },
       consumer: { select: { firstName: true, user: { select: { email: true } } } },
-      provider: { select: { firstName: true, lastName: true } },
+      provider: { select: { firstName: true, lastName: true, timeZone: true, timeFormat: true } },
     },
   })
   if (!row) return
@@ -680,7 +719,7 @@ const notifyBookingDecision = async (
     firstName: row.guestFirstName ?? row.consumer?.firstName ?? 'there',
     providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
     serviceName: row.service.name,
-    when: formatBookingWhen(row.startAt),
+    when: formatBookingWhen(row.startAt, row.provider.timeZone, row.provider.timeFormat),
   }
 
   if (decision === 'approve') {
@@ -758,11 +797,14 @@ providerProfileRouter.patch(
       include: providerBookingInclude,
     })
 
+    const locale = resolveBookingLocale(req.body?.locale)
     try {
-      await notifyBookingDecision(booking.id, decision, resolveBookingLocale(req.body?.locale))
+      await notifyBookingDecision(booking.id, decision, locale)
     } catch (error) {
       console.error('[mail] booking decision notify failed', error)
     }
+    // The same answer on the client's Telegram, if they linked one.
+    void notifyBookingDecisionTelegram(booking.id, decision, locale)
 
     return ok(res, mapProviderBooking(updated))
   })

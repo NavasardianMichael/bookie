@@ -6,6 +6,7 @@ import { WeekDay } from '@interfaces/schedule'
 import { BOOKING_ERROR_CODES, ONLINE_BOOKING, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { splitScheduleIntoParts } from './schedule'
+import { dayKeyOf, zonedTimeToDate } from './timeZone'
 
 dayjs.extend(customParseFormat)
 
@@ -32,6 +33,12 @@ export type BookingSlot = { start: Date; end: Date }
  * breaks, stepped by the service duration, with anything already in the past
  * dropped.
  *
+ * `date` names a **calendar day** — a month-grid cell, local midnight — and `timeZone` is
+ * the provider's. The hours are read in that zone, so "09:00" is nine on the provider's
+ * clock whichever zone the visitor's browser is in. Without a zone they are read in the
+ * runtime's own, which is what every slot was before `Provider.timeZone` existed: a
+ * visitor abroad was offered the provider's hours shifted by the difference.
+ *
  * `generateTimeSlots` previously hardcoded 09:00–17:00 and ignored
  * `weekSchedule` entirely, even though splitScheduleIntoParts already computes
  * availability-minus-breaks.
@@ -41,11 +48,13 @@ export const getSlotsForDate = ({
   date,
   durationMinutes,
   now = new Date(),
+  timeZone,
 }: {
   weekSchedule?: WeekSchedule
   date: Date
   durationMinutes: number
   now?: Date
+  timeZone?: string
 }): BookingSlot[] => {
   if (!weekSchedule || durationMinutes <= 0) return []
 
@@ -53,6 +62,8 @@ export const getSlotsForDate = ({
   const daySchedule = weekSchedule[getWeekDay(day)]
   if (!hasAvailability(daySchedule)) return []
 
+  const dayKey = day.format(DAY_KEY_FORMAT)
+  const durationMs = durationMinutes * 60_000
   const slots: BookingSlot[] = []
 
   splitScheduleIntoParts(daySchedule).forEach((part) => {
@@ -61,9 +72,9 @@ export const getSlotsForDate = ({
     if (startMinutes === undefined || endMinutes === undefined) return
 
     for (let at = startMinutes; at + durationMinutes <= endMinutes; at += durationMinutes) {
-      const start = day.startOf('day').add(at, 'minute')
-      if (!start.isAfter(now)) continue
-      slots.push({ start: start.toDate(), end: start.add(durationMinutes, 'minute').toDate() })
+      const start = timeZone ? zonedTimeToDate(dayKey, at, timeZone) : day.startOf('day').add(at, 'minute').toDate()
+      if (start.getTime() <= now.getTime()) continue
+      slots.push({ start, end: new Date(start.getTime() + durationMs) })
     }
   })
 
@@ -77,31 +88,37 @@ export const getSlotsForDateRange = ({
   end,
   durationMinutes,
   now = new Date(),
+  timeZone,
 }: {
   weekSchedule?: WeekSchedule
   start: Date
   end: Date
   durationMinutes: number
   now?: Date
+  /** The provider's — see `getSlotsForDate`. `start`/`end` bound calendar days, not instants. */
+  timeZone?: string
 }): BookingSlot[] => {
   const slots: BookingSlot[] = []
   let cursor = dayjs(start).startOf('day')
   const last = dayjs(end)
 
   while (cursor.isBefore(last)) {
-    slots.push(...getSlotsForDate({ weekSchedule, date: cursor.toDate(), durationMinutes, now }))
+    slots.push(...getSlotsForDate({ weekSchedule, date: cursor.toDate(), durationMinutes, now, timeZone }))
     cursor = cursor.add(1, 'day')
   }
 
   return slots
 }
 
-/** Slot counts keyed by day, for the month-view badges and the day-cell affordance. */
-export const countSlotsByDay = (slots: BookingSlot[]): Map<string, number> => {
+/**
+ * Slot counts keyed by day, for the month-view badges and the day-cell affordance. Keyed in
+ * the zone the slots were stepped in, or a late slot would be counted on the visitor's next day.
+ */
+export const countSlotsByDay = (slots: BookingSlot[], timeZone?: string): Map<string, number> => {
   const counts = new Map<string, number>()
 
   slots.forEach((slot) => {
-    const key = dayjs(slot.start).format(DAY_KEY_FORMAT)
+    const key = dayKeyOf(slot.start, timeZone)
     counts.set(key, (counts.get(key) ?? 0) + 1)
   })
 

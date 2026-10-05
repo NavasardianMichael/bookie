@@ -2,9 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { localizedAlternates } from '@i18n/metadata'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import { AppLink } from '@components/ui/bare/AppLink'
-import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { PageHeader, PageShell } from '@components/ui/layout'
+import { LegalDocument } from '@components/legal/LegalDocument'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Legal')
@@ -17,23 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Placeholder with a live URL rather than the prototype's `href="#"`.
- *
- * The registration screens are required to link here, and shipping a dead anchor from a
- * consent notice is worse than saying plainly that the document is not published yet. No
- * invented legal text — the real terms replace this wholesale.
+ * The Terms of Service. Registration's consent notice links here, and Paddle requires the
+ * page — naming Paddle as Merchant of Record — before it approves the site for live payments.
  */
-export default async function Terms() {
-  const t = await getTranslations('Legal')
-
-  return (
-    <PageShell as='article' width='prose' className='flex flex-col gap-6'>
-      <PageHeader title={t('termsTitle')} subtitle={t('unpublished')} />
-      <AppParagraph>
-        {t.rich('termsBody', {
-          contact: (chunks) => <AppLink href={ROUTES.contact}>{chunks}</AppLink>,
-        })}
-      </AppParagraph>
-    </PageShell>
-  )
+export default function Terms() {
+  return <LegalDocument document='terms' />
 }

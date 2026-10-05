@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { getProviderLDSchema } from '@linkedDataSchema/providers'
 import { ProviderProfile as ProviderProfileType } from '@store/providers/profile/types'
+import { PoweredByBookie } from '@components/brand/PoweredByBookie'
 import { JsonLd } from '@components/ui/bare/JsonLd'
 import { PageShell } from '@components/ui/layout'
 import { ProviderIdentityColumn } from './components/ProviderIdentityColumn'
@@ -29,6 +30,10 @@ export default async function ProviderLayout({ children, params }: Props) {
             so the identity column above stays in the document while that column streams. */}
         <section className='flex min-w-0 flex-col gap-6'>{children}</section>
       </div>
+
+      {/* Free plans only (`removeBranding`); here rather than in the streamed column so it is
+          in the document whatever the booking panel is doing. */}
+      {provider.details.showPoweredBy && <PoweredByBookie className='pt-2' />}
     </PageShell>
   )
 }

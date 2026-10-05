@@ -183,6 +183,7 @@
       "service": "Serviço",
       "date": "Data",
       "time": "Horário",
+      "timeZone": "Fuso horário",
       "duration": "Duração",
       "durationValue": "{minutes} min",
       "price": "Preço",
@@ -224,12 +225,17 @@
     "chooseDate": "Escolha uma data",
     "availableTimes": "Horários disponíveis",
     "noDatePicked": "Nenhuma data escolhida ainda",
-    "localTime": "Horário local",
+    "timesShownIn": "Fuso horário: {zone}",
+    "yourTime": "{time} no seu horário",
     "pickDateFirst": "Escolha uma data primeiro",
     "pickDateFirstBody": "Escolha um dia no calendário acima e os horários disponíveis dele aparecem aqui.",
     "noOpenTimes": "Sem horários disponíveis neste dia",
     "noOpenTimesBody": "Tente outro dia — os dias com disponibilidade são os que você consegue selecionar.",
     "readyToConfirm": "Pronto para confirmar?",
+    "pickAService": "Escolha um serviço",
+    "pickAServiceHint": "Escolha um serviço acima para continuar.",
+    "pickServiceAndTime": "Escolha um serviço e um horário",
+    "pickServiceAndTimeHint": "Escolha um serviço acima e depois um dos horários aqui para continuar.",
     "pickATime": "Escolha um horário",
     "pickATimeHint": "Escolha um dos horários acima para continuar.",
     "bookNow": "Agendar agora",
@@ -280,7 +286,8 @@
       "fullBody": "{name} não pode aceitar mais reservas on-line este mês. Entre em contato diretamente para combinar um horário.",
       "call": "Ligar para {phone}",
       "email": "Enviar um e-mail"
-    }
+    },
+    "addToCalendar": "Adicionar à agenda"
   },
   "Footer": {
     "blurb": "Uma única plataforma para encontrar serviços locais ou gerenciar sua agenda de agendamentos.",
@@ -295,7 +302,10 @@
     "createAccount": "Criar uma conta",
     "company": "Empresa",
     "contact": "Contato",
-    "pricing": "Preços"
+    "pricing": "Preços",
+    "terms": "Termos de serviço",
+    "privacy": "Política de privacidade",
+    "refund": "Política de reembolso"
   },
   "Contact": {
     "metaTitle": "Fale conosco",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "Tente outro status ou termo de busca."
     },
     "notifications": {
-      "subtitle": "Escolha quais e-mails você quer receber.",
+      "subtitle": "Escolha sobre o que você quer ser avisado, por e-mail e no Telegram.",
       "emailPrefs": "Preferências de notificação",
       "remindersTitle": "Lembretes de agendamento",
-      "remindersBody": "Receba um e-mail antes de o agendamento começar.",
+      "remindersBody": "Receba um lembrete antes de o agendamento começar.",
       "remindersLeadLabel": "Avisar-me",
       "remindersMinutes": "{count} minutos",
       "remindersHours": "{count, plural, one {# hora} other {# horas}}",
       "changesTitle": "Alterações nos agendamentos",
       "changesBody": "Avisos quando um agendamento for alterado ou cancelado.",
       "newBookingTitle": "Novos agendamentos",
-      "newBookingBody": "Um e-mail quando um cliente agendar com você."
+      "newBookingBody": "Quando um cliente agendar com você.",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "Receba as notificações de agendamentos no Telegram, além do e-mail.",
+      "telegramConsumerBody": "Receba lembretes e atualizações dos agendamentos no Telegram, além do e-mail.",
+      "telegramLocked": "As notificações no Telegram sobre o seu negócio estão incluídas a partir do plano Básico. <plan>Ver planos</plan>",
+      "telegramUnavailable": "As notificações no Telegram não estão disponíveis no momento.",
+      "telegramConnect": "Conectar o Telegram",
+      "telegramOpen": "Abrir o Telegram",
+      "telegramOpenHint": "Abra o Telegram e toque em Iniciar para concluir a conexão. O link vale por 15 minutos.",
+      "telegramWaiting": "Aguardando o Telegram…",
+      "telegramConnected": "Conectado",
+      "telegramConnectedAs": "Conectado como @{username}",
+      "telegramDisconnect": "Desconectar",
+      "telegramConnectFailed": "Não foi possível iniciar a conexão com o Telegram",
+      "telegramDisconnectFailed": "Não foi possível desconectar o Telegram",
+      "calendarTitle": "Sincronização de agenda",
+      "calendarBody": "Assine seus agendamentos pelo Google Calendar, Apple Calendar ou Outlook. Novos agendamentos e alterações aparecem lá automaticamente.",
+      "calendarLocked": "A sincronização de agenda está incluída a partir do plano Básico. <plan>Ver planos</plan>",
+      "calendarCopy": "Copiar link da agenda",
+      "calendarHint": "No seu aplicativo de calendário, adicione uma agenda a partir de um URL e cole este link. Mantenha-o em sigilo: qualquer pessoa que o tiver poderá ver seus agendamentos.",
+      "calendarReset": "Redefinir link",
+      "calendarResetTitle": "Redefinir o link da sua agenda?",
+      "calendarResetBody": "O link atual deixa de funcionar na hora. As agendas inscritas nele param de ser atualizadas até você adicionar o novo."
     },
     "payments": {
       "title": "Pagamentos",
@@ -457,6 +489,15 @@
       "recurringBody": "Dias e horários em que os clientes podem agendar. Adicione até 5 períodos em um dia se você fizer pausas.",
       "pauseTitle": "Aceitando agendamentos",
       "pauseBody": "Desative para pausar temporariamente novos agendamentos sem tirar a sua página do ar.",
+      "timeZone": "Fuso horário",
+      "timeZoneHint": "Seus horários seguem este fuso. Os visitantes veem e agendam os horários nele, onde quer que estejam.",
+      "timeZonePlaceholder": "Busque uma cidade, fuso ou diferença de horário",
+      "timeZoneSuggested": "Seu fuso horário ainda não foi salvo. Preenchemos com o deste dispositivo — publique para aplicá-lo à sua página pública.",
+      "timeZoneDeviceDiffers": "Fuso horário deste dispositivo: {zone}.",
+      "timeFormat": "Formato de hora",
+      "timeFormatHint": "Como os horários aparecem na sua página pública, nos e-mails de agendamento e nos seus agendamentos.",
+      "timeFormat12": "12 horas ({time})",
+      "timeFormat24": "24 horas ({time})",
       "to": "às",
       "unavailable": "Indisponível",
       "addRange": "Adicionar horário",
@@ -682,7 +723,23 @@
       "resetsOn": "Renova em {date}",
       "comparePlans": "Comparar planos",
       "requestUpgrade": "Solicitar upgrade",
-      "manualNote": "Por enquanto, os planos são configurados pela nossa equipe. Envie uma solicitação e responderemos por e-mail para ativá-lo."
+      "manualNote": "Por enquanto, os planos são configurados pela nossa equipe. Envie uma solicitação e responderemos por e-mail para ativá-lo.",
+      "renewsOn": "Renovação em {date}",
+      "cancelsOn": "Cancelado — termina em {date}",
+      "manageBilling": "Gerenciar cobrança",
+      "portalFailed": "Não foi possível abrir a cobrança",
+      "paymentFailedTitle": "Seu último pagamento não foi aprovado",
+      "paymentFailedBody": "Atualize sua forma de pagamento em Gerenciar cobrança para manter o plano {plan}. A Paddle tentará cobrar seu cartão novamente.",
+      "cancelInPortal": "Cancelar assinatura",
+      "upgrade": "Fazer upgrade",
+      "switch": "Mudar",
+      "switchTitle": "Mudar para o plano {plan}?",
+      "switchBody": "A mudança vale na hora. A diferença do restante deste mês é cobrada ou creditada automaticamente na sua forma de pagamento.",
+      "switchConfirm": "Mudar de plano",
+      "switchingTitle": "Mudando para {plan}…",
+      "switchPendingTitle": "Sua mudança de plano está a caminho",
+      "switchPendingBody": "A Paddle já aceitou a mudança, e pode levar alguns minutos para ela aparecer aqui. Atualize a página daqui a pouco.",
+      "billingNote": "Os pagamentos são processados pela Paddle. Cancele, troque o cartão ou baixe faturas em Gerenciar cobrança."
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# estrela} other {# estrelas}}",
       "pagesLabel": "Páginas de avaliações",
       "loadError": "Não foi possível carregar as avaliações. Tente novamente."
-    }
+    },
+    "poweredBy": "Página de agendamento criada com o Bookie",
+    "poweredByCta": "Crie a sua grátis"
   },
   "Legal": {
     "termsMetaTitle": "Termos de serviço",
     "termsMetaDescription": "Os termos que regem o uso do Bookie.",
     "termsTitle": "Termos de serviço",
-    "unpublished": "Ainda não publicados.",
-    "termsBody": "Os termos de serviço do Bookie ainda estão sendo finalizados. Até serem publicados aqui, respondemos diretamente a dúvidas sobre como a plataforma pode ser usada — fale com a gente pela <contact>página de contato</contact>.",
     "privacyMetaTitle": "Política de privacidade",
     "privacyMetaDescription": "O que o Bookie coleta e como esses dados são tratados.",
     "privacyTitle": "Política de privacidade",
-    "privacyBody": "A política de privacidade do Bookie ainda está sendo finalizada. O cadastro coleta um número de telefone, um nome e, opcionalmente, um e-mail; o número de telefone é o que identifica uma conta. Para qualquer outra coisa, fale com a gente pela <contact>página de contato</contact>."
+    "lastUpdated": "Última atualização: {date}",
+    "refundMetaTitle": "Política de reembolso",
+    "refundMetaDescription": "Como funcionam os cancelamentos e os reembolsos dos planos pagos do Bookie.",
+    "refundTitle": "Política de reembolso",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "Aceitação destes Termos",
+          "p1": "Ao acessar ou usar o Bookie (“o Serviço”), você concorda com estes Termos de serviço e com nossa <privacy>Política de privacidade</privacy>. Se não concordar, não use o Serviço."
+        },
+        "service": {
+          "title": "O Serviço",
+          "p1": "O Bookie é uma plataforma de agendamento on-line. Os profissionais publicam uma página de agendamento com seus serviços e horários de trabalho, e os clientes encontram profissionais e agendam atendimentos com eles. O Bookie fornece apenas a plataforma: os serviços em si são prestados pelos profissionais, que são os únicos responsáveis por eles."
+        },
+        "accounts": {
+          "title": "Contas",
+          "p1": "Você precisa de uma conta para publicar uma página de agendamento ou para manter seus agendamentos em um só lugar; os clientes também podem agendar sem conta. Você é responsável por manter seus dados de acesso em sigilo, por tudo o que for feito na sua conta e por manter suas informações corretas. Podemos suspender ou encerrar contas que violem estes Termos."
+        },
+        "bookings": {
+          "title": "Agendamentos",
+          "p1": "Um agendamento é um acordo entre um cliente e um profissional. Os profissionais definem seus próprios serviços, preços, horários e condições de cancelamento, e são pagos diretamente por seus clientes — o Bookie não recebe pagamentos pelos atendimentos. O Bookie não é parte desse acordo e não é responsável pelos serviços de um profissional nem pelo comparecimento de um cliente."
+        },
+        "content": {
+          "title": "Seu conteúdo",
+          "p1": "Os profissionais são responsáveis pelo que publicam — descrições, preços, fotos e dados de contato — e devem ter o direito de publicá-lo. Os clientes são responsáveis pelas avaliações que escrevem, que devem descrever uma experiência real. Podemos ocultar avaliações ou remover conteúdo ilegal, enganoso ou abusivo."
+        },
+        "acceptableUse": {
+          "title": "Uso aceitável",
+          "p1": "Você concorda em não violar nenhuma lei por meio do Serviço, não se passar por outra pessoa, não fazer agendamentos que não pretende cumprir, não enviar código malicioso ou conteúdo nocivo, não tentar obter acesso não autorizado aos sistemas do Bookie ou às contas de outras pessoas e não extrair dados do Serviço de forma automatizada que gere uma carga excessiva sobre ele."
+        },
+        "plans": {
+          "title": "Planos e pagamentos",
+          "p1": "Agendar é sempre grátis para os clientes. Os profissionais podem usar o Bookie de graça ou assinar um plano pago, cobrado mensalmente até ser cancelado, pelos preços da nossa <pricing>página de preços</pricing>. Podem incidir impostos, dependendo de onde você está. Você pode mudar de plano ou cancelá-lo a qualquer momento nas configurações do seu Plano; o cancelamento entra em vigor no fim do mês já pago. Para reembolsos, consulte nossa <refund>Política de reembolso</refund>.",
+          "p2": "Nosso processo de pedidos é conduzido pela nossa revendedora on-line Paddle.com. A Paddle.com é o Merchant of Record de todos os nossos pedidos. A Paddle atende a todas as solicitações de atendimento ao cliente e cuida das devoluções."
+        },
+        "planChanges": {
+          "title": "Alterações em planos e preços",
+          "p1": "Podemos alterar nossos planos ou preços. Uma alteração de preço se aplica a uma assinatura existente a partir do próximo período de cobrança, e avisaremos você por e-mail antes disso. Mudar para um plano menor, ou encerrá-lo, nunca remove o que seus clientes já veem: os agendamentos continuam, e sua página segue funcionando dentro dos limites do plano Grátis."
+        },
+        "intellectualProperty": {
+          "title": "Propriedade intelectual",
+          "p1": "Você continua sendo o titular do que publica no Bookie e nos concede uma licença para hospedar, exibir e processar esse conteúdo apenas para fornecer o Serviço. A plataforma, o software e o design do Bookie continuam sendo de nossa propriedade."
+        },
+        "termination": {
+          "title": "Encerramento do uso do Bookie",
+          "p1": "Você pode excluir sua conta a qualquer momento nas configurações da conta. Podemos suspender ou encerrar seu acesso se você violar estes Termos. Nesse caso, um plano pago termina no fim do período de cobrança em curso."
+        },
+        "disclaimer": {
+          "title": "Isenção de garantias",
+          "p1": "O Serviço é fornecido “no estado em que se encontra” e “conforme disponível”, sem garantias de qualquer tipo. Não garantimos que ele funcionará sem interrupções ou erros, nem que qualquer agendamento será realizado."
+        },
+        "liability": {
+          "title": "Limitação de responsabilidade",
+          "p1": "Na máxima extensão permitida por lei, o Bookie não se responsabiliza por danos indiretos, incidentais, especiais, consequenciais ou punitivos, nem por qualquer disputa entre um cliente e um profissional. Nossa responsabilidade total por qualquer reclamação limita-se ao valor que você nos pagou nos doze meses anteriores a ela."
+        },
+        "changes": {
+          "title": "Alterações destes Termos",
+          "p1": "Podemos atualizar estes Termos. Publicaremos a nova versão aqui, com uma nova data. Continuar usando o Serviço após uma atualização significa que você aceita os novos Termos."
+        },
+        "contact": {
+          "title": "Contato",
+          "p1": "Dúvidas sobre estes Termos? <contact>Fale conosco</contact>."
+        }
+      }
+    },
+    "privacy": {
+      "intro": "O Bookie (“nós”) tem o compromisso de proteger sua privacidade. Esta política explica o que coletamos, por quê, com quem compartilhamos e quais escolhas você tem.",
+      "sections": {
+        "collect": {
+          "title": "O que coletamos",
+          "p1": "<b>Informações da conta:</b> seu nome, endereço de e-mail, número de telefone e senha, que é armazenada apenas como um hash irreversível. Se você entrar com o Google, recebemos o identificador da sua conta Google e seu endereço de e-mail.",
+          "p2": "<b>Páginas de profissionais:</b> o que um profissional publica — descrição, fotos, serviços, preços, horário de trabalho, endereço e dados de contato — é público por natureza.",
+          "p3": "<b>Agendamentos:</b> o serviço, o horário, as observações e a forma de pagamento preferida de cada agendamento e — no caso de um agendamento feito sem conta — o nome, o número de telefone e o e-mail opcional informados nele.",
+          "p4": "<b>Avaliações</b> que os clientes escrevem sobre os profissionais e denúncias sobre avaliações.",
+          "p5": "<b>Telegram:</b> se você conectar o Telegram para receber notificações, o identificador do seu chat no Telegram e seu nome de usuário.",
+          "p6": "<b>Cobrança:</b> para profissionais em um plano pago, os identificadores de cliente e de assinatura da Paddle e o status da assinatura. Os dados de pagamento vão para a Paddle e nunca chegam até nós."
+        },
+        "use": {
+          "title": "Como usamos",
+          "p1": "Para gerenciar sua conta e seus agendamentos; para enviar e-mails sobre agendamentos — confirmações, alterações, cancelamentos e lembretes — e, se você o conectou, os mesmos avisos no Telegram; para exibir publicamente as páginas de profissionais e as avaliações; para processar assinaturas; para manter o Serviço seguro e evitar abusos; e para responder quando você entrar em contato conosco."
+        },
+        "sharing": {
+          "title": "Com quem compartilhamos",
+          "p1": "Não vendemos seus dados pessoais. Nós os compartilhamos apenas com os serviços que operam partes do Bookie para nós, e somente na medida em que precisam:",
+          "p2": "<b>Paddle</b> — nossa revendedora e Merchant of Record, para pagamentos de assinaturas, faturas e impostos. A Paddle trata os dados de pagamento de acordo com sua própria política de privacidade.",
+          "p3": "<b>Nosso serviço de envio de e-mails</b> — envia os e-mails da conta e dos agendamentos.",
+          "p4": "<b>Telegram</b> — entrega notificações, apenas se você o conectar.",
+          "p5": "<b>Google</b> — faz seu login, apenas se você escolher continuar com o Google.",
+          "p6": "Os detalhes de um agendamento são compartilhados com o profissional com quem ele é feito, e os dados de contato públicos do profissional, com o cliente — é isso que um agendamento é."
+        },
+        "cookies": {
+          "title": "Cookies",
+          "p1": "Usamos apenas cookies estritamente necessários: um que mantém você conectado por até 7 dias, outros de curta duração que guardam um login com o Google em andamento e um que lembra seu idioma. Não usamos cookies de publicidade nem de análise."
+        },
+        "retention": {
+          "title": "Por quanto tempo guardamos",
+          "p1": "Guardamos seus dados enquanto sua conta existir. Excluir sua conta nas configurações exclui a conta e seu perfil; em uma conta de cliente com agendamentos registrados, eles precisam ser cancelados antes. Os registros de cobrança também são mantidos pela Paddle, conforme exige a legislação tributária."
+        },
+        "rights": {
+          "title": "Seus direitos",
+          "p1": "Você pode ver e corrigir a maior parte dos seus dados nas configurações e excluir sua conta por lá. Para obter uma cópia dos seus dados ou fazer qualquer outra solicitação sobre eles, <contact>fale conosco</contact>."
+        },
+        "security": {
+          "title": "Segurança",
+          "p1": "Tudo trafega por HTTPS. As senhas são armazenadas apenas como hashes Argon2id, os links que enviamos por e-mail são de uso único e expiram, e as tentativas de login têm limite de frequência."
+        },
+        "children": {
+          "title": "Crianças",
+          "p1": "O Bookie não é direcionado a crianças menores de 13 anos, e não coletamos intencionalmente dados delas. Se você acredita que uma criança nos forneceu dados pessoais, fale conosco e nós os excluiremos."
+        },
+        "changes": {
+          "title": "Alterações desta política",
+          "p1": "Podemos atualizar esta política. Publicaremos a nova versão aqui, com uma nova data."
+        },
+        "contact": {
+          "title": "Contato",
+          "p1": "Dúvidas sobre sua privacidade? <contact>Fale conosco</contact>."
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "Planos pagos",
+          "p1": "Os planos pagos do Bookie para profissionais são assinaturas mensais, cobradas antecipadamente pela Paddle, nossa revendedora e Merchant of Record. Os clientes nunca pagam nada ao Bookie."
+        },
+        "cancel": {
+          "title": "Cancelamento",
+          "p1": "Você pode cancelar a qualquer momento em Gerenciar cobrança, nas configurações do seu Plano. Você mantém seu plano até o fim do mês já pago e não é cobrado novamente."
+        },
+        "eligibility": {
+          "title": "Reembolsos",
+          "p1": "Se você não estiver satisfeito com um plano pago, peça o reembolso em até 14 dias após o primeiro pagamento dele e reembolsaremos esse pagamento integralmente. Depois disso, reembolsamos qualquer cobrança feita por engano — por exemplo, um pagamento duplicado ou uma renovação após você ter cancelado."
+        },
+        "planChanges": {
+          "title": "Mudança de plano",
+          "p1": "A mudança de plano é proporcional: ao subir de plano, a diferença do restante do mês é cobrada; ao descer, ela é creditada nos seus próximos pagamentos."
+        },
+        "request": {
+          "title": "Como pedir um reembolso",
+          "p1": "<contact>Fale conosco</contact> informando o endereço de e-mail da sua conta do Bookie e a data da cobrança, e responderemos em até 2 dias úteis. Você também pode entrar em contato com a Paddle pelo recibo que ela enviou para o seu e-mail."
+        },
+        "processing": {
+          "title": "Como os reembolsos são pagos",
+          "p1": "Os reembolsos aprovados são feitos pela Paddle na forma de pagamento original. Dependendo do seu banco, podem levar de 5 a 10 dias úteis para chegar."
+        },
+        "contact": {
+          "title": "Contato",
+          "p1": "Dúvidas sobre esta política? <contact>Fale conosco</contact>."
+        }
+      }
+    }
   },
   "Services": {
     "title": "Gerenciar serviços",
@@ -1013,6 +1221,8 @@
     "aboutYou": "Sobre você",
     "whatYouDo": "O que você faz",
     "whenYouWork": "Quando você trabalha",
+    "timeZone": "Fuso horário",
+    "timeZoneHint": "Seu horário de trabalho segue este fuso. Os visitantes veem os horários nele, onde quer que estejam.",
     "where": "Onde",
     "optional": "Opcional",
     "firstName": "Nome",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "Este profissional não está aceitando reservas on-line no momento. Entre em contato diretamente para reservar.",
       "bookingFull": "Este profissional não pode aceitar mais reservas on-line este mês. Entre em contato diretamente para reservar.",
       "serviceLimit": "Você atingiu o limite de serviços ativos do seu plano. Desative um serviço ou faça upgrade do plano para adicionar outro.",
-      "featureLocked": "Este recurso não está incluído no seu plano. Faça upgrade do plano para usá-lo."
+      "featureLocked": "Este recurso não está incluído no seu plano. Faça upgrade do plano para usá-lo.",
+      "notConfigured": "Os pagamentos on-line não estão disponíveis no momento. Solicite o plano e nós o configuraremos para você.",
+      "alreadySubscribed": "Você já tem uma assinatura. Mude de plano nas configurações do seu Plano.",
+      "noSubscription": "Não há nenhuma assinatura ativa para alterar."
     },
     "pages": {
       "provider": "Não conseguimos carregar a página deste profissional. Tente novamente.",
@@ -1152,7 +1365,9 @@
       "noEnd": "Sem data de término",
       "save": "Salvar plano",
       "saved": "Plano salvo",
-      "pagesLabel": "Páginas de profissionais"
+      "pagesLabel": "Páginas de profissionais",
+      "paddle": "Paddle",
+      "paddleNote": "Cobrado pela Paddle: uma alteração manual feita aqui é substituída na próxima atualização da assinatura."
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "Serviços ativos",
       "maxBookingsPerMonth": "Reservas on-line por mês",
       "analyticsHistoryDays": "Histórico de análises",
-      "customSlug": "Link personalizado"
+      "customSlug": "Link personalizado",
+      "telegramNotifications": "Notificações no Telegram",
+      "calendarFeed": "Sincronização de agenda (iCal)",
+      "removeBranding": "Sem a marca Bookie na sua página"
     },
     "unlimited": "Ilimitado",
     "fullHistory": "Histórico completo",
@@ -1174,16 +1392,90 @@
     "included": "Incluído",
     "notIncluded": "Não incluído",
     "current": "Seu plano",
-    "requestTitle": "Solicitar o plano {plan}"
+    "requestTitle": "Solicitar o plano {plan}",
+    "freeForever": "Grátis para sempre",
+    "perMonth": "/ mês"
   },
   "Pricing": {
     "metaTitle": "Preços para profissionais",
-    "metaDescription": "Planos do Bookie para profissionais, do grátis ao premium, e o que cada um inclui. Reservar é sempre grátis para os clientes.",
+    "metaDescription": "Planos do Bookie para profissionais: comece grátis ou faça upgrade para ter mais serviços, reservas ilimitadas, notificações no Telegram e sincronização de agenda. Agendar é sempre grátis para os clientes.",
     "title": "Planos para profissionais",
     "subtitle": "Comece grátis e mude de plano quando sua agenda encher. Os clientes nunca pagam para reservar.",
     "startFree": "Começar grátis",
     "requestPlan": "Solicitar este plano",
     "clientsFree": "Os clientes nunca pagam nada para reservar pelo Bookie.",
-    "manualNote": "Por enquanto, os planos pagos são configurados pela nossa equipe. Envie uma solicitação e responderemos por e-mail para ativá-lo."
+    "manualNote": "Por enquanto, os planos pagos são configurados pela nossa equipe. Envie uma solicitação e responderemos por e-mail para ativá-lo.",
+    "getStarted": "Começar",
+    "choosePlan": "Escolher {plan}",
+    "seeYourPlan": "Ver seu plano",
+    "checkoutFailed": "Não foi possível iniciar o checkout",
+    "billedMonthly": "Os planos pagos são cobrados mensalmente. Mude de plano ou cancele quando quiser.",
+    "localCurrencyNote": "Os preços estão na sua moeda local e incluem impostos quando aplicável.",
+    "usdNote": "Os preços estão em dólares americanos. Os impostos são adicionados no checkout quando aplicável.",
+    "includedTitle": "Incluído em todos os planos",
+    "includedSubtitle": "Tudo isso já vem no Grátis — os planos pagos acrescentam mais capacidade e comodidades.",
+    "included": {
+      "publicPage": "Sua própria página de agendamento",
+      "onlineBooking": "Agendamento on-line 24 horas por dia",
+      "clientsFree": "Os clientes agendam de graça, com ou sem conta",
+      "approvals": "Aprove os agendamentos antes que cheguem à sua agenda",
+      "emailNotifications": "Notificações por e-mail de novos agendamentos, alterações e cancelamentos",
+      "reminders": "Lembretes de agendamento para você e seus clientes",
+      "clientCalendar": "Arquivos para seus clientes adicionarem o agendamento à agenda",
+      "reviews": "Avaliações e notas dos clientes",
+      "analytics": "Análises de agendamentos",
+      "explore": "Presença na busca de profissionais do Bookie",
+      "languages": "Páginas de agendamento em 16 idiomas"
+    },
+    "faqTitle": "Dúvidas sobre cobrança",
+    "faq": {
+      "clientsPay": {
+        "q": "Meus clientes pagam alguma coisa?",
+        "a": "Não. Agendar pelo Bookie é sempre grátis para os clientes, em qualquer plano. Só os profissionais escolhem um plano."
+      },
+      "cancel": {
+        "q": "Posso cancelar a qualquer momento?",
+        "a": "Sim. Cancele em Gerenciar cobrança, nas configurações do seu Plano. Seu plano continua ativo até o fim do mês já pago e, depois disso, sua conta passa para o Grátis."
+      },
+      "downgrade": {
+        "q": "O que acontece com minha página se eu mudar para um plano menor?",
+        "a": "Nada do que seus clientes veem é removido. Os serviços acima do novo limite continuam publicados e editáveis — você só não pode adicionar outros até ficar abaixo dele. Uma mudança de plano nunca cancela agendamentos."
+      },
+      "switching": {
+        "q": "Posso mudar de plano depois?",
+        "a": "Sim, a qualquer momento, nas configurações do seu Plano. A mudança vale na hora, e a diferença do restante do mês é cobrada ou creditada automaticamente."
+      },
+      "paymentProcessor": {
+        "q": "Quem processa o pagamento?",
+        "a": "Os pagamentos são processados pela Paddle, nossa revendedora e Merchant of Record. A Paddle aceita cartões e outras formas de pagamento locais, envia seus recibos e faturas e cuida dos impostos sobre vendas e do IVA."
+      },
+      "currency": {
+        "q": "Em qual moeda vou pagar?",
+        "a": "Onde a Paddle oferece suporte, os preços são exibidos e cobrados na sua moeda local, já com os impostos aplicáveis onde você está. Caso contrário, são exibidos em dólares americanos, sem impostos."
+      },
+      "failedPayment": {
+        "q": "E se um pagamento falhar?",
+        "a": "A Paddle tenta cobrar seu cartão novamente e envia um e-mail para você. Seu plano continua funcionando por uma semana enquanto você atualiza a forma de pagamento; depois disso, sua conta passa para o Grátis até que um pagamento seja aprovado."
+      },
+      "refunds": {
+        "q": "Posso pedir reembolso?",
+        "a": "Sim — peça em até 14 dias após o primeiro pagamento de um plano, ou a qualquer momento se uma cobrança tiver sido feita por engano. Veja nossa <refund>política de reembolso</refund>."
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "Checkout",
+    "checkoutOpening": "Abrindo o checkout seguro…",
+    "checkoutSecure": "Os pagamentos são processados pela Paddle, nossa revendedora. Os dados do seu cartão nunca chegam ao Bookie.",
+    "checkoutUnavailableTitle": "Não foi possível abrir o checkout",
+    "checkoutUnavailableBody": "Nada foi cobrado. Volte ao seu plano e tente novamente daqui a pouco.",
+    "backToPlan": "Voltar ao seu plano",
+    "returnTitle": "Pagamento",
+    "confirmingTitle": "Confirmando seu pagamento…",
+    "confirmingBody": "Isso costuma levar alguns segundos. Mantenha esta página aberta.",
+    "activeTitle": "Você está no plano {plan}",
+    "activeBody": "Obrigado! Tudo o que seu plano inclui já está disponível. A Paddle enviou um recibo para o seu e-mail.",
+    "receivedTitle": "Pagamento recebido",
+    "receivedBody": "Obrigado! Pode levar alguns minutos para seu plano ser atualizado. A Paddle enviou um recibo para o seu e-mail."
   }
 }

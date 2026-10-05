@@ -30,8 +30,10 @@ The repo's knowledge is deliberately distributed. Before analysing, read what ap
    written, where it is read, where it is validated. The form bugs in this repo all come
    from a value having two owners.
 3. **Check the time-handling seams** for anything touching booking or schedules.
-   Schedules are wall-clock `'HH:mm'` strings with no date and no zone; slots are `Date`
-   objects anchored via `dayjs(date).startOf('day')` — i.e. **local time**. `booking.ts`
+   Schedules are wall-clock `'HH:mm'` strings with no date, on the clock of
+   `Provider.timeZone`; slots are instants stepped in that zone by `getSlotsForDate`
+   (`src/helpers/timeZone.ts#zonedTimeToDate`), or in the runtime's zone when it is null.
+   Month-grid days are local-midnight *carriers* for a date, not instants. `booking.ts`
    parses strictly, `schedule.ts` does not. `getSlotsForDate` takes an injectable `now`.
    `dayjs` is the only time library; `temporal-polyfill` is a FullCalendar peer dep with
    zero usages.

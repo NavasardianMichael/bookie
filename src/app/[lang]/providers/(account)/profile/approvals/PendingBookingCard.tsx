@@ -4,7 +4,9 @@ import { FC } from 'react'
 import { Tag } from 'antd'
 import { useFormatter, useTranslations } from 'next-intl'
 import { ProviderBooking } from '@api/appointments/types'
+import { useAuthStore } from '@store/auth/store'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { getHourCycle } from '@helpers/timeFormat'
 import { AppButton } from '@components/ui/AppButton'
 import { AppText } from '@components/ui/bare/AppText'
 
@@ -48,6 +50,7 @@ export const PendingBookingCard: FC<Props> = ({ booking, expired, pending, onApp
   const tBookings = useTranslations('Settings.bookings')
   const tMethods = useTranslations('Settings.payments.methods')
   const format = useFormatter()
+  const hourCycle = getHourCycle(useAuthStore.use.timeFormat())
 
   const name = `${booking.booker.firstName} ${booking.booker.lastName}`.trim() || tBookings('unknownBooker')
   const phone = booking.booker.phone?.number
@@ -72,6 +75,7 @@ export const PendingBookingCard: FC<Props> = ({ booking, expired, pending, onApp
               month: 'long',
               hour: 'numeric',
               minute: '2-digit',
+              hourCycle,
             })}
           </AppText>
           <AppText size='body' className='block font-semibold'>
@@ -107,6 +111,7 @@ export const PendingBookingCard: FC<Props> = ({ booking, expired, pending, onApp
             month: 'short',
             hour: 'numeric',
             minute: '2-digit',
+            hourCycle,
           })}
         />
       </div>

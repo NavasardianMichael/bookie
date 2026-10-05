@@ -77,6 +77,8 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || vars.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN }}
+          NEXT_PUBLIC_PADDLE_ENV: ${{ secrets.NEXT_PUBLIC_PADDLE_ENV || vars.NEXT_PUBLIC_PADDLE_ENV }}
 
       # Proves the deployable API artifact still assembles — it is the part of the
       # build that `pnpm verify` does not cover.

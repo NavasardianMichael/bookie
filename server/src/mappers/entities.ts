@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client'
-import type { Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
+import type { BillingStatus, Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
 import { effectivePlan, getEntitlements, type PlanFields } from '../services/plans.js'
 import { isOpenToday } from '../services/providerSearch.js'
 import { reviewAuthorName } from '../services/reviews.js'
@@ -69,9 +69,10 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
       available: provider.available,
       /**
        * Same predicate as Explore's `openToday` filter, so the card's Closed
-       * state cannot disagree with a list that was filtered on hours today.
+       * state cannot disagree with a list that was filtered on hours today —
+       * and "today" is the provider's, in their own zone.
        */
-      openToday: isOpenToday(provider.weekSchedule),
+      openToday: isOpenToday(provider.weekSchedule, new Date(), provider.timeZone),
       /**
        * On `basic` rather than `details` so the Explore card gets it: `BasicProvider` is
        * `Pick<ProviderProfile, 'id' | 'basic'>`, so anything here reaches the card for
@@ -126,6 +127,19 @@ export function mapProviderDetails(
     email: provider.user?.email,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
     weekSchedule,
+    /**
+     * The zone `weekSchedule` is written in. **Public on purpose**: the booking grid steps
+     * the hours into instants in this zone and labels its times with it. Absent when the
+     * provider never set one — the page then reads the hours in the visitor's own zone,
+     * which is all it could ever do before the column existed.
+     */
+    timeZone: provider.timeZone ?? undefined,
+    /**
+     * 12- or 24-hour, for every time this provider's pages print. **Public on purpose**, like
+     * `timeZone`: the booking grid and the hours list format with it. Absent when the provider
+     * never chose — each reader's locale decides then.
+     */
+    timeFormat: provider.timeFormat ?? undefined,
     paymentInfo: provider.paymentInfo ?? undefined,
     /**
      * **Public on purpose.** The booking sheet says "your request will be sent for
@@ -160,6 +174,12 @@ export function mapSingleProvider(provider: ProviderWithRelations, options: { bo
   const details = {
     ...mapProviderDetails(provider),
     onlineBooking: resolveOnlineBooking(provider, options.bookingsFull),
+    /**
+     * Whether the page shows its "Booking page by Bookie" line. Plan-neutral like
+     * `onlineBooking`: a boolean about the page, never which plan removed it — a visitor is
+     * never told about a plan (`server/CLAUDE.md`).
+     */
+    showPoweredBy: !getEntitlements(provider, new Date()).removeBranding,
   }
 
   const services = provider.services ?? []
@@ -250,6 +270,29 @@ export function mapProviderPlan(provider: PlanFields, now: Date) {
     effectivePlan: effectivePlan(provider, now),
     planExpiresAt: provider.planExpiresAt?.toISOString(),
     entitlements: getEntitlements(provider, now),
+  }
+}
+
+/**
+ * The provider's Paddle subscription as the Plan tab shows it — `null` for a provider who
+ * has never subscribed (an admin-assigned plan has no billing to show). Owner-only: it is
+ * served by `GET /provider-profile/plan` alone, never on a public payload.
+ *
+ * `manageable` is whether the billing portal can be opened, which needs only a Paddle
+ * customer — a cancelled subscriber can still reach their invoices.
+ */
+export function mapProviderBilling(provider: {
+  paddleCustomerId: string | null
+  billingStatus: BillingStatus | null
+  billingPeriodEndsAt: Date | null
+  billingCancelsAt: Date | null
+}) {
+  if (!provider.billingStatus) return null
+  return {
+    status: provider.billingStatus,
+    periodEndsAt: provider.billingPeriodEndsAt?.toISOString(),
+    cancelsAt: provider.billingCancelsAt?.toISOString(),
+    manageable: Boolean(provider.paddleCustomerId),
   }
 }
 
@@ -592,6 +635,8 @@ export function mapAdminProvider(
     lastName: string
     slug: string | null
     listed: boolean
+    paddleSubscriptionId: string | null
+    billingStatus: BillingStatus | null
     user: { email: string }
   },
   now: Date
@@ -605,6 +650,14 @@ export function mapAdminProvider(
     plan: provider.plan,
     effectivePlan: effectivePlan(provider, now),
     planExpiresAt: provider.planExpiresAt?.toISOString(),
+    /**
+     * `'paddle'` while a Paddle subscription is live: its webhook will overwrite whatever an
+     * admin saves here on its next event, so the admin screen says so.
+     */
+    billing:
+      provider.paddleSubscriptionId && provider.billingStatus && provider.billingStatus !== 'canceled'
+        ? ('paddle' as const)
+        : undefined,
   }
 }
 

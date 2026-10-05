@@ -29,13 +29,20 @@ is an agreement between the packages, not merely for convenience — `organizati
 does the same to pin the new-organization length caps to `@constants/form`,
 `search.spec.ts` runs every case against both twins of the search matcher
 (`src/helpers/search.ts`, `server/src/lib/search.ts`), `planErrors.spec.ts` pins the plan
-codes, the plan order and the Plan tab link, and `providerSeo.spec.ts` checks every `ROUTES`
-segment is a reserved slug.
+codes, the plan order and the Plan tab link, `providerSeo.spec.ts` checks every `ROUTES`
+segment is a reserved slug, and `timeFormat.spec.ts` pins `Provider.timeFormat`'s values and
+their `Intl` hour cycles to `@constants/schedule` and `@helpers/timeFormat`.
 
 The plan rules are reachable here because `server/src/services/plans.ts` is pure and takes
 `now` — including the Prisma `where` that counts the booking allowance
 (`bookingsThisMonthWhere`), which is how "cancelled bookings do not count" is tested without
-a database. The counts themselves, and the routes' wiring, are not reachable from
+a database. Billing, notifications and the calendar were built the same way, so their rules
+are reachable too: `services/billing.ts` (Paddle state → plan, event ordering),
+`lib/paddle-signature.ts`, `services/noticeRules.ts` (channels), `services/reminders.ts`
+(when one is due), `lib/ics.ts`, `lib/telegram-updates.ts` and `lib/notice-render.ts`. Their
+I/O halves (`billingSync.ts`, `notify.ts`, `bookingNotify.ts`, `jobs/reminderJob.ts`) are not.
+`billingErrors.spec.ts` pins the billing codes, the checkout page Paddle redirects to, and
+the bookings link in provider notices. The counts themselves, and the routes' wiring, are not reachable from
 `pnpm test` (see `docs/BACKLOG.md`).
 
 ```bash

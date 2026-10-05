@@ -18,6 +18,8 @@ const LABELS: BookingSummaryLabels = {
   service: 'Service',
   date: 'Date',
   time: 'Time',
+  timeZone: 'Time zone',
+  timeZoneName: (timeZone) => `zone:${timeZone}`,
   duration: 'Duration',
   durationValue: (minutes) => `${minutes} min`,
   price: 'Price',
@@ -66,6 +68,34 @@ describe('buildBookingSummaryFields', () => {
     ).map((field) => field.key)
 
     expect(keys).toEqual(['provider', 'date', 'time', 'duration'])
+  })
+
+  // TZ is pinned to UTC, so these times can only read 18:30 if the provider's zone was used.
+  it("writes date and time on the provider's clock and names the zone", () => {
+    const fields = buildBookingSummaryFields({ ...BASE, timeZone: 'Asia/Yerevan' }, LABELS)
+
+    expect(fields.find((field) => field.key === 'time')?.text).toBe('06:30 PM – 07:00 PM')
+    expect(fields.find((field) => field.key === 'timeZone')).toEqual({
+      key: 'timeZone',
+      label: 'Time zone',
+      text: 'zone:Asia/Yerevan',
+    })
+  })
+
+  it('moves the date too when the provider is already on the next day', () => {
+    const fields = buildBookingSummaryFields(
+      { ...BASE, startISO: '2026-03-04T21:30:00.000Z', timeZone: 'Asia/Yerevan' },
+      LABELS
+    )
+
+    expect(fields.find((field) => field.key === 'date')?.text).toBe('Thursday, 5 March 2026')
+    expect(fields.find((field) => field.key === 'time')?.text).toBe('01:30 AM – 02:00 AM')
+  })
+
+  it("prints the time on the provider's 24-hour clock when they chose it", () => {
+    const fields = buildBookingSummaryFields({ ...BASE, timeZone: 'Asia/Yerevan', timeFormat: 'h24' }, LABELS)
+
+    expect(fields.find((field) => field.key === 'time')?.text).toBe('18:30 – 19:00')
   })
 })
 

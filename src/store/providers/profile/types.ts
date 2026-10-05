@@ -10,7 +10,7 @@ import { Location, PhoneNumber } from '@interfaces/app'
 import { OnlineBooking } from '@interfaces/booking'
 import { Normalized } from '@interfaces/commons'
 import { ProviderPlan } from '@interfaces/plans'
-import { WeekDay } from '@interfaces/schedule'
+import { TimeFormat, WeekDay } from '@interfaces/schedule'
 import { PaymentInfo, ProviderDraft, ProviderEmailNotificationPrefs } from '@interfaces/settings'
 import { StateCommonProps } from '@interfaces/store'
 
@@ -57,6 +57,19 @@ export type ProviderProfile = {
     emailVerifiedAt?: string
     gallery: GalleryItem[]
     weekSchedule: WeekSchedule
+    /**
+     * The IANA zone `weekSchedule` is written in (`Asia/Yerevan`). On the **public** payload:
+     * the booking grid steps the hours into instants in this zone and labels its times with
+     * it (`@helpers/timeZone`). Absent for a provider who never set one — read the hours in
+     * the viewer's zone then, which is all the page ever did before the field existed.
+     */
+    timeZone?: string
+    /**
+     * 12- or 24-hour, for every time printed for this provider. On the **public** payload, like
+     * `timeZone`. Absent for a provider who never chose — format through
+     * `@helpers/timeFormat#resolveTimeFormat`, which falls back to the reader's locale.
+     */
+    timeFormat?: TimeFormat
     emailNotificationPrefs?: ProviderEmailNotificationPrefs
     paymentInfo?: PaymentInfo
     /**
@@ -83,6 +96,12 @@ export type ProviderProfile = {
      * value as `open`.
      */
     onlineBooking?: OnlineBooking
+    /**
+     * Whether the public page shows its "Booking page by Bookie" line — on Free, off from
+     * Basic up. Plan-neutral like `onlineBooking`. Optional so an older payload parses;
+     * treat a missing value as `false`, never adding branding a provider paid to remove.
+     */
+    showPoweredBy?: boolean
   }
   services: Normalized<ProviderService>
   personal: ProviderPersonalValues

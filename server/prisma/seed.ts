@@ -28,6 +28,8 @@ const SEED_GUEST_APPOINTMENT_NOTE = 'Seed guest appointment'
 const SEED_PENDING_NOTE = 'Seed pending approval'
 const SEED_PENDING_GUEST_NOTE = 'Seed pending approval (guest)'
 const PHONE_CODE = 374
+/** Every seeded provider is in Armenia (`country: 'AM'`), so their hours are Yerevan time. */
+const SEED_TIME_ZONE = 'Asia/Yerevan'
 
 /**
  * Phone is no longer identity — it is an unverified contact field on each profile, with no
@@ -299,6 +301,7 @@ async function main() {
         plan: def.plan,
         organizationId: organizations[def.org]!.id,
         weekSchedule: defaultWeekSchedule(),
+        timeZone: SEED_TIME_ZONE,
         categories: {
           create: def.cats.map((idx) => ({ categoryId: categories[idx]!.id })),
         },
@@ -335,6 +338,16 @@ async function main() {
     })
     providers.push(provider)
   }
+
+  /**
+   * A database seeded before `Provider.timeZone` existed has these rows already, and the
+   * upsert's `update: {}` leaves them zoneless. Filling only a null keeps the seed
+   * idempotent without overwriting a zone set on the Availability tab while developing.
+   */
+  await prisma.provider.updateMany({
+    where: { id: { in: providers.map((provider) => provider.id) }, timeZone: null },
+    data: { timeZone: SEED_TIME_ZONE },
+  })
 
   /**
    * A consumer's only address is the identity `User.email`, which `seedEmail` derives

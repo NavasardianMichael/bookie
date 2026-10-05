@@ -7,11 +7,13 @@ import { dayKeyInZone, zoneOffsetMs } from './providerBookings.js'
  *
  * Two shapes here are deliberate and worth not undoing.
  *
- * **Bucketed in the caller's timezone, not UTC.** `startAt` is stored in UTC and
- * `Provider` carries no timezone column, so bucketing by the raw instant puts an evening
- * booking on the following day for anyone east of Greenwich and the previous one for
- * anyone far enough west. The client sends its IANA zone; every day, weekday and hour
- * bucket below is resolved through it.
+ * **Bucketed in the caller's timezone, not UTC.** `startAt` is stored in UTC, so
+ * bucketing by the raw instant puts an evening booking on the following day for anyone
+ * east of Greenwich and the previous one for anyone far enough west. The client sends its
+ * IANA zone; every day, weekday and hour bucket below is resolved through it. It is the
+ * *reader's* zone rather than `Provider.timeZone` on purpose: the workspace renders every
+ * booking time in the browser's zone, and a chart bucketed in another would disagree with
+ * the list beside it. `Provider.timeZone` is the zone the *schedule* is written in.
  *
  * **Bucketed in memory, not in SQL.** `date_trunc(... AT TIME ZONE ...)` would be faster
  * and would need a live database to test, which this repo has no fixtures for. One

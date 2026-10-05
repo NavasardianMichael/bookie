@@ -29,9 +29,11 @@ import {
 /**
  * The provider's own timezone, as the browser reports it.
  *
- * Sent with every workspace read because `startAt` is stored in UTC and `Provider`
- * carries no timezone column: without it the server would bucket an evening booking
- * onto the following day for anyone east of Greenwich. Guarded because
+ * Sent with every workspace read because `startAt` is stored in UTC: without it the
+ * server would bucket an evening booking onto the following day for anyone east of
+ * Greenwich. The browser's zone rather than `Provider.timeZone`, because the rows these
+ * counts sit beside are formatted on the browser's clock too — the grid and the list must
+ * agree about which day a booking is on. Guarded because
  * `Intl.DateTimeFormat` is not available in every SSR environment, and the server
  * falls back to UTC on an empty or unknown value.
  */
@@ -135,4 +137,17 @@ export const patchManagedAppointmentAPI: PatchManagedAppointmentAPI['api'] = asy
     body
   )
   return processPatchManagedAppointmentResponse(data)
+}
+
+/**
+ * The booking as a downloadable `.ics` — "Add to calendar" on the manage page and after a
+ * booking. A plain link rather than a fetch: the browser downloads it (the API answers
+ * `Content-Disposition: attachment`) and the calendar app takes it from there. Built on the
+ * API origin `axiosInstance` already owns, as `buildGoogleSignInUrl` does.
+ */
+export const buildBookingCalendarFileUrl = (token: string, locale: string): string => {
+  const origin = axiosInstance.defaults.baseURL ?? ''
+  const url = new URL(`${ENDPOINTS.manageAppointment}/${encodeURIComponent(token)}/ics`, origin.endsWith('/') ? origin : `${origin}/`)
+  url.searchParams.set('locale', locale)
+  return url.toString()
 }

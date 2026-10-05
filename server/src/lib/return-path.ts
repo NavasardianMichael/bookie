@@ -172,3 +172,23 @@ export const buildPlanUrl = (origin: string, locale: string): string => withLoca
 /** The provider's public page — where a declined booker goes to pick another time. */
 export const buildProviderPageUrl = (origin: string, locale: string, providerId: string): string =>
   withLocale(origin, locale, `/providers/${providerId}`)
+
+/**
+ * The page Paddle sends a checkout to: `POST /billing/checkout` hands this to Paddle as the
+ * transaction's `checkout.url`, and Paddle returns it with `?_ptxn=txn_…` appended. The page
+ * (`ROUTES.billingCheckout`) loads Paddle.js, which opens the overlay on seeing `_ptxn`. A
+ * mismatch would send a paying provider to a 404 — pinned by `billingErrors.spec.ts`. The
+ * same path, under `/en`, is the "default payment link" in Paddle's checkout settings.
+ */
+export const BILLING_CHECKOUT_PATH = '/billing/checkout'
+
+export const buildBillingCheckoutUrl = (origin: string, locale: string): string =>
+  withLocale(origin, locale, BILLING_CHECKOUT_PATH)
+
+/**
+ * The account's bookings page — where a provider's new-booking, change, cancellation and
+ * reminder notices send them. `ROUTES.bookings`, pinned by `billingErrors.spec.ts`.
+ */
+export const BOOKINGS_PATH = '/bookings'
+
+export const buildBookingsUrl = (origin: string, locale: string): string => withLocale(origin, locale, BOOKINGS_PATH)

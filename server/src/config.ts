@@ -111,6 +111,48 @@ export const config = {
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     redirectUri: process.env.GOOGLE_REDIRECT_URI ?? 'http://localhost:9004/identity/google/callback',
   },
+  /**
+   * Paddle Billing — provider subscriptions (docs/PADDLE_SETUP.md). `apiKey` is read **only**
+   * by `lib/paddle.ts`, exactly as `mail.apiKey` is by `lib/mail.ts`.
+   *
+   * Empty disables billing rather than throwing, the bargain `mail` and `google` make: a fresh
+   * clone prices the plans in USD and offers the contact-form request instead of a checkout.
+   *
+   * `webhookSecrets` is a list because a Paddle notification destination's secret cannot be
+   * regenerated in place — rotating it means a second destination, and for that window both
+   * secrets sign real events. `sandbox` must agree with the web's `NEXT_PUBLIC_PADDLE_ENV`.
+   */
+  paddle: {
+    apiKey: process.env.PADDLE_API_KEY ?? '',
+    webhookSecrets: (process.env.PADDLE_WEBHOOK_SECRET ?? '')
+      .split(',')
+      .map((secret) => secret.trim())
+      .filter(Boolean),
+    sandbox: process.env.PADDLE_SANDBOX === 'true',
+    priceIds: {
+      basic: process.env.PADDLE_PRICE_ID_BASIC ?? '',
+      standard: process.env.PADDLE_PRICE_ID_STANDARD ?? '',
+      premium: process.env.PADDLE_PRICE_ID_PREMIUM ?? '',
+    },
+  },
+  /**
+   * The Telegram bot that carries notifications beside email (docs/NOTIFICATIONS.md).
+   * `botToken` is read **only** by `lib/telegram.ts`. `webhookSecret` is the `secret_token`
+   * given to `setWebhook`; Telegram echoes it in a header, which is how a forged update is
+   * told apart from a real one. Empty disables the channel — the Connect button reports it
+   * unavailable and every notice goes by email alone.
+   */
+  telegram: {
+    botToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
+    botUsername: (process.env.TELEGRAM_BOT_USERNAME ?? '').replace(/^@/, ''),
+    webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET ?? '',
+  },
+  /**
+   * The appointment-reminder job (`jobs/reminderJob.ts`). On by default; `REMINDERS_ENABLED=false`
+   * turns it off for a second API process, should one ever run — the sends are claimed by
+   * compare-and-set, so two would not double-send, but there is no reason to poll twice.
+   */
+  remindersEnabled: process.env.REMINDERS_ENABLED !== 'false',
 }
 
 /**
@@ -120,3 +162,14 @@ export const config = {
  */
 export const isGoogleOAuthConfigured = (): boolean =>
   Boolean(config.google.clientId && config.google.clientSecret && config.google.redirectUri)
+
+/**
+ * Whether a checkout can be offered at all: an API key and at least one price. Which plans
+ * are actually for sale is per price — `isPlanPurchasable` in `routes/plans.ts`.
+ */
+export const isPaddleConfigured = (): boolean =>
+  Boolean(config.paddle.apiKey && Object.values(config.paddle.priceIds).some(Boolean))
+
+/** Whether the Connect button can work: a bot to message, a name to link to, a secret to check. */
+export const isTelegramConfigured = (): boolean =>
+  Boolean(config.telegram.botToken && config.telegram.botUsername && config.telegram.webhookSecret)

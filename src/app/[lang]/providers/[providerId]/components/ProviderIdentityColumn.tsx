@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { SingleProvider } from '@store/providers/single/types'
 import { currentLocale } from '@i18n/metadata'
 import { ROUTE_KEYS } from '@constants/routes'
+import { isOnlineBookingOpen } from '@helpers/booking'
 import { translateCategoryName } from '@helpers/categoryName'
 import { getCountryName } from '@helpers/country'
 import { generateEntityPath } from '@helpers/entities'
@@ -19,6 +20,7 @@ import { AppTitle } from '@components/ui/bare/AppTitle'
 import { ContactActions } from '@components/ui/ContactActions'
 import { UserIcon } from '@components/ui/icons'
 import { Surface } from '@components/ui/layout'
+import { ProviderBookNowButton } from './ProviderBookNowButton'
 import { ProviderShareButton } from './ProviderShareButton'
 import { WorkingHours } from './WorkingHours'
 
@@ -59,6 +61,8 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
   const showTransferDetails = acceptsBankTransfer(details.paymentInfo) && hasPaymentShare(paymentShare)
   const showPayments = !!paymentMethods.length || showTransferDetails
   const showFacts = Boolean(organization || categories?.length || details.location.address || phone || email)
+  const bookingOpen = isOnlineBookingOpen(details.onlineBooking)
+  const showContactActions = Boolean(phone || details.location.address)
 
   return (
     <aside className='flex flex-col gap-6'>
@@ -151,7 +155,12 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
           </div>
         )}
 
-        <ContactActions phone={phone} address={details.location.address} className='mt-6' />
+        {(showContactActions || bookingOpen) && (
+          <div className='mt-6 flex w-full flex-col gap-2'>
+            <ContactActions phone={phone} address={details.location.address} />
+            {bookingOpen ? <ProviderBookNowButton /> : null}
+          </div>
+        )}
 
         {showPayments && (
           <div className='border-brand-border-subtle mt-6 w-full border-t pt-5 text-start'>
@@ -179,7 +188,11 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
           <AppTitle level='h2' size='h3' className='mb-3'>
             {tProvider('workingHours')}
           </AppTitle>
-          <WorkingHours weekSchedule={details.weekSchedule} />
+          <WorkingHours
+            weekSchedule={details.weekSchedule}
+            timeZone={details.timeZone}
+            timeFormat={details.timeFormat}
+          />
         </Surface>
       )}
     </aside>

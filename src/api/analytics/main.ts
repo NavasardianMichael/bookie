@@ -7,9 +7,10 @@ import { GetProviderAnalyticsAPI } from './types'
 
 /**
  * The browser's IANA timezone, sent so the server buckets days, weekdays and hours the
- * way the person reading the page experiences them. `startAt` is UTC and `Provider` has
- * no timezone column, so without this an evening booking lands on the wrong day for
- * anyone away from Greenwich. Guarded, and the server falls back to UTC.
+ * way the person reading the page experiences them. `startAt` is UTC, so without this an
+ * evening booking lands on the wrong day for anyone away from Greenwich. The reader's zone,
+ * not `Provider.timeZone`: the workspace shows every booking time on the browser's clock,
+ * and the chart has to agree with it. Guarded, and the server falls back to UTC.
  */
 const currentTimeZone = (): string => {
   try {

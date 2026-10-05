@@ -16,6 +16,8 @@ import {
   parseAdminPlanBody,
   PLAN_CATALOGUE,
   PLAN_ORDER,
+  PLAN_PRICES,
+  planChangeStampReset,
   takesServiceSlot,
 } from '../../../server/src/services/plans'
 
@@ -232,5 +234,41 @@ describe('parseAdminPlanBody', () => {
     expect(() => parseAdminPlanBody({ plan: 'basic', planExpiresAt: 12 }, NOW)).toThrow(
       expect.objectContaining({ status: 400 })
     )
+  })
+})
+
+describe('PLAN_PRICES', () => {
+  it('prices every plan, Free at nothing', () => {
+    expect(Object.keys(PLAN_PRICES).sort()).toEqual([...PLAN_ORDER].sort())
+    expect(PLAN_PRICES.free.amountCents).toBe(0)
+  })
+
+  // A bigger plan that costs less than a smaller one is a typo, not a pricing choice.
+  it('rises strictly from one plan to the next', () => {
+    PLAN_ORDER.slice(1).forEach((plan, index) => {
+      expect(PLAN_PRICES[plan].amountCents).toBeGreaterThan(PLAN_PRICES[PLAN_ORDER[index]].amountCents)
+    })
+  })
+
+  // Paid plans sell convenience, never the basics: the paid-only features start at Basic.
+  it('keeps Telegram, the calendar feed and unbranded pages off Free and on every paid plan', () => {
+    expect(PLAN_CATALOGUE.free).toMatchObject({ telegramNotifications: false, calendarFeed: false, removeBranding: false })
+    PLAN_ORDER.slice(1).forEach((plan) =>
+      expect(PLAN_CATALOGUE[plan]).toMatchObject({ telegramNotifications: true, calendarFeed: true, removeBranding: true })
+    )
+  })
+})
+
+describe('planChangeStampReset', () => {
+  it('clears the allowance-notice stamps when the effective plan changes', () => {
+    expect(planChangeStampReset({ plan: 'free', planExpiresAt: null }, { plan: 'basic', planExpiresAt: LATER }, NOW)).toEqual({
+      bookingCapWarnedAt: null,
+      bookingCapReachedAt: null,
+    })
+  })
+
+  // Re-saving the same plan must not let this month's notices go out twice.
+  it('clears nothing when the effective plan stays the same', () => {
+    expect(planChangeStampReset({ plan: 'basic', planExpiresAt: LATER }, { plan: 'basic', planExpiresAt: null }, NOW)).toEqual({})
   })
 })

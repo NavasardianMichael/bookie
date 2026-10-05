@@ -59,8 +59,10 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/bookings` | ƒ | Real — every appointment on the account, whichever side the session holds. Header destination when signed in, `noindex`, proxy-guarded. See [Bookings](#bookings--bookings) |
 | `/favorites` | ƒ | Real — providers the account saved with the heart on a provider card. A Server Component grid of `ProviderCard`s over `GET /favorites`, cookie forwarded; a revoked cookie's 401 redirects to sign-in. Header destination when signed in, `noindex`, proxy-guarded |
 | `/contact` | ● | Real — contact form; prefilled from the session, `POST /contact` |
-| `/pricing` | ƒ | Real — the plan comparison table over `GET /plans`, server-rendered; per-column actions are the only islands (Free → provider registration, paid → the request sheet). Indexed and in the sitemap; the footer hides its link from consumer sessions. See `docs/BILLING.md` |
-| `/terms`, `/privacy` | ● | Placeholders — registration's consent notice must link somewhere real |
+| `/pricing` | ƒ | Real — the plan comparison table over `GET /plans` with each plan's USD price, then *Included in every plan* and the billing FAQ, all server-rendered. Islands: the per-column actions (guest → provider registration; provider → a Paddle checkout via `useStartCheckout`, or the request sheet when the plan is not `purchasable`) and the price cells, which swap in Paddle's localized total (`usePlanPrices`). Indexed and in the sitemap; the footer hides its link from consumer sessions. See `docs/BILLING.md` |
+| `/terms`, `/privacy`, `/refund-policy` | ● | Real — one `LegalDocument` each, over `Legal.<doc>.sections.*` (`src/constants/legal.ts` is the shape). Paddle's live review requires all three, Terms naming Paddle as Merchant of Record; linked from the footer and registration's consent notice |
+| `/billing/checkout` | ƒ | Where Paddle sends a checkout (`?_ptxn=`). Loads Paddle.js, which opens the overlay itself. **Public** — Paddle links here from its own emails too. `noindex`, out of the sitemap and `/routes-overview`. Reads its query in the Server Component |
+| `/billing/return` | ƒ | After `checkout.completed`: waits (`useAwaitPlan`) until the plan bought is in force. Proxy-guarded, `noindex` |
 | `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password` and `verify-email`, which read `searchParams` |
 | `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state — `AdminReviewsClient` reads that 404 as an empty list, not as an error; any other failure shows with a Retry |
 | `/admin/providers` | ƒ | Real — plan assignment: search providers, set a plan and its last day. Same guard and same 404-as-empty reading as `/admin/reviews`; `AdminNav` links the two |
@@ -103,7 +105,8 @@ daily page.
 | Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo`. The slug field is read-only without the plan's `customSlug`, and the slug is then left out of the save |
-| Plan | `/providers/profile/plan` | Current plan and expiry, this month's usage meters, the comparison table, *Request upgrade* (the contact form with `topic: 'planUpgrade'`). `GET /provider-profile/plan` + `GET /plans`. Last in the nav |
+| Plan | `/providers/profile/plan` | Current plan with "Renews on" / "Ends on" (or an admin plan's expiry), *Manage billing* (Paddle's portal), a past-due warning, this month's usage meters, the comparison table with prices. Per column: *Upgrade* (checkout) when not subscribed, *Switch* (prorated, `AppConfirmModal`, then waits for the webhook) when subscribed, *Request upgrade* (the contact form) when the plan is not sold through Paddle. `GET /provider-profile/plan` + `GET /plans`. Last in the nav |
+| Notifications | `/providers/profile/notifications` (and the consumer side) | The event preferences (`emailNotificationPrefs`, which also govern Telegram), then *Telegram* (`TelegramConnect`) and, providers only, *Calendar sync* (`CalendarFeed`). Both blocks act on their own, outside the form's Save. Telegram for a provider's business and the feed need Basic or up; the blocks say so and link to the Plan tab |
 
 The services page and the Analytics and SEO tabs gate on `personal.entitlements` from the
 owner profile they already load — no extra request. Each control the plan does not allow is
@@ -370,7 +373,7 @@ the page's only list of what they offer. A submit refused mid-visit with
 `BOOKING_ERROR_CODES` closes the sheet and flips to the notice locally
 (`getBookingClosedReason`), since no other time would go through either.
 
-Three things not to undo here:
+Four things not to undo here:
 
 1. **No FullCalendar, and no dialog that asks *which time*.** The old view ran a
    month/week/day switcher whose day click opened an `AppSheet` of times, so the day and
@@ -393,6 +396,17 @@ Three things not to undo here:
    returns, and it keeps date parsing to the single site that needs a real `Date`. Any
    module that parses one must `dayjs.extend(customParseFormat)` itself — `booking.ts`
    extends it for `booking.ts` only.
+4. **Every time is on the provider's clock, and says so.** `BookingPanel` passes
+   `details.timeZone` to the slot helpers, `BookingMonth` (whose "today" is the provider's),
+   `BookingSlots` and the summary. `BookingSlots`' header names the zone (`Armenia Standard
+   Time (GMT+4)`), and a visitor whose clock reads differently also sees their own time for
+   the picked slot. It used to say "Local time" while stepping the hours in the visitor's
+   zone, so a booker abroad was offered the provider's 09:00 at their own 09:00. A provider
+   with no zone set is still read in the visitor's zone, and the label names that zone. The
+   manage page (`/b/[token]`) reuses the same panels and does the same. Where each surface
+   gets its zone: *Time zones* in `docs/DATABASE_STRUCTURE.md`. The same panels take
+   `details.timeFormat` alongside it, so slots, the summary and the hours list (`WorkingHours`)
+   print on the provider's 12- or 24-hour clock — *12- or 24-hour clock* in that doc.
 
 ### The landing page — `/`
 

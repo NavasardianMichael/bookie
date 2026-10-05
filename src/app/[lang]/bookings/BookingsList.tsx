@@ -28,11 +28,13 @@ import {
   ProviderBookingsSort,
 } from '@api/appointments/types'
 import { getProviderProfileAPI } from '@api/providers/main'
+import { useAuthStore } from '@store/auth/store'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
 import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { ROUTES } from '@constants/routes'
 import { reportError } from '@helpers/reportError'
 import { collapseWhitespace } from '@helpers/search'
+import { getHourCycle } from '@helpers/timeFormat'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppInput } from '@components/ui/AppInput'
@@ -167,6 +169,25 @@ const BookingActionsMenu: FC<BookingActionsMenuProps> = ({ name, actions, onPick
   )
 }
 
+/**
+ * A row's start, on the signed-in provider's own published clock — on both sides of their
+ * workspace. Reads that clock itself: handing it down through `BookingsList` made the React
+ * Compiler give up preserving that component's memoization.
+ */
+const BookingStart: FC<{ start: Date }> = ({ start }) => {
+  const format = useFormatter()
+  const timeFormat = useAuthStore.use.timeFormat()
+
+  return format.dateTime(start, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hourCycle: getHourCycle(timeFormat),
+  })
+}
+
 type Props = {
   side: BookingsSide
   /** Inclusive local-day range from the calendar, or empty when every day is shown. */
@@ -194,7 +215,6 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
   const tHistory = useTranslations('Settings.history')
   const tStatus = useTranslations('Settings.bookings.status')
   const tErrors = useTranslations('Errors')
-  const format = useFormatter()
   const isConsumer = side === 'consumer'
 
   const [statuses, setStatuses] = useState<BookingStatus[]>([])
@@ -433,13 +453,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
               >
                 <div className='min-w-0 flex-1 basis-56'>
                   <AppText size='caption' className='text-brand block'>
-                    {format.dateTime(start, {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    })}
+                    <BookingStart start={start} />
                   </AppText>
                   <AppText size='body' tone='default' className='block font-semibold'>
                     {name}

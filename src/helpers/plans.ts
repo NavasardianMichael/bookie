@@ -4,8 +4,8 @@ import dayjs, { Dayjs } from 'dayjs'
  * A plan's expiry is an instant — the first moment it no longer applies — but people think
  * in its **last day**. The admin picks the last day, and the plan ends at the UTC midnight
  * after it; the Plan tab reads it back the same way. UTC on both sides, because that is
- * the zone the server counts the booking month in (`Provider` has no timezone), so the two
- * can never disagree about which day a plan ended on.
+ * the zone the server counts the booking month in (it does not read `Provider.timeZone` —
+ * docs/BACKLOG.md), so the two can never disagree about which day a plan ended on.
  */
 
 /** The last day picked in a date picker → the instant the plan ends (the next UTC midnight). */

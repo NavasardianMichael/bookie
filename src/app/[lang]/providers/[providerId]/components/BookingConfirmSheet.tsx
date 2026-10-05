@@ -4,6 +4,7 @@ import { FC, useState } from 'react'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
 import { Alert, Form, Spin, Tooltip } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
+import { buildBookingCalendarFileUrl } from '@api/appointments/main'
 import { GuestBookingDetails } from '@api/appointments/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { PaymentInfo, PaymentMethod } from '@interfaces/settings'
@@ -192,7 +193,12 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created, onSharePend
 
       <BookingSummary {...summary} />
 
-      <BookingShareActions manageUrl={manageUrl} booking={summary} onPendingChange={onSharePendingChange} />
+      <BookingShareActions
+        manageUrl={manageUrl}
+        calendarFileUrl={buildBookingCalendarFileUrl(created.manageToken, locale)}
+        booking={summary}
+        onPendingChange={onSharePendingChange}
+      />
     </div>
   )
 }

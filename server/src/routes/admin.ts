@@ -6,7 +6,7 @@ import { asBoundedString } from '../lib/request.js'
 import { mapAdminProvider, mapReviewReport } from '../mappers/entities.js'
 import { requireAdmin } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
-import { effectivePlan, parseAdminPlanBody } from '../services/plans.js'
+import { parseAdminPlanBody, planChangeStampReset } from '../services/plans.js'
 import { resolvePageWindow } from '../services/providerSearch.js'
 import { recomputeProviderRating } from '../services/reviews.js'
 
@@ -17,7 +17,8 @@ import { recomputeProviderRating } from '../services/reviews.js'
  * against persisting a contact message on the grounds that, with no admin surface, the
  * table would never be looked at; that argument is what this router answers. The report
  * email is the alert, `ReviewReport` is the queue, and three routes work it. Plans are the
- * second job: until a payment provider is wired in, an admin is how a provider gets one.
+ * second job: an admin assigns a plan by hand — a trial, a comp, or where Paddle does not sell
+ * it — beside the Paddle webhook, the other writer of `plan`.
  *
  * Every route is behind `requireAdmin`, which matches the caller's identity email against
  * `config.adminEmails` and answers **404** — not 403 — to everyone else, so the surface
@@ -132,6 +133,8 @@ const ADMIN_PROVIDER_SELECT = {
   listed: true,
   plan: true,
   planExpiresAt: true,
+  paddleSubscriptionId: true,
+  billingStatus: true,
   user: { select: { email: true } },
 } as const
 
@@ -183,8 +186,9 @@ adminRouter.get(
 
 /**
  * Set a provider's plan, and optionally when it lapses back to free — a trial, a founding
- * offer, or an invoice paid by hand. This is the only writer of `plan` until a payment
- * provider's webhook takes over (docs/BILLING.md).
+ * offer, or an invoice paid by hand. One of two writers of `plan`: the other is the Paddle
+ * webhook, which overwrites a manual assignment on the next event of a live subscription.
+ * The row says `billing: 'paddle'` for those, so the screen can warn (docs/BILLING.md).
  *
  * Changing the effective plan clears this month's allowance-notice stamps, so the new
  * plan's thresholds can notify again. Re-saving the same plan leaves them alone, or a
@@ -205,14 +209,12 @@ adminRouter.patch(
     })
     if (!current) throw new HttpError(404, 'Provider not found', 404)
 
-    const planChanged = effectivePlan(current, now) !== effectivePlan(next, now)
-
     const provider = await prisma.provider.update({
       where: { id: current.id },
       data: {
         plan: next.plan,
         planExpiresAt: next.planExpiresAt,
-        ...(planChanged ? { bookingCapWarnedAt: null, bookingCapReachedAt: null } : {}),
+        ...planChangeStampReset(current, next, now),
       },
       select: ADMIN_PROVIDER_SELECT,
     })

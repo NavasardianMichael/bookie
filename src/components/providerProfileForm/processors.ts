@@ -16,6 +16,7 @@ export const processProviderProfileFormToPostPayload = (
   if (formValues.gallery) processedPayload.gallery = formValues.gallery
   if (formValues.organizationId) processedPayload.organizationId = formValues.organizationId
   if (formValues.weekSchedule) processedPayload.weekSchedule = JSON.stringify(formValues.weekSchedule)
+  if (formValues.timeZone) processedPayload.timeZone = formValues.timeZone
 
   return processedPayload as PutProviderProfileAPI['payload']
 }

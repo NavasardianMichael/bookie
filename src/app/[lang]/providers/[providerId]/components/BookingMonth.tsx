@@ -3,13 +3,14 @@
 import { FC, useCallback, useMemo } from 'react'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
-import dayjs, { Dayjs } from 'dayjs'
+import { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
 import { WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { isOpenOnDate } from '@helpers/booking'
 import { buildMonthCells, buildWeekdayLabels } from '@helpers/calendar'
 import { cn } from '@helpers/cn'
+import { calendarDayOf } from '@helpers/timeZone'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -24,6 +25,12 @@ type Props = {
   /** Open slots per `DAY_KEY_FORMAT` key, so a day can show whether it is bookable at all. */
   slotCountByDay: Map<string, number>
   weekSchedule?: WeekSchedule
+  /**
+   * The provider's IANA zone. "Today" — the highlighted cell, the Today button, the point the
+   * grid will not page back past — is the provider's today, which near midnight is not the
+   * visitor's. Absent: the runtime's zone.
+   */
+  timeZone?: string
   /** Named in the subtitle — the date is being picked *for* a service. */
   serviceName?: string
   onSelectDay: (dayKey: string) => void
@@ -51,6 +58,7 @@ export const BookingMonth: FC<Props> = ({
   selectedDayKey,
   slotCountByDay,
   weekSchedule,
+  timeZone,
   serviceName,
   onSelectDay,
   onMonthChange,
@@ -61,11 +69,15 @@ export const BookingMonth: FC<Props> = ({
 
   const weekdayLabels = useMemo(() => buildWeekdayLabels(), [])
 
-  const today = useMemo(() => dayjs().startOf('day'), [])
+  // Fresh each render — never `useMemo(..., [])`. That froze the SSR clock (UTC in Node)
+  // into the client bundle, so in UTC+4 after midnight UTC the button's "today" was
+  // still yesterday and never matched the selected local day.
+  const today = calendarDayOf(new Date(), timeZone)
   const todayKey = today.format(DAY_KEY_FORMAT)
   // The provider cannot be booked in the past, so there is nothing to page back to.
   const canGoBack = month.startOf('month').isAfter(today, 'month')
-  const isCurrentMonth = month.isSame(today, 'month')
+  // Only the selected day matters — not which month is on screen.
+  const isOnToday = selectedDayKey === todayKey
 
   const handlePrev = useCallback(
     () => onMonthChange(month.subtract(1, 'month').startOf('month')),
@@ -73,9 +85,10 @@ export const BookingMonth: FC<Props> = ({
   )
   const handleNext = useCallback(() => onMonthChange(month.add(1, 'month').startOf('month')), [month, onMonthChange])
   const handleToday = useCallback(() => {
-    onMonthChange(today.startOf('month'))
-    onSelectDay(todayKey)
-  }, [onMonthChange, onSelectDay, today, todayKey])
+    const nextToday = calendarDayOf(new Date(), timeZone)
+    onMonthChange(nextToday.startOf('month'))
+    onSelectDay(nextToday.format(DAY_KEY_FORMAT))
+  }, [onMonthChange, onSelectDay, timeZone])
 
   const handleDayClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -98,7 +111,7 @@ export const BookingMonth: FC<Props> = ({
         </div>
 
         <div className='flex shrink-0 items-center gap-2'>
-          <AppButton disabled={isCurrentMonth} onClick={handleToday}>
+          <AppButton disabled={isOnToday} onClick={handleToday}>
             {t('today')}
           </AppButton>
           <AppButton

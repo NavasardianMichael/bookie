@@ -1,17 +1,23 @@
 'use client'
 
 import { FC, useState } from 'react'
-import { CopyOutlined, DownloadOutlined, LinkOutlined, QrcodeOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { CalendarOutlined, CopyOutlined, DownloadOutlined, LinkOutlined, QrcodeOutlined, ShareAltOutlined } from '@ant-design/icons'
 import { App, Image } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useErrorToast } from '@hooks/useErrorToast'
 import { BookingSummaryData, formatBookingSummaryPlainText } from '@helpers/bookingSummary'
 import { toQrDataUrl } from '@helpers/qr'
 import { AppButton } from '@components/ui/AppButton'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { useBookingSummaryFields } from './BookingSummary'
 
 type Props = {
   manageUrl: string
+  /**
+   * The booking as an `.ics` (`buildBookingCalendarFileUrl`) — "Add to calendar". A plain
+   * link: the API answers it as a download, which the device hands to its calendar app.
+   */
+  calendarFileUrl?: string
   booking: BookingSummaryData
   /** Fired around QR generation so a parent sheet can lock dismissal for the same window. */
   onPendingChange?: (pending: boolean) => void
@@ -21,7 +27,7 @@ const QR_FILENAME = 'booking-qr.png'
 
 const isAbort = (err: unknown): boolean => err instanceof DOMException && err.name === 'AbortError'
 
-export const BookingShareActions: FC<Props> = ({ manageUrl, booking, onPendingChange }) => {
+export const BookingShareActions: FC<Props> = ({ manageUrl, calendarFileUrl, booking, onPendingChange }) => {
   const t = useTranslations('Booking')
   const tCommon = useTranslations('Common')
   const { message } = App.useApp()
@@ -100,6 +106,12 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, booking, onPendingCh
 
   return (
     <div className='flex w-full flex-col gap-2'>
+      {calendarFileUrl ? (
+        <AppLink href={calendarFileUrl} variant='button' tone='default' className='w-full justify-start gap-2' download>
+          <CalendarOutlined />
+          {t('addToCalendar')}
+        </AppLink>
+      ) : null}
       <AppButton
         className='w-full justify-start'
         icon={<ShareAltOutlined />}

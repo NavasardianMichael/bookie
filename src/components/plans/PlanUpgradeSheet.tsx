@@ -13,7 +13,8 @@ type Props = {
 }
 
 /**
- * "Request this plan", until a payment provider is wired in (docs/BILLING.md): the contact
+ * "Request this plan", for a plan this deployment does not sell through Paddle
+ * (`purchasable: false` — no key or price configured; docs/BILLING.md): the contact
  * form in a sheet, sent with `topic: 'planUpgrade'` so the admin inbox reads
  * "Plan upgrade request — basic — Anna Petrosyan" and the plan is assigned from
  * `/admin/providers`. Shared by the Plan tab and `/pricing`.

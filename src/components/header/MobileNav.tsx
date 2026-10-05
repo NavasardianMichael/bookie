@@ -37,7 +37,10 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
   const close = useCallback(() => setOpen(false), [])
   const toggle = useCallback(() => setOpen((prev) => !prev), [])
 
-  const profileActive = Boolean(profileHref && isActive(profileHref))
+  const showProfile = Boolean(isSignedOn && profileHref)
+  const profileActive = Boolean(showProfile && profileHref && isActive(profileHref))
+  // Public provider page drops marketplace dests; guests then have nothing for this block.
+  const showLinks = showProfile || routes.length > 0
 
   return (
     <>
@@ -62,27 +65,29 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
         classNames={{ body: 'p-3 overscroll-contain' }}
       >
         <div className='flex flex-col gap-4'>
-          <div className='flex flex-col gap-1'>
-            {isSignedOn && profileHref && (
-              <AppLink
-                href={profileHref}
-                variant='plain'
-                onClick={close}
-                aria-current={profileActive ? 'page' : undefined}
-                className={cn(
-                  'flex items-center gap-2 rounded-brand-sm px-3 text-sm font-semibold transition-colors',
-                  profileActive
-                    ? 'bg-brand-50 text-brand'
-                    : 'text-brand-text hover:bg-surface-sunken hover:text-brand active:bg-surface-sunken'
-                )}
-              >
-                <UserOutlined aria-hidden />
-                {t('profile')}
-              </AppLink>
-            )}
-            <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
-          </div>
-          <LanguageSwitcher className='w-full' variant='borderless' />
+          {showLinks && (
+            <div className='flex flex-col'>
+              {showProfile && profileHref && (
+                <AppLink
+                  href={profileHref}
+                  variant='plain'
+                  onClick={close}
+                  aria-current={profileActive ? 'page' : undefined}
+                  className={cn(
+                    'flex items-center gap-2 rounded-brand-sm border-b border-brand-border px-3 py-3 text-sm font-semibold transition-colors',
+                    profileActive
+                      ? 'bg-brand-50 text-brand'
+                      : 'text-brand-text hover:bg-surface-sunken hover:text-brand active:bg-surface-sunken'
+                  )}
+                >
+                  <UserOutlined aria-hidden />
+                  {t('profile')}
+                </AppLink>
+              )}
+              <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
+            </div>
+          )}
+          <LanguageSwitcher className='self-start' variant='borderless' />
           {!isSignedOn && (
             <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
               {t(HEADER_SIGN_IN)}

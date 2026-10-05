@@ -1,5 +1,6 @@
 import { CompleteGoogleAPI, LoginAPI, RegisterAPI } from '@api/auth/types'
 import { Session, SignOnStep, UserType } from '@interfaces/auth'
+import { TimeFormat } from '@interfaces/schedule'
 import { StateCommonProps } from '@interfaces/store'
 
 export type AuthState = StateCommonProps & {
@@ -10,6 +11,11 @@ export type AuthState = StateCommonProps & {
   firstName: string | null
   lastName: string | null
   image: string | null
+  /**
+   * The signed-in provider's published 12/24-hour choice, which their workspace (bookings,
+   * approvals, analytics) prints times on. `null` for a consumer or a provider who never chose.
+   */
+  timeFormat: TimeFormat | null
   email: string | null
   /**
    * The profiles this account holds, once a session read has answered. `null` until then

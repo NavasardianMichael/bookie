@@ -14,7 +14,7 @@ import { HttpError } from '../middleware/error.js'
  * declaration — the grid a visitor sees and the guard that rejects their submit must
  * never be able to disagree about what "taken" means.
  */
-const LIVE_STATUSES = ['pending', 'scheduled', 'confirmed'] as const
+export const LIVE_STATUSES = ['pending', 'scheduled', 'confirmed'] as const
 
 
 function addMinutes(date: Date, minutes: number) {
@@ -231,6 +231,9 @@ export async function rescheduleAppointment(input: {
       durationMinutes: service.durationMinutes,
       price: service.price,
       currency: service.currency,
+      // A new time is reminded of afresh: a reminder sent for the old one said the wrong time.
+      providerRemindedAt: null,
+      bookerRemindedAt: null,
     },
   })
 }

@@ -183,6 +183,7 @@
       "service": "Prestation",
       "date": "Date",
       "time": "Heure",
+      "timeZone": "Fuseau horaire",
       "duration": "Durée",
       "durationValue": "{minutes} min",
       "price": "Prix",
@@ -224,12 +225,17 @@
     "chooseDate": "Choisir une date",
     "availableTimes": "Créneaux disponibles",
     "noDatePicked": "Aucune date choisie pour le moment",
-    "localTime": "Heure locale",
+    "timesShownIn": "Fuseau horaire : {zone}",
+    "yourTime": "{time} chez vous",
     "pickDateFirst": "Choisissez d'abord une date",
     "pickDateFirstBody": "Choisissez un jour dans le calendrier ci-dessus et ses créneaux disponibles apparaîtront ici.",
     "noOpenTimes": "Aucun créneau disponible ce jour-là",
     "noOpenTimesBody": "Essayez un autre jour — les jours avec des disponibilités sont ceux que vous pouvez sélectionner.",
     "readyToConfirm": "Prêt à confirmer ?",
+    "pickAService": "Choisissez un service",
+    "pickAServiceHint": "Choisissez un service ci-dessus pour continuer.",
+    "pickServiceAndTime": "Choisissez un service et un horaire",
+    "pickServiceAndTimeHint": "Choisissez un service ci-dessus, puis l'un des horaires ici, pour continuer.",
     "pickATime": "Choisissez un horaire",
     "pickATimeHint": "Choisissez l'un des horaires ci-dessus pour continuer.",
     "bookNow": "Réserver maintenant",
@@ -280,7 +286,8 @@
       "fullBody": "{name} ne peut plus accepter de réservations en ligne ce mois-ci. Prenez contact directement pour convenir d’un horaire.",
       "call": "Appeler le {phone}",
       "email": "Envoyer un e-mail"
-    }
+    },
+    "addToCalendar": "Ajouter à l’agenda"
   },
   "Footer": {
     "blurb": "Une seule plateforme pour trouver des services près de chez vous ou gérer votre agenda de réservations.",
@@ -295,7 +302,10 @@
     "createAccount": "Créer un compte",
     "company": "Entreprise",
     "contact": "Contact",
-    "pricing": "Tarifs"
+    "pricing": "Tarifs",
+    "terms": "Conditions d’utilisation",
+    "privacy": "Politique de confidentialité",
+    "refund": "Politique de remboursement"
   },
   "Contact": {
     "metaTitle": "Contactez-nous",
@@ -415,17 +425,39 @@
       "emptyFilteredBody": "Essayez un autre statut ou terme de recherche."
     },
     "notifications": {
-      "subtitle": "Choisissez les e-mails que vous souhaitez recevoir.",
+      "subtitle": "Choisissez ce dont vous voulez être informé, par e-mail et sur Telegram.",
       "emailPrefs": "Préférences de notification",
       "remindersTitle": "Rappels de rendez-vous",
-      "remindersBody": "Recevez un e-mail avant le début d’une réservation.",
+      "remindersBody": "Recevez un rappel avant le début d’une réservation.",
       "remindersLeadLabel": "Me prévenir",
       "remindersMinutes": "{count} minutes",
       "remindersHours": "{count, plural, one {# heure} other {# heures}}",
       "changesTitle": "Changements de réservation",
       "changesBody": "Notifications lorsqu'une réservation est modifiée ou annulée.",
       "newBookingTitle": "Nouvelles réservations",
-      "newBookingBody": "Un e-mail lorsqu'un client réserve auprès de vous."
+      "newBookingBody": "Lorsqu’un client réserve auprès de vous.",
+      "telegramTitle": "Telegram",
+      "telegramProviderBody": "Recevez vos notifications de réservation sur Telegram en plus de l’e-mail.",
+      "telegramConsumerBody": "Recevez vos rappels et les mises à jour de vos réservations sur Telegram en plus de l’e-mail.",
+      "telegramLocked": "Les notifications Telegram concernant votre activité sont incluses à partir de la formule Essentiel. <plan>Voir les formules</plan>",
+      "telegramUnavailable": "Les notifications Telegram ne sont pas disponibles pour le moment.",
+      "telegramConnect": "Connecter Telegram",
+      "telegramOpen": "Ouvrir Telegram",
+      "telegramOpenHint": "Ouvrez Telegram et appuyez sur « Démarrer » pour terminer la connexion. Le lien est valable 15 minutes.",
+      "telegramWaiting": "En attente de Telegram…",
+      "telegramConnected": "Connecté",
+      "telegramConnectedAs": "Connecté en tant que @{username}",
+      "telegramDisconnect": "Déconnecter",
+      "telegramConnectFailed": "Impossible de lancer la connexion à Telegram",
+      "telegramDisconnectFailed": "Impossible de déconnecter Telegram",
+      "calendarTitle": "Synchronisation d’agenda",
+      "calendarBody": "Abonnez-vous à vos réservations depuis Google Calendar, Apple Calendar ou Outlook. Les nouvelles réservations et les modifications y apparaissent automatiquement.",
+      "calendarLocked": "La synchronisation d’agenda est incluse à partir de la formule Essentiel. <plan>Voir les formules</plan>",
+      "calendarCopy": "Copier le lien de l’agenda",
+      "calendarHint": "Dans votre application d’agenda, ajoutez un agenda à partir d’une URL et collez ce lien. Gardez-le privé : toute personne qui le possède peut voir vos réservations.",
+      "calendarReset": "Réinitialiser le lien",
+      "calendarResetTitle": "Réinitialiser le lien de votre agenda ?",
+      "calendarResetBody": "Le lien actuel cesse de fonctionner immédiatement. Les agendas abonnés à ce lien ne se mettent plus à jour tant que vous n’avez pas ajouté le nouveau."
     },
     "payments": {
       "title": "Paiements",
@@ -457,6 +489,15 @@
       "recurringBody": "Jours et heures pendant lesquels les clients peuvent réserver. Ajoutez jusqu'à 5 plages par jour si vous faites des pauses.",
       "pauseTitle": "Accepter les réservations",
       "pauseBody": "Désactivez pour mettre en pause les nouvelles réservations sans dépublier votre page.",
+      "timeZone": "Fuseau horaire",
+      "timeZoneHint": "Vos horaires suivent ce fuseau. Les visiteurs voient et réservent les créneaux dans ce fuseau, où qu'ils soient.",
+      "timeZonePlaceholder": "Rechercher une ville, un fuseau ou un décalage",
+      "timeZoneSuggested": "Votre fuseau horaire n'est pas encore enregistré. Nous avons indiqué celui de cet appareil — publiez pour l'appliquer à votre page publique.",
+      "timeZoneDeviceDiffers": "Fuseau horaire de cet appareil : {zone}.",
+      "timeFormat": "Format de l'heure",
+      "timeFormatHint": "Comment les heures s'affichent sur votre page publique, dans les e-mails de réservation et dans vos réservations.",
+      "timeFormat12": "12 heures ({time})",
+      "timeFormat24": "24 heures ({time})",
       "to": "à",
       "unavailable": "Indisponible",
       "addRange": "Ajouter une plage",
@@ -682,7 +723,23 @@
       "resetsOn": "Remise à zéro le {date}",
       "comparePlans": "Comparer les formules",
       "requestUpgrade": "Demander une formule supérieure",
-      "manualNote": "Pour l’instant, les formules sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer."
+      "manualNote": "Pour l’instant, les formules sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer.",
+      "renewsOn": "Renouvellement le {date}",
+      "cancelsOn": "Résiliée — prend fin le {date}",
+      "manageBilling": "Gérer la facturation",
+      "portalFailed": "Impossible d’ouvrir la facturation",
+      "paymentFailedTitle": "Votre dernier paiement n’a pas abouti",
+      "paymentFailedBody": "Mettez à jour votre moyen de paiement dans « Gérer la facturation » pour conserver la formule {plan}. Paddle retentera le prélèvement sur votre carte.",
+      "cancelInPortal": "Résilier l’abonnement",
+      "upgrade": "Mettre à niveau",
+      "switch": "Changer",
+      "switchTitle": "Passer à la formule {plan} ?",
+      "switchBody": "Le changement s’applique immédiatement. La différence pour le reste de ce mois est automatiquement facturée sur votre moyen de paiement ou créditée sur celui-ci.",
+      "switchConfirm": "Changer de formule",
+      "switchingTitle": "Passage à {plan}…",
+      "switchPendingTitle": "Votre changement de formule est en cours",
+      "switchPendingBody": "Paddle l’a accepté, mais son affichage ici peut prendre quelques minutes. Actualisez la page dans un instant.",
+      "billingNote": "Les paiements sont gérés par Paddle. Résiliez, changez de carte ou téléchargez vos factures dans « Gérer la facturation »."
     }
   },
   "Bookings": {
@@ -945,18 +1002,169 @@
       "starCount": "{count, plural, one {# étoile} other {# étoiles}}",
       "pagesLabel": "Pages d’avis",
       "loadError": "Impossible de charger les avis. Veuillez réessayer."
-    }
+    },
+    "poweredBy": "Page de réservation créée avec Bookie",
+    "poweredByCta": "Créez la vôtre gratuitement"
   },
   "Legal": {
     "termsMetaTitle": "Conditions d'utilisation",
     "termsMetaDescription": "Les conditions qui régissent votre utilisation de Bookie.",
     "termsTitle": "Conditions d'utilisation",
-    "unpublished": "Pas encore publiées.",
-    "termsBody": "Les conditions d'utilisation de Bookie sont encore en cours de finalisation. En attendant leur publication ici, nous répondons directement aux questions sur l'utilisation de la plateforme — écrivez-nous via la <contact>page de contact</contact>.",
     "privacyMetaTitle": "Politique de confidentialité",
     "privacyMetaDescription": "Ce que Bookie collecte et comment ces données sont traitées.",
     "privacyTitle": "Politique de confidentialité",
-    "privacyBody": "La politique de confidentialité de Bookie est encore en cours de finalisation. L'inscription collecte un numéro de téléphone, un nom et éventuellement une adresse e-mail ; le numéro de téléphone est ce qui identifie un compte. Pour toute autre question, écrivez-nous via la <contact>page de contact</contact>."
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "refundMetaTitle": "Politique de remboursement",
+    "refundMetaDescription": "Comment fonctionnent les résiliations et les remboursements des formules payantes de Bookie.",
+    "refundTitle": "Politique de remboursement",
+    "terms": {
+      "sections": {
+        "acceptance": {
+          "title": "Acceptation des présentes conditions",
+          "p1": "En accédant à Bookie (« le Service ») ou en l’utilisant, vous acceptez les présentes conditions d’utilisation ainsi que notre <privacy>politique de confidentialité</privacy>. Si vous ne les acceptez pas, veuillez ne pas utiliser le Service."
+        },
+        "service": {
+          "title": "Le Service",
+          "p1": "Bookie est une plateforme de réservation en ligne. Les professionnels publient une page de réservation présentant leurs prestations et leurs horaires de travail, et les clients trouvent des professionnels et prennent rendez-vous avec eux. Bookie fournit uniquement la plateforme : les prestations elles-mêmes sont assurées par les professionnels, qui en sont seuls responsables."
+        },
+        "accounts": {
+          "title": "Comptes",
+          "p1": "Vous avez besoin d’un compte pour publier une page de réservation ou pour regrouper vos réservations en un seul endroit ; les clients peuvent aussi réserver sans compte. Vous êtes responsable de la confidentialité de vos identifiants de connexion, de tout ce qui est fait depuis votre compte et de l’exactitude de vos informations. Nous pouvons suspendre ou fermer les comptes qui enfreignent les présentes conditions."
+        },
+        "bookings": {
+          "title": "Réservations",
+          "p1": "Une réservation est un accord entre un client et un professionnel. Les professionnels fixent eux-mêmes leurs prestations, leurs prix, leurs horaires et leurs conditions d’annulation, et sont payés directement par leurs clients — Bookie n’encaisse aucun paiement pour les rendez-vous. Bookie n’est pas partie à cet accord et n’est responsable ni des prestations d’un professionnel ni de la présence d’un client."
+        },
+        "content": {
+          "title": "Votre contenu",
+          "p1": "Les professionnels sont responsables de ce qu’ils publient — descriptions, prix, photos et coordonnées — et doivent avoir le droit de le publier. Les clients sont responsables des avis qu’ils rédigent, qui doivent décrire une expérience réelle. Nous pouvons masquer des avis ou supprimer tout contenu illicite, trompeur ou abusif."
+        },
+        "acceptableUse": {
+          "title": "Utilisation acceptable",
+          "p1": "Vous vous engagez à ne pas enfreindre la loi par le biais du Service, à ne pas usurper l’identité d’autrui, à ne pas effectuer de réservations que vous n’avez pas l’intention d’honorer, à ne pas téléverser de code malveillant ni de contenu nuisible, à ne pas tenter d’accéder sans autorisation aux systèmes de Bookie ou aux comptes d’autres personnes, et à ne pas extraire les données du Service (scraping) d’une manière qui lui impose une charge déraisonnable."
+        },
+        "plans": {
+          "title": "Formules et paiements",
+          "p1": "La réservation est toujours gratuite pour les clients. Les professionnels peuvent utiliser Bookie gratuitement ou souscrire une formule payante, facturée chaque mois jusqu’à sa résiliation, aux prix indiqués sur notre <pricing>page des tarifs</pricing>. Des taxes peuvent s’appliquer selon l’endroit où vous vous trouvez. Vous pouvez changer de formule ou la résilier à tout moment depuis l’onglet Formule de vos paramètres ; une résiliation prend effet à la fin du mois payé. Pour les remboursements, consultez notre <refund>politique de remboursement</refund>.",
+          "p2": "Notre processus de commande est assuré par notre revendeur en ligne Paddle.com. Paddle.com est le marchand officiel (Merchant of Record) pour toutes nos commandes. Paddle traite toutes les demandes adressées au service client et gère les retours."
+        },
+        "planChanges": {
+          "title": "Modifications des formules et des prix",
+          "p1": "Nous pouvons modifier nos formules ou nos prix. Un changement de prix s’applique à un abonnement existant à partir de sa prochaine période de facturation, et nous vous en informerons au préalable par e-mail. Passer à une formule inférieure, ou y mettre fin, ne retire jamais ce que vos clients voient déjà : les réservations sont conservées et votre page continue de fonctionner dans les limites de la formule gratuite."
+        },
+        "intellectualProperty": {
+          "title": "Propriété intellectuelle",
+          "p1": "Vous restez propriétaire de ce que vous publiez sur Bookie, et vous nous accordez une licence pour l’héberger, l’afficher et le traiter uniquement afin de fournir le Service. La plateforme, le logiciel et le design de Bookie restent notre propriété."
+        },
+        "termination": {
+          "title": "Fin de votre utilisation de Bookie",
+          "p1": "Vous pouvez supprimer votre compte à tout moment depuis les paramètres de votre compte. Nous pouvons suspendre votre accès ou y mettre fin si vous enfreignez les présentes conditions. Une formule payante prend alors fin à l’issue de sa période de facturation en cours."
+        },
+        "disclaimer": {
+          "title": "Absence de garantie",
+          "p1": "Le Service est fourni « en l’état » et « selon disponibilité », sans garantie d’aucune sorte. Nous ne garantissons pas qu’il sera ininterrompu ou exempt d’erreurs, ni qu’une réservation aura effectivement lieu."
+        },
+        "liability": {
+          "title": "Limitation de responsabilité",
+          "p1": "Dans toute la mesure permise par la loi, Bookie n’est pas responsable des dommages indirects, accessoires, spéciaux, consécutifs ou punitifs, ni de tout litige entre un client et un professionnel. Notre responsabilité totale pour toute réclamation est limitée aux sommes que vous nous avez versées au cours des douze mois qui la précèdent."
+        },
+        "changes": {
+          "title": "Modifications des présentes conditions",
+          "p1": "Nous pouvons mettre à jour les présentes conditions. Nous publierons la nouvelle version ici avec une nouvelle date. Continuer à utiliser le Service après une mise à jour signifie que vous acceptez les nouvelles conditions."
+        },
+        "contact": {
+          "title": "Contact",
+          "p1": "Des questions sur ces conditions ? <contact>Contactez-nous</contact>."
+        }
+      }
+    },
+    "privacy": {
+      "intro": "Bookie (« nous ») s’engage à protéger votre vie privée. Cette politique explique ce que nous collectons, pourquoi, avec qui nous le partageons et les choix dont vous disposez.",
+      "sections": {
+        "collect": {
+          "title": "Ce que nous collectons",
+          "p1": "<b>Informations de compte :</b> votre nom, votre adresse e-mail, votre numéro de téléphone et votre mot de passe, qui n’est stocké que sous forme de hachage irréversible. Si vous vous connectez avec Google, nous recevons l’identifiant de votre compte Google et votre adresse e-mail.",
+          "p2": "<b>Pages des professionnels :</b> ce qu’un professionnel publie — description, photos, prestations, prix, horaires de travail, adresse et coordonnées — est public par nature.",
+          "p3": "<b>Réservations :</b> la prestation, l’horaire, les notes et le moyen de paiement préféré de chaque réservation, ainsi que — pour une réservation effectuée sans compte — le nom, le numéro de téléphone et l’adresse e-mail facultative saisis avec celle-ci.",
+          "p4": "<b>Avis</b> que les clients rédigent sur les professionnels, et signalements concernant ces avis.",
+          "p5": "<b>Telegram :</b> si vous connectez Telegram pour les notifications, votre identifiant de discussion Telegram et votre nom d’utilisateur.",
+          "p6": "<b>Facturation :</b> pour les professionnels ayant une formule payante, les identifiants client et d’abonnement de Paddle ainsi que le statut de l’abonnement. Les données de paiement sont transmises à Paddle et ne nous parviennent jamais."
+        },
+        "use": {
+          "title": "Comment nous les utilisons",
+          "p1": "Pour gérer votre compte et vos réservations ; pour envoyer les e-mails liés aux réservations — confirmations, modifications, annulations et rappels — et, si vous l’avez connecté, les mêmes avis sur Telegram ; pour afficher publiquement les pages des professionnels et les avis ; pour traiter les abonnements ; pour assurer la sécurité du Service et prévenir les abus ; et pour vous répondre lorsque vous nous contactez."
+        },
+        "sharing": {
+          "title": "Avec qui nous les partageons",
+          "p1": "Nous ne vendons pas vos données personnelles. Nous les partageons uniquement avec les services qui font fonctionner certaines parties de Bookie pour nous, et seulement dans la mesure où ils en ont besoin :",
+          "p2": "<b>Paddle</b> — notre revendeur et marchand officiel (Merchant of Record), pour les paiements d’abonnement, les factures et les taxes. Paddle traite les données de paiement conformément à sa propre politique de confidentialité.",
+          "p3": "<b>Notre service d’envoi d’e-mails</b> — envoie les e-mails liés au compte et aux réservations.",
+          "p4": "<b>Telegram</b> — transmet les notifications, uniquement si vous le connectez.",
+          "p5": "<b>Google</b> — vous connecte, uniquement si vous choisissez de continuer avec Google.",
+          "p6": "Les détails d’une réservation sont partagés avec le professionnel auprès duquel elle est effectuée, et les coordonnées publiques du professionnel avec le client — c’est le principe même d’une réservation."
+        },
+        "cookies": {
+          "title": "Cookies",
+          "p1": "Nous utilisons uniquement des cookies strictement nécessaires : un cookie qui vous garde connecté jusqu’à 7 jours, des cookies de courte durée qui conservent une connexion Google en cours, et un cookie qui mémorise votre langue. Nous n’utilisons aucun cookie publicitaire ou de mesure d’audience."
+        },
+        "retention": {
+          "title": "Durée de conservation",
+          "p1": "Nous conservons vos données tant que votre compte existe. Supprimer votre compte depuis vos paramètres supprime celui-ci ainsi que votre profil ; un compte client ayant des rendez-vous enregistrés doit d’abord les annuler. Les données de facturation sont également conservées par Paddle, comme l’exige la législation fiscale."
+        },
+        "rights": {
+          "title": "Vos droits",
+          "p1": "Vous pouvez consulter et corriger la plupart de vos données dans vos paramètres, et y supprimer votre compte. Pour obtenir une copie de vos données, ou pour toute autre demande les concernant, <contact>contactez-nous</contact>."
+        },
+        "security": {
+          "title": "Sécurité",
+          "p1": "Toutes les données transitent via HTTPS. Les mots de passe ne sont stockés que sous forme de hachages Argon2id, les liens que nous envoyons par e-mail sont à usage unique et expirent, et le nombre de tentatives de connexion est limité."
+        },
+        "children": {
+          "title": "Enfants",
+          "p1": "Bookie ne s’adresse pas aux enfants de moins de 13 ans, et nous ne collectons pas sciemment leurs données. Si vous pensez qu’un enfant nous a communiqué des données personnelles, contactez-nous et nous les supprimerons."
+        },
+        "changes": {
+          "title": "Modifications de cette politique",
+          "p1": "Nous pouvons mettre à jour cette politique. Nous publierons la nouvelle version ici avec une nouvelle date."
+        },
+        "contact": {
+          "title": "Contact",
+          "p1": "Des questions sur votre vie privée ? <contact>Contactez-nous</contact>."
+        }
+      }
+    },
+    "refund": {
+      "sections": {
+        "subscriptions": {
+          "title": "Formules payantes",
+          "p1": "Les formules payantes de Bookie pour les professionnels sont des abonnements mensuels, facturés à l’avance par Paddle, notre revendeur et marchand officiel (Merchant of Record). Les clients ne paient jamais rien à Bookie."
+        },
+        "cancel": {
+          "title": "Résiliation",
+          "p1": "Vous pouvez résilier à tout moment depuis « Gérer la facturation » dans l’onglet Formule de vos paramètres. Vous conservez votre formule jusqu’à la fin du mois payé, et aucun nouveau prélèvement n’est effectué."
+        },
+        "eligibility": {
+          "title": "Remboursements",
+          "p1": "Si une formule payante ne vous satisfait pas, demandez un remboursement dans les 14 jours suivant votre premier paiement pour celle-ci, et nous vous rembourserons intégralement ce paiement. Au-delà, nous remboursons tout prélèvement effectué par erreur — par exemple un paiement en double, ou un renouvellement survenu après votre résiliation."
+        },
+        "planChanges": {
+          "title": "Changement de formule",
+          "p1": "Les changements de formule sont calculés au prorata : passer à une formule supérieure entraîne la facturation de la différence pour le reste du mois, et passer à une formule inférieure crédite cette différence sur vos prochains paiements."
+        },
+        "request": {
+          "title": "Comment demander un remboursement",
+          "p1": "<contact>Contactez-nous</contact> en indiquant l’adresse e-mail de votre compte Bookie et la date du prélèvement, et nous vous répondrons sous 2 jours ouvrés. Vous pouvez également contacter Paddle depuis le reçu qu’il vous a envoyé par e-mail."
+        },
+        "processing": {
+          "title": "Versement des remboursements",
+          "p1": "Les remboursements approuvés sont effectués par Paddle sur votre moyen de paiement d’origine. Selon votre banque, ils peuvent mettre 5 à 10 jours ouvrés à arriver."
+        },
+        "contact": {
+          "title": "Contact",
+          "p1": "Des questions sur cette politique ? <contact>Contactez-nous</contact>."
+        }
+      }
+    }
   },
   "Services": {
     "title": "Gérer les prestations",
@@ -1013,6 +1221,8 @@
     "aboutYou": "À propos de vous",
     "whatYouDo": "Ce que vous faites",
     "whenYouWork": "Quand vous travaillez",
+    "timeZone": "Fuseau horaire",
+    "timeZoneHint": "Vos horaires de travail suivent ce fuseau. Les visiteurs voient les créneaux dans ce fuseau, où qu'ils soient.",
     "where": "Où",
     "optional": "Facultatif",
     "firstName": "Prénom",
@@ -1086,7 +1296,10 @@
       "bookingPaused": "Ce professionnel n’accepte pas de réservations en ligne pour le moment. Prenez contact directement pour réserver.",
       "bookingFull": "Ce professionnel ne peut plus accepter de réservations en ligne ce mois-ci. Prenez contact directement pour réserver.",
       "serviceLimit": "Vous avez atteint la limite de prestations actives de votre formule. Désactivez une prestation ou passez à une formule supérieure pour en ajouter une autre.",
-      "featureLocked": "Cette fonctionnalité n’est pas incluse dans votre formule. Passez à une formule supérieure pour l’utiliser."
+      "featureLocked": "Cette fonctionnalité n’est pas incluse dans votre formule. Passez à une formule supérieure pour l’utiliser.",
+      "notConfigured": "Les paiements en ligne ne sont pas disponibles pour le moment. Demandez plutôt la formule et nous la mettrons en place pour vous.",
+      "alreadySubscribed": "Vous avez déjà un abonnement. Changez de formule depuis l’onglet Formule de vos paramètres.",
+      "noSubscription": "Aucun abonnement actif à modifier."
     },
     "pages": {
       "provider": "Impossible de charger la page de ce professionnel. Veuillez réessayer.",
@@ -1152,7 +1365,9 @@
       "noEnd": "Sans date de fin",
       "save": "Enregistrer la formule",
       "saved": "Formule enregistrée",
-      "pagesLabel": "Pages des professionnels"
+      "pagesLabel": "Pages des professionnels",
+      "paddle": "Paddle",
+      "paddleNote": "Facturé via Paddle : toute modification manuelle ici sera écrasée par la prochaine mise à jour de l’abonnement."
     }
   },
   "Plans": {
@@ -1166,7 +1381,10 @@
       "maxActiveServices": "Prestations actives",
       "maxBookingsPerMonth": "Réservations en ligne par mois",
       "analyticsHistoryDays": "Historique des statistiques",
-      "customSlug": "Lien personnalisé"
+      "customSlug": "Lien personnalisé",
+      "telegramNotifications": "Notifications Telegram",
+      "calendarFeed": "Synchronisation d’agenda (iCal)",
+      "removeBranding": "Sans la mention Bookie sur votre page"
     },
     "unlimited": "Illimité",
     "fullHistory": "Historique complet",
@@ -1174,16 +1392,90 @@
     "included": "Inclus",
     "notIncluded": "Non inclus",
     "current": "Votre formule",
-    "requestTitle": "Demander la formule {plan}"
+    "requestTitle": "Demander la formule {plan}",
+    "freeForever": "Gratuit pour toujours",
+    "perMonth": "/ mois"
   },
   "Pricing": {
     "metaTitle": "Tarifs pour les professionnels",
-    "metaDescription": "Les formules Bookie pour les professionnels, de la gratuite à la premium, et ce que chacune comprend. La réservation reste toujours gratuite pour les clients.",
+    "metaDescription": "Les formules Bookie pour les professionnels : commencez gratuitement, ou passez à une formule supérieure pour plus de prestations, des réservations illimitées, les notifications Telegram et la synchronisation d’agenda. La réservation reste toujours gratuite pour les clients.",
     "title": "Formules pour les professionnels",
     "subtitle": "Commencez gratuitement et passez à la formule supérieure quand votre agenda se remplit. Les clients ne paient jamais pour réserver.",
     "startFree": "Commencer gratuitement",
     "requestPlan": "Demander cette formule",
     "clientsFree": "Les clients ne paient jamais rien pour réserver via Bookie.",
-    "manualNote": "Pour l’instant, les formules payantes sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer."
+    "manualNote": "Pour l’instant, les formules payantes sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer.",
+    "getStarted": "Commencer",
+    "choosePlan": "Choisir {plan}",
+    "seeYourPlan": "Voir votre formule",
+    "checkoutFailed": "Impossible de lancer le paiement",
+    "billedMonthly": "Les formules payantes sont facturées chaque mois. Changez de formule ou résiliez à tout moment.",
+    "localCurrencyNote": "Les prix sont affichés dans votre devise locale et incluent les taxes applicables.",
+    "usdNote": "Les prix sont en dollars américains. Les taxes applicables sont ajoutées lors du paiement.",
+    "includedTitle": "Inclus dans toutes les formules",
+    "includedSubtitle": "Inclus dès la formule gratuite — les formules payantes ajoutent capacité et confort en plus.",
+    "included": {
+      "publicPage": "Votre propre page de réservation",
+      "onlineBooking": "Réservation en ligne 24 h/24",
+      "clientsFree": "Les clients réservent gratuitement, avec ou sans compte",
+      "approvals": "Approuvez les réservations avant qu’elles n’arrivent dans votre agenda",
+      "emailNotifications": "Notifications par e-mail pour les nouvelles réservations, les modifications et les annulations",
+      "reminders": "Rappels de rendez-vous pour vous et vos clients",
+      "clientCalendar": "Fichiers d’ajout à l’agenda pour vos clients",
+      "reviews": "Avis et notes des clients",
+      "analytics": "Statistiques de réservation",
+      "explore": "Présence dans la recherche de professionnels de Bookie",
+      "languages": "Pages de réservation en 16 langues"
+    },
+    "faqTitle": "Questions sur la facturation",
+    "faq": {
+      "clientsPay": {
+        "q": "Mes clients paient-ils quelque chose ?",
+        "a": "Non. La réservation via Bookie est toujours gratuite pour les clients, quelle que soit la formule. Seuls les professionnels choisissent une formule."
+      },
+      "cancel": {
+        "q": "Puis-je résilier à tout moment ?",
+        "a": "Oui. Résiliez depuis « Gérer la facturation » dans l’onglet Formule de vos paramètres. Votre formule reste active jusqu’à la fin du mois payé, puis votre compte passe à la formule gratuite."
+      },
+      "downgrade": {
+        "q": "Qu’arrive-t-il à ma page si je passe à une formule inférieure ?",
+        "a": "Rien de ce que voient vos clients ne disparaît. Les prestations au-delà de la nouvelle limite restent en ligne et modifiables — vous ne pouvez simplement pas en ajouter tant que vous n’êtes pas repassé sous la limite. Un changement de formule n’annule jamais de réservation."
+      },
+      "switching": {
+        "q": "Puis-je changer de formule plus tard ?",
+        "a": "Oui, à tout moment depuis l’onglet Formule de vos paramètres. Le changement s’applique immédiatement, et la différence pour le reste du mois est facturée ou créditée automatiquement."
+      },
+      "paymentProcessor": {
+        "q": "Qui gère le paiement ?",
+        "a": "Les paiements sont traités par Paddle, notre revendeur et marchand officiel (Merchant of Record). Paddle accepte les cartes et d’autres moyens de paiement locaux, vous envoie vos reçus et factures, et gère la taxe sur les ventes et la TVA."
+      },
+      "currency": {
+        "q": "Dans quelle devise vais-je payer ?",
+        "a": "Lorsque Paddle la prend en charge, les prix sont affichés et facturés dans votre devise locale, taxes applicables dans votre pays comprises. Sinon, ils sont affichés en dollars américains, hors taxes."
+      },
+      "failedPayment": {
+        "q": "Que se passe-t-il si un paiement échoue ?",
+        "a": "Paddle retente le prélèvement sur votre carte et vous prévient par e-mail. Votre formule continue de fonctionner pendant une semaine, le temps de mettre à jour votre moyen de paiement ; ensuite, votre compte passe à la formule gratuite jusqu’à ce qu’un paiement aboutisse."
+      },
+      "refunds": {
+        "q": "Puis-je être remboursé ?",
+        "a": "Oui — faites-en la demande dans les 14 jours suivant votre premier paiement pour une formule, ou à tout moment en cas de prélèvement effectué par erreur. Consultez notre <refund>politique de remboursement</refund>."
+      }
+    }
+  },
+  "Billing": {
+    "checkoutTitle": "Paiement",
+    "checkoutOpening": "Ouverture du paiement sécurisé…",
+    "checkoutSecure": "Les paiements sont gérés par Paddle, notre revendeur. Vos données de carte ne parviennent jamais à Bookie.",
+    "checkoutUnavailableTitle": "Le paiement n’a pas pu s’ouvrir",
+    "checkoutUnavailableBody": "Aucun montant n’a été débité. Revenez à votre formule et réessayez dans un instant.",
+    "backToPlan": "Retour à votre formule",
+    "returnTitle": "Paiement",
+    "confirmingTitle": "Confirmation de votre paiement…",
+    "confirmingBody": "Cela prend généralement quelques secondes. Merci de garder cette page ouverte.",
+    "activeTitle": "Vous êtes sur la formule {plan}",
+    "activeBody": "Merci ! Tout ce que comprend votre formule est disponible dès maintenant. Paddle vous a envoyé un reçu par e-mail.",
+    "receivedTitle": "Paiement reçu",
+    "receivedBody": "Merci ! La mise à jour de votre formule peut prendre quelques minutes. Paddle vous a envoyé un reçu par e-mail."
   }
 }

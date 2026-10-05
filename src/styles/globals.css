@@ -255,16 +255,6 @@ button.copyable-link-copy.ant-btn:hover {
   color: var(--brand-surface) !important;
 }
 
-/* `popupMatchSelectWidth={false}` (the language switcher, the bookings sort) turns off
-   antd's virtual list, and with it the slim scrollbar antd draws itself — the popup falls
-   back to the platform's full-width bar, arrow buttons and all. This slims the native one
-   instead. A virtual list hides its native bar, so the rule is inert there. antd sets no
-   scrollbar properties on the holder, so this needs no `!important`. */
-.ant-select-dropdown-list-holder {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-brand-300) transparent;
-}
-
 /* Keeps `scrollToFirstError` and #anchor jumps clear of the sticky header. */
 [id] {
   scroll-margin-top: calc(var(--spacing-header) + 1rem);
