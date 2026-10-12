@@ -2,6 +2,7 @@ import {
   buildServiceHref,
   parseServiceParam,
   SERVICE_PARAM,
+  startingServiceId,
 } from '@app/[lang]/providers/[providerId]/components/serviceParams'
 import { describe, expect, it } from 'vitest'
 import { ROUTES } from '@constants/routes'
@@ -24,6 +25,22 @@ describe('parseServiceParam', () => {
     expect(parseServiceParam({ [SERVICE_PARAM]: '' }, OFFERED)).toBeUndefined()
     expect(parseServiceParam({}, OFFERED)).toBeUndefined()
     expect(parseServiceParam({ [SERVICE_PARAM]: 'svc-1' }, [])).toBeUndefined()
+  })
+})
+
+describe('startingServiceId', () => {
+  it('starts on the service the link named', () => {
+    expect(startingServiceId(OFFERED, 'svc-2')).toBe('svc-2')
+    expect(startingServiceId(['svc-1'], 'svc-1')).toBe('svc-1')
+  })
+
+  it('starts on the only service offered', () => {
+    expect(startingServiceId(['svc-1'])).toBe('svc-1')
+  })
+
+  it('starts empty when there are several and the link named none', () => {
+    expect(startingServiceId(OFFERED)).toBeUndefined()
+    expect(startingServiceId([])).toBeUndefined()
   })
 })
 

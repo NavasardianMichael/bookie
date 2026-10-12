@@ -13,6 +13,7 @@ import { Surface } from '@components/ui/layout/Surface'
 import { BookingClosedNotice } from './BookingClosedNotice'
 import { BookingPanel } from './BookingPanel'
 import { BOOKING_SERVICES_ID } from './publicBookingCta'
+import { startingServiceId } from './serviceParams'
 import { ServicePicker } from './ServicePicker'
 
 type Props = {
@@ -43,10 +44,14 @@ export const ProviderDetails: FC<Props> = ({ initialState, initialServiceId }) =
     [initialState.services]
   )
 
-  // Start empty so the confirm strip can ask for a service (and a time) rather than
-  // silently booking whatever happened to be first in the catalogue. The one exception is
-  // a service the visitor already chose — the match an Explore card linked them here with.
-  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(initialServiceId)
+  // A link that names a service, or a catalogue of one, starts selected. Several stay
+  // empty: preferring the first row would book a service the visitor never chose.
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(() =>
+    startingServiceId(
+      services.map((service) => service.id),
+      initialServiceId
+    )
+  )
 
   /**
    * Seeded from the payload, and closed locally when a submit is refused because the

@@ -16,8 +16,8 @@ const first = (raw: string | string[] | undefined): string => (Array.isArray(raw
 
 /**
  * The service to start with — only one this provider actually offers. Anything else (a
- * withdrawn service, another provider's id, a hand-edited value) starts with nothing
- * selected, as an unparameterised visit does.
+ * withdrawn service, another provider's id, a hand-edited value) is ignored, and the visit
+ * then starts the way one with no `?service=` does.
  */
 export const parseServiceParam = (
   raw: Record<string, string | string[] | undefined>,
@@ -25,6 +25,19 @@ export const parseServiceParam = (
 ): string | undefined => {
   const serviceId = first(raw[SERVICE_PARAM])
   return offeredIds.includes(serviceId) ? serviceId : undefined
+}
+
+/**
+ * Which service the booking column starts on.
+ *
+ * A link that names one wins. Otherwise a catalogue of one starts on that service —
+ * there is nothing else to choose — and a catalogue of several starts empty, so the
+ * page does not prefer whichever row happens to be first.
+ */
+export const startingServiceId = (offeredIds: readonly string[], requestedId?: string): string | undefined => {
+  if (requestedId) return requestedId
+  const [only] = offeredIds
+  return offeredIds.length === 1 ? only : undefined
 }
 
 /**

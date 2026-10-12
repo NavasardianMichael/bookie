@@ -39,6 +39,12 @@ type Props = {
   isBooking: boolean
   onSelect: (startISO: string) => void
   onConfirm: () => void
+  /**
+   * A selected time with no service still clicks. The public page uses that to
+   * scroll to the service list — a day can have its only open time selected
+   * before a service is. Off on the manage page, whose confirm opens a dialog.
+   */
+  continuesToService?: boolean
   /** Defaults to `Booking.bookNow`. Manage-page reschedule passes a different label. */
   confirmLabel?: string
   /**
@@ -68,6 +74,7 @@ export const BookingSlots: FC<Props> = ({
   isBooking,
   onSelect,
   onConfirm,
+  continuesToService = false,
   confirmLabel,
   cannotBookOwn = false,
 }) => {
@@ -226,7 +233,7 @@ export const BookingSlots: FC<Props> = ({
             <AppButton
               type='primary'
               size='large'
-              disabled={!selectedStart || !hasService || cannotBookOwn}
+              disabled={!selectedStart || cannotBookOwn || (!hasService && !continuesToService)}
               loading={isBooking}
               onClick={onConfirm}
               className='w-full md:w-auto'

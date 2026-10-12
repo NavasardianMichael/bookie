@@ -12,8 +12,8 @@ type Props = {
 
 /**
  * Mobile-only Book now in the identity card. Asks the booking column (via
- * `PUBLIC_BOOK_NOW_EVENT`) to scroll to whatever step is still missing, or to open
- * the confirm sheet when service and time are already picked.
+ * `PUBLIC_BOOK_NOW_EVENT`) to scroll to the first step that is still empty, or to
+ * open the confirm sheet when a service and a time are already selected.
  */
 export const ProviderBookNowButton: FC<Props> = ({ className }) => {
   const t = useTranslations('Booking')

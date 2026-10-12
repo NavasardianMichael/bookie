@@ -169,6 +169,27 @@ export const dropBusySlots = (slots: BookingSlot[], busy: BusyInterval[]): Booki
 }
 
 /**
+ * The time the booking column shows as picked.
+ *
+ * The visitor's own pick holds while that instant is still open. Otherwise a day with
+ * exactly one open time starts on it — the same "nothing else to choose" rule as a
+ * catalogue of one service — and a day with several stays unpicked. Times already
+ * requested on this visit are not open: the button for them is disabled, and selecting
+ * one would arm Book now on a slot the API will refuse.
+ */
+export const resolveSelectedSlotStart = (
+  slots: readonly BookingSlot[],
+  heldStarts: readonly string[],
+  pickedStart: string | null
+): string | null => {
+  const held = new Set(heldStarts)
+  const open = slots.filter((slot) => !held.has(slot.start.toISOString()))
+  if (pickedStart !== null && open.some((slot) => slot.start.toISOString() === pickedStart)) return pickedStart
+  const [only] = open
+  return open.length === 1 && only ? only.start.toISOString() : null
+}
+
+/**
  * Whether a failed booking write is "someone got there first" — the one failure the
  * visitor can fix themselves, by picking another time.
  *

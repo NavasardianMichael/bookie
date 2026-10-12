@@ -11,6 +11,7 @@ import {
   getWeekDay,
   isOnlineBookingOpen,
   isOpenOnDate,
+  resolveSelectedSlotStart,
 } from '@helpers/booking'
 
 describe('getBookingClosedReason', () => {
@@ -332,5 +333,44 @@ describe('dropBusySlots', () => {
     ])
 
     expect(remaining).toEqual(slots)
+  })
+})
+
+describe('resolveSelectedSlotStart', () => {
+  const slotAt = (iso: string) => ({ start: new Date(iso), end: new Date(new Date(iso).getTime() + 30 * 60 * 1000) })
+  const nine = '2026-03-02T09:00:00.000Z'
+  const ten = '2026-03-02T10:00:00.000Z'
+  const eleven = '2026-03-02T11:00:00.000Z'
+  const slots = [slotAt(nine), slotAt(ten)]
+
+  it('keeps a pick that is still open', () => {
+    expect(resolveSelectedSlotStart(slots, [], ten)).toBe(ten)
+  })
+
+  it('selects the only open time when nothing was picked', () => {
+    expect(resolveSelectedSlotStart([slotAt(nine)], [], null)).toBe(nine)
+  })
+
+  it('leaves a day with several open times unpicked', () => {
+    expect(resolveSelectedSlotStart(slots, [], null)).toBeNull()
+  })
+
+  it('takes the one time left when the pick is no longer open', () => {
+    expect(resolveSelectedSlotStart([slotAt(ten)], [], nine)).toBe(ten)
+  })
+
+  it('drops a pick that is gone when other times remain', () => {
+    expect(resolveSelectedSlotStart(slots, [], eleven)).toBeNull()
+  })
+
+  it('ignores a time already requested in this visit', () => {
+    expect(resolveSelectedSlotStart(slots, [nine], null)).toBe(ten)
+    expect(resolveSelectedSlotStart(slots, [nine], nine)).toBe(ten)
+    expect(resolveSelectedSlotStart([slotAt(nine), slotAt(ten), slotAt(eleven)], [nine], nine)).toBeNull()
+    expect(resolveSelectedSlotStart([slotAt(nine)], [nine], nine)).toBeNull()
+  })
+
+  it('is empty when nothing is open', () => {
+    expect(resolveSelectedSlotStart([], [], null)).toBeNull()
   })
 })

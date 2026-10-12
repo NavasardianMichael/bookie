@@ -24,6 +24,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Do two zones read the same right now · zone offset · is it a zone · the picker's list | `isSameWallClock`, `zoneOffsetMs`, `isTimeZone`, `listTimeZones` | `timeZone.ts` |
 | The visitor's zone (client; `undefined` through SSR and hydration) | `useViewerTimeZone` | `src/hooks/` — `getRuntimeTimeZone` underneath |
 | Remove slots a booking already holds | `dropBusySlots` | `booking.ts` |
+| The time a booking starts on — the visitor's pick while it is still open, otherwise the only open time | `resolveSelectedSlotStart` | `booking.ts` |
 | Was a failed booking "someone got there first" | `isSlotTakenError` | `booking.ts` |
 | Was a failed booking refused because the provider is not taking bookings online (paused / full) | `getBookingClosedReason` | `booking.ts` |
 | Does the public page offer its calendar (`details.onlineBooking`, missing = open) | `isOnlineBookingOpen` | `booking.ts` |

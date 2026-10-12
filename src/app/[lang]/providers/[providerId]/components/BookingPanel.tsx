@@ -22,6 +22,7 @@ import {
   getSlotsForDate,
   getSlotsForDateRange,
   isSlotTakenError,
+  resolveSelectedSlotStart,
 } from '@helpers/booking'
 import { buildMonthCells } from '@helpers/calendar'
 import { processError } from '@helpers/error'
@@ -35,8 +36,9 @@ import { BookingSlots } from './BookingSlots'
 import { BookingSummaryData } from './BookingSummary'
 import {
   BOOKING_CALENDAR_ID,
-  BOOKING_SERVICES_ID,
   BOOKING_TIMES_ID,
+  bookingContinueSection,
+  bookingContinueTarget,
   PUBLIC_BOOK_NOW_EVENT,
   scrollToBookingSection,
 } from './publicBookingCta'
@@ -241,10 +243,12 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
   /**
    * Derived rather than synced: a service swapped after a time was picked
    * re-steps the day, so the stored ISO can name a slot that no longer exists.
+   * A day with one open time selects it here too, including after a busy refresh
+   * leaves a single slot — an effect writing that back is what the lint rule forbids.
    */
   const validSelectedStart = useMemo(
-    () => (daySlots.some((slot) => slot.start.toISOString() === selectedStart) ? selectedStart : null),
-    [daySlots, selectedStart]
+    () => resolveSelectedSlotStart(daySlots, requestedStarts, selectedStart),
+    [daySlots, requestedStarts, selectedStart]
   )
 
   const servicePrice =
@@ -322,47 +326,42 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     setConfirmBooking(null)
   }, [])
 
-  /**
-   * "Book now" opens the confirm sheet; it no longer books. The visitor has picked a
-   * service, a day and a time by this point, and none of that is what the sheet asks
-   * about — it collects the notes, the payment intent, and (for someone we cannot
-   * identify) who they are.
-   */
-  const handleOpenConfirm = useCallback(() => {
-    if (!validSelectedStart || !providerId || !booking || cannotBookOwn) return
+  const continueTarget = bookingContinueTarget({
+    hasService: Boolean(selectedServiceId),
+    hasDay: Boolean(selectedDate),
+    hasTime: Boolean(validSelectedStart),
+    cannotBookOwn,
+  })
 
-    if (!selectedServiceId) {
-      notification.warning({
-        title: t('chooseServiceNotification'),
-        description: t('chooseServiceNotificationBody'),
-      })
+  /**
+   * Both Book now controls. A step the page already filled — the only service, or
+   * the only open time — is skipped. Anything still empty is scrolled into view;
+   * the sheet opens only when service and time are both set, and the visitor is
+   * allowed to book. The sheet collects notes, payment, and a guest's name.
+   */
+  const continueBooking = useCallback(() => {
+    const section = bookingContinueSection(continueTarget)
+    if (section) {
+      if (continueTarget === 'service') {
+        notification.warning({
+          title: t('chooseServiceNotification'),
+          description: validSelectedStart ? t('pickAServiceHint') : t('chooseServiceNotificationBody'),
+        })
+      }
+      scrollToBookingSection(section)
       return
     }
 
+    if (!providerId || !booking) return
     setConfirmBooking(booking)
     setIsConfirmOpen(true)
-  }, [booking, cannotBookOwn, notification, providerId, selectedServiceId, t, validSelectedStart])
+  }, [booking, continueTarget, notification, providerId, t, validSelectedStart])
 
-  /**
-   * Identity-column Book now (mobile). Scrolls to the first incomplete step; only opens
-   * the sheet when service and time are already picked — same gate as the in-panel CTA.
-   */
+  /** Identity-column Book now (mobile) asks the column through a DOM event. */
   useEffect(() => {
-    const onPublicBookNow = () => {
-      if (!selectedServiceId && document.getElementById(BOOKING_SERVICES_ID)) {
-        scrollToBookingSection(BOOKING_SERVICES_ID)
-        return
-      }
-      if (!validSelectedStart) {
-        scrollToBookingSection(selectedDate ? BOOKING_TIMES_ID : BOOKING_CALENDAR_ID)
-        return
-      }
-      handleOpenConfirm()
-    }
-
-    window.addEventListener(PUBLIC_BOOK_NOW_EVENT, onPublicBookNow)
-    return () => window.removeEventListener(PUBLIC_BOOK_NOW_EVENT, onPublicBookNow)
-  }, [handleOpenConfirm, selectedDate, selectedServiceId, validSelectedStart])
+    window.addEventListener(PUBLIC_BOOK_NOW_EVENT, continueBooking)
+    return () => window.removeEventListener(PUBLIC_BOOK_NOW_EVENT, continueBooking)
+  }, [continueBooking])
 
   const handleSubmitBooking = useCallback(
     async (submission: BookingConfirmSubmission) => {
@@ -496,7 +495,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
           timeFormat={timeFormat}
           isBooking={isBooking}
           onSelect={setSelectedStart}
-          onConfirm={handleOpenConfirm}
+          onConfirm={continueBooking}
+          continuesToService
           cannotBookOwn={cannotBookOwn}
         />
       </div>

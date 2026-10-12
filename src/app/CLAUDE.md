@@ -404,7 +404,14 @@ Four things not to undo here:
    visible month, and the soonest open day otherwise. One rule covers the empty first
    paint (the store hydrates in an effect), a service swap that re-steps every day, and
    paging the month. `react-hooks/set-state-in-effect` is an ESLint **error** here, so
-   syncing it back into state is not an option either.
+   syncing it back into state is not an option either. A catalogue of one service starts
+   selected. The only open time on the day being shown is selected the same way the day
+   is — derived, not written back in an effect. A time the visitor picked holds while it
+   is still open; several open times stay unpicked, and a time already requested on this
+   visit does not count as open. Book now treats that selection as already made: it
+   scrolls to the first step that is still empty (the service list, then the calendar,
+   then the times) and opens the confirm sheet only once both are set. A selected time
+   with no service scrolls to the service list instead of asking for another time.
 3. **Days travel as `DAY_KEY_FORMAT` strings.** That is already the key `countSlotsByDay`
    returns, and it keeps date parsing to the single site that needs a real `Date`. Any
    module that parses one must `dayjs.extend(customParseFormat)` itself — `booking.ts`
