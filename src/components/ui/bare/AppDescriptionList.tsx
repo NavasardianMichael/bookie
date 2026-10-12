@@ -46,7 +46,7 @@ export const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns
     >
       {items.map(({ key, label, value }) => (
         <div key={key} className='bg-surface flex flex-col gap-0.5 p-3 sm:flex-row sm:gap-4'>
-          <dt className='text-body-sm text-brand-muted shrink-0 sm:w-28'>{label}</dt>
+          <dt className='text-body-sm text-brand-muted shrink-0 sm:w-34'>{label}</dt>
           <dd className='text-body-sm text-brand-text min-w-0 grow wrap-break-word'>{value}</dd>
         </div>
       ))}

@@ -52,7 +52,10 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, p
         closable={closable}
         mask={{ closable: !pending }}
         keyboard={!pending}
-        styles={{ body: { maxHeight: '80dvh', overflowY: 'auto' } }}
+        styles={{
+          body: { maxHeight: '80dvh', overflowY: 'auto' },
+          header: { paddingInlineEnd: '2.5rem' },
+        }}
         destroyOnHidden
       >
         {children}

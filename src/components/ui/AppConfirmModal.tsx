@@ -86,6 +86,7 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
   mask,
   okButtonProps,
   okText,
+  styles,
   width = 'min(30rem, 100%)',
   ...props
 }) => {
@@ -124,7 +125,7 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
   return (
     <Modal
       title={
-        <div className='flex items-start gap-3'>
+        <div className='flex min-w-0 items-start gap-3'>
           {badge && (
             <span
               className={cn('flex size-9 shrink-0 items-center justify-center rounded-full', TONE_BADGE[tone])}
@@ -133,7 +134,7 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
               {badge}
             </span>
           )}
-          <AppTitle level='h2' size='h3' className='py-1.5'>
+          <AppTitle level='h2' size='h3' className='min-w-0 py-1.5'>
             {title}
           </AppTitle>
         </div>
@@ -153,6 +154,19 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
       className={cn(className)}
       destroyOnHidden
       {...props}
+      // antd paints header padding as an unlayered `padding: 0`, so a utility
+      // never reaches it. The close control sits on top of that header; the
+      // inline end padding is what keeps a long title from running under it.
+      // `styles` may be a function — antd resolves it per render — so the
+      // padding is applied to whichever form the caller passed.
+      styles={
+        typeof styles === 'function'
+          ? (info) => {
+              const resolved = styles(info)
+              return { ...resolved, header: { ...resolved?.header, paddingInlineEnd: '2.5rem' } }
+            }
+          : { ...styles, header: { ...styles?.header, paddingInlineEnd: '2.5rem' } }
+      }
     >
       <div className='flex flex-col gap-3'>
         {description && <AppParagraph size='body-sm'>{description}</AppParagraph>}
