@@ -255,6 +255,13 @@ button.copyable-link-copy.ant-btn:hover {
   color: var(--brand-surface) !important;
 }
 
+/* Select hardcodes the closed value to font-weight normal. That rule is
+   unlayered, so a font-semibold utility on the control never reaches the
+   label. Header links are semibold; the language control should match. */
+.ant-select.font-semibold .ant-select-content {
+  font-weight: 600;
+}
+
 /* Keeps `scrollToFirstError` and #anchor jumps clear of the sticky header. */
 [id] {
   scroll-margin-top: calc(var(--spacing-header) + 1rem);

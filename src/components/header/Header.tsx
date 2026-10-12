@@ -45,24 +45,30 @@ export const Header = () => {
 
         {showNav && (
           <>
-            <div className='ml-auto hidden items-center gap-4 md:flex lg:gap-6'>
+            <div className='ml-auto hidden items-center gap-4 xl:flex xxl:gap-6'>
               <NavLinks routes={routes} orientation='horizontal' isActive={isActive} />
               <div className='flex items-center gap-3'>
                 <span aria-hidden className='bg-brand-border h-6 w-px shrink-0' />
-                <LanguageSwitcher className='min-w-36 text-sm' variant='borderless' />
+                <LanguageSwitcher className='min-w-36 text-sm font-semibold' variant='borderless' />
                 <span aria-hidden className='bg-brand-border h-6 w-px shrink-0' />
                 {isSignedOn ? (
                   <AppLink
                     href={accountHref}
                     variant='plain'
-                    className='inline-flex items-center gap-3'
+                    className='group inline-flex shrink-0 items-center gap-3 no-underline hover:no-underline'
                     aria-label={t('accountSettings')}
                   >
-                    {/* From `lg` only: between `md` and `lg` the name is what pushed the
-                        signed-in bar past the viewport, and the avatar still names the link. */}
+                    {/* From `xxl` only. The name, with five destinations, is what pushes the
+                        signed-in bar past a 1200px viewport in the longer locales, and the
+                        avatar still names the link. Underline stays on the name: the plain
+                        variant would draw it across the whole anchor, badge included. */}
                     {userType === USER_TYPES.provider && (
-                      <span className='hidden text-right lg:block'>
-                        <AppText as='span' size='body-sm' className='block font-bold'>
+                      <span className='hidden text-right xxl:block'>
+                        <AppText
+                          as='span'
+                          size='body-sm'
+                          className='block font-semibold group-hover:underline [text-underline-offset:5px]'
+                        >
                           {displayName}
                         </AppText>
                       </span>
@@ -73,14 +79,14 @@ export const Header = () => {
                   <AppLink
                     href={ROUTES[HEADER_SIGN_IN]}
                     variant='plain'
-                    className='inline-flex min-h-11 items-center px-4 text-sm font-bold'
+                    className='inline-flex min-h-11 items-center px-4 text-sm font-semibold'
                   >
                     {t(HEADER_SIGN_IN)}
                   </AppLink>
                 )}
               </div>
             </div>
-            <div className='ml-auto flex items-center gap-2 md:hidden'>
+            <div className='ml-auto flex items-center gap-2 xl:hidden'>
               {isSignedOn && (
                 <AppLink href={accountHref} variant='unstyled' aria-label={t('accountSettings')}>
                   <AppAvatar src={image ?? undefined} name={displayName} size={36} />

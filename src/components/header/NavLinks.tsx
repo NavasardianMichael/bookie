@@ -36,11 +36,11 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
   return (
     <nav
       aria-label={isVertical ? t('mobileNavigation') : t('mainNavigation')}
-      // Tighter below `lg`: a signed-in bar carries five destinations and an avatar, which
-      // overflowed a 768px viewport at the full gap.
+      // Wider gaps only from `xxl`. Below that the signed-in bar (five destinations,
+      // language, avatar) is already flush with the viewport in the longer locales.
       className={cn(
         'flex',
-        isVertical ? 'flex-col divide-y divide-brand-border' : 'items-center gap-4 lg:gap-6'
+        isVertical ? 'flex-col divide-y divide-brand-border' : 'items-center gap-4 xxl:gap-6'
       )}
     >
       {routes.map((name) => {
@@ -70,8 +70,8 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
                   )
             )}
           >
-            {/* Icons only from `lg`: between `md` and `lg` the bar is tight and labels alone fit. */}
-            {icon ? <span className={cn(!isVertical && 'hidden lg:inline-flex')}>{icon}</span> : null}
+            {/* Icons only from `xxl`: labels alone are what fit between `xl` and `xxl`. */}
+            {icon ? <span className={cn(!isVertical && 'hidden xxl:inline-flex')}>{icon}</span> : null}
             {t(name)}
           </AppLink>
         )

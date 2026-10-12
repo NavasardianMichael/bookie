@@ -46,7 +46,7 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
     <>
       <Button
         type='text'
-        className='min-h-11 min-w-11 md:hidden'
+        className='min-h-11 min-w-11 xl:hidden'
         aria-label={t('openMenu')}
         aria-expanded={open}
         aria-controls='mobile-nav'
@@ -61,7 +61,7 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
         onClose={close}
         // Never eats the whole screen at 320px, never looks cramped on a tablet.
         size='min(20rem, 85vw)'
-        rootClassName='md:hidden'
+        rootClassName='xl:hidden'
         classNames={{ body: 'p-3 overscroll-contain' }}
       >
         <div className='flex flex-col gap-4'>
@@ -87,7 +87,7 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
               <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
             </div>
           )}
-          <LanguageSwitcher className='self-start' variant='borderless' />
+          <LanguageSwitcher className='self-start font-semibold' variant='borderless' />
           {!isSignedOn && (
             <AppLink href={ROUTES[HEADER_SIGN_IN]} variant='button' block onClick={close}>
               {t(HEADER_SIGN_IN)}
