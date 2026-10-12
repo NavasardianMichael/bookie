@@ -30,8 +30,16 @@ does the same to pin the new-organization length caps to `@constants/form`,
 `search.spec.ts` runs every case against both twins of the search matcher
 (`src/helpers/search.ts`, `server/src/lib/search.ts`), `planErrors.spec.ts` pins the plan
 codes, the plan order and the Plan tab link, `providerSeo.spec.ts` checks every `ROUTES`
-segment is a reserved slug, and `timeFormat.spec.ts` pins `Provider.timeFormat`'s values and
-their `Intl` hour cycles to `@constants/schedule` and `@helpers/timeFormat`.
+segment is a reserved slug, `timeFormat.spec.ts` pins `Provider.timeFormat`'s values and
+their `Intl` hour cycles to `@constants/schedule` and `@helpers/timeFormat`, and
+`categoryNames.spec.ts` rebuilds `server/src/lib/category-names.ts` from every catalogue's
+`Categories.names` and `@constants/categories`, so a retranslated category cannot leave
+Explore matching the old word.
+
+Explore's ranking is reachable for the same reason as the plan rules below:
+`services/providerRelevance.ts` is pure, and `providerRelevance.spec.ts` covers the order and
+the matched service. The reads around it (`services/exploreResults.ts`) import Prisma and are
+not.
 
 The plan rules are reachable here because `server/src/services/plans.ts` is pure and takes
 `now` — including the Prisma `where` that counts the booking allowance

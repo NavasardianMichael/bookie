@@ -1,4 +1,5 @@
 import { PUBLIC_PROVIDER_WHERE } from './providerSearch.js'
+import { categoryLabels } from '../lib/category-names.js'
 import { prisma } from '../lib/prisma.js'
 import {
   buildSearchVocabulary,
@@ -39,8 +40,9 @@ let exploreVocabulary: { loadedAt: number; vocabulary: SearchVocabulary } | null
 
 /**
  * Every word Explore can match: listed providers' names and organizations, their active
- * services, and category names — the same fields `providerSearch.ts#matchesTerm` searches.
- * Cached per process; the list is public, so one copy serves every visitor.
+ * services, and category names in every language — the same fields
+ * `providerSearch.ts#matchesTerm` searches. Cached per process; the list is public, so one
+ * copy serves every visitor.
  */
 export const loadExploreVocabulary = async (): Promise<SearchVocabulary> => {
   if (exploreVocabulary && Date.now() - exploreVocabulary.loadedAt < EXPLORE_VOCABULARY_TTL_MS) {
@@ -63,7 +65,7 @@ export const loadExploreVocabulary = async (): Promise<SearchVocabulary> => {
   const vocabulary = buildSearchVocabulary([
     ...providers.flatMap((provider) => [provider.firstName, provider.lastName, provider.organization?.name]),
     ...services.map((service) => service.name),
-    ...categories.map((category) => category.name),
+    ...categories.flatMap((category) => categoryLabels(category.name)),
   ])
   exploreVocabulary = { loadedAt: Date.now(), vocabulary }
   return vocabulary

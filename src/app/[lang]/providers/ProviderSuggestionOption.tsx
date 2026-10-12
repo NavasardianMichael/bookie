@@ -1,21 +1,23 @@
 import { FC } from 'react'
-import { BasicProvider } from '@store/providers/list/types'
+import { ProviderListItem } from '@store/providers/list/types'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppText } from '@components/ui/bare/AppText'
 
 type Props = {
-  provider: BasicProvider
+  provider: ProviderListItem
   /** Composed once by the caller, which also needs it for the option's accessible name. */
   name: string
 }
 
 /**
- * One row of the search box's dropdown. The second line is the organization, or failing
- * that the first category — enough to tell two providers with the same name apart.
+ * One row of the search box's dropdown. The second line is the service the typed text
+ * matched, when a service is what it found — the answer to "why is this provider here?";
+ * otherwise the organization, or failing that the first category — enough to tell two
+ * providers with the same name apart.
  */
 export const ProviderSuggestionOption: FC<Props> = ({ provider, name }) => {
   const { basic } = provider
-  const subtitle = basic.organization?.basic.name ?? basic.categories?.[0]?.name
+  const subtitle = provider.matchedService?.name ?? basic.organization?.basic.name ?? basic.categories?.[0]?.name
 
   // `leading-snug` on both lines is what fits five rows inside antd's default list height;
   // at the scale's own leading the fifth row sits behind a scrollbar.

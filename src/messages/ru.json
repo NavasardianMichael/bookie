@@ -554,7 +554,7 @@
       "statMatching": "Найдено",
       "filtered": "С учётом фильтров",
       "allBookings": "Все ваши записи",
-      "searchPlaceholder": "Поиск по имени или эл. почте",
+      "searchPlaceholder": "Поиск по имени, эл. почте или услуге",
       "searchLabel": "Поиск записей",
       "statusPlaceholder": "Любой статус",
       "statusLabel": "Фильтр по статусу",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Какую услугу вы ищете?",
     "searchButton": "Найти",
     "noSuggestions": "Нет специалистов по этому запросу.",
+    "matchedService": "Записаться на эту услугу:",
+    "moreMatchingServices": "{count, plural, one {ещё # подходящая услуга} few {ещё # подходящие услуги} many {ещё # подходящих услуг} other {ещё # подходящей услуги}}",
     "browseCategories": "Смотреть категории",
     "categoriesRail": "Категории",
     "allServices": "Все услуги",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Запись закрыта",
       "closed": "Сегодня выходной"
     },
+    "viewProfile": "Подробнее о специалисте",
     "fallbackWithOrganization": "Онлайн-запись к специалисту: {name} ({organization}).",
     "fallbackDescription": "Онлайн-запись к специалисту: {name}.",
     "reviews": {

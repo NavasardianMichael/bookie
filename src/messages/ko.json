@@ -554,7 +554,7 @@
       "statMatching": "조건에 맞음",
       "filtered": "필터를 적용한 결과",
       "allBookings": "전체 예약",
-      "searchPlaceholder": "이름이나 이메일로 검색",
+      "searchPlaceholder": "이름, 이메일 또는 서비스로 검색",
       "searchLabel": "예약 검색",
       "statusPlaceholder": "모든 상태",
       "statusLabel": "상태로 필터",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "어떤 서비스를 찾으세요?",
     "searchButton": "검색",
     "noSuggestions": "검색과 일치하는 제공자가 없어요.",
+    "matchedService": "이 서비스 예약:",
+    "moreMatchingServices": "{count, plural, one {일치하는 서비스 #개 더} other {일치하는 서비스 #개 더}}",
     "browseCategories": "카테고리 둘러보기",
     "categoriesRail": "카테고리",
     "allServices": "모든 서비스",
@@ -964,6 +966,7 @@
       "fullyBlocked": "예약 중단",
       "closed": "휴무"
     },
+    "viewProfile": "프로필 보기",
     "fallbackWithOrganization": "{organization}에서 근무하는 {name}에게 예약하세요.",
     "fallbackDescription": "{name}에게 예약하세요.",
     "reviews": {

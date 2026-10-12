@@ -11,7 +11,9 @@ server/
     app.ts, index.ts, config.ts, load-env.ts
     routes/       Express routers, one per resource — billing (+ the Paddle webhook), telegram
                   (+ the bot's webhook) and calendar (the iCal feed) among them
-    services/     appointments + availability logic, Explore's provider query, organizations,
+    services/     appointments + availability logic, Explore's provider query (providerSearch)
+                  + its reads (exploreResults) + relevance order and matched service
+                  (providerRelevance — pure), organizations,
                   searchFallback (the typo-tolerant retry of an empty search), plans (the
                   catalogue, prices and every limit rule — pure), planUsage (its counts and
                   stamps), planNotices (the booking-allowance emails), billing (Paddle
@@ -22,7 +24,8 @@ server/
     mappers/      Prisma -> frontend DTOs
     middleware/   auth, error
     lib/          api-response, auth-notices, billing-errors, booking-errors, booking-mail,
-                  booking-notices (the words of every booking notice), cookie-domain,
+                  booking-notices (the words of every booking notice), category-names (every
+                  seeded category's label in all 16 locales; twin of `Categories.names`), cookie-domain,
                   email-verify, google-oauth, ics, mail, notice-render (one notice → email
                   and Telegram), oauth-state, paddle (the only Paddle client), paddle-signature,
                   password, password-reset, payment (in-person methods, not billing),

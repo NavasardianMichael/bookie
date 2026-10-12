@@ -1,9 +1,22 @@
 import { ProvidersListQuery } from '@api/providers/types'
 import { Normalized } from '@interfaces/commons'
 import { StateCommonProps } from '@interfaces/store'
-import { ProviderProfile } from '../profile/types'
+import { ProviderProfile, ProviderService } from '../profile/types'
 
 export type BasicProvider = Pick<ProviderProfile, 'id' | 'basic'>
+
+/** The service a search matched, as its result card prints it. */
+export type MatchedService = Pick<ProviderService, 'id' | 'name' | 'duration' | 'price' | 'currency'>
+
+/**
+ * One Explore result. The two match fields are present only when a service is what the
+ * search found — a provider found by name, or a list with no query, carries neither.
+ */
+export type ProviderListItem = BasicProvider & {
+  matchedService?: MatchedService
+  /** How many other services matched as well; absent when none did. */
+  moreMatchingServices?: number
+}
 
 /**
  * The window the API answered with, not the one that was asked for — the server clamps
@@ -17,7 +30,7 @@ export type ProvidersListPagination = {
 }
 
 export type ProvidersListState = {
-  list: Normalized<BasicProvider>
+  list: Normalized<ProviderListItem>
   pagination: ProvidersListPagination
 } & StateCommonProps
 

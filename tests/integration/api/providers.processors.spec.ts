@@ -39,6 +39,19 @@ describe('processProvidersListResponse', () => {
     })
   })
 
+  // The card reads the match off the row it is handed, so normalising must not drop it.
+  it('keeps the matched service and the count of further matches on their row', () => {
+    const matched = {
+      ...basicProvider('a'),
+      matchedService: { id: 's1', name: 'Massage', duration: 60, price: 15000, currency: 'AMD' },
+      moreMatchingServices: 2,
+    }
+    const { byId } = processProvidersListResponse(envelope(pagedProviders([matched, basicProvider('b')])) as never).list
+
+    expect(byId.a).toEqual(matched)
+    expect(byId.b?.matchedService).toBeUndefined()
+  })
+
   it('returns empty structures for an empty page', () => {
     expect(processProvidersListResponse(envelope(pagedProviders([])) as never).list).toEqual({
       allIds: [],

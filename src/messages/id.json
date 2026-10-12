@@ -554,7 +554,7 @@
       "statMatching": "Cocok",
       "filtered": "Dengan filter Anda diterapkan",
       "allBookings": "Semua pemesanan Anda",
-      "searchPlaceholder": "Cari berdasarkan nama atau email",
+      "searchPlaceholder": "Cari berdasarkan nama, email, atau layanan",
       "searchLabel": "Cari pemesanan",
       "statusPlaceholder": "Status apa pun",
       "statusLabel": "Filter berdasarkan status",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Layanan apa yang Anda cari?",
     "searchButton": "Cari",
     "noSuggestions": "Tidak ada penyedia yang cocok dengan pencarian tersebut.",
+    "matchedService": "Pesan layanan ini:",
+    "moreMatchingServices": "{count, plural, one {+# layanan lain yang cocok} other {+# layanan lain yang cocok}}",
     "browseCategories": "Telusuri kategori",
     "categoriesRail": "Kategori",
     "allServices": "Semua layanan",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Sepenuhnya diblokir",
       "closed": "Tutup"
     },
+    "viewProfile": "Lihat profil",
     "fallbackWithOrganization": "Pesan janji temu dengan {name}, yang bekerja di {organization}.",
     "fallbackDescription": "Pesan janji temu dengan {name}.",
     "reviews": {

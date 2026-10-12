@@ -554,7 +554,7 @@
       "statMatching": "Збіги",
       "filtered": "Із застосованими фільтрами",
       "allBookings": "Усі ваші бронювання",
-      "searchPlaceholder": "Пошук за ім’ям або поштою",
+      "searchPlaceholder": "Пошук за ім’ям, поштою або послугою",
       "searchLabel": "Шукати бронювання",
       "statusPlaceholder": "Будь-який статус",
       "statusLabel": "Фільтрувати за статусом",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Яку послугу ви шукаєте?",
     "searchButton": "Шукати",
     "noSuggestions": "Немає виконавців за цим запитом.",
+    "matchedService": "Забронювати цю послугу:",
+    "moreMatchingServices": "{count, plural, one {ще # відповідна послуга} few {ще # відповідні послуги} many {ще # відповідних послуг} other {ще # відповідної послуги}}",
     "browseCategories": "Переглянути категорії",
     "categoriesRail": "Категорії",
     "allServices": "Усі послуги",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Повністю заблоковано",
       "closed": "Зачинено"
     },
+    "viewProfile": "Переглянути профіль",
     "fallbackWithOrganization": "Забронюйте візит до {name}, який працює в {organization}.",
     "fallbackDescription": "Забронюйте візит до {name}.",
     "reviews": {

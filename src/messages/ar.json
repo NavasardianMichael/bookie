@@ -554,7 +554,7 @@
       "statMatching": "المطابقة",
       "filtered": "مع تطبيق مرشحاتك",
       "allBookings": "جميع حجوزاتك",
-      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني",
+      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني أو الخدمة",
       "searchLabel": "البحث في الحجوزات",
       "statusPlaceholder": "أي حالة",
       "statusLabel": "التصفية حسب الحالة",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "ما الخدمة التي تبحث عنها؟",
     "searchButton": "بحث",
     "noSuggestions": "لا يوجد مقدّمو خدمات يطابقون هذا البحث.",
+    "matchedService": "احجز هذه الخدمة:",
+    "moreMatchingServices": "{count, plural, zero {لا خدمات مطابقة أخرى} one {+خدمة مطابقة أخرى} two {+خدمتان مطابقتان أخريان} few {+# خدمات مطابقة أخرى} many {+# خدمة مطابقة أخرى} other {+# خدمة مطابقة أخرى}}",
     "browseCategories": "تصفح الفئات",
     "categoriesRail": "الفئات",
     "allServices": "كل الخدمات",
@@ -964,6 +966,7 @@
       "fullyBlocked": "محظور بالكامل",
       "closed": "مغلق"
     },
+    "viewProfile": "عرض الملف الشخصي",
     "fallbackWithOrganization": "احجز موعدًا مع {name}، الذي يعمل في {organization}.",
     "fallbackDescription": "احجز موعدًا مع {name}.",
     "reviews": {

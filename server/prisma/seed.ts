@@ -1,4 +1,5 @@
 import { AuthProvider, Plan, PrismaClient } from '@prisma/client'
+import { SEEDED_CATEGORY_NAMES } from '../src/lib/category-names.js'
 import { hashPassword } from '../src/lib/password.js'
 import { hashUrlToken, mintUrlToken } from '../src/lib/token.js'
 import { recomputeProviderRating } from '../src/services/reviews.js'
@@ -123,19 +124,10 @@ async function main() {
   // identical work. A unique salt per user is not load-bearing for a shared dev password.
   const localPasswordHash = await hashPassword(DEV_PASSWORD)
 
-  const categoryNames = [
-    'General Practice',
-    'Dentistry',
-    'Physiotherapy',
-    'Dermatology',
-    'Cardiology',
-    'Mental Health',
-  ]
-  // Keep in lockstep with `SEEDED_CATEGORY_NAMES` in `src/constants/categories.ts` —
-  // the web app looks up display copy by these English strings.
-
+  // The web app looks up display copy by these English strings, and Explore matches their
+  // translations — `tests/unit/server/categoryNames.spec.ts` pins the list to both.
   const categories = await Promise.all(
-    categoryNames.map((name) =>
+    SEEDED_CATEGORY_NAMES.map((name) =>
       prisma.category.upsert({
         where: { name },
         create: { name },

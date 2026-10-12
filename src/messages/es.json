@@ -554,7 +554,7 @@
       "statMatching": "Coinciden",
       "filtered": "Con tus filtros aplicados",
       "allBookings": "Todas tus reservas",
-      "searchPlaceholder": "Busca por nombre o correo",
+      "searchPlaceholder": "Busca por nombre, correo o servicio",
       "searchLabel": "Buscar reservas",
       "statusPlaceholder": "Cualquier estado",
       "statusLabel": "Filtrar por estado",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "¿Qué servicio estás buscando?",
     "searchButton": "Buscar",
     "noSuggestions": "Ningún profesional coincide con esa búsqueda.",
+    "matchedService": "Reservar este servicio:",
+    "moreMatchingServices": "{count, plural, one {+# servicio más que coincide} other {+# servicios más que coinciden}}",
     "browseCategories": "Explorar categorías",
     "categoriesRail": "Categorías",
     "allServices": "Todos los servicios",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Completamente bloqueado",
       "closed": "Cerrado"
     },
+    "viewProfile": "Ver perfil",
     "fallbackWithOrganization": "Reserva una cita con {name}, que trabaja en {organization}.",
     "fallbackDescription": "Reserva una cita con {name}.",
     "reviews": {

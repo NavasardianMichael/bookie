@@ -554,7 +554,7 @@
       "statMatching": "Übereinstimmend",
       "filtered": "Mit angewendeten Filtern",
       "allBookings": "Alle Ihre Buchungen",
-      "searchPlaceholder": "Nach Name oder E-Mail suchen",
+      "searchPlaceholder": "Nach Name, E-Mail oder Leistung suchen",
       "searchLabel": "Buchungen suchen",
       "statusPlaceholder": "Jeder Status",
       "statusLabel": "Nach Status filtern",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Welche Leistung suchen Sie?",
     "searchButton": "Suchen",
     "noSuggestions": "Keine Anbieter entsprechen dieser Suche.",
+    "matchedService": "Diese Leistung buchen:",
+    "moreMatchingServices": "{count, plural, one {+# weitere passende Leistung} other {+# weitere passende Leistungen}}",
     "browseCategories": "Kategorien durchstöbern",
     "categoriesRail": "Kategorien",
     "allServices": "Alle Leistungen",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Vollständig gesperrt",
       "closed": "Geschlossen"
     },
+    "viewProfile": "Profil ansehen",
     "fallbackWithOrganization": "Termin bei {name} buchen, tätig bei {organization}.",
     "fallbackDescription": "Termin bei {name} buchen.",
     "reviews": {

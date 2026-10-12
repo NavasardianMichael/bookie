@@ -1,4 +1,4 @@
-import { BasicProvider } from '@store/providers/list/types'
+import { ProviderListItem } from '@store/providers/list/types'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
@@ -55,7 +55,7 @@ export const processProvidersListResponse: GetProvidersListAPI['processor'] = (r
 
   const list = items.reduce(
     (acc, provider) => {
-      const item = provider as BasicProvider
+      const item = provider as ProviderListItem
       acc.byId[item.id] = item
       acc.allIds.push(item.id)
       return acc

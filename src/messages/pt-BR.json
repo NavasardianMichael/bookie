@@ -554,7 +554,7 @@
       "statMatching": "Correspondem",
       "filtered": "Com seus filtros aplicados",
       "allBookings": "Todos os seus agendamentos",
-      "searchPlaceholder": "Buscar por nome ou e-mail",
+      "searchPlaceholder": "Buscar por nome, e-mail ou serviço",
       "searchLabel": "Buscar agendamentos",
       "statusPlaceholder": "Qualquer status",
       "statusLabel": "Filtrar por status",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Qual serviço você está procurando?",
     "searchButton": "Buscar",
     "noSuggestions": "Nenhum profissional corresponde a essa busca.",
+    "matchedService": "Agendar este serviço:",
+    "moreMatchingServices": "{count, plural, one {+# outro serviço correspondente} other {+# outros serviços correspondentes}}",
     "browseCategories": "Explorar categorias",
     "categoriesRail": "Categorias",
     "allServices": "Todos os serviços",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Totalmente bloqueado",
       "closed": "Fechado"
     },
+    "viewProfile": "Ver perfil",
     "fallbackWithOrganization": "Agende um horário com {name}, que trabalha em {organization}.",
     "fallbackDescription": "Agende um horário com {name}.",
     "reviews": {

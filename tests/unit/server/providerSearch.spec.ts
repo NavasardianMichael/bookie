@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { SUPPORTED_TIME_ZONES } from '../../../server/src/lib/time-zone'
 import {
   isOpenToday,
+  matchedServicesWhere,
   parseProvidersListQuery,
   PUBLIC_PROVIDER_WHERE,
   resolvePageWindow,
@@ -100,6 +101,36 @@ describe('parseProvidersListQuery', () => {
     )
   })
 
+  /**
+   * `Category.name` is English; the screen shows a translation. A visitor typing what they
+   * read must still land on the row, whatever language the page is in.
+   */
+  it('matches a category by its label in any language', () => {
+    const where = parseProvidersListQuery({ q: 'стоматология' }).where
+    const and = where.AND as Array<{ OR: unknown[] }>
+
+    expect(and[0]?.OR).toEqual(
+      expect.arrayContaining([{ categories: { some: { category: { name: { in: ['Dentistry'] } } } } }])
+    )
+  })
+
+  it('adds no translated branch for a word in no label', () => {
+    const where = parseProvidersListQuery({ q: 'massage' }).where
+    const or = (where.AND as Array<{ OR: unknown[] }>)[0]?.OR
+
+    expect(JSON.stringify(or)).not.toContain('"in"')
+  })
+
+  it('carries the spellings it matched, typed or corrected, and the sort it resolved', () => {
+    expect(parseProvidersListQuery({ q: 'anna massage' }).matched).toEqual([['anna'], ['massage']])
+    expect(parseProvidersListQuery({ q: 'masage' }, undefined, [['masage', 'massage']]).matched).toEqual([
+      ['masage', 'massage'],
+    ])
+    expect(parseProvidersListQuery({ q: 'masage' }, undefined, [['masage', 'massage']]).terms).toEqual(['masage'])
+    expect(parseProvidersListQuery({}).sort).toBe('recommended')
+    expect(parseProvidersListQuery({ sort: 'topRated' }).sort).toBe('topRated')
+  })
+
   it('narrows an unknown sort to recommended', () => {
     expect(parseProvidersListQuery({ sort: 'DROP TABLE' }).orderBy).toEqual(parseProvidersListQuery({}).orderBy)
   })
@@ -124,6 +155,37 @@ describe('parseProvidersListQuery', () => {
       { ratingScore: 'desc' },
       { ratingCount: 'desc' },
     ])
+  })
+})
+
+describe('matchedServicesWhere', () => {
+  it('finds only active services, by name or by their category in any language', () => {
+    expect(matchedServicesWhere([['стоматология']])).toEqual({
+      active: true,
+      OR: [
+        { name: { contains: 'стоматология', mode: 'insensitive' } },
+        { category: { name: { startsWith: 'стоматология', mode: 'insensitive' } } },
+        { category: { name: { in: ['Dentistry'] } } },
+      ],
+    })
+  })
+
+  // The provider filter still finds a dentist for "en" ("Dentistry" contains it); naming
+  // one of their services as what "en" matched would be a claim the card cannot back.
+  it('names a service through its category only by the start of the name', () => {
+    const branches = JSON.stringify(matchedServicesWhere([['en']]).OR)
+
+    expect(branches).not.toContain('"contains":"en","mode":"insensitive"}}}')
+    expect(branches).toContain('"startsWith":"en"')
+  })
+
+  it('accepts every spelling of every word', () => {
+    const where = matchedServicesWhere([['anna'], ['masage', 'massage']])
+    const names = (where.OR as Array<{ name?: { contains: string } }>).flatMap((branch) =>
+      branch.name ? [branch.name.contains] : []
+    )
+
+    expect(names).toEqual(['anna', 'masage', 'massage'])
   })
 })
 

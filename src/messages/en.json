@@ -554,7 +554,7 @@
       "statMatching": "Matching",
       "filtered": "With your filters applied",
       "allBookings": "All of your bookings",
-      "searchPlaceholder": "Search by name or email",
+      "searchPlaceholder": "Search by name, email or service",
       "searchLabel": "Search bookings",
       "statusPlaceholder": "Any status",
       "statusLabel": "Filter by status",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "What service are you looking for?",
     "searchButton": "Search",
     "noSuggestions": "No providers match that search.",
+    "matchedService": "Book this service:",
+    "moreMatchingServices": "{count, plural, one {+# more matching service} other {+# more matching services}}",
     "browseCategories": "Browse categories",
     "categoriesRail": "Categories",
     "allServices": "All services",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Fully blocked",
       "closed": "Closed"
     },
+    "viewProfile": "View profile",
     "fallbackWithOrganization": "Book an appointment with {name}, who works at {organization}.",
     "fallbackDescription": "Book an appointment with {name}.",
     "reviews": {

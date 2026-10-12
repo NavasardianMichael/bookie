@@ -554,7 +554,7 @@
       "statMatching": "Pasujące",
       "filtered": "Z zastosowanymi filtrami",
       "allBookings": "Wszystkie Twoje rezerwacje",
-      "searchPlaceholder": "Szukaj po imieniu lub adresie e-mail",
+      "searchPlaceholder": "Szukaj po imieniu, adresie e-mail lub usłudze",
       "searchLabel": "Szukaj rezerwacji",
       "statusPlaceholder": "Dowolny status",
       "statusLabel": "Filtruj według statusu",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Jakiej usługi szukasz?",
     "searchButton": "Szukaj",
     "noSuggestions": "Żaden usługodawca nie pasuje do tego wyszukiwania.",
+    "matchedService": "Zarezerwuj tę usługę:",
+    "moreMatchingServices": "{count, plural, one {+# pasująca usługa} few {+# pasujące usługi} many {+# pasujących usług} other {+# pasującej usługi}}",
     "browseCategories": "Przeglądaj kategorie",
     "categoriesRail": "Kategorie",
     "allServices": "Wszystkie usługi",
@@ -964,6 +966,7 @@
       "fullyBlocked": "W pełni zablokowany",
       "closed": "Zamknięte"
     },
+    "viewProfile": "Zobacz profil",
     "fallbackWithOrganization": "Zarezerwuj wizytę u {name}, pracującego w {organization}.",
     "fallbackDescription": "Zarezerwuj wizytę u {name}.",
     "reviews": {

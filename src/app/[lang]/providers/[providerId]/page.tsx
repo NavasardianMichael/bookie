@@ -11,6 +11,7 @@ import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
 import { ProviderDetails } from './components/Details'
 import { ProviderReviews } from './components/ProviderReviews'
 import { parseReviewsPage } from './components/reviewParams'
+import { parseServiceParam } from './components/serviceParams'
 import { loadProvider } from './loadProvider'
 
 export const dynamic = 'force-dynamic'
@@ -95,14 +96,16 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
 
 export default async function Provider({ params, searchParams }: Props) {
   const { providerId } = await params
-  const reviewsPage = parseReviewsPage(await searchParams)
+  const query = await searchParams
+  const reviewsPage = parseReviewsPage(query)
   const provider = await loadProvider(providerId)
+  const initialServiceId = parseServiceParam(query, provider.services.allIds)
 
   return (
     <>
       {/* Booking is three stacked panels — service, day, time — all owned by
           ProviderDetails, which holds the selection they share. */}
-      <ProviderDetails initialState={provider} />
+      <ProviderDetails initialState={provider} initialServiceId={initialServiceId} />
       {/* Reviews read as the step after booking, so they close the same column.
           `provider.id`, never the route segment: this page also serves
           `/providers/<slug>`, and the section pages itself by id. */}

@@ -45,7 +45,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 |---|---|---|
 | `/` | ƒ | Real — marketing landing (hero, feature lists for clients and for providers, category rail, providers, CTA). The hero's sign-up buttons are guest-only, from a server-side session read. See [The landing page](#the-landing-page--) |
 | `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
-| `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top |
+| `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top. `?service=<id>` (from an Explore card) starts booking with that service selected |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
 | `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO / Plan |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
@@ -282,8 +282,11 @@ segment is what `getHeaderConfig` uses. Config lives in `src/constants/header.ts
 appended to whatever `navRoutes` a route shows, by `withAccountRoutes`, once the session is
 signed in. So they stay on the public provider page, beside the avatar they belong with,
 and a guest never sees them. The mobile drawer gets the same list and drops Sign In
-once signed in. Five destinations plus an avatar overflowed 768px, so below `lg`
-the bar tightens its gaps and hides the provider's name beside the avatar.
+once signed in. The inline bar does not fit below `xl` (1200px): five destinations,
+the language switcher and the avatar overflow a 788px viewport and scroll the page
+sideways. Below `xl` the drawer is the nav. Icons and the provider's name beside the
+avatar wait until `xxl` — at 1200px they overflow the longer locales, and the avatar
+still names the account link.
 
 ### Explore's state is the query string
 
@@ -301,7 +304,7 @@ source of truth instead of two, a shareable and back-buttonable result set, and 
 provider rows duplicated into client state. **Do not hydrate the list store here** —
 `src/store/CLAUDE.md` says the same thing in general terms; this is the concrete case.
 
-Five decisions worth not undoing:
+Six decisions worth not undoing:
 
 1. **A category chip filters in place; it does not navigate.** The chip patches
    `?category=`, so the visitor's search and sort survive the click, and re-clicking the
@@ -343,6 +346,16 @@ Five decisions worth not undoing:
    current cards stay under a translucent overlay (`ExplorePending`) while the next
    set streams in. The skeleton remains the cold-load fallback (`loading.tsx` and the
    boundary's first paint).
+6. **A card names the one service a search matched, and only when a service matched.**
+   `GET /providers` adds `matchedService` and `moreMatchingServices` to a row whose match
+   was a service (`docs/DATABASE_STRUCTURE.md`, *the Explore query*); `ProviderCard` renders
+   them through `MatchedServiceLink` in the card's `footer`. A provider found by name, and
+   any card on favourites, categories or the home page, stays plain. One service rather than
+   every match keeps the grid's cards one height; the rest are "+N more", which opens the
+   profile's service list. The service links to `?service=<id>#booking-services`
+   (`[providerId]/components/serviceParams.ts`), read by the page's Server Component and
+   checked against the provider's own catalogue before `ProviderDetails` starts with it
+   selected. The suggestions dropdown shows the same service as its row's subtitle.
 
 Where Explore deviates from `design/initial prototype/explore_service_providers`:
 

@@ -88,6 +88,34 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
   }
 }
 
+/** The service a search matched, as its result card prints it — not the whole `mapService`. */
+export function mapMatchedService(service: Pick<Service, 'id' | 'name' | 'durationMinutes' | 'price' | 'currency'>) {
+  return {
+    id: service.id,
+    name: service.name,
+    duration: service.durationMinutes,
+    price: service.price === null ? undefined : Number(service.price),
+    currency: service.currency ?? undefined,
+  }
+}
+
+/**
+ * One Explore result: the card's `mapBasicProvider`, plus — when a service is what the
+ * search found — that service and how many more matched. Its own function rather than a
+ * field on `mapBasicProvider`, which favourites, categories and appointments share.
+ */
+export function mapProviderListItem(
+  provider: ProviderWithRelations,
+  match?: { service: Parameters<typeof mapMatchedService>[0]; more: number }
+) {
+  if (!match) return mapBasicProvider(provider)
+  return {
+    ...mapBasicProvider(provider),
+    matchedService: mapMatchedService(match.service),
+    moreMatchingServices: match.more || undefined,
+  }
+}
+
 /**
  * Contact half of a provider's detail payload.
  *

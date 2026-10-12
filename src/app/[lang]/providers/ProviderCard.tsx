@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { CategoryBadge } from '@app/[lang]/categories/components/CategoryBadge'
 import { getTranslations } from 'next-intl/server'
-import { BasicProvider } from '@store/providers/list/types'
+import { ProviderListItem } from '@store/providers/list/types'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
 import { getProviderAvailabilityStatus, ProviderAvailabilityStatus } from '@helpers/providerAvailability'
@@ -9,9 +9,11 @@ import { FavoriteButton } from '@components/favorites/FavoriteButton'
 import { RatingStars } from '@components/ui/bare/RatingStars'
 import { EntityCard } from '@components/ui/EntityCard'
 import { UserIcon } from '@components/ui/icons'
+import { MatchedServiceLink } from './MatchedServiceLink'
 
 type Props = {
-  data: BasicProvider
+  /** A plain `BasicProvider` fits too: the match fields only come with an Explore search. */
+  data: ProviderListItem
   /** Same as OrganizationCard: the category landing page already names the specialty. */
   hideCategories?: boolean
   /** Forwarded to EntityCard: must sit one level below the enclosing heading. */
@@ -75,7 +77,12 @@ export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLev
           </>
         ) : undefined
       }
-      cta='View profile'
+      footer={
+        data.matchedService && (
+          <MatchedServiceLink providerId={data.id} service={data.matchedService} more={data.moreMatchingServices} />
+        )
+      }
+      cta={t('viewProfile')}
     />
   )
 }

@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { getProvidersListAPI } from '@api/providers/main'
 import { ProvidersListQuery } from '@api/providers/types'
-import { BasicProvider } from '@store/providers/list/types'
+import { ProviderListItem } from '@store/providers/list/types'
 import { useDebouncedLookup } from '@hooks/useDebouncedLookup'
 import { collapseWhitespace } from '@helpers/search'
 import { ExploreScope, toProviderSuggestionsQuery } from './exploreParams'
@@ -18,7 +18,7 @@ const MIN_QUERY_LENGTH = 2
 const SUGGESTIONS_DEBOUNCE_MS = 300
 
 export type ProviderSuggestions = {
-  providers: BasicProvider[]
+  providers: ProviderListItem[]
   /** The text is too short to search, so there is nothing to say — not even "no matches". */
   isIdle: boolean
   isLoading: boolean
@@ -26,7 +26,7 @@ export type ProviderSuggestions = {
   failed: boolean
 }
 
-const fetchSuggestions = async (request: ProvidersListQuery): Promise<BasicProvider[]> => {
+const fetchSuggestions = async (request: ProvidersListQuery): Promise<ProviderListItem[]> => {
   const { list } = await getProvidersListAPI(request)
   return list.allIds.map((providerId) => list.byId[providerId!])
 }

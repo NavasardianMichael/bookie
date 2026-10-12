@@ -151,8 +151,20 @@ these before it creates an organization.
 `GET /providers` is the only paged endpoint. It answers with a window, not an array:
 
 ```json
-{ "value": { "items": [BasicProvider], "total": 42, "page": 2, "perPage": 9, "pageCount": 5 }, "error": null }
+{ "value": { "items": [ProviderListItem], "total": 42, "page": 2, "perPage": 9, "pageCount": 5 }, "error": null }
 ```
+
+A `ProviderListItem` is a `BasicProvider`, plus two fields when a **service** is what `q`
+found: `matchedService` (`{ id, name, duration, price?, currency? }`, the best-matching
+active service) and `moreMatchingServices` (how many others matched, omitted when none).
+A provider found only by name, and every item of a list with no `q`, carries neither, so
+its card stays as it is. They are read in one `Service` query for the page
+(`services/exploreResults.ts#loadMatchedServices`) and picked by
+`services/providerRelevance.ts#pickMatchedService`: a name match beats a match through the
+service's own category. A category names a service only by the start of its name (or of a
+word of a seeded label), stricter than the provider filter's `contains` — "en" still finds a
+dentist, but does not claim their "Follow-up visit" matched (`matchedServicesWhere`). The card links the service to `/providers/<id>?service=<serviceId>#booking-services`,
+which opens the profile with it selected.
 
 | Param | Accepts | Default |
 | --- | --- | --- |
@@ -164,8 +176,8 @@ these before it creates an organization.
 | `page` | 1-based | 1 |
 | `perPage` | 1-48 | 9 |
 
-Parsing lives in `server/src/services/providerSearch.ts`, not the route. Five things
-about it are load-bearing:
+Parsing lives in `server/src/services/providerSearch.ts`, not the route. What is
+load-bearing about it:
 
 - **Every value is narrowed to a closed set.** `?sort=anything-else` resolves to
   `recommended` rather than reaching Prisma.
@@ -175,6 +187,23 @@ about it are load-bearing:
 - **`q` terms are ANDed, each matching any of** `firstName`, `lastName`,
   `organization.name`, `services.name`, `categories.category.name`. So "sarah massage"
   narrows. `description` is deliberately excluded: longest column, weakest signal.
+- **A category matches by its label in every language.** `Category.name` stores the
+  English string and the web translates it for display only, so a term also matches the
+  seeded categories with a `Categories.names.*` label that has a word starting with it, in
+  any of the 16 locales — "стомат" is `name IN ('Dentistry')`. A word start, not anywhere
+  inside: across sixteen languages "an" is inside a label of most categories. The server cannot read the catalogues, so it
+  keeps a twin, `server/src/lib/category-names.ts`, pinned to them by
+  `tests/unit/server/categoryNames.spec.ts`. No locale is sent: the language a visitor
+  types in need not be the one they browse in. Free-text categories match their own name.
+- **A typed query under `recommended` is ordered by relevance.** Prisma cannot sort by a
+  computed score, so up to `RELEVANCE_RANK_LIMIT` (300) matches are loaded with a narrow
+  `select`, scored in memory (`services/providerRelevance.ts`) and paged there. Each term
+  scores its best field — whole field 4 › whole word 3 › word start 2 › inside a word 1 —
+  with +0.5 for a service name or category label, so an offer outranks a name matched
+  equally well but never one matched better; the terms' scores are summed. The order is
+  `available`, then relevance, then `ratingScore`, then `updatedAt`. An explicit sort is
+  respected, and past 300 matches the plain order is kept — a few ms and about 1 MB per
+  request at the cap; the next step is a score in SQL (`docs/BACKLOG.md`).
 - **A search that finds nothing is retried once, typo- and accent-tolerant.** `ILIKE` is
   case-insensitive but neither, so on an empty result each unknown word may also match its
   closest known spellings — words from those same fields, cached for a minute — and the
@@ -207,10 +236,15 @@ cost for the least-used control; `ratingScore` is not that — it is the second 
 `recommended`, so it is read on nearly every public page view and written only when a
 review changes.
 
+`Service` is indexed on `providerId` — Postgres does not index a foreign key by itself, and
+both the "has a matching service" filter and the result card's matched-service read look
+services up by provider.
+
 ### How rating ranks
 
-`recommended` orders by `available`, then `ratingScore`, then `updatedAt`. `topRated`
-orders by `ratingScore`, then `ratingCount` as a tiebreak.
+`recommended` orders by `available`, then `ratingScore`, then `updatedAt` — with a typed
+query, by relevance between the first two (above). `topRated` orders by `ratingScore`,
+then `ratingCount` as a tiebreak.
 
 `ratingScore` is a **Bayesian** rating, not the plain average:
 

@@ -1,6 +1,6 @@
 import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
-import { BasicProvider, ProvidersListPagination, ProvidersListState } from '@store/providers/list/types'
+import { ProviderListItem, ProvidersListPagination, ProvidersListState } from '@store/providers/list/types'
 import { ProviderProfile, ProviderSeo, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
@@ -54,7 +54,7 @@ export type ProvidersListQuery = Partial<{
 }>
 
 export type ProvidersListResponse = {
-  items: BasicProvider[]
+  items: ProviderListItem[]
 } & ProvidersListPagination
 
 export type GetProvidersListAPI = Endpoint<{

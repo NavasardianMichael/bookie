@@ -554,7 +554,7 @@
       "statMatching": "符合筛选",
       "filtered": "已应用筛选条件",
       "allBookings": "您的全部预约",
-      "searchPlaceholder": "按姓名或邮箱搜索",
+      "searchPlaceholder": "按姓名、邮箱或服务搜索",
       "searchLabel": "搜索预约",
       "statusPlaceholder": "任何状态",
       "statusLabel": "按状态筛选",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "您想寻找什么服务？",
     "searchButton": "搜索",
     "noSuggestions": "没有符合该搜索的服务提供者。",
+    "matchedService": "预约此服务：",
+    "moreMatchingServices": "{count, plural, one {另有 # 项匹配服务} other {另有 # 项匹配服务}}",
     "browseCategories": "浏览分类",
     "categoriesRail": "分类",
     "allServices": "全部服务",
@@ -964,6 +966,7 @@
       "fullyBlocked": "已暂停预约",
       "closed": "休息"
     },
+    "viewProfile": "查看主页",
     "fallbackWithOrganization": "预约 {name}（就职于 {organization}）。",
     "fallbackDescription": "预约 {name}。",
     "reviews": {

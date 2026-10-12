@@ -554,7 +554,7 @@
       "statMatching": "ตรงกับเงื่อนไข",
       "filtered": "ใช้ตัวกรองของคุณแล้ว",
       "allBookings": "การจองทั้งหมดของคุณ",
-      "searchPlaceholder": "ค้นหาด้วยชื่อหรืออีเมล",
+      "searchPlaceholder": "ค้นหาด้วยชื่อ อีเมล หรือบริการ",
       "searchLabel": "ค้นหาการจอง",
       "statusPlaceholder": "สถานะใดก็ได้",
       "statusLabel": "กรองตามสถานะ",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "คุณกำลังมองหาบริการอะไร?",
     "searchButton": "ค้นหา",
     "noSuggestions": "ไม่มีผู้ให้บริการที่ตรงกับการค้นหานี้",
+    "matchedService": "จองบริการนี้:",
+    "moreMatchingServices": "{count, plural, one {และบริการที่ตรงกันอีก # รายการ} other {และบริการที่ตรงกันอีก # รายการ}}",
     "browseCategories": "เรียกดูหมวดหมู่",
     "categoriesRail": "หมวดหมู่",
     "allServices": "บริการทั้งหมด",
@@ -964,6 +966,7 @@
       "fullyBlocked": "ปิดรับจอง",
       "closed": "ปิด"
     },
+    "viewProfile": "ดูโปรไฟล์",
     "fallbackWithOrganization": "จองนัดหมายกับ {name} ซึ่งทำงานที่ {organization}",
     "fallbackDescription": "จองนัดหมายกับ {name}",
     "reviews": {

@@ -388,6 +388,10 @@ model Service {
   /// catalogue still lists them, and historical appointments keep pointing at them.
   active          Boolean       @default(true)
   appointments    Appointment[]
+
+  /// Postgres does not index a foreign key by itself. Explore's "has a matching service"
+  /// filter and the result card's matched-service read both look services up by provider.
+  @@index([providerId])
 }
 
 model Consumer {

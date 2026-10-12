@@ -17,6 +17,8 @@ import { ServicePicker } from './ServicePicker'
 
 type Props = {
   initialState: SingleProvider
+  /** From `?service=` (`serviceParams.ts`), already checked against this catalogue. */
+  initialServiceId?: string
 }
 
 /**
@@ -32,7 +34,7 @@ type Props = {
  * hydrated in an effect below, so during the server render and the first client
  * paint it is still empty, and a list read from it would flash in.
  */
-export const ProviderDetails: FC<Props> = ({ initialState }) => {
+export const ProviderDetails: FC<Props> = ({ initialState, initialServiceId }) => {
   const t = useTranslations('Booking')
   const providerStore = useSingleProviderStore()
 
@@ -42,8 +44,9 @@ export const ProviderDetails: FC<Props> = ({ initialState }) => {
   )
 
   // Start empty so the confirm strip can ask for a service (and a time) rather than
-  // silently booking whatever happened to be first in the catalogue.
-  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>()
+  // silently booking whatever happened to be first in the catalogue. The one exception is
+  // a service the visitor already chose — the match an Explore card linked them here with.
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(initialServiceId)
 
   /**
    * Seeded from the payload, and closed locally when a submit is refused because the

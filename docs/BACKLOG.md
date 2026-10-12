@@ -570,6 +570,23 @@ Also missing from the card versus the prototype: **"Next: Today, 2 PM"**. That i
 built to avoid. It wants a cached `nextAvailableAt`, invalidated on schedule and
 appointment writes.
 
+### Search relevance is ranked in memory, capped at 300 matches
+
+Since 2026-10-10 a typed query under `recommended` is ordered by how well each provider
+matches (`server/src/services/providerRelevance.ts`). Prisma cannot sort by a computed
+score, so `services/exploreResults.ts` loads every match — names, matched services,
+categories — scores them in Node and keeps one page. That is a few milliseconds and about
+a megabyte per request at the cap, and the cap exists for the search dropdown, which sends
+this request per keystroke and whose two-letter queries match the most providers.
+
+Past `RELEVANCE_RANK_LIMIT` (300) matches the plain `recommended` order is used, so the
+broadest searches lose relevance exactly when they would need it most. When listed
+providers approach the low thousands, move the score into SQL: a TypedSQL query that
+`ORDER BY`s a `CASE` over the same four tiers (with `EXISTS` subqueries for services and
+categories) and `LIMIT`s to the page — or `pg_trgm`, which would also replace the
+typo-tolerant retry (`lib/searchCorrection.ts`). Either is the first raw SQL in `server/`,
+and only an e2e run against Postgres can test it.
+
 ## The root 404 is `DEFAULT_LOCALE` only
 
 `src/app/not-found.tsx` serves every unmatched URL, and it renders *above*

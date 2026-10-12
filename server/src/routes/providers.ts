@@ -21,22 +21,22 @@ import { toTimeZone } from '../lib/time-zone.js'
 import { mintOwnerManageToken } from '../lib/token.js'
 import {
   consumerSideBookingInclude,
-  mapBasicProvider,
   mapConsumerSideBooking,
   mapProviderBooking,
+  mapProviderListItem,
   mapProviderProfile,
   mapProviderSeo,
   mapService,
   mapSingleProvider,
   providerBookingInclude,
   providerInclude,
-  providerListInclude,
   providerProfileInclude,
 } from '../mappers/entities.js'
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderBusyIntervals } from '../services/appointments.js'
 import { notifyBookingDecisionTelegram } from '../services/bookingNotify.js'
+import { loadExplorePage, loadMatchedServices } from '../services/exploreResults.js'
 import { assertServiceSlot, assertSlugChange, getEntitlements, takesServiceSlot } from '../services/plans.js'
 import { countActiveServices, isBookingAllowanceSpent } from '../services/planUsage.js'
 import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
@@ -133,7 +133,8 @@ export const providersRouter = Router()
  * real total before it can become a `skip` — otherwise `?page=99` answers with an empty
  * grid and a "1 of 4" pager. The two queries are sequential for that reason and not by
  * oversight. A search that finds nothing is retried once with its words corrected for
- * typos and accents (`services/searchFallback.ts`).
+ * typos and accents (`services/searchFallback.ts`). A typed query is ranked by relevance
+ * and names the service it matched on each card (`services/exploreResults.ts`).
  */
 providersRouter.get(
   '/',
@@ -143,19 +144,16 @@ providersRouter.get(
       ({ where }) => prisma.provider.count({ where }),
       loadExploreVocabulary
     )
-    const { where, orderBy, page: requestedPage, perPage } = query
-    const { page, pageCount, skip } = resolvePageWindow(total, requestedPage, perPage)
-
-    const providers = await prisma.provider.findMany({
-      where,
-      include: providerListInclude,
-      orderBy,
-      skip,
-      take: perPage,
-    })
+    const { perPage } = query
+    const { page, pageCount, skip } = resolvePageWindow(total, query.page, perPage)
+    const providers = await loadExplorePage(query, total, skip)
+    const matches = await loadMatchedServices(
+      providers.map((provider) => provider.id),
+      query.matched
+    )
 
     return ok(res, {
-      items: providers.map((p) => mapBasicProvider(p)),
+      items: providers.map((provider) => mapProviderListItem(provider, matches.get(provider.id))),
       total,
       page,
       perPage,

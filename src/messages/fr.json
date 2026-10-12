@@ -554,7 +554,7 @@
       "statMatching": "Correspondent",
       "filtered": "Avec vos filtres appliqués",
       "allBookings": "Toutes vos réservations",
-      "searchPlaceholder": "Rechercher par nom ou e-mail",
+      "searchPlaceholder": "Rechercher par nom, e-mail ou prestation",
       "searchLabel": "Rechercher des réservations",
       "statusPlaceholder": "Tous les statuts",
       "statusLabel": "Filtrer par statut",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Quelle prestation cherchez-vous ?",
     "searchButton": "Rechercher",
     "noSuggestions": "Aucun professionnel ne correspond à cette recherche.",
+    "matchedService": "Réserver cette prestation :",
+    "moreMatchingServices": "{count, plural, one {+# autre prestation correspondante} other {+# autres prestations correspondantes}}",
     "browseCategories": "Parcourir les catégories",
     "categoriesRail": "Catégories",
     "allServices": "Toutes les prestations",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Entièrement bloqué",
       "closed": "Fermé"
     },
+    "viewProfile": "Voir le profil",
     "fallbackWithOrganization": "Prenez rendez-vous avec {name}, qui travaille chez {organization}.",
     "fallbackDescription": "Prenez rendez-vous avec {name}.",
     "reviews": {

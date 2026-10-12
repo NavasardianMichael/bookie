@@ -554,7 +554,7 @@
       "statMatching": "Համապատասխանող",
       "filtered": "Ձեր զտիչներով",
       "allBookings": "Ձեր բոլոր ամրագրումները",
-      "searchPlaceholder": "Փնտրեք ըստ անվան կամ էլ. փոստի",
+      "searchPlaceholder": "Փնտրեք ըստ անվան, էլ. փոստի կամ ծառայության",
       "searchLabel": "Փնտրել ամրագրումներում",
       "statusPlaceholder": "Ցանկացած կարգավիճակ",
       "statusLabel": "Զտել ըստ կարգավիճակի",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "Ի՞նչ ծառայություն եք փնտրում։",
     "searchButton": "Որոնել",
     "noSuggestions": "Այս որոնմանը համապատասխանող մատակարար չկա։",
+    "matchedService": "Ամրագրել այս ծառայությունը՝",
+    "moreMatchingServices": "{count, plural, one {ևս # համապատասխան ծառայություն} other {ևս # համապատասխան ծառայություն}}",
     "browseCategories": "Զննել կատեգորիաները",
     "categoriesRail": "Կատեգորիաներ",
     "allServices": "Բոլոր ծառայությունները",
@@ -964,6 +966,7 @@
       "fullyBlocked": "Ամբողջությամբ արգելափակված",
       "closed": "Փակ"
     },
+    "viewProfile": "Դիտել պրոֆիլը",
     "fallbackWithOrganization": "Ամրագրեք ժամադրություն {name}-ի հետ, ով աշխատում է {organization}-ում։",
     "fallbackDescription": "Ամրագրեք ժամադրություն {name}-ի հետ։",
     "reviews": {

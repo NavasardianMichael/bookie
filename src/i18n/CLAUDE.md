@@ -266,6 +266,10 @@ Two things that will bite:
    `providerSeo.spec.ts` and `returnPath.spec.ts`. The third is not — `booking-mail.ts`
    imports config and is out of the unit tests' reach — and missing it sends every booking
    email for that locale to an English manage page without failing anything.
+7. Add its `Categories.names` labels to `SEEDED_CATEGORY_LABELS` in
+   `server/src/lib/category-names.ts`, which Explore searches so a category is found by the
+   word on screen. `categoryNames.spec.ts` fails until you do — and the same holds whenever a
+   category label is retranslated in any locale.
 
 ### Inflected languages (ru, uk, pl, …)
 

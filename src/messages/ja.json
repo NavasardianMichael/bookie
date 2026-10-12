@@ -554,7 +554,7 @@
       "statMatching": "条件に一致",
       "filtered": "絞り込み適用中",
       "allBookings": "すべての予約",
-      "searchPlaceholder": "名前またはメールで検索",
+      "searchPlaceholder": "名前、メール、サービスで検索",
       "searchLabel": "予約を検索",
       "statusPlaceholder": "すべてのステータス",
       "statusLabel": "ステータスで絞り込み",
@@ -898,6 +898,8 @@
     "searchPlaceholder": "どんなサービスをお探しですか？",
     "searchButton": "検索",
     "noSuggestions": "検索に一致する提供者はいません。",
+    "matchedService": "このサービスを予約：",
+    "moreMatchingServices": "{count, plural, one {他に一致するサービス # 件} other {他に一致するサービス # 件}}",
     "browseCategories": "カテゴリを見る",
     "categoriesRail": "カテゴリ",
     "allServices": "すべてのサービス",
@@ -964,6 +966,7 @@
       "fullyBlocked": "予約停止",
       "closed": "休業"
     },
+    "viewProfile": "プロフィールを見る",
     "fallbackWithOrganization": "{name}（{organization}所属）を予約しましょう。",
     "fallbackDescription": "{name}を予約しましょう。",
     "reviews": {

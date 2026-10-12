@@ -57,7 +57,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Reusable UI | `src/components/ui/` — see `src/components/CLAUDE.md` |
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
-| Matching typed search text, duplicate-name checks | `src/helpers/search.ts` (twin: `server/src/lib/search.ts`) · empty-search retry `server/src/services/searchFallback.ts` |
+| Matching typed search text, duplicate-name checks | `src/helpers/search.ts` (twin: `server/src/lib/search.ts`) · empty-search retry `server/src/services/searchFallback.ts` · Explore's relevance order and matched service `server/src/services/providerRelevance.ts` · translated category names `server/src/lib/category-names.ts` |
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
 | Showing an error (dev details vs production copy, Retry) | `src/helpers/error.ts` (classify) · `src/components/ui/ErrorAlert.tsx`, `ErrorState.tsx` · `src/hooks/useErrorToast.tsx` · `src/components/errors/` — see *Errors* in `src/components/CLAUDE.md` |
 | Error copy, all 16 locales | `Errors.kinds.*` (by failure kind), `Errors.codes.*` (by stable code), `Errors.pages.*` in `src/messages/` |

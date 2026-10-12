@@ -1,4 +1,6 @@
 import { Prisma } from '@prisma/client'
+import { seededCategoriesMatching } from '../lib/category-names.js'
+import type { TermSpellings } from '../lib/searchCorrection.js'
 import { SUPPORTED_TIME_ZONES, toTimeZone, weekdayInZone, type WeekdayName } from '../lib/time-zone.js'
 
 /**
@@ -70,6 +72,15 @@ const toSearchTerms = (raw: unknown): string[] =>
   asString(raw).trim().split(/\s+/).filter(Boolean).slice(0, SEARCH_TERM_LIMIT)
 
 /**
+ * The seeded categories one spelling names by a label in any language
+ * (`lib/category-names.ts`) — "стоматология" is the Dentistry row, whose stored name is English.
+ */
+const translatedCategories = (term: string): Prisma.CategoryWhereInput[] => {
+  const names = seededCategoriesMatching(term)
+  return names.length ? [{ name: { in: names } }] : []
+}
+
+/**
  * Where one term is allowed to match. `description` is deliberately absent: it is the
  * longest column on the table and the weakest signal, and a service or category name
  * already answers "who does massage?" more precisely.
@@ -77,13 +88,33 @@ const toSearchTerms = (raw: unknown): string[] =>
  * A term is one or more spellings, any of which may match — a single one normally, several
  * on the retry `services/searchFallback.ts` makes after a search that found nothing.
  */
-const matchesTerm = (spellings: readonly string[]): Prisma.ProviderWhereInput => ({
+const matchesTerm = (spellings: TermSpellings): Prisma.ProviderWhereInput => ({
   OR: spellings.flatMap((term): Prisma.ProviderWhereInput[] => [
     { firstName: { contains: term, mode: 'insensitive' } },
     { lastName: { contains: term, mode: 'insensitive' } },
     { organization: { name: { contains: term, mode: 'insensitive' } } },
     { services: { some: { name: { contains: term, mode: 'insensitive' }, active: true } } },
     { categories: { some: { category: { name: { contains: term, mode: 'insensitive' } } } } },
+    ...translatedCategories(term).map((category) => ({ categories: { some: { category } } })),
+  ]),
+})
+
+/**
+ * The services a search is about, on a provider it found: active, and named by any of its
+ * spellings — by name, or through the service's own category. What the result card shows
+ * as the match, and counts as "+N more". Only meaningful with at least one term.
+ *
+ * Stricter than `matchesTerm` about categories: the start of the category's name (or of a
+ * word of a seeded one's label), never anywhere inside it. Finding a dentist for "en"
+ * because "Dentistry" contains it is the filter's old, harmless looseness; naming their
+ * "Follow-up visit" as what "en" matched would be a claim the card cannot back.
+ */
+export const matchedServicesWhere = (matched: readonly TermSpellings[]): Prisma.ServiceWhereInput => ({
+  active: true,
+  OR: matched.flat().flatMap((term): Prisma.ServiceWhereInput[] => [
+    { name: { contains: term, mode: 'insensitive' } },
+    { category: { name: { startsWith: term, mode: 'insensitive' } } },
+    ...translatedCategories(term).map((category) => ({ category })),
   ]),
 })
 
@@ -91,6 +122,13 @@ export type ProvidersListQuery = {
   where: Prisma.ProviderWhereInput
   /** The query's words as matched — what `searchFallback.ts` corrects on an empty result. */
   terms: string[]
+  /**
+   * The spellings `where` was built from, one set per word — the typed words, or on the
+   * corrected retry the words plus their corrections. What the matched service and the
+   * relevance order are judged against, so they agree with the rows the filter let in.
+   */
+  matched: TermSpellings[]
+  sort: ProvidersListSort
   orderBy: Prisma.ProviderOrderByWithRelationInput[]
   /** 1-based, as requested. Clamped against the real page count by the caller. */
   page: number
@@ -177,11 +215,12 @@ const openTodayWhere = (now: Date): Prisma.ProviderWhereInput => {
 export function parseProvidersListQuery(
   query: RawQuery,
   now: Date = new Date(),
-  spellings?: readonly (readonly string[])[]
+  spellings?: readonly TermSpellings[]
 ): ProvidersListQuery {
   const terms = toSearchTerms(query.q)
-  const matched = spellings ?? terms.map((term) => [term])
+  const matched = spellings ? [...spellings] : terms.map((term) => [term])
   const categoryId = asString(query.categoryId)
+  const sort = asSort(query.sort)
 
   return {
     where: {
@@ -194,7 +233,9 @@ export function parseProvidersListQuery(
       ...(asFlag(query.openToday) ? openTodayWhere(now) : {}),
     },
     terms,
-    orderBy: ORDER_BY[asSort(query.sort)],
+    matched,
+    sort,
+    orderBy: ORDER_BY[sort],
     page: asPositiveInt(query.page, 1, Number.MAX_SAFE_INTEGER),
     perPage: asPositiveInt(query.perPage, PROVIDERS_PAGE_SIZE, PROVIDERS_MAX_PAGE_SIZE),
   }
