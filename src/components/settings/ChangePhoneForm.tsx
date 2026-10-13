@@ -8,8 +8,6 @@ import { PhoneNumber } from '@interfaces/app'
 import { toOptionalPhoneNumber, toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
 
 type Props = {
-  /** Provider phone is optional; a consumer account always has one. */
-  required?: boolean
   disabled?: boolean
 }
 
@@ -21,9 +19,9 @@ const isSamePhone = (current: PhoneNumber | string | undefined, next: PhoneNumbe
 }
 
 /**
- * The phone the profile save should write, or `undefined` when the field is blank
- * or still the number already stored. `PATCH /identity/phone` cannot clear a number,
- * so a blank optional field is left alone.
+ * The phone the profile save should write, or `undefined` when it is still the number
+ * already stored. The field is required on both profiles, so a blank value never reaches
+ * this past validation; `PATCH /identity/phone` cannot clear a number either way.
  */
 export const phoneChangeToSave = (
   current: PhoneNumber | string | undefined,
@@ -39,8 +37,8 @@ export const phoneChangeToSave = (
  * Phone fields for the profile form. No form of its own and no save button — `code` and
  * `number` register on the surrounding profile `Form`, and that form's save writes them.
  */
-export const ChangePhoneForm: FC<Props> = ({ required = true, disabled }) => {
+export const ChangePhoneForm: FC<Props> = ({ disabled }) => {
   const t = useTranslations('Settings.phone')
 
-  return <PhoneNumberField label={t('label')} required={required} disabled={disabled} />
+  return <PhoneNumberField label={t('label')} disabled={disabled} />
 }

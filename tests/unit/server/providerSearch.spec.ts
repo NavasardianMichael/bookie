@@ -159,33 +159,20 @@ describe('parseProvidersListQuery', () => {
 })
 
 describe('matchedServicesWhere', () => {
-  it('finds only active services, by name or by their category in any language', () => {
-    expect(matchedServicesWhere([['стоматология']])).toEqual({
+  // A service has no category — categories are the provider's — so a service is named as
+  // the match by its own name only; a provider found through a category names none.
+  it('finds only active services, by name', () => {
+    expect(matchedServicesWhere([['massage', 'masage']])).toEqual({
       active: true,
       OR: [
-        { name: { contains: 'стоматология', mode: 'insensitive' } },
-        { category: { name: { startsWith: 'стоматология', mode: 'insensitive' } } },
-        { category: { name: { in: ['Dentistry'] } } },
+        { name: { contains: 'massage', mode: 'insensitive' } },
+        { name: { contains: 'masage', mode: 'insensitive' } },
       ],
     })
   })
 
-  // The provider filter still finds a dentist for "en" ("Dentistry" contains it); naming
-  // one of their services as what "en" matched would be a claim the card cannot back.
-  it('names a service through its category only by the start of the name', () => {
-    const branches = JSON.stringify(matchedServicesWhere([['en']]).OR)
-
-    expect(branches).not.toContain('"contains":"en","mode":"insensitive"}}}')
-    expect(branches).toContain('"startsWith":"en"')
-  })
-
-  it('accepts every spelling of every word', () => {
-    const where = matchedServicesWhere([['anna'], ['masage', 'massage']])
-    const names = (where.OR as Array<{ name?: { contains: string } }>).flatMap((branch) =>
-      branch.name ? [branch.name.contains] : []
-    )
-
-    expect(names).toEqual(['anna', 'masage', 'massage'])
+  it('never reaches for a category', () => {
+    expect(JSON.stringify(matchedServicesWhere([['стоматология']]))).not.toContain('category')
   })
 })
 

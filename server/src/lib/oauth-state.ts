@@ -34,8 +34,8 @@ import { config } from '../config.js'
 export type OAuthFlowContext = {
   intent: 'signin' | 'link'
   /**
-   * Chosen on the registration page. Null when the flow started from sign-in — then the
-   * completion step asks, rather than guessing a role for a new account.
+   * Chosen on the registration page. Null when the flow started from sign-in — then a new
+   * account is sent to the account-type choice, rather than guessed a role.
    */
   role: 'consumer' | 'provider' | null
   /** Already checked by `isAllowedPublicReturnPath` at initiate time. */

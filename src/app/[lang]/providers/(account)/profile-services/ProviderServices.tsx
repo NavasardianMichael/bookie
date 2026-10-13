@@ -6,7 +6,6 @@ import { Spin, Tabs } from 'antd'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
-import { useCategoriesListStore } from '@store/categories/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { ROUTES } from '@constants/routes'
@@ -55,8 +54,6 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     putProviderService,
     deleteProviderService,
   } = useProviderProfileStore()
-  const getCategoriesList = useCategoriesListStore.use.getCategoriesList()
-  const categories = useCategoriesListStore.use.list()
   const { allIds, byId } = services
   const [editValues, setEditValues] = useState<ProviderServiceFormValues>(initialValues)
 
@@ -65,6 +62,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   const deleteServiceIdRef = useRef<string | null>(null)
   /** The service whose active flag the confirm dialog is about to flip. */
   const [toggleServiceId, setToggleServiceId] = useState<string | null>(null)
+  /** The service the confirm dialog is about to copy into a new row. */
+  const [duplicateServiceId, setDuplicateServiceId] = useState<string | null>(null)
 
   const [filter, setFilter] = useState<Filter>(FILTERS.all)
   const [loadError, setLoadError] = useState<unknown>(null)
@@ -79,15 +78,12 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
    * The store slice this page reads had no loader wired to it, so the list stayed
    * permanently empty and `providerId` stayed `''` — which posted every new
    * service to `/providers//services`. Nothing else on the account shell hydrates it.
-   *
-   * The category list is loaded here because the service form's category picker
-   * reads it and nothing else fills it.
    */
   useEffect(() => {
-    void Promise.all([getProviderProfileData(), getCategoriesList()])
+    void getProviderProfileData()
       .catch((error: unknown) => setLoadError(error))
       .finally(() => setIsLoading(false))
-  }, [getCategoriesList, getProviderProfileData, loadAttempt])
+  }, [getProviderProfileData, loadAttempt])
 
   const retryLoad = useCallback(() => {
     setLoadError(null)
@@ -171,17 +167,13 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           await postProviderService({ providerId, service })
         }
         closeEditServiceModal()
-        // A typed-in category becomes a Category row; refresh so the next open lists it.
-        // The save already succeeded, so a failed refresh is recorded, not announced —
-        // the worst case is that the new category is missing from the next open's list.
-        void getCategoriesList().catch((error: unknown) => reportError(error, 'ProviderServices:refreshCategories'))
       } catch (error) {
         setFormError(error)
       } finally {
         setIsSubmitting(false)
       }
     },
-    [closeEditServiceModal, getCategoriesList, postProviderService, providerId, putProviderService]
+    [closeEditServiceModal, postProviderService, providerId, putProviderService]
   )
 
   const openServiceForm = useCallback(
@@ -202,19 +194,13 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
               price: service.price,
               currency: service.currency,
               image: service.image,
-              category: service.categoryId
-                ? {
-                    id: service.categoryId,
-                    name: categories.byId[service.categoryId]?.name ?? '',
-                  }
-                : undefined,
             }
           : initialValues
       )
       setFormError(null)
       setEditServiceModalOpened(true)
     },
-    [byId, categories.byId, initialValues]
+    [byId, initialValues]
   )
 
   const toggleService = toggleServiceId ? byId[toggleServiceId] : undefined
@@ -239,6 +225,38 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
     })
     closeToggleModal()
   }, [closeToggleModal, providerId, putProviderService, toggleService, toggleServiceId])
+
+  const duplicateSource = duplicateServiceId ? byId[duplicateServiceId] : undefined
+
+  const onDuplicateService = useCallback((serviceId: string) => {
+    setDuplicateServiceId(serviceId)
+  }, [])
+
+  const closeDuplicateModal = useCallback(() => {
+    setDuplicateServiceId(null)
+  }, [])
+
+  // Deliberately unguarded, same as delete: AppConfirmModal awaits this, and a
+  // rejection — the plan cap, most often — keeps the dialog open.
+  const onDuplicateApprove = useCallback(async () => {
+    if (!duplicateSource) {
+      closeDuplicateModal()
+      return
+    }
+    await postProviderService({
+      providerId,
+      service: {
+        name: duplicateSource.name,
+        duration: duplicateSource.duration,
+        ...(duplicateSource.description ? { description: duplicateSource.description } : {}),
+        ...(duplicateSource.price !== undefined ? { price: duplicateSource.price } : {}),
+        ...(duplicateSource.currency ? { currency: duplicateSource.currency } : {}),
+        ...(duplicateSource.image ? { imageUrl: duplicateSource.image } : {}),
+        active: duplicateSource.active,
+      },
+    })
+    closeDuplicateModal()
+  }, [closeDuplicateModal, duplicateSource, postProviderService, providerId])
 
   const onAddServiceClick = useCallback(() => openServiceForm(), [openServiceForm])
 
@@ -312,6 +330,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                   key={service.id}
                   service={service}
                   onEdit={openServiceForm}
+                  onDuplicate={onDuplicateService}
                   onDelete={onDeleteService}
                   onToggleActive={onToggleActive}
                   activationLocked={atServiceLimit}
@@ -376,12 +395,22 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       </AppSheet>
 
       <AppConfirmModal
+        tone={nextActive ? 'default' : 'warning'}
         title={nextActive ? t('activateTitle') : t('deactivateTitle')}
         description={nextActive ? t('activateBody') : t('deactivateBody')}
         okText={nextActive ? t('activateService') : t('deactivateService')}
         open={toggleServiceId !== null}
         onConfirm={onToggleApprove}
         onCancel={closeToggleModal}
+      />
+
+      <AppConfirmModal
+        title={t('duplicateTitle')}
+        description={t('duplicateBody')}
+        okText={t('duplicate')}
+        open={duplicateServiceId !== null}
+        onConfirm={onDuplicateApprove}
+        onCancel={closeDuplicateModal}
       />
 
       <AppConfirmModal

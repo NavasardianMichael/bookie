@@ -41,7 +41,7 @@ describe('provider profile store — services', () => {
     const file = new File(['x'], 'crop.png', { type: 'image/png' })
     await useProviderProfileStoreBase.getState().postProviderService({
       providerId: 'p-1',
-      service: { name: 'Haircut', duration: 45, categoryId: 'cat-1', image: file },
+      service: { name: 'Haircut', duration: 45, image: file },
     })
 
     const { services } = useProviderProfileStoreBase.getState()
@@ -137,14 +137,14 @@ describe('provider profile store — services', () => {
 
   // The store layer must not swallow API failures — the form renders the rejection.
   it('propagates a rejected save and leaves the slice untouched', async () => {
-    vi.mocked(postProviderServiceAPI).mockRejectedValue(new Error('Unknown category'))
+    vi.mocked(postProviderServiceAPI).mockRejectedValue(new Error('Service duration is required'))
 
     await expect(
       useProviderProfileStoreBase.getState().postProviderService({
         providerId: 'p-1',
-        service: { name: 'Haircut', duration: 45, categoryId: 'nope' },
+        service: { name: 'Haircut' },
       })
-    ).rejects.toThrow('Unknown category')
+    ).rejects.toThrow('Service duration is required')
 
     expect(useProviderProfileStoreBase.getState().services.allIds).toEqual([])
   })

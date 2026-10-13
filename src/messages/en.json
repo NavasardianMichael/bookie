@@ -59,10 +59,6 @@
     "backToSignIn": "Back to sign in",
     "termsLead": "By creating an account you agree to our",
     "termsAnd": "and",
-    "roles": {
-      "consumer": "Booking a service",
-      "provider": "Offering a service"
-    },
     "fields": {
       "email": "Email",
       "emailPlaceholder": "you@example.com",
@@ -103,6 +99,21 @@
       "similarDescription": "We found an organization with a similar name. Join it, or create “{name}” as a new one.",
       "useExisting": "Use this one",
       "createNew": "Create a new one"
+    },
+    "categories": {
+      "label": "Categories",
+      "hint": "Up to {max}. Pick what you do, or add your own.",
+      "searchPlaceholder": "Search or add a category",
+      "noMatches": "No category matches that name",
+      "addNew": "Add “{name}” as a new category",
+      "full": "{max} categories chosen — remove one to add another",
+      "chosen": "Chosen categories",
+      "remove": "Remove {name}",
+      "newBadge": "new",
+      "similarTitle": "This category may already exist",
+      "similarDescription": "We found a category with a similar name. Use it, or add “{name}” as a new one.",
+      "useExisting": "Use this one",
+      "createNew": "Add as new"
     },
     "signIn": {
       "title": "Welcome back",
@@ -156,12 +167,6 @@
     "callback": {
       "signingIn": "Signing you in…"
     },
-    "completeRegistration": {
-      "title": "Finish setting up",
-      "subtitle": "Signed in as {email}. We need two more things before you can book.",
-      "roleLabel": "How will you use Bookie?",
-      "submit": "Finish"
-    },
     "googleErrors": {
       "generic": "Google sign-in did not complete. Please try again.",
       "google_unavailable": "Google sign-in is not available right now. Use your email and password instead.",
@@ -174,6 +179,10 @@
       "google_account_mismatch": "That Google account is already linked to a different Bookie account.",
       "google_already_linked": "Your account is already linked to Google.",
       "google_unauthorized": "Sign in first, then link Google from your settings."
+    },
+    "googleSignUp": {
+      "expired": "Your Google sign-in timed out. Sign up with your email below, or continue with Google again.",
+      "emailFromGoogle": "From your Google account — it can’t be changed here."
     }
   },
   "Booking": {
@@ -356,6 +365,7 @@
       "services": "Services",
       "approvals": "Approvals",
       "analytics": "Analytics",
+      "advanced": "Advanced settings",
       "seo": "SEO",
       "history": "History",
       "plan": "Plan"
@@ -366,7 +376,17 @@
       "onConsumerTitle": "You are in your consumer profile",
       "onConsumerBody": "Your own details, notifications and payment preferences.",
       "toConsumer": "Switch to consumer profile",
-      "toProvider": "Switch to provider profile"
+      "toProvider": "Switch to provider profile",
+      "becomeProviderTitle": "Offer your own services",
+      "becomeProviderBody": "Add a provider profile to this account to take bookings. Your client profile stays as it is.",
+      "becomeProvider": "Become a provider"
+    },
+    "becomeProvider": {
+      "title": "Become a provider",
+      "subtitle": "Set up the provider side of your account. You can change these details later.",
+      "formTitle": "Provider details",
+      "accountNote": "You’ll keep signing in with {email} and your current password.",
+      "submit": "Become a provider"
     },
     "actions": {
       "save": "Save Changes",
@@ -489,6 +509,8 @@
       "subtitle": "Define your standard working hours for each day of the week.",
       "recurring": "Recurring Availability",
       "recurringBody": "Open days and hours clients can book. Add up to 5 periods on a day if you take breaks.",
+      "hoursInZone": "These hours are in {zone}. <link>Change it in Advanced settings</link>",
+      "hoursNoZone": "No time zone is set, so visitors read these hours on their own clock. <link>Set one in Advanced settings</link>",
       "pauseTitle": "Accepting bookings",
       "pauseBody": "Turn off to temporarily pause new bookings without unlisting your page.",
       "timeZone": "Time zone",
@@ -515,6 +537,10 @@
         "saturday": "Saturday",
         "sunday": "Sunday"
       }
+    },
+    "advanced": {
+      "subtitle": "Choose the time zone your hours are on and how times appear to you and your clients.",
+      "clockTitle": "Time and clock"
     },
     "listing": {
       "statusActive": "Account Status: Active",
@@ -772,6 +798,7 @@
     "body": "Book local services or manage your calendar with Bookie. One platform for providers and the people who book them.",
     "findProvider": "Find a provider",
     "joinAsProvider": "Join as a provider",
+    "exploreProviders": "Explore providers",
     "browseSpecialty": "Browse by specialty",
     "categoriesRail": "Categories",
     "audiences": {
@@ -916,6 +943,7 @@
     "emptyBody": "Providers will appear here as soon as they publish a profile.",
     "sortAria": "Sort: {sort}",
     "filterAria": "Filter providers",
+    "favoritesAria": "Show favorites only",
     "filtersTitle": "Filters",
     "reset": "Reset",
     "showResults": "Show results",
@@ -1206,14 +1234,16 @@
     "activateBody": "Clients will be able to book it.",
     "deactivateTitle": "Deactivate this service?",
     "deactivateBody": "Clients will no longer be able to book it until you activate it again.",
+    "duplicateService": "Duplicate service",
+    "duplicateTitle": "Duplicate this service?",
+    "duplicateBody": "A new service will be created with the same details.",
+    "duplicate": "Duplicate",
     "formTitle": "Title",
     "formDescription": "Description",
     "formDuration": "Duration",
-    "formCategory": "Category",
     "formPrice": "Price",
     "formCurrency": "Currency",
     "formImage": "Image",
-    "categoryPlaceholder": "Type or pick a category",
     "currencyPlaceholder": "Type or pick a currency",
     "onboardingDone": "Finished setting up? Your profile is live — see what clients see.",
     "viewProfile": "View my profile",
@@ -1234,7 +1264,6 @@
     "optional": "Optional",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "categories": "Categories",
     "email": "Email",
     "organization": "Organization",
     "notes": "Notes",
@@ -1320,6 +1349,7 @@
       "load": "This section could not be loaded.",
       "busySlots": "We could not check which times are already booked, so some of these may be taken.",
       "organizationSearch": "We could not search organizations right now.",
+      "categorySearch": "We could not search categories right now.",
       "providerSuggestions": "We could not load suggestions. Search still works."
     },
     "conflicts": {

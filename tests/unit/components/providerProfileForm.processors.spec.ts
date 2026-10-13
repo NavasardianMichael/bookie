@@ -6,7 +6,6 @@ import { processProviderProfileFormToPostPayload } from '@components/providerPro
 const FILLED: ProviderProfileFormValues = {
   firstName: 'Anna',
   lastName: 'Petrosyan',
-  categoryIds: ['cat-1', 'cat-2'],
   address: '12 Main St',
   locationURL: 'https://maps.example/12-main',
   description: 'Experienced specialist',
@@ -29,10 +28,9 @@ describe('processProviderProfileFormToPostPayload', () => {
     expect(processProviderProfileFormToPostPayload(FILLED).organizationId).toBe('org-1')
   })
 
-  it('serialises the two JSON-encoded fields and leaves the rest flat', () => {
+  it('serialises the JSON-encoded schedule and leaves the rest flat', () => {
     const payload = processProviderProfileFormToPostPayload(FILLED)
 
-    expect(payload.categoryIds).toBe(JSON.stringify(['cat-1', 'cat-2']))
     expect(payload.weekSchedule).toBe(JSON.stringify(FILLED.weekSchedule))
     expect(payload.firstName).toBe('Anna')
     expect(payload.address).toBe('12 Main St')

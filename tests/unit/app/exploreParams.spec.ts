@@ -18,6 +18,7 @@ const DEFAULTS: ExploreParams = {
   categoryId: '',
   available: false,
   openToday: false,
+  favorites: false,
   sort: 'recommended',
   page: 1,
 }
@@ -30,10 +31,19 @@ describe('parseExploreParams', () => {
         category: 'cat-1',
         available: 'true',
         openToday: 'true',
+        favorites: 'true',
         sort: 'nameAsc',
         page: '3',
       })
-    ).toEqual({ q: 'hair', categoryId: 'cat-1', available: true, openToday: true, sort: 'nameAsc', page: 3 })
+    ).toEqual({
+      q: 'hair',
+      categoryId: 'cat-1',
+      available: true,
+      openToday: true,
+      favorites: true,
+      sort: 'nameAsc',
+      page: 3,
+    })
   })
 
   it('falls back to defaults for an empty query', () => {
@@ -55,9 +65,10 @@ describe('parseExploreParams', () => {
   // `?available=1` is not what the builder emits, so it is not what the parser accepts —
   // one spelling, or the toggle reads as on when the URL says something else.
   it('treats any value other than "true" as off', () => {
-    expect(parseExploreParams({ available: '1', openToday: 'yes' })).toMatchObject({
+    expect(parseExploreParams({ available: '1', openToday: 'yes', favorites: '1' })).toMatchObject({
       available: false,
       openToday: false,
+      favorites: false,
     })
   })
 
@@ -82,6 +93,7 @@ describe('buildExploreQuery', () => {
       categoryId: 'cat-9',
       available: true,
       openToday: true,
+      favorites: true,
       sort: 'newest',
       page: 5,
     }
@@ -98,6 +110,7 @@ describe('buildExploreQuery', () => {
     ['a sort', { sort: 'nameAsc' as const }],
     ['a filter', { available: true }],
     ['open today', { openToday: true }],
+    ['favorites', { favorites: true }],
   ])('resets to page 1 when %s changes', (_case, patch) => {
     expect(buildExploreQuery({ ...DEFAULTS, page: 4 }, patch)).not.toContain('page=')
   })
@@ -118,6 +131,7 @@ describe('toProvidersListQuery', () => {
       categoryId: undefined,
       available: undefined,
       openToday: undefined,
+      favorites: undefined,
       sort: 'recommended',
       page: 1,
       perPage: PROVIDERS_PER_PAGE,
@@ -126,12 +140,20 @@ describe('toProvidersListQuery', () => {
 
   it('forwards what was set', () => {
     expect(
-      toProvidersListQuery({ ...DEFAULTS, q: 'hair', categoryId: 'cat-1', available: true, openToday: true })
+      toProvidersListQuery({
+        ...DEFAULTS,
+        q: 'hair',
+        categoryId: 'cat-1',
+        available: true,
+        openToday: true,
+        favorites: true,
+      })
     ).toMatchObject({
       q: 'hair',
       categoryId: 'cat-1',
       available: true,
       openToday: true,
+      favorites: true,
     })
   })
 })
@@ -143,6 +165,7 @@ describe('toProviderSuggestionsQuery', () => {
       categoryId: undefined,
       available: undefined,
       openToday: undefined,
+      favorites: undefined,
       sort: 'recommended',
       page: 1,
       perPage: PROVIDER_SUGGESTIONS_LIMIT,
@@ -152,10 +175,17 @@ describe('toProviderSuggestionsQuery', () => {
   it('keeps the category, filters and sort, so the dropdown previews the same list', () => {
     expect(
       toProviderSuggestionsQuery(
-        { categoryId: 'cat-1', available: true, openToday: true, sort: 'topRated' },
+        { categoryId: 'cat-1', available: true, openToday: true, favorites: true, sort: 'topRated' },
         'anna'
       )
-    ).toMatchObject({ q: 'anna', categoryId: 'cat-1', available: true, openToday: true, sort: 'topRated' })
+    ).toMatchObject({
+      q: 'anna',
+      categoryId: 'cat-1',
+      available: true,
+      openToday: true,
+      favorites: true,
+      sort: 'topRated',
+    })
   })
 
   it('always starts at page 1, whatever page the grid is on', () => {
@@ -172,6 +202,8 @@ describe('activity helpers', () => {
     expect(countActiveFilters({ ...DEFAULTS, available: true, openToday: true })).toBe(2)
     // A search or a sort is not a "filter" for the badge's purposes.
     expect(countActiveFilters({ ...DEFAULTS, q: 'hair', sort: 'newest' })).toBe(0)
+    // Favorites is its own button, not a sheet toggle, so it does not raise the badge.
+    expect(countActiveFilters({ ...DEFAULTS, favorites: true })).toBe(0)
   })
 
   // Decides which empty state renders: "no matches, clear a filter" vs "no providers yet".
@@ -181,6 +213,7 @@ describe('activity helpers', () => {
     ['a category', { ...DEFAULTS, categoryId: 'cat-1' }, true],
     ['a filter', { ...DEFAULTS, available: true }, true],
     ['open today', { ...DEFAULTS, openToday: true }, true],
+    ['favorites', { ...DEFAULTS, favorites: true }, true],
     ['only a sort', { ...DEFAULTS, sort: 'newest' as const }, false],
   ])('hasActiveExploreParams is %s -> %s', (_case, params, expected) => {
     expect(hasActiveExploreParams(params)).toBe(expected)

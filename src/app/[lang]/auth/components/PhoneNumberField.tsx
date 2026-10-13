@@ -75,9 +75,9 @@ const compactInputStyles = {
 }
 
 /**
- * The country-code + number pair, shared by both registration forms, the Google completion
- * step, the profile's change-phone field, and a new organization's optional phone (under
- * `names` of its own, preselecting the provider's country).
+ * The country-code + number pair, shared by both registration forms (which also serve
+ * Google sign-up), the profile's change-phone field, and a new organization's optional phone
+ * (under `names` of its own, preselecting the provider's country).
  *
  * The prototypes draw one input with a `+1 (555) 000-0000` placeholder, but a single free
  * text field cannot be validated against a country's real numbering plan. The country
@@ -118,7 +118,7 @@ export const PhoneNumberField: FC<Props> = ({
   const countryLabel = t('fields.countryCode')
 
   // After mount so `navigator.languages` cannot disagree with the server HTML.
-  // Leaves an existing value alone — registration, Google completion, and change-phone all
+  // Leaves an existing value alone — registration, Google sign-up, and change-phone all
   // share this field, and change-phone may already know the current country.
   useEffect(() => {
     if (countryCode) return

@@ -1,20 +1,39 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { CategoriesSection } from '@app/[lang]/auth/components/CategoriesSection'
 import { FieldLabel } from '@app/[lang]/auth/components/FieldLabel'
+import { OrganizationSection } from '@app/[lang]/auth/components/OrganizationSection'
+import { useSimilarCategoryCheck } from '@app/[lang]/auth/components/useSimilarCategoryCheck'
+import {
+  type OrganizationFields,
+  useSimilarOrganizationCheck,
+} from '@app/[lang]/auth/components/useSimilarOrganizationCheck'
 import { Form, Switch } from 'antd'
 import type { CountryCode } from 'libphonenumber-js'
 import { useTranslations } from 'next-intl'
 import { changePhoneAPI } from '@api/auth/main'
-import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
+import {
+  getProviderProfileAPI,
+  patchProviderOrganizationAPI,
+  putProviderCategoriesAPI,
+  putProviderProfileAPI,
+} from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { CategoryChoicePayload, CategoryValue, NewOrganizationFormValues, OrganizationValue } from '@interfaces/auth'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { isFormValidationError } from '@helpers/error'
 import { isUploadedAsset } from '@helpers/images'
-import { toPhoneFormValues } from '@helpers/registration'
+import {
+  categoriesChangeToSave,
+  organizationChangeToSave,
+  toCategoryChoices,
+  toCategoryValues,
+  toPhoneFormValues,
+} from '@helpers/registration'
 import { ChangePhoneForm, phoneChangeToSave } from '@components/settings/ChangePhoneForm'
 import { DeleteAccountSection } from '@components/settings/DeleteAccountSection'
 import { EmailVerifyField } from '@components/settings/EmailVerifyField'
@@ -46,6 +65,17 @@ type FormValues = {
   image?: string | File
   /** Live setting — whether the number appears on the public page. */
   phoneVisible: boolean
+  /** Live, through its own endpoint. Present only while the Organization section is open. */
+  organization?: OrganizationValue
+  newOrganization?: NewOrganizationFormValues
+  /** Live, through its own endpoint, like the organization. */
+  categories?: CategoryValue[]
+}
+
+/** What the two live sections resolved to on this save, ready for their endpoints. */
+type LiveSections = {
+  organization: OrganizationFields
+  categories: CategoryChoicePayload[]
 }
 
 const mergeDraft = (profile: ProviderProfile): FormValues => {
@@ -61,6 +91,10 @@ const mergeDraft = (profile: ProviderProfile): FormValues => {
     image: draft?.imageUrl ?? profile.basic.image,
     // Absent on a payload written before the column existed; on is the API default.
     phoneVisible: profile.details.phoneVisible !== false,
+    organization: profile.basic.organization
+      ? { id: profile.basic.organization.id, name: profile.basic.organization.basic.name }
+      : undefined,
+    categories: toCategoryValues(profile.basic.categories),
   }
 }
 
@@ -76,8 +110,14 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   const [error, setError] = useState<unknown>(null)
   const [loadError, setLoadError] = useState<unknown>(null)
   const [revision, setRevision] = useState(0)
+  /** Open while an organization is linked, or once the provider chooses to add one. */
+  const [organizationOpen, setOrganizationOpen] = useState(false)
   const nameRules = useFormItemRules('required', 'maxCharsForInput')
   const descriptionRules = useFormItemRules('maxCharsForTextarea')
+  const { resolveOrganization, dialog: similarOrganizationsDialog } = useSimilarOrganizationCheck((organization) =>
+    form.setFieldValue('organization', { id: organization.id, name: organization.basic.name })
+  )
+  const categoryCheck = useSimilarCategoryCheck((categories) => form.setFieldValue('categories', categories))
 
   // `loading` is derived from the request's identity, never set at the top of the effect.
   const request = useMemo(() => ({ revision }), [revision])
@@ -92,6 +132,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         setProfile(data)
         const values = mergeDraft(data)
         form.setFieldsValue(values)
+        setOrganizationOpen(Boolean(values.organization))
         setLoadError(null)
       })
       .catch((err: unknown) => {
@@ -125,6 +166,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     setProfile(data)
     const values = mergeDraft(data)
     form.setFieldsValue(values)
+    setOrganizationOpen(Boolean(values.organization))
     const portrait = data.draft?.imageUrl ?? data.basic.image
     setAuthState({
       firstName: data.basic.firstName,
@@ -155,9 +197,54 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     return putProviderProfileAPI({ phoneVisible: next })
   }
 
-  const handleSaveDraft = async () => {
+  /**
+   * The organization is live too, through `PATCH /provider-profile/organization`: creating
+   * one makes a public page at once, so there is nothing a draft could hold back.
+   */
+  const withSavedOrganization = async (data: ProviderProfile, fields: OrganizationFields): Promise<ProviderProfile> => {
+    const change = organizationChangeToSave(data.basic.organization?.id, fields)
+    if (!change) return data
+    return patchProviderOrganizationAPI(change)
+  }
+
+  /**
+   * Categories are live too, through `PUT /provider-profile/categories`: an added one exists
+   * at once, and the Explore chips must not keep listing the provider under one they removed.
+   */
+  const withSavedCategories = async (data: ProviderProfile, categories: CategoryChoicePayload[]): Promise<ProviderProfile> => {
+    const change = categoriesChangeToSave(data.basic.categories, categories)
+    if (!change) return data
+    return putProviderCategoriesAPI({ categories: change })
+  }
+
+  /**
+   * Valid values plus the two live sections as API fields — after the similar-name questions,
+   * when a new organization's or category's name is taken. `null` when any stops the save.
+   */
+  const readSaveInput = async (): Promise<{ values: FormValues; live: LiveSections } | null> => {
     const values = await readValidValues()
-    if (!values) return
+    if (!values) return null
+    const organization = await resolveOrganization(values.organization, values.newOrganization)
+    if (!organization) return null
+    const categories = await categoryCheck.resolveCategories(values.categories)
+    if (!categories) return null
+    return { values, live: { organization, categories: toCategoryChoices(categories) } }
+  }
+
+  /** Everything outside the draft overlay, written by either save. */
+  const withSavedLiveFields = async (
+    data: ProviderProfile,
+    values: FormValues,
+    live: LiveSections
+  ): Promise<ProviderProfile> => {
+    const withPhone = await withSavedPhoneVisible(await withSavedPhone(data, values), values)
+    return withSavedCategories(await withSavedOrganization(withPhone, live.organization), live.categories)
+  }
+
+  const handleSaveDraft = async () => {
+    const input = await readSaveInput()
+    if (!input) return
+    const { values, live } = input
     setPendingAction('draft')
     setError(null)
     try {
@@ -168,7 +255,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         description: values.description,
         image: values.image instanceof File ? values.image : undefined,
       })
-      applyResult(await withSavedPhoneVisible(await withSavedPhone(data, values), values))
+      applyResult(await withSavedLiveFields(data, values, live))
     } catch (err) {
       setError(err)
     } finally {
@@ -177,8 +264,9 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   }
 
   const handlePublish = async () => {
-    const values = await readValidValues()
-    if (!values) return
+    const input = await readSaveInput()
+    if (!input) return
+    const { values, live } = input
     setPendingAction('publish')
     setError(null)
     try {
@@ -191,7 +279,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         image: values.image instanceof File ? values.image : undefined,
       })
       const data = await putProviderProfileAPI({ mode: 'publish' })
-      applyResult(await withSavedPhoneVisible(await withSavedPhone(data, values), values))
+      applyResult(await withSavedLiveFields(data, values, live))
     } catch (err) {
       setError(err)
     } finally {
@@ -286,7 +374,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 </AppFormItem>
               </div>
               <div className='flex flex-col gap-3 md:col-span-2'>
-                <ChangePhoneForm required={false} disabled={pendingAction !== null} />
+                <ChangePhoneForm disabled={pendingAction !== null} />
                 {/*
                   Provider-only: a consumer has no public page to publish a number on.
                   Saved live with draft/Publish, same as the number itself — see
@@ -317,9 +405,29 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                   }}
                 />
               </div>
+              <div className='md:col-span-2'>
+                <CategoriesSection disabled={!profile || pendingAction !== null} />
+              </div>
+              {/*
+                Closed — the "Add organization" button — unless one is linked; the load opens
+                it then. Disabled until the profile arrives, so it cannot be opened empty over
+                an organization that is about to load.
+              */}
+              <div className='flex flex-col gap-4 md:col-span-2'>
+                <OrganizationSection
+                  open={organizationOpen}
+                  onOpenChange={(next) => {
+                    setOrganizationOpen(next)
+                    setDirty(true)
+                  }}
+                  disabled={!profile || pendingAction !== null}
+                />
+              </div>
             </div>
           </Form>
         )}
+        {similarOrganizationsDialog}
+        {categoryCheck.dialog}
       </Surface>
 
       <DeleteAccountSection disabled={!profile || pendingAction !== null} />
@@ -333,6 +441,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
             if (!profile) return
             const values = mergeDraft(profile)
             form.setFieldsValue(values)
+            setOrganizationOpen(Boolean(values.organization))
             setDirty(false)
           }}
           onSaveDraft={() => void handleSaveDraft()}

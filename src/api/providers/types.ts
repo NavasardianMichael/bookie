@@ -1,9 +1,9 @@
-import { Category } from '@store/categories/single/types'
 import { Organization } from '@store/organizations/single/types'
 import { ProviderListItem, ProvidersListPagination, ProvidersListState } from '@store/providers/list/types'
 import { ProviderProfile, ProviderSeo, ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
+import { CategoryChoicePayload, NewOrganizationPayload } from '@interfaces/auth'
 
 export type ProviderServiceResponse = ProviderService
 
@@ -14,7 +14,6 @@ export type PutProviderProfileRequestPayload = Partial<{
   address: string
   locationURL: string
   organizationId: Organization['id']
-  categoryIds: Category['id'][]
   weekSchedule: ProviderProfile['details']['weekSchedule']
   /** IANA name; the API stores it canonical and answers 400 for one `Intl` does not know. */
   timeZone: NonNullable<ProviderProfile['details']['timeZone']>
@@ -49,6 +48,11 @@ export type ProvidersListQuery = Partial<{
   available: boolean
   /** Only providers whose weekly schedule has hours on today's weekday. */
   openToday: boolean
+  /**
+   * Only providers the signed-in account has saved. The API reads the session; with no
+   * session the list is empty. Not a query the suggestions box invents on its own.
+   */
+  favorites: boolean
   sort: ProvidersListSort
   /** 1-based. The API clamps it to the last real page. */
   page: number
@@ -60,7 +64,11 @@ export type ProvidersListResponse = {
 } & ProvidersListPagination
 
 export type GetProvidersListAPI = Endpoint<{
-  payload: ProvidersListQuery | void
+  /**
+   * `cookie` is forwarded by a Server Component and never put on the query string.
+   * The browser already sends its own session (`withCredentials`).
+   */
+  payload: (ProvidersListQuery & { cookie?: string }) | void
   response: ProvidersListResponse
   processed: Pick<ProvidersListState, 'list' | 'pagination'>
 }>
@@ -136,18 +144,16 @@ export type ClearableField<T> = T | ''
 export type ProviderServiceRequestPayload = Partial<{
   name: ProviderService['name']
   duration: ProviderService['duration']
-  /** `''` clears it — category is optional. */
-  categoryId: ClearableField<NonNullable<ProviderService['categoryId']>>
-  /**
-   * Typed when the provider wrote a category that may not exist yet. The API
-   * matches case-insensitively or creates a Category row. Do not send alongside
-   * `categoryId` — an id wins, the same as organization registration.
-   */
-  categoryName: string
   description: ClearableField<NonNullable<ProviderService['description']>>
   price: ClearableField<NonNullable<ProviderService['price']>>
   currency: ClearableField<NonNullable<ProviderService['currency']>>
   image: ProviderService['image'] | File
+  /**
+   * An existing `/uploads/…` path to reuse when creating a service. Kept only when one
+   * of this provider's services already stores it. A new photo is still a `File` on
+   * `image`; edits do not send this.
+   */
+  imageUrl?: string
   active: boolean
 }>
 
@@ -188,4 +194,29 @@ export type PatchProviderSeoAPI = Endpoint<{
   payload: PatchProviderSeoPayload
   response: ProviderSeo
   processed: ProviderSeo
+}>
+
+/**
+ * The settings Organization section, applied live. Registration's two shapes — an existing
+ * organization's id, or a new one to create (`allowSimilar` once the provider has seen the
+ * similar names) — plus `organizationId: null`, which detaches.
+ */
+export type PatchProviderOrganizationPayload =
+  | { organizationId: Organization['id'] | null }
+  | { newOrganization: NewOrganizationPayload }
+
+export type PatchProviderOrganizationAPI = Endpoint<{
+  payload: PatchProviderOrganizationPayload
+  response: ProviderProfile
+  processed: ProviderProfile
+}>
+
+/**
+ * The settings Categories field, applied live: the full list, which replaces the current
+ * one — `[]` clears it. At most `MAX_PROVIDER_CATEGORIES`; the API answers 400 for more.
+ */
+export type PutProviderCategoriesAPI = Endpoint<{
+  payload: { categories: CategoryChoicePayload[] }
+  response: ProviderProfile
+  processed: ProviderProfile
 }>

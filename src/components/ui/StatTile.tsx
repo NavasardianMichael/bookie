@@ -58,14 +58,10 @@ export const StatTile: FC<StatTileProps> = ({
   return (
     <Surface
       padding='md'
-      className={cn(
-        'flex min-w-0 flex-col gap-4',
-        inverse && 'bg-brand border-brand text-white shadow-md',
-        className
-      )}
+      className={cn('flex min-w-0 flex-col gap-4', inverse && 'bg-brand border-brand text-white shadow-md', className)}
     >
       {layout === 'row' ? (
-        <div className='flex min-w-0 items-center gap-4'>
+        <div className='flex min-w-0 gap-4'>
           {icon && (
             <span
               aria-hidden

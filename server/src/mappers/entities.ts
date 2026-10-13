@@ -1,7 +1,8 @@
 import type { Prisma } from '@prisma/client'
 import type { BillingStatus, Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
+import { uniqueCategories } from '../services/categories.js'
 import { effectivePlan, getEntitlements, type PlanFields } from '../services/plans.js'
-import { isOpenToday } from '../services/providerSearch.js'
+import { isOpenToday, PUBLIC_PROVIDER_WHERE } from '../services/providerSearch.js'
 import { reviewAuthorName } from '../services/reviews.js'
 
 type ProviderWithRelations = Provider & {
@@ -27,23 +28,38 @@ export function mapBasicCategory(category: Category) {
   return { id: category.id, name: category.name }
 }
 
-export function mapBasicOrganization(org: Organization & { categories?: { category: Category }[] }) {
+/**
+ * What an organization read needs for its categories: its **listed** providers' — an
+ * organization holds none of its own (see `Category` in the schema), and an unlisted page's
+ * choice is not public. Every route that shows an organization's categories includes this.
+ */
+export const organizationInclude = {
+  providers: { where: PUBLIC_PROVIDER_WHERE, select: { categories: { select: { category: true } } } },
+} satisfies Prisma.OrganizationInclude
+
+type OrganizationWithProviders = Organization & { providers?: { categories: { category: Category }[] }[] }
+
+/** Its providers' categories, each once. Empty when the read did not include them. */
+const organizationCategories = (org: OrganizationWithProviders) =>
+  uniqueCategories(org.providers?.flatMap((provider) => provider.categories.map((c) => mapBasicCategory(c.category))) ?? [])
+
+export function mapBasicOrganization(org: OrganizationWithProviders) {
   return {
     id: org.id,
     basic: {
       name: org.name,
-      categories: org.categories?.map((c) => mapBasicCategory(c.category)) ?? [],
+      categories: organizationCategories(org),
       description: org.description,
     },
   }
 }
 
-export function mapOrganization(org: Organization & { categories: { category: Category }[] }) {
+export function mapOrganization(org: OrganizationWithProviders) {
   return {
     id: org.id,
     basic: {
       name: org.name,
-      categories: org.categories.map((c) => mapBasicCategory(c.category)),
+      categories: organizationCategories(org),
       description: org.description,
     },
     details: {
@@ -135,7 +151,6 @@ export function mapProviderDetails(
   const weekSchedule =
     provider.weekSchedule && typeof provider.weekSchedule === 'object' ? provider.weekSchedule : defaultWeekSchedule
 
-  const hasPhone = provider.phoneCode !== null && provider.phoneNumber !== null
   // Absent on a payload written before the column existed; treat as shown, matching the
   // schema default and every provider's behaviour before this flag existed.
   const phoneVisible = provider.phoneVisible !== false
@@ -145,13 +160,8 @@ export function mapProviderDetails(
       address: provider.address,
       url: provider.locationUrl,
     },
-    // Optional on the Provider row — a provider may register without a number.
-    // Do not invent `{ code: 0, number: 0 }`: that used to leak as a public tel: link.
     // Hidden numbers stay off this public mapper entirely; the owner payload re-adds them.
-    phone:
-      phoneVisible && hasPhone
-        ? { code: provider.phoneCode!, number: Number(provider.phoneNumber) }
-        : undefined,
+    phone: phoneVisible ? { code: provider.phoneCode, number: Number(provider.phoneNumber) } : undefined,
     country: provider.country ?? undefined,
     email: provider.user?.email,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
@@ -276,10 +286,7 @@ export function mapProviderProfile(
   const single = mapSingleProvider(provider)
   // The public mapper omits a hidden phone; the owner still needs the number to edit it
   // and the visibility flag to drive the settings toggle.
-  const phone =
-    provider.phoneCode !== null && provider.phoneNumber !== null
-      ? { code: provider.phoneCode, number: Number(provider.phoneNumber) }
-      : undefined
+  const phone = { code: provider.phoneCode, number: Number(provider.phoneNumber) }
   return {
     ...single,
     details: {
@@ -336,7 +343,6 @@ export function mapService(service: Service) {
     id: service.id,
     name: service.name,
     duration: service.durationMinutes,
-    categoryId: service.categoryId ?? undefined,
     description: service.description ?? undefined,
     price: service.price === null ? undefined : Number(service.price),
     currency: service.currency ?? undefined,
@@ -574,7 +580,9 @@ export const consumerSideBookingInclude = {
  */
 export const providerInclude = {
   categories: { include: { category: true } },
-  organization: { include: { categories: { include: { category: true } } } },
+  // Plain: a provider payload names its organization but never shows that organization's
+  // categories, and deriving them would join every sibling provider.
+  organization: true,
   // Public payloads only ever show a live catalogue. Structural rather than per-route:
   // six call sites read this include and one of them is a public booking page.
   services: { where: { active: true } },
@@ -599,7 +607,7 @@ export const providerProfileInclude = {
  */
 export const providerListInclude = {
   categories: { include: { category: true } },
-  organization: { include: { categories: { include: { category: true } } } },
+  organization: true,
 } as const
 
 /* ------------------------------------------------------------------ *

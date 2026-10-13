@@ -1,4 +1,5 @@
 import { getProvidersListLDSchema } from '@linkedDataSchema/providers'
+import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
 import { getProvidersListAPI } from '@api/providers/main'
 import { ROUTES } from '@constants/routes'
@@ -23,8 +24,11 @@ type Props = {
  * a skeleton; the skeleton is only the cold-load fallback.
  */
 export const ProvidersResults = async ({ params }: Props) => {
+  // The list is public except for the favorites filter, which is the caller's own
+  // saved providers. Forward the session only then, so an ordinary browse stays anonymous.
+  const cookie = params.favorites ? (await cookies()).toString() : undefined
   const [{ list, pagination }, t, tCommon] = await Promise.all([
-    getProvidersListAPI(toProvidersListQuery(params)),
+    getProvidersListAPI({ ...toProvidersListQuery(params), cookie }),
     getTranslations('Explore'),
     getTranslations('Common'),
   ])

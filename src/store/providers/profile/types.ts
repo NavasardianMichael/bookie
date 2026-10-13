@@ -4,7 +4,7 @@ import {
   PutProviderProfileAPI,
   PutProviderServiceAPI,
 } from '@api/providers/types'
-import { BasicCategory, Category } from '@store/categories/single/types'
+import { BasicCategory } from '@store/categories/single/types'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { Location, PhoneNumber } from '@interfaces/app'
 import { OnlineBooking } from '@interfaces/booking'
@@ -164,7 +164,6 @@ export type ProviderService = {
   id: string
   name: string
   duration: number
-  categoryId?: Category['id']
   description?: string
   price?: number
   currency?: string

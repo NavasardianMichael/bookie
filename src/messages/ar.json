@@ -58,10 +58,6 @@
     "orWithEmail": "أو بالبريد الإلكتروني",
     "backToSignIn": "العودة إلى تسجيل الدخول",
     "termsLead": "بإنشاء حساب فإنك توافق على",
-    "roles": {
-      "consumer": "أحجز خدمة",
-      "provider": "أقدّم خدمة"
-    },
     "fields": {
       "email": "البريد الإلكتروني",
       "emailPlaceholder": "you@example.com",
@@ -102,6 +98,21 @@
       "similarDescription": "وجدنا مؤسسة باسم مشابه. انضم إليها، أو أنشئ «{name}» كمؤسسة جديدة.",
       "useExisting": "استخدام هذه",
       "createNew": "إنشاء مؤسسة جديدة"
+    },
+    "categories": {
+      "label": "الفئات",
+      "hint": "حتى {max}. اختر ما تقدّمه، أو أضف فئتك الخاصة.",
+      "searchPlaceholder": "ابحث عن فئة أو أضفها",
+      "noMatches": "لا توجد فئة بهذا الاسم",
+      "addNew": "إضافة «{name}» كفئة جديدة",
+      "full": "اخترت {max} فئات — احذف واحدة لإضافة أخرى",
+      "chosen": "الفئات المختارة",
+      "remove": "إزالة {name}",
+      "newBadge": "جديدة",
+      "similarTitle": "قد تكون هذه الفئة موجودة بالفعل",
+      "similarDescription": "وجدنا فئة باسم مشابه. استخدمها، أو أضف «{name}» كفئة جديدة.",
+      "useExisting": "استخدام هذه",
+      "createNew": "إضافة كفئة جديدة"
     },
     "signIn": {
       "title": "مرحباً بعودتك",
@@ -155,12 +166,6 @@
     "callback": {
       "signingIn": "جارٍ تسجيل دخولك…"
     },
-    "completeRegistration": {
-      "title": "أكمل الإعداد",
-      "subtitle": "تم تسجيل الدخول باسم {email}. نحتاج إلى معلومتين إضافيتين قبل أن تتمكن من الحجز.",
-      "roleLabel": "كيف ستستخدم Bookie؟",
-      "submit": "إنهاء"
-    },
     "googleErrors": {
       "generic": "لم يكتمل تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى.",
       "google_unavailable": "تسجيل الدخول عبر Google غير متاح حالياً. استخدم بريدك الإلكتروني وكلمة المرور.",
@@ -173,6 +178,10 @@
       "google_account_mismatch": "حساب Google هذا مرتبط بالفعل بحساب Bookie آخر.",
       "google_already_linked": "حسابك مرتبط بالفعل بـ Google.",
       "google_unauthorized": "سجّل الدخول أولاً، ثم اربط Google من الإعدادات."
+    },
+    "googleSignUp": {
+      "expired": "انتهت مهلة تسجيل الدخول عبر Google. أنشئ حسابك بالبريد الإلكتروني أدناه، أو تابع عبر Google مرة أخرى.",
+      "emailFromGoogle": "من حسابك على Google — لا يمكن تغييره هنا."
     },
     "termsAnd": "و"
   },
@@ -356,6 +365,7 @@
       "services": "الخدمات",
       "approvals": "الموافقات",
       "analytics": "التحليلات",
+      "advanced": "الإعدادات المتقدمة",
       "seo": "SEO",
       "history": "السجل",
       "plan": "الخطة"
@@ -366,7 +376,17 @@
       "onConsumerTitle": "أنت في ملفك كعميل",
       "onConsumerBody": "بياناتك وإشعاراتك وتفضيلات الدفع لديك.",
       "toConsumer": "التبديل إلى ملف العميل",
-      "toProvider": "التبديل إلى مساحة مقدّم الخدمة"
+      "toProvider": "التبديل إلى مساحة مقدّم الخدمة",
+      "becomeProviderTitle": "قدّم خدماتك الخاصة",
+      "becomeProviderBody": "أضف ملف مقدّم خدمة إلى هذا الحساب لتستقبل الحجوزات. يبقى ملفك كعميل كما هو.",
+      "becomeProvider": "كن مقدّم خدمة"
+    },
+    "becomeProvider": {
+      "title": "كن مقدّم خدمة",
+      "subtitle": "أعدّ جانب مقدّم الخدمة في حسابك. يمكنك تغيير هذه التفاصيل لاحقًا.",
+      "formTitle": "بيانات مقدّم الخدمة",
+      "accountNote": "ستواصل تسجيل الدخول باستخدام {email} وكلمة المرور الحالية.",
+      "submit": "كن مقدّم خدمة"
     },
     "actions": {
       "save": "حفظ التغييرات",
@@ -489,6 +509,8 @@
       "subtitle": "حدّد ساعات العمل القياسية لكل يوم في الأسبوع.",
       "recurring": "التوفر المتكرر",
       "recurringBody": "الأيام والساعات المتاحة للحجز. حتى 5 فترات في اليوم إذا كان لديك استراحات.",
+      "hoursInZone": "هذه الساعات بتوقيت {zone}. <link>غيّره في الإعدادات المتقدمة</link>",
+      "hoursNoZone": "لم تُحدَّد منطقة زمنية، لذا يقرأ الزوار هذه الساعات بتوقيتهم. <link>حدّدها في الإعدادات المتقدمة</link>",
       "pauseTitle": "قبول الحجوزات",
       "pauseBody": "أوقف تشغيله لإيقاف الحجوزات الجديدة مؤقتًا دون إلغاء إدراج صفحتك.",
       "timeZone": "المنطقة الزمنية",
@@ -515,6 +537,10 @@
         "saturday": "السبت",
         "sunday": "الأحد"
       }
+    },
+    "advanced": {
+      "subtitle": "اختر المنطقة الزمنية لساعات عملك وطريقة عرض الأوقات لك ولعملائك.",
+      "clockTitle": "الوقت والساعة"
     },
     "listing": {
       "statusActive": "حالة الحساب: نشط",
@@ -772,6 +798,7 @@
     "body": "احجز الخدمات المحلية أو أدر تقويمك مع Bookie. منصة واحدة لمقدّمي الخدمات ومن يحجزون معهم.",
     "findProvider": "ابحث عن مقدّم خدمة",
     "joinAsProvider": "انضم كمقدّم خدمة",
+    "exploreProviders": "استكشاف مقدّمي الخدمات",
     "browseSpecialty": "تصفح حسب التخصص",
     "categoriesRail": "الفئات",
     "audiences": {
@@ -916,6 +943,7 @@
     "emptyBody": "سيظهر مقدّمو الخدمات هنا بمجرد نشر ملفاتهم الشخصية.",
     "sortAria": "الترتيب: {sort}",
     "filterAria": "تصفية مقدّمي الخدمات",
+    "favoritesAria": "عرض المفضلة فقط",
     "filtersTitle": "المرشحات",
     "reset": "إعادة تعيين",
     "showResults": "عرض النتائج",
@@ -1197,11 +1225,9 @@
     "formTitle": "العنوان",
     "formDescription": "الوصف",
     "formDuration": "المدة",
-    "formCategory": "الفئة",
     "formPrice": "السعر",
     "formCurrency": "العملة",
     "formImage": "الصورة",
-    "categoryPlaceholder": "اكتب أو اختر فئة",
     "currencyPlaceholder": "اكتب أو اختر عملة",
     "onboardingDone": "انتهيت من الإعداد؟ ملفك الشخصي مباشر — شاهد ما يراه العملاء.",
     "viewProfile": "عرض ملفي الشخصي",
@@ -1217,6 +1243,10 @@
     "activateBody": "سيتمكن العملاء من حجزها.",
     "deactivateTitle": "تعطيل هذه الخدمة؟",
     "deactivateBody": "لن يتمكن العملاء من حجزها حتى تعيد تفعيلها.",
+    "duplicateService": "تكرار الخدمة",
+    "duplicateTitle": "تكرار هذه الخدمة؟",
+    "duplicateBody": "سيتم إنشاء خدمة جديدة بنفس التفاصيل.",
+    "duplicate": "تكرار",
     "activeOfLimit": "الخدمات النشطة في خطتك: {count} من {limit}.",
     "limitReached": "لإضافة خدمة أخرى، أوقف واحدة أو <link>رقِّ خطتك</link>."
   },
@@ -1234,7 +1264,6 @@
     "optional": "اختياري",
     "firstName": "الاسم الأول",
     "lastName": "اسم العائلة",
-    "categories": "الفئات",
     "email": "البريد الإلكتروني",
     "organization": "المؤسسة",
     "notes": "ملاحظات",
@@ -1320,6 +1349,7 @@
       "load": "تعذّر تحميل هذا القسم.",
       "busySlots": "تعذّر التحقق من المواعيد المحجوزة، لذا قد يكون بعض هذه المواعيد محجوزًا.",
       "organizationSearch": "تعذّر البحث عن المؤسسات حاليًا.",
+      "categorySearch": "تعذّر البحث عن الفئات حاليًا.",
       "providerSuggestions": "تعذّر تحميل الاقتراحات. لا يزال البحث يعمل."
     },
     "conflicts": {

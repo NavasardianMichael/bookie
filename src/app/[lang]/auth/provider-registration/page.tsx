@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { isGoogleSignUp } from '@helpers/registration'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
@@ -27,9 +28,14 @@ export async function generateMetadata(): Promise<Metadata> {
  * 12px radius, `shadow-sm` — and `width='auth'` is its 480px column.
  *
  * Copy lives in `Auth.providerRegistration` so all 16 locales render the heading, not
- * hardcoded English.
+ * hardcoded English. `?google=1` opens the form in Google mode.
  */
-export default async function ProviderRegistration() {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function ProviderRegistration({ searchParams }: Props) {
+  const viaGoogle = isGoogleSignUp(await searchParams)
   const tNav = await getTranslations('Nav')
   const tPage = await getTranslations('Auth.providerRegistration')
 
@@ -46,7 +52,7 @@ export default async function ProviderRegistration() {
         </div>
 
         <Surface padding='lg' className='flex flex-col gap-4'>
-          <ProviderRegistrationForm />
+          <ProviderRegistrationForm viaGoogle={viaGoogle} />
           <TermsNotice lead={tPage('termsLead')} className='mt-2' />
         </Surface>
 

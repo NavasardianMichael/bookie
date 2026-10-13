@@ -4,9 +4,12 @@ import { FC, useEffect, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import { useTranslations } from 'next-intl'
 import { verifyEmailAPI } from '@api/auth/main'
+import { useAuthStore } from '@store/auth/store'
+import { useRouter } from '@i18n/navigation'
 import { AUTH_ERROR_CODES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { ErrorCopyOverrides } from '@helpers/error'
+import { newAccountLandingPath } from '@helpers/workspace'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
@@ -38,6 +41,8 @@ type Status = 'sent' | 'verifying' | 'done' | 'failed'
  */
 export const VerifyEmailClient: FC<Props> = ({ token }) => {
   const t = useTranslations('Auth')
+  const { replace } = useRouter()
+  const getMe = useAuthStore.use.getMe()
   const [status, setStatus] = useState<Status>(token ? 'verifying' : 'sent')
   const [error, setError] = useState<unknown>(null)
   /** Bumped by Retry to send the token again. */
@@ -60,8 +65,14 @@ export const VerifyEmailClient: FC<Props> = ({ token }) => {
     let cancelled = false
 
     inFlight.current.request
-      .then(() => {
-        if (!cancelled) setStatus('done')
+      .then(async () => {
+        if (cancelled) return
+        setStatus('done')
+        // The link signed this account in — `/verify-email` issues the session — so it goes
+        // straight to where a new account starts. Should the session read fail, the done
+        // screen below stays, with its sign-in link.
+        const session = await getMe()
+        if (!cancelled && session) replace(newAccountLandingPath(session.role))
       })
       .catch((err: unknown) => {
         if (cancelled) return
@@ -72,7 +83,7 @@ export const VerifyEmailClient: FC<Props> = ({ token }) => {
     return () => {
       cancelled = true
     }
-  }, [token, attempt])
+  }, [token, attempt, getMe, replace])
 
   const retry = () => {
     setStatus('verifying')

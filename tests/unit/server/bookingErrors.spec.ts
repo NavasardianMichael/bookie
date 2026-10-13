@@ -46,7 +46,7 @@ describe('the slot-taken message', () => {
    */
   it('does not swallow the other 409s the booking route can answer', () => {
     expect(isSlotTakenError({ code: 409, message: 'This service is no longer available' })).toBe(false)
-    expect(isSlotTakenError({ code: 409, message: 'A phone number is required to book' })).toBe(false)
+    expect(isSlotTakenError({ code: 409, message: 'No profile to book from' })).toBe(false)
   })
 })
 

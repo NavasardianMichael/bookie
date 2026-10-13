@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { completeGoogleAPI, getMeAPI, loginAPI, logoutAPI, registerAPI } from '@api/auth/main'
+import { becomeProviderAPI, completeGoogleAPI, getMeAPI, loginAPI, logoutAPI, registerAPI } from '@api/auth/main'
 import { appendSelectors } from '@store/appendSelectors'
 import { Session } from '@interfaces/auth'
 import { SIGN_ON_STEPS } from '@constants/auth'
@@ -80,6 +80,19 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             set({ isPending: true, error: null })
             try {
               const session = await completeGoogleAPI(payload)
+              set(signedOn(session))
+              return session
+            } finally {
+              set({ isPending: false })
+            }
+          },
+          becomeProvider: async (payload) => {
+            set({ isPending: true, error: null })
+            try {
+              await becomeProviderAPI(payload)
+              // The answer is the new session's core only; `/me` adds `profiles` and the
+              // rest, which the settings guard reads to let this account into the provider tree.
+              const session = await getMeAPI()
               set(signedOn(session))
               return session
             } finally {

@@ -58,7 +58,6 @@ const matchedServiceSelect = {
   durationMinutes: true,
   price: true,
   currency: true,
-  category: { select: { name: true } },
 } satisfies Prisma.ServiceSelect
 
 export type MatchedServiceRow = Prisma.ServiceGetPayload<{ select: typeof matchedServiceSelect }>

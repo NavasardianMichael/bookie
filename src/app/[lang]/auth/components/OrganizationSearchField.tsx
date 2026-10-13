@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { BasicOrganization } from '@store/organizations/single/types'
 import { OrganizationValue } from '@interfaces/auth'
 import { MAX_CHARS_FOR_ORGANIZATION_NAME } from '@constants/form'
+import { translateCategoryName } from '@helpers/categoryName'
 import { collapseWhitespace } from '@helpers/search'
 import { AppText } from '@components/ui/bare/AppText'
 import { BuildingIcon } from '@components/ui/icons'
@@ -31,7 +32,10 @@ const STATUS_OPTION = 'organization-search-status'
 const ADD_NEW_OPTION_STYLE = { borderStartStartRadius: 0, borderStartEndRadius: 0 }
 
 const OrganizationOptionLabel: FC<{ organization: BasicOrganization }> = ({ organization }) => {
-  const categories = organization.basic.categories.map((category) => category.name).join(', ')
+  const tCategories = useTranslations('Categories')
+  const categories = organization.basic.categories
+    .map((category) => translateCategoryName(category.name, tCategories))
+    .join(', ')
 
   return (
     <span className='flex min-w-0 flex-col'>

@@ -3,7 +3,8 @@ import { LOCALES } from '@i18n/config'
 // The one aliased import here, and the point of the last describe block: the web constant is
 // the *consumer* of what this module mints, and only a test that holds both can catch them
 // drifting apart.
-import { EMAIL_VERIFY_QUERY as WEB_EMAIL_VERIFY_QUERY } from '@constants/auth'
+import { EMAIL_VERIFY_QUERY as WEB_EMAIL_VERIFY_QUERY, GOOGLE_SIGN_UP_QUERY as WEB_GOOGLE_SIGN_UP_QUERY } from '@constants/auth'
+import { ROUTES } from '@constants/routes'
 // Relative, not aliased: `server/` is a separate package. This module imports only
 // `lib/request.ts`, which imports nothing — which is what keeps it reachable here at all,
 // and is the stated reason it was split out of `lib/email-verify.ts`.
@@ -12,6 +13,9 @@ import {
   buildEmailVerifyUrl,
   DEFAULT_VERIFY_LOCALE,
   EMAIL_VERIFY_QUERY,
+  GOOGLE_SIGN_UP_PATHS,
+  GOOGLE_SIGN_UP_QUERY,
+  googleSignUpPath,
   isAllowedEmailVerifyReturnPath,
   isAllowedPublicReturnPath,
   splitLocalePath,
@@ -114,14 +118,13 @@ describe('isAllowedEmailVerifyReturnPath', () => {
 })
 
 describe('isAllowedPublicReturnPath', () => {
-  // These five are reachable with **no session** — signup verification, password reset,
-  // and the Google flow's landing pages. Keep in step with `src/constants/routes.ts`.
+  // These four are reachable with **no session** — signup verification, password reset,
+  // and the Google flow's landing page. Keep in step with `src/constants/routes.ts`.
   it.each([
     'auth/verify-email',
     'auth/reset-password',
     'auth/sign-in',
     'auth/callback',
-    'auth/complete-registration',
   ])('allows /en/%s', (rest) => {
     expect(isAllowedPublicReturnPath(`/en/${rest}`)).toBe(true)
   })
@@ -230,5 +233,30 @@ describe('buildEmailVerifyUrl', () => {
   // here rather than in a user's inbox.
   it('mints the param name the web app reads', () => {
     expect(EMAIL_VERIFY_QUERY).toBe(WEB_EMAIL_VERIFY_QUERY)
+  })
+})
+
+/**
+ * The Google callback's redirect for a first-time account, built on the server and read by
+ * the web app. Nothing else ties the two spellings together: a rename on either side alone
+ * lands a new Google account on a 404, or on a form asking for a password it does not have.
+ */
+describe('googleSignUpPath', () => {
+  it('opens the registration form for the role the flow started from', () => {
+    expect(googleSignUpPath('en', 'consumer')).toBe(`/en${ROUTES.consumerRegistration}`)
+    expect(googleSignUpPath('fr', 'provider')).toBe(`/fr${ROUTES.providerRegistration}`)
+  })
+
+  it('opens the account-type choice when no role was chosen yet', () => {
+    expect(googleSignUpPath('hy', null)).toBe(`/hy${ROUTES.accountTypeSelection}`)
+  })
+
+  it('names the pages and the param the web app reads', () => {
+    expect(GOOGLE_SIGN_UP_PATHS).toEqual({
+      consumer: ROUTES.consumerRegistration,
+      provider: ROUTES.providerRegistration,
+      unknown: ROUTES.accountTypeSelection,
+    })
+    expect(GOOGLE_SIGN_UP_QUERY).toBe(WEB_GOOGLE_SIGN_UP_QUERY)
   })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ROUTES } from '@constants/routes'
-import { counterpartPath, workspaceOf } from '@helpers/workspace'
+import { counterpartPath, newAccountLandingPath, workspaceOf } from '@helpers/workspace'
 
 /**
  * The workspace switch's only logic. It decides where a person lands when they move
@@ -83,6 +83,7 @@ describe('counterpartPath', () => {
       ROUTES.providerProfileAnalytics,
       ROUTES.providerProfileAvailability,
       ROUTES.providerProfileSeo,
+      ROUTES.providerProfileAdvanced,
     ]) {
       expect(counterpartPath(route, 'consumer')).toBe(ROUTES.consumerProfile)
     }
@@ -122,5 +123,15 @@ describe('counterpartPath', () => {
       expect(declared.has(counterpartPath(source, 'consumer'))).toBe(true)
       expect(declared.has(counterpartPath(source, 'provider'))).toBe(true)
     }
+  })
+})
+
+describe('newAccountLandingPath', () => {
+  it('sends a new provider to Availability, where the hours that make a page bookable are set', () => {
+    expect(newAccountLandingPath('provider')).toBe(ROUTES.providerProfileAvailability)
+  })
+
+  it('sends a new consumer to Explore', () => {
+    expect(newAccountLandingPath('consumer')).toBe(ROUTES.providers)
   })
 })

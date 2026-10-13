@@ -1,3 +1,4 @@
+import type { Consumer, Provider } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import { Router } from 'express'
 import { googleRouter } from './identity-google.js'
@@ -37,7 +38,9 @@ import { clearSessionCookie, setSessionCookie } from '../lib/session.js'
 import { hashUrlToken, urlTokensMatch } from '../lib/token.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
-import { findSameNamedOrganization, parseNewOrganization } from '../services/organizations.js'
+import { type CategoryChoice, MAX_PROVIDER_CATEGORIES, parseCategoryChoices } from '../services/categories.js'
+import { resolveOrganizationId } from '../services/organizationLink.js'
+import { providerCategoryIds, pruneUnusedCategories, setProviderCategories } from '../services/providerCategories.js'
 import { recomputeProviderRating } from '../services/reviews.js'
 
 export const identityRouter = Router()
@@ -121,6 +124,18 @@ export type RegistrationProfile = {
   country?: unknown
   organizationId?: unknown
   newOrganization?: unknown
+  /** Provider only — `[{ id } | { name }]`, at most `MAX_PROVIDER_CATEGORIES`. */
+  categories?: unknown
+}
+
+/**
+ * A provider registration's categories, or `null` when it names more than
+ * `MAX_PROVIDER_CATEGORIES` — refused rather than trimmed, since the form caps the field and
+ * a longer list was sent by hand. Optional: an absent or empty list is none.
+ */
+export const asProviderCategories = (profile: RegistrationProfile): CategoryChoice[] | null => {
+  const choices = parseCategoryChoices(profile.categories)
+  return choices.length > MAX_PROVIDER_CATEGORIES ? null : choices
 }
 
 /**
@@ -134,7 +149,7 @@ export type RegistrationProfile = {
  * Not derivable from `phone.code`, which is why it is sent separately — +1 is the US,
  * Canada and ~20 more. **Google does not supply one either**: its `locale` is a BCP-47
  * language tag, so `en-GB` would yield a wrong country and `hy` none at all. That is why
- * the Google completion step collects it through the same field.
+ * Google sign-up, which opens the same registration forms, collects it through the same field.
  */
 export const asCountryCode = (value: unknown): string | undefined => {
   const trimmed = asTrimmedString(value)?.toUpperCase()
@@ -161,50 +176,6 @@ export const asPhone = (value: unknown): ParsedPhone | null => {
   if (!/^\d{4,15}$/.test(digits)) return null
 
   return { phoneCode: code, phoneNumber: BigInt(digits) }
-}
-
-/**
- * Resolves a provider registration's Organization section: `organizationId` links an
- * existing organization picked from the suggestions; `newOrganization` registers one with
- * the details its public page shows (`parseNewOrganization`), taking the provider's
- * `country`. Neither — or an id that no longer exists — means no organization, which is how
- * a sole trader registers.
- *
- * Before submitting, the web form looks up organizations with a similar name
- * (`GET /organizations/similar`) and asks the provider to join one or confirm a new one;
- * a confirmed draft carries `allowSimilar` and is always created. Without it, a draft whose
- * name matches an existing organization's — however cased, spaced or punctuated
- * (`findSameNamedOrganization`) — links that one and drops the details. That backstop is
- * load-bearing: the lookup can fail or race another registration, and re-registering an
- * unverified account resends the same draft, which must land on the organization the first
- * attempt created rather than a copy. An existing organization's details are never
- * overwritten from an unauthenticated request.
- *
- * Takes the transaction client, so an organization is created only if the provider is —
- * a rolled-back registration must not leave a public organization page behind.
- */
-export const resolveOrganizationId = async (
-  db: Prisma.TransactionClient,
-  profile: RegistrationProfile,
-  country: string | undefined
-): Promise<string | null> => {
-  const organizationId = asTrimmedString(profile.organizationId)
-  if (organizationId) {
-    const existing = await db.organization.findUnique({ where: { id: organizationId }, select: { id: true } })
-    if (existing) return existing.id
-  }
-
-  const draft = parseNewOrganization(profile.newOrganization, country)
-  if (!draft) return null
-
-  if (!draft.allowSimilar) {
-    const names = await db.organization.findMany({ select: { id: true, name: true } })
-    const matched = findSameNamedOrganization(names, draft.data.name)
-    if (matched) return matched.id
-  }
-
-  const created = await db.organization.create({ data: draft.data, select: { id: true } })
-  return created.id
 }
 
 /* ------------------------------------------------------------------ *
@@ -372,6 +343,9 @@ identityRouter.post(
     const country = asCountryCode(profile.country)
     const locale = asVerifyLocale(req.body?.locale)
 
+    const categories = role === 'provider' ? asProviderCategories(profile) : []
+    if (!categories) return fail(res, `At most ${MAX_PROVIDER_CATEGORIES} categories`)
+
     if (overBudget(res, registerIpLimiter, ipKey(req.ip))) return
 
     /**
@@ -428,7 +402,7 @@ identityRouter.post(
       // of what a re-registration overwrites, like the name.
       if (role === 'provider') {
         const organizationId = await resolveOrganizationId(tx, profile, country)
-        await tx.provider.upsert({
+        const provider = await tx.provider.upsert({
           where: { userId: saved.id },
           create: {
             userId: saved.id,
@@ -450,6 +424,8 @@ identityRouter.post(
             organizationId,
           },
         })
+        // Overwritten on a re-registration, like the organization.
+        await setProviderCategories(tx, provider.id, categories)
       } else {
         await tx.consumer.upsert({
           where: { userId: saved.id },
@@ -857,6 +833,17 @@ identityRouter.post(
  * ================================================================== */
 
 /**
+ * The session's own profile row. The return type is declared rather than inferred on
+ * purpose: Consumer's columns are a subset of Provider's, so an inferred
+ * `Provider | Consumer` is subtype-reduced to `Consumer`, and the `'imageUrl' in profile`
+ * narrowing in `/me` could no longer recover the Provider branch.
+ */
+const findSessionProfile = (role: 'consumer' | 'provider', profileId: string): Promise<Provider | Consumer | null> =>
+  role === 'provider'
+    ? prisma.provider.findUnique({ where: { id: profileId } })
+    : prisma.consumer.findUnique({ where: { id: profileId } })
+
+/**
  * Lets the client recover its own role and profile id after a refresh — the session lives
  * in an httpOnly cookie the browser cannot read. Also returns display fields so the
  * Header avatar does not need a second profile fetch, and the account-state flags the
@@ -873,9 +860,7 @@ identityRouter.get(
         where: { id: userId },
         select: { email: true, emailVerifiedAt: true, authProvider: true, passwordHash: true, googleId: true },
       }),
-      role === 'provider'
-        ? prisma.provider.findUnique({ where: { id: profileId } })
-        : prisma.consumer.findUnique({ where: { id: profileId } }),
+      findSessionProfile(role, profileId),
       /**
        * Whether this User *also* holds the profile their session is not using.
        *
@@ -915,10 +900,7 @@ identityRouter.get(
       email: user.email,
       emailVerified: Boolean(user.emailVerifiedAt),
       authProvider: user.authProvider,
-      phone:
-        profile.phoneCode !== null && profile.phoneNumber !== null
-          ? { code: profile.phoneCode, number: Number(profile.phoneNumber) }
-          : undefined,
+      phone: { code: profile.phoneCode, number: Number(profile.phoneNumber) },
       /** Never the hash — only whether one exists, which is all the UI needs to branch on. */
       hasPassword: Boolean(user.passwordHash),
       hasGoogle: Boolean(user.googleId),
@@ -931,6 +913,66 @@ identityRouter.get(
         consumer: role === 'consumer' || Boolean(otherProfileId),
       },
     })
+  })
+)
+
+/**
+ * Adds the provider side to an account that so far only books: creates its Provider row
+ * and re-issues the session as `provider` — a session carries one role, and every
+ * `/provider-profile` route requires that one.
+ *
+ * The body is provider registration's minus the account half. Email and password already
+ * live on the `User`, so only the names, phone, country and the Organization section are
+ * read, each validated exactly as `/register` validates it. The Consumer row is left as it
+ * is; from here on the two profiles keep their own names and phone.
+ *
+ * `409` when the account already has one: a `User` holds at most one Provider
+ * (`Provider.userId` is unique), and this must never overwrite a page that may be live.
+ */
+identityRouter.post(
+  '/provider-profile',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const userId = req.session!.userId
+    const profile: RegistrationProfile = req.body?.profile ?? {}
+    const firstName = asBoundedString(profile.firstName, MAX_NAME_LENGTH)
+    const lastName = asBoundedString(profile.lastName, MAX_NAME_LENGTH)
+    if (!firstName) return fail(res, 'First name is required')
+    if (!lastName) return fail(res, 'Last name is required')
+
+    const phone = asPhone(req.body?.phone)
+    if (!phone) return fail(res, 'A valid phone code and number are required')
+
+    const country = asCountryCode(profile.country)
+    const categories = asProviderCategories(profile)
+    if (!categories) return fail(res, `At most ${MAX_PROVIDER_CATEGORIES} categories`)
+
+    const existing = await prisma.provider.findUnique({ where: { userId }, select: { id: true } })
+    if (existing) return fail(res, 'This account already has a provider profile', 409, 409)
+
+    // One transaction, as at registration: an organization is created only if the provider is.
+    const user = await prisma.$transaction(async (tx) => {
+      const organizationId = await resolveOrganizationId(tx, profile, country)
+      const provider = await tx.provider.create({
+        data: {
+          userId,
+          firstName,
+          lastName,
+          phoneCode: phone.phoneCode,
+          phoneNumber: phone.phoneNumber,
+          country,
+          organizationId,
+          weekSchedule: {},
+          listed: false,
+        },
+      })
+      await setProviderCategories(tx, provider.id, categories)
+      return tx.user.findUniqueOrThrow({ where: { id: userId }, select: { id: true, tokenVersion: true } })
+    })
+
+    const summary = await loadProfile(userId)
+    if (!summary) throw new HttpError(404, 'Provider profile not found', 404)
+    return ok(res, issueSession(res, user, summary))
   })
 )
 
@@ -1142,8 +1184,14 @@ identityRouter.delete(
         ).map((review) => review.providerId!)
       : []
 
-    // Provider, Consumer and their children all cascade from User.
-    await prisma.user.delete({ where: { id: user.id } })
+    // Provider, Consumer and their children all cascade from User. The provider's categories
+    // are read first, so the ones no other provider uses can go with it.
+    await prisma.$transaction(async (tx) => {
+      const provider = await tx.provider.findUnique({ where: { userId: user.id }, select: { id: true } })
+      const categoryIds = provider ? await providerCategoryIds(tx, provider.id) : []
+      await tx.user.delete({ where: { id: user.id } })
+      await pruneUnusedCategories(tx, categoryIds)
+    })
 
     // After the delete, so the aggregate is taken over what actually survives. Not in a
     // transaction with it: the account is gone either way, and failing the request over a

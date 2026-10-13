@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
+import { GOOGLE_SIGN_UP_QUERY } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
+import { isGoogleSignUp } from '@helpers/registration'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -34,7 +36,17 @@ const ACCOUNT_TYPES = [
   },
 ]
 
-export default function AccountTypeSelection() {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+/**
+ * `?google=1` — a first-time Google account that started from sign-in, so no role yet. The
+ * choice is the same; both links carry the flag on, so the form opens in Google mode.
+ */
+export default async function AccountTypeSelection({ searchParams }: Props) {
+  const viaGoogle = isGoogleSignUp(await searchParams)
+
   return (
     <AuthCard className='gap-8'>
       <div className='flex flex-col gap-2 text-center'>
@@ -46,7 +58,7 @@ export default function AccountTypeSelection() {
         {ACCOUNT_TYPES.map(({ href, title, description, Icon }) => (
           <li key={href}>
             <AppLink
-              href={href}
+              href={viaGoogle ? { pathname: href, query: { [GOOGLE_SIGN_UP_QUERY]: '1' } } : href}
               variant='plain'
               className='border-brand-border hover:border-brand active:bg-brand-50 rounded-brand flex items-center gap-4 border-2 p-4 no-underline transition-colors hover:no-underline'
             >

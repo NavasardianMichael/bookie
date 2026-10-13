@@ -118,10 +118,10 @@ That is not an action taking `get` — the store itself still destructures only 
   only where a page asks. The categories store used to ship fake seed data in
   `initialState` — one row whose `allIds` entry (`'c-1'`) did not even match its own
   `byId` key (`'smth'`) — so every category picker offered an id the API had never
-  issued. A page that renders a category or organization picker **must load the list
-  itself**: `profile-services` loads categories, and `ProviderProfileForm` (profile
-  creation) loads both, with a Retry if that fails. Until 2026-09-23 the latter loaded
-  neither, so its pickers were empty on a cold load.
+  issued. A page that renders an organization picker from the list store **must load the
+  list itself**: `ProviderProfileForm` (profile creation) does, with a Retry if that fails.
+  The provider Categories field does not use the store at all — it searches the API as the
+  provider types (`useCategorySuggestions`).
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns
   `api.setState` — it does **not** catch rejections thrown inside async actions.
 - Action return types drift between `() => void` and `() => Promise<void>` for

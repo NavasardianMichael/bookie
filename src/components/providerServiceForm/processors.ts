@@ -1,5 +1,5 @@
 import { ClearableField, ProviderServiceRequestPayload } from '@api/providers/types'
-import { CategoryValue, ProviderServiceFormValues } from '@interfaces/services'
+import { ProviderServiceFormValues } from '@interfaces/services'
 
 /**
  * Empty is sent as `''`, never dropped.
@@ -11,28 +11,11 @@ import { CategoryValue, ProviderServiceFormValues } from '@interfaces/services'
  */
 const orCleared = <T>(value: T | null | undefined): ClearableField<T> => (value === null || value === undefined ? '' : value)
 
-/**
- * Splits the Category combobox value into the two fields the API distinguishes.
- *
- * An `id` means an existing category was picked, so the name is redundant and dropped —
- * sending both would let a stale label rename nothing but confuse the payload. Bare text
- * is sent as `categoryName` for the server to match case-insensitively or create.
- */
-export const toCategoryFields = (
-  value: CategoryValue | undefined
-): Pick<ProviderServiceRequestPayload, 'categoryId' | 'categoryName'> => {
-  if (value?.id) return { categoryId: value.id }
-
-  const name = value?.name?.trim()
-  return name ? { categoryName: name } : { categoryId: '' }
-}
-
 export const processProviderServiceFormToRequestPayload = (
   formValues: ProviderServiceFormValues
 ): ProviderServiceRequestPayload => ({
   name: formValues.name,
   duration: formValues.duration,
-  ...toCategoryFields(formValues.category),
   description: orCleared(formValues.description),
   price: orCleared(formValues.price),
   currency: orCleared(formValues.currency),

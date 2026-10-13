@@ -104,3 +104,14 @@ export type CompleteGoogleAPI = Endpoint<{
   response: Session
   processed: Session
 }>
+
+/**
+ * A signed-in account adds the provider side. Provider registration's body minus the
+ * account half — email and password already live on the `User`. Answers the re-issued
+ * session's core (now `provider`); `409` when the account already has a Provider profile.
+ */
+export type BecomeProviderAPI = Endpoint<{
+  payload: { phone: PhoneNumber; profile: RegistrationProfile }
+  response: Session
+  processed: Session
+}>

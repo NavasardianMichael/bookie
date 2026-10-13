@@ -119,7 +119,7 @@ Two wrappers own every dialog in the app. Pick by what the dialog is *for*:
 `onOk` (it is `onConfirm`, which may be async), `footer` (the Confirm/Cancel pair *is* the
 component) and `title` (narrowed to required). What it adds on top of a bare `Modal`:
 
-- a tone badge — `tone='danger'` reddens the glyph and the confirm button;
+- a tone badge — `tone='warning'` ambers the glyph and the confirm button, `tone='danger'` reddens them;
 - `description` rendered through `AppParagraph`, the title through `AppTitle level='h2'`,
   so a dialog is on the same type scale as the page behind it;
 - **an awaited `onConfirm`**: the ok button goes busy and *every* dismissal route —

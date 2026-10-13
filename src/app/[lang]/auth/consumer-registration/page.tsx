@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { isGoogleSignUp } from '@helpers/registration'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -23,8 +24,17 @@ export const metadata: Metadata = {
  * viewport edge — the one screen in the funnel that is not a centred card. The global
  * header is off here (`header.ts`), so this is `min-h-dvh` rather than the fill
  * variant, which subtracts header height. `app-safe-t` covers the notch the header used to.
+ *
+ * `?google=1` opens the form in Google mode — read here because a client island has no
+ * `useSearchParams` (`next/navigation` is a grep gate).
  */
-export default function ConsumerRegistration() {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function ConsumerRegistration({ searchParams }: Props) {
+  const viaGoogle = isGoogleSignUp(await searchParams)
+
   return (
     <PageShell width='full' padded={false} className='flex min-h-dvh flex-col app-safe-t lg:flex-row'>
       <RegistrationHero />
@@ -38,7 +48,7 @@ export default function ConsumerRegistration() {
             <AppParagraph>Create your consumer account to start booking services.</AppParagraph>
           </div>
 
-          <ConsumerRegistrationForm />
+          <ConsumerRegistrationForm viaGoogle={viaGoogle} />
 
           <AppParagraph size='body-sm' className='mt-8 text-center'>
             Already have an account?{' '}

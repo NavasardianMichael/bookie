@@ -4,11 +4,11 @@ import jwt from 'jsonwebtoken'
 import {
   asCountryCode,
   asPhone,
+  asProviderCategories,
   AUTH_ERROR,
   issueSession,
   loadProfile,
   type RegistrationProfile,
-  resolveOrganizationId,
 } from './identity.js'
 import { config } from '../config.js'
 import { fail, ok } from '../lib/api-response.js'
@@ -23,8 +23,17 @@ import {
 import { prisma } from '../lib/prisma.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
 import { asBoundedString, asTrimmedString } from '../lib/request.js'
-import { DEFAULT_VERIFY_LOCALE, isAllowedPublicReturnPath, splitLocalePath } from '../lib/return-path.js'
+import {
+  DEFAULT_VERIFY_LOCALE,
+  GOOGLE_SIGN_UP_QUERY,
+  googleSignUpPath,
+  isAllowedPublicReturnPath,
+  splitLocalePath,
+} from '../lib/return-path.js'
 import { asyncHandler } from '../middleware/error.js'
+import { MAX_PROVIDER_CATEGORIES } from '../services/categories.js'
+import { resolveOrganizationId } from '../services/organizationLink.js'
+import { setProviderCategories } from '../services/providerCategories.js'
 
 /**
  * Google sign-in and account linking.
@@ -278,9 +287,11 @@ const signInResolvedUser = async (
 }
 
 /**
- * Holds the verified identity in a short-lived cookie and sends the browser to the form
- * that collects what Google cannot supply — the role and a phone number, both required by
- * the profile tables.
+ * Holds the verified identity in a short-lived cookie and sends the browser to the ordinary
+ * registration form for its role, in Google mode (`googleSignUpPath`): the names and email
+ * prefilled, the email locked, no password. That form collects what Google cannot supply —
+ * the phone, and a provider's organization — and posts to `/google/complete`. With no role
+ * yet (the flow started from sign-in) it opens the account-type choice first.
  */
 const parkForCompletion = (
   res: Response,
@@ -298,7 +309,7 @@ const parkForCompletion = (
     maxAge: config.oauthPendingTtlMs,
   })
 
-  res.redirect(webUrl(`/${locale}/auth/complete-registration`))
+  res.redirect(webUrl(googleSignUpPath(locale, role), { [GOOGLE_SIGN_UP_QUERY]: '1' }))
 }
 
 /** Attaches a Google identity to the account pinned at initiate. */
@@ -395,6 +406,8 @@ googleRouter.post(
     if (!phone) return fail(res, 'A valid phone code and number are required')
 
     const country = asCountryCode(profile.country)
+    const categories = role === 'provider' ? asProviderCategories(profile) : []
+    if (!categories) return fail(res, `At most ${MAX_PROVIDER_CATEGORIES} categories`)
 
     const verdict = completeIpLimiter(`ip:${req.ip ?? 'unknown'}`)
     if (!verdict.allowed) {
@@ -421,7 +434,7 @@ googleRouter.post(
 
         if (role === 'provider') {
           const organizationId = await resolveOrganizationId(tx, profile, country)
-          await tx.provider.create({
+          const provider = await tx.provider.create({
             data: {
               userId: saved.id,
               firstName,
@@ -434,6 +447,7 @@ googleRouter.post(
               listed: false,
             },
           })
+          await setProviderCategories(tx, provider.id, categories)
         } else {
           await tx.consumer.create({
             data: {

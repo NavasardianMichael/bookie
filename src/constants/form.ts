@@ -25,6 +25,14 @@ export const MAX_CHARS_FOR_ORGANIZATION_NAME = 100
 export const MAX_CHARS_FOR_ADDRESS = 200
 export const MAX_CHARS_FOR_WEBSITE = 200
 
+/**
+ * A provider's categories: at most this many, each name at most this long. Keep in step
+ * with `MAX_PROVIDER_CATEGORIES` / `MAX_CATEGORY_NAME_LENGTH` in
+ * `server/src/services/categories.ts`, which refuses more and truncates longer.
+ */
+export const MAX_PROVIDER_CATEGORIES = 3
+export const MAX_CHARS_FOR_CATEGORY_NAME = 40
+
 const _RULE_NAMES = {
   required: 'required',
   maxCharsForInput: 'maxCharsForInput',

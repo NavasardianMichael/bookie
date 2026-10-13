@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect, useMemo, useState } from 'react'
-import { Alert, Progress, Tag } from 'antd'
+import { Alert, Progress } from 'antd'
 import dynamic from 'next/dynamic'
 import { useFormatter, useTranslations } from 'next-intl'
 import { postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
@@ -11,7 +11,7 @@ import { useErrorToast } from '@hooks/useErrorToast'
 import { useStartCheckout } from '@hooks/useStartCheckout'
 import { PaidPlan, Plan, PlanCatalogueEntry, ProviderPlanWithUsage } from '@interfaces/plans'
 import { BILLING_STATUSES } from '@constants/billing'
-import { PLAN_ORDER, PLAN_TAG_COLORS, PLANS } from '@constants/plans'
+import { PLAN_ORDER, PLANS } from '@constants/plans'
 import { hasRoomFor, toPlanLastDay, usagePercent } from '@helpers/plans'
 import { PlanComparisonTable } from '@components/plans/PlanComparisonTable'
 import { AppButton } from '@components/ui/AppButton'
@@ -123,7 +123,11 @@ export const ProviderPlanClient = () => {
     return (
       <div className='flex flex-col gap-6'>
         {header}
-        <div className='bg-brand-100 h-24 animate-pulse rounded-brand' />
+        <ResponsiveGrid min='sm'>
+          <div className='bg-brand-100 h-28 animate-pulse rounded-brand' />
+          <div className='bg-brand-100 h-28 animate-pulse rounded-brand' />
+          <div className='bg-brand-100 h-28 animate-pulse rounded-brand' />
+        </ResponsiveGrid>
         <div className='bg-brand-100 h-72 animate-pulse rounded-brand' />
       </div>
     )
@@ -160,29 +164,18 @@ export const ProviderPlanClient = () => {
     setSwitchTo(null)
   }
 
-  const statusLine = (): ReactNode => {
+  const statusLine = (): { text: string; warning: boolean } | null => {
     if (subscribed && billing.cancelsAt) {
-      return (
-        <AppText size='body-sm' tone='danger'>
-          {t('cancelsOn', { date: formatInstant(billing.cancelsAt) })}
-        </AppText>
-      )
+      return { text: t('cancelsOn', { date: formatInstant(billing.cancelsAt) }), warning: true }
     }
     if (subscribed && !pastDue && billing.periodEndsAt) {
-      return (
-        <AppText size='body-sm' tone='muted'>
-          {t('renewsOn', { date: formatInstant(billing.periodEndsAt) })}
-        </AppText>
-      )
+      return { text: t('renewsOn', { date: formatInstant(billing.periodEndsAt) }), warning: false }
     }
     if (!subscribed && planExpiresAt) {
-      return (
-        <AppText size='body-sm' tone={lapsed ? 'danger' : 'muted'}>
-          {lapsed
-            ? t('lapsed', { plan: tPlans(`names.${current.plan}`), date: formatDay(toPlanLastDay(planExpiresAt)) })
-            : t('activeUntil', { date: formatDay(toPlanLastDay(planExpiresAt)) })}
-        </AppText>
-      )
+      const lastDay = formatDay(toPlanLastDay(planExpiresAt))
+      return lapsed
+        ? { text: t('lapsed', { plan: tPlans(`names.${current.plan}`), date: lastDay }), warning: true }
+        : { text: t('activeUntil', { date: lastDay }), warning: false }
     }
     return null
   }
@@ -246,28 +239,44 @@ export const ProviderPlanClient = () => {
     )
   }
 
+  const status = statusLine()
+
   return (
     <div className='flex flex-col gap-6'>
       {header}
 
-      <Surface className='flex flex-col gap-3'>
-        <AppText size='overline' tone='muted' className='font-semibold'>
-          {t('currentPlan')}
-        </AppText>
-        <div className='flex flex-wrap items-center gap-3'>
-          <Tag color={PLAN_TAG_COLORS[effectivePlan]} className='m-0 text-body'>
-            {tPlans(`names.${effectivePlan}`)}
-          </Tag>
-          {statusLine()}
-        </div>
-        {billing?.manageable && (
-          <div>
-            <AppButton loading={portalPending} onClick={() => void openPortal()}>
-              {t('manageBilling')}
-            </AppButton>
-          </div>
-        )}
-      </Surface>
+      <ResponsiveGrid min='sm'>
+        <StatTile
+          label={t('currentPlan')}
+          value={tPlans(`names.${effectivePlan}`)}
+          hint={
+            status === null ? undefined : status.warning ? (
+              <span className='text-brand-danger'>{status.text}</span>
+            ) : (
+              status.text
+            )
+          }
+          action={
+            billing?.manageable ? (
+              <AppButton loading={portalPending} onClick={() => void openPortal()}>
+                {t('manageBilling')}
+              </AppButton>
+            ) : undefined
+          }
+        />
+        <StatTile
+          label={t('activeServices')}
+          value={usedOf(usage.activeServices, entitlements.maxActiveServices)}
+          hint={entitlements.maxActiveServices === null ? tPlans('unlimited') : servicesFull ? t('servicesFull') : undefined}
+          action={meter(usage.activeServices, entitlements.maxActiveServices, servicesFull)}
+        />
+        <StatTile
+          label={t('bookingsThisMonth')}
+          value={usedOf(usage.bookingsThisMonth, entitlements.maxBookingsPerMonth)}
+          hint={entitlements.maxBookingsPerMonth === null ? tPlans('unlimited') : t('resetsOn', { date: resetsOn })}
+          action={meter(usage.bookingsThisMonth, entitlements.maxBookingsPerMonth, bookingsFull)}
+        />
+      </ResponsiveGrid>
 
       {pastDue && (
         <Alert
@@ -293,21 +302,6 @@ export const ProviderPlanClient = () => {
 
       {/* The one state a visitor notices: the page has stopped taking bookings. */}
       {bookingsFull && <Alert type='warning' showIcon title={t('bookingsFullTitle')} description={t('bookingsFullBody', { date: resetsOn })} />}
-
-      <ResponsiveGrid min='sm'>
-        <StatTile
-          label={t('activeServices')}
-          value={usedOf(usage.activeServices, entitlements.maxActiveServices)}
-          hint={entitlements.maxActiveServices === null ? tPlans('unlimited') : servicesFull ? t('servicesFull') : undefined}
-          action={meter(usage.activeServices, entitlements.maxActiveServices, servicesFull)}
-        />
-        <StatTile
-          label={t('bookingsThisMonth')}
-          value={usedOf(usage.bookingsThisMonth, entitlements.maxBookingsPerMonth)}
-          hint={entitlements.maxBookingsPerMonth === null ? tPlans('unlimited') : t('resetsOn', { date: resetsOn })}
-          action={meter(usage.bookingsThisMonth, entitlements.maxBookingsPerMonth, bookingsFull)}
-        />
-      </ResponsiveGrid>
 
       <Surface className='flex flex-col gap-4'>
         <AppText size='overline' tone='muted' className='font-semibold'>

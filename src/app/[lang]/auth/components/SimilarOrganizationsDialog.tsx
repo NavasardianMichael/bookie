@@ -3,6 +3,7 @@
 import { FC } from 'react'
 import { useTranslations } from 'next-intl'
 import { BasicOrganization } from '@store/organizations/single/types'
+import { translateCategoryName } from '@helpers/categoryName'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppText } from '@components/ui/bare/AppText'
@@ -25,6 +26,7 @@ type Props = {
  */
 export const SimilarOrganizationsDialog: FC<Props> = ({ name, matches, onUseExisting, onCreateNew, onCancel }) => {
   const t = useTranslations('Auth.organization')
+  const tCategories = useTranslations('Categories')
 
   return (
     <AppConfirmModal
@@ -38,7 +40,9 @@ export const SimilarOrganizationsDialog: FC<Props> = ({ name, matches, onUseExis
     >
       <ul className='flex flex-col gap-2'>
         {matches.map((organization) => {
-          const categories = organization.basic.categories.map((category) => category.name).join(', ')
+          const categories = organization.basic.categories
+            .map((category) => translateCategoryName(category.name, tCategories))
+            .join(', ')
           return (
             <li
               key={organization.id}

@@ -13,6 +13,8 @@ export const ENDPOINTS = {
   changeEmailSend: '/identity/change-email/send',
   changeEmailConfirm: '/identity/change-email/confirm',
   deleteAccount: '/identity/account',
+  /** Adds a Provider profile to the signed-in account and re-issues the session as provider. */
+  becomeProvider: '/identity/provider-profile',
   /**
    * A **browser navigation**, not an XHR — the API answers it with a redirect to Google
    * and finishes by redirecting back to the web app. Set `window.location` to it; fetching

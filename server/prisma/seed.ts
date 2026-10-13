@@ -145,7 +145,6 @@ async function main() {
       address: '12 Abovyan St, Yerevan',
       website: 'https://cityhealth.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 0,
     },
     {
       name: 'Bright Smile Dental',
@@ -155,7 +154,6 @@ async function main() {
       address: '45 Tumanyan St, Yerevan',
       website: 'https://brightsmile.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 1,
     },
     {
       name: 'MoveWell Physio',
@@ -165,7 +163,6 @@ async function main() {
       address: '8 Komitas Ave, Yerevan',
       website: 'https://movewell.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 2,
     },
     {
       name: 'SkinCare Center',
@@ -175,7 +172,6 @@ async function main() {
       address: '3 Mashtots Ave, Yerevan',
       website: 'https://skincare.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 3,
     },
     {
       name: 'HeartLine Medical',
@@ -185,7 +181,6 @@ async function main() {
       address: '20 Nalbandyan St, Yerevan',
       website: 'https://heartline.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 4,
     },
     {
       name: 'Mindful Therapy Hub',
@@ -195,7 +190,6 @@ async function main() {
       address: '7 Baghramyan Ave, Yerevan',
       website: 'https://mindful.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 5,
     },
     {
       name: 'Regional Hospital North',
@@ -205,7 +199,6 @@ async function main() {
       address: '1 Hospital Rd, Gyumri',
       website: 'https://regionalnorth.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 0,
     },
     {
       name: 'Wellness Dental Group',
@@ -215,7 +208,6 @@ async function main() {
       address: '55 Sayat-Nova, Yerevan',
       website: 'https://wellnessdental.am',
       logoUrl: '/logo.svg',
-      categoryIdx: 1,
     },
   ]
 
@@ -239,9 +231,6 @@ async function main() {
         locationUrl: `https://maps.google.com/?q=${encodeURIComponent(org.address)}`,
         website: org.website,
         logoUrl: org.logoUrl,
-        categories: {
-          create: [{ categoryId: categories[org.categoryIdx]!.id }],
-        },
       },
     })
     organizations.push(created)
@@ -302,7 +291,6 @@ async function main() {
             {
               name: 'Initial consultation',
               durationMinutes: 30,
-              categoryId: categories[def.cats[0]!]!.id,
               description: 'First visit assessment',
               price: 15000,
               currency: 'AMD',
@@ -310,7 +298,6 @@ async function main() {
             {
               name: 'Follow-up visit',
               durationMinutes: 30,
-              categoryId: categories[def.cats[0]!]!.id,
               description: 'Follow-up appointment',
               price: 10000,
               currency: 'AMD',

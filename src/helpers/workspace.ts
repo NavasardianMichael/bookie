@@ -77,3 +77,12 @@ export const counterpartPath = (pathname: string, target: WorkspaceRole): string
   const table = target === 'consumer' ? PROVIDER_TO_CONSUMER : CONSUMER_TO_PROVIDER
   return table[pathname] ?? HOME[target]
 }
+
+/**
+ * Where an account that has just gained a role lands: after the emailed sign-up link
+ * (`/auth/verify-email`), a Google sign-up's registration form, or a consumer becoming a provider.
+ * A provider opens Availability, to set the hours a page needs before anyone can book it;
+ * a consumer opens Explore, to find someone to book.
+ */
+export const newAccountLandingPath = (role: WorkspaceRole): string =>
+  role === 'provider' ? ROUTES.providerProfileAvailability : ROUTES.providers

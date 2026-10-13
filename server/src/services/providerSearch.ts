@@ -101,21 +101,15 @@ const matchesTerm = (spellings: TermSpellings): Prisma.ProviderWhereInput => ({
 
 /**
  * The services a search is about, on a provider it found: active, and named by any of its
- * spellings — by name, or through the service's own category. What the result card shows
- * as the match, and counts as "+N more". Only meaningful with at least one term.
+ * spellings. What the result card shows as the match, and counts as "+N more". Only
+ * meaningful with at least one term.
  *
- * Stricter than `matchesTerm` about categories: the start of the category's name (or of a
- * word of a seeded one's label), never anywhere inside it. Finding a dentist for "en"
- * because "Dentistry" contains it is the filter's old, harmless looseness; naming their
- * "Follow-up visit" as what "en" matched would be a claim the card cannot back.
+ * By name only: a service has no category of its own (categories are the provider's), so a
+ * provider found through a category shows no matched service rather than one picked at random.
  */
 export const matchedServicesWhere = (matched: readonly TermSpellings[]): Prisma.ServiceWhereInput => ({
   active: true,
-  OR: matched.flat().flatMap((term): Prisma.ServiceWhereInput[] => [
-    { name: { contains: term, mode: 'insensitive' } },
-    { category: { name: { startsWith: term, mode: 'insensitive' } } },
-    ...translatedCategories(term).map((category) => ({ category })),
-  ]),
+  OR: matched.flat().map((term): Prisma.ServiceWhereInput => ({ name: { contains: term, mode: 'insensitive' } })),
 })
 
 export type ProvidersListQuery = {

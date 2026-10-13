@@ -81,7 +81,6 @@ const HEADER_CONFIG_OVERRIDES: Partial<Record<AppRouteName, Partial<HeaderConfig
   [ROUTE_KEYS.resetPassword]: { showNav: false },
   [ROUTE_KEYS.verifyEmail]: { showNav: false },
   [ROUTE_KEYS.authCallback]: { showNav: false },
-  [ROUTE_KEYS.completeRegistration]: { showNav: false },
   [ROUTE_KEYS.logout]: { showNav: false },
 }
 

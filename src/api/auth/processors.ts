@@ -1,4 +1,5 @@
 import {
+  BecomeProviderAPI,
   ChangeEmailSendAPI,
   ChangePasswordAPI,
   ChangePhoneAPI,
@@ -42,3 +43,5 @@ export const processChangePhoneResponse: ChangePhoneAPI['processor'] = (response
 export const processGooglePendingResponse: GetGooglePendingAPI['processor'] = (response) => response.value
 
 export const processCompleteGoogleResponse: CompleteGoogleAPI['processor'] = (response) => response.value
+
+export const processBecomeProviderResponse: BecomeProviderAPI['processor'] = (response) => response.value

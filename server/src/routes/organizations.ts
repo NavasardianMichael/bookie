@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { ok } from '../lib/api-response.js'
 import { prisma } from '../lib/prisma.js'
 import { collapseWhitespace } from '../lib/search.js'
-import { mapBasicOrganization, mapOrganization } from '../mappers/entities.js'
+import { mapBasicOrganization, mapOrganization, organizationInclude } from '../mappers/entities.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import {
   findSimilarOrganizations,
@@ -13,17 +13,16 @@ import {
 
 export const organizationsRouter = Router()
 
-const withCategories = { categories: { include: { category: true } } } as const
-
 /**
  * Loads the full rows for `ranked`, keeping its order — ranking reads only id and name, so
- * the categories are fetched for the few that made the cut.
+ * the categories (its listed providers', see `organizationInclude`) are fetched for the
+ * few that made the cut.
  */
 const hydrate = async (ranked: { id: string }[]) => {
   if (!ranked.length) return []
   const rows = await prisma.organization.findMany({
     where: { id: { in: ranked.map((organization) => organization.id) } },
-    include: withCategories,
+    include: organizationInclude,
   })
   const byId = new Map(rows.map((row) => [row.id, row]))
   return ranked.flatMap((organization) => {
@@ -57,7 +56,7 @@ organizationsRouter.get(
     const query = typeof req.query.q === 'string' ? collapseWhitespace(req.query.q) : ''
 
     if (!query) {
-      const orgs = await prisma.organization.findMany({ include: withCategories, orderBy: { name: 'asc' } })
+      const orgs = await prisma.organization.findMany({ include: organizationInclude, orderBy: { name: 'asc' } })
       return ok(res, orgs.map((o) => mapBasicOrganization(o)))
     }
 
@@ -86,7 +85,7 @@ organizationsRouter.get(
   asyncHandler(async (req, res) => {
     const org = await prisma.organization.findUnique({
       where: { id: req.params.id },
-      include: withCategories,
+      include: organizationInclude,
     })
     if (!org) throw new HttpError(404, 'Organization not found', 404)
     return ok(res, mapOrganization(org))

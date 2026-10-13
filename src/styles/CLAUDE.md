@@ -69,8 +69,7 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
     |---|---|
     | `ProviderSearchField.tsx` | Explore's search box, and its Search button — which sits beside it and must match its height |
     | `BookingSlots.tsx` | the Book now CTA |
-    | `AuthCallbackClient.tsx`, `VerifyEmailClient.tsx`, `CompleteRegistrationForm.tsx` | full-page `Spin` on the auth waiting screens |
-    | `CompleteRegistrationForm.tsx` | the consumer/provider role `Segmented` — the one choice the whole rest of that form hangs off |
+    | `AuthCallbackClient.tsx`, `VerifyEmailClient.tsx`, `useGoogleSignUp.tsx` | full-page `Spin` on the auth waiting screens |
 
     A new `size='large'` is a design exception and must be added to this table (and
     the grep gate) in the same change. Do not copy it from these files onto a
@@ -201,7 +200,7 @@ script's `allow` list with a pointer to `docs/BACKLOG.md`; a sixth fails the gat
 
 antd `style={{…}}` / `styles={{ slot }}` props are still design-system values, but a few
 call sites hardcode px there: the byte-identical `Divider`/`Space`
-pairs in `ProviderProfileFormCategories.tsx:44` and `ProviderProfileFormOrganization.tsx:44`,
+pair in `ProviderProfileFormOrganization.tsx:44`,
 plus two CSS Modules. Prefer a token or a Tailwind class via `classNames`.
 `opengraph-image.tsx` and `icon.tsx` are legitimate exceptions — satori cannot resolve
 CSS variables, so they import from `tokens.ts` directly.

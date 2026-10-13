@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { Col, Form, Row } from 'antd'
 import { useTranslations } from 'next-intl'
-import { useCategoriesListStore } from '@store/categories/list/store'
 import { useOrganizationsListStore } from '@store/organizations/list/store'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
@@ -20,7 +19,6 @@ import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { processProviderProfileFormToPostPayload } from './processors'
-import { ProviderProfileFormCategories } from './ProviderProfileFormCategories'
 import { ProviderProfileFormGallery } from './ProviderProfileFormGallery'
 import { ProviderProfileImage } from './ProviderProfileFormImage'
 import { ProviderProfileLocationInput } from './ProviderProfileFormLocation'
@@ -37,10 +35,9 @@ type Props = {
  *
  * This form used to carry a Formik binding alongside antd, and the two disagreed by
  * construction: antd's store value wins the render, while `onFinish={formik.handleSubmit}`
- * ignored the values antd handed it. Two consequences were live — `categoryIds` carried
- * `required` + `min: 1` rules on a slot nothing ever wrote, so the form **could not be
- * submitted at all**, and the organization field wrote a key the payload builder never
- * read. Both are gone by construction now: one store, and every custom field implements
+ * ignored the values antd handed it. Two consequences were live — a required field
+ * carried rules on a slot nothing ever wrote, so the form **could not be submitted at
+ * all**, and the organization field wrote a key the payload builder never read. Both are gone by construction now: one store, and every custom field implements
  * the `value`/`onChange` control contract. Do not reintroduce Formik.
  */
 export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_FORM_INITIAL_VALUES }) => {
@@ -51,22 +48,21 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
   const [form] = Form.useForm<ProviderProfileFormValues>()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<unknown>(null)
-  const getCategoriesList = useCategoriesListStore.use.getCategoriesList()
   const getOrganizationsList = useOrganizationsListStore.use.getOrganizationsList()
   const [optionsError, setOptionsError] = useState<unknown>(null)
   /** Bumped by Retry to load the picker options again. */
   const [optionsAttempt, setOptionsAttempt] = useState(0)
 
   /**
-   * The category and organization pickers read list stores that nothing else on this page
-   * fills. They were empty on a cold load — categories had options only if the provider
-   * had opened profile-services earlier in the session, organizations never — so the
-   * required category could be satisfied only by typing a free-text name. A failure keeps
-   * the form usable and says why the pickers are empty.
+   * The organization picker reads a list store that nothing else on this page fills, so it
+   * was empty on a cold load. A failure keeps the form usable and says why it is empty.
+   *
+   * No categories here: a provider's categories are set at registration and in the Profile
+   * tab, through the shared Categories field.
    */
   useEffect(() => {
     let cancelled = false
-    Promise.all([getCategoriesList(), getOrganizationsList()])
+    getOrganizationsList()
       .then(() => {
         if (!cancelled) setOptionsError(null)
       })
@@ -76,7 +72,7 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
     return () => {
       cancelled = true
     }
-  }, [getCategoriesList, getOrganizationsList, optionsAttempt])
+  }, [getOrganizationsList, optionsAttempt])
 
   /**
    * The hours below are written in the provider's zone, and the device is the best first
@@ -91,7 +87,6 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
   const inputTextMaxCharsCountRuleSet = useFormItemRules('maxCharsForInput')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
-  const oneItemSelectedAtLeastRuleSet = useFormItemRules('required', 'oneItemSelectedAtLeast')
 
   /** `values` comes from antd, which is now the only place they live. */
   const handleFinish = async (values: ProviderProfileFormValues) => {
@@ -141,9 +136,6 @@ export const ProviderProfileForm: React.FC<Props> = ({ initialValues = PROVIDER_
             onRetry={() => setOptionsAttempt((attempt) => attempt + 1)}
           />
         )}
-        <AppFormItem name='categoryIds' label={t('categories')} rules={oneItemSelectedAtLeastRuleSet}>
-          <ProviderProfileFormCategories disabled={isSubmitting} />
-        </AppFormItem>
       </AppFormSection>
 
       <AppFormSection title={t('where')}>

@@ -52,6 +52,10 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Same, but blank → `undefined` | `toOptionalPhoneNumber` | `registration.ts` |
 | `{ code, number }` / `+…` → country Select values | `toPhoneFormValues` | `registration.ts` |
 | Registration Organization section → `organizationId` / `newOrganization` | `toOrganizationFields` | `registration.ts` |
+| Settings Organization section → the `PATCH /provider-profile/organization` body, or nothing when unchanged | `organizationChangeToSave` | `registration.ts` |
+| Was this registration page opened by the Google callback (`?google=1`) | `isGoogleSignUp` | `registration.ts` |
+| Provider Categories field → the API's `[{ id } \| { name }]`, and back for prefill | `toCategoryChoices`, `toCategoryValues` | `registration.ts` |
+| Settings Categories field → the `PUT /provider-profile/categories` list, or nothing when unchanged | `categoriesChangeToSave` | `registration.ts` |
 | Blank optional string → `undefined` | `toOptionalText` | `registration.ts` |
 | Upload path → loadable URL | `resolveAssetUrl` | `images.ts` |
 | …and never root-relative (JSON-LD, OG) | `resolveAbsoluteAssetUrl` | `images.ts` |
@@ -72,6 +76,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
 | Is this a public provider booking page | `isPublicProviderPage` | `routes.ts` |
+| Which settings tree a path is in / where the workspace switch sends it | `workspaceOf`, `counterpartPath` | `workspace.ts` |
+| Where an account lands once it gains a role (sign-up, becoming a provider) | `newAccountLandingPath` | `workspace.ts` |
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
 | Subset an object | `pick`, `omit` | `commons.ts` |
 | Branch on an API error's code (`AUTH_ERROR_CODES`, slot taken) — **never render its message** | `processError` | `error.ts` |

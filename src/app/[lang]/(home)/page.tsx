@@ -62,7 +62,14 @@ export default async function Home() {
               </AppTitle>
               <AppParagraph className='max-w-lg text-lg'>{t('body')}</AppParagraph>
             </div>
-            {!session && (
+            {session ? (
+              // Signed in on either side: the sign-up pair is not theirs, but the directory is.
+              <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
+                <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-48 px-10 py-6'>
+                  {t('exploreProviders')}
+                </AppLink>
+              </div>
+            ) : (
               <div className='flex flex-col gap-3 sm:flex-row sm:flex-wrap'>
                 <AppLink href={ROUTES.providers} variant='button' tone='primary' className='min-w-48 px-10 py-6'>
                   {t('findProvider')}

@@ -1,6 +1,6 @@
 'use client'
 
-import { FC, useTransition } from 'react'
+import { CSSProperties, FC, useTransition } from 'react'
 import { GlobalOutlined } from '@ant-design/icons'
 import { Select } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
@@ -9,6 +9,13 @@ import { type Locale, LOCALE_LABELS, LOCALES } from '@i18n/config'
 import { usePathname, useRouter } from '@i18n/navigation'
 
 const OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }))
+
+/**
+ * The header nav's visible colour. `a.app-link-plain` sets `--brand-text-muted` unlayered,
+ * so a Tailwind colour on this Select never reaches it — antd's own colour is unlayered
+ * too. Inline styles are what land on the closed value, the globe, and the arrow.
+ */
+const HEADER_TEXT: CSSProperties = { color: 'var(--brand-text-muted)', fontWeight: 600 }
 
 /**
  * Language picker used in the header and the footer.
@@ -60,6 +67,11 @@ export const LanguageSwitcher: FC<Props> = ({ className = 'min-w-44', variant = 
       variant={variant}
       popupMatchSelectWidth={false}
       prefix={<GlobalOutlined aria-hidden />}
+      styles={
+        variant === 'borderless'
+          ? { content: HEADER_TEXT, prefix: HEADER_TEXT, suffix: HEADER_TEXT }
+          : undefined
+      }
       className={className}
     />
   )

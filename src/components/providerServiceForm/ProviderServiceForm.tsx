@@ -2,16 +2,14 @@
 
 import React from 'react'
 import { Flex, Form, InputNumber } from 'antd'
-import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { CategoryValue, ProviderServiceFormValues } from '@interfaces/services'
-import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
+import { ProviderServiceFormValues } from '@interfaces/services'
+import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
-import { ProviderServiceFormCategory } from './ProviderServiceFormCategory'
 import { ProviderServiceFormCurrency } from './ProviderServiceFormCurrency'
 import { ProviderServiceFormDuration } from './ProviderServiceFormDuration'
 import { ProviderServiceFormImage } from './ProviderServiceFormImage'
@@ -32,26 +30,12 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
   const t = useTranslations('Services')
   const tCommon = useTranslations('Common')
   const tActions = useTranslations('Settings.actions')
-  const tValidation = useTranslations('Validation')
   const [form] = Form.useForm<ProviderServiceFormValues>()
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
   const inputNumberPositiveRuleSet = useFormItemRules('positiveNumber')
   const currencyMaxCharsRuleSet = useFormItemRules('maxCharsForInput')
-
-  // `maxCharsForInput` itself cannot apply: the value is `{ id, name }`, not the string
-  // antd's `max` measures. Same limit and copy, applied to the name.
-  const categoryRules: Rule[] = [
-    {
-      validator: async (_rule, value: CategoryValue | undefined) => {
-        const name = value?.name?.trim() ?? ''
-        if (name.length > MAX_CHARS_FOR_INPUT) {
-          throw new Error(tValidation('maxCharsForInput', { max: MAX_CHARS_FOR_INPUT }))
-        }
-      },
-    },
-  ]
 
   return (
     <Form<ProviderServiceFormValues>
@@ -78,17 +62,6 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
       <div className='grid grid-cols-[repeat(auto-fill,minmax(min(14rem,100%),1fr))] gap-4'>
         <AppFormItem name='duration' label={t('formDuration')} rules={requiredRuleSet} hasFeedback={false} className='min-w-0'>
           <ProviderServiceFormDuration />
-        </AppFormItem>
-        {/* Combobox: pick a predefined Category or type a new name. Optional — a
-            service is valid with a title and a duration. */}
-        <AppFormItem
-          name='category'
-          label={t('formCategory')}
-          rules={categoryRules}
-          hasFeedback={false}
-          className='min-w-0'
-        >
-          <ProviderServiceFormCategory />
         </AppFormItem>
         <AppFormItem
           name='price'

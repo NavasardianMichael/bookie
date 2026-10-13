@@ -10,7 +10,14 @@ import { DAY_KEY_FORMAT, TIME_FORMATS, TIME_FORMATS_LIST } from '@constants/sche
 import { BookingSlot } from '@helpers/booking'
 import { cn } from '@helpers/cn'
 import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
-import { fixedOffsetZone, formatTimeZoneName, formatUtcOffset, inTimeZone, isSameWallClock, UTC_OFFSET_HOURS } from '@helpers/timeZone'
+import {
+  fixedOffsetZone,
+  formatTimeZoneName,
+  formatUtcOffset,
+  inTimeZone,
+  isSameWallClock,
+  UTC_OFFSET_HOURS,
+} from '@helpers/timeZone'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -127,9 +134,7 @@ export const BookingSlots: FC<Props> = ({
     [locale]
   )
   const offsetLabel =
-    offsetHours !== undefined
-      ? formatUtcOffset(fixedOffsetZone(offsetHours), locale)
-      : (timeZoneLabel ?? '')
+    offsetHours !== undefined ? formatUtcOffset(fixedOffsetZone(offsetHours), locale) : (timeZoneLabel ?? '')
 
   const handleSelect = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {

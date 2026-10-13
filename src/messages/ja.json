@@ -58,10 +58,6 @@
     "orWithEmail": "またはメールで",
     "backToSignIn": "ログインに戻る",
     "termsLead": "アカウントを作成すると、以下に同意したものとみなされます",
-    "roles": {
-      "consumer": "サービスを予約する",
-      "provider": "サービスを提供する"
-    },
     "fields": {
       "email": "メールアドレス",
       "emailPlaceholder": "you@example.com",
@@ -102,6 +98,21 @@
       "similarDescription": "似た名前の組織が見つかりました。その組織に参加するか、「{name}」を新しい組織として作成してください。",
       "useExisting": "この組織を使う",
       "createNew": "新しく作成"
+    },
+    "categories": {
+      "label": "カテゴリ",
+      "hint": "{max}件まで。提供内容を選ぶか、独自に追加できます。",
+      "searchPlaceholder": "カテゴリを検索または追加",
+      "noMatches": "この名前に一致するカテゴリはありません",
+      "addNew": "「{name}」を新しいカテゴリとして追加",
+      "full": "{max}件選択済みです。追加するには1件外してください",
+      "chosen": "選択したカテゴリ",
+      "remove": "{name}を外す",
+      "newBadge": "新規",
+      "similarTitle": "このカテゴリはすでにある可能性があります",
+      "similarDescription": "似た名前のカテゴリが見つかりました。それを使うか、「{name}」を新しく追加してください。",
+      "useExisting": "このカテゴリを使う",
+      "createNew": "新しく追加"
     },
     "signIn": {
       "title": "おかえりなさい",
@@ -155,12 +166,6 @@
     "callback": {
       "signingIn": "ログインしています…"
     },
-    "completeRegistration": {
-      "title": "設定を完了する",
-      "subtitle": "{email} でログインしています。予約の前にあと 2 点お聞きします。",
-      "roleLabel": "Bookie をどのように利用しますか？",
-      "submit": "完了"
-    },
     "googleErrors": {
       "generic": "Google ログインが完了しませんでした。もう一度お試しください。",
       "google_unavailable": "Google ログインは現在ご利用いただけません。メールアドレスとパスワードをご利用ください。",
@@ -173,6 +178,10 @@
       "google_account_mismatch": "その Google アカウントは別の Bookie アカウントに連携済みです。",
       "google_already_linked": "お客様のアカウントは既に Google と連携しています。",
       "google_unauthorized": "先にログインし、設定から Google を連携してください。"
+    },
+    "googleSignUp": {
+      "expired": "Google でのログインの有効期限が切れました。下のメールアドレスで登録するか、もう一度 Google で続行してください。",
+      "emailFromGoogle": "Google アカウントのアドレスです。ここでは変更できません。"
     },
     "termsAnd": "および"
   },
@@ -356,6 +365,7 @@
       "services": "サービス",
       "approvals": "承認",
       "analytics": "分析",
+      "advanced": "詳細設定",
       "seo": "SEO",
       "history": "履歴",
       "plan": "プラン"
@@ -366,7 +376,17 @@
       "onConsumerTitle": "お客さまプロフィールを表示しています",
       "onConsumerBody": "ご自身の情報、通知、お支払いの設定。",
       "toConsumer": "お客さまプロフィールに切り替える",
-      "toProvider": "提供者ワークスペースに切り替える"
+      "toProvider": "提供者ワークスペースに切り替える",
+      "becomeProviderTitle": "ご自身のサービスを提供する",
+      "becomeProviderBody": "このアカウントに提供者プロフィールを追加すると、予約を受け付けられます。お客さまプロフィールはそのまま残ります。",
+      "becomeProvider": "提供者になる"
+    },
+    "becomeProvider": {
+      "title": "提供者になる",
+      "subtitle": "アカウントの提供者側を設定します。これらの情報は後から変更できます。",
+      "formTitle": "提供者の情報",
+      "accountNote": "ログインには引き続き {email} と現在のパスワードを使います。",
+      "submit": "提供者になる"
     },
     "actions": {
       "save": "変更を保存",
@@ -489,6 +509,8 @@
       "subtitle": "曜日ごとの通常営業時間を設定します。",
       "recurring": "毎週の受付時間",
       "recurringBody": "予約できる曜日と時間帯。休憩がある日は最大 5 つの時間帯を追加できます。",
+      "hoursInZone": "この営業時間は {zone} です。<link>詳細設定で変更</link>",
+      "hoursNoZone": "タイムゾーンが未設定のため、訪問者はこの営業時間を自分の時計で読みます。<link>詳細設定で設定</link>",
       "pauseTitle": "予約を受付中",
       "pauseBody": "オフにすると、ページを非公開にせず新規予約を一時停止します。",
       "timeZone": "タイムゾーン",
@@ -515,6 +537,10 @@
         "saturday": "土曜日",
         "sunday": "日曜日"
       }
+    },
+    "advanced": {
+      "subtitle": "営業時間のタイムゾーンと、あなたとお客様に表示される時刻の形式を選びます。",
+      "clockTitle": "時刻と時計"
     },
     "listing": {
       "statusActive": "アカウントステータス：公開中",
@@ -772,6 +798,7 @@
     "body": "Bookie で近くのサービスを予約したり、ご自身のカレンダーを管理したり。提供者と利用者のためのプラットフォームです。",
     "findProvider": "提供者をさがす",
     "joinAsProvider": "提供者として登録",
+    "exploreProviders": "提供者をさがす",
     "browseSpecialty": "専門分野で探す",
     "categoriesRail": "カテゴリ",
     "audiences": {
@@ -916,6 +943,7 @@
     "emptyBody": "プロフィールが公開されるとここに表示されます。",
     "sortAria": "並び替え：{sort}",
     "filterAria": "提供者を絞り込む",
+    "favoritesAria": "お気に入りだけ表示",
     "filtersTitle": "絞り込み",
     "reset": "リセット",
     "showResults": "結果を表示",
@@ -1197,11 +1225,9 @@
     "formTitle": "タイトル",
     "formDescription": "説明",
     "formDuration": "所要時間",
-    "formCategory": "カテゴリ",
     "formPrice": "料金",
     "formCurrency": "通貨",
     "formImage": "画像",
-    "categoryPlaceholder": "カテゴリを入力または選択",
     "currencyPlaceholder": "通貨を入力または選択",
     "onboardingDone": "設定は完了しましたか？あなたのプロフィールは公開中です——顧客に見える形をご確認ください。",
     "viewProfile": "プロフィールを見る",
@@ -1217,6 +1243,10 @@
     "activateBody": "お客様が予約できるようになります。",
     "deactivateTitle": "このサービスを非公開にしますか？",
     "deactivateBody": "再度公開するまで、お客様は予約できなくなります。",
+    "duplicateService": "サービスを複製",
+    "duplicateTitle": "このサービスを複製しますか？",
+    "duplicateBody": "同じ内容の新しいサービスが作成されます。",
+    "duplicate": "複製",
     "activeOfLimit": "プランで有効なサービス：{count} / {limit}。",
     "limitReached": "追加するには、サービスを1つ停止するか<link>プランをアップグレード</link>してください。"
   },
@@ -1234,7 +1264,6 @@
     "optional": "任意",
     "firstName": "名",
     "lastName": "姓",
-    "categories": "カテゴリ",
     "email": "メール",
     "organization": "所属",
     "notes": "備考",
@@ -1320,6 +1349,7 @@
       "load": "このセクションを読み込めませんでした。",
       "busySlots": "予約済みの時間を確認できなかったため、表示中の時間の一部はすでに埋まっている可能性があります。",
       "organizationSearch": "現在、事業者を検索できません。",
+      "categorySearch": "現在、カテゴリを検索できません。",
       "providerSuggestions": "候補を読み込めませんでした。検索は引き続き利用できます。"
     },
     "conflicts": {

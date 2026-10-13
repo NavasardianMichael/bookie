@@ -7,10 +7,10 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | Model | Purpose |
 | --- | --- |
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, the linked Telegram chat (`telegramChatId` unique, `telegramUsername`, `telegramLinkedAt`) and its one live Connect token (`telegramLinkTokenHash`, `telegramLinkExpiresAt` — see [docs/NOTIFICATIONS.md](NOTIFICATIONS.md)), optional 1:1 Consumer/Provider |
-| **Category** | Service specialty (unique name) |
-| **Organization** | Clinic / facility; M2M with Category. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
-| **Provider** | Professional profile, `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
-| **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
+| **Category** | A provider's specialty (unique name). Attached to **providers only**, 0–3 each (`ProviderCategory`) — see [Categories](#categories). Predefined ones (the six seeded, translated in every locale) are permanent; ones providers add are deleted once no provider uses them |
+| **Organization** | Clinic / facility. Its categories are its listed providers', derived on read — none are stored. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
+| **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
+| **Service** | Bookable offering. Title and duration are required; price, currency, description and image are optional — a service has **no category**. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
 | **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot), the overlap index `[providerId, startAt]`, `[providerId, createdAt]` for the monthly booking allowance, and `[status, startAt]` for the reminder job. `providerRemindedAt` / `bookerRemindedAt` stamp each side's reminder (claimed by compare-and-set; a reschedule clears both). `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
@@ -64,6 +64,7 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/identity/me` | session — `{ role, profileId, firstName, lastName, image?, timeFormat?, email, … }` |
 | POST | `/identity/logout` | session |
 | PATCH | `/identity/phone` | session — phone is profile data now, not identity |
+| POST | `/identity/provider-profile` | session — adds a Provider profile to an account that has none: `{ phone, profile: { firstName, lastName, country?, organizationId? \| newOrganization? } }`, validated as `/register` validates them (organization through `resolveOrganizationId`). Created unlisted with an empty schedule; the Consumer row is untouched. Re-issues the session as `provider`. `409` when the account already has one |
 | POST | `/identity/change-email/send` | session — `{ email, returnPath }`; emails a link (dev: API console) |
 | POST | `/identity/change-email/confirm` | session — same handler as `/verify-email` |
 | DELETE | `/identity/account` | session — `{ password }`; Google-only accounts refused until a password is set; consumers with appointments get 409 |
@@ -71,7 +72,7 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/identity/google/callback` | public — Google returns here; **redirects**, never JSON |
 | GET | `/identity/google/pending` | pending cookie — prefill for the completion form |
 | POST | `/identity/google/complete` | pending cookie — creates the account and signs in |
-| GET | `/providers?q=&categoryId=&available=&openToday=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below |
+| GET | `/providers?q=&categoryId=&available=&openToday=&favorites=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below. `favorites=true` is the caller's saved providers |
 | GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
 | GET | `/providers/:id/busy?from=&to=` | public, same unlisted rule as `/:id` — booked intervals only (instants, no booker); window capped at 100 days. Replaced `/:id/availability`, see [Booking](#booking) |
 | GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page) |
@@ -82,6 +83,7 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound). Clamped to the plan's `analyticsHistoryDays`, measured from now |
 | PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug`. Setting or changing the slug needs the plan's `customSlug` (`403` / `4102`); unchanged and cleared slugs always pass |
+| PATCH | `/provider-profile/organization` | provider — the settings Organization section, saved live: `{ organizationId }` links an existing one, `{ newOrganization }` creates one exactly as registration does (same-name backstop unless `allowSimilar`), `{ organizationId: null }` detaches. `404` for an unknown id, `400` for a body naming none of these. Answers the owner profile |
 | GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, billing: { status, periodEndsAt?, cancelsAt?, manageable } \| null, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }` |
 | GET | `/plans` | public — the catalogue, cheapest first: `[{ id, entitlements, price: { amountCents, currency, interval }, purchasable }]`. `price` is the USD display fallback; `purchasable` is whether Paddle sells it here |
 | GET | `/provider-profile/calendar-feed` | provider — `{ url }` of the private iCal feed; needs the plan's `calendarFeed` (`403` / `4102`) |
@@ -107,7 +109,9 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/admin/providers?q=&page=&perPage=` | admin — providers by name / account email / slug, with `plan`, `effectivePlan`, `planExpiresAt` |
 | PATCH | `/admin/providers/:id/plan` | admin — `{ plan, planExpiresAt? }` (a future ISO instant or `null`; dropped for `free`). Rows carry `billing: 'paddle'` while a subscription is live, whose next webhook event overwrites a manual change |
 | GET | `/organizations?q=`, `/organizations/similar?name=`, `/organizations/:id` | public |
-| GET | `/categories`, `/categories/:id` | public |
+| GET | `/categories`, `/categories/:id` | public — the directory: every predefined category, plus each added one a listed provider uses; a category's providers and the organizations they work for. `?q=&limit=` instead answers the provider forms' suggestions (`{ id, name }[]`, ranked, typo-tolerant, any translated label) |
+| GET | `/categories/similar?name=` | public — the categories a new one would probably duplicate, asked about before adding |
+| PUT | `/provider-profile/categories` | provider — `{ categories: [{ id } \| { name }] }`, at most 3, replaces the list (live). A name links the category it already is, else creates one; dropped categories nobody else uses are deleted |
 | POST | `/contact` | public — contact form; forwards to the mail engine, **stores nothing** |
 | GET/PUT | `/consumer-profile` | consumer |
 | GET | `/favorites` | session, any role — the caller's favourite providers as `BasicProvider[]`, **listed only**, newest first |
@@ -160,10 +164,9 @@ active service) and `moreMatchingServices` (how many others matched, omitted whe
 A provider found only by name, and every item of a list with no `q`, carries neither, so
 its card stays as it is. They are read in one `Service` query for the page
 (`services/exploreResults.ts#loadMatchedServices`) and picked by
-`services/providerRelevance.ts#pickMatchedService`: a name match beats a match through the
-service's own category. A category names a service only by the start of its name (or of a
-word of a seeded label), stricter than the provider filter's `contains` — "en" still finds a
-dentist, but does not claim their "Follow-up visit" matched (`matchedServicesWhere`). The card links the service to `/providers/<id>?service=<serviceId>#booking-services`,
+`services/providerRelevance.ts#pickMatchedService`, by **name only** — a service has no
+category, so a provider found through one of its categories names no matched service rather
+than one picked at random (`matchedServicesWhere`). The card links the service to `/providers/<id>?service=<serviceId>#booking-services`,
 which opens the profile with it selected.
 
 | Param | Accepts | Default |
@@ -172,6 +175,7 @@ which opens the profile with it selected.
 | `categoryId` | a `Category.id` | — |
 | `available` | `true` / `1` | off |
 | `openToday` | `true` / `1` — `weekSchedule` has hours on today's weekday, in the provider's zone | off |
+| `favorites` | `true` / `1` — only providers this session has saved. No session matches nothing | off |
 | `sort` | `recommended` · `topRated` · `nameAsc` · `nameDesc` · `newest` | `recommended` |
 | `page` | 1-based | 1 |
 | `perPage` | 1-48 | 9 |
@@ -216,6 +220,11 @@ load-bearing about it:
   reads, and which a searchable list would otherwise pay for on every keystroke.
 - **Unlisted pages are never returned.** That is `PUBLIC_PROVIDER_WHERE`
   (`listed: true`), not a query flag. Category directories reuse the same predicate.
+- **`favorites` is the caller's saved providers**, intersected with the rest of the query.
+  The route reads `FavoriteProvider` for `req.session.userId` and adds `id IN (…)`. No
+  session, or an account that has saved nobody, is an empty `in` — the flag must not
+  fall through to the public list. Unlisted pages stay out: `PUBLIC_PROVIDER_WHERE`
+  still applies, so saving a page that was later unlisted does not put it back on Explore.
 - **`openToday` is hours on today's weekday**, not the `available` pause flag. It is a
   JSON path on `weekSchedule.<day>.availability.start` containing `:` (so `''` and a
   missing key miss). Remaining-slot math is deliberately not this filter — it cannot
@@ -284,7 +293,7 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 `PUT|DELETE /providers/:providerId/services/:serviceId`.
 
 - **The body is flat**, not wrapped in a `service` key: `name`, `duration` (whole minutes,
-  stored as `durationMinutes`), optional `categoryId` or `categoryName`, `description`, `price`, `currency`, `active`, and
+  stored as `durationMinutes`), optional `description`, `price`, `currency`, `active`, and
   `image` as a file part. JSON normally; `multipart/form-data` only when an image comes
   along. A nested `{ service: … }` under multipart serialises to `service[name]` keys,
   and multer does no bracket parsing — the API would read every field as `undefined`.
@@ -292,13 +301,11 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   else sets it. `''` is the only clear-marker that survives both transports, because
   axios drops `undefined` *and* `null` when serialising multipart.
 - **`image` is only ever accepted as an upload.** The API answers with the stored
-  `/uploads/<file>` path; sending that string back is a no-op.
-- **Category is a combobox, and optional.** Send `categoryId` for a predefined Category (the same
-  rows linked to organizations and providers), or `categoryName` for typed text. The
-  API links an existing Category with the same name — however cased, spaced, accented or
-  punctuated (`isSameName`) — or creates one, whitespace collapsed. An unknown id with no name
-  clears the column. New categories are not auto-linked onto the provider or organization.
-  A service is valid with only a title and a duration.
+  `/uploads/<file>` path; sending that string back on `image` is a no-op. **`imageUrl`
+  on create** reuses a photo this provider already stored: it is kept only when one of
+  their services already has that `/uploads/…` path. A file part wins when both are sent.
+- **No category.** Categories belong to the provider (see [Categories](#categories)). A
+  service is valid with only a title and a duration.
 - **`active` defaults to `true`.** `PUT` `{ active: false }` withdraws the service from
   every public payload and from book/reschedule (`409 This service is no longer available`).
   The owner's catalogue still lists it, and historical appointments keep pointing at it.
@@ -386,6 +393,36 @@ Three things about these that are easy to get wrong:
   offered range is a few thousand narrow rows; `date_trunc … AT TIME ZONE` would be faster
   and untestable without the DB fixtures this repo does not have. The tipping point is a
   provider taking hundreds of bookings a day.
+
+## Categories
+
+**Providers only.** `ProviderCategory` links a provider to 0–3 categories; nothing else
+stores one. An organization's categories are read off its **listed** providers
+(`organizationInclude` in `mappers/entities.ts`), so they can never go stale, and a
+category page lists its listed providers and the organizations they work for. A service has
+none.
+
+**Two kinds in one table.** The six predefined categories (`SEEDED_CATEGORY_NAMES`) store
+their English name; the web translates it (`Categories.names.*`) and search matches every
+translated label (`lib/category-names.ts`). A provider may add their own, kept under the name
+typed — untranslated, shown as written.
+
+**Choosing them** is the same field at registration (email and Google), becoming a provider
+and the settings Profile tab: type to search (`GET /categories?q=`), pick a suggestion or add
+the typed name as new, remove a chip. On submit, each new name is checked
+(`GET /categories/similar`) and the provider is asked to use the existing one or add theirs
+anyway. Bodies carry `categories: [{ id } | { name }]` — `/identity/register`,
+`/identity/google/complete` and `POST /identity/provider-profile` take it inside `profile`,
+the settings save sends it to `PUT /provider-profile/categories` (live, like the
+organization). More than 3 is a `400`.
+
+**No copies.** A name links the category it already is — the same name however cased,
+spaced or punctuated, or any translated label of a predefined one ("Стоматология" is
+Dentistry) — and only otherwise creates a row (`services/providerCategories.ts#resolveCategoryIds`).
+
+**Unused ones go.** Whenever a provider's links are removed — an edit, deleting the
+provider page, deleting the account — the added categories no provider uses any more are
+deleted (`pruneUnusedCategories`). The predefined ones never are.
 
 ### `PATCH /provider-profile/seo`
 
@@ -637,6 +674,12 @@ caller's own profile with no confirmation step, because there is nothing to conf
 never verified and has no unique constraint. Email changes send a one-time link; the hashed
 token lives on **User**, and confirming runs the same handler as signup verification.
 
+Both profiles always hold one: `phoneCode`/`phoneNumber` are NOT NULL on Provider and
+Consumer, required at registration, and `PATCH /identity/phone` can change a number but not
+clear it. That is what lets `resolveConsumerId` mint a Consumer row for a provider who books.
+The providers who registered while it was optional were deleted, account and all, by
+`20261013120000_provider_phone_required` (pre-release).
+
 `Provider.phoneVisible` (default **true**) decides whether that number appears on the public
 profile. It is saved live on `PUT /provider-profile` (not draftable), and
 `mapProviderDetails` omits `phone` when it is false. The owner payload always returns the
@@ -661,8 +704,9 @@ not keep, and booking emails printed the API server's zone (UTC in production).
 **Null keeps the old reading.** A row from before the column has no zone, and nothing on it
 says where the provider is (`country` has no zone, and several countries span many). Such a
 provider's hours are read in each visitor's own zone — exactly what every page did before —
-and the label names that zone. The Availability tab suggests the device's zone and starts
-dirty, so confirming it is one Publish. Onboarding sends the device's zone with the first
+and the label names that zone. The Advanced settings tab suggests the device's zone and
+starts dirty, so confirming it is one Publish; the Availability tab names the zone its hours
+are in (or says there is none) and links there. Onboarding sends the device's zone with the first
 schedule. The seed gives every seeded provider `Asia/Yerevan`.
 
 **Stored canonical.** `PUT /provider-profile` accepts `timeZone` in all three modes (draft,
@@ -679,8 +723,8 @@ The client maths is `src/helpers/timeZone.ts` (`zonedTimeToDate`, `inTimeZone`, 
 ## 12- or 24-hour clock
 
 `Provider.timeFormat` (`h12` / `h24`, nullable, added 2026-10-05) is the clock every time
-shown for a provider is printed on. It is chosen beside the time zone on the Availability
-tab, drafted with it, and goes out on Publish: it changes what the public page shows. It
+shown for a provider is printed on. It is chosen beside the time zone on the Advanced
+settings tab, drafted with it, and goes out on Publish: it changes what the public page shows. It
 says *how* a time is written, never *which zone* — the table above still decides that.
 
 | Where | Reads it from |
@@ -689,12 +733,12 @@ says *how* a time is written, never *which zone* — the table above still decid
 | `/b/:token` — the summary, the reschedule grid and its confirm dialog | the same, through `mapSingleProvider` |
 | Booking emails and Telegram notices (`lib/time-format.ts#formatBookingWhen`) | the row, selected with `timeZone` |
 | The provider's `/bookings` (both sides), Approvals, the Analytics hour chart | `GET /identity/me` → the auth store; Publish updates the store |
-| The Availability tab's own hour pickers | the toggle, live, before anything is saved |
+| The Availability tab's own hour pickers | the drafted choice, else the published one, read when the tab loads |
 
 **Null follows the reader.** Nobody has chosen on a row from before the column, so a null
 prints each reader's locale convention (`en`, `ar`, `ko` 12-hour; `hy`, `de`, `ru` and the
-rest 24-hour) — and English, 12-hour, in emails, which are English. The Availability tab shows
-the provider's own locale convention selected, so saving that tab records what they saw.
+rest 24-hour) — and English, 12-hour, in emails, which are English. The Advanced settings tab
+shows the provider's own locale convention selected, so saving that tab records what they saw.
 Onboarding has no toggle; its pickers use the locale's clock.
 
 `PUT /provider-profile` accepts `timeFormat` in `draft` and `publish` modes and answers `400`
@@ -711,7 +755,7 @@ the slot grid, the confirm sheet and the opening hours — on the one clock the 
 picked. The booked instant, the calendar day and the emails stay on the provider's zone
 and clock either way.
 
-It is edited on the Availability tab beside the time format, drafted with it, and goes out
+It is edited on the Advanced settings tab beside the time format, drafted with it, and goes out
 on Publish. `false` is stored (`!== undefined`); a missing field on an older payload is
 treated as shown. The public read is `mapSingleProvider` → `details.showClockChoices`.
 
@@ -795,9 +839,13 @@ Both **redirect**; they never answer JSON, so failures come back as `?error=<cod
 - A **verified** account on that address is *not* auto-linked — `google_account_exists`.
   Linking is an explicit action from settings, where a live session proves ownership.
 - An **unverified** account on that address *is* claimed, and `tokenVersion` is bumped.
-- A brand-new identity is parked in a short-lived cookie and sent to
-  `/auth/complete-registration`, because Google supplies neither a role nor a phone and
-  both profile tables need them. Nothing is written until `POST /identity/google/complete`.
+- A brand-new identity is parked in a short-lived cookie and sent to the ordinary
+  registration form for its role in Google mode (`?google=1`; the account-type choice when
+  the flow started from sign-in), because Google supplies neither a role nor a phone and both
+  profile tables need them. The form prefills the names and the locked email, asks no
+  password, and posts to `POST /identity/google/complete` — nothing is written before that.
+  The paths and the flag are `googleSignUpPath` / `GOOGLE_SIGN_UP_QUERY` in
+  `server/src/lib/return-path.ts`, pinned to the web's by `returnPath.spec.ts`.
 
 `GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` and the account
 flags (`email`, `hasPassword`, `hasGoogle`, `profiles`, …) from the session cookie, which is

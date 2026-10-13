@@ -8,7 +8,6 @@ export const processProviderProfileFormToPostPayload = (
 
   if (formValues.firstName) processedPayload.firstName = formValues.firstName
   if (formValues.lastName) processedPayload.lastName = formValues.lastName
-  if (formValues.categoryIds) processedPayload.categoryIds = JSON.stringify(formValues.categoryIds)
   if (formValues.address) processedPayload.address = formValues.address
   if (formValues.locationURL) processedPayload.locationURL = formValues.locationURL
   if (formValues.description) processedPayload.description = formValues.description

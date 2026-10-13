@@ -12,6 +12,7 @@ import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { ErrorState } from '@components/ui/ErrorState'
 import { LogoutIcon } from '@components/ui/icons'
 import { SettingsNavItem, SettingsShell } from '@components/ui/layout/SettingsShell'
+import { BecomeProviderPrompt } from './BecomeProviderPrompt'
 import { WorkspaceSwitch } from './WorkspaceSwitch'
 
 type Props = {
@@ -60,6 +61,16 @@ export const AccountSettingsLayout: FC<Props> = ({
    */
   const currentWorkspace = workspaceOf(pathname)
   const showSwitch = Boolean(profiles?.consumer && profiles?.provider)
+  /**
+   * The switch's place, for an account with no provider half yet. `=== false`, not a falsy
+   * check: `profiles` is null until a session read answers, and that must not flash it.
+   * Hidden on the form it leads to.
+   */
+  const showBecomeProvider =
+    currentWorkspace === 'consumer' &&
+    profiles?.consumer === true &&
+    profiles.provider === false &&
+    pathname !== ROUTES.consumerBecomeProvider
 
   /**
    * Signed out goes to sign-in. A role mismatch used to go to the caller's own tree
@@ -119,6 +130,8 @@ export const AccountSettingsLayout: FC<Props> = ({
           // destination is a record that does not exist.
           showSwitch && currentWorkspace ? (
             <WorkspaceSwitch current={currentWorkspace} pathname={pathname} />
+          ) : showBecomeProvider ? (
+            <BecomeProviderPrompt />
           ) : undefined
         }
         footer={

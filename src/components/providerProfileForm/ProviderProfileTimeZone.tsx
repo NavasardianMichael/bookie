@@ -9,7 +9,7 @@ import { formatTimeZoneName, formatUtcOffset, listTimeZones, zoneOffsetMs } from
 /**
  * `value` and `onChange` are **injected by `Form.Item`** — the control contract every custom
  * field here implements (see the `forms` skill). Used by onboarding's `ProviderProfileForm`
- * and the Availability tab, the two places hours are written.
+ * and the Advanced settings tab, the two places a zone is chosen.
  */
 type Props = {
   value?: string
@@ -83,7 +83,7 @@ export const ProviderProfileTimeZone: FC<Props> = ({ value, onChange, disabled, 
       options={options}
       placeholder={t('timeZonePlaceholder')}
       showSearch={{ filterOption: (input, option) => matchesSearch(option?.searchText ?? '', input) }}
-      className='w-full'
+      className='w-full max-w-md'
     />
   )
 }

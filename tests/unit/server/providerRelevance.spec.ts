@@ -147,45 +147,26 @@ describe('shouldRankByRelevance', () => {
 })
 
 describe('pickMatchedService', () => {
-  const dentistry = { name: 'Dentistry' }
-
   it('names the exact service over one that only contains the word', () => {
-    const services = [
-      { name: 'Sports massage', category: null },
-      { name: 'Massage', category: null },
-    ]
+    const services = [{ name: 'Sports massage' }, { name: 'Massage' }]
 
     expect(pickMatchedService(services, [['massage']])?.name).toBe('Massage')
   })
 
   it('names the service whose name matches best', () => {
-    const services = [
-      { name: 'Follow-up visit', category: dentistry },
-      { name: 'Initial consultation', category: dentistry },
-    ]
+    const services = [{ name: 'Follow-up visit' }, { name: 'Initial consultation' }]
 
     expect(pickMatchedService(services, [['consultation']])?.name).toBe('Initial consultation')
   })
 
-  it('prefers any name match to a match through the category', () => {
-    const services = [
-      { name: 'Cleaning', category: dentistry },
-      { name: 'Dentistry check', category: null },
-    ]
+  // A service has no category of its own any more, so only its name can match.
+  it('keeps the input order between services that match equally', () => {
+    const services = [{ name: 'Dentistry check' }, { name: 'Dentistry review' }]
 
     expect(pickMatchedService(services, [['dentistry']])?.name).toBe('Dentistry check')
   })
 
-  it('falls back to a service in the matched category, in the order given', () => {
-    const services = [
-      { name: 'Follow-up visit', category: dentistry },
-      { name: 'Initial consultation', category: dentistry },
-    ]
-
-    expect(pickMatchedService(services, [['стоматология']])?.name).toBe('Follow-up visit')
-  })
-
-  // A provider found only by name has no service that `matchedServicesWhere` lets through.
+  // A provider found only by name or category has no service `matchedServicesWhere` lets through.
   it('names nothing when no service matched', () => {
     expect(pickMatchedService([], [['anna']])).toBeUndefined()
   })
@@ -195,15 +176,15 @@ describe('matchedServicesByProvider', () => {
   it('names one service per provider and counts the rest', () => {
     const matches = matchedServicesByProvider(
       [
-        { providerId: 'a', name: 'Sports massage', category: null },
-        { providerId: 'b', name: 'Massage', category: null },
-        { providerId: 'a', name: 'Massage', category: null },
-        { providerId: 'a', name: 'Stonemassage', category: null },
+        { providerId: 'a', name: 'Sports massage' },
+        { providerId: 'b', name: 'Massage' },
+        { providerId: 'a', name: 'Massage' },
+        { providerId: 'a', name: 'Stonemassage' },
       ],
       [['massage']]
     )
 
-    expect(matches.get('a')).toEqual({ service: { providerId: 'a', name: 'Massage', category: null }, more: 2 })
+    expect(matches.get('a')).toEqual({ service: { providerId: 'a', name: 'Massage' }, more: 2 })
     expect(matches.get('b')?.more).toBe(0)
     expect(matches.has('c')).toBe(false)
   })

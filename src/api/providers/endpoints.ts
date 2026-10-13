@@ -9,6 +9,8 @@ export const ENDPOINTS = {
   getProviderProfile: '/provider-profile',
   putProviderProfile: '/provider-profile',
   patchProviderSeo: '/provider-profile/seo',
+  patchProviderOrganization: '/provider-profile/organization',
+  putProviderCategories: '/provider-profile/categories',
   deleteProviderProfile: '/provider-profile',
   postProviderService: '/providers',
   putProviderService: '/providers',

@@ -75,22 +75,27 @@ and the store slot for that field is never written:
 
 ```tsx
 type Props = {
-  value?: Category['id'][]      // injected by Form.Item
-  onChange?: (next: Category['id'][]) => void
+  value?: CategoryValue[]                    // injected by Form.Item
+  onChange?: (next: CategoryValue[]) => void
 }
 
-const ProviderProfileFormCategories: FC<Props> = ({ value = [], onChange }) => (
-  <Select mode='tags' value={value} onChange={onChange} maxCount={3} />
-)
+export const CategoriesField: FC<Props> = ({ value, onChange }) => {
+  const chosen = value ?? []
+  // …a search box that calls onChange([...chosen, picked]), chips that call
+  // onChange(chosen.filter(…)) — never a copy of `value` in local state.
+}
 ```
 
-Used as:
+Used as (`CategoriesSection`, `src/app/[lang]/auth/components/`):
 
 ```tsx
-<AppFormItem name='categoryIds' label='Categories' rules={oneItemAtLeast}>
-  <ProviderProfileFormCategories />
+<AppFormItem name='categories' hasFeedback={false}>
+  <CategoriesField id='categories' />
 </AppFormItem>
 ```
+
+The search box's own text is local state — that is the control's working draft, not the
+field's value, which is only ever the chosen list.
 
 A component that destructures only its own props and ignores `value`/`onChange` **silently
 drops them**. A thin antd wrapper like `AppInput` works because it spreads `...props`
@@ -183,14 +188,14 @@ no type error, no validation error, no failed request.
 
 | Where | Effect |
 |---|---|
-| `ProviderProfileForm` | `categoryIds` carried `required` + `min:1` on an antd slot nothing wrote → **the form could not be submitted at all** |
+| `ProviderProfileForm` | `categoryIds` carried `required` + `min:1` on an antd slot nothing wrote → **the form could not be submitted at all** (that field has since moved to `CategoriesField`) |
 | `ProviderProfileFormOrganization` | Wrote `organization`; the payload builder read `organizationId`, so the selection was silently never submitted |
-| `ProviderServiceFormCategory` | Read `value.id` off a string and stored `undefined` |
+| `ProviderServiceFormCategory` | Read `value.id` off a string and stored `undefined` (removed 2026-10-13 — services have no category) |
 | `AccountTypeButtons` | Gone — the account-type screen is two links, so there is no selection state to disagree about |
 
 Two worked examples to copy: `src/components/providerServiceForm/` (three custom fields, a
 parent that picks POST vs PUT off `values.id`) and `src/components/providerProfileForm/`
-(six custom fields, including two that hold `File`s and one that owns the whole week
+(five custom fields, including two that hold `File`s and one that owns the whole week
 schedule).
 
 Field-name drift is the one that survives a refactor, so it is pinned by a test rather than

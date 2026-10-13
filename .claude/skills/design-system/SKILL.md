@@ -52,7 +52,7 @@ drift list: `src/components/CLAUDE.md`.
 **Dialogs are the exception — never `Modal` directly.** A yes/no question is
 `ui/AppConfirmModal`; a panel or a form the user works inside is `ui/AppSheet`. Both take
 the full `ModalProps` surface, so nothing is lost by going through them, and
-`AppConfirmModal` adds the parts a hand-rolled `Modal` always forgets: a danger tone, an
+`AppConfirmModal` adds the parts a hand-rolled `Modal` always forgets: a warning or danger tone, an
 awaited `onConfirm` that locks every dismissal route while the request is in flight, a
 caught rejection that keeps the dialog open, and translated Confirm/Cancel/Close defaults.
 Rule and grep gate in `src/components/CLAUDE.md`.

@@ -18,7 +18,7 @@ export const PLAN_ORDER = [PLANS.free, PLANS.basic, PLANS.standard, PLANS.premiu
  * provider-side write the plan does not cover. Their copy is `Errors.codes.*`, and a
  * status override on the call site cannot mask it (`resolveErrorText`).
  */
-/** antd `Tag` preset colours per plan — one badge language on the admin screen and the Plan tab. */
+/** antd `Tag` preset colours per plan — the badge on the admin providers screen. */
 export const PLAN_TAG_COLORS = {
   [PLANS.free]: 'default',
   [PLANS.basic]: 'blue',

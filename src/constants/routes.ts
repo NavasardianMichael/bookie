@@ -34,6 +34,8 @@ export const ROUTE_KEYS = {
   consumerProfileAppointments: 'consumerProfileAppointments',
   consumerProfileNotifications: 'consumerProfileNotifications',
   consumerProfilePayments: 'consumerProfilePayments',
+  /** A consumer-only account adds a Provider profile — `POST /identity/provider-profile`. */
+  consumerBecomeProvider: 'consumerBecomeProvider',
   providerProfileCreation: 'providerProfileCreation',
   providerServices: 'providerServices',
   providerProfile: 'providerProfile',
@@ -55,6 +57,8 @@ export const ROUTE_KEYS = {
   /** Redirects to Bookings. Kept so old History bookmarks still land somewhere real. */
   providerProfileHistory: 'providerProfileHistory',
   providerProfileSeo: 'providerProfileSeo',
+  /** Time zone, 12/24-hour clock and the visitor clock choices — moved out of Availability. */
+  providerProfileAdvanced: 'providerProfileAdvanced',
   providerProfileNotifications: 'providerProfileNotifications',
   providerProfilePayments: 'providerProfilePayments',
   /**
@@ -88,7 +92,6 @@ export const ROUTE_KEYS = {
   /** Where Google's callback lands the browser once the API has set the session cookie. */
   authCallback: 'authCallback',
   /** Google supplies no role or phone, so a first-time Google user finishes here. */
-  completeRegistration: 'completeRegistration',
 
   routesOverview: 'routesOverview',
 } as const
@@ -114,6 +117,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.consumerProfileAppointments]: '/consumers/profile/appointments',
   [ROUTE_KEYS.consumerProfileNotifications]: '/consumers/profile/notifications',
   [ROUTE_KEYS.consumerProfilePayments]: '/consumers/profile/payments',
+  [ROUTE_KEYS.consumerBecomeProvider]: '/consumers/profile/become-provider',
   [ROUTE_KEYS.providerProfileCreation]: '/providers/profile-creation',
   [ROUTE_KEYS.providerServices]: '/providers/profile-services',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
@@ -124,6 +128,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfileAnalytics]: '/providers/profile/analytics',
   [ROUTE_KEYS.providerProfileHistory]: '/providers/profile/history',
   [ROUTE_KEYS.providerProfileSeo]: '/providers/profile/seo',
+  [ROUTE_KEYS.providerProfileAdvanced]: '/providers/profile/advanced',
   [ROUTE_KEYS.providerProfileNotifications]: '/providers/profile/notifications',
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
   [ROUTE_KEYS.providerProfilePlan]: '/providers/profile/plan',
@@ -143,7 +148,6 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.resetPassword]: '/auth/reset-password',
   [ROUTE_KEYS.verifyEmail]: '/auth/verify-email',
   [ROUTE_KEYS.authCallback]: '/auth/callback',
-  [ROUTE_KEYS.completeRegistration]: '/auth/complete-registration',
 
   // Temporary
   [ROUTE_KEYS.routesOverview]: '/routes-overview',

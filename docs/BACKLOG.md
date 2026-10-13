@@ -319,10 +319,8 @@ failure answers*) covers every surface. These are the edges it deliberately stop
 - **`/auth/logout`'s "Delete Account Permanently" button has no `onClick`**, and the page
   is hardcoded English. Not an error path — found on the way. Account deletion itself lives
   in `DeleteAccountSection` on both Profile tabs.
-- **Profile creation's pickers, beyond loading.** `ProviderProfileForm` now loads both lists,
-  but `ProviderProfileFormCategories` is a `mode='tags'` Select, so a typed name is
-  submitted *as a category id* (`processors.ts` stringifies `categoryIds` as-is); both
-  pickers' "create new" links go to a hardcoded `'/'`; and the organization picker's
+- **Profile creation's organization picker, beyond loading.** Its "create new" link goes to
+  a hardcoded `'/'`, and the organization picker's
   `addItem` focuses an `inputRef` attached to nothing. The registration screens'
   `OrganizationSearchField` (`src/app/[lang]/auth/components/`) is the likely replacement
   for the organization half.
@@ -335,8 +333,8 @@ failure answers*) covers every surface. These are the edges it deliberately stop
   production build: the library compiles to a single **3.57 MB** client chunk
   (**1.18 MB** gzipped) of inlined SVG data-URIs — every flag on earth. It is imported
   from exactly one file, `src/app/[lang]/auth/components/Country.tsx`, the phone-country
-  picker, and lands on five routes: both registration pages, `/auth/complete-registration`,
-  `/consumers/profile` and `/providers/profile`. `/auth/consumer-registration` ships
+  picker, and lands on four routes: both registration pages (which also serve Google
+  sign-up), `/consumers/profile` and `/providers/profile`. `/auth/consumer-registration` ships
   **4.48 MB raw / 1.48 MB gzipped** across 26 chunks, and the flags are most of it.
   The picker renders ~20 flags at 20×15px in a dropdown, so the fix is either
   regional-indicator emoji (zero bytes, native rendering) or one CSS sprite if pixel
@@ -524,6 +522,14 @@ client validation and failed on submit with a message the form had never shown.
 `usePasswordRules` (`src/hooks/`) now mirrors the policy rule for rule — **a partial mirror
 is worse than none**.
 
+
+## The onboarding page is reachable from nowhere
+
+`/providers/profile-creation` is still the only form that edits a provider's address,
+location link and gallery, and nothing links to it since Google sign-up (its last caller)
+moved to the ordinary registration forms. Categories were the other field only it held;
+they moved to registration and the Profile tab on 2026-10-13. Fix: give the address,
+location and gallery a settings home, then retire the page.
 
 ## Smaller, carried over
 

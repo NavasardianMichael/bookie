@@ -15,6 +15,7 @@ import {
   MAX_ORGANIZATION_WEBSITE_LENGTH,
   MAX_SIMILAR_ORGANIZATIONS,
   parseNewOrganization,
+  parseOrganizationLinkBody,
   parseSearchLimit,
   rankOrganizations,
 } from '../../../server/src/services/organizations'
@@ -199,5 +200,27 @@ describe('parseSearchLimit', () => {
     expect(parseSearchLimit('500')).toBe(MAX_ORGANIZATION_SEARCH_RESULTS)
     expect(parseSearchLimit('2.5')).toBe(MAX_ORGANIZATION_SEARCH_RESULTS)
     expect(parseSearchLimit(['5'])).toBe(MAX_ORGANIZATION_SEARCH_RESULTS)
+  })
+})
+
+describe('parseOrganizationLinkBody', () => {
+  it('reads an explicit null organizationId as a detach', () => {
+    expect(parseOrganizationLinkBody({ organizationId: null })).toEqual({ detach: true })
+  })
+
+  it('links an existing organization by trimmed id', () => {
+    expect(parseOrganizationLinkBody({ organizationId: '  org-1 ' })).toEqual({ detach: false, organizationId: 'org-1' })
+  })
+
+  it('passes a new organization through for resolveOrganizationId to parse', () => {
+    const newOrganization = { name: 'Acme Dental', allowSimilar: true }
+    expect(parseOrganizationLinkBody({ newOrganization })).toEqual({ detach: false, newOrganization })
+  })
+
+  it('refuses a body that names nothing, rather than reading it as a detach', () => {
+    expect(parseOrganizationLinkBody({})).toBeUndefined()
+    expect(parseOrganizationLinkBody({ organizationId: '' })).toBeUndefined()
+    expect(parseOrganizationLinkBody({ newOrganization: 'Acme' })).toBeUndefined()
+    expect(parseOrganizationLinkBody(null)).toBeUndefined()
   })
 })

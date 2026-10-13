@@ -160,14 +160,9 @@ const GATES = [
         reason: 'Auth waiting Spin — listed in src/styles/CLAUDE.md invariant 10.',
       },
       {
-        rel: 'src/app/[lang]/auth/complete-registration/CompleteRegistrationForm.tsx',
+        rel: 'src/app/[lang]/auth/components/useGoogleSignUp.tsx',
         contains: "<Spin size='large' />",
-        reason: 'Auth waiting Spin — listed in src/styles/CLAUDE.md invariant 10.',
-      },
-      {
-        rel: 'src/app/[lang]/auth/complete-registration/CompleteRegistrationForm.tsx',
-        contains: "size='large'",
-        reason: 'Role Segmented — listed in src/styles/CLAUDE.md invariant 10.',
+        reason: 'Auth waiting Spin (Google sign-up) — listed in src/styles/CLAUDE.md invariant 10.',
       },
     ],
   },

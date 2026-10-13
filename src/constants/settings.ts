@@ -59,6 +59,7 @@ export const PROVIDER_SETTINGS_NAV: {
   { route: ROUTE_KEYS.providerProfileNotifications },
   { route: ROUTE_KEYS.providerProfilePayments },
   { route: ROUTE_KEYS.providerProfileAnalytics },
+  { route: ROUTE_KEYS.providerProfileAdvanced },
   // Last: opened when a limit is hit or an upgrade is wanted, never as routine.
   { route: ROUTE_KEYS.providerProfilePlan },
 ]

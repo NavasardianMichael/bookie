@@ -81,7 +81,7 @@ bullet, propose editing that bullet in place instead of adding a near-duplicate.
 - Don't reintroduce Formik on any form field — it fights antd's store and loses the
   submit even when it wins the render.
 - Don't hand-roll an antd `Modal` for a yes/no confirmation — use `ui/AppConfirmModal`.
-  A hand-rolled one loses the danger tone, the awaited `onConfirm` that locks every
+  A hand-rolled one loses the warning or danger tone, the awaited `onConfirm` that locks every
   dismissal route while the request is in flight, the caught rejection that keeps the
   dialog open, and the translated Confirm/Cancel/Close defaults. Gate:
   enforced by `pnpm gates`.

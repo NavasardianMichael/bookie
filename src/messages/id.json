@@ -58,10 +58,6 @@
     "orWithEmail": "atau dengan email",
     "backToSignIn": "Kembali ke masuk",
     "termsLead": "Dengan membuat akun, Anda menyetujui",
-    "roles": {
-      "consumer": "Saya memesan layanan",
-      "provider": "Saya menawarkan layanan"
-    },
     "fields": {
       "email": "Email",
       "emailPlaceholder": "anda@contoh.com",
@@ -102,6 +98,21 @@
       "similarDescription": "Kami menemukan organisasi dengan nama yang mirip. Bergabunglah dengannya, atau buat “{name}” sebagai organisasi baru.",
       "useExisting": "Gunakan yang ini",
       "createNew": "Buat yang baru"
+    },
+    "categories": {
+      "label": "Kategori",
+      "hint": "Hingga {max}. Pilih bidang Anda, atau tambahkan sendiri.",
+      "searchPlaceholder": "Cari atau tambahkan kategori",
+      "noMatches": "Tidak ada kategori dengan nama tersebut",
+      "addNew": "Tambahkan “{name}” sebagai kategori baru",
+      "full": "{max} kategori dipilih — hapus satu untuk menambah yang lain",
+      "chosen": "Kategori terpilih",
+      "remove": "Hapus {name}",
+      "newBadge": "baru",
+      "similarTitle": "Kategori ini mungkin sudah ada",
+      "similarDescription": "Kami menemukan kategori dengan nama serupa. Gunakan itu, atau tambahkan “{name}” sebagai kategori baru.",
+      "useExisting": "Gunakan yang ini",
+      "createNew": "Tambahkan sebagai baru"
     },
     "signIn": {
       "title": "Selamat datang kembali",
@@ -155,12 +166,6 @@
     "callback": {
       "signingIn": "Sedang memasukkan Anda…"
     },
-    "completeRegistration": {
-      "title": "Selesaikan penyiapan",
-      "subtitle": "Masuk sebagai {email}. Kami perlu dua hal lagi sebelum Anda dapat memesan.",
-      "roleLabel": "Bagaimana Anda akan menggunakan Bookie?",
-      "submit": "Selesai"
-    },
     "googleErrors": {
       "generic": "Masuk dengan Google tidak selesai. Silakan coba lagi.",
       "google_unavailable": "Masuk dengan Google tidak tersedia saat ini. Gunakan email dan kata sandi Anda.",
@@ -173,6 +178,10 @@
       "google_account_mismatch": "Akun Google itu sudah terhubung ke akun Bookie lain.",
       "google_already_linked": "Akun Anda sudah terhubung dengan Google.",
       "google_unauthorized": "Masuk dulu, lalu hubungkan Google dari pengaturan."
+    },
+    "googleSignUp": {
+      "expired": "Masuk dengan Google Anda telah kedaluwarsa. Daftar dengan email Anda di bawah, atau lanjutkan dengan Google lagi.",
+      "emailFromGoogle": "Dari akun Google Anda — tidak dapat diubah di sini."
     },
     "termsAnd": "dan"
   },
@@ -356,6 +365,7 @@
       "services": "Layanan",
       "approvals": "Persetujuan",
       "analytics": "Analitik",
+      "advanced": "Pengaturan lanjutan",
       "seo": "SEO",
       "history": "Riwayat",
       "plan": "Paket"
@@ -366,7 +376,17 @@
       "onConsumerTitle": "Anda berada di profil klien",
       "onConsumerBody": "Data Anda sendiri, notifikasi, dan preferensi pembayaran.",
       "toConsumer": "Beralih ke profil klien",
-      "toProvider": "Beralih ke ruang kerja penyedia"
+      "toProvider": "Beralih ke ruang kerja penyedia",
+      "becomeProviderTitle": "Tawarkan layanan Anda sendiri",
+      "becomeProviderBody": "Tambahkan profil penyedia ke akun ini untuk menerima pemesanan. Profil klien Anda tetap seperti semula.",
+      "becomeProvider": "Jadi penyedia"
+    },
+    "becomeProvider": {
+      "title": "Jadi penyedia",
+      "subtitle": "Siapkan sisi penyedia akun Anda. Anda dapat mengubah detail ini nanti.",
+      "formTitle": "Detail penyedia",
+      "accountNote": "Anda tetap masuk dengan {email} dan kata sandi Anda saat ini.",
+      "submit": "Jadi penyedia"
     },
     "actions": {
       "save": "Simpan Perubahan",
@@ -489,6 +509,8 @@
       "subtitle": "Tentukan jam kerja standar Anda untuk setiap hari dalam seminggu.",
       "recurring": "Ketersediaan Berulang",
       "recurringBody": "Hari dan jam yang bisa dipesan klien. Hingga 5 rentang per hari jika ada jeda.",
+      "hoursInZone": "Jam ini mengikuti {zone}. <link>Ubah di Pengaturan lanjutan</link>",
+      "hoursNoZone": "Zona waktu belum diatur, jadi pengunjung membaca jam ini dengan jam mereka sendiri. <link>Atur di Pengaturan lanjutan</link>",
       "pauseTitle": "Menerima pemesanan",
       "pauseBody": "Nonaktifkan untuk menjeda pemesanan baru sementara tanpa menghapus halaman Anda dari daftar.",
       "timeZone": "Zona waktu",
@@ -515,6 +537,10 @@
         "saturday": "Sabtu",
         "sunday": "Minggu"
       }
+    },
+    "advanced": {
+      "subtitle": "Pilih zona waktu jam kerja Anda dan cara waktu ditampilkan untuk Anda dan klien Anda.",
+      "clockTitle": "Waktu dan jam"
     },
     "listing": {
       "statusActive": "Status Akun: Aktif",
@@ -772,6 +798,7 @@
     "body": "Pesan layanan lokal atau kelola kalender Anda dengan Bookie. Satu platform untuk penyedia dan orang-orang yang memesan.",
     "findProvider": "Cari penyedia layanan",
     "joinAsProvider": "Gabung sebagai penyedia",
+    "exploreProviders": "Jelajahi penyedia",
     "browseSpecialty": "Telusuri berdasarkan spesialisasi",
     "categoriesRail": "Kategori",
     "audiences": {
@@ -916,6 +943,7 @@
     "emptyBody": "Penyedia akan muncul di sini segera setelah mereka menerbitkan profil.",
     "sortAria": "Urutkan: {sort}",
     "filterAria": "Filter penyedia",
+    "favoritesAria": "Tampilkan hanya favorit",
     "filtersTitle": "Filter",
     "reset": "Setel ulang",
     "showResults": "Tampilkan hasil",
@@ -1197,11 +1225,9 @@
     "formTitle": "Judul",
     "formDescription": "Deskripsi",
     "formDuration": "Durasi",
-    "formCategory": "Kategori",
     "formPrice": "Harga",
     "formCurrency": "Mata uang",
     "formImage": "Gambar",
-    "categoryPlaceholder": "Ketik atau pilih kategori",
     "currencyPlaceholder": "Ketik atau pilih mata uang",
     "onboardingDone": "Selesai menyiapkan? Profil Anda sudah aktif — lihat apa yang dilihat klien.",
     "viewProfile": "Lihat profil saya",
@@ -1217,6 +1243,10 @@
     "activateBody": "Klien akan dapat memesannya.",
     "deactivateTitle": "Nonaktifkan layanan ini?",
     "deactivateBody": "Klien tidak akan dapat memesannya sampai Anda mengaktifkannya lagi.",
+    "duplicateService": "Duplikat layanan",
+    "duplicateTitle": "Duplikatkan layanan ini?",
+    "duplicateBody": "Layanan baru akan dibuat dengan detail yang sama.",
+    "duplicate": "Duplikatkan",
     "activeOfLimit": "Layanan aktif di paket Anda: {count} dari {limit}.",
     "limitReached": "Untuk menambah layanan lain, nonaktifkan satu atau <link>tingkatkan paket Anda</link>."
   },
@@ -1234,7 +1264,6 @@
     "optional": "Opsional",
     "firstName": "Nama Depan",
     "lastName": "Nama Belakang",
-    "categories": "Kategori",
     "email": "Email",
     "organization": "Organisasi",
     "notes": "Catatan",
@@ -1320,6 +1349,7 @@
       "load": "Bagian ini tidak dapat dimuat.",
       "busySlots": "Kami tidak dapat memeriksa waktu yang sudah dipesan, jadi beberapa di antaranya mungkin sudah terisi.",
       "organizationSearch": "Kami tidak dapat mencari organisasi saat ini.",
+      "categorySearch": "Kami tidak dapat mencari kategori saat ini.",
       "providerSuggestions": "Kami tidak dapat memuat saran. Pencarian tetap berfungsi."
     },
     "conflicts": {

@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { TIME_FORMATS } from '@constants/schedule'
 // Relative, not aliased: `server/` is a separate package. `entities.ts` imports only
-// Prisma types and two pure services, which is what keeps it reachable here.
-import { mapProviderPlan, mapSingleProvider, resolveOnlineBooking } from '../../../server/src/mappers/entities'
+// Prisma types and pure services, which is what keeps it reachable here.
+import {
+  mapBasicOrganization,
+  mapProviderPlan,
+  mapSingleProvider,
+  resolveOnlineBooking,
+} from '../../../server/src/mappers/entities'
 import { PLAN_CATALOGUE } from '../../../server/src/services/plans'
 
 type ProviderRow = Parameters<typeof mapSingleProvider>[0]
@@ -103,5 +108,40 @@ describe('mapProviderPlan', () => {
     expect(mapped.plan).toBe('premium')
     expect(mapped.effectivePlan).toBe('free')
     expect(mapped.entitlements).toBe(PLAN_CATALOGUE.free)
+  })
+})
+
+describe('mapBasicOrganization', () => {
+  const organization = {
+    id: 'org-1',
+    name: 'City Health Clinic',
+    description: '',
+    phone: '',
+    country: 'AM',
+    address: '',
+    locationUrl: '',
+    website: '',
+    logoUrl: '',
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+  }
+  const dentistry = { id: 'dent', name: 'Dentistry' }
+  const general = { id: 'gp', name: 'General Practice' }
+
+  // An organization holds no categories of its own — they are its listed providers'.
+  it("lists its providers' categories, each once", () => {
+    const mapped = mapBasicOrganization({
+      ...organization,
+      providers: [
+        { categories: [{ category: dentistry }] },
+        { categories: [{ category: general }, { category: dentistry }] },
+      ],
+    })
+
+    expect(mapped.basic.categories).toEqual([dentistry, general])
+  })
+
+  it('has none when the read did not include its providers', () => {
+    expect(mapBasicOrganization(organization).basic.categories).toEqual([])
   })
 })

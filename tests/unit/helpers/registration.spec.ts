@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  categoriesChangeToSave,
+  isGoogleSignUp,
+  organizationChangeToSave,
+  toCategoryChoices,
+  toCategoryValues,
   toOptionalPhoneNumber,
   toOptionalText,
   toOrganizationFields,
@@ -132,5 +137,82 @@ describe('toOptionalText', () => {
     expect(toOptionalText('')).toBeUndefined()
     expect(toOptionalText('   ')).toBeUndefined()
     expect(toOptionalText(undefined)).toBeUndefined()
+  })
+})
+
+describe('organizationChangeToSave', () => {
+  it('writes nothing while the linked organization is unchanged', () => {
+    expect(organizationChangeToSave('org-1', { organizationId: 'org-1' })).toBeUndefined()
+    expect(organizationChangeToSave(undefined, {})).toBeUndefined()
+  })
+
+  it('links a different existing organization', () => {
+    expect(organizationChangeToSave('org-1', { organizationId: 'org-2' })).toEqual({ organizationId: 'org-2' })
+    expect(organizationChangeToSave(undefined, { organizationId: 'org-2' })).toEqual({ organizationId: 'org-2' })
+  })
+
+  it('detaches with an explicit null once the section is closed', () => {
+    expect(organizationChangeToSave('org-1', {})).toEqual({ organizationId: null })
+  })
+
+  it('creates a new organization whatever is linked now', () => {
+    const newOrganization = { name: 'Acme Dental' }
+    expect(organizationChangeToSave('org-1', { newOrganization })).toEqual({ newOrganization })
+  })
+})
+
+describe('isGoogleSignUp', () => {
+  it('reads the flag the Google callback sets', () => {
+    expect(isGoogleSignUp({ google: '1' })).toBe(true)
+    expect(isGoogleSignUp({ google: ['1', '0'] })).toBe(true)
+  })
+
+  it('is an ordinary registration otherwise', () => {
+    expect(isGoogleSignUp({})).toBe(false)
+    expect(isGoogleSignUp({ google: '0' })).toBe(false)
+    expect(isGoogleSignUp({ google: undefined })).toBe(false)
+  })
+})
+
+describe('toCategoryChoices', () => {
+  it('sends a picked category by id and a new one by its cleaned name', () => {
+    expect(
+      toCategoryChoices([
+        { id: 'cat-1', name: 'Dentistry' },
+        { name: '  Hair   care ', isNew: true },
+      ])
+    ).toEqual([{ id: 'cat-1' }, { name: 'Hair care' }])
+  })
+
+  it('drops an entry that is neither picked nor added', () => {
+    expect(toCategoryChoices([{ name: 'typed only' }, { name: '   ', isNew: true }])).toEqual([])
+    expect(toCategoryChoices(undefined)).toEqual([])
+  })
+})
+
+describe('toCategoryValues', () => {
+  it('holds saved categories as picked entries', () => {
+    expect(toCategoryValues([{ id: 'cat-1', name: 'Dentistry' }])).toEqual([{ id: 'cat-1', name: 'Dentistry' }])
+    expect(toCategoryValues(undefined)).toEqual([])
+  })
+})
+
+describe('categoriesChangeToSave', () => {
+  it('writes nothing for the same categories in any order', () => {
+    expect(categoriesChangeToSave([{ id: 'a' }, { id: 'b' }], [{ id: 'b' }, { id: 'a' }])).toBeUndefined()
+    expect(categoriesChangeToSave(undefined, [])).toBeUndefined()
+  })
+
+  it('writes the whole list when one is added, removed or new', () => {
+    expect(categoriesChangeToSave([{ id: 'a' }], [{ id: 'a' }, { id: 'b' }])).toEqual([{ id: 'a' }, { id: 'b' }])
+    expect(categoriesChangeToSave([{ id: 'a' }, { id: 'b' }], [{ id: 'a' }])).toEqual([{ id: 'a' }])
+    expect(categoriesChangeToSave([{ id: 'a' }], [{ id: 'a' }, { name: 'Hair care' }])).toEqual([
+      { id: 'a' },
+      { name: 'Hair care' },
+    ])
+  })
+
+  it('clears with an empty list', () => {
+    expect(categoriesChangeToSave([{ id: 'a' }], [])).toEqual([])
   })
 })

@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, useCallback, useMemo } from 'react'
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, MoreOutlined, PauseOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, CopyOutlined, DeleteOutlined, EditOutlined, MoreOutlined, PauseOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Switch, Tag } from 'antd'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
@@ -18,6 +18,7 @@ import { ClockIcon, CreditCardIcon, ScissorsIcon } from '@components/ui/icons'
 type Props = {
   service: ProviderService
   onEdit: (serviceId: string) => void
+  onDuplicate: (serviceId: string) => void
   onDelete: (serviceId: string) => void
   /**
    * Opens the confirm dialog for activate/deactivate. The parent owns the write —
@@ -26,12 +27,13 @@ type Props = {
   onToggleActive: (serviceId: string) => void
   /**
    * The plan's active-service cap is reached, so an inactive service cannot be switched
-   * on. Deactivating stays possible — it is how a provider makes room.
+   * on and an active one cannot be duplicated. Deactivating stays possible — it is how
+   * a provider makes room.
    */
   activationLocked?: boolean
 }
 
-const MENU_KEYS = { edit: 'edit', toggle: 'toggle', delete: 'delete' } as const
+const MENU_KEYS = { edit: 'edit', duplicate: 'duplicate', toggle: 'toggle', delete: 'delete' } as const
 
 /**
  * One service, as `manage_services` draws it: icon tile and an overflow menu on
@@ -39,12 +41,13 @@ const MENU_KEYS = { edit: 'edit', toggle: 'toggle', delete: 'delete' } as const
  * carrying duration, price and the active/inactive switch.
  *
  * Activate/deactivate can be started from that switch *or* from an ordinary kebab
- * menu item (the same kind of button as Edit). Neither writes on its own —
- * confirming is the parent's dialog, the same flow as delete.
+ * menu item (the same kind of button as Edit). Duplicate, activate and delete
+ * do not write on their own — confirming is the parent's dialog.
  */
 export const ProviderServiceCard: FC<Props> = ({
   service,
   onEdit,
+  onDuplicate,
   onDelete,
   onToggleActive,
   activationLocked = false,
@@ -57,10 +60,11 @@ export const ProviderServiceCard: FC<Props> = ({
   const handleMenuClick = useCallback(
     ({ key }: { key: string }) => {
       if (key === MENU_KEYS.edit) onEdit(service.id)
+      if (key === MENU_KEYS.duplicate) onDuplicate(service.id)
       if (key === MENU_KEYS.toggle) onToggleActive(service.id)
       if (key === MENU_KEYS.delete) onDelete(service.id)
     },
-    [onDelete, onEdit, onToggleActive, service.id]
+    [onDelete, onDuplicate, onEdit, onToggleActive, service.id]
   )
 
   /**
@@ -75,6 +79,13 @@ export const ProviderServiceCard: FC<Props> = ({
     () => [
       { key: MENU_KEYS.edit, icon: <EditOutlined />, label: t('edit') },
       {
+        key: MENU_KEYS.duplicate,
+        icon: <CopyOutlined />,
+        label: t('duplicateService'),
+        // An active copy takes a plan slot. An inactive one does not, so it stays available at the cap.
+        disabled: service.active && activationLocked,
+      },
+      {
         key: MENU_KEYS.toggle,
         icon: service.active ? <PauseOutlined /> : <CheckCircleOutlined />,
         label: service.active ? t('deactivateService') : t('activateService'),
@@ -82,7 +93,7 @@ export const ProviderServiceCard: FC<Props> = ({
       },
       { key: MENU_KEYS.delete, icon: <DeleteOutlined />, label: t('deleteService'), danger: true },
     ],
-    [service.active, t, toggleDisabled]
+    [activationLocked, service.active, t, toggleDisabled]
   )
 
   return (

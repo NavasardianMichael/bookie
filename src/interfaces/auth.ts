@@ -30,6 +30,27 @@ export type RegistrationProfile = {
   organizationId?: string
   /** Provider only, and never alongside `organizationId` — an organization to create. */
   newOrganization?: NewOrganizationPayload
+  /** Provider only — at most `MAX_PROVIDER_CATEGORIES`, each an existing one or a name. */
+  categories?: CategoryChoicePayload[]
+}
+
+/**
+ * One of a provider's categories as the API takes it: an existing category by `id`, or a
+ * `name` — which links the category it already is in any spelling or language, and only
+ * otherwise creates one.
+ */
+export type CategoryChoicePayload = { id: string } | { name: string }
+
+/**
+ * One entry of the provider Categories field, the same three states as `OrganizationValue`
+ * but only two of them are ever stored in the field: a picked category (`id`), or a name the
+ * provider chose to add as new (`isNew`). Typed text that resolved into neither stays in the
+ * search box and never becomes an entry.
+ */
+export type CategoryValue = {
+  id?: string
+  name: string
+  isNew?: boolean
 }
 
 /**

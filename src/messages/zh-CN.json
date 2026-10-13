@@ -58,10 +58,6 @@
     "orWithEmail": "或使用邮箱",
     "backToSignIn": "返回登录",
     "termsLead": "创建账户即表示您同意我们的",
-    "roles": {
-      "consumer": "我要预约服务",
-      "provider": "我提供服务"
-    },
     "fields": {
       "email": "电子邮箱",
       "emailPlaceholder": "you@example.com",
@@ -102,6 +98,21 @@
       "similarDescription": "我们找到了名称相似的机构。您可以加入该机构，或将“{name}”创建为新机构。",
       "useExisting": "使用此机构",
       "createNew": "新建机构"
+    },
+    "categories": {
+      "label": "分类",
+      "hint": "最多 {max} 个。选择你的服务类别，或自行添加。",
+      "searchPlaceholder": "搜索或添加分类",
+      "noMatches": "没有与该名称匹配的分类",
+      "addNew": "将“{name}”添加为新分类",
+      "full": "已选择 {max} 个分类——移除一个后才能再添加",
+      "chosen": "已选分类",
+      "remove": "移除{name}",
+      "newBadge": "新",
+      "similarTitle": "该分类可能已存在",
+      "similarDescription": "找到名称相似的分类。使用它，或将“{name}”添加为新分类。",
+      "useExisting": "使用此分类",
+      "createNew": "添加为新分类"
     },
     "signIn": {
       "title": "欢迎回来",
@@ -155,12 +166,6 @@
     "callback": {
       "signingIn": "正在为您登录…"
     },
-    "completeRegistration": {
-      "title": "完成设置",
-      "subtitle": "已以 {email} 登录。在预约之前，我们还需要两项信息。",
-      "roleLabel": "您将如何使用 Bookie？",
-      "submit": "完成"
-    },
     "googleErrors": {
       "generic": "Google 登录未完成，请重试。",
       "google_unavailable": "Google 登录暂时不可用。请改用邮箱和密码。",
@@ -173,6 +178,10 @@
       "google_account_mismatch": "该 Google 账户已关联到另一个 Bookie 账户。",
       "google_already_linked": "您的账户已关联 Google。",
       "google_unauthorized": "请先登录，然后在设置中关联 Google。"
+    },
+    "googleSignUp": {
+      "expired": "Google 登录已超时。请在下方用邮箱注册，或重新使用 Google 继续。",
+      "emailFromGoogle": "来自你的 Google 账号，此处无法修改。"
     },
     "termsAnd": "和"
   },
@@ -356,6 +365,7 @@
       "services": "服务",
       "approvals": "审批",
       "analytics": "数据分析",
+      "advanced": "高级设置",
       "seo": "SEO",
       "history": "历史记录",
       "plan": "套餐"
@@ -366,7 +376,17 @@
       "onConsumerTitle": "你正在客户个人资料",
       "onConsumerBody": "你的个人信息、通知和付款偏好。",
       "toConsumer": "切换到客户资料",
-      "toProvider": "切换到服务方工作区"
+      "toProvider": "切换到服务方工作区",
+      "becomeProviderTitle": "提供你自己的服务",
+      "becomeProviderBody": "为此账号添加服务方资料即可接受预约。你的客户个人资料保持不变。",
+      "becomeProvider": "成为服务提供者"
+    },
+    "becomeProvider": {
+      "title": "成为服务提供者",
+      "subtitle": "设置账号的服务方部分。这些信息之后可以修改。",
+      "formTitle": "服务方信息",
+      "accountNote": "你将继续使用 {email} 和当前密码登录。",
+      "submit": "成为服务提供者"
     },
     "actions": {
       "save": "保存更改",
@@ -489,6 +509,8 @@
       "subtitle": "定义每周每天的常规工作时间。",
       "recurring": "每周可预约时间",
       "recurringBody": "客户可预约的日期和时段。若有休息，每天最多可添加 5 个时段。",
+      "hoursInZone": "这些时间以 {zone} 为准。<link>在高级设置中更改</link>",
+      "hoursNoZone": "尚未设置时区，访客会按自己的时钟查看这些时间。<link>在高级设置中设置</link>",
       "pauseTitle": "接受新预约",
       "pauseBody": "关闭以暂停新预约，同时不会下架您的主页。",
       "timeZone": "时区",
@@ -515,6 +537,10 @@
         "saturday": "周六",
         "sunday": "周日"
       }
+    },
+    "advanced": {
+      "subtitle": "选择营业时间所在的时区，以及您和客户看到的时间显示方式。",
+      "clockTitle": "时间与时钟"
     },
     "listing": {
       "statusActive": "账户状态：已上架",
@@ -772,6 +798,7 @@
     "body": "用 Bookie 预约本地服务，或管理您的日程。一个平台，服务提供者与客户共享。",
     "findProvider": "寻找服务提供者",
     "joinAsProvider": "成为服务提供者",
+    "exploreProviders": "发现服务提供者",
     "browseSpecialty": "按专业浏览",
     "categoriesRail": "分类",
     "audiences": {
@@ -916,6 +943,7 @@
     "emptyBody": "服务提供者发布主页后将在此显示。",
     "sortAria": "排序：{sort}",
     "filterAria": "筛选服务提供者",
+    "favoritesAria": "只显示收藏",
     "filtersTitle": "筛选",
     "reset": "重置",
     "showResults": "查看结果",
@@ -1197,11 +1225,9 @@
     "formTitle": "名称",
     "formDescription": "描述",
     "formDuration": "时长",
-    "formCategory": "分类",
     "formPrice": "价格",
     "formCurrency": "货币",
     "formImage": "图片",
-    "categoryPlaceholder": "输入或选择分类",
     "currencyPlaceholder": "输入或选择货币",
     "onboardingDone": "设置完成？您的主页已上线——看看客户看到的样子。",
     "viewProfile": "查看我的主页",
@@ -1217,6 +1243,10 @@
     "activateBody": "客户将可以预约它。",
     "deactivateTitle": "停用这项服务？",
     "deactivateBody": "在您重新启用之前，客户将无法预约它。",
+    "duplicateService": "复制服务",
+    "duplicateTitle": "复制这项服务？",
+    "duplicateBody": "将创建一个包含相同信息的新服务。",
+    "duplicate": "复制",
     "activeOfLimit": "你的套餐中的有效服务：{count} / {limit}。",
     "limitReached": "如需再添加，请停用一项服务或<link>升级套餐</link>。"
   },
@@ -1234,7 +1264,6 @@
     "optional": "选填",
     "firstName": "名字",
     "lastName": "姓氏",
-    "categories": "分类",
     "email": "电子邮箱",
     "organization": "所属机构",
     "notes": "备注",
@@ -1320,6 +1349,7 @@
       "load": "无法加载此部分。",
       "busySlots": "无法确认哪些时间已被预约，因此部分时间可能已被占用。",
       "organizationSearch": "暂时无法搜索机构。",
+      "categorySearch": "暂时无法搜索分类。",
       "providerSuggestions": "无法加载搜索建议，但仍可正常搜索。"
     },
     "conflicts": {

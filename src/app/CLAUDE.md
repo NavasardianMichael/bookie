@@ -37,13 +37,14 @@ would force every route back to `ƒ`. Do **not** call `setRequestLocale` — it 
 deprecated; the locale already comes from the `[lang]` root param.
 
 A page that reads `searchParams` can never be static, which is why `/auth/sign-in`,
-`/auth/reset-password` and `/auth/verify-email` stay `ƒ` while the rest of the funnel does
-not. The route-by-route plan for the remaining dynamic routes is the rendering roadmap in
+`/auth/reset-password`, `/auth/verify-email`, both registration pages and
+`/auth/account-type-selection` (which read the Google sign-up flag, `?google=1`) stay `ƒ`
+while the rest of the funnel does not. The route-by-route plan for the remaining dynamic routes is the rendering roadmap in
 [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
 
 | Route (under `/[lang]`) | | State |
 |---|---|---|
-| `/` | ƒ | Real — marketing landing (hero, feature lists for clients and for providers, category rail, providers, CTA). The hero's sign-up buttons are guest-only, from a server-side session read. See [The landing page](#the-landing-page--) |
+| `/` | ƒ | Real — marketing landing (hero, feature lists for clients and for providers, category rail, providers, CTA). The hero's sign-up buttons are guest-only, from a server-side session read; a signed-in visitor, on either side, gets one *Explore providers* link in their place. Signed-in visitors are never redirected away from `/`, so the logo always lands here. See [The landing page](#the-landing-page--) |
 | `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top. `?service=<id>` (from an Explore card) starts booking with that service selected |
 | `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
@@ -63,7 +64,7 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 | `/terms`, `/privacy`, `/refund-policy` | ● | Real — one `LegalDocument` each, over `Legal.<doc>.sections.*` (`src/constants/legal.ts` is the shape). Paddle's live review requires all three, Terms naming Paddle as Merchant of Record; linked from the footer and registration's consent notice |
 | `/billing/checkout` | ƒ | Where Paddle sends a checkout (`?_ptxn=`). Loads Paddle.js, which opens the overlay itself. **Public** — Paddle links here from its own emails too. `noindex`, out of the sitemap and `/routes-overview`. Reads its query in the Server Component |
 | `/billing/return` | ƒ | After `checkout.completed`: waits (`useAwaitPlan`) until the plan bought is in force. Proxy-guarded, `noindex` |
-| `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password` and `verify-email`, which read `searchParams` |
+| `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password`, `verify-email`, the two registration pages and `account-type-selection`, which read `searchParams` |
 | `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state — `AdminReviewsClient` reads that 404 as an empty list, not as an error; any other failure shows with a Retry |
 | `/admin/providers` | ƒ | Real — plan assignment: search providers, set a plan and its last day. Same guard and same 404-as-empty reading as `/admin/reviews`; `AdminNav` links the two |
 | `/routes-overview` | ● | Dev aid; `notFound()` in production |
@@ -71,7 +72,12 @@ not. The route-by-route plan for the remaining dynamic routes is the rendering r
 **Account settings** live under `/consumers/profile` and `/providers/profile` (route group
 `providers/(account)` also wraps `profile-services`). Each sidebar tab is a nested route
 so Next lazy-loads the panel. Provider phone change lives in the Profile tab's Personal
-Information block, not a sidebar item; listing controls (copy URL, publish/unpublish,
+Information block, not a sidebar item; so does the provider's **organization** — registration's
+`OrganizationSection` (search, link an existing one, add a new one after the similar-name
+question, detach), opened on load when one is linked and saved **live** by either Save draft
+or Publish through `PATCH /provider-profile/organization`, like the phone; and so do its
+**categories** — the shared `CategoriesSection` (search, pick, add new, remove; up to 3), saved
+live through `PUT /provider-profile/categories`; listing controls (copy URL, publish/unpublish,
 delete page) live on that tab's hero, not a Listing sidebar item. **Delete account**
 sits at the end of both Profile tabs (`DELETE /identity/account`, password reauth) —
 it is not the listing trash icon, which only removes the public page. Consumer phone and
@@ -104,6 +110,7 @@ daily page.
 |---|---|---|
 | Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
+| Advanced settings | `/providers/profile/advanced` | Time zone (with the device-zone suggestion for a row that has none), 12/24-hour clock, and the visitor clock-choices switch — moved out of Availability, which keeps the weekly hours and *Accepting bookings* and names the zone with a link here. Drafted like Availability: `PUT /provider-profile` with `mode: 'draft'`, then `'publish'`. Sits after Analytics, before Plan |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo`. The slug field is read-only without the plan's `customSlug`, and the slug is then left out of the save |
 | Plan | `/providers/profile/plan` | Current plan with "Renews on" / "Ends on" (or an admin plan's expiry), *Manage billing* (Paddle's portal), a past-due warning, this month's usage meters, the comparison table with prices. Per column: *Upgrade* (checkout) when not subscribed, *Switch* (prorated, `AppConfirmModal`, then waits for the webhook) when subscribed, *Request upgrade* (the contact form) when the plan is not sold through Paddle. `GET /provider-profile/plan` + `GET /plans`. Last in the nav |
 | Notifications | `/providers/profile/notifications` (and the consumer side) | The event preferences (`emailNotificationPrefs`, which also govern Telegram), then *Telegram* (`TelegramConnect`) and, providers only, *Calendar sync* (`CalendarFeed`). Both blocks act on their own, outside the form's Save. Telegram for a provider's business and the feed need Basic or up; the blocks say so and link to the Plan tab |
@@ -470,16 +477,19 @@ the client half of the migration the API took on 2026-09-10. There is no
 
 **Registration is role-specific and sign-in is not.** Which form you open decides the role,
 exactly as `design/initial prototype/{consumer,provider}_registration` have it — there is no
-account-type toggle inside a form. The one exception is the Google completion screen, which
-*must* ask, because Google supplies no role.
+account-type toggle inside a form. That holds for Google too: a first-time Google account is
+sent to the **same** registration form for its role, or to the account-type choice when it
+started from sign-in and has no role yet.
 
 ```
 /auth/account-type-selection      two links, no form state
    ├─→ /auth/consumer-registration   split screen: name, email, phone, password
-   └─→ /auth/provider-registration   card: name, email, phone, password, optional organization
+   └─→ /auth/provider-registration   card: name, email, phone, password, optional categories
+                                     (up to 3) and organization
                     │
                     ▼  POST /identity/register — mails a link, does NOT sign in
-        /auth/verify-email          ?token= → confirms, then → /auth/sign-in
+        /auth/verify-email          ?token= → confirms AND signs in → newAccountLandingPath(role)
+                                    provider → /providers/profile/availability, consumer → /providers
 
 /auth/sign-in                     email + password, or Continue with Google
    ├─ consumer → /
@@ -488,15 +498,32 @@ account-type toggle inside a form. The one exception is the Google completion sc
 
 Google:  [any screen] → API /identity/google → Google → API callback
    ├─ known account      → /auth/callback          → getMe() → role decides
-   └─ first time         → /auth/complete-registration  (role + phone) → signed in
+   └─ first time         → the registration form for its role, in Google mode (?google=1)
+                            (no role yet → /auth/account-type-selection?google=1 → the form)
+                            names + email prefilled, email locked, no password
+                            → POST /identity/google/complete — signed in, no emailed link
+                            → newAccountLandingPath(role), as above
+
+Consumer-only account:  /consumers/profile (shell banner) → /consumers/profile/become-provider
+   name + phone (prefilled from the Consumer row) + optional organization
+   → POST /identity/provider-profile — creates the Provider, re-issues the session as provider
+   → /providers/profile/availability
 ```
+
+**A new account lands where its work starts**, not on the landing page: a provider on
+Availability (a page with no hours cannot be booked), a consumer on Explore. Sign-in is not
+a new account and keeps its own destinations. **Becoming a provider** is offered where the
+workspace switch sits, by `BecomeProviderPrompt`, only while `GET /identity/me` reports
+`profiles.provider === false`; once the Provider row exists, the switch takes its place.
 
 Five things that are easy to get wrong here:
 
 1. **Registering does not sign you in.** An unverified account cannot hold a session —
    `middleware/auth.ts` re-checks that on *every* authenticated request, not just at login —
    so the funnel continues from the recipient's inbox. A form that navigates into the app
-   after `register()` is a bug.
+   after `register()` is a bug. The emailed link is what signs them in: `/verify-email`
+   issues the session, and `VerifyEmailClient` then reads it (`getMe`) and opens
+   `newAccountLandingPath(role)`; its "Email verified" screen is only the fallback.
 2. **Every anti-enumeration response looks identical.** `register` and `forgot-password`
    answer `{ value: true }` for a taken address, a new one, and a failed send alike. Do not
    branch the UI on them: "we sent it" versus "no such account" rebuilds the oracle the
@@ -537,7 +564,7 @@ Each of these is a decision, not an oversight — do not "fix" them back:
 |---|---|---|
 | Google sign-up button + "Or register with…" divider | **Built, both** | Reversed on 2026-09-11. The mockup was right and the original note ("no OAuth exists") expired when the API gained it — `GoogleButton` sits above the divider on both registration screens and on sign-in. |
 | One free-text phone input | Country `Select` + number, joined by `Space.Compact` | A single field cannot be validated against a country's numbering plan. `libphonenumber-js` needs the country. |
-| Provider "Business Name" free text | `OrganizationSection`: a dashed **Add organization** button that opens a debounced `?q=` search from the first character (5 suggestions, typo-tolerant, prefix matches first), a **Detach** button, and an "Add “…” as a new organization" row — its own block under a divider, offered even when the name exists — that reveals the new organization's page fields | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text alone resolves nothing — the provider picks an existing organization or explicitly adds a new one, and validation refuses anything in between. A new one is created in the registration transaction with its description, address, phone (its own country picker, preselecting the provider's) and website, and takes the provider's phone country. Organizations have **no email** — the column was dropped on 2026-09-28. **On submit, a new organization's name is looked up** (`useSimilarOrganizationCheck` → `GET /organizations/similar`): if the same or a similar name exists, `SimilarOrganizationsDialog` asks the provider to join it or create theirs anyway, and Cancel returns to the form without submitting. Names are trimmed and whitespace-collapsed on both sides before saving. Sits after the passwords, at the end of the form. Also used by the Google completion step. |
+| Provider "Business Name" free text | `OrganizationSection`: a dashed **Add organization** button that opens a debounced `?q=` search from the first character (5 suggestions, typo-tolerant, prefix matches first), a **Detach** button, and an "Add “…” as a new organization" row — its own block under a divider, offered even when the name exists — that reveals the new organization's page fields | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text alone resolves nothing — the provider picks an existing organization or explicitly adds a new one, and validation refuses anything in between. A new one is created in the registration transaction with its description, address, phone (its own country picker, preselecting the provider's) and website, and takes the provider's phone country. Organizations have **no email** — the column was dropped on 2026-09-28. **On submit, a new organization's name is looked up** (`useSimilarOrganizationCheck` → `GET /organizations/similar`): if the same or a similar name exists, `SimilarOrganizationsDialog` asks the provider to join it or create theirs anyway, and Cancel returns to the form without submitting. Names are trimmed and whitespace-collapsed on both sides before saving. Sits after the passwords, at the end of the form. The same form serves Google sign-up; the section is also used by the settings Profile tab, where it can also change or detach the organization. |
 | Provider phone optional | **Required**, as for consumers | Both registration forms order it name → email → phone → password (the provider's organization section after them), and both label it "Phone number". |
 | Consumer: mobile + **optional** email | First/last name added; email now **required** | Names because `Consumer.firstName`/`lastName` are non-null and the mockup left no way to fill them. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
 | Provider: 3 fields | First/last name added alongside Organization | Same reason: `Provider.firstName`/`lastName` are non-null and were being filled with "New Provider". |

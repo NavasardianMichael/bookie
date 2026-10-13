@@ -21,6 +21,7 @@ export const EXPLORE_PARAMS = {
   category: 'category',
   available: 'available',
   openToday: 'openToday',
+  favorites: 'favorites',
   sort: 'sort',
   page: 'page',
 } as const
@@ -40,6 +41,8 @@ export type ExploreParams = {
   categoryId: string
   available: boolean
   openToday: boolean
+  /** Only providers this account has saved. Omitted for everyone else. */
+  favorites: boolean
   sort: ProvidersListSort
   page: number
 }
@@ -64,13 +67,14 @@ export const parseExploreParams = (raw: RawSearchParams): ExploreParams => {
     categoryId: first(raw[EXPLORE_PARAMS.category]),
     available: first(raw[EXPLORE_PARAMS.available]) === 'true',
     openToday: first(raw[EXPLORE_PARAMS.openToday]) === 'true',
+    favorites: first(raw[EXPLORE_PARAMS.favorites]) === 'true',
     sort: EXPLORE_SORTS.includes(sort) ? sort : DEFAULT_EXPLORE_SORT,
     page: toPage(raw[EXPLORE_PARAMS.page]),
   }
 }
 
 /** The keys that change *which* providers match, as opposed to which slice of them. */
-const RESULT_SET_KEYS = ['q', 'categoryId', 'available', 'openToday', 'sort'] as const
+const RESULT_SET_KEYS = ['q', 'categoryId', 'available', 'openToday', 'favorites', 'sort'] as const
 
 /**
  * Changing what matches has to send the visitor back to page 1 — being on page 4 of a
@@ -98,6 +102,7 @@ export const buildExploreQuery = (params: ExploreParams, patch: Partial<ExploreP
     [EXPLORE_PARAMS.category]: next.categoryId || undefined,
     [EXPLORE_PARAMS.available]: next.available || undefined,
     [EXPLORE_PARAMS.openToday]: next.openToday || undefined,
+    [EXPLORE_PARAMS.favorites]: next.favorites || undefined,
     [EXPLORE_PARAMS.sort]: next.sort === DEFAULT_EXPLORE_SORT ? undefined : next.sort,
     [EXPLORE_PARAMS.page]: next.page > 1 ? next.page : undefined,
   })
@@ -115,6 +120,7 @@ export const toProvidersListQuery = (params: ExploreParams): ProvidersListQuery 
   categoryId: params.categoryId || undefined,
   available: params.available || undefined,
   openToday: params.openToday || undefined,
+  favorites: params.favorites || undefined,
   sort: params.sort,
   page: params.page,
   perPage: PROVIDERS_PER_PAGE,
@@ -127,7 +133,7 @@ export const toProvidersListQuery = (params: ExploreParams): ProvidersListQuery 
 export const PROVIDER_SUGGESTIONS_LIMIT = 5
 
 /** Everything that narrows a result set except the keyword itself and the page. */
-export type ExploreScope = Pick<ExploreParams, 'categoryId' | 'available' | 'openToday' | 'sort'>
+export type ExploreScope = Pick<ExploreParams, 'categoryId' | 'available' | 'openToday' | 'favorites' | 'sort'>
 
 /**
  * The payload for the search box's suggestions: page 1 of what Enter would show, cut to
@@ -150,5 +156,5 @@ export const countActiveFilters = (params: ExploreParams): number =>
   Number(params.available) + Number(params.openToday)
 
 export const hasActiveExploreParams = (params: ExploreParams): boolean =>
-  !!params.q || !!params.categoryId || countActiveFilters(params) > 0
+  !!params.q || !!params.categoryId || params.favorites || countActiveFilters(params) > 0
 

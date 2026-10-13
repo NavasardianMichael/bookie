@@ -10,7 +10,7 @@ import { AppParagraph } from './bare/AppParagraph'
 import { AppTitle } from './bare/AppTitle'
 import { AlertTriangleIcon, HelpIcon } from './icons'
 
-export type AppConfirmModalTone = 'default' | 'danger'
+export type AppConfirmModalTone = 'default' | 'warning' | 'danger'
 
 /**
  * Every antd `Modal` prop is accepted and forwarded, except the three this
@@ -27,7 +27,7 @@ export type AppConfirmModalProps = PropsWithChildren<
     title: ReactNode
     /** The consequence, in one sentence. Rendered above `children`. */
     description?: ReactNode
-    /** `danger` reddens the badge and the confirm button. */
+    /** `warning` ambers the badge and the confirm button; `danger` reddens them. */
     tone?: AppConfirmModalTone
     /** Overrides the tone's badge glyph; `null` drops the badge entirely. */
     icon?: ReactNode | null
@@ -45,11 +45,13 @@ export type AppConfirmModalProps = PropsWithChildren<
 
 const TONE_BADGE: Record<AppConfirmModalTone, string> = {
   default: 'bg-brand-100 text-brand',
+  warning: 'bg-brand-warning/10 text-brand-warning',
   danger: 'bg-brand-danger/10 text-brand-danger',
 }
 
 const TONE_ICON: Record<AppConfirmModalTone, ReactNode> = {
   default: <HelpIcon className='h-5 w-5' />,
+  warning: <AlertTriangleIcon className='h-5 w-5' />,
   danger: <AlertTriangleIcon className='h-5 w-5' />,
 }
 
@@ -143,7 +145,12 @@ export const AppConfirmModal: FC<AppConfirmModalProps> = ({
       onCancel={onCancel}
       okText={okText ?? t('confirm')}
       cancelText={cancelText ?? t('cancel')}
-      okButtonProps={{ danger: tone === 'danger', ...okButtonProps }}
+      okButtonProps={{
+        danger: tone === 'danger',
+        // `color` only wins over the modal's primary ok button when `variant` is set with it.
+        ...(tone === 'warning' ? { color: 'gold' as const, variant: 'solid' as const } : {}),
+        ...okButtonProps,
+      }}
       cancelButtonProps={{ ...cancelButtonProps, disabled: busy || !!cancelButtonProps?.disabled }}
       confirmLoading={busy}
       closable={resolvedClosable}

@@ -24,7 +24,6 @@ export const SIGN_ON_STEPS = {
   providerRegistration: 'providerRegistration',
   signIn: 'signIn',
   verifyEmail: 'verifyEmail',
-  completeRegistration: 'completeRegistration',
 } as const
 
 /**
@@ -38,6 +37,17 @@ export const SIGN_ON_STEPS = {
  * expired.
  */
 export const EMAIL_VERIFY_QUERY = 'verifyEmail'
+
+/**
+ * `?google=1` — a registration page (or the account-type choice) opened by the API's Google
+ * callback for a first-time account. The form then runs in Google mode: names and email
+ * prefilled from the pending identity, the email locked, no password, and submit posts to
+ * `/identity/google/complete` instead of mailing a link.
+ *
+ * Mirrors `GOOGLE_SIGN_UP_QUERY` in `server/src/lib/return-path.ts`, which builds the
+ * redirect; pinned with the paths by `tests/unit/server/returnPath.spec.ts`.
+ */
+export const GOOGLE_SIGN_UP_QUERY = 'google'
 
 /**
  * Query param carrying the one-time token on the **password-reset** link. Verification uses

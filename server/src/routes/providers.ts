@@ -15,7 +15,6 @@ import {
 } from '../lib/booking-mail.js'
 import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
-import { collapseWhitespace, isSameName } from '../lib/search.js'
 import { type TimeFormat, toTimeFormat } from '../lib/time-format.js'
 import { toTimeZone } from '../lib/time-zone.js'
 import { mintOwnerManageToken } from '../lib/token.js'
@@ -36,7 +35,10 @@ import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderBusyIntervals } from '../services/appointments.js'
 import { notifyBookingDecisionTelegram } from '../services/bookingNotify.js'
+import { MAX_PROVIDER_CATEGORIES, parseCategoryChoices } from '../services/categories.js'
 import { loadExplorePage, loadMatchedServices } from '../services/exploreResults.js'
+import { resolveOrganizationId } from '../services/organizationLink.js'
+import { parseOrganizationLinkBody } from '../services/organizations.js'
 import { assertServiceSlot, assertSlugChange, getEntitlements, takesServiceSlot } from '../services/plans.js'
 import { countActiveServices, isBookingAllowanceSpent } from '../services/planUsage.js'
 import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
@@ -47,6 +49,7 @@ import {
   parseConsumerBookingsQuery,
   parseProviderBookingsQuery,
 } from '../services/providerBookings.js'
+import { providerCategoryIds, pruneUnusedCategories, setProviderCategories } from '../services/providerCategories.js'
 import { parseProvidersListQuery, resolvePageWindow } from '../services/providerSearch.js'
 import { looksLikeProviderId, parseProviderSeoBody } from '../services/providerSeo.js'
 import {
@@ -138,11 +141,35 @@ export const providersRouter = Router()
  * typos and accents (`services/searchFallback.ts`). A typed query is ranked by relevance
  * and names the service it matched on each card (`services/exploreResults.ts`).
  */
+/**
+ * `?favorites=true` is the caller's saved providers. No session — a shared link, or a
+ * guest — matches nothing rather than the public list, so the flag cannot be ignored
+ * into "show everyone". An empty `in` is that empty match.
+ */
+async function exploreFavoriteIds(req: Request): Promise<string[] | undefined> {
+  const raw = req.query.favorites
+  if (raw !== 'true' && raw !== '1') return undefined
+  const userId = req.session?.userId
+  if (!userId) return []
+  const rows = await prisma.favoriteProvider.findMany({
+    where: { userId },
+    select: { providerId: true },
+  })
+  return rows.map((row) => row.providerId)
+}
+
 providersRouter.get(
   '/',
   asyncHandler(async (req, res) => {
+    const favoriteIds = await exploreFavoriteIds(req)
     const { query, total } = await countWithCorrection(
-      (spellings) => parseProvidersListQuery(req.query, undefined, spellings),
+      (spellings) => {
+        const parsed = parseProvidersListQuery(req.query, undefined, spellings)
+        // `[]` is a real answer — no session, or nothing saved — and must not fall through
+        // to the unfiltered list. An empty `in` matches no rows.
+        if (favoriteIds !== undefined) parsed.where = { ...parsed.where, id: { in: favoriteIds } }
+        return parsed
+      },
       ({ where }) => prisma.provider.count({ where }),
       loadExploreVocabulary
     )
@@ -406,8 +433,6 @@ providerProfileRouter.put(
     }
 
     // Legacy / direct live update (onboarding + settings prefs that are not draftable)
-    const categoryIdsRaw = body.categoryIds ?? body.CategoryIds
-    const categoryIds = readJsonField<string[]>(categoryIdsRaw, 'categoryIds')
     const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule
     const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
     // Onboarding writes the first schedule live, and the zone it is written in with it.
@@ -465,14 +490,6 @@ providerProfileRouter.put(
         requiresBookingApproval,
         phoneVisible,
         paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
-        ...(categoryIds
-          ? {
-              categories: {
-                deleteMany: {},
-                create: categoryIds.map((categoryId) => ({ categoryId })),
-              },
-            }
-          : {}),
       },
     })
 
@@ -519,10 +536,14 @@ providerProfileRouter.delete(
     const consumer = await prisma.consumer.findUnique({ where: { userId }, select: { id: true } })
 
     await prisma.$transaction(async (tx) => {
+      // Read before the delete cascades the links away, so the categories only this
+      // provider used can go with it.
+      const categoryIds = await providerCategoryIds(tx, providerId)
       await tx.provider.delete({ where: { id: providerId } })
       if (!consumer) {
         await tx.user.delete({ where: { id: userId } })
       }
+      await pruneUnusedCategories(tx, categoryIds)
     })
 
     return ok(res, true)
@@ -910,6 +931,86 @@ providerProfileRouter.patch(
   })
 )
 
+/**
+ * Attach, switch or detach the caller's organization — the settings twin of the
+ * registration Organization section, resolved by the same `resolveOrganizationId`, so an
+ * existing id links it and a `newOrganization` creates one (or links its same-named twin
+ * unless `allowSimilar`). `organizationId: null` detaches. See `parseOrganizationLinkBody`.
+ *
+ * **Live, not drafted**, like the phone. Creating an organization makes a public page at
+ * once, so there is nothing a draft could hold back; and a link staged behind Publish would
+ * leave the profile listed under the old organization after its owner thought they had
+ * left it.
+ */
+providerProfileRouter.patch(
+  '/organization',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const request = parseOrganizationLinkBody(req.body)
+    if (!request) throw new HttpError(400, 'Send organizationId, newOrganization, or organizationId: null', 400)
+    const providerId = req.session!.profileId
+
+    const provider = await prisma.$transaction(async (tx) => {
+      let organizationId: string | null = null
+      if (!request.detach) {
+        const current = await tx.provider.findUnique({ where: { id: providerId }, select: { country: true } })
+        if (!current) throw new HttpError(404, 'Provider profile not found', 404)
+        organizationId = await resolveOrganizationId(tx, request, current.country ?? undefined)
+        if (!organizationId) {
+          throw request.organizationId
+            ? new HttpError(404, 'Organization not found', 404)
+            : new HttpError(400, 'A new organization needs a name', 400)
+        }
+      }
+      return tx.provider.update({
+        where: { id: providerId },
+        data: { organizationId },
+        include: providerProfileInclude,
+      })
+    })
+
+    return ok(res, {
+      ...mapProviderProfile(provider),
+      listed: provider.listed,
+      draft: provider.draft ?? null,
+    })
+  })
+)
+
+/**
+ * Replaces the caller's categories — the settings twin of the registration Categories field:
+ * `{ categories: [{ id } | { name }] }`, at most `MAX_PROVIDER_CATEGORIES`. A name links the
+ * category it already is in any spelling or language, and only otherwise creates one
+ * (`resolveCategoryIds`); an empty list clears them. Categories this provider drops that no
+ * other provider uses are deleted, the predefined ones excepted.
+ *
+ * **Live, not drafted**, like the organization: an added category exists at once, and the
+ * Explore chips must not keep listing a provider under one they removed.
+ */
+providerProfileRouter.put(
+  '/categories',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    if (!Array.isArray(req.body?.categories)) throw new HttpError(400, 'Send categories as an array', 400)
+    const choices = parseCategoryChoices(req.body.categories)
+    if (choices.length > MAX_PROVIDER_CATEGORIES) {
+      throw new HttpError(400, `At most ${MAX_PROVIDER_CATEGORIES} categories`, 400)
+    }
+    const providerId = req.session!.profileId
+
+    const provider = await prisma.$transaction(async (tx) => {
+      await setProviderCategories(tx, providerId, choices)
+      return tx.provider.findUniqueOrThrow({ where: { id: providerId }, include: providerProfileInclude })
+    })
+
+    return ok(res, {
+      ...mapProviderProfile(provider),
+      listed: provider.listed,
+      draft: provider.draft ?? null,
+    })
+  })
+)
+
 /* ------------------------------------------------------------------ *
  * Services — a provider's own catalogue.
  *
@@ -962,6 +1063,23 @@ function readBoolean(body: Record<string, unknown>, key: string): boolean | unde
 const uploadedImageUrl = (req: Request): string | undefined =>
   req.file ? `/uploads/${path.basename(req.file.path)}` : undefined
 
+/**
+ * A duplicate may keep a photo this provider already published. The path is kept
+ * only when one of their services already stores it — a create never accepts an
+ * arbitrary upload path from the body. `basename` drops any directory the client
+ * added, so the comparison is against the stored `/uploads/<file>` form.
+ */
+async function ownedServiceImageUrl(providerId: string, raw: string | null | undefined): Promise<string | undefined> {
+  if (!raw) return undefined
+  const stored = `/uploads/${path.basename(raw)}`
+  if (stored === '/uploads/' || stored === '/uploads/.') return undefined
+  const match = await prisma.service.findFirst({
+    where: { providerId, imageUrl: stored },
+    select: { id: true },
+  })
+  return match ? stored : undefined
+}
+
 function assertDuration(duration: number): void {
   if (!Number.isInteger(duration) || duration <= 0) {
     throw new HttpError(400, 'Duration must be a positive whole number of minutes')
@@ -972,63 +1090,6 @@ function assertPrice(price: number | null | undefined): void {
   if (price !== undefined && price !== null && price < 0) {
     throw new HttpError(400, 'Price must be a positive number')
   }
-}
-
-const CATEGORY_NAME_MAX = 40
-
-/**
- * Resolves the service form's Category field, which is a combobox: an id means an
- * existing (usually predefined) category was picked, a bare name means the provider
- * typed one that may not exist yet. Matching is case-insensitive so "Hair" and "hair"
- * do not become two Category rows. New names become Category rows; they are not
- * auto-linked onto the provider or organization.
- *
- * Three states, matching the rest of this body: `undefined` means the field was
- * absent (leave the column alone), `null` means it was sent empty (clear it), a
- * string is the resolved id. Category is optional — a service is valid with a
- * title and a duration.
- */
-async function resolveServiceCategoryId(
-  body: Record<string, unknown>
-): Promise<string | null | undefined> {
-  const categoryId = readText(body, 'categoryId')
-  if (categoryId) {
-    const existing = await prisma.category.findUnique({
-      where: { id: categoryId },
-      select: { id: true },
-    })
-    if (existing) return existing.id
-  }
-
-  const categoryName = readText(body, 'categoryName')
-  if (categoryName) {
-    if (categoryName.length > CATEGORY_NAME_MAX) {
-      throw new HttpError(400, `Category name must be at most ${CATEGORY_NAME_MAX} characters`)
-    }
-
-    // Case, spacing, accents and punctuation do not make a new category — "Hair care",
-    // "hair-care" and "Hair  Care" are one. The table is small enough to compare in memory.
-    const categories = await prisma.category.findMany({ select: { id: true, name: true } })
-    const matched = categories.find((category) => isSameName(category.name, categoryName))
-    if (matched) return matched.id
-
-    try {
-      const created = await prisma.category.create({ data: { name: collapseWhitespace(categoryName) } })
-      return created.id
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        const raced = await prisma.category.findFirst({
-          where: { name: { equals: categoryName, mode: 'insensitive' } },
-          select: { id: true },
-        })
-        if (raced) return raced.id
-      }
-      throw error
-    }
-  }
-
-  if (hasField(body, 'categoryId') || hasField(body, 'categoryName')) return null
-  return undefined
 }
 
 /** Scoped by `providerId` so one provider can never address another's service. */
@@ -1069,7 +1130,6 @@ providersRouter.post(
     const body = req.body as Record<string, unknown>
 
     const name = readText(body, 'name')
-    const categoryId = await resolveServiceCategoryId(body)
     const duration = readNumber(body, 'duration')
     const price = readNumber(body, 'price')
 
@@ -1081,16 +1141,17 @@ providersRouter.post(
     const active = readBoolean(body, 'active') ?? true
     if (takesServiceSlot(false, active)) await assertRoomForActiveService(providerId)
 
+    const imageUrl = uploadedImageUrl(req) ?? (await ownedServiceImageUrl(providerId, readText(body, 'imageUrl')))
+
     const service = await prisma.service.create({
       data: {
         providerId,
         name,
-        categoryId: categoryId ?? null,
         durationMinutes: duration,
         description: readText(body, 'description') ?? null,
         price: price ?? null,
         currency: readText(body, 'currency') ?? null,
-        imageUrl: uploadedImageUrl(req) ?? null,
+        imageUrl: imageUrl ?? null,
         active,
       },
     })
@@ -1112,10 +1173,7 @@ providersRouter.put(
     if (hasField(body, 'name') && !name) throw new HttpError(400, 'Service name is required')
 
     const active = readBoolean(body, 'active')
-    // Before the category is resolved, which can create a Category row as a side effect.
     if (active !== undefined && takesServiceSlot(wasActive, active)) await assertRoomForActiveService(providerId)
-
-    const categoryId = await resolveServiceCategoryId(body)
 
     const duration = readNumber(body, 'duration')
     if (duration !== undefined) {
@@ -1135,7 +1193,6 @@ providersRouter.put(
       where: { id: serviceId },
       data: {
         ...(name ? { name } : {}),
-        ...(categoryId !== undefined ? { categoryId } : {}),
         ...(duration !== undefined && duration !== null ? { durationMinutes: duration } : {}),
         ...(hasField(body, 'description') ? { description: readText(body, 'description') } : {}),
         ...(price !== undefined ? { price } : {}),

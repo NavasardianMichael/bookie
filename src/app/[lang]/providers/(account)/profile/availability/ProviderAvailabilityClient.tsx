@@ -1,24 +1,24 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-import { Alert, Checkbox, Form, Segmented, Switch, TimePicker } from 'antd'
+import { Checkbox, Form, Switch, TimePicker } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { DaySchedule, ProviderProfile, WeekSchedule } from '@store/providers/profile/types'
-import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
 import { TimeFormat, WeekDay } from '@interfaces/schedule'
-import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, TIME_FORMATS, TIME_FORMATS_LIST, WEEK_DAYS_LIST } from '@constants/schedule'
+import { ROUTES } from '@constants/routes'
+import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { rangesToDaySchedule, splitScheduleIntoParts } from '@helpers/schedule'
 import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
-import { formatTimeZoneName, getRuntimeTimeZone, isSameWallClock } from '@helpers/timeZone'
-import { ProviderProfileTimeZone } from '@components/providerProfileForm/ProviderProfileTimeZone'
+import { formatTimeZoneName } from '@helpers/timeZone'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
@@ -41,19 +41,16 @@ type DayForm = {
 
 type FormValues = {
   available: boolean
-  /** The zone `days` are written in. Undefined only until a suggestion fills it on load. */
-  timeZone?: string
-  /**
-   * The clock every time for this provider is printed on. Always set: a provider who never
-   * chose sees their locale's convention selected, and saving keeps what they saw.
-   */
-  timeFormat: TimeFormat
-  /**
-   * Whether the public booking page offers a time-zone list and a 12/24-hour switch.
-   * One flag for both. On until the provider turns it off.
-   */
-  showClockChoices: boolean
   days: Record<WeekDay, DayForm>
+}
+
+/**
+ * The clock the hours are read on — edited on the Advanced settings tab, shown here only.
+ * Draft wins, as it does for the hours: both go live together on Publish.
+ */
+type HoursClock = {
+  timeZone?: string
+  timeFormat: TimeFormat
 }
 
 const DEFAULT_START = dayjs('09:00', SCHEDULE_VALUE_FORMAT)
@@ -66,12 +63,9 @@ const cloneDaySchedule = (part?: DaySchedule): DaySchedule => ({
   breaks: (part?.breaks ?? []).map((brk) => ({ ...brk })),
 })
 
-const scheduleToForm = (profile: ProviderProfile, locale: string): FormValues => {
+const scheduleToForm = (profile: ProviderProfile): FormValues => {
   const source = (profile.draft?.weekSchedule as WeekSchedule | undefined) ?? profile.details.weekSchedule
   const available = profile.draft?.available ?? profile.basic.available
-  const timeZone = profile.draft?.timeZone ?? profile.details.timeZone
-  const timeFormat = resolveTimeFormat(profile.draft?.timeFormat ?? profile.details.timeFormat, locale)
-  const showClockChoices = profile.draft?.showClockChoices ?? profile.details.showClockChoices ?? true
   const days = WEEK_DAYS_LIST.reduce(
     (acc, day) => {
       const parts = splitScheduleIntoParts(cloneDaySchedule(source?.[day]))
@@ -88,8 +82,13 @@ const scheduleToForm = (profile: ProviderProfile, locale: string): FormValues =>
     },
     {} as Record<WeekDay, DayForm>
   )
-  return { available, timeZone, timeFormat, showClockChoices, days }
+  return { available, days }
 }
+
+const profileToClock = (profile: ProviderProfile, locale: string): HoursClock => ({
+  timeZone: profile.draft?.timeZone ?? profile.details.timeZone,
+  timeFormat: resolveTimeFormat(profile.draft?.timeFormat ?? profile.details.timeFormat, locale),
+})
 
 const formToWeekSchedule = (days: Record<WeekDay, DayForm>): WeekSchedule =>
   WEEK_DAYS_LIST.reduce((acc, day) => {
@@ -110,14 +109,11 @@ const formToWeekSchedule = (days: Record<WeekDay, DayForm>): WeekSchedule =>
     return acc
   }, {} as WeekSchedule)
 
-const AvailabilityDayRow = ({ day }: { day: WeekDay }) => {
+const AvailabilityDayRow = ({ day, timeFormat }: { day: WeekDay; timeFormat: TimeFormat }) => {
   const t = useTranslations('Settings')
-  const locale = useLocale()
   const form = Form.useFormInstance<FormValues>()
   const open = Form.useWatch(['days', day, 'open'], form)
-  // The pickers follow the toggle as it moves, before anything is saved.
-  const timeFormat = Form.useWatch('timeFormat', form)
-  const pickerFormat = getTimeDisplayFormat(resolveTimeFormat(timeFormat, locale))
+  const pickerFormat = getTimeDisplayFormat(timeFormat)
 
   return (
     <div
@@ -179,43 +175,18 @@ const AvailabilityDayRow = ({ day }: { day: WeekDay }) => {
   )
 }
 
-/** What the device next to the form says the provider's zone is, when it disagrees with the pick. */
-const DeviceTimeZoneHint = () => {
+/** Which zone the hours are in, and where to change it — they mean nothing without one. */
+const HoursClockNote = ({ timeZone }: { timeZone?: string }) => {
   const t = useTranslations('Settings')
   const locale = useLocale()
-  const form = Form.useFormInstance<FormValues>()
-  const picked = Form.useWatch('timeZone', form)
-  const device = useViewerTimeZone()
+  const link = (chunks: ReactNode) => <AppLink href={ROUTES.providerProfileAdvanced}>{chunks}</AppLink>
 
-  if (!picked || !device || isSameWallClock(picked, device)) return null
   return (
     <AppText size='body-sm' tone='muted'>
-      {t('availability.timeZoneDeviceDiffers', { zone: formatTimeZoneName(device, locale) })}
+      {timeZone
+        ? t.rich('availability.hoursInZone', { zone: formatTimeZoneName(timeZone, locale), link })
+        : t.rich('availability.hoursNoZone', { link })}
     </AppText>
-  )
-}
-
-/** 21:30 on each clock, so the choice is shown rather than described. */
-const SAMPLE_TIME = dayjs('21:30', SCHEDULE_VALUE_FORMAT)
-
-/**
- * 12- or 24-hour. `value` and `onChange` are injected by `Form.Item` (the `forms` skill's
- * control contract), which is why this is a component rather than a bare `Segmented`.
- */
-const TimeFormatToggle = ({ value, onChange }: { value?: TimeFormat; onChange?: (next: TimeFormat) => void }) => {
-  const t = useTranslations('Settings')
-
-  return (
-    <Segmented<TimeFormat>
-      value={value}
-      onChange={onChange}
-      options={TIME_FORMATS_LIST.map((format) => ({
-        value: format,
-        label: t(format === TIME_FORMATS.h24 ? 'availability.timeFormat24' : 'availability.timeFormat12', {
-          time: SAMPLE_TIME.format(getTimeDisplayFormat(format)),
-        }),
-      }))}
-    />
   )
 }
 
@@ -225,12 +196,7 @@ export const ProviderAvailabilityClient = () => {
   const locale = useLocale()
   const setAuthState = useAuthStore.use.setAuthState()
   const [form] = Form.useForm<FormValues>()
-  /**
-   * Neither the live row nor the draft has a zone — an account from before the column
-   * existed. The device's zone is filled in as a suggestion and the form starts dirty, so
-   * Publish is one click; until then the public page reads these hours in each visitor's zone.
-   */
-  const [timeZoneSuggested, setTimeZoneSuggested] = useState(false)
+  const [clock, setClock] = useState<HoursClock | null>(null)
   const [saved, setSaved] = useState<FormValues | null>(null)
   const [dirty, setDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
@@ -248,13 +214,10 @@ export const ProviderAvailabilityClient = () => {
     void getProviderProfileAPI()
       .then((data) => {
         if (cancelled) return
-        const values = scheduleToForm(data, locale)
-        const suggested = values.timeZone ? undefined : getRuntimeTimeZone()
-        if (suggested) values.timeZone = suggested
-        setSaved(values)
-        form.setFieldsValue(values)
-        setTimeZoneSuggested(Boolean(suggested))
-        setDirty(Boolean(suggested))
+        // Into `initialValues`, not `form.setFieldsValue`: the `<Form>` mounts only once
+        // `saved` is set, so the instance is not connected to one yet.
+        setSaved(scheduleToForm(data))
+        setClock(profileToClock(data, locale))
         setLoadError(null)
       })
       .catch((err: unknown) => {
@@ -266,7 +229,7 @@ export const ProviderAvailabilityClient = () => {
     return () => {
       cancelled = true
     }
-  }, [form, locale, request])
+  }, [locale, request])
 
   const persist = async (mode: 'draft' | 'publish') => {
     const values = form.getFieldsValue(true)
@@ -277,18 +240,16 @@ export const ProviderAvailabilityClient = () => {
       await putProviderProfileAPI({
         mode: 'draft',
         weekSchedule,
-        timeZone: values.timeZone,
-        timeFormat: values.timeFormat,
-        showClockChoices: values.showClockChoices,
         available: values.available,
       })
       const data = mode === 'publish' ? await putProviderProfileAPI({ mode: 'publish' }) : await getProviderProfileAPI()
-      // The workspace prints times on the *published* clock, so only Publish moves it.
+      // Publish applies the whole draft, a clock drafted on Advanced settings included, and
+      // the workspace prints times on the *published* clock.
       if (mode === 'publish') setAuthState({ timeFormat: data.details.timeFormat ?? null })
-      const next = scheduleToForm(data, locale)
+      const next = scheduleToForm(data)
       setSaved(next)
+      setClock(profileToClock(data, locale))
       form.setFieldsValue(next)
-      setTimeZoneSuggested(false)
       setDirty(false)
     } catch (err) {
       setError(err)
@@ -303,11 +264,13 @@ export const ProviderAvailabilityClient = () => {
       {error !== null && <ErrorAlert error={error} />}
 
       <Surface className='flex flex-col gap-6'>
-        <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
-          <ClockIcon className='text-brand h-5 w-5' />
-          {t('availability.recurring')}
-        </AppTitle>
-        <AppParagraph size='body-sm'>{t('availability.recurringBody')}</AppParagraph>
+        <div className='flex flex-col gap-2'>
+          <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
+            <ClockIcon className='text-brand h-5 w-5' />
+            {t('availability.recurring')}
+          </AppTitle>
+          <AppParagraph size='body-sm'>{t('availability.recurringBody')}</AppParagraph>
+        </div>
 
         {loadError !== null ? (
           <ErrorAlert
@@ -316,11 +279,12 @@ export const ProviderAvailabilityClient = () => {
             onRetry={() => setRevision((current) => current + 1)}
             retrying={loading}
           />
-        ) : !saved ? (
+        ) : !saved || !clock ? (
           <div className='bg-brand-50 min-h-40 animate-pulse rounded-brand' />
         ) : (
           <Form
             form={form}
+            initialValues={saved}
             disabled={pendingAction !== null}
             onValuesChange={(changed) => {
               setDirty(true)
@@ -346,40 +310,10 @@ export const ProviderAvailabilityClient = () => {
               </AppFormItem>
             </div>
 
-            <div className='flex flex-col gap-2'>
-              {timeZoneSuggested && <Alert type='info' showIcon title={t('availability.timeZoneSuggested')} />}
-              <AppFormItem
-                name='timeZone'
-                label={t('availability.timeZone')}
-                extra={t('availability.timeZoneHint')}
-                className='m-0'
-              >
-                <ProviderProfileTimeZone />
-              </AppFormItem>
-              <DeviceTimeZoneHint />
-            </div>
-
-            <AppFormItem
-              name='timeFormat'
-              label={t('availability.timeFormat')}
-              extra={t('availability.timeFormatHint')}
-              className='m-0'
-            >
-              <TimeFormatToggle />
-            </AppFormItem>
-
-            <div className='bg-surface-sunken border-brand-border flex items-center justify-between gap-4 rounded-brand border p-4'>
-              <div>
-                <AppText className='font-bold'>{t('availability.showClockChoicesTitle')}</AppText>
-                <AppParagraph size='body-sm'>{t('availability.showClockChoicesBody')}</AppParagraph>
-              </div>
-              <AppFormItem name='showClockChoices' valuePropName='checked' className='m-0'>
-                <Switch />
-              </AppFormItem>
-            </div>
+            <HoursClockNote timeZone={clock.timeZone} />
 
             {WEEK_DAYS_LIST.map((day) => (
-              <AvailabilityDayRow key={day} day={day} />
+              <AvailabilityDayRow key={day} day={day} timeFormat={clock.timeFormat} />
             ))}
           </Form>
         )}

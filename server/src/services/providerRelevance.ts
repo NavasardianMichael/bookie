@@ -124,10 +124,10 @@ export const shouldRankByRelevance = (query: Pick<ProvidersListQuery, 'terms' | 
 
 /**
  * The service a result card names as the match: the one whose name matches a query word
- * best, else one whose category does. Every service passed in already matched
- * (`matchedServicesWhere`), so this only orders them; equal ones keep their input order.
+ * best. Every service passed in already matched by name (`matchedServicesWhere`), so this
+ * only orders them; equal ones keep their input order.
  */
-export const pickMatchedService = <T extends { name: string; category: { name: string } | null }>(
+export const pickMatchedService = <T extends { name: string }>(
   services: readonly T[],
   matched: readonly TermSpellings[]
 ): T | undefined => {
@@ -136,13 +136,7 @@ export const pickMatchedService = <T extends { name: string; category: { name: s
 
   for (const service of services) {
     const name = toField(service.name)
-    const category = service.category ? categoryFields(service.category.name) : []
-    const quality = needles.reduce((top, needle) => {
-      const byName = termQuality(name, needle)
-      // A category match names the service only by association, so any name match beats it.
-      const byCategory = bestQuality(category, needle) ? OFFER_BONUS : NO_MATCH
-      return Math.max(top, byName, byCategory)
-    }, NO_MATCH)
+    const quality = needles.reduce((top, needle) => Math.max(top, termQuality(name, needle)), NO_MATCH)
     if (!best || quality > best.quality) best = { service, quality }
   }
 
@@ -153,9 +147,7 @@ export const pickMatchedService = <T extends { name: string; category: { name: s
  * One page's matched services, grouped per provider: the one to name on the card, and how
  * many others matched too — the card's "+N more".
  */
-export const matchedServicesByProvider = <
-  T extends { providerId: string; name: string; category: { name: string } | null },
->(
+export const matchedServicesByProvider = <T extends { providerId: string; name: string }>(
   services: readonly T[],
   matched: readonly TermSpellings[]
 ): Map<string, { service: T; more: number }> => {

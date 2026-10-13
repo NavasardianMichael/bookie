@@ -13,7 +13,9 @@ server/
                   (+ the bot's webhook) and calendar (the iCal feed) among them
     services/     appointments + availability logic, Explore's provider query (providerSearch)
                   + its reads (exploreResults) + relevance order and matched service
-                  (providerRelevance — pure), organizations,
+                  (providerRelevance — pure), categories (pure) + providerCategories (resolve, set, prune
+                  unused), organizations (pure) + organizationLink
+                  (resolveOrganizationId — registration and the settings profile),
                   searchFallback (the typo-tolerant retry of an empty search), plans (the
                   catalogue, prices and every limit rule — pure), planUsage (its counts and
                   stamps), planNotices (the booking-allowance emails), billing (Paddle

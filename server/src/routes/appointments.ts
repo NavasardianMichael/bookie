@@ -144,13 +144,7 @@ const resolveConsumerId = async (session: SessionPayload): Promise<string> => {
   if (existing) return existing.id
 
   const provider = await prisma.provider.findUnique({ where: { userId: session.userId } })
-  // Consumer.phoneCode/phoneNumber stay NOT NULL. A provider who registered without a
-  // number cannot mint a Consumer row until they add one — 409 rather than a Prisma error
-  // or a `{0,0}` dummy that would land on the booked provider's client list.
   if (!provider) throw new HttpError(409, 'No profile to book from', 409)
-  if (provider.phoneCode === null || provider.phoneNumber === null) {
-    throw new HttpError(409, 'A phone number is required to book', 409)
-  }
 
   const created = await prisma.consumer.create({
     data: {

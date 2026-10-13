@@ -1,4 +1,4 @@
-import { CompleteGoogleAPI, LoginAPI, RegisterAPI } from '@api/auth/types'
+import { BecomeProviderAPI, CompleteGoogleAPI, LoginAPI, RegisterAPI } from '@api/auth/types'
 import { Session, SignOnStep, UserType } from '@interfaces/auth'
 import { TimeFormat } from '@interfaces/schedule'
 import { StateCommonProps } from '@interfaces/store'
@@ -37,6 +37,11 @@ export type AuthActions = {
   login: (payload: LoginAPI['payload']) => Promise<Session>
   /** Finishes a first-time Google sign-up once the role and phone have been collected. */
   completeGoogle: (payload: CompleteGoogleAPI['payload']) => Promise<Session>
+  /**
+   * Adds a Provider profile to the signed-in account. Resolves with the refreshed session,
+   * now `provider` and holding both profiles; rejects with `409` when one already exists.
+   */
+  becomeProvider: (payload: BecomeProviderAPI['payload']) => Promise<Session>
   /**
    * Recovers role and profileId after a refresh; the session cookie is httpOnly.
    *

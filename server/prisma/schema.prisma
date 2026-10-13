@@ -144,12 +144,17 @@ model User {
   favorites                  FavoriteProvider[]
 }
 
+/// Attached to **providers only**, at most three each (`ProviderCategory`). An organization's
+/// categories are its listed providers' — derived on read, never stored — and a service has
+/// none. Two kinds share the table: the predefined ones (`SEEDED_CATEGORY_NAMES`, translated
+/// in every locale, never deleted) and the ones providers add, kept under the name typed and
+/// deleted once no provider uses them (`services/providerCategories.ts`).
 model Category {
-  id            String                 @id @default(uuid())
-  name          String                 @unique
-  organizations OrganizationCategory[]
-  providers     ProviderCategory[]
-  services      Service[]
+  id        String             @id @default(uuid())
+  /// The English name for a predefined category — the web translates it for display — or
+  /// the name a provider typed. Unique; the API also refuses a copy under another spelling.
+  name      String             @unique
+  providers ProviderCategory[]
 }
 
 model Organization {
@@ -164,19 +169,9 @@ model Organization {
   logoUrl      String                 @default("")
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
-  categories   OrganizationCategory[]
   providers    Provider[]
   appointments Appointment[]
   reviews      Review[]
-}
-
-model OrganizationCategory {
-  organizationId String
-  categoryId     String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  category       Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@id([organizationId, categoryId])
 }
 
 model Provider {
@@ -189,9 +184,9 @@ model Provider {
   imageUrl               String?
 
   /// Contact phone, **never verified** — it is not identity any more, so nothing depends on
-  /// it being reachable. Required at registration since 2026-09-28, as it always was for
-  /// consumers, but nullable here: providers who registered before that may have none, and
-  /// the profile's phone field stays optional for them (`Consumer.phoneCode` is NOT NULL).
+  /// it being reachable. Required at registration and NOT NULL, as on `Consumer`, so
+  /// `resolveConsumerId` can always mint a Consumer profile from this row. The providers
+  /// who registered without one were deleted by `20261013120000_provider_phone_required`.
   ///
   /// On the profile rather than on `User` because the two profiles publish it differently:
   /// `mapProviderDetails` puts a provider's number on the *public* `GET /providers/:id`
@@ -203,8 +198,8 @@ model Provider {
   /// household sharing a mobile, is ordinary — the old `@@unique` existed only because
   /// phone *was* the identity. A unique constraint on an unverified field would also
   /// reintroduce an enumeration oracle.
-  phoneCode              Int?
-  phoneNumber            BigInt?
+  phoneCode              Int
+  phoneNumber            BigInt
 
   /// Whether `phoneCode`/`phoneNumber` appear on the public profile. Defaults to true so
   /// existing providers keep today's behaviour. Saved live (not draftable), same as
@@ -279,7 +274,7 @@ model Provider {
   /// 12- or 24-hour clock for every time shown for this provider: the public page's hours and
   /// slots, the manage link, booking emails and Telegram, and the provider's own workspace.
   /// Null = never chosen, which follows the reader's locale (`en` 12-hour, `hy` 24-hour).
-  /// Draftable alongside `timeZone`, the field it sits beside on the Availability tab:
+  /// Draftable alongside `timeZone`, the field it sits beside on the Advanced settings tab:
   /// it changes what the public page shows, so it goes out on Publish.
   timeFormat             TimeFormat?
   /// Whether the public booking page offers the visitor a time-zone list and a 12/24-hour
@@ -377,10 +372,6 @@ model Service {
   id              String        @id @default(uuid())
   providerId      String
   provider        Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  /// Optional: a service is valid with a title and a duration. `onDelete: Restrict` is
-  /// stated explicitly because Prisma's default for an *optional* relation is SetNull.
-  categoryId      String?
-  category        Category?     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   name            String
   durationMinutes Int
   description     String?

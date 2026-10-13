@@ -1,10 +1,12 @@
 'use client'
 
-import { FC, useState } from 'react'
-import { FilterOutlined, SortAscendingOutlined } from '@ant-design/icons'
+import { FC, useEffect, useState } from 'react'
+import { FilterOutlined, HeartFilled, HeartOutlined, SortAscendingOutlined } from '@ant-design/icons'
 import { Badge, Dropdown, MenuProps, Switch } from 'antd'
 import { useTranslations } from 'next-intl'
 import { ProvidersListSort } from '@api/providers/types'
+import { useAuthStore } from '@store/auth/store'
+import { useFavoritesListStore, useFavoritesListStoreBase } from '@store/favorites/list/store'
 import { useRouter } from '@i18n/navigation'
 import { AppButton } from '@components/ui/AppButton'
 import { AppSheet } from '@components/ui/AppSheet'
@@ -45,7 +47,11 @@ const FILTERS: { key: FilterKey; labelKey: 'availableNow' | 'activeToday'; hintK
 const SORT_KEYS: ProvidersListSort[] = ['recommended', 'topRated', 'nameAsc', 'nameDesc', 'newest']
 
 /**
- * Sort and Filter, as the two icon buttons beside the Service providers heading.
+ * Sort, Favorites and Filter, as the buttons beside the Service providers heading.
+ *
+ * Favorites is its own toggle, not a row in the sheet: it asks "only the ones I saved",
+ * and it is hidden until this account has saved someone. The sheet's badge stays the
+ * count of its own toggles.
  *
  * Both write to the URL rather than to state — the grid is a Server Component, so the
  * query string is the only channel that reaches it, and it is what makes a filtered
@@ -61,6 +67,22 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
   const t = useTranslations('Explore')
   const router = useRouter()
   const { startTransition } = useExplorePending()
+  const isSignedOn = useAuthStore.use.isSignedOn()
+  const profileId = useAuthStore.use.profileId()
+  const favoriteIds = useFavoritesListStore.use.ids()
+  const loadedFor = useFavoritesListStore.use.loadedFor()
+  const getFavoriteIds = useFavoritesListStore.use.getFavoriteIds()
+
+  // The hearts on the cards load this too. Reading the live `isPending` is what stops
+  // a second request when both effects run in one commit — the same guard as
+  // `useFavoriteProvider`. Without a load here, an empty grid would never grow the button.
+  useEffect(() => {
+    if (!isSignedOn || !profileId || loadedFor === profileId) return
+    if (useFavoritesListStoreBase.getState().isPending) return
+    void getFavoriteIds(profileId)
+  }, [getFavoriteIds, isSignedOn, loadedFor, profileId])
+
+  const hasFavorites = isSignedOn && loadedFor === profileId && Object.keys(favoriteIds).length > 0
   const [isOpen, setIsOpen] = useState(false)
   const [draft, setDraft] = useState({ available: params.available, openToday: params.openToday })
 
@@ -107,6 +129,16 @@ export const ProviderExploreToolbar: FC<Props> = ({ params }) => {
           </AppText>
         </AppButton>
       </Dropdown>
+
+      {(hasFavorites || params.favorites) && (
+        <AppButton
+          type={params.favorites ? 'primary' : 'default'}
+          icon={params.favorites ? <HeartFilled /> : <HeartOutlined />}
+          aria-pressed={params.favorites}
+          aria-label={t('favoritesAria')}
+          onClick={() => go({ favorites: !params.favorites })}
+        />
+      )}
 
       <Badge count={activeCount} size='small' offset={[-2, 2]}>
         <AppButton icon={<FilterOutlined />} onClick={openSheet} aria-label={t('filterAria')} />

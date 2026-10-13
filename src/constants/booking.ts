@@ -9,8 +9,8 @@
  * get out of.
  *
  * Matching on the text rather than the status is deliberate. `POST /appointments` also
- * answers `409` for a service the provider has withdrawn and for a booker with no phone
- * number on file, and neither is fixed by choosing another time.
+ * answers `409` for a service the provider has withdrawn, which choosing another time does
+ * not fix.
  */
 export const SLOT_TAKEN_MESSAGE = 'Time slot not available'
 

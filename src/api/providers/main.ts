@@ -18,17 +18,21 @@ import {
   GetProviderProfileAPI,
   GetProvidersListAPI,
   GetSingleProviderAPI,
+  PatchProviderOrganizationAPI,
   PatchProviderSeoAPI,
   PostProviderServiceAPI,
   ProviderServiceRequestPayload,
+  PutProviderCategoriesAPI,
   PutProviderProfileAPI,
   PutProviderServiceAPI,
 } from './types'
 
 export const getProvidersListAPI: GetProvidersListAPI['api'] = async (query) => {
-  const queryString = paramsToQueryString({ ...query })
+  const { cookie, ...params } = query ?? {}
+  const queryString = paramsToQueryString(params)
   const { data } = await axiosInstance.get<APIResponse<GetProvidersListAPI['response']>>(
-    queryString ? `${ENDPOINTS.getProvidersList}?${queryString}` : ENDPOINTS.getProvidersList
+    queryString ? `${ENDPOINTS.getProvidersList}?${queryString}` : ENDPOINTS.getProvidersList,
+    cookie ? { headers: { Cookie: cookie } } : undefined
   )
   const processedResponse = processProvidersListResponse(data)
   return processedResponse
@@ -80,7 +84,6 @@ export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params
       ? {
           ...params,
           weekSchedule: params.weekSchedule ? JSON.stringify(params.weekSchedule) : undefined,
-          categoryIds: params.categoryIds ? JSON.stringify(params.categoryIds) : undefined,
           emailNotificationPrefs: params.emailNotificationPrefs
             ? JSON.stringify(params.emailNotificationPrefs)
             : undefined,
@@ -179,4 +182,20 @@ export const patchProviderSeoAPI: PatchProviderSeoAPI['api'] = async (payload) =
 
   const processedResponse = processProviderSeoResponse(data)
   return processedResponse
+}
+
+export const patchProviderOrganizationAPI: PatchProviderOrganizationAPI['api'] = async (payload) => {
+  const { data } = await axiosInstance.patch<APIResponse<PatchProviderOrganizationAPI['response']>>(
+    ENDPOINTS.patchProviderOrganization,
+    payload
+  )
+  return processProviderProfileResponse(data)
+}
+
+export const putProviderCategoriesAPI: PutProviderCategoriesAPI['api'] = async (payload) => {
+  const { data } = await axiosInstance.put<APIResponse<PutProviderCategoriesAPI['response']>>(
+    ENDPOINTS.putProviderCategories,
+    payload
+  )
+  return processProviderProfileResponse(data)
 }

@@ -58,10 +58,6 @@
     "orWithEmail": "oppure con email",
     "backToSignIn": "Torna all’accesso",
     "termsLead": "Creando un account accetti i nostri",
-    "roles": {
-      "consumer": "Voglio prenotare un servizio",
-      "provider": "Offro un servizio"
-    },
     "fields": {
       "email": "Email",
       "emailPlaceholder": "tu@esempio.com",
@@ -102,6 +98,21 @@
       "similarDescription": "Abbiamo trovato un’organizzazione con un nome simile. Unisciti a essa o crea «{name}» come nuova.",
       "useExisting": "Usa questa",
       "createNew": "Creane una nuova"
+    },
+    "categories": {
+      "label": "Categorie",
+      "hint": "Fino a {max}. Scegli cosa fai o aggiungi le tue.",
+      "searchPlaceholder": "Cerca o aggiungi una categoria",
+      "noMatches": "Nessuna categoria corrisponde a questo nome",
+      "addNew": "Aggiungi «{name}» come nuova categoria",
+      "full": "{max} categorie scelte: rimuovine una per aggiungerne un’altra",
+      "chosen": "Categorie scelte",
+      "remove": "Rimuovi {name}",
+      "newBadge": "nuova",
+      "similarTitle": "Questa categoria potrebbe esistere già",
+      "similarDescription": "Esiste una categoria con un nome simile. Usala oppure aggiungi «{name}» come nuova.",
+      "useExisting": "Usa questa",
+      "createNew": "Aggiungi come nuova"
     },
     "signIn": {
       "title": "Bentornato",
@@ -155,12 +166,6 @@
     "callback": {
       "signingIn": "Accesso in corso…"
     },
-    "completeRegistration": {
-      "title": "Completa la configurazione",
-      "subtitle": "Hai effettuato l’accesso come {email}. Ci servono altri due dati prima che tu possa prenotare.",
-      "roleLabel": "Come userai Bookie?",
-      "submit": "Completa"
-    },
     "googleErrors": {
       "generic": "L’accesso con Google non è andato a buon fine. Riprova.",
       "google_unavailable": "L’accesso con Google non è disponibile al momento. Usa email e password.",
@@ -173,6 +178,10 @@
       "google_account_mismatch": "Questo account Google è già collegato a un altro account Bookie.",
       "google_already_linked": "Il tuo account è già collegato a Google.",
       "google_unauthorized": "Accedi prima, poi collega Google dalle impostazioni."
+    },
+    "googleSignUp": {
+      "expired": "L’accesso con Google è scaduto. Registrati con la tua email qui sotto oppure continua di nuovo con Google.",
+      "emailFromGoogle": "Dal tuo account Google: non può essere modificata qui."
     },
     "termsAnd": "e"
   },
@@ -356,6 +365,7 @@
       "services": "Servizi",
       "approvals": "Approvazioni",
       "analytics": "Statistiche",
+      "advanced": "Impostazioni avanzate",
       "seo": "SEO",
       "history": "Cronologia",
       "plan": "Piano"
@@ -366,7 +376,17 @@
       "onConsumerTitle": "Sei nel tuo profilo cliente",
       "onConsumerBody": "I tuoi dati, le notifiche e le preferenze di pagamento.",
       "toConsumer": "Passa al profilo cliente",
-      "toProvider": "Passa allo spazio professionale"
+      "toProvider": "Passa allo spazio professionale",
+      "becomeProviderTitle": "Offri i tuoi servizi",
+      "becomeProviderBody": "Aggiungi un profilo professionale a questo account per ricevere prenotazioni. Il tuo profilo cliente resta com’è.",
+      "becomeProvider": "Diventa un professionista"
+    },
+    "becomeProvider": {
+      "title": "Diventa un professionista",
+      "subtitle": "Configura la parte professionale del tuo account. Potrai modificare questi dati in seguito.",
+      "formTitle": "Dati del professionista",
+      "accountNote": "Continuerai ad accedere con {email} e la tua password attuale.",
+      "submit": "Diventa un professionista"
     },
     "actions": {
       "save": "Salva modifiche",
@@ -489,6 +509,8 @@
       "subtitle": "Definisci il tuo orario di lavoro standard per ogni giorno della settimana.",
       "recurring": "Disponibilità ricorrente",
       "recurringBody": "Giorni e orari in cui i clienti possono prenotare. Aggiungi fino a 5 fasce al giorno se fai delle pause.",
+      "hoursInZone": "Questi orari sono in {zone}. <link>Cambialo nelle Impostazioni avanzate</link>",
+      "hoursNoZone": "Nessun fuso orario impostato: i visitatori leggono questi orari sul proprio orologio. <link>Impostalo nelle Impostazioni avanzate</link>",
       "pauseTitle": "Accetti prenotazioni",
       "pauseBody": "Disattiva per mettere in pausa temporaneamente le nuove prenotazioni senza rimuovere la tua pagina.",
       "timeZone": "Fuso orario",
@@ -515,6 +537,10 @@
         "saturday": "Sabato",
         "sunday": "Domenica"
       }
+    },
+    "advanced": {
+      "subtitle": "Scegli il fuso orario dei tuoi orari e come vengono mostrati gli orari a te e ai tuoi clienti.",
+      "clockTitle": "Ora e orologio"
     },
     "listing": {
       "statusActive": "Stato account: attivo",
@@ -772,6 +798,7 @@
     "body": "Prenota servizi nella tua zona o gestisci la tua agenda con Bookie. Una piattaforma unica per i professionisti e per chi prenota con loro.",
     "findProvider": "Trova un professionista",
     "joinAsProvider": "Diventa un professionista",
+    "exploreProviders": "Esplora i professionisti",
     "browseSpecialty": "Esplora per specialità",
     "categoriesRail": "Categorie",
     "audiences": {
@@ -916,6 +943,7 @@
     "emptyBody": "I professionisti appariranno qui non appena pubblicheranno un profilo.",
     "sortAria": "Ordinamento: {sort}",
     "filterAria": "Filtra i professionisti",
+    "favoritesAria": "Mostra solo i preferiti",
     "filtersTitle": "Filtri",
     "reset": "Reimposta",
     "showResults": "Mostra risultati",
@@ -1197,11 +1225,9 @@
     "formTitle": "Titolo",
     "formDescription": "Descrizione",
     "formDuration": "Durata",
-    "formCategory": "Categoria",
     "formPrice": "Prezzo",
     "formCurrency": "Valuta",
     "formImage": "Immagine",
-    "categoryPlaceholder": "Digita o scegli una categoria",
     "currencyPlaceholder": "Digita o scegli una valuta",
     "onboardingDone": "Configurazione finita? Il tuo profilo è online — guarda cosa vedono i clienti.",
     "viewProfile": "Vedi il mio profilo",
@@ -1217,6 +1243,10 @@
     "activateBody": "I clienti potranno prenotarlo.",
     "deactivateTitle": "Disattivare questo servizio?",
     "deactivateBody": "I clienti non potranno prenotarlo finché non lo riattivi.",
+    "duplicateService": "Duplica servizio",
+    "duplicateTitle": "Duplicare questo servizio?",
+    "duplicateBody": "Verrà creato un nuovo servizio con gli stessi dettagli.",
+    "duplicate": "Duplica",
     "activeOfLimit": "Servizi attivi nel tuo piano: {count} su {limit}.",
     "limitReached": "Per aggiungerne un altro, disattivane uno o <link>passa a un piano superiore</link>."
   },
@@ -1234,7 +1264,6 @@
     "optional": "Facoltativo",
     "firstName": "Nome",
     "lastName": "Cognome",
-    "categories": "Categorie",
     "email": "Email",
     "organization": "Organizzazione",
     "notes": "Note",
@@ -1320,6 +1349,7 @@
       "load": "Non è stato possibile caricare questa sezione.",
       "busySlots": "Non è stato possibile verificare quali orari sono già prenotati, quindi alcuni potrebbero essere occupati.",
       "organizationSearch": "Al momento non è possibile cercare le organizzazioni.",
+      "categorySearch": "Al momento non è possibile cercare le categorie.",
       "providerSuggestions": "Non è possibile caricare i suggerimenti. La ricerca funziona comunque."
     },
     "conflicts": {

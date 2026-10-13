@@ -37,15 +37,15 @@ const fetchSuggestions = async (request: ProvidersListQuery): Promise<ProviderLi
  * the stale-answer guard are `useDebouncedLookup`'s.
  */
 export const useProviderSuggestions = (scope: ExploreScope, text: string): ProviderSuggestions => {
-  const { categoryId, available, openToday, sort } = scope
+  const { categoryId, available, openToday, favorites, sort } = scope
   const query = collapseWhitespace(text)
 
   const request = useMemo(
     () =>
       query.length >= MIN_QUERY_LENGTH
-        ? toProviderSuggestionsQuery({ categoryId, available, openToday, sort }, query)
+        ? toProviderSuggestionsQuery({ categoryId, available, openToday, favorites, sort }, query)
         : null,
-    [available, categoryId, openToday, query, sort]
+    [available, categoryId, favorites, openToday, query, sort]
   )
 
   // The dropdown is a shortcut, not the search: Enter still reaches the grid, so a

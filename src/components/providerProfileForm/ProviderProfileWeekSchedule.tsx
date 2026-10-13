@@ -53,7 +53,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
   const schedule = useMemo(() => value ?? ({} as WeekSchedule), [value])
   const t = useTranslations('ProfileCreation')
   const tDays = useTranslations('Settings.availability.days')
-  // No clock has been chosen yet at sign-up — that is the Availability tab's — so the locale's.
+  // No clock has been chosen yet at sign-up — that is the Advanced settings tab's — so the locale's.
   const timeFormat = getLocaleTimeFormat(useLocale())
   const timeDisplayFormat = getTimeDisplayFormat(timeFormat)
   const [isEditScheduleModalOpened, setIsEditScheduleModalOpened] = useState(false)

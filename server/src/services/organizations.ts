@@ -140,3 +140,32 @@ export const findSimilarOrganizations = <T extends NamedOrganization>(organizati
  */
 export const findSameNamedOrganization = <T extends NamedOrganization>(organizations: readonly T[], name: string): T | undefined =>
   organizations.find((organization) => isSameName(organization.name, name))
+
+/**
+ * What a `PATCH /provider-profile/organization` body asks for:
+ *
+ * - `organizationId: null` — detach, leaving the provider with no organization;
+ * - `organizationId` — link that existing organization;
+ * - `newOrganization` — create one (or link its same-named twin), as at registration.
+ *
+ * `undefined` when it names none of these, so the route answers 400 rather than reading a
+ * malformed body as a detach. An explicit `null` is the only way to detach.
+ */
+export type OrganizationLinkRequest =
+  | { detach: true }
+  | { detach: false; organizationId?: string; newOrganization?: unknown }
+
+export const parseOrganizationLinkBody = (body: unknown): OrganizationLinkRequest | undefined => {
+  if (typeof body !== 'object' || body === null) return undefined
+  const raw = body as Record<string, unknown>
+
+  if (raw.organizationId === null) return { detach: true }
+
+  const organizationId = asTrimmedString(raw.organizationId)
+  if (organizationId) return { detach: false, organizationId }
+
+  if (typeof raw.newOrganization === 'object' && raw.newOrganization !== null) {
+    return { detach: false, newOrganization: raw.newOrganization }
+  }
+  return undefined
+}

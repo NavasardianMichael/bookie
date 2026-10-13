@@ -2,6 +2,7 @@ import { axiosInstance } from '@api/axiosInstance'
 import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
 import {
+  processBecomeProviderResponse,
   processChangeEmailSendResponse,
   processChangePasswordResponse,
   processChangePhoneResponse,
@@ -18,6 +19,7 @@ import {
   processVerifyEmailResponse,
 } from './processors'
 import {
+  BecomeProviderAPI,
   ChangeEmailSendAPI,
   ChangePasswordAPI,
   ChangePhoneAPI,
@@ -164,4 +166,9 @@ export const buildGoogleSignInUrl = (args: {
   if (args.role) url.searchParams.set('role', args.role)
   if (args.returnPath) url.searchParams.set('returnPath', args.returnPath)
   return url.toString()
+}
+
+export const becomeProviderAPI: BecomeProviderAPI['api'] = async (params) => {
+  const { data } = await axiosInstance.post<APIResponse<BecomeProviderAPI['response']>>(ENDPOINTS.becomeProvider, params)
+  return processBecomeProviderResponse(data)
 }

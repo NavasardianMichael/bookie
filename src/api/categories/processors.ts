@@ -1,5 +1,11 @@
 import { BasicCategory } from '@store/categories/single/types'
-import { BasicCategoryResponse, GetCategoriesListAPI, GetCategoryAPI } from './types'
+import {
+  BasicCategoryResponse,
+  FindSimilarCategoriesAPI,
+  GetCategoriesListAPI,
+  GetCategoryAPI,
+  SearchCategoriesAPI,
+} from './types'
 
 export const processCategoriesListResponse: GetCategoriesListAPI['processor'] = (response) => {
   return response.value.reduce(
@@ -23,3 +29,7 @@ export const processBasicCategoryResponse = (category: BasicCategoryResponse): B
 export const processCategoryResponse: GetCategoryAPI['processor'] = (category) => {
   return category.value
 }
+
+export const processSearchCategoriesResponse: SearchCategoriesAPI['processor'] = (response) => response.value
+
+export const processFindSimilarCategoriesResponse: FindSimilarCategoriesAPI['processor'] = (response) => response.value

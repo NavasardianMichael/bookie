@@ -18,10 +18,19 @@ type Props = {
   disabled?: boolean
   /** The provider prototype labels fields in navy semibold rather than charcoal bold. */
   labelClassName?: string
+  /**
+   * Controlled open state, for a form that loads an organization already linked (the
+   * settings profile). Registration leaves both unset; the section then starts closed and
+   * manages itself.
+   */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-type FieldsProps = Props & {
+type FieldsProps = Pick<Props, 'disabled' | 'labelClassName'> & {
   onDetach: () => void
+  /** Only when the provider opened the section — not when a saved organization opened it on load. */
+  focusOnMount: boolean
 }
 
 const NAME_INPUT_ID = 'organization'
@@ -34,7 +43,7 @@ const NAME_INPUT_ID = 'organization'
  * with it, and every item inside is `preserve={false}`, so the form forgets the organization
  * entirely rather than submitting a stale one.
  */
-const OrganizationFields: FC<FieldsProps> = ({ onDetach, disabled, labelClassName }) => {
+const OrganizationFields: FC<FieldsProps> = ({ onDetach, focusOnMount, disabled, labelClassName }) => {
   const t = useTranslations('Auth')
   const tValidation = useTranslations('Validation')
   const organization = Form.useWatch<OrganizationValue | undefined>('organization')
@@ -42,10 +51,10 @@ const OrganizationFields: FC<FieldsProps> = ({ onDetach, disabled, labelClassNam
   const searchRef = useRef<RefSelectProps>(null)
   const nameLabel = t('organization.name')
 
-  // The section opens on a click, so the search is already where the user's attention is.
+  // Opened by a click, the search is already where the user's attention is.
   useEffect(() => {
-    searchRef.current?.focus()
-  }, [])
+    if (focusOnMount) searchRef.current?.focus()
+  }, [focusOnMount])
 
   const nameRules = useMemo<Rule[]>(
     () => [
@@ -101,22 +110,37 @@ const OrganizationFields: FC<FieldsProps> = ({ onDetach, disabled, labelClassNam
  * suggestion links that organization, and "add as new" reveals the fields its public page
  * needs, so the organization is registered in the same submit as the provider.
  *
- * Shared by email registration and the Google completion step, the two ways a provider
- * account is created. Renders its own named items (`organization`, `newOrganization.*`), so
- * it must not be placed inside a named `Form.Item`; `toOrganizationFields` turns them into
- * the payload.
+ * Shared by provider registration (email and Google alike) and the settings profile. Renders
+ * its own named items (`organization`, `newOrganization.*`), so it must not be placed inside
+ * a named `Form.Item`; `toOrganizationFields` turns them into the payload. Closed, the items
+ * are unmounted and `validateFields()` omits them — which is how "no organization" reads.
  */
-export const OrganizationSection: FC<Props> = ({ disabled, labelClassName }) => {
+export const OrganizationSection: FC<Props> = ({ disabled, labelClassName, open, onOpenChange }) => {
   const t = useTranslations('Auth.organization')
-  const [isOpen, setIsOpen] = useState(false)
+  const [ownOpen, setOwnOpen] = useState(false)
+  const [openedByClick, setOpenedByClick] = useState(false)
+  const isOpen = open ?? ownOpen
+
+  const setOpen = (next: boolean) => {
+    setOwnOpen(next)
+    setOpenedByClick(next)
+    onOpenChange?.(next)
+  }
 
   if (!isOpen) {
     return (
-      <AppButton type='dashed' block icon={<PlusOutlined />} onClick={() => setIsOpen(true)} disabled={disabled}>
+      <AppButton type='dashed' block icon={<PlusOutlined />} onClick={() => setOpen(true)} disabled={disabled}>
         {t('add')}
       </AppButton>
     )
   }
 
-  return <OrganizationFields onDetach={() => setIsOpen(false)} disabled={disabled} labelClassName={labelClassName} />
+  return (
+    <OrganizationFields
+      onDetach={() => setOpen(false)}
+      focusOnMount={openedByClick}
+      disabled={disabled}
+      labelClassName={labelClassName}
+    />
+  )
 }

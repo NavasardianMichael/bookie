@@ -97,7 +97,6 @@ const PUBLIC_RETURN_PATHS = new Set([
   'auth/reset-password',
   'auth/sign-in',
   'auth/callback',
-  'auth/complete-registration',
 ])
 
 export const isAllowedPublicReturnPath = (returnPath: string): boolean => {
@@ -126,6 +125,27 @@ export const asVerifyLocale = (value: unknown): string => {
  * reads `undefined` and tells the visitor their link expired.
  */
 export const EMAIL_VERIFY_QUERY = 'verifyEmail'
+
+/**
+ * Where the Google callback sends a first-time account: the registration form for the role
+ * the flow started from, or the account-type choice when it started from sign-in. Each opens
+ * in Google mode — `?google=1` (`GOOGLE_SIGN_UP_QUERY`) — which prefills what Google supplied and
+ * asks for the rest, with no password and no emailed link.
+ *
+ * Mirrors `ROUTES` and `GOOGLE_SIGN_UP_QUERY` in `src/constants/`; pinned by
+ * `tests/unit/server/returnPath.spec.ts`, because a rename on either side alone strands a new
+ * Google account on a 404 or on an empty form that asks for a password it does not have.
+ */
+export const GOOGLE_SIGN_UP_QUERY = 'google'
+
+export const GOOGLE_SIGN_UP_PATHS = {
+  consumer: '/auth/consumer-registration',
+  provider: '/auth/provider-registration',
+  unknown: '/auth/account-type-selection',
+} as const
+
+export const googleSignUpPath = (locale: string, role: 'consumer' | 'provider' | null): string =>
+  `/${locale}${GOOGLE_SIGN_UP_PATHS[role ?? 'unknown']}`
 
 /**
  * Composes the emailed link. Lives here rather than in `lib/email-verify.ts` for the same
