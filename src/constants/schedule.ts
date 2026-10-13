@@ -19,9 +19,15 @@ export const MAX_DAY_RANGES = 5
 /**
  * The clocks a provider can print their times on (`details.timeFormat`). `h12`/`h24` because
  * the Prisma enum they mirror cannot start a value with a digit. Formatting with one goes
- * through `@helpers/timeFormat`.
+ * through `@helpers/timeFormat`. Loop `TIME_FORMATS_LIST`; compare against `TIME_FORMATS.h12`
+ * / `TIME_FORMATS.h24`.
  */
-export const TIME_FORMATS = ['h12', 'h24'] as const
+export const TIME_FORMATS = {
+  h12: 'h12',
+  h24: 'h24',
+} as const
+
+export const TIME_FORMATS_LIST = Object.values(TIME_FORMATS)
 
 /** Keys a calendar day in lookup maps (slot counts, day-cell affordances). */
 export const DAY_KEY_FORMAT = 'YYYY-MM-DD'

@@ -3,9 +3,10 @@
 import { useEffect, useMemo } from 'react'
 import { DeleteOutlined, RedoOutlined, UploadOutlined } from '@ant-design/icons'
 import { Flex, Image, Upload } from 'antd'
-import ImgCrop, { ImgCropProps } from 'antd-img-crop'
+import type { ImgCropProps } from 'antd-img-crop'
 import { useTranslations } from 'next-intl'
 import { AppButton } from '@components/ui/AppButton'
+import { LazyImgCrop } from '@components/ui/LazyImgCrop'
 
 /**
  * Injected by `Form.Item`. The value is a `File` between the crop and the save, and the
@@ -46,7 +47,7 @@ export const ProviderProfileImage: React.FC<Props> = ({ value, onChange, disable
   return (
     <>
       <Flex gap={8} wrap>
-        <ImgCrop aspect={1} onModalOk={onModalOk}>
+        <LazyImgCrop aspect={1} onModalOk={onModalOk}>
           {/*
             `customRequest` is a no-op so antd does not POST the file on its own — the form
             submit carries it. Deliberately **not** `beforeUpload={() => false}`:
@@ -59,7 +60,7 @@ export const ProviderProfileImage: React.FC<Props> = ({ value, onChange, disable
               {value ? t('uploadAnother') : t('upload')}
             </AppButton>
           </Upload>
-        </ImgCrop>
+        </LazyImgCrop>
 
         {previewUrl && (
           <AppButton

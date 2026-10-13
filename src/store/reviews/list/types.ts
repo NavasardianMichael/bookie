@@ -46,9 +46,10 @@ export type ReviewsSummary = {
  * What this viewer may do about this provider's reviews, decided entirely on the server.
  *
  * `eligibleAppointmentId` **is** the eligibility rule: it is present only when the
- * viewer has a past, non-cancelled, not-yet-reviewed appointment with this provider. The
- * client renders a CTA when it has an id to submit and nothing when it does not — it
- * never evaluates the rule itself, so the rule cannot drift between the two.
+ * viewer has a past, non-cancelled, not-yet-reviewed appointment with this provider,
+ * and the viewer is not that provider. The client renders a CTA when it has an id to
+ * submit and nothing when it does not — it never evaluates the rule itself, so the
+ * rule cannot drift between the two.
  */
 export type ReviewsViewer = {
   eligibleAppointmentId?: string

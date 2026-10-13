@@ -102,7 +102,10 @@ export const ReviewCardActions: FC<Props> = ({ review, isProviderOwner }) => {
 
   return (
     <div className='flex shrink-0 items-center gap-1'>
-      {review.isMine && (
+      {/* An owner who is also the author is reviewing themselves. Reply and report
+          stay — those are the page owner's answers — but the edit form is another
+          write, and the API refuses it. */}
+      {review.isMine && !isProviderOwner && (
         <>
           <AppButton size='small' type='text' onClick={() => setOpen('edit')}>
             {t('edit')}

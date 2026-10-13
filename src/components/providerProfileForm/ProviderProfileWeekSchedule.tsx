@@ -1,12 +1,13 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { EditOutlined, MinusCircleFilled, PlusOutlined } from '@ant-design/icons'
-import { Checkbox, CheckboxProps, Col, Flex, Row, TimePicker, Typography } from 'antd'
+import { FC, PropsWithChildren, useMemo, useState } from 'react'
+import { EditOutlined } from '@ant-design/icons'
+import { Checkbox, CheckboxProps, Col, Flex, Row, Spin, Typography } from 'antd'
 import { RangePickerProps } from 'antd/es/date-picker'
 import { Rule } from 'antd/es/form'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import dynamic from 'next/dynamic'
 import { useLocale, useTranslations } from 'next-intl'
 import { DaySchedule, WeekSchedule } from '@store/providers/profile/types'
 import { WeekDay } from '@interfaces/schedule'
@@ -19,6 +20,22 @@ import { AppSheet } from '@components/ui/AppSheet'
 import { WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS } from './constants'
 
 dayjs.extend(customParseFormat)
+
+/**
+ * Form.Item clones its one child and passes `onChange`. Flex forwards that onto the DOM,
+ * so a day checkbox's change event would replace the week schedule with the day name.
+ * This shell keeps the injected props off the markup.
+ */
+const ScheduleControls: FC<PropsWithChildren> = ({ children }) => (
+  <Flex vertical gap={16}>
+    {children}
+  </Flex>
+)
+
+/** TimePicker lives in this chunk, loaded when Edit Schedule opens. */
+const WeekScheduleEditor = dynamic(() => import('./WeekScheduleEditor').then((mod) => mod.WeekScheduleEditor), {
+  loading: () => <Spin />,
+})
 
 /**
  * Injected by `Form.Item` — see `ProviderProfileFormCategories` for why a custom control
@@ -36,7 +53,6 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
   const schedule = useMemo(() => value ?? ({} as WeekSchedule), [value])
   const t = useTranslations('ProfileCreation')
   const tDays = useTranslations('Settings.availability.days')
-  const tCommon = useTranslations('Common')
   // No clock has been chosen yet at sign-up — that is the Availability tab's — so the locale's.
   const timeFormat = getLocaleTimeFormat(useLocale())
   const timeDisplayFormat = getTimeDisplayFormat(timeFormat)
@@ -160,76 +176,9 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
     return result
   }, [hasFilledRanges, t])
 
-  const scheduleEditor = (
-    <Flex vertical gap={8}>
-      <Typography.Paragraph>
-        for{' '}
-        {selectedDaysList.map((day, i, arr) => (
-          <Typography.Text key={day}>
-            {tDays(day)}
-            {i < arr.length - 1 ? ', ' : ''}
-          </Typography.Text>
-        ))}
-      </Typography.Paragraph>
-      <TimePicker.RangePicker
-        className='grow'
-        use12Hours={timeFormat === 'h12'}
-        showNow
-        value={tempAvailability}
-        format={timeDisplayFormat}
-        onChange={onAvailabilityChange}
-        minuteStep={5}
-        separator={'-'}
-        name='weekSchedule'
-      />
-      {tempBreaks.length > 0 && (
-        <Typography.Paragraph className='mt-4 mb-0 text-lg font-semibold'>Breaks</Typography.Paragraph>
-      )}
-      {tempBreaks.map((range, index) => {
-        return (
-          <Flex gap={8} key={index} align='center'>
-            <TimePicker.RangePicker
-              className='grow'
-              use12Hours={timeFormat === 'h12'}
-              showNow
-              value={range}
-              format={timeDisplayFormat}
-              onChange={(dates, dateStrings) => onRangeChange(dates, dateStrings, index)}
-              minuteStep={5}
-              separator={'-'}
-            />
-            <AppButton
-              danger
-              icon={<MinusCircleFilled />}
-              type='text'
-              aria-label={t('removeBreak', { n: index + 1 })}
-              className='min-h-11 min-w-11'
-              onClick={() => onRemoveRangeClick(index)}
-            />
-          </Flex>
-        )
-      })}
-      <AppButton
-        icon={<PlusOutlined />}
-        type='link'
-        onClick={onAddRangeClick}
-        className='mt-0 w-fit text-left text-xs'
-        size='small'
-      >
-        Add break
-      </AppButton>
-      <Flex gap={8} justify='end' className='mt-4'>
-        <AppButton onClick={() => setIsEditScheduleModalOpened(false)}>{tCommon('cancel')}</AppButton>
-        <AppButton type='primary' disabled={!areChangesComplete} onClick={onScheduleChangesConfirm}>
-          {tCommon('confirm')}
-        </AppButton>
-      </Flex>
-    </Flex>
-  )
-
   return (
     <AppFormItem name='weekSchedule' label={t('weekSchedule')} rules={rules}>
-      <Flex vertical gap={16}>
+      <ScheduleControls>
         <Row gutter={[8, 8]}>
           {WEEK_DAYS_SELECTION_ADDITIONAL_OPTIONS.map(({ label, childFieldNames }) => {
             const checked = childFieldNames.every((day) => selectedDays[day])
@@ -263,7 +212,22 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
           open={!!isEditScheduleModalOpened}
           onClose={() => setIsEditScheduleModalOpened(false)}
         >
-          {scheduleEditor}
+          {isEditScheduleModalOpened ? (
+            <WeekScheduleEditor
+              selectedDays={selectedDaysList}
+              timeFormat={timeFormat}
+              timeDisplayFormat={timeDisplayFormat}
+              availability={tempAvailability}
+              breaks={tempBreaks}
+              changesComplete={areChangesComplete}
+              onAvailabilityChange={onAvailabilityChange}
+              onBreakChange={onRangeChange}
+              onRemoveBreak={onRemoveRangeClick}
+              onAddBreak={onAddRangeClick}
+              onCancel={() => setIsEditScheduleModalOpened(false)}
+              onConfirm={() => void onScheduleChangesConfirm()}
+            />
+          ) : null}
         </AppSheet>
 
         {hasFilledRanges && (
@@ -288,7 +252,7 @@ export const ProviderProfileWeekSchedule: React.FC<Props> = ({ value, onChange }
             </Flex>
           </Flex>
         )}
-      </Flex>
+      </ScheduleControls>
     </AppFormItem>
   )
 }

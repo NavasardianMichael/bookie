@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Alert, Progress, Tag } from 'antd'
+import dynamic from 'next/dynamic'
 import { useFormatter, useTranslations } from 'next-intl'
 import { postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
 import { getPlansAPI, getProviderPlanAPI } from '@api/plans/main'
@@ -13,7 +14,6 @@ import { BILLING_STATUSES } from '@constants/billing'
 import { PLAN_ORDER, PLAN_TAG_COLORS, PLANS } from '@constants/plans'
 import { hasRoomFor, toPlanLastDay, usagePercent } from '@helpers/plans'
 import { PlanComparisonTable } from '@components/plans/PlanComparisonTable'
-import { PlanUpgradeSheet } from '@components/plans/PlanUpgradeSheet'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -23,6 +23,11 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { Surface } from '@components/ui/layout/Surface'
 import { StatTile } from '@components/ui/StatTile'
+
+/** The contact form inside this sheet loads only after Request upgrade. */
+const PlanUpgradeSheet = dynamic(
+  () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet)
+)
 
 const isAbove = (plan: Plan, than: Plan): boolean => PLAN_ORDER.indexOf(plan) > PLAN_ORDER.indexOf(than)
 
@@ -57,6 +62,7 @@ export const ProviderPlanClient = () => {
   const [error, setError] = useState<unknown>(null)
   const [revision, setRevision] = useState(0)
   const [requested, setRequested] = useState<Plan | null>(null)
+  const [upgradeMounted, setUpgradeMounted] = useState(false)
   const [switchTo, setSwitchTo] = useState<PaidPlan | null>(null)
   const [switching, setSwitching] = useState<{ plan: PaidPlan; attempt: number } | null>(null)
   const [portalPending, setPortalPending] = useState(false)
@@ -193,7 +199,13 @@ export const ProviderPlanClient = () => {
 
     if (!purchasable.get(plan)) {
       return isAbove(plan, effectivePlan) ? (
-        <AppButton type='primary' onClick={() => setRequested(plan)}>
+        <AppButton
+          type='primary'
+          onClick={() => {
+            setUpgradeMounted(true)
+            setRequested(plan)
+          }}
+        >
           {t('requestUpgrade')}
         </AppButton>
       ) : null
@@ -307,7 +319,7 @@ export const ProviderPlanClient = () => {
         </AppParagraph>
       </Surface>
 
-      <PlanUpgradeSheet plan={requested} onClose={() => setRequested(null)} />
+      {upgradeMounted && <PlanUpgradeSheet plan={requested} onClose={() => setRequested(null)} />}
 
       <AppConfirmModal
         open={switchTo !== null}

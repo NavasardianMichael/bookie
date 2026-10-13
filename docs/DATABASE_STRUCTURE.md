@@ -9,7 +9,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, the linked Telegram chat (`telegramChatId` unique, `telegramUsername`, `telegramLinkedAt`) and its one live Connect token (`telegramLinkTokenHash`, `telegramLinkExpiresAt` — see [docs/NOTIFICATIONS.md](NOTIFICATIONS.md)), optional 1:1 Consumer/Provider |
 | **Category** | Service specialty (unique name) |
 | **Organization** | Clinic / facility; M2M with Category. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
-| **Provider** | Professional profile, `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
+| **Provider** | Professional profile, `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
 | **Service** | Bookable offering. Title and duration are required; price, currency, category, description and image are optional. `active` hides a withdrawn service from consumers without deleting it |
 | **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
@@ -97,7 +97,7 @@ generic messages append the original error's message. The table is in `server/CL
 | POST | `/telegram/webhook` | Telegram only — checked against `X-Telegram-Bot-Api-Secret-Token`; mounted ahead of `requireSameOrigin`. Handles `/start <token>` and `/stop` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only). Creating an active service, or reactivating one, past the plan's `maxActiveServices` is `403` / `4101` |
 | GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
-| POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled |
+| POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled. The provider's own account is `403` even when that appointment exists |
 | PATCH/DELETE | `/reviews/:id` | author only |
 | POST | `/reviews/:id/reply` | provider — the reviewed provider only |
 | POST | `/reviews/:id/report` | provider — the reviewed provider only; rate-limited 5/hour, writes a `ReviewReport` then emails the admin inbox |
@@ -318,11 +318,15 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 - **`available`** — pause new bookings; independent of listing. Enforced by
   `POST /appointments` (see [When online booking is closed](#when-online-booking-is-closed));
   it used to be read by Explore alone while bookings kept arriving.
-- **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
+- **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `showClockChoices`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
 - **`timeZone`** — the IANA zone `weekSchedule` is written in. Draftable, because it moves
   every published hour; also written live by onboarding's first save. See [Time zones](#time-zones).
 - **`timeFormat`** — `h12` / `h24` (Prisma enum `TimeFormat`), nullable. Draftable with
   `timeZone`, beside which it is edited. See [12- or 24-hour clock](#12--or-24-hour-clock).
+- **`showClockChoices`** — whether the public booking page offers a visitor a time-zone
+  list and a 12/24-hour switch, together. Default `true`. Draftable with `timeFormat`:
+  turning it off changes what the page shows, so it goes out on Publish. A missing value
+  on an older payload is shown. See [Visitor clock choices](#visitor-clock-choices).
 - **`paymentInfo`** — `{ methods: ('cash'|'card_on_site'|'bank_transfer')[], payToNumber?, notes? }`.
   **`methods` is plural** — a provider accepts a set, not one preference, and the booking
   sheet offers exactly that set. `payToNumber` is a provider-authored card or account
@@ -647,8 +651,8 @@ not keep, and booking emails printed the API server's zone (UTC in production).
 
 | Where | Which zone | Why |
 | --- | --- | --- |
-| Public booking grid, slots, "today", the confirm sheet and copy-as-text, `/b/:token` reschedule | `Provider.timeZone`, named on screen (`Armenia Standard Time (GMT+4)`) | The hours are on the provider's clock, and the appointment happens there. A visitor in another zone also sees their own time for the picked slot |
-| Working hours on the public profile | `Provider.timeZone`, named under the list | Same hours |
+| Public booking grid, slots, "today", the confirm sheet and copy-as-text, `/b/:token` reschedule | `Provider.timeZone`. The public page reprints slots, the confirm sheet and opening hours on one visitor clock when `showClockChoices` is on (see [Visitor clock choices](#visitor-clock-choices)); `/b/:token` stays on this zone | The hours are on the provider's clock, and the appointment happens there. A visitor in another zone also sees their own time for the picked slot |
+| Working hours on the public profile | `Provider.timeZone` until the visitor picks another offset or 12/24-hour clock, then the same printed clock as the slot grid | Same hours, one representation for the page |
 | Booking emails and Telegram (`lib/time-format.ts#formatBookingWhen`) | `Provider.timeZone`, with its short name (`GMT+4`); `UTC` when unset | An email is read away from any page that would say which clock it means |
 | Explore's open-today filter and the card's Available/Closed | The provider's weekday in `Provider.timeZone` | See [the Explore query](#routes-express-default-9004) |
 | `/bookings`, Approvals, Analytics, the workspace calendars (`tz` param) | The **reader's** browser zone | Rows and counts must agree, and they are the reader's diary |
@@ -681,7 +685,7 @@ says *how* a time is written, never *which zone* — the table above still decid
 
 | Where | Reads it from |
 | --- | --- |
-| Public profile: working hours, slot grid, "your time", confirm sheet and copy-as-text | `details.timeFormat` on the public payload |
+| Public profile: working hours, slot grid, "your time", confirm sheet and copy-as-text | `details.timeFormat`, until the visitor picks the other clock on a page that shows the controls |
 | `/b/:token` — the summary, the reschedule grid and its confirm dialog | the same, through `mapSingleProvider` |
 | Booking emails and Telegram notices (`lib/time-format.ts#formatBookingWhen`) | the row, selected with `timeZone` |
 | The provider's `/bookings` (both sides), Approvals, the Analytics hour chart | `GET /identity/me` → the auth store; Publish updates the store |
@@ -696,6 +700,20 @@ Onboarding has no toggle; its pickers use the locale's clock.
 `PUT /provider-profile` accepts `timeFormat` in `draft` and `publish` modes and answers `400`
 for anything but `h12` / `h24`. The client half is `src/helpers/timeFormat.ts`; the server twin
 `server/src/lib/time-format.ts` is pinned to it by `tests/unit/server/timeFormat.spec.ts`.
+
+## Visitor clock choices
+
+`Provider.showClockChoices` (boolean, default `true`, added 2026-10-13) is one switch for
+both controls on the public booking page's available-times header: the GMT−12..+12 list and
+the 12/24-hour switch. Off, that header names the provider's zone and prints `timeFormat`,
+and the opening hours do the same. On, both controls reprint every time on the page —
+the slot grid, the confirm sheet and the opening hours — on the one clock the visitor
+picked. The booked instant, the calendar day and the emails stay on the provider's zone
+and clock either way.
+
+It is edited on the Availability tab beside the time format, drafted with it, and goes out
+on Publish. `false` is stored (`!== undefined`); a missing field on an older payload is
+treated as shown. The public read is `mapSingleProvider` → `details.showClockChoices`.
 
 ## Registration and sign-in
 

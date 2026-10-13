@@ -3,11 +3,12 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { Flex, Image, Upload } from 'antd'
-import ImgCrop, { ImgCropProps } from 'antd-img-crop'
+import type { ImgCropProps } from 'antd-img-crop'
 import { useTranslations } from 'next-intl'
 import { ProviderProfileFormValues } from '@interfaces/providers'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
+import { LazyImgCrop } from '@components/ui/LazyImgCrop'
 import styles from './styles.module.css'
 
 type GalleryValue = NonNullable<ProviderProfileFormValues['gallery']>
@@ -80,7 +81,7 @@ const ProviderProfileFormGalleryComponent: React.FC<Props> = ({ value, onChange,
   return (
     <>
       <Flex gap={8} wrap>
-        <ImgCrop aspect={1} onModalOk={onModalOk}>
+        <LazyImgCrop aspect={1} onModalOk={onModalOk}>
           {/* `customRequest` no-op, not `beforeUpload={() => false}` — see the profile image field. */}
           <Upload
             maxCount={MAX_IMAGES}
@@ -93,7 +94,7 @@ const ProviderProfileFormGalleryComponent: React.FC<Props> = ({ value, onChange,
             </AppButton>
             up to {MAX_IMAGES} pictures to your gallery
           </Upload>
-        </ImgCrop>
+        </LazyImgCrop>
       </Flex>
 
       <Flex wrap gap={8} className='mt-4! basis-25 grow-0 shrink-0'>

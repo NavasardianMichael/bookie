@@ -36,8 +36,9 @@ const STAR_COUNT = 5
  * provider card. `Rate` is still the right control for *entering* a rating, inside the
  * client form; this is for showing one.
  *
- * A partial star is drawn by overlaying a clipped gold row on a grey one, rather than by
- * picking a half-star glyph: 4.3 renders as 4.3. The gold row is `w-max` and each star
+ * A partial star is drawn by overlaying a clipped brand-coloured row on a grey one,
+ * rather than by picking a half-star glyph: 4.3 renders as 4.3. The filled row is
+ * `w-max` and each star
  * `shrink-0`: the clip is narrower than five stars, and a normal flex row would compress
  * its glyphs to fit that box, leaving the full-size grey star showing around every gold one.
  */

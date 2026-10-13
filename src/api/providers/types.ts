@@ -20,6 +20,8 @@ export type PutProviderProfileRequestPayload = Partial<{
   timeZone: NonNullable<ProviderProfile['details']['timeZone']>
   /** Drafted and published with `timeZone`; the API answers 400 for anything but `h12`/`h24`. */
   timeFormat: NonNullable<ProviderProfile['details']['timeFormat']>
+  /** Drafted with `timeFormat`. One flag for the visitor's time-zone list and 12/24-hour switch. */
+  showClockChoices: boolean
   image: ProviderProfile['basic']['image'] | File
   gallery: (ProviderProfile['details']['gallery'][number] | File)[]
   mode: 'draft' | 'publish' | 'listing'

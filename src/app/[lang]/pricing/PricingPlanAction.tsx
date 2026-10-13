@@ -1,6 +1,7 @@
 'use client'
 
 import { FC, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useStartCheckout } from '@hooks/useStartCheckout'
@@ -8,9 +9,13 @@ import { Plan } from '@interfaces/plans'
 import { USER_TYPES } from '@constants/auth'
 import { PLANS } from '@constants/plans'
 import { ROUTES } from '@constants/routes'
-import { PlanUpgradeSheet } from '@components/plans/PlanUpgradeSheet'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
+
+/** The contact form inside this sheet loads only after Request plan. */
+const PlanUpgradeSheet = dynamic(
+  () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet)
+)
 
 type Props = {
   plan: Plan
@@ -39,6 +44,7 @@ export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
   const userType = useAuthStore.use.userType()
   const { startCheckout, pendingPlan } = useStartCheckout()
   const [requesting, setRequesting] = useState(false)
+  const [sheetMounted, setSheetMounted] = useState(false)
 
   const isProvider = isSignedOn && userType === USER_TYPES.provider
 
@@ -73,10 +79,16 @@ export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
 
   return (
     <>
-      <AppButton type='primary' onClick={() => setRequesting(true)}>
+      <AppButton
+        type='primary'
+        onClick={() => {
+          setSheetMounted(true)
+          setRequesting(true)
+        }}
+      >
         {t('requestPlan')}
       </AppButton>
-      <PlanUpgradeSheet plan={requesting ? plan : null} onClose={() => setRequesting(false)} />
+      {sheetMounted && <PlanUpgradeSheet plan={requesting ? plan : null} onClose={() => setRequesting(false)} />}
     </>
   )
 }

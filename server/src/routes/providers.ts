@@ -120,6 +120,8 @@ type ProviderDraft = {
   timeZone?: string
   /** Drafted with `timeZone`, beside which it is edited; it changes what the public page prints. */
   timeFormat?: TimeFormat
+  /** Drafted with `timeFormat`. One flag for the visitor's time-zone list and 12/24-hour switch. */
+  showClockChoices?: boolean
   available?: boolean
   paymentInfo?: unknown
 }
@@ -328,6 +330,11 @@ providerProfileRouter.put(
       const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
       const timeZone = readTimeZoneField(body.timeZone ?? req.body?.timeZone)
       const timeFormat = readTimeFormatField(body.timeFormat ?? req.body?.timeFormat)
+      const showClockChoicesRaw = body.showClockChoices ?? req.body?.showClockChoices
+      const showClockChoices =
+        showClockChoicesRaw === undefined
+          ? undefined
+          : showClockChoicesRaw === true || showClockChoicesRaw === 'true' || showClockChoicesRaw === '1'
       const paymentInfo =
         parseJson(typeof body.paymentInfo === 'string' ? body.paymentInfo : undefined) ??
         (typeof req.body?.paymentInfo === 'object' ? req.body.paymentInfo : undefined)
@@ -349,6 +356,7 @@ providerProfileRouter.put(
       if (weekSchedule) patch.weekSchedule = weekSchedule
       if (timeZone) patch.timeZone = timeZone
       if (timeFormat) patch.timeFormat = timeFormat
+      if (showClockChoices !== undefined) patch.showClockChoices = showClockChoices
       if (available !== undefined) patch.available = available
       if (paymentInfo !== undefined) patch.paymentInfo = paymentInfo
 
@@ -378,6 +386,7 @@ providerProfileRouter.put(
           // edited by hand, must not publish a zone `Intl` cannot read.
           timeZone: toTimeZone(patch.timeZone) ?? existing.timeZone,
           timeFormat: toTimeFormat(patch.timeFormat) ?? existing.timeFormat,
+          showClockChoices: patch.showClockChoices ?? existing.showClockChoices,
           available: patch.available ?? existing.available,
           paymentInfo:
             patch.paymentInfo === undefined

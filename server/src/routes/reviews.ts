@@ -86,7 +86,7 @@ const loadProviderForReviews = async (req: Request) => {
   const segment = req.params.id ?? ''
   const provider = await prisma.provider.findUnique({
     where: looksLikeProviderId(segment) ? { id: segment } : { slug: segment.toLowerCase() },
-    select: { id: true, listed: true, ratingAvg: true, ratingCount: true },
+    select: { id: true, userId: true, listed: true, ratingAvg: true, ratingCount: true },
   })
   if (!provider) throw new HttpError(404, 'Provider not found', 404)
 
@@ -95,6 +95,17 @@ const loadProviderForReviews = async (req: Request) => {
 
   return { ...provider, isOwner }
 }
+
+/**
+ * The signed-in account is this provider.
+ *
+ * `userId`, not the session role: one account holds both profiles, and the session is
+ * resolved provider-first, but a review is written as the Consumer row of that same
+ * account. Comparing profile ids would miss it. A provider reviewing someone else is
+ * untouched — that is a real visit, and the appointment check still applies.
+ */
+const isOwnPage = (session: SessionPayload | undefined, providerUserId: string): boolean =>
+  session?.userId === providerUserId
 
 /**
  * What a review section needs, in one request: the page of reviews, the summary the
@@ -139,9 +150,14 @@ providerReviewsRouter.get(
      * `eligibleAppointmentId` is the whole eligibility rule in one field: a past,
      * non-cancelled appointment of theirs with this provider that has not been reviewed.
      * The client never evaluates it — it either has an id to submit or it has no CTA.
+     *
+     * Never for the provider themselves. The page hides the button when
+     * `isProviderOwner` is set; omitting the id is what keeps a client that forgets
+     * that flag from offering a form the write route would refuse.
      */
-    const eligible = consumerId
-      ? await prisma.appointment.findFirst({
+    const eligible =
+      consumerId && !isOwnPage(req.session, provider.userId)
+        ? await prisma.appointment.findFirst({
           where: {
             consumerId,
             providerId: provider.id,
@@ -210,6 +226,13 @@ providerReviewsRouter.post(
     const provider = await loadProviderForReviews(req)
     const { rating, comment } = parsed(() => parseReviewBody(req.body))
 
+    // Before the consumer lookup. The same account can hold the Consumer row a review
+    // is written as, so a past appointment with their own page would otherwise pass
+    // the "it is theirs" check and publish a review of themselves.
+    if (isOwnPage(req.session, provider.userId)) {
+      throw new HttpError(403, 'You cannot review your own page', 403)
+    }
+
     const consumerId = await viewerConsumerId(req.session)
     if (!consumerId) throw new HttpError(403, 'Only a past client can review this provider', 403)
 
@@ -272,7 +295,7 @@ const loadOwnReview = async (reviewId: string, consumerId: string | undefined) =
 
   const review = await prisma.review.findFirst({
     where: { id: reviewId, consumerId },
-    select: { id: true, providerId: true },
+    select: { id: true, providerId: true, provider: { select: { userId: true } } },
   })
   if (!review) throw new HttpError(404, 'Review not found', 404)
   return review
@@ -284,6 +307,11 @@ reviewsRouter.patch(
   asyncHandler(async (req, res) => {
     const consumerId = await viewerConsumerId(req.session)
     const existing = await loadOwnReview(req.params.id!, consumerId)
+    // Editing is another way to write the review. Removing one stays allowed, so a
+    // row that landed here before the ban can still be taken down.
+    if (existing.provider && isOwnPage(req.session, existing.provider.userId)) {
+      throw new HttpError(403, 'You cannot review your own page', 403)
+    }
     const { rating, comment } = parsed(() => parseReviewBody(req.body))
 
     const review = await prisma.$transaction(async (tx) => {

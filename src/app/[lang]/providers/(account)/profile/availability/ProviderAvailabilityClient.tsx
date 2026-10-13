@@ -11,7 +11,7 @@ import { useAuthStore } from '@store/auth/store'
 import { DaySchedule, ProviderProfile, WeekSchedule } from '@store/providers/profile/types'
 import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
 import { TimeFormat, WeekDay } from '@interfaces/schedule'
-import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, TIME_FORMATS, WEEK_DAYS_LIST } from '@constants/schedule'
+import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, TIME_FORMATS, TIME_FORMATS_LIST, WEEK_DAYS_LIST } from '@constants/schedule'
 import { rangesToDaySchedule, splitScheduleIntoParts } from '@helpers/schedule'
 import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
 import { formatTimeZoneName, getRuntimeTimeZone, isSameWallClock } from '@helpers/timeZone'
@@ -48,6 +48,11 @@ type FormValues = {
    * chose sees their locale's convention selected, and saving keeps what they saw.
    */
   timeFormat: TimeFormat
+  /**
+   * Whether the public booking page offers a time-zone list and a 12/24-hour switch.
+   * One flag for both. On until the provider turns it off.
+   */
+  showClockChoices: boolean
   days: Record<WeekDay, DayForm>
 }
 
@@ -66,6 +71,7 @@ const scheduleToForm = (profile: ProviderProfile, locale: string): FormValues =>
   const available = profile.draft?.available ?? profile.basic.available
   const timeZone = profile.draft?.timeZone ?? profile.details.timeZone
   const timeFormat = resolveTimeFormat(profile.draft?.timeFormat ?? profile.details.timeFormat, locale)
+  const showClockChoices = profile.draft?.showClockChoices ?? profile.details.showClockChoices ?? true
   const days = WEEK_DAYS_LIST.reduce(
     (acc, day) => {
       const parts = splitScheduleIntoParts(cloneDaySchedule(source?.[day]))
@@ -82,7 +88,7 @@ const scheduleToForm = (profile: ProviderProfile, locale: string): FormValues =>
     },
     {} as Record<WeekDay, DayForm>
   )
-  return { available, timeZone, timeFormat, days }
+  return { available, timeZone, timeFormat, showClockChoices, days }
 }
 
 const formToWeekSchedule = (days: Record<WeekDay, DayForm>): WeekSchedule =>
@@ -203,9 +209,9 @@ const TimeFormatToggle = ({ value, onChange }: { value?: TimeFormat; onChange?: 
     <Segmented<TimeFormat>
       value={value}
       onChange={onChange}
-      options={TIME_FORMATS.map((format) => ({
+      options={TIME_FORMATS_LIST.map((format) => ({
         value: format,
-        label: t(format === 'h24' ? 'availability.timeFormat24' : 'availability.timeFormat12', {
+        label: t(format === TIME_FORMATS.h24 ? 'availability.timeFormat24' : 'availability.timeFormat12', {
           time: SAMPLE_TIME.format(getTimeDisplayFormat(format)),
         }),
       }))}
@@ -273,6 +279,7 @@ export const ProviderAvailabilityClient = () => {
         weekSchedule,
         timeZone: values.timeZone,
         timeFormat: values.timeFormat,
+        showClockChoices: values.showClockChoices,
         available: values.available,
       })
       const data = mode === 'publish' ? await putProviderProfileAPI({ mode: 'publish' }) : await getProviderProfileAPI()
@@ -360,6 +367,16 @@ export const ProviderAvailabilityClient = () => {
             >
               <TimeFormatToggle />
             </AppFormItem>
+
+            <div className='bg-surface-sunken border-brand-border flex items-center justify-between gap-4 rounded-brand border p-4'>
+              <div>
+                <AppText className='font-bold'>{t('availability.showClockChoicesTitle')}</AppText>
+                <AppParagraph size='body-sm'>{t('availability.showClockChoicesBody')}</AppParagraph>
+              </div>
+              <AppFormItem name='showClockChoices' valuePropName='checked' className='m-0'>
+                <Switch />
+              </AppFormItem>
+            </div>
 
             {WEEK_DAYS_LIST.map((day) => (
               <AvailabilityDayRow key={day} day={day} />

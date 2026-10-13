@@ -50,6 +50,8 @@ export type ProviderDraft = {
   timeZone?: string
   /** Drafted with `timeZone`, beside which it is edited. */
   timeFormat?: TimeFormat
+  /** Drafted with `timeFormat`. One flag for the visitor's time-zone list and 12/24-hour switch. */
+  showClockChoices?: boolean
   available?: boolean
   paymentInfo?: PaymentInfo | null
 }

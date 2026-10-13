@@ -83,12 +83,12 @@ export const ConsumerRegistrationForm: React.FC = () => {
   }
 
   return (
-    <>
+    <div className='flex w-full flex-col gap-6'>
       <GoogleButton role={USER_TYPES.consumer} disabled={isPending} />
 
-      {/* Inline, not `my-0!`: a `!` suffix cannot beat antd's unlayered cssinjs, and the
-            column already owns its spacing through the parent flex `gap`. */}
-        <Divider plain style={{ margin: 0 }}>
+      {/* Inline, not `my-0!`: a `!` suffix cannot beat antd's unlayered cssinjs, so the
+          column's `gap` is what spaces this divider from the button and the fields. */}
+      <Divider plain style={{ margin: 0 }}>
         <span className='text-caption text-brand-muted'>{t('orWithEmail')}</span>
       </Divider>
 
@@ -154,6 +154,6 @@ export const ConsumerRegistrationForm: React.FC = () => {
 
         <TermsNotice lead={t('termsLead')} />
       </Form>
-    </>
+    </div>
   )
 }

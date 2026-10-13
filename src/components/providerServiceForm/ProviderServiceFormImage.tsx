@@ -3,9 +3,10 @@
 import { FC, useEffect, useMemo } from 'react'
 import { DeleteOutlined, RedoOutlined, UploadOutlined } from '@ant-design/icons'
 import { Flex, Image, Upload } from 'antd'
-import ImgCrop, { ImgCropProps } from 'antd-img-crop'
+import type { ImgCropProps } from 'antd-img-crop'
 import { resolveAssetUrl } from '@helpers/images'
 import { AppButton } from '@components/ui/AppButton'
+import { LazyImgCrop } from '@components/ui/LazyImgCrop'
 
 type Props = {
   /**
@@ -45,7 +46,7 @@ export const ProviderServiceFormImage: FC<Props> = ({ value, onChange, disabled 
   return (
     <>
       <Flex gap={8} wrap>
-        <ImgCrop aspect={1} onModalOk={onModalOk}>
+        <LazyImgCrop aspect={1} onModalOk={onModalOk}>
           {/* A no-op `customRequest` is what stops antd POSTing the file on its own — the
               cropped File travels with the form submit instead. It must not be
               `beforeUpload={() => false}`: ImgCrop resolves its crop promise with that
@@ -55,7 +56,7 @@ export const ProviderServiceFormImage: FC<Props> = ({ value, onChange, disabled 
               {value ? 'Upload another picture' : 'Upload'}
             </AppButton>
           </Upload>
-        </ImgCrop>
+        </LazyImgCrop>
         {previewUrl && (
           <AppButton danger icon={<DeleteOutlined />} onClick={onRemovePictureClick} disabled={disabled}>
             Remove

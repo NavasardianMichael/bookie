@@ -21,6 +21,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 | A locale's own clock · a schedule `'HH:mm'` as a `Date` for an `Intl` formatter (Server Components) | `getLocaleTimeFormat`, `scheduleTimeToDate` | `timeFormat.ts` |
 | `YYYY-MM-DD` of an instant in a zone / the month-grid carrier for that day | `dayKeyOf`, `calendarDayOf` | `timeZone.ts` |
 | `Armenia Standard Time (GMT+4)` / `GMT+4`, localised by `Intl` | `formatTimeZoneName`, `formatUtcOffset` | `timeZone.ts` |
+| Whole-hour UTC offset (−12..+12) as a zone the formatters already accept | `UTC_OFFSET_HOURS`, `wholeOffsetHours`, `fixedOffsetZone` | `timeZone.ts` |
+| The `YYYY-MM-DD` of a weekday in the same Monday-first week as a day key | `weekdayInSameWeek` | `timeZone.ts` |
 | Do two zones read the same right now · zone offset · is it a zone · the picker's list | `isSameWallClock`, `zoneOffsetMs`, `isTimeZone`, `listTimeZones` | `timeZone.ts` |
 | The visitor's zone (client; `undefined` through SSR and hydration) | `useViewerTimeZone` | `src/hooks/` — `getRuntimeTimeZone` underneath |
 | Remove slots a booking already holds | `dropBusySlots` | `booking.ts` |
@@ -94,8 +96,10 @@ Everything here is pure and framework-free unless the last column says otherwise
   only clock seam in the codebase — always pass it in tests.
 - **`bookingSummary.ts` formats dates with dayjs.** Slot tests pin TZ to UTC; this
   helper is the same, so copy-as-text cannot drift from the details list.
-- **`qr.ts#toQrDataUrl` is on-demand.** Call it from a click (`BookingShareActions`),
-  never at module load — the PNG is not cheap and there is nothing useful to encode yet.
+- **`qr.ts#toQrDataUrl` is on-demand.** The `qrcode` library is imported inside the call, so a
+  provider page does not download it until Generate QR. Call it from a click
+  (`BookingShareActions`), never at module load — the PNG is not cheap and there is nothing
+  useful to encode yet.
 - **Schedules are wall-clock `'HH:mm'` on the provider's clock; slots are instants.**
   `getSlotsForDate` / `getSlotsForDateRange` / `countSlotsByDay` take the provider's
   `timeZone` (`details.timeZone`) and step and key in it; without one they use the

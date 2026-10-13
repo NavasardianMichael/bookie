@@ -38,7 +38,10 @@ export const WriteReviewButton: FC<Props> = ({ providerId, viewer }) => {
   const [error, setError] = useState<unknown>(null)
 
   const appointmentId = viewer.eligibleAppointmentId
-  if (!appointmentId) return null
+  // `isProviderOwner` is the same refusal the API makes by user id. The id is already
+  // omitted for the owner; this is the second check, so a payload that carries both
+  // still renders nothing.
+  if (!appointmentId || viewer.isProviderOwner) return null
 
   const close = () => {
     setIsOpen(false)

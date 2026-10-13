@@ -10,6 +10,8 @@ export type AppDescriptionListItem = {
 export type AppDescriptionListProps = {
   items: AppDescriptionListItem[]
   columns?: 1 | 2
+  /** `caption` is the step under `body-sm`, for a list whose values must stay on one line. */
+  size?: 'body-sm' | 'caption'
   className?: string
 }
 
@@ -17,6 +19,11 @@ const COLUMNS: Record<1 | 2, string> = {
   1: 'grid-cols-1',
   2: 'grid-cols-1 md:grid-cols-2',
 }
+
+const SIZE = {
+  'body-sm': 'text-body-sm',
+  caption: 'text-caption',
+} as const
 
 /**
  * A real `<dl>` in place of antd's Descriptions.
@@ -33,7 +40,12 @@ const COLUMNS: Record<1 | 2, string> = {
  * edge — `CopyableLinkValue` puts its copy button there. Plain text values are
  * start-aligned either way, so it changes nothing for them.
  */
-export const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns = 2, className }) => {
+export const AppDescriptionList: FC<AppDescriptionListProps> = ({
+  items,
+  columns = 2,
+  size = 'body-sm',
+  className,
+}) => {
   if (!items.length) return null
 
   return (
@@ -46,8 +58,19 @@ export const AppDescriptionList: FC<AppDescriptionListProps> = ({ items, columns
     >
       {items.map(({ key, label, value }) => (
         <div key={key} className='bg-surface flex flex-col gap-0.5 p-3 sm:flex-row sm:gap-4'>
-          <dt className='text-body-sm text-brand-muted shrink-0 sm:w-34'>{label}</dt>
-          <dd className='text-body-sm text-brand-text min-w-0 grow wrap-break-word'>{value}</dd>
+          <dt
+            className={cn(
+              SIZE[size],
+              'text-brand-muted shrink-0',
+              // A fixed label column lines the rows up. The caption size uses a narrower
+              // one: wide enough for the longest weekday, narrow enough that a 12-hour
+              // range stays on one line in the profile sidebar.
+              size === 'body-sm' ? 'sm:w-34' : 'whitespace-nowrap sm:w-24'
+            )}
+          >
+            {label}
+          </dt>
+          <dd className={cn(SIZE[size], 'text-brand-text min-w-0 grow wrap-break-word')}>{value}</dd>
         </div>
       ))}
     </dl>

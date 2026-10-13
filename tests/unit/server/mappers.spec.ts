@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { TIME_FORMATS } from '@constants/schedule'
 // Relative, not aliased: `server/` is a separate package. `entities.ts` imports only
 // Prisma types and two pure services, which is what keeps it reachable here.
 import { mapProviderPlan, mapSingleProvider, resolveOnlineBooking } from '../../../server/src/mappers/entities'
@@ -63,8 +64,13 @@ describe('mapSingleProvider', () => {
 
   // The booking grid and the hours list format with it, so it is public like `timeZone`.
   it("publishes the provider's clock, and leaves it out until they choose one", () => {
-    expect(mapSingleProvider(providerRow({ timeFormat: 'h24' })).details.timeFormat).toBe('h24')
+    expect(mapSingleProvider(providerRow({ timeFormat: TIME_FORMATS.h24 })).details.timeFormat).toBe(TIME_FORMATS.h24)
     expect(mapSingleProvider(providerRow({ timeFormat: null })).details.timeFormat).toBeUndefined()
+  })
+
+  it('shows the visitor clock choices unless the provider turned them off', () => {
+    expect(mapSingleProvider(providerRow()).details.showClockChoices).toBe(true)
+    expect(mapSingleProvider(providerRow({ showClockChoices: false })).details.showClockChoices).toBe(false)
   })
 
   // The public payload is read by anyone. A visitor learns that booking is closed, never

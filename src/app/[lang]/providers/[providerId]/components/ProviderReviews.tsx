@@ -92,8 +92,8 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
             {t('title')}
           </AppTitle>
 
-          {/* Owners never see a write CTA: they cannot book themselves, so the API would
-            refuse it, and offering a control that always fails is worse than none. */}
+          {/* Owners never see a write CTA. The reviews API omits an eligible
+            appointment for them and refuses the write, including an edit. */}
           {!isProviderOwner && <WriteReviewButton providerId={providerId} viewer={viewer} />}
         </div>
 

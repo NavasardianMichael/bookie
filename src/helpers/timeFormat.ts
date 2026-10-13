@@ -1,4 +1,5 @@
 import { TimeFormat } from '@interfaces/schedule'
+import { TIME_FORMATS } from '@constants/schedule'
 
 /**
  * A provider's clock — `details.timeFormat`, chosen beside their time zone on the Availability
@@ -16,7 +17,9 @@ const localeFormats = new Map<string, TimeFormat>()
 export const getLocaleTimeFormat = (locale: string): TimeFormat => {
   let format = localeFormats.get(locale)
   if (!format) {
-    format = new Intl.DateTimeFormat(locale, { hour: 'numeric' }).resolvedOptions().hour12 ? 'h12' : 'h24'
+    format = new Intl.DateTimeFormat(locale, { hour: 'numeric' }).resolvedOptions().hour12
+      ? TIME_FORMATS.h12
+      : TIME_FORMATS.h24
     localeFormats.set(locale, format)
   }
   return format
@@ -31,7 +34,8 @@ export const resolveTimeFormat = (timeFormat: TimeFormat | null | undefined, loc
  * `TimePicker` `format`. The 12-hour pattern keeps the meridiem so typed input is unambiguous;
  * it is printed in the active dayjs locale, so client-side only.
  */
-export const getTimeDisplayFormat = (timeFormat: TimeFormat): string => (timeFormat === 'h24' ? 'HH:mm' : 'hh:mm A')
+export const getTimeDisplayFormat = (timeFormat: TimeFormat): string =>
+  timeFormat === TIME_FORMATS.h24 ? 'HH:mm' : 'hh:mm A'
 
 /**
  * The `hourCycle` option for an `Intl` / next-intl formatter. `undefined` leaves the locale's
@@ -39,7 +43,7 @@ export const getTimeDisplayFormat = (timeFormat: TimeFormat): string => (timeFor
  * the latter prints midnight as 24:00.
  */
 export const getHourCycle = (timeFormat?: TimeFormat | null): 'h12' | 'h23' | undefined =>
-  timeFormat === 'h24' ? 'h23' : timeFormat === 'h12' ? 'h12' : undefined
+  timeFormat === TIME_FORMATS.h24 ? 'h23' : timeFormat === TIME_FORMATS.h12 ? TIME_FORMATS.h12 : undefined
 
 /**
  * A schedule's wall-clock `'HH:mm'` as a `Date` whose **UTC** fields read that time, for an

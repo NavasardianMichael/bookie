@@ -129,6 +129,7 @@ export function mapProviderDetails(
     paymentInfo?: unknown
     requiresBookingApproval?: boolean
     phoneVisible?: boolean
+    showClockChoices?: boolean
   }
 ) {
   const weekSchedule =
@@ -168,6 +169,12 @@ export function mapProviderDetails(
      * never chose — each reader's locale decides then.
      */
     timeFormat: provider.timeFormat ?? undefined,
+    /**
+     * Whether the booking page offers a time-zone list and a 12/24-hour switch. **Public
+     * on purpose**: the page can only hide them if the payload says so. One flag for both.
+     * Missing means shown, which is the column default and every page from before it existed.
+     */
+    showClockChoices: provider.showClockChoices !== false,
     paymentInfo: provider.paymentInfo ?? undefined,
     /**
      * **Public on purpose.** The booking sheet says "your request will be sent for

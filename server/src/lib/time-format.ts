@@ -8,13 +8,19 @@ import { toTimeZone } from './time-zone.js'
  */
 
 /** Mirrors the Prisma `TimeFormat` enum; `h12`/`h24` because an enum value cannot start with a digit. */
-export const TIME_FORMATS = ['h12', 'h24'] as const
+export const TIME_FORMATS = {
+  h12: 'h12',
+  h24: 'h24',
+} as const
 
-export type TimeFormat = (typeof TIME_FORMATS)[number]
+/** Insertion order: 12-hour, then 24-hour. The web twin is `TIME_FORMATS_LIST` in `@constants/schedule`. */
+export const TIME_FORMATS_LIST = Object.values(TIME_FORMATS)
+
+export type TimeFormat = (typeof TIME_FORMATS)[keyof typeof TIME_FORMATS]
 
 /** `raw` when it is one of `TIME_FORMATS`, otherwise `null`. */
 export function toTimeFormat(raw: unknown): TimeFormat | null {
-  return TIME_FORMATS.find((format) => format === raw) ?? null
+  return TIME_FORMATS_LIST.find((format) => format === raw) ?? null
 }
 
 /**
@@ -23,8 +29,8 @@ export function toTimeFormat(raw: unknown): TimeFormat | null {
  * `h24`: the latter prints midnight as 24:00.
  */
 export function hourCycleOf(timeFormat?: TimeFormat | null): 'h12' | 'h23' | undefined {
-  if (timeFormat === 'h24') return 'h23'
-  if (timeFormat === 'h12') return 'h12'
+  if (timeFormat === TIME_FORMATS.h24) return 'h23'
+  if (timeFormat === TIME_FORMATS.h12) return TIME_FORMATS.h12
   return undefined
 }
 

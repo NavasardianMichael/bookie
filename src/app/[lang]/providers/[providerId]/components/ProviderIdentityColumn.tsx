@@ -192,6 +192,7 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
             weekSchedule={details.weekSchedule}
             timeZone={details.timeZone}
             timeFormat={details.timeFormat}
+            followVisitorClock={details.showClockChoices !== false}
           />
         </Surface>
       )}

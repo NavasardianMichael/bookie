@@ -27,10 +27,12 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
 
    **`RATING` is not `STATUS.warning`, though both are amber.** A four-star rating is not
    a caution, and aliasing them would mean a future retune of the warning colour silently
-   restyled every rating on the site — with neither name warning you. The antd side is
-   `Rate: { starColor, starBg }` in `theme.ts`, set as a component token rather than a
-   class because `starColor` is cssinjs and a CSS override would lose to antd's unlayered
-   styles, which is how a `!` suffix (a grep gate) gets reached for.
+   restyled every rating on the site — with neither name warning you. Filled stars are
+   the brand navy (`BRAND[900]`, `text-brand` on `RatingStars`). The antd `Rate` in the
+   write form sets `starColor` to that same navy and `starBg` to `RATING.empty`, as a
+   component token rather than a class, because `starColor` is cssinjs and a CSS override
+   would lose to antd's unlayered styles, which is how a `!` suffix (a grep gate) gets
+   reached for.
 2. `globals.css` §2 is the only place that may name an `--ant-*` variable. An antd
    upgrade or prefix change must stay a one-file edit.
 3. **Never override antd's `screen*` tokens.** Overriding one forces all 21, and

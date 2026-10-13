@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, useEffect, useRef, useState } from 'react'
-import { initializePaddle, type PaddleEventData } from '@paddle/paddle-js'
+import type { PaddleEventData } from '@paddle/paddle-js'
 import { Spin } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@i18n/navigation'
@@ -21,8 +21,9 @@ type Props = {
 }
 
 /**
- * Loads Paddle.js, which opens its checkout overlay over this page by itself — it reads
- * `_ptxn` from the address bar. A port of regionify's `PaymentCheckoutPage`, which has taken
+ * Loads Paddle.js inside the effect, so this spinner paints before the library arrives.
+ * Paddle.js opens its checkout overlay over this page by itself — it reads `_ptxn` from
+ * the address bar. A port of regionify's `PaymentCheckoutPage`, which has taken
  * live payments in both Paddle environments:
  *
  * - `checkout.completed` → the return page, which waits for the webhook to apply the plan.
@@ -56,12 +57,15 @@ export const BillingCheckoutClient: FC<Props> = ({ transactionId, plan }) => {
       }
     }
 
-    initializePaddle({ environment: PADDLE_ENVIRONMENT, token: PADDLE_CLIENT_TOKEN, eventCallback: onEvent }).catch(
-      (error: unknown) => {
+    void import('@paddle/paddle-js')
+      .then(({ initializePaddle }) => {
+        if (cancelled) return
+        return initializePaddle({ environment: PADDLE_ENVIRONMENT, token: PADDLE_CLIENT_TOKEN, eventCallback: onEvent })
+      })
+      .catch((error: unknown) => {
         reportError(error, 'checkout')
         if (!cancelled) setInitError(error)
-      }
-    )
+      })
 
     return () => {
       cancelled = true

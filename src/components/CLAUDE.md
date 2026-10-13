@@ -139,6 +139,14 @@ Gate — `<Modal` belongs to the two wrappers and nowhere else:
 Enforced by `pnpm gates` (`scripts/gates.mjs`) — `<Modal` belongs to the two wrappers
 and nowhere else.
 
+An overlay is split out of the page chunk only when it pulls a heavy module the page does
+not otherwise use, and only when it is rendered after the user asks. `next/dynamic` still
+downloads a component that is mounted while closed. Confirm dialogs stay eager: they are a
+title and two buttons, and opening one should not wait on a request. The splits that exist
+are `qrcode` (inside `toQrDataUrl`), `antd-img-crop` (`LazyImgCrop`), the booking confirm
+sheet, the service form, the plan-request sheet, the week-schedule TimePicker editor, and
+Paddle.js on the checkout page.
+
 ## Errors — one pipeline, two audiences
 
 A failure is written for two readers. **Production shows friendly, translated copy**, chosen

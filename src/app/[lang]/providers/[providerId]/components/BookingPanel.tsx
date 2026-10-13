@@ -1,9 +1,10 @@
 'use client'
 
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { App } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import dynamic from 'next/dynamic'
 import { useLocale, useTranslations } from 'next-intl'
 import { createAppointmentAPI } from '@api/appointments/main'
 import { getProviderBusyAPI } from '@api/providers/main'
@@ -12,6 +13,7 @@ import { useAuthStore } from '@store/auth/store'
 import { useSingleProviderStore } from '@store/providers/single/store'
 import { useErrorToast } from '@hooks/useErrorToast'
 import { BookingClosedReason } from '@interfaces/booking'
+import { TimeFormat } from '@interfaces/schedule'
 import { USER_TYPES } from '@constants/auth'
 import { BUSY_WINDOW_PADDING_DAYS } from '@constants/booking'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
@@ -28,9 +30,9 @@ import { buildMonthCells } from '@helpers/calendar'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
-import { dayKeyOf } from '@helpers/timeZone'
+import { dayKeyOf, fixedOffsetZone, wholeOffsetHours, zonedTimeToDate } from '@helpers/timeZone'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
-import { BookingConfirmSheet, BookingConfirmSubmission, BookingCreated } from './BookingConfirmSheet'
+import type { BookingConfirmSubmission, BookingCreated } from './BookingConfirmSheet'
 import { BookingMonth } from './BookingMonth'
 import { BookingSlots } from './BookingSlots'
 import { BookingSummaryData } from './BookingSummary'
@@ -42,10 +44,19 @@ import {
   PUBLIC_BOOK_NOW_EVENT,
   scrollToBookingSection,
 } from './publicBookingCta'
+import { getPublicClock, getServerPublicClock, publishPublicClock, subscribePublicClock } from './publicClock'
 
 // Mandatory for the day-key parse below — `booking.ts` extends it for its own
 // module only, and without it `dayjs(key, DAY_KEY_FORMAT)` is an Invalid Date.
 dayjs.extend(customParseFormat)
+
+/**
+ * The confirm sheet (payment, guest details, share, QR) loads on the first Book now
+ * and stays mounted, so opening it again does not fetch it.
+ */
+const BookingConfirmSheet = dynamic(
+  () => import('./BookingConfirmSheet').then((mod) => mod.BookingConfirmSheet)
+)
 
 const DEFAULT_DURATION_MINUTES = 30
 
@@ -86,6 +97,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
   const [requestedStarts, setRequestedStarts] = useState<string[]>([])
   const [isBooking, setIsBooking] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  /** Stays true after the first Book now so the loaded sheet is not fetched again. */
+  const [confirmSheetMounted, setConfirmSheetMounted] = useState(false)
   const [created, setCreated] = useState<BookingCreated | null>(null)
   /**
    * Captured when the sheet opens. The live summary goes null once the booked
@@ -149,12 +162,25 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
   /**
-   * The zone the provider's hours are written in. Every slot is stepped, counted, keyed and
-   * shown in it, so a visitor abroad books the provider's 09:00 rather than their own.
+   * The zone the provider's hours are written in. Every slot is stepped, counted and keyed
+   * in it, so a visitor abroad books the provider's 09:00 rather than their own.
    * Undefined for a provider who never set one — the visitor's zone, as before.
    */
   const timeZone = details?.timeZone
   const timeFormat = details?.timeFormat
+  /** One flag for the time-zone list and the 12/24-hour switch. Missing means shown. */
+  const showClockChoices = details?.showClockChoices !== false
+  /**
+   * How the public page *prints* times. Shared with the opening hours, which live
+   * in the other column. `null` keeps the provider's zone and clock. A picked
+   * offset does not move the slot or the day the calendar is on.
+   */
+  const { offsetHours: displayOffsetHours, timeFormat: displayTimeFormat } = useSyncExternalStore(
+    subscribePublicClock,
+    getPublicClock,
+    getServerPublicClock
+  )
+  const clockTimeFormat = displayTimeFormat ?? timeFormat
 
   /**
    * Stepped over the whole grid, not just the month: the days spilling in from the
@@ -228,6 +254,35 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     () => (selectedDayKey ? dayjs(selectedDayKey, DAY_KEY_FORMAT).startOf('day').toDate() : null),
     [selectedDayKey]
   )
+  const providerOffsetHours = useMemo(() => {
+    if (!timeZone) return null
+    const at = selectedDayKey ? zonedTimeToDate(selectedDayKey, 12 * 60, timeZone) : new Date()
+    return wholeOffsetHours(at, timeZone)
+  }, [selectedDayKey, timeZone])
+  const clockTimeZone = displayOffsetHours === null ? timeZone : fixedOffsetZone(displayOffsetHours)
+  const handleDisplayOffset = useCallback(
+    (hours: number) => {
+      publishPublicClock({ offsetHours: hours === providerOffsetHours ? null : hours })
+    },
+    [providerOffsetHours]
+  )
+  const handleDisplayTimeFormat = useCallback((format: TimeFormat) => {
+    publishPublicClock({ timeFormat: format })
+  }, [])
+  // The hours list lives in the other column. It shifts each weekday of this week,
+  // so it has to hear which day the grid is on.
+  useEffect(() => {
+    publishPublicClock({ referenceDayKey: selectedDayKey })
+  }, [selectedDayKey])
+  // A different provider starts on their own clock. The day above is left to the other effect.
+  // Skip the mount: the store is already empty, and resetting it would wipe a pick made
+  // before this panel's id settles.
+  const providerClockKey = useRef(providerId)
+  useEffect(() => {
+    if (providerClockKey.current === providerId) return
+    providerClockKey.current = providerId
+    publishPublicClock({ offsetHours: null, timeFormat: null })
+  }, [providerId])
 
   const daySlots = useMemo(
     () =>
@@ -284,8 +339,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
       serviceName: service?.name,
       serviceDescription: service?.description,
       startISO: validSelectedStart,
-      timeZone,
-      timeFormat,
+      timeZone: clockTimeZone,
+      timeFormat: clockTimeFormat,
       durationMinutes,
       price: servicePrice,
       address: details?.location?.address,
@@ -301,8 +356,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     service?.description,
     service?.name,
     servicePrice,
-    timeFormat,
-    timeZone,
+    clockTimeFormat,
+    clockTimeZone,
     validSelectedStart,
   ])
 
@@ -354,6 +409,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
 
     if (!providerId || !booking) return
     setConfirmBooking(booking)
+    setConfirmSheetMounted(true)
     setIsConfirmOpen(true)
   }, [booking, continueTarget, notification, providerId, t, validSelectedStart])
 
@@ -362,6 +418,12 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     window.addEventListener(PUBLIC_BOOK_NOW_EVENT, continueBooking)
     return () => window.removeEventListener(PUBLIC_BOOK_NOW_EVENT, continueBooking)
   }, [continueBooking])
+
+  // A chosen time is the step before Book now, so the sheet chunk is usually here before the click.
+  useEffect(() => {
+    if (!selectedStart) return
+    void import('./BookingConfirmSheet')
+  }, [selectedStart])
 
   const handleSubmitBooking = useCallback(
     async (submission: BookingConfirmSubmission) => {
@@ -491,8 +553,11 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
           requestedStarts={requestedStarts}
           serviceName={service?.name}
           servicePrice={servicePrice}
-          timeZone={timeZone}
-          timeFormat={timeFormat}
+          timeZone={clockTimeZone}
+          offsetHours={displayOffsetHours ?? providerOffsetHours ?? undefined}
+          onOffsetHoursChange={showClockChoices && timeZone ? handleDisplayOffset : undefined}
+          timeFormat={clockTimeFormat}
+          onTimeFormatChange={showClockChoices ? handleDisplayTimeFormat : undefined}
           isBooking={isBooking}
           onSelect={setSelectedStart}
           onConfirm={continueBooking}
@@ -501,19 +566,21 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
         />
       </div>
 
-      <BookingConfirmSheet
-        open={isConfirmOpen}
-        booking={confirmBooking}
-        needsGuestDetails={!isSignedOn}
-        isAuthPending={isAuthPending}
-        requiresApproval={Boolean(details?.requiresBookingApproval)}
-        paymentMethodOptions={paymentMethodOptions}
-        paymentInfo={details?.paymentInfo}
-        isBooking={isBooking}
-        created={created}
-        onClose={handleCloseConfirm}
-        onSubmit={handleSubmitBooking}
-      />
+      {confirmSheetMounted && (
+        <BookingConfirmSheet
+          open={isConfirmOpen}
+          booking={confirmBooking}
+          needsGuestDetails={!isSignedOn}
+          isAuthPending={isAuthPending}
+          requiresApproval={Boolean(details?.requiresBookingApproval)}
+          paymentMethodOptions={paymentMethodOptions}
+          paymentInfo={details?.paymentInfo}
+          isBooking={isBooking}
+          created={created}
+          onClose={handleCloseConfirm}
+          onSubmit={handleSubmitBooking}
+        />
+      )}
     </>
   )
 }

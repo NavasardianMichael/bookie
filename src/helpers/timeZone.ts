@@ -1,6 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { WeekDay } from '@interfaces/schedule'
+import { DAY_KEY_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 
 // `inTimeZone` returns UTC-mode instances, so their fields read as a zone's wall clock
 // without the visitor's own DST rules shifting them. Extended here for this module only,
@@ -141,6 +142,66 @@ export const formatTimeZoneName = (timeZone: string, locale: string, at: Date = 
 /** Whether two zones show the same wall clock at `at` — when they do, one label is enough. */
 export const isSameWallClock = (left: string, right: string, at: Date = new Date()): boolean =>
   zoneOffsetMs(at, left) === zoneOffsetMs(at, right)
+
+/**
+ * Whole-hour offsets the public booking page offers, west to east.
+ *
+ * A visitor picks one to *read* slot instants on that clock. It does not re-step the
+ * provider's hours: those stay wall-clock `'HH:mm'` in `Provider.timeZone`, and the
+ * instant a button books does not change.
+ */
+export const UTC_OFFSET_HOURS: readonly number[] = Array.from({ length: 25 }, (_, index) => index - 12)
+
+/**
+ * The zone's whole-hour offset at `instant`, or `null` when it is not a whole hour in
+ * −12..+12 (India is +5:30). The offset control can only start on a value it lists.
+ */
+export const wholeOffsetHours = (instant: Date, timeZone: string): number | null => {
+  const hours = zoneOffsetMs(instant, timeZone) / 3_600_000
+  if (!Number.isInteger(hours) || hours < -12 || hours > 12) return null
+  return hours
+}
+
+const mondayIndex = (dayKey: string): number => {
+  const [year, month, day] = dayKey.split('-').map(Number)
+  // UTC so the calendar day does not depend on the runtime's zone. Sunday is 0.
+  const utcDay = new Date(Date.UTC(year, month - 1, day)).getUTCDay()
+  return (utcDay + 6) % 7
+}
+
+const addCalendarDays = (dayKey: string, days: number): string => {
+  const [year, month, day] = dayKey.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day + days))
+  const y = date.getUTCFullYear()
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const d = String(date.getUTCDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+/**
+ * The `YYYY-MM-DD` of `weekday` in the Monday-first week that contains `dayKey`.
+ *
+ * Opening hours are a weekly template. Reprinting them on a visitor's offset uses one
+ * concrete week — the week of the day on the calendar — so a Monday 09:00 and the
+ * Monday slot are the same instant.
+ */
+export const weekdayInSameWeek = (dayKey: string, weekday: WeekDay): string =>
+  addCalendarDays(dayKey, WEEK_DAYS_LIST.indexOf(weekday) - mondayIndex(dayKey))
+
+/**
+ * An IANA id for a whole-hour offset, so `inTimeZone` and `formatUtcOffset` can format it.
+ *
+ * `Etc/GMT` uses the POSIX sign, which is the reverse of a written offset: UTC+4 is
+ * `Etc/GMT-4`. These zones have no DST, which is what a picked offset means — a fixed
+ * clock, not the provider's zone across the year.
+ */
+export const fixedOffsetZone = (hours: number): string => {
+  if (!Number.isInteger(hours) || hours < -12 || hours > 12) {
+    throw new RangeError(`UTC offset must be a whole hour from -12 to 12, got ${hours}`)
+  }
+  if (hours === 0) return 'Etc/GMT'
+  return `Etc/GMT${hours > 0 ? '-' : '+'}${Math.abs(hours)}`
+}
 
 /**
  * Every zone the picker offers. `current` is added when the catalogue lists it under another

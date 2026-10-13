@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest'
 import {
   calendarDayOf,
   dayKeyOf,
+  fixedOffsetZone,
   formatTimeZoneName,
   formatUtcOffset,
   inTimeZone,
   isSameWallClock,
   isTimeZone,
   listTimeZones,
+  UTC_OFFSET_HOURS,
+  weekdayInSameWeek,
+  wholeOffsetHours,
   zonedTimeToDate,
   zoneOffsetMs,
 } from '@helpers/timeZone'
@@ -89,6 +93,39 @@ describe('zone labels', () => {
   it('compares wall clocks, not names', () => {
     expect(isSameWallClock('Asia/Yerevan', 'Asia/Dubai', winter)).toBe(true)
     expect(isSameWallClock('Asia/Yerevan', 'Europe/Berlin', winter)).toBe(false)
+  })
+})
+
+describe('fixed offsets', () => {
+  const nineInYerevan = '2026-03-02T05:00:00.000Z'
+
+  it('lists every whole hour from UTC−12 to UTC+12', () => {
+    expect(UTC_OFFSET_HOURS).toHaveLength(25)
+    expect(UTC_OFFSET_HOURS[0]).toBe(-12)
+    expect(UTC_OFFSET_HOURS.at(-1)).toBe(12)
+  })
+
+  it('reads a whole-hour zone offset and refuses one that is not', () => {
+    expect(wholeOffsetHours(new Date('2026-03-02T12:00:00Z'), 'Asia/Yerevan')).toBe(4)
+    expect(wholeOffsetHours(new Date('2026-01-15T12:00:00Z'), 'America/New_York')).toBe(-5)
+    expect(wholeOffsetHours(new Date('2026-03-02T12:00:00Z'), 'Asia/Kolkata')).toBeNull()
+  })
+
+  it('finds a weekday in the same Monday-first week', () => {
+    // 2026-10-13 is a Tuesday.
+    expect(weekdayInSameWeek('2026-10-13', 'monday')).toBe('2026-10-12')
+    expect(weekdayInSameWeek('2026-10-13', 'tuesday')).toBe('2026-10-13')
+    expect(weekdayInSameWeek('2026-10-13', 'sunday')).toBe('2026-10-18')
+  })
+
+  it('formats an instant on the picked offset, with the POSIX sign flipped', () => {
+    expect(fixedOffsetZone(4)).toBe('Etc/GMT-4')
+    expect(fixedOffsetZone(-5)).toBe('Etc/GMT+5')
+    expect(fixedOffsetZone(0)).toBe('Etc/GMT')
+    expect(inTimeZone(nineInYerevan, fixedOffsetZone(4)).format('HH:mm')).toBe('09:00')
+    expect(inTimeZone(nineInYerevan, fixedOffsetZone(0)).format('HH:mm')).toBe('05:00')
+    expect(formatUtcOffset(fixedOffsetZone(4), 'en')).toBe('GMT+4')
+    expect(formatUtcOffset(fixedOffsetZone(-12), 'en')).toBe('GMT-12')
   })
 })
 

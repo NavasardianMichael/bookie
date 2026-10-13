@@ -49,12 +49,12 @@ export const STATUS = {
 } as const
 
 /**
- * Review stars.
+ * Review-star outline, and an amber kept off the warning colour.
  *
- * Its own token rather than `STATUS.warning`, which is the same family of amber and
- * means something else entirely: a four-star rating is not a caution. Aliasing them
- * would mean a future retune of the warning colour silently restyled every rating on
- * the site, and neither name would warn you.
+ * Filled stars are the brand navy (`BRAND[900]`), on `RatingStars` and on antd's `Rate`.
+ * `star` stays its own amber rather than `STATUS.warning`: a four-star rating is not a
+ * caution, and aliasing them would mean a retune of the warning colour restyled every
+ * rating, with neither name warning you.
  *
  * `empty` is the unfilled star — a neutral outline, not a faded gold, so a 2-of-5 reads
  * as three missing stars rather than three dim ones.

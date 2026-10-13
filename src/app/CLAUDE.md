@@ -416,14 +416,23 @@ Four things not to undo here:
    returns, and it keeps date parsing to the single site that needs a real `Date`. Any
    module that parses one must `dayjs.extend(customParseFormat)` itself — `booking.ts`
    extends it for `booking.ts` only.
-4. **Every time is on the provider's clock, and says so.** `BookingPanel` passes
-   `details.timeZone` to the slot helpers, `BookingMonth` (whose "today" is the provider's),
-   `BookingSlots` and the summary. `BookingSlots`' header names the zone (`Armenia Standard
-   Time (GMT+4)`), and a visitor whose clock reads differently also sees their own time for
-   the picked slot. It used to say "Local time" while stepping the hours in the visitor's
-   zone, so a booker abroad was offered the provider's 09:00 at their own 09:00. A provider
-   with no zone set is still read in the visitor's zone, and the label names that zone. The
-   manage page (`/b/[token]`) reuses the same panels and does the same. Where each surface
+4. **Every booked time is an instant on the provider's clock.** `BookingPanel` passes
+   `details.timeZone` to the slot helpers and `BookingMonth` (whose "today" is the provider's).
+   The public `BookingSlots` header is a UTC-offset control, GMT−12 through GMT+12, in place
+   of the zone name, and a 12/24-hour switch beside it. Each starts on the provider's own
+   choice — the offset for the day on screen, and their clock, or the reader's locale when
+   they never chose a clock — so the times do not move until the visitor picks.    Either
+   control only changes how those instants are printed. The calendar day and the slot
+   that gets booked stay on the provider's clock. Opening hours reprint on the same
+   offset and 12/24-hour clock as the slots, and name that clock under the list; a
+   shift that lands on the day before or after says which day. The
+   provider turns both controls off together (`details.showClockChoices`, Availability);
+   the header then names the zone and prints their clock, and the hours list does too. The confirm
+   summary prints on the same clock the buttons showed. A visitor whose own clock still differs also sees their time for the picked slot.
+   It used to say "Local time" while stepping the hours in the visitor's zone, so a booker
+   abroad was offered the provider's 09:00 at their own 09:00. A provider with no zone set
+   is still read in the visitor's zone, and that page names the zone instead of offering the
+   control. The manage page (`/b/[token]`) keeps the written zone name. Where each surface
    gets its zone: *Time zones* in `docs/DATABASE_STRUCTURE.md`. The same panels take
    `details.timeFormat` alongside it, so slots, the summary and the hours list (`WorkingHours`)
    print on the provider's 12- or 24-hour clock — *12- or 24-hour clock* in that doc.

@@ -1,5 +1,5 @@
-import { toDataURL } from 'qrcode'
-
-/** PNG data URL of `text`. Generated on demand — do not call this at module load. */
-export const toQrDataUrl = (text: string): Promise<string> =>
-  toDataURL(text, { margin: 1, width: 512, errorCorrectionLevel: 'M' })
+/** PNG data URL of `text`. `qrcode` loads on this call, not with the page. */
+export const toQrDataUrl = async (text: string): Promise<string> => {
+  const { toDataURL } = await import('qrcode')
+  return toDataURL(text, { margin: 1, width: 512, errorCorrectionLevel: 'M' })
+}

@@ -282,8 +282,12 @@ model Provider {
   /// Draftable alongside `timeZone`, the field it sits beside on the Availability tab:
   /// it changes what the public page shows, so it goes out on Publish.
   timeFormat             TimeFormat?
+  /// Whether the public booking page offers the visitor a time-zone list and a 12/24-hour
+  /// switch. One flag for both. Draftable with `timeFormat`: it changes what the page
+  /// shows, so it goes out on Publish. On until a provider turns it off.
+  showClockChoices       Boolean            @default(true)
   /// Unpublished edits: firstName, lastName, description, imageUrl, weekSchedule, timeZone,
-  /// timeFormat, available, paymentInfo. Publish copies these onto the live columns.
+  /// timeFormat, showClockChoices, available, paymentInfo. Publish copies these onto the live columns.
   draft                  Json?
   /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges, newBooking }`
   emailNotificationPrefs Json               @default("{}")

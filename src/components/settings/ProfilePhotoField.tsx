@@ -3,11 +3,12 @@
 import { FC, useEffect, useMemo } from 'react'
 import { UploadOutlined } from '@ant-design/icons'
 import { Upload } from 'antd'
-import ImgCrop, { ImgCropProps } from 'antd-img-crop'
+import type { ImgCropProps } from 'antd-img-crop'
 import { resolveAssetUrl } from '@helpers/images'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
+import { LazyImgCrop } from '@components/ui/LazyImgCrop'
 
 type Props = {
   /** A `File` between the crop and the save, the stored path once the API has it. */
@@ -59,13 +60,13 @@ export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uplo
       <AppAvatar src={previewUrl} name={name} size={80} />
       <div className='flex flex-col gap-2'>
         <AppParagraph size='body-sm'>{hint}</AppParagraph>
-        <ImgCrop aspect={1} onModalOk={onModalOk}>
+        <LazyImgCrop aspect={1} onModalOk={onModalOk}>
           <Upload disabled={disabled} maxCount={1} showUploadList={false} customRequest={() => undefined}>
             <AppButton icon={<UploadOutlined />} disabled={disabled}>
               {uploadLabel}
             </AppButton>
           </Upload>
-        </ImgCrop>
+        </LazyImgCrop>
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 import { TimeFormat } from '@interfaces/schedule'
 import { PaymentMethod } from '@interfaces/settings'
+import { TIME_FORMATS } from '@constants/schedule'
 import { getTimeDisplayFormat } from './timeFormat'
 import { inTimeZone } from './timeZone'
 
@@ -64,7 +65,7 @@ export const buildBookingSummaryFields = (
 ): BookingSummaryField[] => {
   const start = inTimeZone(data.startISO, data.timeZone)
   const end = start.add(data.durationMinutes, 'minute')
-  const timeDisplayFormat = getTimeDisplayFormat(data.timeFormat ?? 'h12')
+  const timeDisplayFormat = getTimeDisplayFormat(data.timeFormat ?? TIME_FORMATS.h12)
 
   const rows: (BookingSummaryField | null)[] = [
     { key: 'provider', label: labels.provider, text: data.providerName },

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PaymentMethod } from '@interfaces/settings'
+import { TIME_FORMATS } from '@constants/schedule'
 import {
   BookingSummaryData,
   BookingSummaryLabels,
@@ -93,7 +94,7 @@ describe('buildBookingSummaryFields', () => {
   })
 
   it("prints the time on the provider's 24-hour clock when they chose it", () => {
-    const fields = buildBookingSummaryFields({ ...BASE, timeZone: 'Asia/Yerevan', timeFormat: 'h24' }, LABELS)
+    const fields = buildBookingSummaryFields({ ...BASE, timeZone: 'Asia/Yerevan', timeFormat: TIME_FORMATS.h24 }, LABELS)
 
     expect(fields.find((field) => field.key === 'time')?.text).toBe('18:30 – 19:00')
   })

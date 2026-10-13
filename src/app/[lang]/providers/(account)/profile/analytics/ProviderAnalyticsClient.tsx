@@ -9,6 +9,7 @@ import { CurrencyTotal, ProviderAnalytics } from '@api/analytics/types'
 import { getProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { ROUTES } from '@constants/routes'
+import { TIME_FORMATS } from '@constants/schedule'
 import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
@@ -189,7 +190,7 @@ export const ProviderAnalyticsClient = () => {
         const hour = dayjs().hour(entry.hour).minute(0)
         return {
           key: String(entry.hour),
-          label: hour.format(timeFormat === 'h24' ? 'HH' : 'h A'),
+          label: hour.format(timeFormat === TIME_FORMATS.h24 ? 'HH' : 'h A'),
           name: hour.format(getTimeDisplayFormat(timeFormat)),
           value: entry.bookings,
         }

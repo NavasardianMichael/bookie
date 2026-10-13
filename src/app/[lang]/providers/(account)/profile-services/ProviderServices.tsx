@@ -2,7 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
-import { Tabs } from 'antd'
+import { Spin, Tabs } from 'antd'
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
 import { useCategoriesListStore } from '@store/categories/list/store'
@@ -13,7 +14,6 @@ import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/service
 import { hasRoomFor } from '@helpers/plans'
 import { reportError } from '@helpers/reportError'
 import { processProviderServiceFormToRequestPayload } from '@components/providerServiceForm/processors'
-import { ProviderServiceForm } from '@components/providerServiceForm/ProviderServiceForm'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
@@ -26,6 +26,12 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { StatTile } from '@components/ui/StatTile'
 import { ProviderServiceCard } from './ProviderServiceCard'
+
+/** The service form (and its cropper) load when Add or Edit opens the sheet. */
+const ProviderServiceForm = dynamic(
+  () => import('@components/providerServiceForm/ProviderServiceForm').then((mod) => mod.ProviderServiceForm),
+  { loading: () => <Spin /> }
+)
 
 type Props = {
   initialValues?: ProviderServiceFormValues

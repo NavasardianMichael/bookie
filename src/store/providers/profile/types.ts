@@ -70,6 +70,12 @@ export type ProviderProfile = {
      * `@helpers/timeFormat#resolveTimeFormat`, which falls back to the reader's locale.
      */
     timeFormat?: TimeFormat
+    /**
+     * Whether the booking page offers a time-zone list and a 12/24-hour switch, together.
+     * On the **public** payload. Optional so a payload from before the column parses;
+     * treat a missing value as shown, which is what the API defaults it to.
+     */
+    showClockChoices?: boolean
     emailNotificationPrefs?: ProviderEmailNotificationPrefs
     paymentInfo?: PaymentInfo
     /**

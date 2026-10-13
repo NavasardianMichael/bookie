@@ -1,15 +1,16 @@
 'use client'
 
 import { FC, useCallback, useMemo } from 'react'
+import { Segmented, Select } from 'antd'
 import dayjs from 'dayjs'
 import { useLocale, useTranslations } from 'next-intl'
 import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
 import { TimeFormat } from '@interfaces/schedule'
-import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { DAY_KEY_FORMAT, TIME_FORMATS, TIME_FORMATS_LIST } from '@constants/schedule'
 import { BookingSlot } from '@helpers/booking'
 import { cn } from '@helpers/cn'
 import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
-import { formatTimeZoneName, inTimeZone, isSameWallClock } from '@helpers/timeZone'
+import { fixedOffsetZone, formatTimeZoneName, formatUtcOffset, inTimeZone, isSameWallClock, UTC_OFFSET_HOURS } from '@helpers/timeZone'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -29,13 +30,25 @@ type Props = {
   /** Pre-formatted, e.g. `70 USD`. Absent when the service carries no price. */
   servicePrice?: string
   /**
-   * The provider's IANA zone — the clock every time here is written on, and the one the
-   * header names. Absent for a provider who never set one: the slots were then stepped in
-   * the visitor's own zone, so that is the zone named instead.
+   * The clock these times are printed on. On the public page this is the provider's
+   * zone until the visitor picks an offset, then that fixed offset. Absent for a
+   * provider who never set one: the slots were stepped in the visitor's own zone.
    */
   timeZone?: string
-  /** The provider's 12/24-hour choice (`details.timeFormat`); absent, the reader's locale decides. */
+  /**
+   * Whole-hour UTC offset shown in the header control. Absent, and with no
+   * `onOffsetHoursChange`, the header keeps the written zone name — the manage page.
+   */
+  offsetHours?: number
+  /** Present only on the public page, where the visitor may read the same instants on another clock. */
+  onOffsetHoursChange?: (hours: number) => void
+  /**
+   * The 12/24-hour clock these times are printed on. The provider's choice until the
+   * visitor picks the other; absent, the reader's locale decides.
+   */
   timeFormat?: TimeFormat
+  /** Present only on the public page, beside the offset control. */
+  onTimeFormatChange?: (format: TimeFormat) => void
   isBooking: boolean
   onSelect: (startISO: string) => void
   onConfirm: () => void
@@ -70,7 +83,10 @@ export const BookingSlots: FC<Props> = ({
   serviceName,
   servicePrice,
   timeZone,
+  offsetHours,
+  onOffsetHoursChange,
   timeFormat,
+  onTimeFormatChange,
   isBooking,
   onSelect,
   onConfirm,
@@ -79,9 +95,19 @@ export const BookingSlots: FC<Props> = ({
   cannotBookOwn = false,
 }) => {
   const t = useTranslations('Booking')
+  const tSettings = useTranslations('Settings')
   const locale = useLocale()
   const viewerTimeZone = useViewerTimeZone()
-  const timeDisplayFormat = getTimeDisplayFormat(resolveTimeFormat(timeFormat, locale))
+  const resolvedFormat = resolveTimeFormat(timeFormat, locale)
+  const timeDisplayFormat = getTimeDisplayFormat(resolvedFormat)
+  const formatOptions = useMemo(
+    () =>
+      TIME_FORMATS_LIST.map((format) => ({
+        value: format,
+        label: t(format === TIME_FORMATS.h24 ? 'clock24' : 'clock12'),
+      })),
+    [t]
+  )
   /**
    * Which clock the grid is on, said in words: `Armenia Standard Time (GMT+4)`. This used
    * to read "Local time", which was true only of the visitor's own clock — the one the hours
@@ -92,6 +118,18 @@ export const BookingSlots: FC<Props> = ({
     () => (shownTimeZone ? formatTimeZoneName(shownTimeZone, locale) : null),
     [locale, shownTimeZone]
   )
+  const offsetOptions = useMemo(
+    () =>
+      UTC_OFFSET_HOURS.map((hours) => ({
+        value: hours,
+        label: formatUtcOffset(fixedOffsetZone(hours), locale),
+      })),
+    [locale]
+  )
+  const offsetLabel =
+    offsetHours !== undefined
+      ? formatUtcOffset(fixedOffsetZone(offsetHours), locale)
+      : (timeZoneLabel ?? '')
 
   const handleSelect = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -159,11 +197,36 @@ export const BookingSlots: FC<Props> = ({
           </AppParagraph>
         </div>
 
-        {timeZoneLabel && (
-          <AppText size='body-sm' tone='muted' className='flex min-w-0 items-center gap-2'>
-            <ClockIcon aria-hidden className='h-4 w-4 shrink-0' />
-            {t('timesShownIn', { zone: timeZoneLabel })}
-          </AppText>
+        {onOffsetHoursChange || onTimeFormatChange ? (
+          <div className='flex flex-wrap items-center gap-2'>
+            {onTimeFormatChange && (
+              <Segmented<TimeFormat>
+                aria-label={tSettings('availability.timeFormat')}
+                value={resolvedFormat}
+                options={formatOptions}
+                onChange={onTimeFormatChange}
+              />
+            )}
+            {onOffsetHoursChange && (
+              <Select<number>
+                aria-label={t('timesShownIn', { zone: offsetLabel })}
+                value={offsetHours}
+                placeholder={timeZoneLabel ?? undefined}
+                options={offsetOptions}
+                onChange={onOffsetHoursChange}
+                popupMatchSelectWidth={false}
+                prefix={<ClockIcon aria-hidden className='text-brand-muted h-4 w-4' />}
+                className='min-w-32'
+              />
+            )}
+          </div>
+        ) : (
+          timeZoneLabel && (
+            <AppText size='body-sm' tone='muted' className='flex min-w-0 items-center gap-2'>
+              <ClockIcon aria-hidden className='h-4 w-4 shrink-0' />
+              {t('timesShownIn', { zone: timeZoneLabel })}
+            </AppText>
+          )
         )}
       </div>
 
@@ -177,6 +240,10 @@ export const BookingSlots: FC<Props> = ({
             const startISO = slot.start.toISOString()
             const taken = requestedStarts.includes(startISO)
             const isSelected = startISO === selectedStart
+            const start = inTimeZone(slot.start, timeZone)
+            // The day above is the provider's calendar day. A clock several hours
+            // away can put the same instant on the day before or after it.
+            const sameDay = !date || start.format(DAY_KEY_FORMAT) === dayjs(date).format(DAY_KEY_FORMAT)
 
             return (
               <button
@@ -196,7 +263,7 @@ export const BookingSlots: FC<Props> = ({
                       : 'border-brand-border text-brand-text hover:border-brand hover:text-brand cursor-pointer active:scale-[0.98]'
                 )}
               >
-                {inTimeZone(slot.start, timeZone).format(timeDisplayFormat)}
+                {start.format(sameDay ? timeDisplayFormat : `ddd, ${timeDisplayFormat}`)}
               </button>
             )
           })}

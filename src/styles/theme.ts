@@ -110,14 +110,14 @@ export const antdTheme: ThemeConfig = {
     },
     /**
      * The star colour for the one place antd's `Rate` is used: the write form, which is
-     * a client island. The read-only display everywhere else is `ui/bare/RatingStars`,
-     * an antd-free SVG that reads the same value through `--color-rating`.
+     * a client island. Filled stars are the brand navy, the same colour `RatingStars`
+     * paints with `text-brand`. The empty outline stays `RATING.empty`.
      *
      * Set here rather than as a class on the component because `starColor` is a cssinjs
      * token — overriding it in CSS would mean losing to antd's unlayered styles and
      * reaching for a `!` suffix, which is a grep gate.
      */
-    Rate: { starColor: RATING.star, starBg: RATING.empty },
+    Rate: { starColor: BRAND[900], starBg: RATING.empty },
     /**
      * A Segmented strip is a choice between peers, so the chosen one is painted with the
      * brand fill rather than antd's default white-on-grey thumb, which reads as a hover
