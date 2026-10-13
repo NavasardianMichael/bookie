@@ -304,7 +304,8 @@ providerProfileRouter.get(
  * - `mode: 'draft'` — merge fields into `Provider.draft` (no public effect)
  * - `mode: 'publish'` — apply draft (or body fields) to live columns and clear draft
  * - `mode: 'listing'` — set `listed` only
- * - omitted / legacy — live update (onboarding formik path + prefs/payment without draft)
+ * - omitted — live update: the settings that are not drafted (notifications, payments,
+ *   booking approval, phone visibility, availability…)
  */
 providerProfileRouter.put(
   '/',
@@ -432,7 +433,7 @@ providerProfileRouter.put(
       })
     }
 
-    // Legacy / direct live update (onboarding + settings prefs that are not draftable)
+    // Direct live update: the settings that are not drafted
     const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule
     const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
     // Onboarding writes the first schedule live, and the zone it is written in with it.
@@ -478,7 +479,6 @@ providerProfileRouter.put(
         // `/confirm` may change `User.email` (current password + verified click).
         address: body.address ?? body.Address,
         locationUrl: body.locationURL ?? body.LocationURL,
-        organizationId: body.organizationId ?? body.OrganizationId ?? undefined,
         weekSchedule: weekSchedule ?? undefined,
         timeZone,
         imageUrl: imageUrl ?? undefined,

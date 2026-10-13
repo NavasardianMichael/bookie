@@ -327,7 +327,7 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   it used to be read by Explore alone while bookings kept arriving.
 - **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `showClockChoices`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
 - **`timeZone`** — the IANA zone `weekSchedule` is written in. Draftable, because it moves
-  every published hour; also written live by onboarding's first save. See [Time zones](#time-zones).
+  every published hour. See [Time zones](#time-zones).
 - **`timeFormat`** — `h12` / `h24` (Prisma enum `TimeFormat`), nullable. Draftable with
   `timeZone`, beside which it is edited. See [12- or 24-hour clock](#12--or-24-hour-clock).
 - **`showClockChoices`** — whether the public booking page offers a visitor a time-zone
@@ -409,7 +409,7 @@ typed — untranslated, shown as written.
 
 **Choosing them** is the same field at registration (email and Google), becoming a provider
 and the settings Profile tab: type to search (`GET /categories?q=`), pick a suggestion or add
-the typed name as new, remove a chip. On submit, each new name is checked
+the typed name as new, remove a tag. On submit, each new name is checked
 (`GET /categories/similar`) and the provider is asked to use the existing one or add theirs
 anyway. Bodies carry `categories: [{ id } | { name }]` — `/identity/register`,
 `/identity/google/complete` and `POST /identity/provider-profile` take it inside `profile`,
@@ -706,8 +706,7 @@ says where the provider is (`country` has no zone, and several countries span ma
 provider's hours are read in each visitor's own zone — exactly what every page did before —
 and the label names that zone. The Advanced settings tab suggests the device's zone and
 starts dirty, so confirming it is one Publish; the Availability tab names the zone its hours
-are in (or says there is none) and links there. Onboarding sends the device's zone with the first
-schedule. The seed gives every seeded provider `Asia/Yerevan`.
+are in (or says there is none) and links there. The seed gives every seeded provider `Asia/Yerevan`.
 
 **Stored canonical.** `PUT /provider-profile` accepts `timeZone` in all three modes (draft,
 publish, live), answers `400` for a name `Intl` cannot read, and stores what
@@ -739,7 +738,6 @@ says *how* a time is written, never *which zone* — the table above still decid
 prints each reader's locale convention (`en`, `ar`, `ko` 12-hour; `hy`, `de`, `ru` and the
 rest 24-hour) — and English, 12-hour, in emails, which are English. The Advanced settings tab
 shows the provider's own locale convention selected, so saving that tab records what they saw.
-Onboarding has no toggle; its pickers use the locale's clock.
 
 `PUT /provider-profile` accepts `timeFormat` in `draft` and `publish` modes and answers `400`
 for anything but `h12` / `h24`. The client half is `src/helpers/timeFormat.ts`; the server twin

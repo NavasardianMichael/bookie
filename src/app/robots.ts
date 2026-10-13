@@ -24,7 +24,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         '/*/auth/',
         `/*${ROUTES.providerProfile}`,
-        `/*${ROUTES.providerProfileCreation}`,
         `/*${ROUTES.providerServices}`,
         `/*${ROUTES.bookings}`,
         `/*${ROUTES.favorites}`,

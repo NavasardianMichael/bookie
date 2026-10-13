@@ -16,8 +16,9 @@
  * `grep -rnoE "[a-z0-9)\]]!'"`. In a POSIX bracket expression a backslash is a literal
  * backslash, not an escape, so that parses as the set {a-z,0-9,')','\'} followed by a
  * *literal* `]` — it only ever matched `]!'`, never `block!'`. It reported 0 while five
- * real suffixes sat in `providerProfileForm/`. The regex below is what the author meant;
- * those five are baselined in `allow`, each naming its docs/BACKLOG.md entry.
+ * real suffixes sat in `providerProfileForm/`. The regex below is what the author meant.
+ * Those five were baselined until the onboarding form they lived in was deleted
+ * (2026-10-13); the gate now holds at zero with no exceptions.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
@@ -64,34 +65,7 @@ const GATES = [
     // Scoped to class-name lines. Unscoped, the pattern also flags English copy that
     // ends in an exclamation mark (`'…successfully created!',`), which is not a
     // Tailwind suffix and never will be.
-    requireLine: /className|cn\(/,
-    allow: [
-      {
-        rel: 'src/components/providerProfileForm/ProviderProfileFormGallery.tsx',
-        contains: 'mt-4!',
-        reason: 'Pre-existing - see docs/BACKLOG.md, "The `!`-suffix gate never ran".',
-      },
-      {
-        rel: 'src/components/providerProfileForm/ProviderProfileFormGallery.tsx',
-        contains: 'rounded-tr-lg!',
-        reason: 'Pre-existing — see docs/BACKLOG.md, "The `!`-suffix gate never ran".',
-      },
-      {
-        rel: 'src/components/providerProfileForm/ProviderProfileFormGallery.tsx',
-        contains: 'rounded-tr-none!',
-        reason: 'Pre-existing — see docs/BACKLOG.md, "The `!`-suffix gate never ran".',
-      },
-      {
-        rel: 'src/components/providerProfileForm/ProviderProfileFormImage.tsx',
-        contains: 'max-w-80 block!',
-        reason: 'Pre-existing — see docs/BACKLOG.md, "The `!`-suffix gate never ran".',
-      },
-      {
-        rel: 'src/components/providerProfileForm/ProviderProfileFormOrganization.tsx',
-        contains: 'pl-0!',
-        reason: 'Pre-existing — see docs/BACKLOG.md, "The `!`-suffix gate never ran".',
-      },
-    ],
+    requireLine: /className|\bcn\(/,
   },
   {
     name: 'no deleted `2xl:` / `3xl:` breakpoints',

@@ -1,7 +1,15 @@
 'use client'
 
 import { FC, useCallback, useMemo } from 'react'
-import { CheckCircleOutlined, CopyOutlined, DeleteOutlined, EditOutlined, MoreOutlined, PauseOutlined } from '@ant-design/icons'
+import {
+  CheckCircleOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  MoreOutlined,
+  PauseOutlined,
+  TagsOutlined,
+} from '@ant-design/icons'
 import { Button, Dropdown, Switch, Tag } from 'antd'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
@@ -13,7 +21,7 @@ import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTime } from '@components/ui/bare/AppTime'
 import { AppTitle } from '@components/ui/bare/AppTitle'
-import { ClockIcon, CreditCardIcon, ScissorsIcon } from '@components/ui/icons'
+import { ClockIcon, CreditCardIcon } from '@components/ui/icons'
 
 type Props = {
   service: ProviderService
@@ -114,7 +122,7 @@ export const ProviderServiceCard: FC<Props> = ({
             {resolvedImage ? (
               <Image src={resolvedImage} alt='' fill sizes='48px' className='object-cover' />
             ) : (
-              <ScissorsIcon aria-hidden className='h-5 w-5' />
+              <TagsOutlined aria-hidden className='text-xl' />
             )}
           </span>
 

@@ -47,7 +47,6 @@ while the rest of the funnel does not. The route-by-route plan for the remaining
 | `/` | ƒ | Real — marketing landing (hero, feature lists for clients and for providers, category rail, providers, CTA). The hero's sign-up buttons are guest-only, from a server-side session read; a signed-in visitor, on either side, gets one *Explore providers* link in their place. Signed-in visitors are never redirected away from `/`, so the logo always lands here. See [The landing page](#the-landing-page--) |
 | `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
 | `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top. `?service=<id>` (from an Explore card) starts booking with that service selected |
-| `/providers/profile-creation` | ƒ | Real — the big profile form (onboarding; outside the account settings shell) |
 | `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO / Plan |
 | `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
 | `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |

@@ -6,16 +6,15 @@ describe('matchRouteName', () => {
     expect(matchRouteName('/providers/abc')).toBe('providers')
   })
 
-  // Longest-first ordering is load-bearing: /providers/profile-services,
-  // /providers/profile-creation and /providers/profile all share a prefix with
-  // /providers, and a shortest-first scan would collapse them all to `providers`.
+  // Longest-first ordering is load-bearing: /providers/profile-services and
+  // /providers/profile both share a prefix with /providers, and a shortest-first
+  // scan would collapse them all to `providers`.
   it('prefers the longest matching route', () => {
     expect(matchRouteName('/providers/profile')).toBe('providerProfile')
     expect(matchRouteName('/providers/profile/bookings')).toBe('providerProfileBookings')
     expect(matchRouteName('/providers/profile/consumer-bookings')).toBe('providerProfileConsumerBookings')
     expect(matchRouteName('/providers/profile/history')).toBe('providerProfileHistory')
     expect(matchRouteName('/providers/profile-services')).toBe('providerServices')
-    expect(matchRouteName('/providers/profile-creation')).toBe('providerProfileCreation')
   })
 
   it('resolves the account pages in the header', () => {
@@ -54,7 +53,6 @@ describe('isPublicProviderPage', () => {
   it('is false for the provider workspace and unrelated routes', () => {
     expect(isPublicProviderPage('/providers/profile')).toBe(false)
     expect(isPublicProviderPage('/providers/profile-services')).toBe(false)
-    expect(isPublicProviderPage('/providers/profile-creation')).toBe(false)
     expect(isPublicProviderPage('/categories')).toBe(false)
     expect(isPublicProviderPage('/')).toBe(false)
   })

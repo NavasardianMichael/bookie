@@ -114,14 +114,13 @@ That is not an action taking `get` — the store itself still destructures only 
   `AuthCallbackClient`) checks it first: sending a signed-in user to sign-in mid-outage told
   them their session was gone when it was the server. Every other store rethrows to its
   caller, which shows the failure (`src/components/CLAUDE.md` → *Errors*).
-- **`src/store/categories/list/store.ts` and `organizations/list`** start empty and load
-  only where a page asks. The categories store used to ship fake seed data in
-  `initialState` — one row whose `allIds` entry (`'c-1'`) did not even match its own
-  `byId` key (`'smth'`) — so every category picker offered an id the API had never
-  issued. A page that renders an organization picker from the list store **must load the
-  list itself**: `ProviderProfileForm` (profile creation) does, with a Retry if that fails.
-  The provider Categories field does not use the store at all — it searches the API as the
-  provider types (`useCategorySuggestions`).
+- **`src/store/categories/list/store.ts`** starts empty and loads only where a page asks.
+  It used to ship fake seed data in `initialState` — one row whose `allIds` entry (`'c-1'`)
+  did not even match its own `byId` key (`'smth'`) — so every category picker offered an id
+  the API had never issued. No picker reads a list store any more: the provider Categories
+  and Organization fields search the API as the provider types (`useCategorySuggestions`,
+  `useOrganizationSuggestions`). There is no `organizations/list` slice; its only reader was
+  the deleted onboarding form.
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns
   `api.setState` — it does **not** catch rejections thrown inside async actions.
 - Action return types drift between `() => void` and `() => Promise<void>` for

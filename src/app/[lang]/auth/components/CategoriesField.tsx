@@ -1,8 +1,8 @@
 'use client'
 
-import { FC, Ref, useState } from 'react'
-import { CloseOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons'
-import { AutoComplete, Spin, Tag } from 'antd'
+import { FC, ReactNode, Ref, useState } from 'react'
+import { PlusOutlined, TagOutlined } from '@ant-design/icons'
+import { Select, Spin } from 'antd'
 import type { RefSelectProps } from 'antd/es/select'
 import { useTranslations } from 'next-intl'
 import { CategoryValue } from '@interfaces/auth'
@@ -22,25 +22,33 @@ type Props = {
   disabled?: boolean
 }
 
-/** Option values that are not category ids. Neither can collide with a UUID. */
+/** The add-new row's value. Cannot collide with a UUID, nor with a `new:` key. */
 const ADD_NEW_OPTION = 'add-new-category'
 const STATUS_OPTION = 'category-search-status'
 
 const ADD_NEW_OPTION_STYLE = { borderStartStartRadius: 0, borderStartEndRadius: 0 }
 
+/** `Select` keys: a category's id, or `new:<name>` for one the provider is adding. */
+const keyOf = (entry: CategoryValue): string => entry.id ?? `new:${entry.name}`
+
+type Labeled = { value: string; label: ReactNode }
+
 /**
- * A provider's categories — up to `MAX_PROVIDER_CATEGORIES`, all optional. The Organization
- * field's interaction, made multiple: type to search, then pick a suggestion or add the
- * typed name as a new category; every choice becomes a chip with its own remove button, and
- * the search box empties for the next one. Full, the box is disabled and says why.
+ * A provider's categories — up to `MAX_PROVIDER_CATEGORIES`, all optional — as antd's
+ * multiple `Select`: type to search, pick a suggestion or add the typed name as a new
+ * category, and each choice becomes a tag inside the input with its own remove icon.
+ * `maxCount` disables the rest of the list once three are chosen; a chosen one can still be
+ * removed from its tag or deselected in the list.
  *
- * Suggestions and chips show a predefined category under its translated name, an added one
- * under the name it was given. "Add as new" is offered even beside a near match — whether
- * that was meant is asked on submit (`useSimilarCategoryCheck`) — but not for a name that is
- * already a chip, nor are the categories already chosen suggested again.
+ * Suggestions come from the API as the provider types (`useCategorySuggestions`), never from
+ * the options' own text, so `filterOption` is off. Predefined categories show their
+ * translated name, added ones the name they were given — and a category being added carries
+ * a "new" mark on its tag. "Add as new" is offered even beside a near match — whether that was
+ * meant is asked on submit (`useSimilarCategoryCheck`) — but not for a name already chosen.
  *
- * Implements the `Form.Item` control contract, so it must not be wrapped in a layout element
- * inside the item.
+ * `labelInValue`, so a saved category the current search did not return still shows its
+ * label. Implements the `Form.Item` control contract, so it must not be wrapped in a layout
+ * element inside the item.
  */
 export const CategoriesField: FC<Props> = ({ value, onChange, ref, id, disabled }) => {
   const t = useTranslations('Auth.categories')
@@ -48,41 +56,46 @@ export const CategoriesField: FC<Props> = ({ value, onChange, ref, id, disabled 
   const tErrors = useTranslations('Errors')
   const chosen = value ?? []
   const [text, setText] = useState('')
-  const query = collapseWhitespace(text)
+  const query = collapseWhitespace(text).slice(0, MAX_CHARS_FOR_CATEGORY_NAME)
   const suggestions = useCategorySuggestions(text)
-  const full = chosen.length >= MAX_PROVIDER_CATEGORIES
 
   const label = (name: string) => translateCategoryName(name, tCategories)
-  const isChosen = (name: string) => chosen.some((entry) => isSameName(entry.name, name) || isSameName(label(entry.name), name))
+  const isChosen = (name: string) =>
+    chosen.some((entry) => isSameName(entry.name, name) || isSameName(label(entry.name), name))
 
-  const available = suggestions.categories.filter((category) => !chosen.some((entry) => entry.id === category.id))
+  const tagLabel = (entry: CategoryValue): ReactNode =>
+    entry.isNew ? (
+      <span>
+        {label(entry.name)}
+        <span className='text-brand-muted ms-1'>· {t('newBadge')}</span>
+      </span>
+    ) : (
+      label(entry.name)
+    )
 
-  const add = (entry: CategoryValue) => {
+  const selected: Labeled[] = chosen.map((entry) => ({ value: keyOf(entry), label: tagLabel(entry) }))
+
+  /**
+   * Back from `Select`'s keys to entries. A key already chosen keeps its entry; the add-new
+   * row becomes the typed name; any other key is a suggestion picked just now.
+   */
+  const handleChange = (next: Labeled[]) => {
+    const entries = next.flatMap((item): CategoryValue[] => {
+      const kept = chosen.find((entry) => keyOf(entry) === item.value)
+      if (kept) return [kept]
+      if (item.value === ADD_NEW_OPTION) return query ? [{ name: query, isNew: true }] : []
+      const picked = suggestions.categories.find((category) => category.id === item.value)
+      return picked ? [{ id: picked.id, name: picked.name }] : []
+    })
     setText('')
-    if (full) return
-    onChange?.([...chosen, entry])
+    onChange?.(entries.slice(0, MAX_PROVIDER_CATEGORIES))
   }
 
-  const handleSelect = (selected: string) => {
-    if (selected === ADD_NEW_OPTION) {
-      add({ name: query, isNew: true })
-      return
-    }
-    const category = available.find((candidate) => candidate.id === selected)
-    if (category) add({ id: category.id, name: category.name })
-  }
-
-  const remove = (index: number) => onChange?.(chosen.filter((_, position) => position !== index))
-
-  const categoryOptions = available.map((category) => ({
+  const categoryOptions = suggestions.categories.map((category) => ({
     value: category.id,
     // rc-select's accessible listbox would otherwise announce the value — an id.
     'aria-label': label(category.name),
-    label: (
-      <AppText size='body-sm' className='truncate'>
-        {label(category.name)}
-      </AppText>
-    ),
+    label: label(category.name),
   }))
 
   const statusOption = {
@@ -99,6 +112,7 @@ export const CategoriesField: FC<Props> = ({ value, onChange, ref, id, disabled 
 
   const canAddNew = Boolean(query) && !isChosen(query)
 
+  // Nothing typed: no options, and `notFoundContent={null}` keeps the list shut.
   const options = suggestions.isIdle
     ? []
     : [
@@ -124,43 +138,21 @@ export const CategoriesField: FC<Props> = ({ value, onChange, ref, id, disabled 
       ]
 
   return (
-    <div className='flex flex-col gap-2'>
-      <AutoComplete
-        ref={ref}
-        id={id}
-        value={text}
-        options={options}
-        showSearch={{ onSearch: setText, filterOption: false }}
-        onSelect={handleSelect}
-        placeholder={full ? t('full', { max: MAX_PROVIDER_CATEGORIES }) : t('searchPlaceholder')}
-        disabled={disabled || full}
-        maxLength={MAX_CHARS_FOR_CATEGORY_NAME}
-        className='w-full'
-        prefix={<TagOutlined className='text-brand-muted' />}
-      />
-
-      {chosen.length > 0 && (
-        <ul className='flex flex-wrap gap-2' aria-label={t('chosen')}>
-          {chosen.map((entry, index) => (
-            <li key={entry.id ?? `new:${entry.name}`}>
-              <Tag
-                className='m-0'
-                color={entry.isNew ? undefined : 'blue'}
-                disabled={disabled}
-                closeIcon={<CloseOutlined aria-label={t('remove', { name: label(entry.name) })} />}
-                onClose={(event) => {
-                  // The list is rendered from `value`; Tag must not also hide itself.
-                  event.preventDefault()
-                  remove(index)
-                }}
-              >
-                {label(entry.name)}
-                {entry.isNew && <span className='text-brand-muted ms-1'>· {t('newBadge')}</span>}
-              </Tag>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <Select<Labeled[]>
+      ref={ref}
+      id={id}
+      mode='multiple'
+      labelInValue
+      value={selected}
+      onChange={handleChange}
+      options={options}
+      showSearch={{ searchValue: text, onSearch: setText, filterOption: false }}
+      maxCount={MAX_PROVIDER_CATEGORIES}
+      notFoundContent={null}
+      placeholder={t('searchPlaceholder')}
+      disabled={disabled}
+      prefix={<TagOutlined className='text-brand-muted' />}
+      className='w-full'
+    />
   )
 }

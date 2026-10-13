@@ -1,6 +1,6 @@
 ---
 name: forms
-description: Build or edit a form in this repo. Ant Design Form is the single source of truth for form state and validation; Formik has been removed. Covers the control contract custom field components must implement, validation rules via useFormItemRules, and why the old dual binding broke. Use for any work on ProviderProfileForm, ProviderServiceForm, the auth forms, or any new form.
+description: Build or edit a form in this repo. Ant Design Form is the single source of truth for form state and validation; Formik has been removed. Covers the control contract custom field components must implement, validation rules via useFormItemRules, and why the old dual binding broke. Use for any work on ProviderProfileSettingsForm, ProviderServiceForm, the registration forms, or any new form.
 ---
 
 # Forms
@@ -17,18 +17,16 @@ proposes a second form library.
 ```tsx
 'use client'
 
-const ProviderProfileForm: React.FC<Props> = ({ initialValues = DEFAULTS }) => {
-  const [form] = Form.useForm<ProviderProfileFormValues>()
-  const putProviderProfileData = useProviderProfileStore.use.putProviderProfileData()
+const ProviderServiceForm: React.FC<Props> = ({ initialValues = DEFAULTS, onSubmit }) => {
+  const [form] = Form.useForm<ProviderServiceFormValues>()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const requiredText = useFormItemRules('required', 'maxCharsForInput')
 
-  const handleFinish = async (values: ProviderProfileFormValues) => {
+  const handleFinish = async (values: ProviderServiceFormValues) => {
     setIsSubmitting(true)
     try {
-      await putProviderProfileData(processProviderProfileFormToPostPayload(values))
-      push(ROUTES.providerServices)
+      await onSubmit(processProviderServiceFormToRequestPayload(values))
     } finally {
       setIsSubmitting(false)
     }
@@ -81,8 +79,8 @@ type Props = {
 
 export const CategoriesField: FC<Props> = ({ value, onChange }) => {
   const chosen = value ?? []
-  // …a search box that calls onChange([...chosen, picked]), chips that call
-  // onChange(chosen.filter(…)) — never a copy of `value` in local state.
+  // …a multiple `Select` whose tags are `chosen` and whose onChange maps its keys back to
+  // entries and calls onChange(next) — never a copy of `value` in local state.
 }
 ```
 
@@ -94,8 +92,8 @@ Used as (`CategoriesSection`, `src/app/[lang]/auth/components/`):
 </AppFormItem>
 ```
 
-The search box's own text is local state — that is the control's working draft, not the
-field's value, which is only ever the chosen list.
+The search text is local state — the control's working draft (`showSearch.searchValue`),
+not the field's value, which is only ever the chosen list.
 
 A component that destructures only its own props and ignores `value`/`onChange` **silently
 drops them**. A thin antd wrapper like `AppInput` works because it spreads `...props`
@@ -188,18 +186,18 @@ no type error, no validation error, no failed request.
 
 | Where | Effect |
 |---|---|
-| `ProviderProfileForm` | `categoryIds` carried `required` + `min:1` on an antd slot nothing wrote → **the form could not be submitted at all** (that field has since moved to `CategoriesField`) |
+| `ProviderProfileForm` | `categoryIds` carried `required` + `min:1` on an antd slot nothing wrote → **the form could not be submitted at all** (the form has since been deleted; categories live in `CategoriesField`) |
 | `ProviderProfileFormOrganization` | Wrote `organization`; the payload builder read `organizationId`, so the selection was silently never submitted |
 | `ProviderServiceFormCategory` | Read `value.id` off a string and stored `undefined` (removed 2026-10-13 — services have no category) |
 | `AccountTypeButtons` | Gone — the account-type screen is two links, so there is no selection state to disagree about |
 
-Two worked examples to copy: `src/components/providerServiceForm/` (three custom fields, a
-parent that picks POST vs PUT off `values.id`) and `src/components/providerProfileForm/`
-(five custom fields, including two that hold `File`s and one that owns the whole week
-schedule).
+Two worked examples to copy: `src/components/providerServiceForm/` (three custom fields, one
+holding a `File`, and a parent that picks POST vs PUT off `values.id`) and
+`src/app/[lang]/auth/components/` — the registration fields, whose controls hold an object
+(`OrganizationSearchField`, `PhoneNumberField`) or a list (`CategoriesField`).
 
 Field-name drift is the one that survives a refactor, so it is pinned by a test rather than
-a comment — see `tests/unit/components/providerProfileForm.processors.spec.ts`.
+a comment — see `tests/unit/components/providerServiceForm.processors.spec.ts`.
 
 ## Migrating a form
 

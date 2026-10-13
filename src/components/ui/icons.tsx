@@ -73,14 +73,6 @@ export const BellIcon = ({ className }: IconProps) => (
   </svg>
 )
 
-export const ScissorsIcon = ({ className }: IconProps) => (
-  <svg {...base(className)}>
-    <circle cx='6' cy='6' r='2.5' />
-    <circle cx='6' cy='18' r='2.5' />
-    <path d='M8.2 7.6 20 18M8.2 16.4 20 6' />
-  </svg>
-)
-
 export const HeartPulseIcon = ({ className }: IconProps) => (
   <svg {...base(className)}>
     <path d='M3.5 12h3l2-4 3 8 2-4h7' />

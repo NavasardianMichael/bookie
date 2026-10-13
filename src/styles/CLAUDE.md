@@ -193,14 +193,12 @@ in `scripts/` rather than under `src/`.
 **One gate was silently broken for as long as it existed.** The `!`-suffix one-liner used
 a POSIX bracket expression that treats a backslash as a literal backslash rather than an
 escape, so it only ever matched a `!` directly after a `]` — never `block!`. It reported 0
-while five real suffixes sat in `providerProfileForm/`. Those five are baselined in the
-script's `allow` list with a pointer to `docs/BACKLOG.md`; a sixth fails the gate.
+while five real suffixes sat in `providerProfileForm/`. They went with that form
+(deleted 2026-10-13), and the gate now holds at zero with no exceptions.
 
 ## Known leak sites
 
 antd `style={{…}}` / `styles={{ slot }}` props are still design-system values, but a few
-call sites hardcode px there: the byte-identical `Divider`/`Space`
-pair in `ProviderProfileFormOrganization.tsx:44`,
-plus two CSS Modules. Prefer a token or a Tailwind class via `classNames`.
+call sites hardcode px there — two CSS Modules. Prefer a token or a Tailwind class via `classNames`.
 `opengraph-image.tsx` and `icon.tsx` are legitimate exceptions — satori cannot resolve
 CSS variables, so they import from `tokens.ts` directly.

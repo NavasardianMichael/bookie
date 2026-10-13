@@ -36,7 +36,6 @@ export const ROUTE_KEYS = {
   consumerProfilePayments: 'consumerProfilePayments',
   /** A consumer-only account adds a Provider profile — `POST /identity/provider-profile`. */
   consumerBecomeProvider: 'consumerBecomeProvider',
-  providerProfileCreation: 'providerProfileCreation',
   providerServices: 'providerServices',
   providerProfile: 'providerProfile',
   providerProfileAvailability: 'providerProfileAvailability',
@@ -118,7 +117,6 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.consumerProfileNotifications]: '/consumers/profile/notifications',
   [ROUTE_KEYS.consumerProfilePayments]: '/consumers/profile/payments',
   [ROUTE_KEYS.consumerBecomeProvider]: '/consumers/profile/become-provider',
-  [ROUTE_KEYS.providerProfileCreation]: '/providers/profile-creation',
   [ROUTE_KEYS.providerServices]: '/providers/profile-services',
   [ROUTE_KEYS.providerProfile]: '/providers/profile',
   [ROUTE_KEYS.providerProfileAvailability]: '/providers/profile/availability',

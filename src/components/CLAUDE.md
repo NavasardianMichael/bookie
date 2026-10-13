@@ -249,7 +249,7 @@ export { AppLink, type AppLinkTone } from './AppLink' // not `default as AppLink
 So `import { AppButton } from '@components/ui/AppButton'` and
 `import { AppTitle } from '@components/ui/bare'` are the same symbol under the same name
 at every call site. A default export would let each importer rename it silently, which is
-what made `ProviderProfileFormImage.tsx` export a component called
+what made `ProviderProfileFormImage.tsx` (since deleted) export a component called
 `ProviderProfileImage`. Gates — both currently hold, keep them at zero:
 
 Both are enforced by `pnpm gates`.

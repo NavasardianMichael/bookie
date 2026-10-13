@@ -40,7 +40,6 @@ import { ROUTES } from '@constants/routes'
  *    step with the URL.
  */
 const PROTECTED_PREFIXES = [
-  ROUTES.providerProfileCreation,
   ROUTES.providerServices,
   ROUTES.providerProfile,
   ROUTES.consumerProfile,

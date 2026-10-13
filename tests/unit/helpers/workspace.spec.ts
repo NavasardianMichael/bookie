@@ -32,7 +32,6 @@ describe('workspaceOf', () => {
   it('does not claim a public route', () => {
     expect(workspaceOf(ROUTES.providers)).toBeNull()
     expect(workspaceOf(ROUTES.home)).toBeNull()
-    expect(workspaceOf(ROUTES.providerProfileCreation)).toBeNull()
   })
 
   /**

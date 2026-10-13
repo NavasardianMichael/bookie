@@ -27,8 +27,8 @@ them only through their services' categories.
 - **One field everywhere** — `CategoriesSection` / `CategoriesField` in
   `src/app/[lang]/auth/components/`, on provider registration (email and Google), becoming a
   provider and the settings Profile tab. It works like the Organization field, made multiple:
-  search with suggestions, "add as new", removable chips, and a "this may already exist"
-  question on submit (`useSimilarCategoryCheck`).
+  an antd multiple `Select` with suggestions, "add as new", removable tags inside the input,
+  and a "this may already exist" question on submit (`useSimilarCategoryCheck`).
 - **Unused categories are removed.** An added category no provider uses any more is deleted
   when the last link goes — on an edit, on deleting the provider page, on deleting the account.
 

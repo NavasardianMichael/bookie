@@ -1,6 +1,6 @@
-import { OrganizationsListState } from '@store/organizations/list/types'
 import { BasicOrganization, Organization } from '@store/organizations/single/types'
 import { Endpoint } from '@interfaces/api'
+import { Normalized } from '@interfaces/commons'
 
 export type BasicOrganizationResponse = BasicOrganization
 export type OrganizationResponse = Organization
@@ -8,7 +8,7 @@ export type OrganizationResponse = Organization
 export type GetOrganizationsListAPI = Endpoint<{
   payload: void
   response: BasicOrganizationResponse[]
-  processed: OrganizationsListState['list']
+  processed: Normalized<BasicOrganization>
 }>
 
 export type GetOrganizationAPI = Endpoint<{

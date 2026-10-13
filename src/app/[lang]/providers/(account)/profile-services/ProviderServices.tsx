@@ -8,7 +8,6 @@ import { useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
-import { ROUTES } from '@constants/routes'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
 import { hasRoomFor } from '@helpers/plans'
 import { reportError } from '@helpers/reportError'
@@ -16,7 +15,6 @@ import { processProviderServiceFormToRequestPayload } from '@components/provider
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
-import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { EmptyState } from '@components/ui/EmptyState'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
@@ -117,7 +115,11 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
    * way, and locking controls before we know would flash them disabled for everyone.
    */
   const serviceLimit = personal.entitlements ? personal.entitlements.maxActiveServices : null
+  const bookingLimit = personal.entitlements ? personal.entitlements.maxBookingsPerMonth : null
   const atServiceLimit = !hasRoomFor(activeCount, serviceLimit)
+
+  /** `5/30` when the plan caps it; the bare count when the plan does not. */
+  const ofLimit = (used: number, limit: number | null): string => (limit === null ? String(used) : `${used}/${limit}`)
 
   const visibleServices = useMemo(
     () =>
@@ -284,28 +286,18 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         actions={addServiceButton}
       />
 
-      {serviceLimit !== null && (
-        <AppText size='body-sm' tone={atServiceLimit ? 'default' : 'muted'}>
-          {t('activeOfLimit', { count: activeCount, limit: serviceLimit })}{' '}
-          {atServiceLimit &&
-            t.rich('limitReached', {
-              link: (chunks) => <AppLink href={ROUTES.providerProfilePlan}>{chunks}</AppLink>,
-            })}
-        </AppText>
-      )}
-
       <ResponsiveGrid min='sm' gap='md'>
         <StatTile
           layout='row'
           icon={<ListIcon className='h-5 w-5' />}
           label={t('statTotal')}
-          value={isLoading ? '—' : serviceList.length}
+          value={isLoading ? '—' : serviceLimit === null ? serviceList.length : ofLimit(activeCount, serviceLimit)}
         />
         <StatTile
           layout='row'
           icon={<CalendarIcon className='h-5 w-5' />}
           label={t('statUpcoming')}
-          value={upcomingCount ?? '—'}
+          value={upcomingCount === null ? '—' : ofLimit(upcomingCount, bookingLimit)}
         />
       </ResponsiveGrid>
 

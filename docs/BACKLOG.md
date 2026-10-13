@@ -17,12 +17,13 @@ the radio group). Phase 7 is done except for the items listed below.
 ### 1. ~~Forms: remove Formik~~ — done 2026-09-11
 
 `formik` is no longer a dependency and `src/interfaces/forms.ts` is gone. The seven files
-in `src/components/providerProfileForm/` are antd-only, each custom field implements the
+in `src/components/providerProfileForm/` (since deleted with the onboarding page) were antd-only, each custom field implemented the
 `value`/`onChange` control contract, and both live bugs are fixed by construction:
 `categoryIds` is now written by the slot its rules validate (the form was previously
 **impossible to submit**), and the organization select writes `organizationId` — the key
 the payload builder actually reads. Pinned by
-`tests/unit/components/providerProfileForm.processors.spec.ts`.
+`tests/unit/components/providerProfileForm.processors.spec.ts` until the form and that test
+were deleted with the onboarding page (2026-10-13).
 
 The only remaining mentions of Formik in `src/` are comments recording that it is gone.
 
@@ -182,30 +183,15 @@ Still open from the original list: `booking.ts` parses `'HH:mm'` strictly while
 
 ---
 
-### 11. The `!`-suffix gate never ran
+### 11. ~~The `!`-suffix gate never ran~~ — done 2026-10-13
 
-Found 2026-09-11 while moving the grep gates into `scripts/gates.mjs`. The documented
-one-liner was `grep -rnoE "[a-z0-9)\]]!'"`. In a POSIX bracket expression a backslash is a
-literal backslash, not an escape, so the set parsed as *a-z, 0-9, `)`, and a literal
-backslash* — followed by a *literal* `]` — it matched only a `!` sitting directly after a `]`, never `block!`. It
-reported 0 for as long as it existed, and `src/styles/CLAUDE.md` recorded that 0 as proof
-the rule held.
-
-Five real `!` suffixes were hiding behind it, all in `src/components/providerProfileForm/`:
-
-| File | Class |
-|---|---|
-| `ProviderProfileFormGallery.tsx:99` | `mt-4!` |
-| `ProviderProfileFormGallery.tsx:103` | `rounded-tr-lg! rounded-tl-lg! block!` |
-| `ProviderProfileFormGallery.tsx:110` | `rounded-tr-none! rounded-tl-none!` |
-| `ProviderProfileFormImage.tsx:78` | `block!` |
-| `ProviderProfileFormOrganization.tsx:54` | `pl-0!` |
-
-Each overrides an antd internal, so removing one is a visual change that cannot be
-verified from the CLI — which is why they are **baselined**, not deleted: they sit in the
-`allow` list in `scripts/gates.mjs`, each naming this entry, and a sixth suffix fails the
-gate. Fixing them means moving the value into an antd token (`src/styles/CLAUDE.md`) and
-checking each of the three screens in a browser.
+Found 2026-09-11: the documented one-liner's POSIX bracket expression only ever matched a `!`
+directly after a `]`, so it reported 0 while five real suffixes sat in
+`src/components/providerProfileForm/`. `scripts/gates.mjs` fixed the regex and baselined the
+five; they went with the onboarding form itself, deleted with `/providers/profile-creation`.
+The gate's line filter had a bug of its own — a literal backspace where `\b` was meant, so
+lines styled only through `cn(…)` were never checked — fixed the same day. It holds at zero
+with no exceptions.
 
 ### 12. The password-reset link's param name is held only by inspection
 
@@ -523,13 +509,13 @@ client validation and failed on submit with a message the form had never shown.
 is worse than none**.
 
 
-## The onboarding page is reachable from nowhere
+## A provider's address, location link and gallery have no editor
 
-`/providers/profile-creation` is still the only form that edits a provider's address,
-location link and gallery, and nothing links to it since Google sign-up (its last caller)
-moved to the ordinary registration forms. Categories were the other field only it held;
-they moved to registration and the Profile tab on 2026-10-13. Fix: give the address,
-location and gallery a settings home, then retire the page.
+`/providers/profile-creation`, the only form that wrote them, was deleted on 2026-10-13 —
+nothing linked to it any more. The columns (`Provider.address`, `locationUrl`,
+`ProviderGallery`) and the live `PUT /provider-profile` fields that write them are still
+there, and the public page still shows them, so seeded values render but a provider cannot
+change theirs. Fix: give them a home in the settings Profile tab.
 
 ## Smaller, carried over
 
