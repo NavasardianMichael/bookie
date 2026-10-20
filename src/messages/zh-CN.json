@@ -51,6 +51,7 @@
     "accountSettings": "账户设置",
     "bookings": "预约",
     "favorites": "收藏",
+    "pricing": "价格",
     "profile": "个人资料"
   },
   "Auth": {
@@ -66,8 +67,7 @@
       "choosePasswordPlaceholder": "至少 8 个字符",
       "newPassword": "新密码",
       "confirmPassword": "确认密码",
-      "firstName": "名字",
-      "lastName": "姓氏",
+      "fullName": "姓名",
       "phone": "电话号码",
       "countryCode": "国家区号"
     },
@@ -201,8 +201,7 @@
     "guest": {
       "heading": "您的信息",
       "hint": "我们需要这些信息来确认您的预约。无需注册账户。",
-      "firstName": "名字",
-      "lastName": "姓氏",
+      "fullName": "姓名",
       "phone": "电话号码",
       "email": "电子邮箱",
       "emailPlaceholder": "you@example.com",
@@ -321,8 +320,7 @@
     "title": "联系我们",
     "subtitle": "与 Bookie 团队取得联系。我们通常在 5 个工作日内回复。",
     "fields": {
-      "firstName": "名字",
-      "lastName": "姓氏",
+      "fullName": "姓名",
       "email": "电子邮箱",
       "message": "留言",
       "messagePlaceholder": "请告诉我们您需要什么帮助。"
@@ -341,7 +339,9 @@
     },
     "topics": {
       "planUpgrade": "申请：{plan}",
-      "planUpgradeMessage": "你好，我想将我的页面升级到{plan}。"
+      "planUpgradeMessage": "你好，我想将我的页面升级到{plan}。",
+      "addonRequest": "申请：{addon}",
+      "addonRequestMessage": "你好，我想为我的页面添加{addon}。"
     }
   },
   "Settings": {
@@ -365,7 +365,8 @@
       "advanced": "高级设置",
       "seo": "SEO",
       "history": "历史记录",
-      "plan": "套餐"
+      "plan": "套餐",
+      "payouts": "付款"
     },
     "workspace": {
       "onProviderTitle": "你正在服务方工作区",
@@ -393,13 +394,13 @@
     },
     "profile": {
       "personalInfo": "个人信息",
-      "firstName": "名字",
-      "lastName": "姓氏",
+      "fullName": "姓名",
       "description": "简介",
       "email": "电子邮箱",
       "noAvatarHint": "用户账户不显示头像。",
       "imageHint": "JPG 或 PNG，最大 2MB。",
       "upload": "上传新的",
+      "removePhoto": "移除照片",
       "providerSubtitle": "更新在您公开主页上显示的信息。",
       "sendEmailCode": "重置邮箱",
       "emailRequired": "请先输入电子邮箱地址。",
@@ -458,7 +459,7 @@
       "telegramTitle": "Telegram",
       "telegramProviderBody": "除邮件外，也在 Telegram 中接收预约通知。",
       "telegramConsumerBody": "除邮件外，也在 Telegram 中接收提醒和预约动态。",
-      "telegramLocked": "基础版及以上套餐包含关于您业务的 Telegram 通知。<plan>查看套餐</plan>",
+      "telegramLocked": "基础版及以上套餐包含关于您业务的 Telegram 通知，也可作为附加功能购买。<plan>查看套餐</plan>",
       "telegramUnavailable": "Telegram 通知暂不可用。",
       "telegramConnect": "连接 Telegram",
       "telegramOpen": "打开 Telegram",
@@ -471,7 +472,7 @@
       "telegramDisconnectFailed": "无法断开 Telegram",
       "calendarTitle": "日历同步",
       "calendarBody": "在 Google Calendar、Apple Calendar 或 Outlook 中订阅您的预约。新预约和变更会自动显示在那里。",
-      "calendarLocked": "基础版及以上套餐包含日历同步。<plan>查看套餐</plan>",
+      "calendarLocked": "基础版及以上套餐包含日历同步，也可作为附加功能购买。<plan>查看套餐</plan>",
       "calendarCopy": "复制日历链接",
       "calendarHint": "在您的日历应用中选择通过 URL 添加日历，然后粘贴此链接。请妥善保管：任何拥有此链接的人都能看到您的预约。",
       "calendarReset": "重置链接",
@@ -571,6 +572,18 @@
       "calendarHint": "选择某一天以查看当日预约。",
       "calendarFiltered": "显示单日预约。再次点击可查看全部。",
       "calendarLabel": "按日期查看预约",
+      "hideCalendar": "隐藏日历",
+      "showCalendar": "显示日历",
+      "periodLabel": "时间",
+      "periods": {
+        "upcoming": "即将到来",
+        "today": "今天",
+        "thisWeek": "本周",
+        "nextWeek": "下周",
+        "lastWeek": "上周",
+        "thisMonth": "本月",
+        "lastMonth": "上月"
+      },
       "clearDay": "全部日期",
       "previousMonth": "上个月",
       "nextMonth": "下个月",
@@ -719,8 +732,8 @@
       "slugPattern": "只能使用小写字母、数字以及它们之间的单个连字符。",
       "slugChangeWarning": "保存后将替换当前链接。使用 /p/{slug} 的人将无法再打开您的主页。",
       "saved": "搜索设置已保存。",
-      "slugLocked": "自定义链接属于付费套餐，因此你的页面使用标准链接。<link>查看套餐</link>",
-      "slugLockedKept": "你的自定义链接仍然有效，但修改它需要付费套餐。<link>查看套餐</link>"
+      "slugLocked": "自定义链接包含在付费套餐中，也可作为附加功能单独购买，因此你的页面目前使用标准链接。<link>查看套餐</link>",
+      "slugLockedKept": "你的自定义链接仍然有效，但修改它需要付费套餐或“自定义页面链接”附加功能。<link>查看套餐</link>"
     },
     "signOutTitle": "退出登录？",
     "signOutBody": "您需要重新登录才能管理账户。",
@@ -731,9 +744,15 @@
       "confirmTitle": "删除您的账户？",
       "confirmBody": "与此账户相关的所有数据都将被删除。此操作无法撤销。",
       "password": "当前密码",
-      "googleOnly": "此账户通过 Google 登录。请先设置密码以确认删除。",
+      "googleOnly": "此账户通过 Google 登录，因此没有密码。确认后将永久删除。",
       "hasAppointments": "您还有预约记录。请先取消后再删除账户。",
       "wrongPassword": "当前密码不正确"
+    },
+    "payouts": {
+      "title": "付款",
+      "subtitle": "Bookie 收取的各项月费，来自方案目录。",
+      "plan": "方案",
+      "cost": "月费"
     },
     "plan": {
       "title": "套餐",
@@ -766,7 +785,35 @@
       "switchingTitle": "正在切换到{plan}…",
       "switchPendingTitle": "你的套餐更改正在处理中",
       "switchPendingBody": "Paddle 已接受此更改，可能需要几分钟才会在这里显示。请稍后刷新页面。",
-      "billingNote": "付款由 Paddle 处理。可在“管理账单”中取消订阅、更换银行卡或下载发票。"
+      "billingNote": "付款由 Paddle 处理。可在“管理账单”中取消订阅、更换银行卡或下载发票。",
+      "addonsTitle": "附加功能",
+      "addonsSubtitle": "单项功能和额外容量，随订阅按月计费。",
+      "addonActive": "已启用",
+      "addonPacks": "{count, plural, other {# 份}}",
+      "addonGranted": "由 Bookie 赠送",
+      "addonGrantedUntil": "由 Bookie 赠送，至 {date}",
+      "addonIncluded": "你的套餐已包含",
+      "addonAdd": "添加",
+      "addonRemove": "移除",
+      "addonAddPack": "增加一份",
+      "addonRemovePack": "减少一份",
+      "addonRequest": "申请",
+      "addonAddTitle": "添加{addon}？",
+      "addonAddPackTitle": "增加一份{addon}？",
+      "addonAddBody": "立即可用。本计费周期剩余部分现在收费，之后随订阅每月续订。",
+      "addonRemoveTitle": "移除{addon}？",
+      "addonRemovePackTitle": "减少一份{addon}？",
+      "addonRemoveBody": "立即停止。本计费周期未使用的部分将抵扣你的下次付款。",
+      "addonConfirmAdd": "添加并付款",
+      "addonConfirmRemove": "移除",
+      "addonUpdatingTitle": "正在更新{addon}…",
+      "addonPendingTitle": "你的附加功能变更正在处理",
+      "switchDrops": "{plan}已包含{addons}，因此{count, plural, other {这些附加功能将}}从你的订阅中移除。",
+      "switchTo": "切换到{plan}",
+      "switchToFreeBody": "你的附加功能会保留。套餐未使用的部分将抵扣你的下次付款。",
+      "betterPlanTitle": "{plan}更划算",
+      "betterPlanBody": "{plan}套餐包含你以附加功能形式支付的内容，每月费用更低。",
+      "addonsCancelNote": "附加功能随订阅一起续订。在“管理账单”中取消订阅后，附加功能也会结束。"
     }
   },
   "Bookings": {
@@ -775,6 +822,54 @@
     "views": {
       "provider": "别人向我预约",
       "consumer": "我发起的预约"
+    },
+    "import": {
+      "button": "从照片添加",
+      "title": "从照片添加预约",
+      "intro": "拍下你手写的预约记录。我们会识别内容，保存前你会逐条核对。",
+      "photoLabel": "照片",
+      "photoPick": "拍照或选择照片",
+      "photoChange": "选择其他照片",
+      "photoRequired": "请添加一张预约记录的照片",
+      "photoAlt": "你选择的照片",
+      "noteLabel": "识别说明",
+      "notePlaceholder": "例如：“这些都是周五的”或“M = 美甲”",
+      "privacy": "照片由 Google Gemini 识别，Bookie 不会保存。在 Google 的免费层级下，发送的内容可能会被用于改进 Google 的服务。",
+      "dailyLimit": "{count, plural, other {你的套餐每天包含 # 张照片。}}",
+      "read": "识别照片",
+      "reading": "正在识别你的预约…",
+      "emptyTitle": "未找到预约",
+      "emptyBody": "这张照片中没有识别出任何预约。请尝试更清晰、光线充足的照片，或添加说明告诉我们照片上的内容。",
+      "tryAnother": "换一张照片",
+      "noServices": "请先添加一项服务——每个预约都需要一项服务。",
+      "reviewTitle": "{count, plural, other {核对 # 个预约}}",
+      "reviewIntro": "请更正识别错误的内容。每个时间都必须是你日程中的空闲时段。",
+      "row": "预约 {number}",
+      "remove": "删除预约 {number}",
+      "fullName": "客户姓名",
+      "phone": "电话",
+      "phoneInvalid": "请输入电话号码",
+      "service": "服务",
+      "servicePlaceholder": "选择服务",
+      "date": "日期",
+      "time": "时间",
+      "timePlaceholder": "选择时间",
+      "noTimes": "此日没有空闲时间",
+      "notes": "备注",
+      "issues": {
+        "missing": "请选择服务、日期和时间。",
+        "offGrid": "这不是你在这一天为该服务开放的时段。请从列表中选择时间。",
+        "past": "这个时间已经过去。",
+        "taken": "你在这个时间已有预约。",
+        "clash": "与预约 {number} 时间相同。"
+      },
+      "addRow": "添加预约",
+      "back": "返回",
+      "submit": "{count, plural, other {添加 # 个预约}}",
+      "needsAttention": "{count, plural, other {# 个预约需要你处理}}",
+      "added": "{count, plural, other {已添加 # 个预约}}",
+      "slotsTaken": "其中一些时间刚刚被预约，已在下方标出——请另选时间。",
+      "seePlans": "查看套餐"
     }
   },
   "Favorites": {
@@ -1133,7 +1228,8 @@
           "p3": "<b>我们的邮件发送服务</b>——发送账户和预约相关邮件。",
           "p4": "<b>Telegram</b>——发送通知，仅在您连接后使用。",
           "p5": "<b>Google</b>——为您完成登录，仅在您选择使用 Google 继续时使用。",
-          "p6": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
+          "p6": "<b>Google Gemini</b>——识别手写预约记录的照片，仅在服务提供者选择从照片添加预约时使用。在 Gemini 的免费层级下，Google 可能会使用其收到的内容来改进其服务。我们不会保存该照片。",
+          "p7": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
         },
         "cookies": {
           "title": "Cookie",
@@ -1248,6 +1344,7 @@
   "Validation": {
     "required": "请填写{label}",
     "maxCharsForInput": "最多 {max} 个字符",
+    "maxCharsForName": "最多 {max} 个字符",
     "maxCharsForTextarea": "最多 {max} 个字符",
     "oneItemSelectedAtLeast": "请至少选择一项",
     "email": "邮箱无效",
@@ -1291,11 +1388,19 @@
       "slotTaken": "该时间刚刚被预约。请另选一个时间。",
       "bookingPaused": "该服务提供者目前不接受在线预约。请直接联系预约。",
       "bookingFull": "该服务提供者本月无法再接受在线预约。请直接联系预约。",
-      "serviceLimit": "已达到你套餐的有效服务上限。停用一项服务或升级套餐即可再添加。",
-      "featureLocked": "你的套餐不包含此功能。升级套餐即可使用。",
+      "serviceLimit": "已达到有效服务上限。停用一项服务、添加一份额外服务，或升级套餐。",
+      "featureLocked": "你的套餐不包含此功能。单独添加或升级套餐即可使用。",
       "notConfigured": "在线支付暂不可用。请改为申请该套餐，我们会为你开通。",
-      "alreadySubscribed": "你已有订阅。请在套餐设置中切换套餐。",
-      "noSubscription": "没有可更改的有效订阅。"
+      "alreadySubscribed": "你已有订阅。请在套餐设置中更改。",
+      "noSubscription": "没有可更改的有效订阅。",
+      "photoImportLimit": "你今天的照片导入次数已用完。明天即可再次使用，或升级套餐享受不限次导入。",
+      "bookingLimit": "添加这些预约将超出你套餐的每月上限。请删除部分预约，或升级套餐。",
+      "photoImportUnavailable": "从照片添加预约功能暂不可用。",
+      "photoUnreadable": "无法识别这张照片。请尝试一张更清晰、光线充足的照片。",
+      "addonIncluded": "你的套餐已包含此项，无需添加。",
+      "lastItem": "这样你的订阅将为空。如需结束订阅，请在“管理账单”中取消。",
+      "changeUnavailable": "目前无法更改你的订阅。如果付款失败，请在“管理账单”中更新银行卡；否则请稍后再试。",
+      "activeSubscription": "此页面仍有有效订阅。删除页面前，请先在“管理账单”中取消订阅。"
     },
     "pages": {
       "provider": "无法加载该服务提供者的页面。请重试。",
@@ -1364,7 +1469,12 @@
       "saved": "套餐已保存",
       "pagesLabel": "服务提供者分页",
       "paddle": "Paddle",
-      "paddleNote": "通过 Paddle 计费：此处的手动更改会在订阅下次更新时被覆盖。"
+      "paddleNote": "通过 Paddle 计费：此处的手动更改会在订阅下次更新时被覆盖。",
+      "addonsLabel": "已赠送的附加功能",
+      "addonsLastDayLabel": "附加功能的最后一天",
+      "saveAddons": "保存附加功能",
+      "addonsSaved": "附加功能已保存",
+      "paidAddons": "通过 Paddle 支付：{addons}"
     }
   },
   "Plans": {
@@ -1377,6 +1487,7 @@
     "features": {
       "maxActiveServices": "有效服务",
       "maxBookingsPerMonth": "每月在线预约",
+      "photoImportsPerDay": "每日照片导入",
       "analyticsHistoryDays": "数据分析历史",
       "customSlug": "自定义链接",
       "telegramNotifications": "Telegram 通知",
@@ -1391,12 +1502,42 @@
     "current": "你的套餐",
     "requestTitle": "申请{plan}",
     "freeForever": "永久免费",
-    "perMonth": "/ 月"
+    "perMonth": "/ 月",
+    "addons": {
+      "customSlug": {
+        "name": "自定义页面链接",
+        "description": "你专属的短地址，例如 /p/your-name。"
+      },
+      "telegramNotifications": {
+        "name": "Telegram 通知",
+        "description": "除邮件外，也在 Telegram 收到新预约、变更和提醒。"
+      },
+      "calendarFeed": {
+        "name": "日历同步",
+        "description": "在 Google、Apple 或 Outlook 日历中查看预约，始终保持最新。"
+      },
+      "removeBranding": {
+        "name": "去除 Bookie 标识",
+        "description": "从你的页面移除“由 Bookie 提供的预约页面”字样。"
+      },
+      "extraServices": {
+        "name": "额外服务",
+        "description": "每份增加 {count} 项有效服务。"
+      },
+      "extraBookings": {
+        "name": "额外预约",
+        "description": "每份每月增加 {count} 个在线预约。"
+      }
+    },
+    "perPackPerMonth": "每份 / 月",
+    "addonIncludedIn": "{plan}已包含",
+    "addonIncludedFrom": "{plan}及以上已包含",
+    "addonRequestTitle": "申请{addon}"
   },
   "Pricing": {
     "metaTitle": "服务提供者价格",
     "metaDescription": "Bookie 为服务提供者准备的套餐：免费开始，或升级以获得更多服务、不限次数的预约、Telegram 通知和日历同步。客户预约始终免费。",
-    "title": "服务提供者套餐",
+    "title": "价格",
     "subtitle": "免费开始，日程排满时再升级。客户预约从不付费。",
     "startFree": "免费开始",
     "requestPlan": "申请此套餐",
@@ -1457,8 +1598,17 @@
       "refunds": {
         "q": "可以退款吗？",
         "a": "可以——在首次支付某个套餐的费用后 14 天内申请，或在发生误扣款时随时申请。详见我们的<refund>退款政策</refund>。"
+      },
+      "addons": {
+        "q": "可以不买套餐，只买一项功能吗？",
+        "a": "可以。每项功能和每份容量包都可以单独按月购买，叠加在任何套餐上，包括免费版。附加功能随订阅一起续订；换到已包含某项附加功能的套餐时，它会被自动移除，所以你绝不会重复付费。"
       }
-    }
+    },
+    "addonsTitle": "附加功能",
+    "addonsSubtitle": "只需要一项？可以添加到任何套餐，包括免费版。每项附加功能按月计费。",
+    "addonsBundleNote": "套餐打包更划算：{plan}包含以上全部功能，以及更多服务和预约。",
+    "addAddon": "添加",
+    "requestAddon": "申请"
   },
   "Billing": {
     "checkoutTitle": "结账",
@@ -1473,6 +1623,8 @@
     "activeTitle": "你正在使用{plan}",
     "activeBody": "谢谢！套餐包含的所有功能现已可用。Paddle 已通过邮件向你发送收据。",
     "receivedTitle": "已收到付款",
-    "receivedBody": "谢谢！套餐更新可能需要几分钟。Paddle 已通过邮件向你发送收据。"
+    "receivedBody": "谢谢！套餐更新可能需要几分钟。Paddle 已通过邮件向你发送收据。",
+    "purchaseActiveTitle": "你的购买已生效",
+    "purchaseActiveBody": "谢谢！你购买的所有内容现已可用。Paddle 已通过邮件向你发送收据。"
   }
 }

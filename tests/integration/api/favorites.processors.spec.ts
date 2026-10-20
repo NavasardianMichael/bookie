@@ -6,7 +6,7 @@ import { APIResponse } from '@interfaces/api'
 const envelope = <T>(value: T): APIResponse<T> => ({ value, error: null })
 
 const provider = (id: string): BasicProvider =>
-  ({ id, basic: { firstName: 'Ada', lastName: 'L', available: true } }) as BasicProvider
+  ({ id, basic: { fullName: 'Ada L', available: true } }) as BasicProvider
 
 describe('processFavoriteProvidersResponse', () => {
   // The page renders newest favourite first, and that order is the API's to decide.

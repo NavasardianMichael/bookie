@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, useCallback, useMemo } from 'react'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { DownOutlined, LeftOutlined, RightOutlined, UpOutlined } from '@ant-design/icons'
 import dayjs, { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
@@ -26,6 +26,9 @@ type Props = {
   /** Counts per `DAY_KEY_FORMAT` key, as the API returned them for this month. */
   countsByDay: Record<string, DayBookingCount>
   loading?: boolean
+  /** The month grid is open. The toggle sits in the top center of this calendar. */
+  open: boolean
+  onToggle: () => void
   /** Re-clicking the selected day clears the filter, so this receives `null`. */
   onSelectDay: (dayKey: string | null) => void
   onMonthChange: (month: Dayjs) => void
@@ -54,6 +57,8 @@ export const ProviderBookingsCalendar: FC<Props> = ({
   selectedDayKey,
   countsByDay,
   loading,
+  open,
+  onToggle,
   onSelectDay,
   onMonthChange,
 }) => {
@@ -82,8 +87,21 @@ export const ProviderBookingsCalendar: FC<Props> = ({
   )
 
   return (
-    <Surface padding='none' className='overflow-hidden'>
-      <div className='border-brand-border flex flex-wrap items-center justify-between gap-3 border-b p-5 sm:p-6'>
+    <Surface padding='none' className='mx-auto w-full max-w-3xl overflow-hidden'>
+      <div className='flex justify-center py-2'>
+        <AppButton
+          type='text'
+          icon={open ? <UpOutlined /> : <DownOutlined />}
+          aria-expanded={open}
+          onClick={onToggle}
+        >
+          {open ? t('hideCalendar') : t('showCalendar')}
+        </AppButton>
+      </div>
+
+      {open && (
+        <>
+      <div className='border-brand-border flex flex-wrap items-center justify-between gap-3 border-b border-t p-5 sm:p-6'>
         <div className='min-w-0'>
           <AppTitle level='h2' size='h3'>
             {month.format('MMMM YYYY')}
@@ -170,6 +188,8 @@ export const ProviderBookingsCalendar: FC<Props> = ({
           })}
         </div>
       </div>
+        </>
+      )}
     </Surface>
   )
 }

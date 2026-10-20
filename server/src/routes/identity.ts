@@ -32,7 +32,7 @@ import {
 } from '../lib/password-reset.js'
 import { prisma } from '../lib/prisma.js'
 import { createRateLimiter, type RateLimiter } from '../lib/rateLimit.js'
-import { asBoundedString, asTrimmedString, isEmail } from '../lib/request.js'
+import { asFullName, asTrimmedString, isEmail } from '../lib/request.js'
 import { asVerifyLocale } from '../lib/return-path.js'
 import { clearSessionCookie, setSessionCookie } from '../lib/session.js'
 import { hashUrlToken, urlTokensMatch } from '../lib/token.js'
@@ -75,8 +75,6 @@ export const AUTH_ERROR = {
  */
 const INVALID_CREDENTIALS = 'Invalid email or password'
 
-const MAX_NAME_LENGTH = 40
-
 /* ------------------------------------------------------------------ *
  * Rate limits
  *
@@ -118,8 +116,7 @@ const ipKey = (ip: string | undefined) => `ip:${ip ?? 'unknown'}`
  * ------------------------------------------------------------------ */
 
 export type RegistrationProfile = {
-  firstName?: unknown
-  lastName?: unknown
+  fullName?: unknown
   email?: unknown
   country?: unknown
   organizationId?: unknown
@@ -234,8 +231,7 @@ const clearFailedLogins = async (user: Throttleable): Promise<void> => {
 export type ProfileSummary = {
   role: 'consumer' | 'provider'
   profileId: string
-  firstName: string
-  lastName: string
+  fullName: string
   image?: string
 }
 
@@ -270,13 +266,12 @@ export const loadProfile = async (userId: string): Promise<ProfileSummary | null
     return {
       role: 'provider',
       profileId: provider.id,
-      firstName: provider.firstName,
-      lastName: provider.lastName,
+      fullName: provider.fullName,
       image: sessionPortrait(provider),
     }
   }
   if (consumer) {
-    return { role: 'consumer', profileId: consumer.id, firstName: consumer.firstName, lastName: consumer.lastName }
+    return { role: 'consumer', profileId: consumer.id, fullName: consumer.fullName }
   }
   return null
 }
@@ -297,8 +292,7 @@ export const issueSession = (
     role: profile.role,
     profileId: profile.profileId,
     userId: user.id,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
+    fullName: profile.fullName,
     image: profile.image,
   }
 }
@@ -332,10 +326,8 @@ identityRouter.post(
     if (!policy.ok) return fail(res, policy.message, AUTH_ERROR.passwordPolicy)
 
     const profile: RegistrationProfile = req.body?.profile ?? req.body ?? {}
-    const firstName = asBoundedString(profile.firstName, MAX_NAME_LENGTH)
-    const lastName = asBoundedString(profile.lastName, MAX_NAME_LENGTH)
-    if (!firstName) return fail(res, 'First name is required')
-    if (!lastName) return fail(res, 'Last name is required')
+    const fullName = asFullName(profile.fullName)
+    if (!fullName) return fail(res, 'Full name is required')
 
     const phone = asPhone(req.body?.phone ?? (profile as { phone?: unknown }).phone)
     if (!phone) return fail(res, 'A valid phone code and number are required')
@@ -406,8 +398,7 @@ identityRouter.post(
           where: { userId: saved.id },
           create: {
             userId: saved.id,
-            firstName,
-            lastName,
+            fullName,
             phoneCode: phone.phoneCode,
             phoneNumber: phone.phoneNumber,
             country,
@@ -416,8 +407,7 @@ identityRouter.post(
             listed: false,
           },
           update: {
-            firstName,
-            lastName,
+            fullName,
             phoneCode: phone.phoneCode,
             phoneNumber: phone.phoneNumber,
             country,
@@ -431,13 +421,12 @@ identityRouter.post(
           where: { userId: saved.id },
           create: {
             userId: saved.id,
-            firstName,
-            lastName,
+            fullName,
             phoneCode: phone.phoneCode,
             phoneNumber: phone.phoneNumber,
             country,
           },
-          update: { firstName, lastName, phoneCode: phone.phoneCode, phoneNumber: phone.phoneNumber, country },
+          update: { fullName, phoneCode: phone.phoneCode, phoneNumber: phone.phoneNumber, country },
         })
       }
 
@@ -886,8 +875,7 @@ identityRouter.get(
       role,
       profileId,
       userId,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
+      fullName: profile.fullName,
       // Narrowed before the call: `profile` is `Provider | Consumer`, and only a Provider
       // carries `imageUrl`/`draft`. Passing the bare union trips TypeScript's weak-type
       // check, because the Consumer branch shares no property with the parameter type.
@@ -935,10 +923,8 @@ identityRouter.post(
   asyncHandler(async (req, res) => {
     const userId = req.session!.userId
     const profile: RegistrationProfile = req.body?.profile ?? {}
-    const firstName = asBoundedString(profile.firstName, MAX_NAME_LENGTH)
-    const lastName = asBoundedString(profile.lastName, MAX_NAME_LENGTH)
-    if (!firstName) return fail(res, 'First name is required')
-    if (!lastName) return fail(res, 'Last name is required')
+    const fullName = asFullName(profile.fullName)
+    if (!fullName) return fail(res, 'Full name is required')
 
     const phone = asPhone(req.body?.phone)
     if (!phone) return fail(res, 'A valid phone code and number are required')
@@ -956,8 +942,7 @@ identityRouter.post(
       const provider = await tx.provider.create({
         data: {
           userId,
-          firstName,
-          lastName,
+          fullName,
           phoneCode: phone.phoneCode,
           phoneNumber: phone.phoneNumber,
           country,
@@ -1125,20 +1110,15 @@ identityRouter.delete(
 
     /**
      * Re-authentication, because deleting is irreversible and one stolen session must not
-     * be enough. A Google-only account has no password to re-enter; it is refused here
-     * rather than waved through, and setting a password first (via forgot-password) is the
-     * documented route.
+     * be enough — when the account has a password. A Google-only account has none, and
+     * forgot-password will not mint one, so the live session is the confirmation and the
+     * dialog does not ask.
      */
-    if (!user.passwordHash) {
-      return fail(
-        res,
-        'This account signs in with Google. Set a password first to confirm deletion.',
-        AUTH_ERROR.googleOnlyAccount
-      )
-    }
-    const password = typeof req.body?.password === 'string' ? req.body.password : ''
-    if (!(await verifyPassword(user.passwordHash, password))) {
-      return fail(res, 'Current password is incorrect', AUTH_ERROR.reauthRequired, 401)
+    if (user.passwordHash) {
+      const password = typeof req.body?.password === 'string' ? req.body.password : ''
+      if (!(await verifyPassword(user.passwordHash, password))) {
+        return fail(res, 'Current password is incorrect', AUTH_ERROR.reauthRequired, 401)
+      }
     }
 
     /**

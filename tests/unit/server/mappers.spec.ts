@@ -4,7 +4,9 @@ import { TIME_FORMATS } from '@constants/schedule'
 // Prisma types and pure services, which is what keeps it reachable here.
 import {
   mapBasicOrganization,
+  mapProviderBooking,
   mapProviderPlan,
+  mapReview,
   mapSingleProvider,
   resolveOnlineBooking,
 } from '../../../server/src/mappers/entities'
@@ -16,8 +18,7 @@ type ProviderRow = Parameters<typeof mapSingleProvider>[0]
 const providerRow = (overrides: Partial<ProviderRow> = {}): ProviderRow =>
   ({
     id: '6f1c2f3e-8d4b-4a8e-9b0c-1d2e3f4a5b6c',
-    firstName: 'Anna',
-    lastName: 'Petrosyan',
+    fullName: 'Anna Petrosyan',
     description: null,
     imageUrl: null,
     categories: [],
@@ -41,6 +42,7 @@ const providerRow = (overrides: Partial<ProviderRow> = {}): ProviderRow =>
     seoDescription: null,
     slug: null,
     plan: 'premium',
+    addons: [],
     ...overrides,
   }) as unknown as ProviderRow
 
@@ -61,6 +63,10 @@ describe('resolveOnlineBooking', () => {
 })
 
 describe('mapSingleProvider', () => {
+  it('publishes the name as the one field the provider wrote', () => {
+    expect(mapSingleProvider(providerRow()).basic.fullName).toBe('Anna Petrosyan')
+  })
+
   it('publishes whether the page takes bookings', () => {
     expect(mapSingleProvider(providerRow()).details.onlineBooking).toBe('open')
     expect(mapSingleProvider(providerRow({ available: false })).details.onlineBooking).toBe('paused')
@@ -86,28 +92,140 @@ describe('mapSingleProvider', () => {
     )
     expect(json).not.toMatch(/"plan"|premium|"personal"|entitlements|planExpiresAt/)
   })
+
+  // Branding is an entitlement an add-on can grant; the page learns only the outcome.
+  it('drops the branding line for a Free provider holding the add-on, without saying why', () => {
+    const row = providerRow({
+      plan: 'free',
+      addons: [{ addon: 'removeBranding', source: 'paddle', quantity: 1, expiresAt: null }],
+    })
+    const mapped = mapSingleProvider(row)
+    expect(mapped.details.showPoweredBy).toBe(false)
+    expect(JSON.stringify(mapped, (_key, value: unknown) => (typeof value === 'bigint' ? Number(value) : value))).not.toMatch(
+      /addons|removeBranding|paddle/
+    )
+  })
+
+  it('keeps the branding line on Free without it', () => {
+    expect(mapSingleProvider(providerRow({ plan: 'free' })).details.showPoweredBy).toBe(true)
+  })
+})
+
+describe('mapProviderBooking', () => {
+  type BookingRow = Parameters<typeof mapProviderBooking>[0]
+
+  const bookingRow = (overrides: Partial<BookingRow> = {}): BookingRow => ({
+    id: 'booking-1',
+    startAt: new Date('2026-10-05T06:00:00.000Z'),
+    endAt: new Date('2026-10-05T07:00:00.000Z'),
+    durationMinutes: 60,
+    status: 'confirmed',
+    notes: null,
+    paymentMethods: [],
+    price: null,
+    currency: null,
+    createdAt: new Date('2026-10-01T06:00:00.000Z'),
+    serviceId: 'service-1',
+    service: { id: 'service-1', name: 'Cut' },
+    consumerId: null,
+    consumer: null,
+    guestFullName: null,
+    guestPhoneCode: null,
+    guestPhoneNumber: null,
+    guestEmail: null,
+    ...overrides,
+  })
+
+  it('names a signed-in booker by their consumer profile', () => {
+    const booker = mapProviderBooking(
+      bookingRow({
+        consumerId: 'consumer-1',
+        consumer: {
+          id: 'consumer-1',
+          fullName: 'Gor Hakobyan',
+          phoneCode: 374,
+          phoneNumber: BigInt(77000201),
+          user: { email: 'gor@example.com' },
+        },
+      })
+    ).booker
+    expect(booker).toEqual({
+      kind: 'consumer',
+      id: 'consumer-1',
+      fullName: 'Gor Hakobyan',
+      email: 'gor@example.com',
+      phone: { code: 374, number: 77000201 },
+    })
+  })
+
+  it('names a guest by the name they typed at booking time', () => {
+    const booker = mapProviderBooking(
+      bookingRow({ guestFullName: 'Lilit Sargsyan', guestPhoneCode: 374, guestPhoneNumber: BigInt(77000202) })
+    ).booker
+    expect(booker).toMatchObject({ kind: 'guest', fullName: 'Lilit Sargsyan', phone: { code: 374, number: 77000202 } })
+  })
+})
+
+describe('mapReview', () => {
+  // "Consumers are never public": the review carries the first word and an initial only.
+  it('attributes the review without publishing the surname', () => {
+    const review = {
+      id: 'review-1',
+      rating: 5,
+      comment: null,
+      providerReply: null,
+      providerRepliedAt: null,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+      consumerId: 'consumer-1',
+      consumer: { fullName: 'Anna Maria Petrosyan' },
+    } as unknown as Parameters<typeof mapReview>[0]
+    expect(mapReview(review).author).toBe('Anna P.')
+  })
 })
 
 describe('mapProviderPlan', () => {
   const NOW = new Date('2026-09-30T12:00:00.000Z')
 
   it('gives the owner their effective plan and its limits', () => {
-    const mapped = mapProviderPlan({ plan: 'basic', planExpiresAt: new Date('2026-12-01T00:00:00.000Z') }, NOW)
+    const mapped = mapProviderPlan({ plan: 'basic', planExpiresAt: new Date('2026-12-01T00:00:00.000Z'), addons: [] }, NOW)
     expect(mapped).toEqual({
       plan: 'basic',
       effectivePlan: 'basic',
       planExpiresAt: '2026-12-01T00:00:00.000Z',
       entitlements: PLAN_CATALOGUE.basic,
+      addons: [],
     })
   })
 
   // A lapsed plan still says what it was, so the Plan tab can say "ended", but the limits
   // are already Free's.
   it('applies free limits once the plan has lapsed', () => {
-    const mapped = mapProviderPlan({ plan: 'premium', planExpiresAt: new Date('2026-09-01T00:00:00.000Z') }, NOW)
+    const mapped = mapProviderPlan({ plan: 'premium', planExpiresAt: new Date('2026-09-01T00:00:00.000Z'), addons: [] }, NOW)
     expect(mapped.plan).toBe('premium')
     expect(mapped.effectivePlan).toBe('free')
     expect(mapped.entitlements).toBe(PLAN_CATALOGUE.free)
+  })
+
+  it('lists the live add-ons, and folds them into the limits', () => {
+    const mapped = mapProviderPlan(
+      {
+        plan: 'free',
+        planExpiresAt: null,
+        addons: [
+          { addon: 'customSlug', source: 'paddle', quantity: 1, expiresAt: new Date('2026-10-04T00:00:00.000Z') },
+          { addon: 'extraServices', source: 'admin', quantity: 2, expiresAt: null },
+          // Lapsed: neither listed nor granted.
+          { addon: 'calendarFeed', source: 'admin', quantity: 1, expiresAt: new Date('2026-09-01T00:00:00.000Z') },
+        ],
+      },
+      NOW
+    )
+    expect(mapped.addons).toEqual([
+      { addon: 'customSlug', quantity: 1, source: 'paddle', expiresAt: '2026-10-04T00:00:00.000Z' },
+      { addon: 'extraServices', quantity: 2, source: 'admin', expiresAt: undefined },
+    ])
+    expect(mapped.entitlements).toMatchObject({ customSlug: true, calendarFeed: false, maxActiveServices: 13 })
   })
 })
 

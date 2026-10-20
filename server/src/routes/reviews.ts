@@ -417,7 +417,7 @@ reviewsRouter.post(
 
     const provider = await prisma.provider.findUnique({
       where: { id: req.session!.profileId },
-      select: { firstName: true, lastName: true, user: { select: { email: true } } },
+      select: { fullName: true, user: { select: { email: true } } },
     })
 
     const report = await prisma.reviewReport.create({
@@ -427,7 +427,7 @@ reviewsRouter.post(
     await notifyReviewReported({
       reviewId: review.id,
       reportId: report.id,
-      providerName: `${provider?.firstName ?? ''} ${provider?.lastName ?? ''}`.trim() || 'A provider',
+      providerName: provider?.fullName || 'A provider',
       providerEmail: provider?.user.email ?? undefined,
       reason,
       reviewRating: review.rating,

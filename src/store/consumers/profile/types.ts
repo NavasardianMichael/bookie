@@ -7,9 +7,8 @@ export type ConsumerProfileState = StateCommonProps & Consumer
 export type Consumer = {
   id: string
   basic: {
-    /** Stored separately from `lastName` — the DB never holds a joined name. */
-    firstName: string
-    lastName: string
+    /** One field, as the consumer wrote it — never split into given and family names. */
+    fullName: string
     phoneNumber: string
     phone?: PhoneNumber
     email?: string

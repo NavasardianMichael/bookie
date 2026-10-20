@@ -16,7 +16,8 @@ import { config } from '../config.js'
  * | `createCheckoutTransaction` | `POST /transactions` | `transaction.write` |
  * | `getTransactionProviderId` | `GET /transactions/{id}` | `transaction.read` |
  * | `previewPrices` | `POST /pricing-preview` | `transaction.read` |
- * | `changeSubscriptionPrice` | `PATCH /subscriptions/{id}` | `subscription.write` |
+ * | `getSubscriptionItems` | `GET /subscriptions/{id}` | `subscription.read` |
+ * | `updateSubscriptionItems` | `PATCH /subscriptions/{id}` | `subscription.write` |
  * | `createPortalSession` | `POST /customers/{id}/portal-sessions` | `customer_portal_session.write` |
  */
 
@@ -73,23 +74,30 @@ const request = async <T>(method: 'GET' | 'POST' | 'PATCH', path: string, operat
   return parsed.data
 }
 
+/** One subscription item, as Paddle's write endpoints take it. */
+export type PaddleLine = { priceId: string; quantity: number }
+
+const toPaddleItems = (items: readonly PaddleLine[]) =>
+  items.map((item) => ({ price_id: item.priceId, quantity: item.quantity }))
+
 /**
- * A transaction for one plan, whose `checkout.url` Paddle returns with `?_ptxn=txn_…`
- * appended. That URL is a page **on our own approved domain** that loads Paddle.js, which
- * opens the overlay on seeing `_ptxn` — Paddle Billing has no hosted checkout page. The page
- * is `/[lang]/billing/checkout` (`BillingCheckoutClient`).
+ * A transaction for a plan, add-ons, or both, whose `checkout.url` Paddle returns with
+ * `?_ptxn=txn_…` appended. That URL is a page **on our own approved domain** that loads
+ * Paddle.js, which opens the overlay on seeing `_ptxn` — Paddle Billing has no hosted checkout
+ * page. The page is `/[lang]/billing/checkout` (`BillingCheckoutClient`). The subscription
+ * Paddle creates from it carries the same items.
  *
  * `custom_data.provider_id` is how the webhook finds the provider. `customer_id` is passed
  * when the provider already has one, so a second subscription does not mint a second customer.
  */
 export const createCheckoutTransaction = async (input: {
-  priceId: string
+  items: readonly PaddleLine[]
   providerId: string
   customerId: string | null
   checkoutUrl: string
 }): Promise<string> => {
   const data = await request<{ checkout?: { url?: string } }>('POST', '/transactions', 'checkout', {
-    items: [{ price_id: input.priceId, quantity: 1 }],
+    items: toPaddleItems(input.items),
     custom_data: { provider_id: input.providerId },
     ...(input.customerId ? { customer_id: input.customerId } : {}),
     checkout: { url: input.checkoutUrl },
@@ -133,16 +141,54 @@ export const previewPrices = async (priceIds: string[], customerIp: string | und
 }
 
 /**
- * Move a subscription to another price, prorated now: an upgrade is charged the difference
- * today, a downgrade credited. `scheduled_change: null` withdraws a pending cancellation —
- * choosing a plan is the opposite of leaving. The webhook applies the result.
+ * A subscription's items as Paddle holds them now — the truth a change is built on, rather
+ * than our webhook-fed copy, which lags each change by one delivery. Raw: the caller parses
+ * them with `services/billing.ts#parseSubscriptionItems`, the same reader the webhook uses.
  */
-export const changeSubscriptionPrice = async (subscriptionId: string, priceId: string): Promise<void> => {
-  await request('PATCH', `/subscriptions/${encodeURIComponent(subscriptionId)}`, 'change plan', {
-    items: [{ price_id: priceId, quantity: 1 }],
-    proration_billing_mode: 'prorated_immediately',
-    scheduled_change: null,
-  })
+export const getSubscriptionItems = async (subscriptionId: string): Promise<unknown> => {
+  const data = await request<{ items?: unknown }>(
+    'GET',
+    `/subscriptions/${encodeURIComponent(subscriptionId)}`,
+    'subscription lookup'
+  )
+  return data.items
+}
+
+/**
+ * Paddle refuses an immediate charge below 70¢ (USD) — a $1.99 add-on bought on the
+ * 25th, or a switch made in a period's last day or two. Such a change is retried billed at
+ * renewal instead, so it still goes through.
+ */
+const CHARGE_FLOOR_CODE = 'subscription_update_transaction_balance_less_than_charge_limit'
+
+/**
+ * Replace a subscription's items, **charged now, prorated**: an addition is charged for the
+ * rest of the period today, a removal credited to the customer's balance. `items` is the
+ * whole list — Paddle removes anything left out — so the caller builds it from
+ * `getSubscriptionItems`. Below Paddle's 70¢ floor it retries once with the prorated amount
+ * added to the next renewal instead.
+ *
+ * `withdrawCancel` sends `scheduled_change: null`, withdrawing a pending cancellation —
+ * buying something is the opposite of leaving. A removal leaves a cancellation in place. The
+ * webhook, not this call, writes the result.
+ */
+export const updateSubscriptionItems = async (
+  subscriptionId: string,
+  input: { items: readonly PaddleLine[]; withdrawCancel: boolean }
+): Promise<void> => {
+  const path = `/subscriptions/${encodeURIComponent(subscriptionId)}`
+  const body = {
+    items: toPaddleItems(input.items),
+    ...(input.withdrawCancel ? { scheduled_change: null } : {}),
+  }
+
+  try {
+    await request('PATCH', path, 'update items', { ...body, proration_billing_mode: 'prorated_immediately' })
+  } catch (error) {
+    if (!(error instanceof PaddleError) || error.paddleCode !== CHARGE_FLOOR_CODE) throw error
+    console.info(`[paddle] update items: below the immediate-charge floor, retrying billed at renewal`)
+    await request('PATCH', path, 'update items', { ...body, proration_billing_mode: 'prorated_next_billing_period' })
+  }
 }
 
 /**

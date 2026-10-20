@@ -27,8 +27,7 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
 type BecomeProviderFormValues = PhoneFormValues & {
-  firstName: string
-  lastName: string
+  fullName: string
   organization?: OrganizationValue
   newOrganization?: NewOrganizationFormValues
   categories?: CategoryValue[]
@@ -38,8 +37,7 @@ type BecomeProviderFormValues = PhoneFormValues & {
 const valuesFromConsumer = (consumer: Consumer): BecomeProviderFormValues => {
   const phone = toPhoneFormValues(consumer.basic.phone ?? consumer.basic.phoneNumber)
   return {
-    firstName: consumer.basic.firstName,
-    lastName: consumer.basic.lastName,
+    fullName: consumer.basic.fullName,
     code: phone?.code,
     number: phone?.number ?? '',
     organization: undefined,
@@ -70,7 +68,7 @@ export const BecomeProviderForm: FC = () => {
   /** Bumped by Retry to ask for the profile again. */
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [submitError, setSubmitError] = useState<unknown>(null)
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
   const { resolveOrganization, isChecking, dialog } = useSimilarOrganizationCheck((organization) =>
     form.setFieldValue('organization', { id: organization.id, name: organization.basic.name })
   )
@@ -107,8 +105,7 @@ export const BecomeProviderForm: FC = () => {
       const session = await becomeProvider({
         phone: toPhoneNumber(values.code!, values.number),
         profile: {
-          firstName: values.firstName,
-          lastName: values.lastName,
+          fullName: values.fullName,
           country: values.code,
           ...organization,
           categories: toCategoryChoices(categories),
@@ -162,22 +159,11 @@ export const BecomeProviderForm: FC = () => {
             )}
 
             <RegistrationField
-              name='firstName'
-              label={tAuth('fields.firstName')}
+              name='fullName'
+              label={tAuth('fields.fullName')}
               requirement='Required'
-              placeholder={tAuth('fields.firstName')}
-              autoComplete='given-name'
-              rules={nameRules}
-              icon={<UserIcon className='text-brand-muted h-4 w-4' />}
-              disabled={busy}
-            />
-
-            <RegistrationField
-              name='lastName'
-              label={tAuth('fields.lastName')}
-              requirement='Required'
-              placeholder={tAuth('fields.lastName')}
-              autoComplete='family-name'
+              placeholder={tAuth('fields.fullName')}
+              autoComplete='name'
               rules={nameRules}
               icon={<UserIcon className='text-brand-muted h-4 w-4' />}
               disabled={busy}

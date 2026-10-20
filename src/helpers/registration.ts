@@ -88,8 +88,8 @@ export const toOrganizationFields = (
 /**
  * What the settings profile's Organization section should write, or `undefined` when it is
  * unchanged. `fields` is `toOrganizationFields`' output after the similar-name check, so
- * neither key means the section is closed — detached, or never opened — and an existing
- * link is then removed with `organizationId: null`.
+ * neither key means no organization — the registration section was closed, or the profile
+ * field was cleared — and an existing link is then removed with `organizationId: null`.
  */
 export const organizationChangeToSave = (
   currentId: string | undefined,

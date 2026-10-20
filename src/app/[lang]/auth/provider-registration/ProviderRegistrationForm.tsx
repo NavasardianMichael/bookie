@@ -30,16 +30,14 @@ type ProviderRegistrationFormValues = PhoneFormValues & {
   organization?: OrganizationValue
   newOrganization?: NewOrganizationFormValues
   categories?: CategoryValue[]
-  firstName: string
-  lastName: string
+  fullName: string
   email: string
   password: string
   confirmPassword: string
 }
 
 const INITIAL_VALUES: ProviderRegistrationFormValues = {
-  firstName: '',
-  lastName: '',
+  fullName: '',
   email: '',
   code: undefined,
   number: '',
@@ -56,15 +54,15 @@ const INITIAL_VALUES: ProviderRegistrationFormValues = {
  * "Add organization" button because a sole trader has none: open, it searches existing
  * organizations or registers a new one with its public-page details in the same submit —
  * after asking, when an organization with a similar name already exists.
- * First and last name are collected so a provider is never created with the server's
- * placeholder name, and the phone is required, as it is for consumers.
+ * The full name is collected so a provider is never created with the server's placeholder
+ * name, and the phone is required, as it is for consumers.
  *
  * **Submitting does not sign you in.** `POST /identity/register` creates the account and
  * mails a verification link; an unverified account cannot hold a session, so the funnel
  * continues from the recipient's inbox. The success screen says exactly that.
  *
  * **Google mode** (`viaGoogle`, from `?google=1`) is the same form for a first-time Google
- * account: names and email prefilled from what Google supplied, the email locked — it is
+ * account: name and email prefilled from what Google supplied, the email locked — it is
  * what Google verified — and no password. Submitting finishes the account through
  * `/identity/google/complete`, which signs it in, so it lands where a new provider starts.
  */
@@ -84,7 +82,7 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
   const google = useGoogleSignUp(viaGoogle)
   const pending = google.status === 'ready' ? google.pending : null
 
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
   const emailRules = useFormItemRules('required', 'email')
   const { resolveOrganization, isChecking, dialog } = useSimilarOrganizationCheck((organization) =>
     form.setFieldValue('organization', { id: organization.id, name: organization.basic.name })
@@ -100,8 +98,7 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
 
     const phone = toPhoneNumber(values.code!, values.number)
     const profile = {
-      firstName: values.firstName,
-      lastName: values.lastName,
+      fullName: values.fullName,
       country: values.code,
       ...organization,
       categories: toCategoryChoices(categories),
@@ -158,9 +155,7 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
         layout='vertical'
         requiredMark={false}
         initialValues={
-          pending
-            ? { ...INITIAL_VALUES, firstName: pending.firstName, lastName: pending.lastName, email: pending.email }
-            : INITIAL_VALUES
+          pending ? { ...INITIAL_VALUES, fullName: pending.fullName, email: pending.email } : INITIAL_VALUES
         }
         onFinish={handleFinish}
         onValuesChange={() => setSubmitError(null)}
@@ -170,23 +165,11 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
         {submitError !== null && <ErrorAlert error={submitError} />}
 
         <RegistrationField
-          name='firstName'
-          label={t('fields.firstName')}
+          name='fullName'
+          label={t('fields.fullName')}
           requirement='Required'
-          placeholder={t('fields.firstName')}
-          autoComplete='given-name'
-          rules={nameRules}
-          icon={<UserIcon className='text-brand-muted h-4 w-4' />}
-          disabled={isPending}
-          labelClassName='text-brand font-semibold'
-        />
-
-        <RegistrationField
-          name='lastName'
-          label={t('fields.lastName')}
-          requirement='Required'
-          placeholder={t('fields.lastName')}
-          autoComplete='family-name'
+          placeholder={t('fields.fullName')}
+          autoComplete='name'
           rules={nameRules}
           icon={<UserIcon className='text-brand-muted h-4 w-4' />}
           disabled={isPending}

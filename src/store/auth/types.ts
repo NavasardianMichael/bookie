@@ -8,8 +8,7 @@ export type AuthState = StateCommonProps & {
   userType: UserType | null
   /** The consumer or provider row id behind the session, once known. */
   profileId: string | null
-  firstName: string | null
-  lastName: string | null
+  fullName: string | null
   image: string | null
   /**
    * The signed-in provider's published 12/24-hour choice, which their workspace (bookings,
@@ -17,6 +16,11 @@ export type AuthState = StateCommonProps & {
    */
   timeFormat: TimeFormat | null
   email: string | null
+  /**
+   * Whether this account has a password. `false` for Google-only — delete confirmation
+   * must not ask for one. `null` until a session read answers.
+   */
+  hasPassword: boolean | null
   /**
    * The profiles this account holds, once a session read has answered. `null` until then
    * — distinct from "holds neither", which is not a state a signed-in user can be in.

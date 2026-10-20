@@ -8,8 +8,7 @@ import { CategoryChoicePayload, NewOrganizationPayload } from '@interfaces/auth'
 export type ProviderServiceResponse = ProviderService
 
 export type PutProviderProfileRequestPayload = Partial<{
-  firstName: string
-  lastName: string
+  fullName: string
   description: string
   address: string
   locationURL: string
@@ -22,6 +21,8 @@ export type PutProviderProfileRequestPayload = Partial<{
   /** Drafted with `timeFormat`. One flag for the visitor's time-zone list and 12/24-hour switch. */
   showClockChoices: boolean
   image: ProviderProfile['basic']['image'] | File
+  /** Draft save: drop the portrait. Publish then writes `imageUrl` null. A file wins if both are sent. */
+  clearImage?: boolean
   gallery: (ProviderProfile['details']['gallery'][number] | File)[]
   mode: 'draft' | 'publish' | 'listing'
   listed: boolean

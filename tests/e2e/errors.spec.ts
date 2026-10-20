@@ -116,8 +116,7 @@ test('a successful booking keeps its confirmation after the grid refreshes', asy
   await page.locator('button[data-start]:not([disabled])').first().click()
   await page.getByRole('button', { name: 'Book now' }).click()
 
-  await page.getByRole('textbox', { name: 'First name' }).fill('E2E')
-  await page.getByRole('textbox', { name: 'Last name' }).fill('Tester')
+  await page.getByRole('textbox', { name: 'Full name' }).fill('E2E Tester')
   await page.getByRole('textbox', { name: 'Phone number' }).fill('+37400000000')
 
   const refreshed = page.waitForResponse((response) => /\/busy\?/.test(response.url()) && booked !== null)

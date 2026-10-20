@@ -44,7 +44,7 @@ describe('resolveErrorResponse', () => {
   })
 
   it('treats a Prisma validation error as the request being wrong', () => {
-    const error = Object.assign(new Error('Argument `firstName`: Invalid value provided.'), {
+    const error = Object.assign(new Error('Argument `fullName`: Invalid value provided.'), {
       name: 'PrismaClientValidationError',
     })
     expect(resolveErrorResponse(error, true)).toEqual({ status: 400, code: 400, message: 'Invalid request' })

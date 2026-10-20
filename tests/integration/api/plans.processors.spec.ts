@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { processPlansResponse, processProviderPlanResponse } from '@api/plans/processors'
+import { processAddonsResponse, processPlansResponse, processProviderPlanResponse } from '@api/plans/processors'
 import { APIResponse } from '@interfaces/api'
-import { Entitlements, Plan, PlanCatalogueEntry, ProviderPlanWithUsage } from '@interfaces/plans'
+import { AddonCatalogueEntry, Entitlements, Plan, PlanCatalogueEntry, ProviderPlanWithUsage } from '@interfaces/plans'
 
 const envelope = <T>(value: T): APIResponse<T> => ({ value, error: null })
 
@@ -13,6 +13,7 @@ const entitlements = (maxActiveServices: number | null): Entitlements => ({
   telegramNotifications: true,
   calendarFeed: true,
   removeBranding: true,
+  photoImportsPerDay: null,
 })
 
 const entry = (id: Plan, maxActiveServices: number | null, amountCents = 0): PlanCatalogueEntry => ({
@@ -47,13 +48,35 @@ describe('processPlansResponse', () => {
   })
 })
 
+describe('processAddonsResponse', () => {
+  const addon: AddonCatalogueEntry = {
+    id: 'extraServices',
+    kind: 'capacity',
+    step: 5,
+    maxQuantity: 10,
+    price: { amountCents: 199, currency: 'USD', interval: 'month' },
+    purchasable: false,
+    includedIn: ['premium'],
+  }
+
+  it('keeps every add-on as the API sends it', () => {
+    expect(processAddonsResponse(envelope([addon]))).toEqual([addon])
+  })
+
+  it('reads a null value as an empty catalogue rather than throwing', () => {
+    expect(processAddonsResponse(envelope(null as unknown as AddonCatalogueEntry[]))).toEqual([])
+  })
+})
+
 describe('processProviderPlanResponse', () => {
-  it('passes the plan, its limits and this month’s usage through untouched', () => {
+  it('passes the plan, its add-ons, its limits and this month’s usage through untouched', () => {
     const value: ProviderPlanWithUsage = {
       plan: 'basic',
       effectivePlan: 'free',
       planExpiresAt: '2026-09-01T00:00:00.000Z',
       entitlements: entitlements(3),
+      addons: [{ addon: 'customSlug', quantity: 1, source: 'paddle', expiresAt: '2026-10-04T00:00:00.000Z' }],
+      betterPlan: null,
       billing: { status: 'active', periodEndsAt: '2026-10-01T00:00:00.000Z', manageable: true },
       usage: {
         activeServices: 2,

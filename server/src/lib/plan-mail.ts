@@ -30,7 +30,8 @@ const formatDay = (date: Date): string =>
 
 export const sendBookingAllowanceEmail = async (input: {
   to: string
-  firstName: string
+  /** The provider's full name, greeted as written. */
+  name: string
   notice: AllowanceNotice
   used: number
   limit: number
@@ -56,18 +57,18 @@ export const sendBookingAllowanceEmail = async (input: {
         `visit it are asked to contact you directly.`
       : `You have taken all ${input.limit} online bookings your plan includes this month, so your page ` +
         `has stopped taking online bookings. Clients who visit it are asked to contact you directly. ` +
-        `Online booking opens again on ${resetsOn}, or as soon as your plan is upgraded.`
+        `Online booking opens again on ${resetsOn}, or as soon as you add a pack of extra bookings or upgrade your plan.`
 
   const result = await sendExternalMail({
     to: input.to,
     subject: SUBJECTS[input.notice],
-    text: `Hi ${input.firstName},\n\n${lead}\n\nSee your plan, or ask for an upgrade:\n\n${input.planUrl}\n`,
-    // `firstName` is provider-authored, so it is escaped; `planUrl` is built from our own
+    text: `Hi ${input.name},\n\n${lead}\n\nSee your plan, add extra bookings, or upgrade:\n\n${input.planUrl}\n`,
+    // `name` is provider-authored, so it is escaped; `planUrl` is built from our own
     // origin and a fixed path, and the numbers and date are ours.
     html:
-      `<p>Hi ${escapeHtml(input.firstName)},</p>` +
+      `<p>Hi ${escapeHtml(input.name)},</p>` +
       `<p>${lead}</p>` +
-      `<p><a href="${input.planUrl}">See your plan, or ask for an upgrade</a></p>`,
+      `<p><a href="${input.planUrl}">See your plan, add extra bookings, or upgrade</a></p>`,
   })
 
   if (!result.ok) {

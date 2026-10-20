@@ -17,11 +17,11 @@ type Props = {
 }
 
 /**
- * Where a completed checkout lands: waits for Paddle's webhook to apply the plan, then says
- * so. Behind the proxy's cookie guard — it polls the provider's own plan.
+ * Where a completed checkout lands: waits for Paddle's webhook to apply what was bought, then
+ * says so. Behind the proxy's cookie guard — it polls the provider's own plan.
  *
- * `plan` is narrowed to a paid plan here; anything else (a payment started from Paddle's own
- * emails carries none) shows a plain "payment received" rather than waiting on nothing.
+ * `plan` is narrowed to a paid plan here, and only names the plan in the title; a cart of
+ * add-ons alone, or a payment started from Paddle's own emails, carries none.
  */
 export default async function BillingReturn({ searchParams }: Props) {
   const raw = (await searchParams)[CHECKOUT_PLAN_QUERY]

@@ -14,6 +14,37 @@ export const PLANS = {
 export const PLAN_ORDER = [PLANS.free, PLANS.basic, PLANS.standard, PLANS.premium] as const
 
 /**
+ * Add-ons — one feature, or a pack of capacity, sold monthly on top of any plan
+ * (docs/BILLING.md → *Add-ons*). The four features are named after the entitlement each
+ * grants. Like the plans, only the names are mirrored here: what each one adds, costs and
+ * which plans already include it come from `GET /plans/addons`.
+ */
+export const ADDONS = {
+  customSlug: 'customSlug',
+  telegramNotifications: 'telegramNotifications',
+  calendarFeed: 'calendarFeed',
+  removeBranding: 'removeBranding',
+  extraServices: 'extraServices',
+  extraBookings: 'extraBookings',
+} as const
+
+/** Catalogue order. Mirrors `ADDON_ORDER` in `server/src/services/plans.ts`, pinned by `planErrors.spec.ts`. */
+export const ADDON_ORDER = [
+  ADDONS.customSlug,
+  ADDONS.telegramNotifications,
+  ADDONS.calendarFeed,
+  ADDONS.removeBranding,
+  ADDONS.extraServices,
+  ADDONS.extraBookings,
+] as const
+
+/** Who granted an add-on: bought through Paddle, or given by an admin. */
+export const ADDON_SOURCES = {
+  paddle: 'paddle',
+  admin: 'admin',
+} as const
+
+/**
  * Stable codes from the API's `PLAN_ERROR` (`server/src/lib/plan-errors.ts`) for a
  * provider-side write the plan does not cover. Their copy is `Errors.codes.*`, and a
  * status override on the call site cannot mask it (`resolveErrorText`).
@@ -29,4 +60,6 @@ export const PLAN_TAG_COLORS = {
 export const PLAN_ERROR_CODES = {
   serviceLimit: 4101,
   featureLocked: 4102,
+  photoImportLimit: 4103,
+  bookingLimit: 4104,
 } as const

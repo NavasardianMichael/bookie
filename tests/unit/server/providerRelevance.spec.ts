@@ -11,8 +11,7 @@ import {
 
 const candidate = (id: string, overrides: Partial<RelevanceCandidate> = {}): RelevanceCandidate => ({
   id,
-  firstName: 'Lilit',
-  lastName: 'Sargsyan',
+  fullName: 'Lilit Sargsyan',
   available: true,
   ratingScore: 4,
   updatedAt: new Date('2026-10-01T00:00:00.000Z'),
@@ -48,7 +47,7 @@ describe('rankByRelevance', () => {
     const ranked = rankByRelevance(
       [
         candidate('inside', { services: [{ name: 'Stonemassage' }] }),
-        candidate('start', { lastName: 'Massagetti' }),
+        candidate('start', { fullName: 'Lilit Massagetti' }),
         candidate('whole', { services: [{ name: 'Thai massage' }] }),
       ],
       [['massage']]
@@ -57,9 +56,14 @@ describe('rankByRelevance', () => {
     expect(ids(ranked)).toEqual(['whole', 'start', 'inside'])
   })
 
+  // The name is one field now, so a surname is a whole word of it — matched as well as a
+  // whole word of a service name, not as well as a service called exactly the term.
   it('prefers a service to a name matched equally well', () => {
     const ranked = rankByRelevance(
-      [candidate('name', { lastName: 'Laser' }), candidate('service', { services: [{ name: 'Laser' }] })],
+      [
+        candidate('name', { fullName: 'Lilit Laser' }),
+        candidate('service', { services: [{ name: 'Laser hair removal' }] }),
+      ],
       [['laser']]
     )
 
@@ -68,7 +72,7 @@ describe('rankByRelevance', () => {
 
   it('never lets a service matched worse outrank a name matched better', () => {
     const ranked = rankByRelevance(
-      [candidate('service', { services: [{ name: 'Laserhair removal' }] }), candidate('name', { lastName: 'Laser' })],
+      [candidate('service', { services: [{ name: 'Laserhair removal' }] }), candidate('name', { fullName: 'Lilit Laser' })],
       [['laser']]
     )
 
@@ -116,8 +120,8 @@ describe('rankByRelevance', () => {
   it('sums the words, and takes the best of each word’s spellings', () => {
     const ranked = rankByRelevance(
       [
-        candidate('one-word', { firstName: 'Anna', services: [{ name: 'Stonemassage' }] }),
-        candidate('both-words', { firstName: 'Anna', services: [{ name: 'Massage' }] }),
+        candidate('one-word', { fullName: 'Anna Sargsyan', services: [{ name: 'Stonemassage' }] }),
+        candidate('both-words', { fullName: 'Anna Sargsyan', services: [{ name: 'Massage' }] }),
       ],
       [['anna'], ['masage', 'massage']]
     )

@@ -60,7 +60,7 @@ const logBookingLink = (to: string, manageUrl: string): void => {
  */
 type BookingNotice = {
   to: string
-  firstName: string
+  greetingName: string
   providerName: string
   serviceName: string
   when: string
@@ -99,7 +99,7 @@ ${input.manageUrl}`)
     to: input.to,
     subject: bookingSubject,
     text:
-      `Hi ${input.firstName},
+      `Hi ${input.greetingName},
 
 ` +
       `Your ${input.serviceName} booking with ${input.providerName} is confirmed for:
@@ -115,7 +115,7 @@ ${input.manageUrl}
 ` +
       `If you did not make this booking, you can ignore this email.`,
     html:
-      `<p>Hi ${escapeHtml(input.firstName)},</p>` +
+      `<p>Hi ${escapeHtml(input.greetingName)},</p>` +
       `<p>Your ${escapeHtml(input.serviceName)} booking with ` +
       `${escapeHtml(input.providerName)} is confirmed for:</p>` +
       `<p><strong>${escapeHtml(input.when)}</strong></p>` +
@@ -132,24 +132,24 @@ ${input.manageUrl}
 const rescheduleGuestSubject = 'Your booking has been updated'
 
 const rescheduleGuestText = (input: {
-  firstName: string
+  greetingName: string
   providerName: string
   when: string
   manageUrl: string
 }): string =>
-  `Hi ${input.firstName},\n\n` +
+  `Hi ${input.greetingName},\n\n` +
   `Your booking with ${input.providerName} has been moved to:\n\n` +
   `${input.when}\n\n` +
   `Open this link to view, cancel, or change the time:\n\n` +
   `${input.manageUrl}\n`
 
 const rescheduleGuestHtml = (input: {
-  firstName: string
+  greetingName: string
   providerName: string
   when: string
   manageUrl: string
 }): string =>
-  `<p>Hi ${escapeHtml(input.firstName)},</p>` +
+  `<p>Hi ${escapeHtml(input.greetingName)},</p>` +
   `<p>Your booking with ${escapeHtml(input.providerName)} has been moved to:</p>` +
   `<p><strong>${escapeHtml(input.when)}</strong></p>` +
   `<p><a href="${input.manageUrl}">View, cancel, or change the time</a></p>`
@@ -157,30 +157,30 @@ const rescheduleGuestHtml = (input: {
 const rescheduleProviderSubject = 'A booking has been changed'
 
 const rescheduleProviderText = (input: {
-  providerFirstName: string
+  providerGreetingName: string
   guestName: string
   serviceName: string
   when: string
 }): string =>
-  `Hi ${input.providerFirstName},\n\n` +
+  `Hi ${input.providerGreetingName},\n\n` +
   `${input.guestName} has changed their ${input.serviceName} appointment to:\n\n` +
   `${input.when}\n\n` +
   `The new time is now on your calendar.\n`
 
 const rescheduleProviderHtml = (input: {
-  providerFirstName: string
+  providerGreetingName: string
   guestName: string
   serviceName: string
   when: string
 }): string =>
-  `<p>Hi ${escapeHtml(input.providerFirstName)},</p>` +
+  `<p>Hi ${escapeHtml(input.providerGreetingName)},</p>` +
   `<p>${escapeHtml(input.guestName)} has changed their ${escapeHtml(input.serviceName)} appointment to:</p>` +
   `<p><strong>${escapeHtml(input.when)}</strong></p>` +
   `<p>The new time is now on your calendar.</p>`
 
 export const sendBookingRescheduledToGuestEmail = async (input: {
   to: string
-  firstName: string
+  greetingName: string
   providerName: string
   when: string
   manageUrl: string
@@ -203,7 +203,7 @@ export const sendBookingRescheduledToGuestEmail = async (input: {
 
 export const sendBookingRescheduledToProviderEmail = async (input: {
   to: string
-  providerFirstName: string
+  providerGreetingName: string
   guestName: string
   serviceName: string
   when: string
@@ -247,13 +247,13 @@ export const sendBookingRequestedEmail = async (input: BookingNotice): Promise<M
     to: input.to,
     subject: requestedSubject,
     text:
-      `Hi ${input.firstName},\n\n` +
+      `Hi ${input.greetingName},\n\n` +
       `We have sent your ${input.serviceName} request to ${input.providerName} for:\n\n` +
       `${input.when}\n\n` +
       `The time is held for you while they review it, and you will get an email as soon ` +
       `as they respond. You can view or cancel the request here:\n\n${input.manageUrl}\n`,
     html:
-      `<p>Hi ${escapeHtml(input.firstName)},</p>` +
+      `<p>Hi ${escapeHtml(input.greetingName)},</p>` +
       `<p>We have sent your ${escapeHtml(input.serviceName)} request to ` +
       `${escapeHtml(input.providerName)} for:</p>` +
       `<p><strong>${escapeHtml(input.when)}</strong></p>` +
@@ -273,12 +273,12 @@ export const sendBookingApprovedEmail = async (input: BookingNotice): Promise<Ma
     to: input.to,
     subject: approvedSubject,
     text:
-      `Hi ${input.firstName},\n\n` +
+      `Hi ${input.greetingName},\n\n` +
       `${input.providerName} has confirmed your ${input.serviceName} appointment:\n\n` +
       `${input.when}\n\n` +
       `Open this link to view, cancel, or change the time:\n\n${input.manageUrl}\n`,
     html:
-      `<p>Hi ${escapeHtml(input.firstName)},</p>` +
+      `<p>Hi ${escapeHtml(input.greetingName)},</p>` +
       `<p>${escapeHtml(input.providerName)} has confirmed your ` +
       `${escapeHtml(input.serviceName)} appointment:</p>` +
       `<p><strong>${escapeHtml(input.when)}</strong></p>` +
@@ -304,13 +304,13 @@ export const sendBookingRejectedEmail = async (
     to: input.to,
     subject: rejectedSubject,
     text:
-      `Hi ${input.firstName},\n\n` +
+      `Hi ${input.greetingName},\n\n` +
       `${input.providerName} is not able to take your ${input.serviceName} appointment on:\n\n` +
       `${input.when}\n\n` +
       `The time has been released and you have not been charged. You can choose another ` +
       `time here:\n\n${input.bookingUrl}\n`,
     html:
-      `<p>Hi ${escapeHtml(input.firstName)},</p>` +
+      `<p>Hi ${escapeHtml(input.greetingName)},</p>` +
       `<p>${escapeHtml(input.providerName)} is not able to take your ` +
       `${escapeHtml(input.serviceName)} appointment on:</p>` +
       `<p><strong>${escapeHtml(input.when)}</strong></p>` +
@@ -331,7 +331,7 @@ const approvalRequestSubject = 'A booking is waiting for your approval'
  */
 export const sendBookingApprovalRequestEmail = async (input: {
   to: string
-  providerFirstName: string
+  providerGreetingName: string
   bookerName: string
   serviceName: string
   when: string
@@ -344,12 +344,12 @@ export const sendBookingApprovalRequestEmail = async (input: {
     to: input.to,
     subject: approvalRequestSubject,
     text:
-      `Hi ${input.providerFirstName},\n\n` +
+      `Hi ${input.providerGreetingName},\n\n` +
       `${input.bookerName} has requested a ${input.serviceName} appointment:\n\n` +
       `${input.when}\n\n` +
       `The slot is held until you decide. Approve or decline it here:\n\n${input.approvalsUrl}\n`,
     html:
-      `<p>Hi ${escapeHtml(input.providerFirstName)},</p>` +
+      `<p>Hi ${escapeHtml(input.providerGreetingName)},</p>` +
       `<p>${escapeHtml(input.bookerName)} has requested a ` +
       `${escapeHtml(input.serviceName)} appointment:</p>` +
       `<p><strong>${escapeHtml(input.when)}</strong></p>` +

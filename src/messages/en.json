@@ -51,6 +51,7 @@
     "accountSettings": "Account settings",
     "bookings": "Bookings",
     "favorites": "Favorites",
+    "pricing": "Pricing",
     "profile": "Profile"
   },
   "Auth": {
@@ -67,8 +68,7 @@
       "choosePasswordPlaceholder": "At least 8 characters",
       "newPassword": "New password",
       "confirmPassword": "Confirm password",
-      "firstName": "First name",
-      "lastName": "Last name",
+      "fullName": "Full name",
       "phone": "Phone number",
       "countryCode": "Country code"
     },
@@ -201,8 +201,7 @@
     "guest": {
       "heading": "Your details",
       "hint": "We need these to confirm your booking. No account required.",
-      "firstName": "First name",
-      "lastName": "Last name",
+      "fullName": "Full name",
       "phone": "Phone number",
       "email": "Email",
       "emailPlaceholder": "you@example.com",
@@ -321,8 +320,7 @@
     "title": "Contact us",
     "subtitle": "Get in touch with the Bookie team. We usually get back within 5 business days.",
     "fields": {
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "fullName": "Full Name",
       "email": "Email",
       "message": "Message",
       "messagePlaceholder": "Tell us what you need help with."
@@ -341,7 +339,9 @@
     },
     "topics": {
       "planUpgrade": "Request: {plan} plan",
-      "planUpgradeMessage": "Hello, I would like to move my page to the {plan} plan."
+      "planUpgradeMessage": "Hello, I would like to move my page to the {plan} plan.",
+      "addonRequest": "Request: {addon}",
+      "addonRequestMessage": "Hello, I would like to add {addon} to my page."
     }
   },
   "Settings": {
@@ -365,7 +365,8 @@
       "advanced": "Advanced settings",
       "seo": "SEO",
       "history": "History",
-      "plan": "Plan"
+      "plan": "Plan",
+      "payouts": "Payouts"
     },
     "workspace": {
       "onProviderTitle": "You are in your provider workspace",
@@ -393,13 +394,13 @@
     },
     "profile": {
       "personalInfo": "Personal Information",
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "fullName": "Full Name",
       "description": "Description",
       "email": "Email Address",
       "noAvatarHint": "Profile photo is not available for consumer accounts.",
       "imageHint": "JPG or PNG. Max size 2MB.",
       "upload": "Upload new",
+      "removePhoto": "Remove photo",
       "providerSubtitle": "Update the details shown on your public profile.",
       "sendEmailCode": "Reset email",
       "emailRequired": "Enter an email address first.",
@@ -458,7 +459,7 @@
       "telegramTitle": "Telegram",
       "telegramProviderBody": "Get your booking notifications in Telegram as well as by email.",
       "telegramConsumerBody": "Get reminders and booking updates in Telegram as well as by email.",
-      "telegramLocked": "Telegram notifications about your business are included from the Basic plan. <plan>See plans</plan>",
+      "telegramLocked": "Telegram notifications about your business are included from the Basic plan, or available as an add-on. <plan>See plans</plan>",
       "telegramUnavailable": "Telegram notifications are not available right now.",
       "telegramConnect": "Connect Telegram",
       "telegramOpen": "Open Telegram",
@@ -471,7 +472,7 @@
       "telegramDisconnectFailed": "We could not disconnect Telegram",
       "calendarTitle": "Calendar sync",
       "calendarBody": "Subscribe to your bookings from Google Calendar, Apple Calendar or Outlook. New bookings and changes show up there automatically.",
-      "calendarLocked": "Calendar sync is included from the Basic plan. <plan>See plans</plan>",
+      "calendarLocked": "Calendar sync is included from the Basic plan, or available as an add-on. <plan>See plans</plan>",
       "calendarCopy": "Copy calendar link",
       "calendarHint": "In your calendar app, add a calendar from a URL and paste this link. Keep it private: anyone who has it can see your bookings.",
       "calendarReset": "Reset link",
@@ -571,6 +572,18 @@
       "calendarHint": "Select a day to see who is booked.",
       "calendarFiltered": "Showing one day. Select it again to see them all.",
       "calendarLabel": "Bookings by day",
+      "hideCalendar": "Hide calendar",
+      "showCalendar": "Show calendar",
+      "periodLabel": "When",
+      "periods": {
+        "upcoming": "Upcoming",
+        "today": "Today",
+        "thisWeek": "This week",
+        "nextWeek": "Next week",
+        "lastWeek": "Last week",
+        "thisMonth": "This month",
+        "lastMonth": "Last month"
+      },
       "clearDay": "All days",
       "previousMonth": "Previous month",
       "nextMonth": "Next month",
@@ -719,8 +732,8 @@
       "slugPattern": "Use lowercase letters, numbers and single hyphens between them.",
       "slugChangeWarning": "Saving this replaces your current link. Anyone using /p/{slug} will no longer reach your page.",
       "saved": "Search settings saved.",
-      "slugLocked": "A custom link is part of the paid plans, so your page uses its standard link. <link>See plans</link>",
-      "slugLockedKept": "Your custom link keeps working, but changing it needs a paid plan. <link>See plans</link>"
+      "slugLocked": "A custom link comes with the paid plans, or on its own as an add-on, so your page uses its standard link for now. <link>See plans</link>",
+      "slugLockedKept": "Your custom link keeps working, but changing it needs a paid plan or the Custom page link add-on. <link>See plans</link>"
     },
     "signOutTitle": "Sign out?",
     "signOutBody": "You will need to sign in again to manage your account.",
@@ -731,9 +744,15 @@
       "confirmTitle": "Delete your account?",
       "confirmBody": "All data related to this account will be removed. This cannot be undone.",
       "password": "Current password",
-      "googleOnly": "This account signs in with Google. Set a password first to confirm deletion.",
+      "googleOnly": "This account signs in with Google, so there is no password to enter. Confirming permanently deletes it.",
       "hasAppointments": "You have appointments on record. Cancel them before deleting your account.",
       "wrongPassword": "Current password is incorrect"
+    },
+    "payouts": {
+      "title": "Payouts",
+      "subtitle": "Every monthly cost Bookie charges, from the plan catalogue.",
+      "plan": "Plan",
+      "cost": "Monthly cost"
     },
     "plan": {
       "title": "Plan",
@@ -766,7 +785,35 @@
       "switchingTitle": "Switching to {plan}…",
       "switchPendingTitle": "Your plan change is on its way",
       "switchPendingBody": "Paddle has accepted it, and it can take a few minutes to show here. Refresh the page in a moment.",
-      "billingNote": "Payments are handled by Paddle. Cancel, change your card or download invoices under Manage billing."
+      "billingNote": "Payments are handled by Paddle. Cancel, change your card or download invoices under Manage billing.",
+      "addonsTitle": "Add-ons",
+      "addonsSubtitle": "Single features and extra capacity, billed monthly with your subscription.",
+      "addonActive": "Active",
+      "addonPacks": "{count, plural, one {# pack} other {# packs}}",
+      "addonGranted": "Granted by Bookie",
+      "addonGrantedUntil": "Granted by Bookie until {date}",
+      "addonIncluded": "Included in your plan",
+      "addonAdd": "Add",
+      "addonRemove": "Remove",
+      "addonAddPack": "Add a pack",
+      "addonRemovePack": "Remove a pack",
+      "addonRequest": "Request",
+      "addonAddTitle": "Add {addon}?",
+      "addonAddPackTitle": "Add a pack of {addon}?",
+      "addonAddBody": "It is available right away. The rest of this billing period is charged now, then it renews monthly with your subscription.",
+      "addonRemoveTitle": "Remove {addon}?",
+      "addonRemovePackTitle": "Remove a pack of {addon}?",
+      "addonRemoveBody": "It stops right away. The unused part of this billing period is credited to your next payment.",
+      "addonConfirmAdd": "Add and pay",
+      "addonConfirmRemove": "Remove",
+      "addonUpdatingTitle": "Updating {addon}…",
+      "addonPendingTitle": "Your add-on change is on its way",
+      "switchDrops": "{plan} includes {addons}, so {count, plural, one {that add-on is} other {those add-ons are}} removed from your subscription.",
+      "switchTo": "Switch to {plan}",
+      "switchToFreeBody": "Your add-ons stay. The unused part of your plan is credited to your next payment.",
+      "betterPlanTitle": "{plan} would cost you less",
+      "betterPlanBody": "The {plan} plan includes what you pay for as add-ons, for less each month.",
+      "addonsCancelNote": "Add-ons renew with your subscription. Cancelling it under Manage billing ends them too."
     }
   },
   "Bookings": {
@@ -775,6 +822,54 @@
     "views": {
       "provider": "Booked with me",
       "consumer": "Booked by me"
+    },
+    "import": {
+      "button": "Add from photo",
+      "title": "Add bookings from a photo",
+      "intro": "Photograph your handwritten bookings. We'll read them, and you check every one before anything is saved.",
+      "photoLabel": "Photo",
+      "photoPick": "Take or choose a photo",
+      "photoChange": "Choose another photo",
+      "photoRequired": "Add a photo of your bookings",
+      "photoAlt": "The photo you chose",
+      "noteLabel": "Note for the reader",
+      "notePlaceholder": "E.g. “all of these are for Friday” or “M = manicure”",
+      "privacy": "Photos are read by Google Gemini and are not stored by Bookie. On Google's free tier, what is sent may be used to improve Google's services.",
+      "dailyLimit": "{count, plural, one {Your plan includes # photo a day.} other {Your plan includes # photos a day.}}",
+      "read": "Read photo",
+      "reading": "Reading your bookings…",
+      "emptyTitle": "No bookings found",
+      "emptyBody": "Nothing on this photo read as a booking. Try a sharper, well-lit photo, or add a note saying what's on it.",
+      "tryAnother": "Try another photo",
+      "noServices": "Add a service first — every booking needs one.",
+      "reviewTitle": "{count, plural, one {Check # booking} other {Check # bookings}}",
+      "reviewIntro": "Correct anything that was misread. Each time has to be a free slot in your schedule.",
+      "row": "Booking {number}",
+      "remove": "Remove booking {number}",
+      "fullName": "Client's full name",
+      "phone": "Phone",
+      "phoneInvalid": "Enter a phone number",
+      "service": "Service",
+      "servicePlaceholder": "Choose a service",
+      "date": "Date",
+      "time": "Time",
+      "timePlaceholder": "Choose a time",
+      "noTimes": "No free times on this day",
+      "notes": "Notes",
+      "issues": {
+        "missing": "Choose a service, a date and a time.",
+        "offGrid": "This isn't one of your slots for this service on this day. Choose a time from the list.",
+        "past": "This time has already passed.",
+        "taken": "You already have a booking at this time.",
+        "clash": "Same time as booking {number}."
+      },
+      "addRow": "Add a booking",
+      "back": "Back",
+      "submit": "{count, plural, one {Add # booking} other {Add # bookings}}",
+      "needsAttention": "{count, plural, one {# booking needs your attention} other {# bookings need your attention}}",
+      "added": "{count, plural, one {# booking added} other {# bookings added}}",
+      "slotsTaken": "Some of these times were booked a moment ago. They're marked below — choose others.",
+      "seePlans": "See plans"
     }
   },
   "Favorites": {
@@ -1133,7 +1228,8 @@
           "p3": "<b>Our email delivery service</b> — sends account and booking emails.",
           "p4": "<b>Telegram</b> — delivers notifications, only if you connect it.",
           "p5": "<b>Google</b> — signs you in, only if you choose to continue with Google.",
-          "p6": "A booking's details are shared with the provider it is made with, and the provider's public contact details with the client — that is what a booking is."
+          "p6": "<b>Google Gemini</b> — reads a photo of handwritten bookings, only when a provider chooses to add bookings from one. On Gemini’s free tier, Google may use what it receives to improve its services. We do not store the photo.",
+          "p7": "A booking's details are shared with the provider it is made with, and the provider's public contact details with the client — that is what a booking is."
         },
         "cookies": {
           "title": "Cookies",
@@ -1248,6 +1344,7 @@
   "Validation": {
     "required": "Please fill in {label}",
     "maxCharsForInput": "Max count of characters is {max}",
+    "maxCharsForName": "Max count of characters is {max}",
     "maxCharsForTextarea": "Max count of characters is {max}",
     "oneItemSelectedAtLeast": "Please select at least one item",
     "email": "Invalid email",
@@ -1291,11 +1388,19 @@
       "slotTaken": "That time has just been taken. Please choose another time.",
       "bookingPaused": "This provider is not taking bookings online right now. Contact them directly to book.",
       "bookingFull": "This provider cannot take any more online bookings this month. Contact them directly to book.",
-      "serviceLimit": "Your plan's limit on active services is reached. Deactivate a service or upgrade your plan to add another.",
-      "featureLocked": "This feature is not included in your plan. Upgrade your plan to use it.",
+      "serviceLimit": "Your limit on active services is reached. Deactivate a service, add a pack of extra services, or upgrade your plan.",
+      "featureLocked": "This feature is not included in your plan. Add it on its own or upgrade your plan to use it.",
       "notConfigured": "Online payments are not available right now. Request the plan instead and we will set it up for you.",
-      "alreadySubscribed": "You already have a subscription. Switch plans from your Plan settings.",
-      "noSubscription": "There is no active subscription to change."
+      "alreadySubscribed": "You already have a subscription. Change it from your Plan settings.",
+      "noSubscription": "There is no active subscription to change.",
+      "photoImportLimit": "You've used today's photo import. It's back tomorrow, or upgrade your plan for unlimited imports.",
+      "bookingLimit": "These bookings would take you past your plan's monthly limit. Remove some, or upgrade your plan.",
+      "photoImportUnavailable": "Adding bookings from a photo isn't available right now.",
+      "photoUnreadable": "We couldn't read this photo. Try a sharper, well-lit one.",
+      "addonIncluded": "Your plan already includes this, so there is nothing to add.",
+      "lastItem": "That would leave your subscription empty. To end it, cancel it under Manage billing.",
+      "changeUnavailable": "Your subscription cannot be changed right now. If a payment failed, update your card under Manage billing; otherwise try again in a little while.",
+      "activeSubscription": "This page still has an active subscription. Cancel it under Manage billing before deleting the page."
     },
     "pages": {
       "provider": "We could not load this provider's page. Please try again.",
@@ -1364,7 +1469,12 @@
       "saved": "Plan saved",
       "pagesLabel": "Provider pages",
       "paddle": "Paddle",
-      "paddleNote": "Billed through Paddle: a manual change here is overwritten by the subscription's next update."
+      "paddleNote": "Billed through Paddle: a manual change here is overwritten by the subscription's next update.",
+      "addonsLabel": "Add-ons granted",
+      "addonsLastDayLabel": "Add-ons' last day",
+      "saveAddons": "Save add-ons",
+      "addonsSaved": "Add-ons saved",
+      "paidAddons": "Paid through Paddle: {addons}"
     }
   },
   "Plans": {
@@ -1377,6 +1487,7 @@
     "features": {
       "maxActiveServices": "Active services",
       "maxBookingsPerMonth": "Online bookings a month",
+      "photoImportsPerDay": "Photo imports a day",
       "analyticsHistoryDays": "Analytics history",
       "customSlug": "Custom page link",
       "telegramNotifications": "Telegram notifications",
@@ -1391,12 +1502,42 @@
     "current": "Your plan",
     "requestTitle": "Request the {plan} plan",
     "freeForever": "Free forever",
-    "perMonth": "/ month"
+    "perMonth": "/ month",
+    "addons": {
+      "customSlug": {
+        "name": "Custom page link",
+        "description": "Your own short address, like /p/your-name."
+      },
+      "telegramNotifications": {
+        "name": "Telegram notifications",
+        "description": "New bookings, changes and reminders in Telegram as well as by email."
+      },
+      "calendarFeed": {
+        "name": "Calendar sync",
+        "description": "Your bookings in Google, Apple or Outlook Calendar, always up to date."
+      },
+      "removeBranding": {
+        "name": "No Bookie branding",
+        "description": "Removes the “Booking page by Bookie” line from your page."
+      },
+      "extraServices": {
+        "name": "Extra services",
+        "description": "{count} more active services per pack."
+      },
+      "extraBookings": {
+        "name": "Extra bookings",
+        "description": "{count} more online bookings a month per pack."
+      }
+    },
+    "perPackPerMonth": "per pack / month",
+    "addonIncludedIn": "Included in {plan}",
+    "addonIncludedFrom": "Included in {plan} and above",
+    "addonRequestTitle": "Request {addon}"
   },
   "Pricing": {
     "metaTitle": "Pricing for providers",
     "metaDescription": "Bookie plans for service providers: start free, or upgrade for more services, unlimited bookings, Telegram notifications and calendar sync. Booking is always free for clients.",
-    "title": "Plans for providers",
+    "title": "Pricing",
     "subtitle": "Start free and move up when your calendar fills. Clients never pay to book.",
     "startFree": "Start free",
     "requestPlan": "Request this plan",
@@ -1457,8 +1598,17 @@
       "refunds": {
         "q": "Can I get a refund?",
         "a": "Yes — ask within 14 days of your first payment for a plan, or any time a charge was made by mistake. See our <refund>refund policy</refund>."
+      },
+      "addons": {
+        "q": "Can I buy one feature without a plan?",
+        "a": "Yes. Every feature and capacity pack is sold on its own, monthly, on top of any plan — Free included. Add-ons renew with your subscription, and moving to a plan that includes one removes it automatically, so you never pay twice."
       }
-    }
+    },
+    "addonsTitle": "Add-ons",
+    "addonsSubtitle": "Need just one thing? Add it to any plan, Free included. Each add-on is billed monthly.",
+    "addonsBundleNote": "Plans bundle these for less — {plan} includes every feature above, with more services and bookings too.",
+    "addAddon": "Add",
+    "requestAddon": "Request"
   },
   "Billing": {
     "checkoutTitle": "Checkout",
@@ -1473,6 +1623,8 @@
     "activeTitle": "You are on the {plan} plan",
     "activeBody": "Thank you! Everything your plan includes is available now. Paddle has emailed you a receipt.",
     "receivedTitle": "Payment received",
-    "receivedBody": "Thank you! It can take a few minutes for your plan to update. Paddle has emailed you a receipt."
+    "receivedBody": "Thank you! It can take a few minutes for your plan to update. Paddle has emailed you a receipt.",
+    "purchaseActiveTitle": "Your purchase is active",
+    "purchaseActiveBody": "Thank you! Everything you bought is available now. Paddle has emailed you a receipt."
   }
 }

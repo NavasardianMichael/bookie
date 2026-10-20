@@ -81,6 +81,10 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
   // Decided by the API, which already compared the session against this provider to
   // judge whether an unlisted page was visible at all.
   const isProviderOwner = Boolean(viewer.isProviderOwner)
+  // The empty card is not a section. Keep it only when this visitor can write the
+  // first review — that button has nowhere else to live.
+  const canWrite = Boolean(viewer.eligibleAppointmentId) && !isProviderOwner
+  if (!hasReviews && !canWrite) return null
 
   return (
     // `scroll-mt` keeps the heading clear of the sticky header when the pager's

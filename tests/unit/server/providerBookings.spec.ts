@@ -63,6 +63,20 @@ describe('parseProviderBookingsQuery — filters degrade rather than throw', () 
     })
   })
 
+  it('searches the booker under either identity, the guest email and the service', () => {
+    const { where } = parseProviderBookingsQuery(PROVIDER, { q: 'sarah' })
+    expect(where.AND).toEqual([
+      {
+        OR: [
+          { consumer: { fullName: { contains: 'sarah', mode: 'insensitive' } } },
+          { guestFullName: { contains: 'sarah', mode: 'insensitive' } },
+          { guestEmail: { contains: 'sarah', mode: 'insensitive' } },
+          { service: { name: { contains: 'sarah', mode: 'insensitive' } } },
+        ],
+      },
+    ])
+  })
+
   it('narrows a multi-word search with AND, so two words find fewer rows and not more', () => {
     const { where } = parseProviderBookingsQuery(PROVIDER, { q: 'sarah connor' })
     expect(where.AND).toHaveLength(2)
@@ -85,7 +99,7 @@ describe('parseProviderBookingsQuery — sort and page', () => {
 
   it('orders guest bookings last when sorting by name, since they have no Consumer row', () => {
     const { orderBy } = parseProviderBookingsQuery(PROVIDER, { sort: 'nameAsc' })
-    expect(orderBy).toEqual([{ consumer: { lastName: 'asc' } }, { guestLastName: { sort: 'asc', nulls: 'last' } }])
+    expect(orderBy).toEqual([{ consumer: { fullName: 'asc' } }, { guestFullName: { sort: 'asc', nulls: 'last' } }])
   })
 
   it('clamps a hostile page size and rejects a non-positive page', () => {
@@ -109,8 +123,7 @@ describe('parseConsumerBookingsQuery — scoping', () => {
     expect(where.AND).toEqual([
       {
         OR: [
-          { provider: { firstName: { contains: 'lena', mode: 'insensitive' } } },
-          { provider: { lastName: { contains: 'lena', mode: 'insensitive' } } },
+          { provider: { fullName: { contains: 'lena', mode: 'insensitive' } } },
           { service: { name: { contains: 'lena', mode: 'insensitive' } } },
         ],
       },
@@ -118,10 +131,7 @@ describe('parseConsumerBookingsQuery — scoping', () => {
   })
 
   it('orders by the other provider when sorting by name', () => {
-    expect(parseConsumerBookingsQuery(CONSUMER, { sort: 'nameAsc' }).orderBy).toEqual([
-      { provider: { lastName: 'asc' } },
-      { provider: { firstName: 'asc' } },
-    ])
+    expect(parseConsumerBookingsQuery(CONSUMER, { sort: 'nameAsc' }).orderBy).toEqual([{ provider: { fullName: 'asc' } }])
   })
 })
 

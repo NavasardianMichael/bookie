@@ -33,7 +33,7 @@ const STATUS_DOT: Record<ProviderAvailabilityStatus, string> = {
  */
 export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLevel }) => {
   const { basic } = data
-  const fullName = `${basic.firstName} ${basic.lastName}`
+  const fullName = basic.fullName
   const t = await getTranslations('Provider')
   const status = getProviderAvailabilityStatus(basic.available, basic.openToday)
   const categories = hideCategories ? [] : (basic.categories?.slice(0, 2) ?? [])

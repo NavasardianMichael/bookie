@@ -4,11 +4,12 @@ import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { SearchOutlined } from '@ant-design/icons'
 import { Pagination } from 'antd'
 import { useTranslations } from 'next-intl'
-import { getAdminProvidersAPI } from '@api/plans/main'
+import { getAddonsAPI, getAdminProvidersAPI } from '@api/plans/main'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
-import { AdminProvider } from '@interfaces/plans'
+import { AddonCatalogueEntry, AdminProvider } from '@interfaces/plans'
 import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { classifyError } from '@helpers/error'
+import { reportError } from '@helpers/reportError'
 import { collapseWhitespace } from '@helpers/search'
 import { AppInput } from '@components/ui/AppInput'
 import { EmptyState } from '@components/ui/EmptyState'
@@ -42,6 +43,21 @@ export const AdminProvidersClient = () => {
   const query = useMemo(() => ({ q: search, page, revision }), [page, revision, search])
   const [fulfilled, setFulfilled] = useState<object | null>(null)
   const loading = fulfilled !== query
+  const [addons, setAddons] = useState<AddonCatalogueEntry[]>([])
+
+  // The add-on catalogue, once: each row's grant editor needs the names, kinds and maximums.
+  // Decorative to this screen's main job, so a failure only hides the editors.
+  useEffect(() => {
+    let cancelled = false
+    void getAddonsAPI()
+      .then((catalogue) => {
+        if (!cancelled) setAddons(catalogue)
+      })
+      .catch((err: unknown) => reportError(err, 'admin add-on catalogue'))
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -113,6 +129,7 @@ export const AdminProvidersClient = () => {
           <AdminProviderPlanRow
             key={`${provider.id}:${provider.plan}:${provider.planExpiresAt ?? ''}`}
             provider={provider}
+            addons={addons}
             onSaved={handleSaved}
           />
         ))}

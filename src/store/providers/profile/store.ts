@@ -15,8 +15,7 @@ import { ProviderProfileActions, ProviderProfileState } from './types'
 export const PROVIDER_PROFILE_INITIAL_STATE: ProviderProfileState = {
   id: '',
   basic: {
-    firstName: '',
-    lastName: '',
+    fullName: '',
     image: '',
     categories: [],
 

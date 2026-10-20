@@ -52,7 +52,7 @@ export const loadExploreVocabulary = async (): Promise<SearchVocabulary> => {
   const [providers, services, categories] = await Promise.all([
     prisma.provider.findMany({
       where: PUBLIC_PROVIDER_WHERE,
-      select: { firstName: true, lastName: true, organization: { select: { name: true } } },
+      select: { fullName: true, organization: { select: { name: true } } },
     }),
     prisma.service.findMany({
       where: { active: true, provider: PUBLIC_PROVIDER_WHERE },
@@ -63,7 +63,7 @@ export const loadExploreVocabulary = async (): Promise<SearchVocabulary> => {
   ])
 
   const vocabulary = buildSearchVocabulary([
-    ...providers.flatMap((provider) => [provider.firstName, provider.lastName, provider.organization?.name]),
+    ...providers.flatMap((provider) => [provider.fullName, provider.organization?.name]),
     ...services.map((service) => service.name),
     ...categories.flatMap((category) => categoryLabels(category.name)),
   ])
@@ -83,9 +83,8 @@ export const loadProviderBookingsVocabulary = async (providerId: string): Promis
   const rows = await prisma.appointment.findMany({
     where: { providerId },
     select: {
-      guestFirstName: true,
-      guestLastName: true,
-      consumer: { select: { firstName: true, lastName: true } },
+      guestFullName: true,
+      consumer: { select: { fullName: true } },
       service: { select: { name: true } },
     },
     orderBy: { startAt: 'desc' },
@@ -93,13 +92,7 @@ export const loadProviderBookingsVocabulary = async (providerId: string): Promis
   })
 
   return buildSearchVocabulary(
-    rows.flatMap((row) => [
-      row.guestFirstName,
-      row.guestLastName,
-      row.consumer?.firstName,
-      row.consumer?.lastName,
-      row.service?.name,
-    ])
+    rows.flatMap((row) => [row.guestFullName, row.consumer?.fullName, row.service?.name])
   )
 }
 
@@ -108,7 +101,7 @@ export const loadConsumerBookingsVocabulary = async (consumerId: string): Promis
   const rows = await prisma.appointment.findMany({
     where: { consumerId },
     select: {
-      provider: { select: { firstName: true, lastName: true } },
+      provider: { select: { fullName: true } },
       service: { select: { name: true } },
     },
     orderBy: { startAt: 'desc' },
@@ -116,6 +109,6 @@ export const loadConsumerBookingsVocabulary = async (consumerId: string): Promis
   })
 
   return buildSearchVocabulary(
-    rows.flatMap((row) => [row.provider?.firstName, row.provider?.lastName, row.service?.name])
+    rows.flatMap((row) => [row.provider?.fullName, row.service?.name])
   )
 }

@@ -47,8 +47,8 @@ const ORDER_BY: Record<ProvidersListSort, Prisma.ProviderOrderByWithRelationInpu
   // `ratingCount` breaks ties so that, between two providers the prior has pinned to the
   // same score, the one with evidence behind it comes first.
   topRated: [{ ratingScore: 'desc' }, { ratingCount: 'desc' }],
-  nameAsc: [{ lastName: 'asc' }, { firstName: 'asc' }],
-  nameDesc: [{ lastName: 'desc' }, { firstName: 'desc' }],
+  nameAsc: [{ fullName: 'asc' }],
+  nameDesc: [{ fullName: 'desc' }],
   newest: [{ createdAt: 'desc' }],
 }
 
@@ -90,8 +90,7 @@ const translatedCategories = (term: string): Prisma.CategoryWhereInput[] => {
  */
 const matchesTerm = (spellings: TermSpellings): Prisma.ProviderWhereInput => ({
   OR: spellings.flatMap((term): Prisma.ProviderWhereInput[] => [
-    { firstName: { contains: term, mode: 'insensitive' } },
-    { lastName: { contains: term, mode: 'insensitive' } },
+    { fullName: { contains: term, mode: 'insensitive' } },
     { organization: { name: { contains: term, mode: 'insensitive' } } },
     { services: { some: { name: { contains: term, mode: 'insensitive' }, active: true } } },
     { categories: { some: { category: { name: { contains: term, mode: 'insensitive' } } } } },

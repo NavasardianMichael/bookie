@@ -20,6 +20,7 @@ type Props = {
 const FEATURE_ROWS: (keyof Entitlements)[] = [
   'maxActiveServices',
   'maxBookingsPerMonth',
+  'photoImportsPerDay',
   'analyticsHistoryDays',
   'customSlug',
   'telegramNotifications',

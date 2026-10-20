@@ -13,7 +13,7 @@ const envelope = <T>(value: T): APIResponse<T> => ({ value, error: null })
 
 const basicProvider = (id: string) => ({
   id,
-  basic: { firstName: 'Ada', lastName: 'Lovelace', available: true },
+  basic: { fullName: 'Ada Lovelace', available: true },
 })
 
 const service = (id: string): ProviderService =>
@@ -123,7 +123,7 @@ describe('processSingleProviderResponse', () => {
     const result = processSingleProviderResponse(envelope(provider) as never)
 
     expect(result.id).toBe('p1')
-    expect(result.basic.firstName).toBe('Ada')
+    expect(result.basic.fullName).toBe('Ada Lovelace')
     expect(result.details).toEqual({ email: 'a@b.test' })
   })
 })

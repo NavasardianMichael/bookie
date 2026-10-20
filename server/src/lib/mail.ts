@@ -34,6 +34,10 @@ export type InternalMailPayload = {
   subject?: string
   body?: string
   senderEmail?: string
+  /**
+   * The engine's own field names. This app keeps one `fullName` per person and sends it
+   * here whole; `lastName` is left for other callers of the engine.
+   */
   firstName?: string
   lastName?: string
   phoneNumber?: string

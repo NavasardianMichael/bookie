@@ -11,12 +11,11 @@ export type SignOnStep = (typeof SIGN_ON_STEPS)[keyof typeof SIGN_ON_STEPS]
  * The profile half of a registration — everything that lands on the `Provider` or
  * `Consumer` row rather than on the `User`.
  *
- * `firstName` and `lastName` stay separate everywhere; the server stores two columns for
- * both roles.
+ * A person's name is one `fullName`, as written — never split into given and family names,
+ * which half the world does not order that way. The server stores one column for both roles.
  */
 export type RegistrationProfile = {
-  firstName: string
-  lastName: string
+  fullName: string
   /**
    * ISO 3166-1 alpha-2, taken from the country picked on the phone field.
    *
@@ -122,8 +121,7 @@ export type Session = {
   role: UserType
   profileId: string
   userId?: string
-  firstName?: string
-  lastName?: string
+  fullName?: string
   /** Provider portrait path, when present. */
   image?: string
   /** The provider's published 12/24-hour choice. Provider sessions only; absent until chosen. */
@@ -158,8 +156,7 @@ export type Session = {
  */
 export type PendingGoogleAccount = {
   email: string
-  firstName: string
-  lastName: string
+  fullName: string
   role: UserType | null
   image?: string
 }

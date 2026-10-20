@@ -4,9 +4,9 @@ import { renderNoticeEmail, renderNoticeTelegram } from '../../../server/src/lib
 
 const FACTS: BookingFacts = {
   bookerName: 'Gor <img src=x onerror=alert(1)>',
-  bookerFirstName: 'Gor',
+  bookerGreetingName: 'Gor Hakobyan',
   providerName: 'Anna & Co',
-  providerFirstName: 'Anna',
+  providerGreetingName: 'Anna & Co',
   serviceName: 'Cut <b>&</b> colour',
   when: 'Monday, 5 October 2026 at 10:00 GMT+4',
 }
@@ -30,7 +30,8 @@ describe('renderNoticeEmail', () => {
   it('renders the same notice as text and as escaped HTML', () => {
     const email = renderNoticeEmail(reminderForBookerNotice(FACTS, 'https://bookie.example/en/b/own.1.abc'))
     expect(email.subject).toBe('Reminder: your Cut <b>&</b> colour appointment')
-    expect(email.text).toContain('Hi Gor,')
+    // Greeted by the whole name: there is no first-name field to pick one word from.
+    expect(email.text).toContain('Hi Gor Hakobyan,')
     expect(email.text).toContain('https://bookie.example/en/b/own.1.abc')
     expect(email.html).toContain('Anna &amp; Co')
     expect(email.html).not.toContain('<b>&</b>')

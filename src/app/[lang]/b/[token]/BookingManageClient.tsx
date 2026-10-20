@@ -147,7 +147,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
         ? `${appointment.price} ${appointment.currency}`
         : undefined
     return {
-      providerName: `${basic.firstName} ${basic.lastName}`,
+      providerName: basic.fullName,
       serviceName: appointment.service.name,
       serviceDescription: appointment.service.description,
       startISO: appointment.time.startDate,
@@ -167,8 +167,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
     appointment.service.name,
     appointment.time.duration,
     appointment.time.startDate,
-    basic.firstName,
-    basic.lastName,
+    basic.fullName,
     details?.location?.address,
     phone,
     timeFormat,
@@ -223,7 +222,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
     setIsEditing(false)
   }, [token])
 
-  const providerName = `${basic.firstName} ${basic.lastName}`
+  const providerName = basic.fullName
 
   return (
     <div className='flex flex-col gap-6'>

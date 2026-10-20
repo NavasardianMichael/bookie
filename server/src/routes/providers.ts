@@ -5,6 +5,7 @@ import multer from 'multer'
 import path from 'node:path'
 import { config } from '../config.js'
 import { ok } from '../lib/api-response.js'
+import { BILLING_ERROR } from '../lib/billing-errors.js'
 import {
   buildBookingManageUrl,
   buildProviderPageUrl,
@@ -15,6 +16,7 @@ import {
 } from '../lib/booking-mail.js'
 import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
+import { asFullName } from '../lib/request.js'
 import { type TimeFormat, toTimeFormat } from '../lib/time-format.js'
 import { toTimeZone } from '../lib/time-zone.js'
 import { mintOwnerManageToken } from '../lib/token.js'
@@ -34,12 +36,19 @@ import {
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { getProviderBusyIntervals } from '../services/appointments.js'
+import { hasLiveSubscription } from '../services/billing.js'
 import { notifyBookingDecisionTelegram } from '../services/bookingNotify.js'
 import { MAX_PROVIDER_CATEGORIES, parseCategoryChoices } from '../services/categories.js'
 import { loadExplorePage, loadMatchedServices } from '../services/exploreResults.js'
 import { resolveOrganizationId } from '../services/organizationLink.js'
 import { parseOrganizationLinkBody } from '../services/organizations.js'
-import { assertServiceSlot, assertSlugChange, getEntitlements, takesServiceSlot } from '../services/plans.js'
+import {
+  assertServiceSlot,
+  assertSlugChange,
+  ENTITLEMENT_SELECT,
+  getEntitlements,
+  takesServiceSlot,
+} from '../services/plans.js'
 import { countActiveServices, isBookingAllowanceSpent } from '../services/planUsage.js'
 import { ANALYTICS_SELECT, buildProviderAnalytics, parseAnalyticsRange } from '../services/providerAnalytics.js'
 import {
@@ -114,8 +123,7 @@ const readTimeFormatField = (value: unknown): TimeFormat | undefined => {
  * Do not add one: identity email changes belong to `/identity/change-email/*`.
  */
 type ProviderDraft = {
-  firstName?: string
-  lastName?: string
+  fullName?: string
   description?: string | null
   imageUrl?: string | null
   weekSchedule?: unknown
@@ -299,6 +307,13 @@ providerProfileRouter.get(
   })
 )
 
+/** `true` from JSON, `'true'` / `'1'` from multipart. A new file still wins. */
+const readClearImage = (body: unknown): boolean => {
+  if (!body || typeof body !== 'object') return false
+  const value = (body as { clearImage?: unknown }).clearImage
+  return value === true || value === 'true' || value === '1'
+}
+
 /**
  * Body modes:
  * - `mode: 'draft'` — merge fields into `Provider.draft` (no public effect)
@@ -375,12 +390,13 @@ providerProfileRouter.put(
       const patch: ProviderDraft = {
         ...(typeof existing.draft === 'object' && existing.draft ? (existing.draft as ProviderDraft) : {}),
       }
-      if (body.firstName ?? body.FirstName) patch.firstName = body.firstName ?? body.FirstName
-      if (body.lastName ?? body.LastName) patch.lastName = body.lastName ?? body.LastName
+      const fullName = asFullName(body.fullName)
+      if (fullName) patch.fullName = fullName
       if (body.description !== undefined || body.Description !== undefined) {
         patch.description = (body.description ?? body.Description) || null
       }
       if (imageUrl) patch.imageUrl = imageUrl
+      else if (readClearImage(req.body)) patch.imageUrl = null
       if (weekSchedule) patch.weekSchedule = weekSchedule
       if (timeZone) patch.timeZone = timeZone
       if (timeFormat) patch.timeFormat = timeFormat
@@ -405,8 +421,7 @@ providerProfileRouter.put(
       const provider = await prisma.provider.update({
         where: { id: providerId },
         data: {
-          firstName: patch.firstName ?? existing.firstName,
-          lastName: patch.lastName ?? existing.lastName,
+          fullName: asFullName(patch.fullName) ?? existing.fullName,
           description: patch.description === undefined ? existing.description : patch.description,
           imageUrl: patch.imageUrl === undefined ? existing.imageUrl : patch.imageUrl,
           weekSchedule: (patch.weekSchedule as object | undefined) ?? existing.weekSchedule ?? undefined,
@@ -472,8 +487,8 @@ providerProfileRouter.put(
     await prisma.provider.update({
       where: { id: providerId },
       data: {
-        firstName: body.firstName ?? body.FirstName,
-        lastName: body.lastName ?? body.LastName,
+        // Absent or blank leaves the name as it is: a name is never cleared.
+        fullName: asFullName(body.fullName),
         description: body.description ?? body.Description,
         // Identity email is never written here — only `/identity/change-email/send` +
         // `/confirm` may change `User.email` (current password + verified click).
@@ -527,6 +542,20 @@ providerProfileRouter.delete(
   asyncHandler(async (req, res) => {
     const providerId = req.session!.profileId
     const userId = req.session!.userId
+
+    // Paddle bills a subscription, not a page: deleting the row would leave it charging a
+    // provider the webhook can no longer find. Cancelled first, then deleted.
+    const billing = await prisma.provider.findUnique({
+      where: { id: providerId },
+      select: { paddleSubscriptionId: true, billingStatus: true },
+    })
+    if (billing && hasLiveSubscription(billing)) {
+      throw new HttpError(
+        409,
+        'This page has an active subscription. Cancel it in the billing portal first.',
+        BILLING_ERROR.activeSubscription
+      )
+    }
 
     const booked = await prisma.appointment.count({ where: { providerId } })
     if (booked) {
@@ -729,10 +758,10 @@ const notifyBookingDecision = async (
       startAt: true,
       providerId: true,
       guestEmail: true,
-      guestFirstName: true,
+      guestFullName: true,
       service: { select: { name: true } },
-      consumer: { select: { firstName: true, user: { select: { email: true } } } },
-      provider: { select: { firstName: true, lastName: true, timeZone: true, timeFormat: true } },
+      consumer: { select: { fullName: true, user: { select: { email: true } } } },
+      provider: { select: { fullName: true, timeZone: true, timeFormat: true } },
     },
   })
   if (!row) return
@@ -744,8 +773,8 @@ const notifyBookingDecision = async (
 
   const shared = {
     to,
-    firstName: row.guestFirstName ?? row.consumer?.firstName ?? 'there',
-    providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
+    greetingName: row.guestFullName || row.consumer?.fullName || 'there',
+    providerName: row.provider.fullName || 'your provider',
     serviceName: row.service.name,
     when: formatBookingWhen(row.startAt, row.provider.timeZone, row.provider.timeFormat),
   }
@@ -848,7 +877,7 @@ providerProfileRouter.get(
 
     const provider = await prisma.provider.findUnique({
       where: { id: providerId },
-      select: { plan: true, planExpiresAt: true },
+      select: ENTITLEMENT_SELECT,
     })
     if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
     // The plan bounds how far back this may look; `parseAnalyticsRange` clamps to it.
@@ -906,7 +935,7 @@ providerProfileRouter.patch(
     if (data.slug !== undefined) {
       const current = await prisma.provider.findUnique({
         where: { id: req.session!.profileId },
-        select: { slug: true, plan: true, planExpiresAt: true },
+        select: { slug: true, ...ENTITLEMENT_SELECT },
       })
       if (!current) throw new HttpError(404, 'Provider profile not found', 404)
       assertSlugChange(current.slug, data.slug, getEntitlements(current, new Date()))
@@ -1115,7 +1144,7 @@ async function findOwnService(
 async function assertRoomForActiveService(providerId: string): Promise<void> {
   const provider = await prisma.provider.findUnique({
     where: { id: providerId },
-    select: { plan: true, planExpiresAt: true },
+    select: ENTITLEMENT_SELECT,
   })
   if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
   assertServiceSlot(await countActiveServices(providerId), getEntitlements(provider, new Date()))

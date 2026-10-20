@@ -183,12 +183,30 @@ describe('parseReviewsListQuery', () => {
 describe('reviewAuthorName', () => {
   // "Consumers are never public" — enough to attribute a review, not enough to identify
   // a stranger. The payload carries no consumer id at all.
-  it('reduces the surname to an initial', () => {
-    expect(reviewAuthorName('Anna', 'Petrosyan')).toBe('Anna P.')
+  it('reduces the last word to an initial', () => {
+    expect(reviewAuthorName('Anna Petrosyan')).toBe('Anna P.')
   })
 
-  it('omits the initial when there is no surname', () => {
-    expect(reviewAuthorName('Anna', '  ')).toBe('Anna')
+  it('drops middle words rather than publishing them', () => {
+    expect(reviewAuthorName('Anna Maria Petrosyan')).toBe('Anna P.')
+  })
+
+  it('keeps a one-word name as it is', () => {
+    expect(reviewAuthorName('Anna')).toBe('Anna')
+  })
+
+  it('ignores leading, trailing and repeated whitespace', () => {
+    expect(reviewAuthorName('  Anna \t  Petrosyan  ')).toBe('Anna P.')
+    expect(reviewAuthorName('  Anna  ')).toBe('Anna')
+  })
+
+  it('uppercases the initial of a lowercase last word', () => {
+    expect(reviewAuthorName('anna petrosyan')).toBe('anna P.')
+  })
+
+  it('names nobody when the name is blank', () => {
+    expect(reviewAuthorName('')).toBe('')
+    expect(reviewAuthorName('   ')).toBe('')
   })
 })
 

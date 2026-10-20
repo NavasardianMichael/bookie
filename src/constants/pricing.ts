@@ -25,6 +25,7 @@ export const PRICING_FAQ = [
   'cancel',
   'downgrade',
   'switching',
+  'addons',
   'paymentProcessor',
   'currency',
   'failedPayment',

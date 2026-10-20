@@ -41,8 +41,7 @@ export type ProviderEmailNotificationPrefs = {
 }
 
 export type ProviderDraft = {
-  firstName?: string
-  lastName?: string
+  fullName?: string
   description?: string | null
   imageUrl?: string | null
   weekSchedule?: unknown

@@ -32,6 +32,7 @@ import { useAuthStore } from '@store/auth/store'
 import { useDebouncedCallback } from '@hooks/useDebouncedCallback'
 import { PAGINATION_MIN_ITEMS } from '@constants/pagination'
 import { ROUTES } from '@constants/routes'
+import { BOOKING_PERIODS, BookingPeriod } from '@helpers/bookingPeriod'
 import { reportError } from '@helpers/reportError'
 import { collapseWhitespace } from '@helpers/search'
 import { getHourCycle } from '@helpers/timeFormat'
@@ -193,6 +194,9 @@ type Props = {
   /** Inclusive local-day range from the calendar, or empty when every day is shown. */
   dayRange: { from?: string; to?: string }
   selectedDayKey: string | null
+  /** Preset range. Mutually exclusive with `selectedDayKey` — the parent clears one when the other is set. */
+  period: BookingPeriod | null
+  onPeriodChange: (next: BookingPeriod | null) => void
   onClearDay: () => void
   /** Bumped after a status write so the list and the calendar both refetch. */
   revision: number
@@ -203,13 +207,22 @@ type Props = {
  * Search, status, service, sort and a paged list. Status writes live in a kebab on
  * each row, not as always-on buttons — History's row is a record, and a toolbar of
  * four actions on every card reads as a control panel. The calendar day-filter is
- * owned by the parent and arrives as `dayRange`.
+ * owned by the parent and arrives as `dayRange`. The calendar is its own row above this list.
  *
  * `side` picks the API and which verbs the kebab offers. A consumer-side row can
  * only cancel an upcoming booking; confirm / complete / no-show belong to the
  * professional who received it.
  */
-export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClearDay, revision, onStatusWritten }) => {
+export const BookingsList: FC<Props> = ({
+  side,
+  dayRange,
+  selectedDayKey,
+  period,
+  onPeriodChange,
+  onClearDay,
+  revision,
+  onStatusWritten,
+}) => {
   const tBookings = useTranslations('Settings.bookings')
   const tAppointments = useTranslations('Settings.appointments')
   const tHistory = useTranslations('Settings.history')
@@ -222,9 +235,10 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [sort, setSort] = useState<ProviderBookingsSort>('startDesc')
-  const [pageState, setPageState] = useState({ dayKey: selectedDayKey, page: 1 })
-  const page = pageState.dayKey === selectedDayKey ? pageState.page : 1
-  const setPage = useCallback((next: number) => setPageState({ dayKey: selectedDayKey, page: next }), [selectedDayKey])
+  const rangeKey = `${selectedDayKey ?? ''}:${period ?? ''}`
+  const [pageState, setPageState] = useState({ rangeKey, page: 1 })
+  const page = pageState.rangeKey === rangeKey ? pageState.page : 1
+  const setPage = useCallback((next: number) => setPageState({ rangeKey, page: next }), [rangeKey])
 
   const [items, setItems] = useState<ProviderBooking[]>([])
   const [total, setTotal] = useState(0)
@@ -321,7 +335,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
     onClearDay()
   }, [onClearDay, setPage])
 
-  const hasFilters = Boolean(selectedDayKey || statuses.length || (!isConsumer && serviceId) || search)
+  const hasFilters = Boolean(selectedDayKey || period || statuses.length || (!isConsumer && serviceId) || search)
 
   /**
    * Deliberately written with no try/catch: `AppConfirmModal` awaits this, surfaces a
@@ -336,9 +350,20 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
   }, [pending, onStatusWritten])
 
   return (
-    <Surface className='flex flex-col gap-4'>
+        <Surface className='flex flex-col gap-4'>
       <div className='flex flex-col gap-3'>
-        <div className='flex flex-wrap items-center gap-3'>
+          <div className='flex flex-wrap gap-2' role='group' aria-label={tBookings('periodLabel')}>
+            {BOOKING_PERIODS.map((value) => (
+              <AppButton
+                key={value}
+                type={period === value ? 'primary' : 'default'}
+                onClick={() => onPeriodChange(period === value ? null : value)}
+              >
+                {tBookings(`periods.${value}`)}
+              </AppButton>
+            ))}
+          </div>
+          <div className='flex flex-wrap items-center gap-3'>
           <AppInput
             value={searchInput}
             onChange={handleSearchChange}
@@ -364,9 +389,9 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
             popupMatchSelectWidth={false}
             className='min-w-56 flex-none'
           />
-        </div>
+          </div>
 
-        <div className='flex flex-wrap items-end gap-3'>
+          <div className='flex flex-wrap items-end gap-3'>
           <FilterField id='bookings-status' label={tHistory('status')} icon={<TagOutlined />}>
             <Select<BookingStatus[]>
               id='bookings-status'
@@ -408,11 +433,11 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
               {tBookings('clearFilters')}
             </AppButton>
           )}
-        </div>
+          </div>
       </div>
 
-      {/* A failed load replaces the list: "no bookings" beside the error would claim the
-          very thing the request could not establish. */}
+        {/* A failed load replaces the list: "no bookings" beside the error would claim the
+            very thing the request could not establish. */}
       {loading ? (
         <div className='bg-brand-50 min-h-64 animate-pulse rounded-brand' />
       ) : error !== null ? (
@@ -442,7 +467,7 @@ export const BookingsList: FC<Props> = ({ side, dayRange, selectedDayKey, onClea
           {items.map((booking) => {
             const start = new Date(booking.time.startDate)
             const name =
-              `${booking.booker.firstName} ${booking.booker.lastName}`.trim() ||
+              booking.booker.fullName ||
               (isConsumer ? tAppointments('unknownProvider') : tBookings('unknownBooker'))
             const rowActions = actionsFor(side, booking.status)
 

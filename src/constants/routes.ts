@@ -61,6 +61,11 @@ export const ROUTE_KEYS = {
   providerProfileNotifications: 'providerProfileNotifications',
   providerProfilePayments: 'providerProfilePayments',
   /**
+   * Every plan's monthly cost, from `GET /plans`. The sidebar entry that used to be Plan.
+   * Plan management itself stays at `providerProfilePlan` for checkout and the billing portal.
+   */
+  providerProfilePayouts: 'providerProfilePayouts',
+  /**
    * The provider's plan, this month's usage, and the upgrade request. Linked from the
    * booking-allowance emails, so the path is also spelled in
    * `server/src/lib/return-path.ts` and pinned by `tests/unit/server/planErrors.spec.ts`.
@@ -129,6 +134,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfileAdvanced]: '/providers/profile/advanced',
   [ROUTE_KEYS.providerProfileNotifications]: '/providers/profile/notifications',
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
+  [ROUTE_KEYS.providerProfilePayouts]: '/providers/profile/payouts',
   [ROUTE_KEYS.providerProfilePlan]: '/providers/profile/plan',
   [ROUTE_KEYS.providerVanity]: '/p',
   [ROUTE_KEYS.bookingManage]: '/b',

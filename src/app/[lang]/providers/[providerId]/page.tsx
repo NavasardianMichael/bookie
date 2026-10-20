@@ -32,7 +32,7 @@ export const generateMetadata: GenerateMetadata<Props> = async ({ params }): Pro
   ])
 
   const { basic, details, seo } = provider
-  const fullName = `${basic.firstName} ${basic.lastName}`
+  const fullName = basic.fullName
   const organizationName = basic.organization?.basic.name
   const categoryNames =
     basic.categories?.map((category) => translateCategoryName(category.name, tCategories)) ?? []

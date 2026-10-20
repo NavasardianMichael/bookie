@@ -21,7 +21,7 @@ const ProviderServiceForm: React.FC<Props> = ({ initialValues = DEFAULTS, onSubm
   const [form] = Form.useForm<ProviderServiceFormValues>()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const requiredText = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
 
   const handleFinish = async (values: ProviderServiceFormValues) => {
     setIsSubmitting(true)
@@ -42,8 +42,8 @@ const ProviderServiceForm: React.FC<Props> = ({ initialValues = DEFAULTS, onSubm
       className='flex w-full flex-col gap-6'
     >
       <AppFormSection title='About you'>
-        <AppFormItem name='firstName' label='First Name' rules={requiredText}>
-          <AppInput autoComplete='given-name' enterKeyHint='next' />
+        <AppFormItem name='fullName' label='Full name' rules={nameRules}>
+          <AppInput autoComplete='name' enterKeyHint='next' />
         </AppFormItem>
       </AppFormSection>
 
@@ -106,8 +106,12 @@ Corollary: **never wrap the real control in a layout element inside `Form.Item`.
 ## Validation
 
 Rules come from `useFormItemRules(...names)`, backed by `FORM_ITEM_RULES` in
-`src/constants/form.ts`: `required`, `maxCharsForInput` (40), `maxCharsForTextarea` (300),
-`oneItemSelectedAtLeast`, `email`, `positiveNumber`, `url`.
+`src/constants/form.ts`: `required`, `maxCharsForInput` (40), `maxCharsForName` (100),
+`maxCharsForTextarea` (300), `oneItemSelectedAtLeast`, `email`, `positiveNumber`, `url`.
+
+A person's name is **one** `fullName` field with `maxCharsForName` and `autoComplete='name'` —
+never a first/last pair (`docs/history/full-name.md`). The 100 matches the server's
+`MAX_FULL_NAME_LENGTH`.
 
 A textarea that uses `maxCharsForTextarea` must also pass `maxLength={MAX_CHARS_FOR_TEXTAREA}`
 on `AppTextArea` — that is what draws the `12/300` crumb. `maxLength` without a matching

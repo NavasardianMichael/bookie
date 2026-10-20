@@ -63,8 +63,7 @@ const toNeedles = (matched: readonly TermSpellings[]): string[][] =>
 /** What `rankByRelevance` reads off a provider — the route's narrow `select`. */
 export type RelevanceCandidate = {
   id: string
-  firstName: string
-  lastName: string
+  fullName: string
   available: boolean
   ratingScore: number
   updatedAt: Date
@@ -80,7 +79,7 @@ export type RelevanceCandidate = {
  * `ILIKE` does not do — can make it look absent here.
  */
 const relevanceOf = (candidate: RelevanceCandidate, needles: readonly string[][]): number => {
-  const personFields = [candidate.firstName, candidate.lastName, candidate.organization?.name ?? ''].map(toField)
+  const personFields = [candidate.fullName, candidate.organization?.name ?? ''].map(toField)
   const offerFields = [
     ...candidate.services.map((service) => toField(service.name)),
     ...candidate.categories.flatMap(({ category }) => categoryFields(category.name)),

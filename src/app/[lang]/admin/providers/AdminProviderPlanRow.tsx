@@ -6,27 +6,31 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useFormatter, useTranslations } from 'next-intl'
 import { patchAdminProviderPlanAPI } from '@api/plans/main'
 import { useErrorToast } from '@hooks/useErrorToast'
-import { AdminProvider, Plan } from '@interfaces/plans'
-import { PLAN_ORDER, PLAN_TAG_COLORS, PLANS } from '@constants/plans'
+import { AddonCatalogueEntry, AdminProvider, Plan } from '@interfaces/plans'
+import { ADDON_SOURCES, PLAN_ORDER, PLAN_TAG_COLORS, PLANS } from '@constants/plans'
 import { ROUTES } from '@constants/routes'
 import { toPlanExpiryISO, toPlanLastDay, toPlanLastDayValue } from '@helpers/plans'
 import { AppButton } from '@components/ui/AppButton'
 import { AppText } from '@components/ui/bare/AppText'
 import { Surface } from '@components/ui/layout/Surface'
+import { AdminProviderAddonsEditor } from './AdminProviderAddonsEditor'
 
 type Props = {
   provider: AdminProvider
+  /** `GET /plans/addons`; the add-on grant is shown once it has loaded. */
+  addons: AddonCatalogueEntry[]
   onSaved: (provider: AdminProvider) => void
 }
 
 /**
- * One provider and the two controls that set their plan: which one, and its last day.
+ * One provider and the controls that set their plan — which one, and its last day — and,
+ * below, the add-ons granted by hand (`AdminProviderAddonsEditor`).
  *
  * The draft is local to the row and the saved row comes back from the API, which is the
  * only thing that knows the effective plan after the write — an expiry picked for today
  * is still the paid plan, one in the past is refused.
  */
-export const AdminProviderPlanRow: FC<Props> = ({ provider, onSaved }) => {
+export const AdminProviderPlanRow: FC<Props> = ({ provider, addons, onSaved }) => {
   const t = useTranslations('Admin.providers')
   const tPlans = useTranslations('Plans')
   const format = useFormatter()
@@ -130,6 +134,16 @@ export const AdminProviderPlanRow: FC<Props> = ({ provider, onSaved }) => {
         <AppText size='caption' tone='muted'>
           {t('paddleNote')}
         </AppText>
+      )}
+
+      {addons.length > 0 && (
+        <AdminProviderAddonsEditor
+          // Re-seeded from what was stored whenever a save comes back.
+          key={JSON.stringify(provider.addons.filter((row) => row.source === ADDON_SOURCES.admin))}
+          provider={provider}
+          addons={addons}
+          onSaved={onSaved}
+        />
       )}
     </Surface>
   )

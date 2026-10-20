@@ -14,7 +14,7 @@ const item = (
   status: 'scheduled',
   time: { startDate: '2026-09-12T10:00:00.000Z' },
   createdAt: '2026-09-01T10:00:00.000Z',
-  provider: { basic: { firstName: 'Ada', lastName: 'Lovelace' } },
+  provider: { basic: { fullName: 'Ada Lovelace' } },
   service: { name: 'Cut' },
   ...overrides,
 })
@@ -40,7 +40,7 @@ describe('filterAndSortConsumerAppointments', () => {
   it('searches provider and service across the full history', () => {
     const items = [
       item('cut', { service: { name: 'Haircut' }, time: { startDate: '2026-09-01T10:00:00.000Z' } }),
-      item('color', { service: { name: 'Colour' }, provider: { basic: { firstName: 'Grace', lastName: 'Hopper' } } }),
+      item('color', { service: { name: 'Colour' }, provider: { basic: { fullName: 'Grace Hopper' } } }),
     ]
 
     const byService = filterAndSortConsumerAppointments(items, {
@@ -80,11 +80,11 @@ describe('filterAndSortConsumerAppointments', () => {
     const items = [
       item('a', {
         time: { startDate: '2026-09-13T10:00:00.000Z' },
-        provider: { basic: { firstName: 'Zoe', lastName: 'Zed' } },
+        provider: { basic: { fullName: 'Zoe Zed' } },
       }),
       item('b', {
         time: { startDate: '2026-09-12T10:00:00.000Z' },
-        provider: { basic: { firstName: 'Amy', lastName: 'Ada' } },
+        provider: { basic: { fullName: 'Amy Ada' } },
       }),
     ]
 

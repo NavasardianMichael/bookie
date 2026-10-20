@@ -1,7 +1,7 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import { config, isGoogleOAuthConfigured, isPaddleConfigured, isTelegramConfigured } from './config.js'
+import { config, isGeminiConfigured, isGoogleOAuthConfigured, isPaddleConfigured, isTelegramConfigured } from './config.js'
 import { fail, ok } from './lib/api-response.js'
 import { optionalAuth } from './middleware/auth.js'
 import { requireSameOrigin } from './middleware/csrf.js'
@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/error.js'
 import { adminRouter } from './routes/admin.js'
 import { appointmentsRouter } from './routes/appointments.js'
 import { billingRouter, paddleWebhookRouter } from './routes/billing.js'
+import { bookingImportRouter } from './routes/bookingImport.js'
 import { calendarRouter, providerCalendarRouter } from './routes/calendar.js'
 import { categoriesRouter } from './routes/categories.js'
 import { consumerProfileRouter } from './routes/consumers.js'
@@ -70,6 +71,7 @@ export function createApp() {
       google: isGoogleOAuthConfigured(),
       billing: isPaddleConfigured(),
       telegram: isTelegramConfigured(),
+      photoImport: isGeminiConfigured(),
     })
   })
 
@@ -82,6 +84,9 @@ export function createApp() {
   app.use('/providers', providerReviewsRouter)
   app.use('/reviews', reviewsRouter)
   app.use('/admin', adminRouter)
+  // Before `providerProfileRouter`, on its exact prefix, so none of that router's
+  // `/bookings/:id` patterns can ever claim `import`.
+  app.use('/provider-profile/bookings/import', bookingImportRouter)
   app.use('/provider-profile', providerProfileRouter)
   // Same arrangement as the reviews pair above: `GET /provider-profile/plan` lives in
   // `routes/plans.ts` with the rest of the plan surface, and no path overlaps.

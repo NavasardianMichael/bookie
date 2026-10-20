@@ -13,8 +13,7 @@ import { PaymentMethod } from '@interfaces/settings'
  * else's name.
  */
 export type GuestBookingDetails = {
-  firstName: string
-  lastName: string
+  fullName: string
   phone: PhoneNumber
   email?: string
 }
@@ -51,11 +50,10 @@ export type AppointmentResponse = {
   service?: { id: string; name: string }
   consumer?: {
     id: string
-    basic: { firstName: string; lastName: string }
+    basic: { fullName: string }
   }
   guest?: {
-    firstName: string
-    lastName: string
+    fullName: string
     phone: PhoneNumber
     email?: string
   }
@@ -122,8 +120,7 @@ export type BookingBooker = {
   /** `provider` is the other professional, on the consumer-side workspace list. */
   kind: 'consumer' | 'guest' | 'provider'
   id?: string
-  firstName: string
-  lastName: string
+  fullName: string
   email?: string
   /** Present on the receiving-provider list; omitted when the row is the other provider. */
   phone?: PhoneNumber
@@ -226,7 +223,7 @@ export type ManagedAppointment = {
   currency?: string
   service: { id: string; name: string; description?: string }
   guest?: GuestBookingDetails
-  consumer?: { firstName: string; lastName: string }
+  consumer?: { fullName: string }
 }
 
 export type ManagedAppointmentPayload = {

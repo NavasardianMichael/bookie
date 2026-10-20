@@ -1,6 +1,6 @@
 'use client'
 
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { Input } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { AppFormItem } from '@components/ui/AppFormItem'
@@ -9,16 +9,19 @@ import { FieldLabel, FieldRequirement } from './FieldLabel'
 
 type Props = {
   name: string
+  /** Defaults to `name`. Account deletion sets its own so the browser does not treat it as sign-in. */
+  id?: string
   label: string
   placeholder?: string
   rules?: Rule[]
   requirement?: FieldRequirement
   /**
    * `new-password` only through `NewPasswordFields` (registration, reset, change).
-   * Sign-in and account deletion are the `current-password` call sites — they re-enter
-   * an existing password rather than choosing one.
+   * Sign-in re-enters an existing password (`current-password`). Account deletion
+   * uses `off`: browsers ignore that token on a password input, so the field also
+   * stays read-only until it is focused, which is what stops the saved password landing.
    */
-  autoComplete: 'new-password' | 'current-password'
+  autoComplete: 'new-password' | 'current-password' | 'off'
   disabled?: boolean
   /** Passed to `Form.Item` so a confirm field re-validates when the password changes. */
   dependencies?: string[]
@@ -36,6 +39,7 @@ type Props = {
  */
 export const PasswordField: FC<Props> = ({
   name,
+  id,
   label,
   placeholder,
   rules,
@@ -43,20 +47,33 @@ export const PasswordField: FC<Props> = ({
   autoComplete,
   disabled,
   dependencies,
-}) => (
-  <div className='flex flex-col gap-1.5'>
-    <FieldLabel htmlFor={name} requirement={requirement}>
-      {label}
-    </FieldLabel>
+}) => {
+  const inputId = id ?? name
+  // `off` is ignored on `type="password"`. Read-only until focus is what the browser
+  // actually respects: it fills on first paint, and a read-only input is skipped.
+  const blockFill = autoComplete === 'off'
+  const [editable, setEditable] = useState(!blockFill)
 
-    <AppFormItem name={name} rules={rules} messageVariables={{ label }} dependencies={dependencies}>
-      <Input.Password
-        id={name}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        disabled={disabled}
-        prefix={<LockIcon className='text-brand-muted h-4 w-4' />}
-      />
-    </AppFormItem>
-  </div>
-)
+  return (
+    <div className='flex flex-col gap-1.5'>
+      <FieldLabel htmlFor={inputId} requirement={requirement}>
+        {label}
+      </FieldLabel>
+
+      <AppFormItem name={name} rules={rules} messageVariables={{ label }} dependencies={dependencies}>
+        <Input.Password
+          id={inputId}
+          name={blockFill ? inputId : undefined}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          readOnly={blockFill && !editable}
+          onFocus={() => {
+            if (blockFill) setEditable(true)
+          }}
+          disabled={disabled}
+          prefix={<LockIcon className='text-brand-muted h-4 w-4' />}
+        />
+      </AppFormItem>
+    </div>
+  )
+}

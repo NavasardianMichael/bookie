@@ -8,7 +8,7 @@ import { calendarFeedTokenMatches, mintCalendarFeedToken } from '../lib/token.js
 import { requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { LIVE_STATUSES } from '../services/appointments.js'
-import { getEntitlements } from '../services/plans.js'
+import { ENTITLEMENT_SELECT, getEntitlements } from '../services/plans.js'
 
 /**
  * The provider's private calendar feed — their bookings as an iCal subscription in Google,
@@ -36,14 +36,8 @@ const DAY_MS = 24 * 60 * 60 * 1000
 /** Calendar apps poll on their own schedule; this is the hint, and the cache lifetime. */
 const FEED_REFRESH_MINUTES = 60
 
-const clientName = (row: {
-  guestFirstName: string | null
-  guestLastName: string | null
-  consumer: { firstName: string; lastName: string } | null
-}): string =>
-  [row.guestFirstName, row.guestLastName].filter(Boolean).join(' ') ||
-  [row.consumer?.firstName, row.consumer?.lastName].filter(Boolean).join(' ') ||
-  'Client'
+const clientName = (row: { guestFullName: string | null; consumer: { fullName: string } | null }): string =>
+  row.guestFullName || row.consumer?.fullName || 'Client'
 
 const formatPhone = (code: number | null, number: bigint | null): string | undefined =>
   number ? `${code ? `+${code} ` : ''}${number.toString()}` : undefined
@@ -66,11 +60,9 @@ calendarRouter.get(
       where: { id: providerId },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
+        fullName: true,
         address: true,
-        plan: true,
-        planExpiresAt: true,
+        ...ENTITLEMENT_SELECT,
         calendarFeedVersion: true,
       },
     })
@@ -103,14 +95,13 @@ calendarRouter.get(
         status: true,
         notes: true,
         updatedAt: true,
-        guestFirstName: true,
-        guestLastName: true,
+        guestFullName: true,
         guestEmail: true,
         guestPhoneCode: true,
         guestPhoneNumber: true,
         service: { select: { name: true } },
         consumer: {
-          select: { firstName: true, lastName: true, phoneCode: true, phoneNumber: true, user: { select: { email: true } } },
+          select: { fullName: true, phoneCode: true, phoneNumber: true, user: { select: { email: true } } },
         },
       },
       orderBy: { startAt: 'asc' },
@@ -136,7 +127,7 @@ calendarRouter.get(
       }
     })
 
-    const name = `${provider.firstName} ${provider.lastName}`.trim()
+    const name = provider.fullName
     res.setHeader('Content-Type', 'text/calendar; charset=utf-8')
     res.setHeader('Cache-Control', `private, max-age=${FEED_REFRESH_MINUTES * 60}`)
     res.send(buildIcsCalendar({ name: `Bookie — ${name}`, refreshMinutes: FEED_REFRESH_MINUTES, events }))
@@ -146,7 +137,7 @@ calendarRouter.get(
 const loadFeedOwner = async (providerId: string) => {
   const provider = await prisma.provider.findUnique({
     where: { id: providerId },
-    select: { id: true, plan: true, planExpiresAt: true, calendarFeedVersion: true },
+    select: { id: true, ...ENTITLEMENT_SELECT, calendarFeedVersion: true },
   })
   if (!provider) throw new HttpError(404, 'Provider profile not found', 404)
   if (!getEntitlements(provider, new Date()).calendarFeed) {

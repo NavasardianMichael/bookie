@@ -52,7 +52,7 @@ export const PendingBookingCard: FC<Props> = ({ booking, expired, pending, onApp
   const format = useFormatter()
   const hourCycle = getHourCycle(useAuthStore.use.timeFormat())
 
-  const name = `${booking.booker.firstName} ${booking.booker.lastName}`.trim() || tBookings('unknownBooker')
+  const name = booking.booker.fullName || tBookings('unknownBooker')
   const phone = booking.booker.phone?.number
     ? generateFriendlyPhoneNumber(booking.booker.phone, { delimiter: ' ', prefix: '+' })
     : undefined

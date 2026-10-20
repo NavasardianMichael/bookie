@@ -1,6 +1,10 @@
-import { isBookingAllowanceSpent } from './planUsage.js'
+import type { Prisma } from '@prisma/client'
+import { findBatchClashes, type ImportRow } from './bookingImport.js'
+import { ENTITLEMENT_SELECT, getEntitlements } from './plans.js'
+import { countBookingsThisMonth, isBookingAllowanceSpent } from './planUsage.js'
 import { BOOKING_ERROR, SLOT_TAKEN_MESSAGE } from '../lib/booking-errors.js'
 import { toPaymentMethods } from '../lib/payment.js'
+import { PLAN_ERROR } from '../lib/plan-errors.js'
 import { prisma } from '../lib/prisma.js'
 import { hashUrlToken, mintUrlToken } from '../lib/token.js'
 import { HttpError } from '../middleware/error.js'
@@ -58,8 +62,7 @@ export async function getProviderBusyIntervals(providerId: string, from: Date, t
 
 /** Contact details for a booking made without an account. */
 export type GuestBooker = {
-  firstName: string
-  lastName: string
+  fullName: string
   phoneCode: number
   phoneNumber: bigint
   email?: string
@@ -85,7 +88,11 @@ export async function createAppointment(input: {
   if (!service) throw new HttpError(404, 'Service not found', 404)
   if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
 
-  const provider = await prisma.provider.findUnique({ where: { id: input.providerId } })
+  // `addons`: the booking allowance below is an entitlement, and a pack can raise it.
+  const provider = await prisma.provider.findUnique({
+    where: { id: input.providerId },
+    include: { addons: { select: ENTITLEMENT_SELECT.addons.select } },
+  })
 
   /**
    * `available: false` is the provider's own "pause new bookings" switch. It used to be
@@ -142,8 +149,7 @@ export async function createAppointment(input: {
   const appointment = await prisma.appointment.create({
     data: {
       consumerId: input.consumerId,
-      guestFirstName: input.guest?.firstName,
-      guestLastName: input.guest?.lastName,
+      guestFullName: input.guest?.fullName,
       guestPhoneCode: input.guest?.phoneCode,
       guestPhoneNumber: input.guest?.phoneNumber,
       guestEmail: input.guest?.email,
@@ -169,15 +175,19 @@ export async function createAppointment(input: {
 
 /**
  * Overlap against live bookings. `excludeId` lets a reschedule keep its own slot
- * rather than 409ing against itself.
+ * rather than 409ing against itself. `db` is a transaction client when the check has to
+ * sit inside the same transaction as the write it guards (`createProviderAppointments`).
  */
-async function findOverlappingAppointment(input: {
-  providerId: string
-  startAt: Date
-  endAt: Date
-  excludeId?: string
-}) {
-  return prisma.appointment.findFirst({
+async function findOverlappingAppointment(
+  input: {
+    providerId: string
+    startAt: Date
+    endAt: Date
+    excludeId?: string
+  },
+  db: Pick<Prisma.TransactionClient, 'appointment'> = prisma
+) {
+  return db.appointment.findFirst({
     where: {
       providerId: input.providerId,
       status: { in: [...LIVE_STATUSES] },
@@ -188,6 +198,99 @@ async function findOverlappingAppointment(input: {
         { startAt: { gte: input.startAt }, endAt: { lte: input.endAt } },
       ],
     },
+  })
+}
+
+/**
+ * Bookings a provider enters for their own clients — the photo import's last step
+ * (`POST /provider-profile/bookings/import`). All or nothing: the review sheet promised the
+ * whole batch, so a batch that cannot all go in goes in not at all, and the provider fixes
+ * the row the sheet now flags.
+ *
+ * Not `createAppointment`, because two of its rules are about *visitors* and do not apply
+ * to the provider writing in their own diary:
+ *
+ * - **`available: false` does not refuse.** It pauses *online* booking; a provider recording
+ *   a client they took by phone is exactly what they do while it is paused.
+ * - **Never `pending`.** Approval is the provider's decision, and they have made it. Written
+ *   `scheduled`, the one "on the calendar" state (docs/DATABASE_STRUCTURE.md → Booking approval).
+ *
+ * What does apply: the service is theirs and active, the time is in the future and free —
+ * against live bookings and against the batch itself — and the plan's monthly allowance has
+ * room for every row, because these are bookings like any other and count like them. The
+ * slot grid is the client's rule, as it is for the public route: the server owns what is
+ * taken, not how the day is stepped.
+ *
+ * The overlap reads and the insert share one transaction. That does not lock out a visitor
+ * booking the same slot in the same instant — no route here does (docs/BACKLOG.md) — but it
+ * does mean a refusal leaves nothing half-written.
+ *
+ * Guest columns carry the client, as a booking without an account always has. No email
+ * goes anywhere: the provider made these, and the client gave no address.
+ */
+export async function createProviderAppointments(providerId: string, rows: readonly ImportRow[], now: Date) {
+  const provider = await prisma.provider.findUnique({
+    where: { id: providerId },
+    select: { id: true, organizationId: true, ...ENTITLEMENT_SELECT },
+  })
+  if (!provider) throw new HttpError(404, 'Provider not found', 404)
+
+  const services = await prisma.service.findMany({
+    where: { providerId, id: { in: [...new Set(rows.map((row) => row.serviceId))] } },
+  })
+  const serviceById = new Map(services.map((service) => [service.id, service]))
+
+  const timed = rows.map((row) => {
+    const service = serviceById.get(row.serviceId)
+    if (!service) throw new HttpError(404, 'Service not found', 404)
+    if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
+    if (row.startAt <= now) throw new HttpError(400, 'A booking cannot start in the past', 400)
+    return { row, service, endAt: addMinutes(row.startAt, service.durationMinutes) }
+  })
+
+  if (findBatchClashes(timed.map(({ row, endAt }) => ({ startAt: row.startAt, endAt }))).length) {
+    throw new HttpError(409, SLOT_TAKEN_MESSAGE, 409)
+  }
+
+  // A plan answer, not `BOOKING_ERROR.bookingFull`: that code is worded for a visitor, who
+  // must never hear about a plan. The provider is the one who pays, so they are told.
+  const { maxBookingsPerMonth } = getEntitlements(provider, now)
+  if (maxBookingsPerMonth !== null && (await countBookingsThisMonth(providerId, now)) + rows.length > maxBookingsPerMonth) {
+    throw new HttpError(
+      403,
+      `Your plan includes ${maxBookingsPerMonth} bookings a month, and these would take you past it.`,
+      PLAN_ERROR.bookingLimit
+    )
+  }
+
+  return prisma.$transaction(async (tx) => {
+    for (const { row, endAt } of timed) {
+      if (await findOverlappingAppointment({ providerId, startAt: row.startAt, endAt }, tx)) {
+        throw new HttpError(409, SLOT_TAKEN_MESSAGE, 409)
+      }
+    }
+
+    const { count } = await tx.appointment.createMany({
+      data: timed.map(({ row, service, endAt }) => ({
+        guestFullName: row.fullName,
+        guestPhoneCode: row.phoneCode,
+        guestPhoneNumber: row.phoneNumber,
+        providerId,
+        serviceId: service.id,
+        organizationId: provider.organizationId,
+        startAt: row.startAt,
+        endAt,
+        durationMinutes: service.durationMinutes,
+        price: service.price,
+        currency: service.currency,
+        status: 'scheduled' as const,
+        notes: row.notes,
+        // Every booking carries a manage capability, as `createAppointment`'s do. Nobody is
+        // sent this one, but the column is required and the provider's own views assume it.
+        manageTokenHash: hashUrlToken(mintUrlToken()),
+      })),
+    })
+    return count
   })
 }
 

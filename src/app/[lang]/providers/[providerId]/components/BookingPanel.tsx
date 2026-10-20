@@ -335,7 +335,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
   const booking = useMemo<BookingSummaryData | null>(() => {
     if (!validSelectedStart) return null
     return {
-      providerName: `${basicProvider.firstName} ${basicProvider.lastName}`,
+      providerName: basicProvider.fullName,
       serviceName: service?.name,
       serviceDescription: service?.description,
       startISO: validSelectedStart,
@@ -348,8 +348,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
       paymentMethods: [],
     }
   }, [
-    basicProvider.firstName,
-    basicProvider.lastName,
+    basicProvider.fullName,
     details?.location?.address,
     durationMinutes,
     phone,

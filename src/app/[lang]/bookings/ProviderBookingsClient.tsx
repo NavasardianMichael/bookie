@@ -5,12 +5,15 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
 import { getProviderBookingsCalendarAPI, getProviderConsumerBookingsCalendarAPI } from '@api/appointments/main'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { BookingPeriod, bookingPeriodRange } from '@helpers/bookingPeriod'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { BookingsList, BookingsSide } from './BookingsList'
 import { DayBookingCount, ProviderBookingsCalendar } from './ProviderBookingsCalendar'
 
 type Props = {
   side: BookingsSide
+  /** Bumped by the page when bookings arrive from outside this panel (a photo import). */
+  importRevision?: number
 }
 
 /**
@@ -33,12 +36,14 @@ type Props = {
  * to it; selecting it again clears. There is no separate date-range picker, because two
  * controls writing one piece of state is how they end up disagreeing.
  */
-export const ProviderBookingsClient: FC<Props> = ({ side }) => {
+export const ProviderBookingsClient: FC<Props> = ({ side, importRevision = 0 }) => {
   const isConsumer = side === 'consumer'
   const tErrors = useTranslations('Errors')
+  const [calendarOpen, setCalendarOpen] = useState(true)
 
   const [month, setMonth] = useState<Dayjs>(() => dayjs().startOf('month'))
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null)
+  const [period, setPeriod] = useState<BookingPeriod | null>(null)
   const [countsByDay, setCountsByDay] = useState<Record<string, DayBookingCount>>({})
   const [revision, setRevision] = useState(0)
   /** The calendar's own Retry — separate from `revision`, which reloads the list too. */
@@ -46,6 +51,8 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
   const [calendarError, setCalendarError] = useState<unknown>(null)
 
   const monthKey = month.format('YYYY-MM')
+  // One counter for both causes of a re-read: a status written here, bookings added above.
+  const listRevision = revision + importRevision
 
   /**
    * The day filter as an inclusive instant range. Sent as a whole local day rather than
@@ -53,14 +60,17 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
    * provider clicked.
    */
   const dayRange = useMemo(() => {
-    if (!selectedDayKey) return {}
-    const day = dayjs(selectedDayKey, DAY_KEY_FORMAT)
-    return { from: day.startOf('day').toISOString(), to: day.endOf('day').toISOString() }
-  }, [selectedDayKey])
+    if (selectedDayKey) {
+      const day = dayjs(selectedDayKey, DAY_KEY_FORMAT)
+      return { from: day.startOf('day').toISOString(), to: day.endOf('day').toISOString() }
+    }
+    if (period) return bookingPeriodRange(period)
+    return {}
+  }, [period, selectedDayKey])
 
   const calendarRequest = useMemo(
-    () => ({ month: monthKey, revision, attempt: calendarAttempt, side }),
-    [calendarAttempt, monthKey, revision, side]
+    () => ({ month: monthKey, revision: listRevision, attempt: calendarAttempt, side }),
+    [calendarAttempt, monthKey, listRevision, side]
   )
   const [calendarFulfilled, setCalendarFulfilled] = useState<object | null>(null)
   const calendarLoading = calendarFulfilled !== calendarRequest
@@ -93,10 +103,17 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
 
   const handleSelectDay = useCallback((dayKey: string | null) => {
     setSelectedDayKey(dayKey)
+    if (dayKey) setPeriod(null)
+  }, [])
+
+  const handlePeriod = useCallback((next: BookingPeriod | null) => {
+    setPeriod(next)
+    if (next) setSelectedDayKey(null)
   }, [])
 
   const handleClearDay = useCallback(() => {
     setSelectedDayKey(null)
+    setPeriod(null)
   }, [])
 
   const handleStatusWritten = useCallback(() => {
@@ -105,7 +122,7 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
 
   return (
     <div className='flex flex-col gap-6'>
-      {calendarError !== null && (
+      {calendarOpen && calendarError !== null && (
         <ErrorAlert
           tone='warning'
           error={calendarError}
@@ -119,6 +136,8 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
         selectedDayKey={selectedDayKey}
         countsByDay={countsByDay}
         loading={calendarLoading}
+        open={calendarOpen}
+        onToggle={() => setCalendarOpen((open) => !open)}
         onSelectDay={handleSelectDay}
         onMonthChange={setMonth}
       />
@@ -127,8 +146,10 @@ export const ProviderBookingsClient: FC<Props> = ({ side }) => {
         side={side}
         dayRange={dayRange}
         selectedDayKey={selectedDayKey}
+        period={period}
+        onPeriodChange={handlePeriod}
         onClearDay={handleClearDay}
-        revision={revision}
+        revision={listRevision}
         onStatusWritten={handleStatusWritten}
       />
     </div>

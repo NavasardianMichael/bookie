@@ -13,9 +13,6 @@ import { absoluteUrl } from '@helpers/url'
 import { getBreadcrumbLDSchema } from './breadcrumbs'
 import { getOpeningHoursLDSchema } from './schedule'
 
-const getFullName = (provider: BasicProvider | SingleProvider): string =>
-  `${provider.basic.firstName} ${provider.basic.lastName}`.trim()
-
 /**
  * schema.org has no duration property in `Service`'s domain — `timeRequired`
  * belongs to CreativeWork/Action — so the length is stated in the offer name,
@@ -61,13 +58,16 @@ const getPriceRange = (services: ProviderService[]): string | undefined => {
   return min === max ? `${min} ${currency}` : `${min} - ${max} ${currency}`
 }
 
-/** Card-level payload: BasicProvider carries no `details`, so there is nothing but identity to state. */
+/**
+ * Card-level payload: BasicProvider carries no `details`, so there is nothing but identity to state.
+ *
+ * `name` only, with no given/family split. The name is one field as its owner wrote it, and
+ * splitting it at a space would state a guess as fact for every name not ordered that way.
+ */
 export const getBasicProviderLDSchema = (provider: BasicProvider): Person => ({
   '@type': 'Person',
   '@id': `${generateEntityUrl(ROUTE_KEYS.providers, provider.id)}#person`,
-  name: getFullName(provider),
-  givenName: provider.basic.firstName,
-  familyName: provider.basic.lastName,
+  name: provider.basic.fullName,
   description: provider.basic.description,
   image: resolveAbsoluteAssetUrl(provider.basic.image),
   url: generateEntityUrl(ROUTE_KEYS.providers, provider.id),
@@ -93,7 +93,7 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
   const businessId = `${pageUrl}#business`
   const personId = `${pageUrl}#person`
 
-  const fullName = getFullName(provider)
+  const fullName = basic.fullName
   const image = resolveAbsoluteAssetUrl(basic.image)
   const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
   const categoryNames = basic.categories?.map((category) => category.name) ?? []
@@ -122,8 +122,6 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
     '@type': 'Person',
     '@id': personId,
     name: fullName,
-    givenName: basic.firstName,
-    familyName: basic.lastName,
     description: basic.description,
     image,
     url: pageUrl,

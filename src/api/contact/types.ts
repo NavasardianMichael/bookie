@@ -1,12 +1,12 @@
 import { Endpoint } from '@interfaces/api'
-import { Plan } from '@interfaces/plans'
+import { Addon, Plan } from '@interfaces/plans'
 
 /**
  * What a message is about, when the page sending it knows. The server builds the subject
  * line from it — a free-text subject is never accepted. Mirrors `TOPICS` in
  * `server/src/routes/contact.ts`; an unknown value is simply dropped there.
  */
-export type ContactTopic = 'planUpgrade'
+export type ContactTopic = 'planUpgrade' | 'addonRequest'
 
 /**
  * There is no `Contact` entity and no store slice for this domain — the page writes and
@@ -14,8 +14,7 @@ export type ContactTopic = 'planUpgrade'
  * rather than in `src/store/`, the same way `PutConsumerProfileRequestPayload` does.
  */
 export type PostContactMessageRequestPayload = {
-  firstName: string
-  lastName: string
+  fullName: string
   /** Required. A signed-in visitor's field is prefilled from the session, and they can still edit it. */
   email: string
   message: string
@@ -28,6 +27,9 @@ export type PostContactMessageRequestPayload = {
   topic?: ContactTopic
   /** With `topic: 'planUpgrade'`, the plan being asked for. */
   plan?: Plan
+  /** With `topic: 'addonRequest'`, the add-on being asked for, and how many packs. */
+  addon?: Addon
+  quantity?: number
 }
 
 export type PostContactMessageAPI = Endpoint<{

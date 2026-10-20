@@ -1,7 +1,14 @@
 'use client'
 
 import { FC, useState } from 'react'
-import { CalendarOutlined, CopyOutlined, DownloadOutlined, LinkOutlined, QrcodeOutlined, ShareAltOutlined } from '@ant-design/icons'
+import {
+  CalendarOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+  LinkOutlined,
+  QrcodeOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons'
 import { App, Image } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useErrorToast } from '@hooks/useErrorToast'
@@ -147,7 +154,7 @@ export const BookingShareActions: FC<Props> = ({ manageUrl, calendarFileUrl, boo
 
       {qrDataUrl ? (
         <div className='flex flex-col gap-2 pt-1'>
-          <div className='w-48'>
+          <div className='w-48 mx-auto'>
             <Image alt={t('qrAlt')} src={qrDataUrl} className='w-full' />
           </div>
           <AppButton

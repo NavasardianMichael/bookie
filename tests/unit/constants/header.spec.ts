@@ -4,18 +4,12 @@ import { getHeaderConfig, HEADER_ACCOUNT_ROUTES, HEADER_ROUTES, withAccountRoute
 import { ROUTE_KEYS } from '@constants/routes'
 
 describe('getHeaderConfig', () => {
-  it('keeps marketplace nav on the Providers list', () => {
-    expect(getHeaderConfig(ROUTE_KEYS.providers, '/providers').navRoutes).toEqual(HEADER_ROUTES)
-  })
-
-  it('drops marketplace destinations on a public provider page', () => {
-    expect(getHeaderConfig(ROUTE_KEYS.providers, '/providers/abc').navRoutes).toEqual([])
+  it('keeps marketplace nav on the providers route, including a public provider page', () => {
+    expect(getHeaderConfig(ROUTE_KEYS.providers).navRoutes).toEqual(HEADER_ROUTES)
   })
 
   it('keeps marketplace nav on the provider workspace', () => {
-    expect(getHeaderConfig(ROUTE_KEYS.providerProfile, '/providers/profile').navRoutes).toEqual(
-      HEADER_ROUTES
-    )
+    expect(getHeaderConfig(ROUTE_KEYS.providerProfile).navRoutes).toEqual(HEADER_ROUTES)
   })
 })
 
@@ -31,15 +25,6 @@ describe('withAccountRoutes', () => {
   // Both pages are guarded, so a guest would only be detoured through sign-in.
   it('offers a guest neither', () => {
     expect(withAccountRoutes(HEADER_ROUTES, false)).toEqual(HEADER_ROUTES)
-  })
-
-  /**
-   * They follow the session, not the route: the public provider page drops the marketplace
-   * destinations but keeps the avatar, and these sit with the avatar.
-   */
-  it('keeps them on the public provider page, where the marketplace nav is dropped', () => {
-    const { navRoutes } = getHeaderConfig(ROUTE_KEYS.providers, '/providers/abc')
-    expect(withAccountRoutes(navRoutes, true)).toEqual([...HEADER_ACCOUNT_ROUTES])
   })
 })
 

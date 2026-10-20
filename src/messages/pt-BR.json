@@ -51,6 +51,7 @@
     "accountSettings": "Configurações da conta",
     "bookings": "Agendamentos",
     "favorites": "Favoritos",
+    "pricing": "Preços",
     "profile": "Perfil"
   },
   "Auth": {
@@ -66,8 +67,7 @@
       "choosePasswordPlaceholder": "Pelo menos 8 caracteres",
       "newPassword": "Nova senha",
       "confirmPassword": "Confirmar senha",
-      "firstName": "Nome",
-      "lastName": "Sobrenome",
+      "fullName": "Nome completo",
       "phone": "Número de telefone",
       "countryCode": "Código do país"
     },
@@ -201,8 +201,7 @@
     "guest": {
       "heading": "Seus dados",
       "hint": "Precisamos deles para confirmar seu agendamento. Não é necessário ter conta.",
-      "firstName": "Nome",
-      "lastName": "Sobrenome",
+      "fullName": "Nome completo",
       "phone": "Número de telefone",
       "email": "E-mail",
       "emailPlaceholder": "you@example.com",
@@ -321,8 +320,7 @@
     "title": "Fale conosco",
     "subtitle": "Entre em contato com a equipe do Bookie. Normalmente retornamos em até 5 dias úteis.",
     "fields": {
-      "firstName": "Nome",
-      "lastName": "Sobrenome",
+      "fullName": "Nome completo",
       "email": "E-mail",
       "message": "Mensagem",
       "messagePlaceholder": "Conte para nós com o que você precisa de ajuda."
@@ -341,7 +339,9 @@
     },
     "topics": {
       "planUpgrade": "Solicitação: plano {plan}",
-      "planUpgradeMessage": "Olá, gostaria de mudar minha página para o plano {plan}."
+      "planUpgradeMessage": "Olá, gostaria de mudar minha página para o plano {plan}.",
+      "addonRequest": "Solicitação: {addon}",
+      "addonRequestMessage": "Olá, gostaria de adicionar {addon} à minha página."
     }
   },
   "Settings": {
@@ -365,7 +365,8 @@
       "advanced": "Configurações avançadas",
       "seo": "SEO",
       "history": "Histórico",
-      "plan": "Plano"
+      "plan": "Plano",
+      "payouts": "Pagamentos"
     },
     "workspace": {
       "onProviderTitle": "Você está no seu espaço de profissional",
@@ -393,13 +394,13 @@
     },
     "profile": {
       "personalInfo": "Informações pessoais",
-      "firstName": "Nome",
-      "lastName": "Sobrenome",
+      "fullName": "Nome completo",
       "description": "Descrição",
       "email": "Endereço de e-mail",
       "noAvatarHint": "A foto de perfil não está disponível para contas de cliente.",
       "imageHint": "JPG ou PNG. Tamanho máximo 2 MB.",
       "upload": "Enviar nova",
+      "removePhoto": "Remover foto",
       "providerSubtitle": "Atualize os dados exibidos no seu perfil público.",
       "sendEmailCode": "Redefinir e-mail",
       "emailRequired": "Informe um e-mail primeiro.",
@@ -458,7 +459,7 @@
       "telegramTitle": "Telegram",
       "telegramProviderBody": "Receba as notificações de agendamentos no Telegram, além do e-mail.",
       "telegramConsumerBody": "Receba lembretes e atualizações dos agendamentos no Telegram, além do e-mail.",
-      "telegramLocked": "As notificações no Telegram sobre o seu negócio estão incluídas a partir do plano Básico. <plan>Ver planos</plan>",
+      "telegramLocked": "As notificações no Telegram sobre o seu negócio estão incluídas a partir do plano Básico, ou disponíveis como complemento. <plan>Ver planos</plan>",
       "telegramUnavailable": "As notificações no Telegram não estão disponíveis no momento.",
       "telegramConnect": "Conectar o Telegram",
       "telegramOpen": "Abrir o Telegram",
@@ -471,7 +472,7 @@
       "telegramDisconnectFailed": "Não foi possível desconectar o Telegram",
       "calendarTitle": "Sincronização de agenda",
       "calendarBody": "Assine seus agendamentos pelo Google Calendar, Apple Calendar ou Outlook. Novos agendamentos e alterações aparecem lá automaticamente.",
-      "calendarLocked": "A sincronização de agenda está incluída a partir do plano Básico. <plan>Ver planos</plan>",
+      "calendarLocked": "A sincronização de agenda está incluída a partir do plano Básico, ou disponível como complemento. <plan>Ver planos</plan>",
       "calendarCopy": "Copiar link da agenda",
       "calendarHint": "No seu aplicativo de calendário, adicione uma agenda a partir de um URL e cole este link. Mantenha-o em sigilo: qualquer pessoa que o tiver poderá ver seus agendamentos.",
       "calendarReset": "Redefinir link",
@@ -571,6 +572,18 @@
       "calendarHint": "Selecione um dia para ver quem está agendado.",
       "calendarFiltered": "Mostrando um dia. Selecione-o novamente para ver todos.",
       "calendarLabel": "Agendamentos por dia",
+      "hideCalendar": "Ocultar calendário",
+      "showCalendar": "Mostrar calendário",
+      "periodLabel": "Quando",
+      "periods": {
+        "upcoming": "Próximos",
+        "today": "Hoje",
+        "thisWeek": "Esta semana",
+        "nextWeek": "Semana que vem",
+        "lastWeek": "Semana passada",
+        "thisMonth": "Este mês",
+        "lastMonth": "Mês passado"
+      },
       "clearDay": "Todos os dias",
       "previousMonth": "Mês anterior",
       "nextMonth": "Próximo mês",
@@ -719,8 +732,8 @@
       "slugPattern": "Use letras minúsculas, números e hífens simples entre eles.",
       "slugChangeWarning": "Ao salvar, você substitui seu link atual. Quem usar /p/{slug} não chegará mais à sua página.",
       "saved": "Configurações de busca salvas.",
-      "slugLocked": "O link personalizado faz parte dos planos pagos, então sua página usa o link padrão. <link>Ver planos</link>",
-      "slugLockedKept": "Seu link personalizado continua funcionando, mas para alterá-lo é preciso um plano pago. <link>Ver planos</link>"
+      "slugLocked": "O link personalizado vem nos planos pagos ou sozinho como complemento, então por enquanto sua página usa o link padrão. <link>Ver planos</link>",
+      "slugLockedKept": "Seu link personalizado continua funcionando, mas para alterá-lo é preciso um plano pago ou o complemento Link personalizado da página. <link>Ver planos</link>"
     },
     "signOutTitle": "Sair?",
     "signOutBody": "Você precisará entrar de novo para gerenciar sua conta.",
@@ -731,9 +744,15 @@
       "confirmTitle": "Excluir sua conta?",
       "confirmBody": "Todos os dados relacionados a esta conta serão removidos. Esta ação não pode ser desfeita.",
       "password": "Senha atual",
-      "googleOnly": "Esta conta entra com o Google. Defina uma senha primeiro para confirmar a exclusão.",
+      "googleOnly": "Esta conta entra com o Google, então não há senha. Confirmar a exclui permanentemente.",
       "hasAppointments": "Você tem agendamentos registrados. Cancele-os antes de excluir sua conta.",
       "wrongPassword": "A senha atual está incorreta"
+    },
+    "payouts": {
+      "title": "Pagamentos",
+      "subtitle": "Todos os custos mensais cobrados pelo Bookie, a partir do catálogo de planos.",
+      "plan": "Plano",
+      "cost": "Custo mensal"
     },
     "plan": {
       "title": "Plano",
@@ -766,7 +785,35 @@
       "switchingTitle": "Mudando para {plan}…",
       "switchPendingTitle": "Sua mudança de plano está a caminho",
       "switchPendingBody": "A Paddle já aceitou a mudança, e pode levar alguns minutos para ela aparecer aqui. Atualize a página daqui a pouco.",
-      "billingNote": "Os pagamentos são processados pela Paddle. Cancele, troque o cartão ou baixe faturas em Gerenciar cobrança."
+      "billingNote": "Os pagamentos são processados pela Paddle. Cancele, troque o cartão ou baixe faturas em Gerenciar cobrança.",
+      "addonsTitle": "Complementos",
+      "addonsSubtitle": "Recursos avulsos e capacidade extra, cobrados mensalmente com a sua assinatura.",
+      "addonActive": "Ativo",
+      "addonPacks": "{count, plural, one {# pacote} other {# pacotes}}",
+      "addonGranted": "Concedido pela Bookie",
+      "addonGrantedUntil": "Concedido pela Bookie até {date}",
+      "addonIncluded": "Incluído no seu plano",
+      "addonAdd": "Adicionar",
+      "addonRemove": "Remover",
+      "addonAddPack": "Adicionar pacote",
+      "addonRemovePack": "Remover pacote",
+      "addonRequest": "Solicitar",
+      "addonAddTitle": "Adicionar {addon}?",
+      "addonAddPackTitle": "Adicionar um pacote de {addon}?",
+      "addonAddBody": "Fica disponível na hora. O restante deste período de cobrança é cobrado agora e depois renova todo mês com a sua assinatura.",
+      "addonRemoveTitle": "Remover {addon}?",
+      "addonRemovePackTitle": "Remover um pacote de {addon}?",
+      "addonRemoveBody": "Para na hora. A parte não usada deste período de cobrança vira crédito no seu próximo pagamento.",
+      "addonConfirmAdd": "Adicionar e pagar",
+      "addonConfirmRemove": "Remover",
+      "addonUpdatingTitle": "Atualizando {addon}…",
+      "addonPendingTitle": "Sua alteração de complementos está a caminho",
+      "switchDrops": "O {plan} inclui {addons}, então {count, plural, one {esse complemento é removido} other {esses complementos são removidos}} da sua assinatura.",
+      "switchTo": "Mudar para {plan}",
+      "switchToFreeBody": "Seus complementos continuam. A parte não usada do plano vira crédito no seu próximo pagamento.",
+      "betterPlanTitle": "O {plan} sairia mais barato",
+      "betterPlanBody": "O plano {plan} inclui o que você paga como complementos, por menos a cada mês.",
+      "addonsCancelNote": "Os complementos renovam com a sua assinatura. Cancelá-la em Gerenciar cobrança encerra os complementos também."
     }
   },
   "Bookings": {
@@ -775,6 +822,54 @@
     "views": {
       "provider": "Agendados comigo",
       "consumer": "Feitos por mim"
+    },
+    "import": {
+      "button": "Adicionar por foto",
+      "title": "Adicionar agendamentos por foto",
+      "intro": "Fotografe seus agendamentos escritos à mão. Nós os lemos, e você confere cada um antes de qualquer coisa ser salva.",
+      "photoLabel": "Foto",
+      "photoPick": "Tire ou escolha uma foto",
+      "photoChange": "Escolher outra foto",
+      "photoRequired": "Adicione uma foto dos seus agendamentos",
+      "photoAlt": "A foto que você escolheu",
+      "noteLabel": "Observação para a leitura",
+      "notePlaceholder": "Ex.: “todos são para sexta-feira” ou “M = manicure”",
+      "privacy": "As fotos são lidas pelo Google Gemini e não são armazenadas pelo Bookie. No nível gratuito do Google, o que é enviado pode ser usado para melhorar os serviços do Google.",
+      "dailyLimit": "{count, plural, one {Seu plano inclui # foto por dia.} other {Seu plano inclui # fotos por dia.}}",
+      "read": "Ler foto",
+      "reading": "Lendo seus agendamentos…",
+      "emptyTitle": "Nenhum agendamento encontrado",
+      "emptyBody": "Nada nesta foto foi reconhecido como agendamento. Tente uma foto mais nítida e bem iluminada, ou adicione uma observação dizendo o que há nela.",
+      "tryAnother": "Tentar outra foto",
+      "noServices": "Adicione um serviço primeiro — todo agendamento precisa de um.",
+      "reviewTitle": "{count, plural, one {Confira # agendamento} other {Confira # agendamentos}}",
+      "reviewIntro": "Corrija o que tiver sido lido errado. Cada horário precisa estar livre na sua agenda.",
+      "row": "Agendamento {number}",
+      "remove": "Remover agendamento {number}",
+      "fullName": "Nome completo do cliente",
+      "phone": "Telefone",
+      "phoneInvalid": "Informe um número de telefone",
+      "service": "Serviço",
+      "servicePlaceholder": "Escolha um serviço",
+      "date": "Data",
+      "time": "Horário",
+      "timePlaceholder": "Escolha um horário",
+      "noTimes": "Sem horários livres neste dia",
+      "notes": "Observações",
+      "issues": {
+        "missing": "Escolha um serviço, uma data e um horário.",
+        "offGrid": "Este não é um dos seus horários para este serviço neste dia. Escolha um horário da lista.",
+        "past": "Este horário já passou.",
+        "taken": "Você já tem um agendamento neste horário.",
+        "clash": "Mesmo horário do agendamento {number}."
+      },
+      "addRow": "Adicionar um agendamento",
+      "back": "Voltar",
+      "submit": "{count, plural, one {Adicionar # agendamento} other {Adicionar # agendamentos}}",
+      "needsAttention": "{count, plural, one {# agendamento precisa da sua atenção} other {# agendamentos precisam da sua atenção}}",
+      "added": "{count, plural, one {# agendamento adicionado} other {# agendamentos adicionados}}",
+      "slotsTaken": "Alguns destes horários acabaram de ser reservados. Eles estão marcados abaixo — escolha outros.",
+      "seePlans": "Ver planos"
     }
   },
   "Favorites": {
@@ -1133,7 +1228,8 @@
           "p3": "<b>Nosso serviço de envio de e-mails</b> — envia os e-mails da conta e dos agendamentos.",
           "p4": "<b>Telegram</b> — entrega notificações, apenas se você o conectar.",
           "p5": "<b>Google</b> — faz seu login, apenas se você escolher continuar com o Google.",
-          "p6": "Os detalhes de um agendamento são compartilhados com o profissional com quem ele é feito, e os dados de contato públicos do profissional, com o cliente — é isso que um agendamento é."
+          "p6": "<b>Google Gemini</b> — lê a foto de agendamentos escritos à mão, apenas quando um profissional escolhe adicionar agendamentos a partir de uma. No nível gratuito do Gemini, o Google pode usar o que recebe para melhorar seus serviços. Não armazenamos a foto.",
+          "p7": "Os detalhes de um agendamento são compartilhados com o profissional com quem ele é feito, e os dados de contato públicos do profissional, com o cliente — é isso que um agendamento é."
         },
         "cookies": {
           "title": "Cookies",
@@ -1248,6 +1344,7 @@
   "Validation": {
     "required": "Preencha {label}",
     "maxCharsForInput": "O máximo é {max} caracteres",
+    "maxCharsForName": "O máximo é {max} caracteres",
     "maxCharsForTextarea": "O máximo é {max} caracteres",
     "oneItemSelectedAtLeast": "Selecione pelo menos um item",
     "email": "E-mail inválido",
@@ -1291,11 +1388,19 @@
       "slotTaken": "Esse horário acabou de ser reservado. Escolha outro.",
       "bookingPaused": "Este profissional não está aceitando reservas on-line no momento. Entre em contato diretamente para reservar.",
       "bookingFull": "Este profissional não pode aceitar mais reservas on-line este mês. Entre em contato diretamente para reservar.",
-      "serviceLimit": "Você atingiu o limite de serviços ativos do seu plano. Desative um serviço ou faça upgrade do plano para adicionar outro.",
-      "featureLocked": "Este recurso não está incluído no seu plano. Faça upgrade do plano para usá-lo.",
+      "serviceLimit": "Você atingiu o limite de serviços ativos. Desative um serviço, adicione um pacote de serviços extras ou faça upgrade do plano.",
+      "featureLocked": "Este recurso não está incluído no seu plano. Adicione-o separadamente ou faça upgrade do plano para usá-lo.",
       "notConfigured": "Os pagamentos on-line não estão disponíveis no momento. Solicite o plano e nós o configuraremos para você.",
-      "alreadySubscribed": "Você já tem uma assinatura. Mude de plano nas configurações do seu Plano.",
-      "noSubscription": "Não há nenhuma assinatura ativa para alterar."
+      "alreadySubscribed": "Você já tem uma assinatura. Altere-a nas configurações do seu Plano.",
+      "noSubscription": "Não há nenhuma assinatura ativa para alterar.",
+      "photoImportLimit": "Você já usou a importação por foto de hoje. Ela volta amanhã, ou faça upgrade do plano para ter importações ilimitadas.",
+      "bookingLimit": "Estes agendamentos ultrapassariam o limite mensal do seu plano. Remova alguns ou faça upgrade do plano.",
+      "photoImportUnavailable": "Adicionar agendamentos por foto não está disponível no momento.",
+      "photoUnreadable": "Não conseguimos ler esta foto. Tente uma mais nítida e bem iluminada.",
+      "addonIncluded": "Seu plano já inclui isso, então não há nada a adicionar.",
+      "lastItem": "Sua assinatura ficaria vazia. Para encerrá-la, cancele em Gerenciar cobrança.",
+      "changeUnavailable": "Não é possível alterar sua assinatura agora. Se um pagamento falhou, atualize o cartão em Gerenciar cobrança; caso contrário, tente de novo daqui a pouco.",
+      "activeSubscription": "Esta página ainda tem uma assinatura ativa. Cancele em Gerenciar cobrança antes de excluir a página."
     },
     "pages": {
       "provider": "Não conseguimos carregar a página deste profissional. Tente novamente.",
@@ -1364,7 +1469,12 @@
       "saved": "Plano salvo",
       "pagesLabel": "Páginas de profissionais",
       "paddle": "Paddle",
-      "paddleNote": "Cobrado pela Paddle: uma alteração manual feita aqui é substituída na próxima atualização da assinatura."
+      "paddleNote": "Cobrado pela Paddle: uma alteração manual feita aqui é substituída na próxima atualização da assinatura.",
+      "addonsLabel": "Complementos concedidos",
+      "addonsLastDayLabel": "Último dia dos complementos",
+      "saveAddons": "Salvar complementos",
+      "addonsSaved": "Complementos salvos",
+      "paidAddons": "Pagos pela Paddle: {addons}"
     }
   },
   "Plans": {
@@ -1377,6 +1487,7 @@
     "features": {
       "maxActiveServices": "Serviços ativos",
       "maxBookingsPerMonth": "Reservas on-line por mês",
+      "photoImportsPerDay": "Importações de fotos por dia",
       "analyticsHistoryDays": "Histórico de análises",
       "customSlug": "Link personalizado",
       "telegramNotifications": "Notificações no Telegram",
@@ -1391,12 +1502,42 @@
     "current": "Seu plano",
     "requestTitle": "Solicitar o plano {plan}",
     "freeForever": "Grátis para sempre",
-    "perMonth": "/ mês"
+    "perMonth": "/ mês",
+    "addons": {
+      "customSlug": {
+        "name": "Link personalizado da página",
+        "description": "Seu próprio endereço curto, como /p/seu-nome."
+      },
+      "telegramNotifications": {
+        "name": "Notificações no Telegram",
+        "description": "Novas reservas, alterações e lembretes no Telegram, além do e-mail."
+      },
+      "calendarFeed": {
+        "name": "Sincronização de agenda",
+        "description": "Suas reservas no Google, Apple ou Outlook Agenda, sempre atualizadas."
+      },
+      "removeBranding": {
+        "name": "Sem a marca Bookie",
+        "description": "Remove a linha “Página de reservas da Bookie” da sua página."
+      },
+      "extraServices": {
+        "name": "Serviços extras",
+        "description": "{count} serviços ativos a mais por pacote."
+      },
+      "extraBookings": {
+        "name": "Reservas extras",
+        "description": "{count} reservas on-line a mais por mês, por pacote."
+      }
+    },
+    "perPackPerMonth": "por pacote / mês",
+    "addonIncludedIn": "Incluído no {plan}",
+    "addonIncludedFrom": "Incluído a partir do {plan}",
+    "addonRequestTitle": "Solicitar {addon}"
   },
   "Pricing": {
     "metaTitle": "Preços para profissionais",
     "metaDescription": "Planos do Bookie para profissionais: comece grátis ou faça upgrade para ter mais serviços, reservas ilimitadas, notificações no Telegram e sincronização de agenda. Agendar é sempre grátis para os clientes.",
-    "title": "Planos para profissionais",
+    "title": "Preços",
     "subtitle": "Comece grátis e mude de plano quando sua agenda encher. Os clientes nunca pagam para reservar.",
     "startFree": "Começar grátis",
     "requestPlan": "Solicitar este plano",
@@ -1457,8 +1598,17 @@
       "refunds": {
         "q": "Posso pedir reembolso?",
         "a": "Sim — peça em até 14 dias após o primeiro pagamento de um plano, ou a qualquer momento se uma cobrança tiver sido feita por engano. Veja nossa <refund>política de reembolso</refund>."
+      },
+      "addons": {
+        "q": "Posso comprar um recurso só, sem plano?",
+        "a": "Pode. Cada recurso e cada pacote de capacidade são vendidos separadamente, por mês, em qualquer plano — inclusive o Grátis. Os complementos renovam junto com a sua assinatura e, ao mudar para um plano que já inclui um deles, ele é removido automaticamente, então você nunca paga duas vezes."
       }
-    }
+    },
+    "addonsTitle": "Complementos",
+    "addonsSubtitle": "Precisa de uma coisa só? Adicione a qualquer plano, inclusive o Grátis. Cada complemento é cobrado mensalmente.",
+    "addonsBundleNote": "Os planos juntam tudo isso por menos: o {plan} inclui todos os recursos acima, além de mais serviços e reservas.",
+    "addAddon": "Adicionar",
+    "requestAddon": "Solicitar"
   },
   "Billing": {
     "checkoutTitle": "Checkout",
@@ -1473,6 +1623,8 @@
     "activeTitle": "Você está no plano {plan}",
     "activeBody": "Obrigado! Tudo o que seu plano inclui já está disponível. A Paddle enviou um recibo para o seu e-mail.",
     "receivedTitle": "Pagamento recebido",
-    "receivedBody": "Obrigado! Pode levar alguns minutos para seu plano ser atualizado. A Paddle enviou um recibo para o seu e-mail."
+    "receivedBody": "Obrigado! Pode levar alguns minutos para seu plano ser atualizado. A Paddle enviou um recibo para o seu e-mail.",
+    "purchaseActiveTitle": "Sua compra está ativa",
+    "purchaseActiveBody": "Obrigado! Tudo o que você comprou já está disponível. A Paddle enviou um recibo para o seu e-mail."
   }
 }

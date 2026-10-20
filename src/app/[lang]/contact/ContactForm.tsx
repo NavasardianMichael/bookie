@@ -9,7 +9,7 @@ import { postContactMessageAPI } from '@api/contact/main'
 import { ContactTopic } from '@api/contact/types'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
-import { Plan } from '@interfaces/plans'
+import { Addon, Plan } from '@interfaces/plans'
 import { MAX_CHARS_FOR_CONTACT_MESSAGE } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
@@ -21,8 +21,7 @@ import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { CheckCircleIcon } from '@components/ui/icons'
 
 type ContactFormValues = {
-  firstName: string
-  lastName: string
+  fullName: string
   email: string
   message: string
   /** Honeypot — see the hidden field at the bottom of the form. */
@@ -30,31 +29,32 @@ type ContactFormValues = {
 }
 
 /** The keys prefill may write. `message` is never one of them. */
-type PrefillableField = 'firstName' | 'lastName' | 'email'
+type PrefillableField = 'fullName' | 'email'
 
 type Props = {
   /**
-   * Set when another page opens this form for a purpose — the Plan tab's upgrade request.
-   * It travels with the message so the server can write the subject line, and it seeds an
-   * empty message once so the visitor is not left wondering what to say.
+   * Set when another page opens this form for a purpose — a request for a plan or an add-on
+   * that is not sold online. It travels with the message so the server can write the subject
+   * line, and it seeds an empty message once so the visitor is not left wondering what to say.
    */
   topic?: ContactTopic
   plan?: Plan
+  addon?: Addon
+  quantity?: number
 }
 
-export const ContactForm: FC<Props> = ({ topic, plan }) => {
+export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
   const t = useTranslations('Contact')
   const tPlans = useTranslations('Plans')
   const [form] = Form.useForm<ContactFormValues>()
   const isSignedOn = useAuthStore.use.isSignedOn()
-  const firstName = useAuthStore.use.firstName()
-  const lastName = useAuthStore.use.lastName()
+  const fullName = useAuthStore.use.fullName()
   const email = useAuthStore.use.email()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const [isSent, setIsSent] = useState(false)
 
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
   const emailRules = useFormItemRules('required', 'email')
 
   /**
@@ -79,14 +79,13 @@ export const ContactForm: FC<Props> = ({ topic, plan }) => {
    */
   const applyPrefill = useCallback(() => {
     const values: Record<PrefillableField, string | undefined> = {
-      firstName: firstName ?? undefined,
-      lastName: lastName ?? undefined,
+      fullName: fullName ?? undefined,
       email: email ?? undefined,
     }
     const current = form.getFieldsValue()
     const next = Object.entries(values).filter(([field, value]) => value && !current[field as PrefillableField])
     if (next.length) form.setFieldsValue(Object.fromEntries(next))
-  }, [firstName, lastName, email, form])
+  }, [fullName, email, form])
 
   // Re-runs as each source lands, and after a reset. Safe because it only fills blanks.
   useEffect(() => {
@@ -95,9 +94,23 @@ export const ContactForm: FC<Props> = ({ topic, plan }) => {
   }, [isSignedOn, applyPrefill])
 
   const planName = plan ? tPlans(`names.${plan}`) : undefined
+  const addonName = addon ? tPlans(`addons.${addon}.name`) : undefined
+
+  /** The read-only line naming what is asked for, and its starting sentence. */
+  const topicLine =
+    topic === 'planUpgrade' && planName
+      ? t('topics.planUpgrade', { plan: planName })
+      : topic === 'addonRequest' && addonName
+        ? t('topics.addonRequest', { addon: addonName })
+        : undefined
 
   /** A starting sentence for a topic, written only into an empty message — never over one. */
-  const topicMessage = topic === 'planUpgrade' && planName ? t('topics.planUpgradeMessage', { plan: planName }) : undefined
+  const topicMessage =
+    topic === 'planUpgrade' && planName
+      ? t('topics.planUpgradeMessage', { plan: planName })
+      : topic === 'addonRequest' && addonName
+        ? t('topics.addonRequestMessage', { addon: addonName })
+        : undefined
 
   useEffect(() => {
     if (topicMessage && !form.getFieldValue('message')) form.setFieldsValue({ message: topicMessage })
@@ -108,13 +121,14 @@ export const ContactForm: FC<Props> = ({ topic, plan }) => {
     setError(null)
     try {
       await postContactMessageAPI({
-        firstName: values.firstName,
-        lastName: values.lastName,
+        fullName: values.fullName,
         email: values.email.trim(),
         message: values.message,
         website: values.website ?? '',
         topic,
         plan,
+        addon,
+        quantity,
       })
       setIsSent(true)
     } catch (err) {
@@ -163,28 +177,19 @@ export const ContactForm: FC<Props> = ({ topic, plan }) => {
       {error !== null && <ErrorAlert error={error} />}
 
       {/* Read-only: the topic is the page's, and the server writes the subject from it. */}
-      {topic === 'planUpgrade' && planName && (
+      {topicLine && (
         <AppParagraph size='body-sm' tone='default' className='m-0 font-semibold'>
-          {t('topics.planUpgrade', { plan: planName })}
+          {topicLine}
         </AppParagraph>
       )}
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='flex flex-col gap-1.5'>
-          <FieldLabel htmlFor='contact-first-name' requirement='Required'>
-            {t('fields.firstName')}
+        <div className='flex flex-col gap-1.5 md:col-span-2'>
+          <FieldLabel htmlFor='contact-full-name' requirement='Required'>
+            {t('fields.fullName')}
           </FieldLabel>
-          <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('fields.firstName') }}>
-            <AppInput id='contact-first-name' autoComplete='given-name' enterKeyHint='next' />
-          </AppFormItem>
-        </div>
-
-        <div className='flex flex-col gap-1.5'>
-          <FieldLabel htmlFor='contact-last-name' requirement='Required'>
-            {t('fields.lastName')}
-          </FieldLabel>
-          <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('fields.lastName') }}>
-            <AppInput id='contact-last-name' autoComplete='family-name' enterKeyHint='next' />
+          <AppFormItem name='fullName' rules={nameRules} messageVariables={{ label: t('fields.fullName') }}>
+            <AppInput id='contact-full-name' autoComplete='name' enterKeyHint='next' />
           </AppFormItem>
         </div>
 

@@ -11,7 +11,7 @@ export const BookingsSkeleton: FC = () => (
       <div className='bg-brand-100 h-10 w-48 animate-pulse rounded-brand' />
       <div className='bg-brand-100 h-5 w-80 max-w-full animate-pulse rounded-brand' />
     </div>
-    <div className='bg-brand-100 h-96 animate-pulse rounded-brand' />
+    <div className='bg-brand-100 mx-auto h-96 w-full max-w-3xl animate-pulse rounded-brand' />
     <div className='bg-brand-100 min-h-64 animate-pulse rounded-brand' />
   </div>
 )

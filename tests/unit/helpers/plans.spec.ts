@@ -1,6 +1,15 @@
 import dayjs from 'dayjs'
 import { describe, expect, it } from 'vitest'
-import { hasRoomFor, toPlanExpiryISO, toPlanLastDay, toPlanLastDayValue, usagePercent } from '@helpers/plans'
+import { ProviderPlanWithUsage } from '@interfaces/plans'
+import {
+  hasRoomFor,
+  heldQuantity,
+  isBillingTargetReached,
+  toPlanExpiryISO,
+  toPlanLastDay,
+  toPlanLastDayValue,
+  usagePercent,
+} from '@helpers/plans'
 
 describe('plan expiry', () => {
   // People pick the last day a plan covers; the plan ends at the UTC midnight after it.
@@ -45,5 +54,45 @@ describe('hasRoomFor', () => {
     expect(hasRoomFor(2, 3)).toBe(true)
     expect(hasRoomFor(3, 3)).toBe(false)
     expect(hasRoomFor(99, null)).toBe(true)
+  })
+})
+
+const held: ProviderPlanWithUsage['addons'] = [
+  { addon: 'extraServices', quantity: 2, source: 'paddle' },
+  { addon: 'extraServices', quantity: 1, source: 'admin' },
+  { addon: 'customSlug', quantity: 1, source: 'admin' },
+]
+
+describe('heldQuantity', () => {
+  it('adds both sources up, or counts one', () => {
+    expect(heldQuantity(held, 'extraServices')).toBe(3)
+    expect(heldQuantity(held, 'extraServices', 'paddle')).toBe(2)
+    expect(heldQuantity(held, 'customSlug', 'paddle')).toBe(0)
+    expect(heldQuantity(held, 'calendarFeed')).toBe(0)
+  })
+})
+
+describe('isBillingTargetReached', () => {
+  const current = (overrides: Partial<ProviderPlanWithUsage> = {}): ProviderPlanWithUsage =>
+    ({ plan: 'basic', effectivePlan: 'basic', addons: held, billing: null, ...overrides }) as ProviderPlanWithUsage
+
+  it('waits for the plan asked for to be the one in force', () => {
+    expect(isBillingTargetReached({ kind: 'plan', plan: 'basic' }, current())).toBe(true)
+    expect(isBillingTargetReached({ kind: 'plan', plan: 'standard' }, current())).toBe(false)
+  })
+
+  // Only what is paid for counts: an admin's grant is not what an add-on change moved.
+  it('waits for exactly the paid quantity of an add-on, none included', () => {
+    expect(isBillingTargetReached({ kind: 'addon', addon: 'extraServices', quantity: 2 }, current())).toBe(true)
+    expect(isBillingTargetReached({ kind: 'addon', addon: 'extraServices', quantity: 3 }, current())).toBe(false)
+    expect(isBillingTargetReached({ kind: 'addon', addon: 'customSlug', quantity: 0 }, current())).toBe(true)
+  })
+
+  it('after a checkout, waits for any live subscription', () => {
+    expect(isBillingTargetReached({ kind: 'subscribed' }, current())).toBe(false)
+    expect(isBillingTargetReached({ kind: 'subscribed' }, current({ billing: { status: 'canceled', manageable: true } }))).toBe(
+      false
+    )
+    expect(isBillingTargetReached({ kind: 'subscribed' }, current({ billing: { status: 'active', manageable: true } }))).toBe(true)
   })
 })

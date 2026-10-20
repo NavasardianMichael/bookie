@@ -33,8 +33,9 @@ screen.
 | Consumer | `alex.consumer@bookie.am` | email + password above | `consumer` |
 | Google-only consumer | `gohar.nazaryan@bookie.am` | cannot — fixture only; password login is rejected | `consumer` |
 
-Every other seeded provider follows the same `firstname.lastname@bookie.am` shape — for
-example `david.hakobyan@bookie.am`. The Google fixture has an email too; it has no
+Every other seeded provider follows the same shape — the words of its `fullName`,
+lowercased and joined with dots (`seedEmail` in `server/prisma/seed.ts`) — for example
+`david.hakobyan@bookie.am` for David Hakobyan. The Google fixture has an email too; it has no
 `passwordHash`, only a fake `googleId` (`seed-google-gohar-nazaryan`) that will never match
 a real OAuth callback. Trying the shared password on that address is how you exercise the
 Google-only error path.
@@ -98,15 +99,14 @@ POST /identity/register
   "password": "a-strong-password",
   "phone": { "code": 374, "number": 77000201 },
   "profile": {
-    "firstName": "Alex",
-    "lastName": "Morgan",
+    "fullName": "Alex Morgan",
     "country": "AM",
     "newOrganization": { "name": "Acme Services" }
   }
 }
 ```
 
-Login returns `{ role, profileId, userId, firstName, lastName, image? }` and sets the
+Login returns `{ role, profileId, userId, fullName, image? }` and sets the
 `bookie_session` cookie. See [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md) for the full
 route list.
 

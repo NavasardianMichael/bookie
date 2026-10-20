@@ -1,4 +1,4 @@
-import { bookingPeriod, capNoticesDue, getEntitlements } from './plans.js'
+import { bookingPeriod, capNoticesDue, ENTITLEMENT_SELECT, getEntitlements } from './plans.js'
 import { claimCapNotice, countBookingsThisMonth } from './planUsage.js'
 import { config } from '../config.js'
 import { buildPlanUrl, sendBookingAllowanceEmail } from '../lib/plan-mail.js'
@@ -24,11 +24,10 @@ export const notifyBookingAllowance = async (providerId: string, locale: string)
   const provider = await prisma.provider.findUnique({
     where: { id: providerId },
     select: {
-      plan: true,
-      planExpiresAt: true,
+      ...ENTITLEMENT_SELECT,
       bookingCapWarnedAt: true,
       bookingCapReachedAt: true,
-      firstName: true,
+      fullName: true,
       user: { select: { email: true } },
     },
   })
@@ -50,7 +49,7 @@ export const notifyBookingAllowance = async (providerId: string, locale: string)
 
   await sendBookingAllowanceEmail({
     to: provider.user.email,
-    firstName: provider.firstName,
+    name: provider.fullName,
     notice,
     used,
     limit,

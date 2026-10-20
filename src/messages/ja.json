@@ -51,6 +51,7 @@
     "accountSettings": "アカウント設定",
     "bookings": "予約",
     "favorites": "お気に入り",
+    "pricing": "料金",
     "profile": "プロフィール"
   },
   "Auth": {
@@ -66,8 +67,7 @@
       "choosePasswordPlaceholder": "8 文字以上",
       "newPassword": "新しいパスワード",
       "confirmPassword": "パスワードの確認",
-      "firstName": "名",
-      "lastName": "姓",
+      "fullName": "氏名",
       "phone": "電話番号",
       "countryCode": "国番号"
     },
@@ -201,8 +201,7 @@
     "guest": {
       "heading": "お客様の情報",
       "hint": "予約の確定に必要です。アカウントは不要です。",
-      "firstName": "名",
-      "lastName": "姓",
+      "fullName": "氏名",
       "phone": "電話番号",
       "email": "メールアドレス",
       "emailPlaceholder": "you@example.com",
@@ -321,8 +320,7 @@
     "title": "お問い合わせ",
     "subtitle": "Bookie チームにご連絡ください。通常、5 営業日以内にご連絡します。",
     "fields": {
-      "firstName": "名",
-      "lastName": "姓",
+      "fullName": "氏名",
       "email": "メール",
       "message": "メッセージ",
       "messagePlaceholder": "お困りの内容をお知らせください。"
@@ -341,7 +339,9 @@
     },
     "topics": {
       "planUpgrade": "お申し込み：{plan}プラン",
-      "planUpgradeMessage": "こんにちは。ページを{plan}プランに変更したいです。"
+      "planUpgradeMessage": "こんにちは。ページを{plan}プランに変更したいです。",
+      "addonRequest": "リクエスト：{addon}",
+      "addonRequestMessage": "こんにちは。ページに{addon}を追加したいです。"
     }
   },
   "Settings": {
@@ -365,7 +365,8 @@
       "advanced": "詳細設定",
       "seo": "SEO",
       "history": "履歴",
-      "plan": "プラン"
+      "plan": "プラン",
+      "payouts": "支払い"
     },
     "workspace": {
       "onProviderTitle": "提供者ワークスペースを表示しています",
@@ -393,13 +394,13 @@
     },
     "profile": {
       "personalInfo": "個人情報",
-      "firstName": "名",
-      "lastName": "姓",
+      "fullName": "氏名",
       "description": "紹介文",
       "email": "メールアドレス",
       "noAvatarHint": "ユーザーアカウントではプロフィール写真は利用できません。",
       "imageHint": "JPG または PNG、最大 2MB。",
       "upload": "新しくアップロード",
+      "removePhoto": "写真を削除",
       "providerSubtitle": "公開プロフィールに表示される情報を更新します。",
       "sendEmailCode": "メールをリセット",
       "emailRequired": "まずメールアドレスを入力してください。",
@@ -458,7 +459,7 @@
       "telegramTitle": "Telegram",
       "telegramProviderBody": "予約の通知をメールに加えて Telegram でも受け取れます。",
       "telegramConsumerBody": "リマインダーや予約の更新をメールに加えて Telegram でも受け取れます。",
-      "telegramLocked": "ビジネスに関する Telegram 通知はベーシックプラン以上で利用できます。<plan>プランを見る</plan>",
+      "telegramLocked": "ビジネスに関する Telegram 通知はベーシックプラン以上、またはアドオンで利用できます。<plan>プランを見る</plan>",
       "telegramUnavailable": "Telegram 通知は現在ご利用いただけません。",
       "telegramConnect": "Telegram を連携",
       "telegramOpen": "Telegram を開く",
@@ -471,7 +472,7 @@
       "telegramDisconnectFailed": "Telegram の連携を解除できませんでした",
       "calendarTitle": "カレンダー同期",
       "calendarBody": "Google Calendar、Apple Calendar、Outlook から予約を購読できます。新しい予約や変更は自動的に反映されます。",
-      "calendarLocked": "カレンダー同期はベーシックプラン以上で利用できます。<plan>プランを見る</plan>",
+      "calendarLocked": "カレンダー同期はベーシックプラン以上、またはアドオンで利用できます。<plan>プランを見る</plan>",
       "calendarCopy": "カレンダーのリンクをコピー",
       "calendarHint": "カレンダーアプリで URL からカレンダーを追加し、このリンクを貼り付けてください。リンクは他の人に共有しないでください。リンクを知っている人は誰でも予約を閲覧できます。",
       "calendarReset": "リンクをリセット",
@@ -571,6 +572,18 @@
       "calendarHint": "日を選択するとその日の予約が表示されます。",
       "calendarFiltered": "1 日のみ表示中。もう一度クリックすると全体を表示します。",
       "calendarLabel": "日別の予約",
+      "hideCalendar": "カレンダーを隠す",
+      "showCalendar": "カレンダーを表示",
+      "periodLabel": "期間",
+      "periods": {
+        "upcoming": "今後",
+        "today": "今日",
+        "thisWeek": "今週",
+        "nextWeek": "来週",
+        "lastWeek": "先週",
+        "thisMonth": "今月",
+        "lastMonth": "先月"
+      },
       "clearDay": "すべての日",
       "previousMonth": "前月",
       "nextMonth": "翌月",
@@ -719,8 +732,8 @@
       "slugPattern": "小文字、数字、およびそれらの間の単一のハイフンのみ使用できます。",
       "slugChangeWarning": "保存すると現在のリンクが置き換わります。/p/{slug} を使用中の方はページに到達できなくなります。",
       "saved": "検索設定を保存しました。",
-      "slugLocked": "カスタムリンクは有料プランの機能のため、ページには標準のリンクが使われます。<link>プランを見る</link>",
-      "slugLockedKept": "カスタムリンクは引き続き使えますが、変更するには有料プランが必要です。<link>プランを見る</link>"
+      "slugLocked": "カスタムリンクは有料プラン、またはアドオン単体で利用できます。そのため、現在ページには標準のリンクが使われています。<link>プランを見る</link>",
+      "slugLockedKept": "カスタムリンクは引き続き使えますが、変更するには有料プランか「カスタムページリンク」アドオンが必要です。<link>プランを見る</link>"
     },
     "signOutTitle": "ログアウトしますか？",
     "signOutBody": "アカウントを管理するには、再度ログインする必要があります。",
@@ -731,9 +744,15 @@
       "confirmTitle": "アカウントを削除しますか？",
       "confirmBody": "このアカウントに関連するすべてのデータが削除されます。この操作は元に戻せません。",
       "password": "現在のパスワード",
-      "googleOnly": "このアカウントは Google でログインしています。削除を確認するには、先にパスワードを設定してください。",
+      "googleOnly": "このアカウントは Google でログインしているため、パスワードはありません。確認すると完全に削除されます。",
       "hasAppointments": "予約が残っています。アカウントを削除する前にキャンセルしてください。",
       "wrongPassword": "現在のパスワードが正しくありません"
+    },
+    "payouts": {
+      "title": "支払い",
+      "subtitle": "Bookie が請求する月額費用を、プラン一覧から表示します。",
+      "plan": "プラン",
+      "cost": "月額費用"
     },
     "plan": {
       "title": "プラン",
@@ -766,7 +785,35 @@
       "switchingTitle": "{plan}に変更しています…",
       "switchPendingTitle": "プランの変更を処理しています",
       "switchPendingBody": "Paddle が変更を受け付けました。ここに反映されるまで数分かかる場合があります。しばらくしてからページを再読み込みしてください。",
-      "billingNote": "お支払いは Paddle が処理します。解約、カードの変更、請求書のダウンロードは「請求を管理」から行えます。"
+      "billingNote": "お支払いは Paddle が処理します。解約、カードの変更、請求書のダウンロードは「請求を管理」から行えます。",
+      "addonsTitle": "アドオン",
+      "addonsSubtitle": "単体の機能と追加の容量。サブスクリプションと一緒に月額で請求されます。",
+      "addonActive": "有効",
+      "addonPacks": "{count, plural, other {#パック}}",
+      "addonGranted": "Bookie から付与",
+      "addonGrantedUntil": "{date}まで Bookie から付与",
+      "addonIncluded": "ご利用のプランに含まれています",
+      "addonAdd": "追加",
+      "addonRemove": "削除",
+      "addonAddPack": "パックを追加",
+      "addonRemovePack": "パックを削除",
+      "addonRequest": "リクエスト",
+      "addonAddTitle": "{addon}を追加しますか？",
+      "addonAddPackTitle": "{addon}のパックを追加しますか？",
+      "addonAddBody": "すぐに利用できます。今回の請求期間の残り分を今お支払いいただき、その後はサブスクリプションと一緒に毎月更新されます。",
+      "addonRemoveTitle": "{addon}を削除しますか？",
+      "addonRemovePackTitle": "{addon}のパックを削除しますか？",
+      "addonRemoveBody": "すぐに停止します。今回の請求期間の未使用分は次回のお支払いに充当されます。",
+      "addonConfirmAdd": "追加して支払う",
+      "addonConfirmRemove": "削除",
+      "addonUpdatingTitle": "{addon}を更新しています…",
+      "addonPendingTitle": "アドオンの変更を処理しています",
+      "switchDrops": "{plan}には{addons}が含まれるため、{count, plural, other {該当するアドオンは}}サブスクリプションから削除されます。",
+      "switchTo": "{plan}に変更",
+      "switchToFreeBody": "アドオンはそのまま残ります。プランの未使用分は次回のお支払いに充当されます。",
+      "betterPlanTitle": "{plan}のほうがお得です",
+      "betterPlanBody": "{plan}プランには、アドオンとしてお支払いの内容が含まれ、月額も安くなります。",
+      "addonsCancelNote": "アドオンはサブスクリプションと一緒に更新されます。「請求を管理」で解約するとアドオンも終了します。"
     }
   },
   "Bookings": {
@@ -775,6 +822,54 @@
     "views": {
       "provider": "自分が受けた予約",
       "consumer": "自分がした予約"
+    },
+    "import": {
+      "button": "写真から追加",
+      "title": "写真から予約を追加",
+      "intro": "手書きの予約表を撮影してください。内容を読み取ったあと、保存する前にすべての予約をご自身で確認できます。",
+      "photoLabel": "写真",
+      "photoPick": "写真を撮影または選択",
+      "photoChange": "別の写真を選択",
+      "photoRequired": "予約表の写真を追加してください",
+      "photoAlt": "選択した写真",
+      "noteLabel": "読み取り時のメモ",
+      "notePlaceholder": "例：「すべて金曜日の予約」「M = ネイル」",
+      "privacy": "写真は Google Gemini が読み取り、Bookie には保存されません。Google の無料枠では、送信された内容が Google のサービス改善に使用される場合があります。",
+      "dailyLimit": "{count, plural, other {ご利用のプランでは 1 日 # 枚まで写真を取り込めます。}}",
+      "read": "写真を読み取る",
+      "reading": "予約を読み取っています…",
+      "emptyTitle": "予約が見つかりませんでした",
+      "emptyBody": "この写真からは予約を読み取れませんでした。より鮮明で明るい写真を試すか、写真の内容を説明するメモを追加してください。",
+      "tryAnother": "別の写真を試す",
+      "noServices": "先にサービスを追加してください。すべての予約にサービスが必要です。",
+      "reviewTitle": "{count, plural, other {# 件の予約を確認}}",
+      "reviewIntro": "読み間違いがあれば修正してください。各時間は、スケジュール上の空いている枠である必要があります。",
+      "row": "予約 {number}",
+      "remove": "予約 {number} を削除",
+      "fullName": "顧客の氏名",
+      "phone": "電話",
+      "phoneInvalid": "電話番号を入力してください",
+      "service": "サービス",
+      "servicePlaceholder": "サービスを選択",
+      "date": "日付",
+      "time": "時間",
+      "timePlaceholder": "時間を選択",
+      "noTimes": "この日は空き時間がありません",
+      "notes": "備考",
+      "issues": {
+        "missing": "サービス、日付、時間を選択してください。",
+        "offGrid": "この日のこのサービスの予約枠ではありません。リストから時間を選択してください。",
+        "past": "この時間はすでに過ぎています。",
+        "taken": "この時間にはすでに予約があります。",
+        "clash": "予約 {number} と同じ時間です。"
+      },
+      "addRow": "予約を追加",
+      "back": "戻る",
+      "submit": "{count, plural, other {# 件の予約を追加}}",
+      "needsAttention": "{count, plural, other {# 件の予約に確認が必要です}}",
+      "added": "{count, plural, other {# 件の予約を追加しました}}",
+      "slotsTaken": "一部の時間がたった今予約されました。下に印を付けたので、別の時間を選択してください。",
+      "seePlans": "プランを見る"
     }
   },
   "Favorites": {
@@ -1133,7 +1228,8 @@
           "p3": "<b>当社のメール配信サービス</b> — アカウントと予約に関するメールを送信します。",
           "p4": "<b>Telegram</b> — 連携した場合にのみ、通知を配信します。",
           "p5": "<b>Google</b> — Google でログインすることを選択した場合にのみ、ログインを処理します。",
-          "p6": "予約の詳細はその予約先の提供者と共有され、提供者の公開連絡先はお客様と共有されます。それが予約というものです。"
+          "p6": "<b>Google Gemini</b> — 提供者が写真から予約を追加することを選択した場合にのみ、手書きの予約表の写真を読み取ります。Gemini の無料枠では、Google が受け取った内容を自社サービスの改善に使用する場合があります。当社は写真を保存しません。",
+          "p7": "予約の詳細はその予約先の提供者と共有され、提供者の公開連絡先はお客様と共有されます。それが予約というものです。"
         },
         "cookies": {
           "title": "Cookie",
@@ -1248,6 +1344,7 @@
   "Validation": {
     "required": "{label}を入力してください",
     "maxCharsForInput": "最大 {max} 文字",
+    "maxCharsForName": "最大 {max} 文字",
     "maxCharsForTextarea": "最大 {max} 文字",
     "oneItemSelectedAtLeast": "少なくとも1つ選択してください",
     "email": "メールアドレスが無効です",
@@ -1291,11 +1388,19 @@
       "slotTaken": "その時間はたった今予約されました。別の時間をお選びください。",
       "bookingPaused": "この提供者は現在オンライン予約を受け付けていません。予約は直接お問い合わせください。",
       "bookingFull": "この提供者は今月これ以上オンライン予約を受け付けられません。予約は直接お問い合わせください。",
-      "serviceLimit": "ご利用のプランで有効にできるサービス数の上限に達しました。サービスを停止するか、プランをアップグレードすると追加できます。",
-      "featureLocked": "この機能はご利用のプランに含まれていません。プランをアップグレードするとご利用いただけます。",
+      "serviceLimit": "有効にできるサービス数の上限に達しました。サービスを停止するか、追加サービスのパックを追加するか、プランをアップグレードしてください。",
+      "featureLocked": "この機能はご利用のプランに含まれていません。単体で追加するか、プランをアップグレードするとご利用いただけます。",
       "notConfigured": "オンライン決済は現在ご利用いただけません。代わりにプランをお申し込みいただければ、こちらで設定します。",
-      "alreadySubscribed": "すでにサブスクリプションをお持ちです。プランの変更は「プラン」設定から行ってください。",
-      "noSubscription": "変更できる有効なサブスクリプションがありません。"
+      "alreadySubscribed": "すでにサブスクリプションをお持ちです。変更は「プラン」設定から行ってください。",
+      "noSubscription": "変更できる有効なサブスクリプションがありません。",
+      "photoImportLimit": "本日の写真取り込みはすでに使用済みです。明日また利用できます。プランをアップグレードすると無制限に取り込めます。",
+      "bookingLimit": "これらの予約を追加すると、プランの月間上限を超えてしまいます。一部を削除するか、プランをアップグレードしてください。",
+      "photoImportUnavailable": "写真からの予約追加は現在ご利用いただけません。",
+      "photoUnreadable": "この写真を読み取れませんでした。より鮮明で明るい写真をお試しください。",
+      "addonIncluded": "ご利用のプランにすでに含まれているため、追加する必要はありません。",
+      "lastItem": "サブスクリプションが空になってしまいます。終了するには「請求を管理」から解約してください。",
+      "changeUnavailable": "現在サブスクリプションを変更できません。お支払いに失敗した場合は「請求を管理」からカードを更新してください。それ以外の場合は、しばらくしてからもう一度お試しください。",
+      "activeSubscription": "このページには有効なサブスクリプションがあります。ページを削除する前に「請求を管理」から解約してください。"
     },
     "pages": {
       "provider": "この提供者のページを読み込めませんでした。もう一度お試しください。",
@@ -1364,7 +1469,12 @@
       "saved": "プランを保存しました",
       "pagesLabel": "提供者のページ",
       "paddle": "Paddle",
-      "paddleNote": "Paddle で請求中：ここで手動で変更しても、サブスクリプションの次回の更新時に上書きされます。"
+      "paddleNote": "Paddle で請求中：ここで手動で変更しても、サブスクリプションの次回の更新時に上書きされます。",
+      "addonsLabel": "付与したアドオン",
+      "addonsLastDayLabel": "アドオンの最終日",
+      "saveAddons": "アドオンを保存",
+      "addonsSaved": "アドオンを保存しました",
+      "paidAddons": "Paddle で支払い済み：{addons}"
     }
   },
   "Plans": {
@@ -1377,6 +1487,7 @@
     "features": {
       "maxActiveServices": "有効なサービス",
       "maxBookingsPerMonth": "月間オンライン予約",
+      "photoImportsPerDay": "1 日あたりの写真取り込み",
       "analyticsHistoryDays": "分析データの期間",
       "customSlug": "カスタムリンク",
       "telegramNotifications": "Telegram 通知",
@@ -1391,12 +1502,42 @@
     "current": "ご利用中のプラン",
     "requestTitle": "{plan}プランを申し込む",
     "freeForever": "ずっと無料",
-    "perMonth": "/月"
+    "perMonth": "/月",
+    "addons": {
+      "customSlug": {
+        "name": "カスタムページリンク",
+        "description": "/p/your-name のような、あなただけの短いアドレス。"
+      },
+      "telegramNotifications": {
+        "name": "Telegram 通知",
+        "description": "新しい予約、変更、リマインダーをメールに加えて Telegram でも受け取れます。"
+      },
+      "calendarFeed": {
+        "name": "カレンダー同期",
+        "description": "予約を Google、Apple、Outlook のカレンダーで常に最新の状態で確認できます。"
+      },
+      "removeBranding": {
+        "name": "Bookie ブランド表示なし",
+        "description": "ページから「Bookie の予約ページ」の表示を削除します。"
+      },
+      "extraServices": {
+        "name": "追加サービス",
+        "description": "1パックにつき有効なサービスを{count}件追加。"
+      },
+      "extraBookings": {
+        "name": "追加予約",
+        "description": "1パックにつき月間オンライン予約を{count}件追加。"
+      }
+    },
+    "perPackPerMonth": "1パック / 月",
+    "addonIncludedIn": "{plan}に含まれます",
+    "addonIncludedFrom": "{plan}以上に含まれます",
+    "addonRequestTitle": "{addon}をリクエスト"
   },
   "Pricing": {
     "metaTitle": "提供者向け料金",
     "metaDescription": "提供者向けの Bookie のプラン：無料で始めるか、アップグレードしてより多くのサービス、無制限の予約、Telegram 通知、カレンダー同期を利用できます。お客様の予約はいつでも無料です。",
-    "title": "提供者向けプラン",
+    "title": "料金",
     "subtitle": "無料で始めて、予約が増えたらアップグレード。お客様が予約で料金を払うことはありません。",
     "startFree": "無料で始める",
     "requestPlan": "このプランを申し込む",
@@ -1457,8 +1598,17 @@
       "refunds": {
         "q": "返金を受けられますか？",
         "a": "はい。プランの初回のお支払いから 14 日以内、または誤って請求された場合はいつでもご依頼ください。詳しくは<refund>返金ポリシー</refund>をご覧ください。"
+      },
+      "addons": {
+        "q": "プランなしで1つの機能だけ購入できますか？",
+        "a": "はい。各機能と容量パックは、フリーを含むどのプランにも月額で個別に追加できます。アドオンはサブスクリプションと一緒に更新され、そのアドオンを含むプランに変更すると自動的に削除されるので、二重に支払うことはありません。"
       }
-    }
+    },
+    "addonsTitle": "アドオン",
+    "addonsSubtitle": "必要なのは1つだけ？フリーを含むどのプランにも追加できます。アドオンは月額で請求されます。",
+    "addonsBundleNote": "プランならまとめてお得です。{plan}には上記のすべての機能に加え、より多くのサービスと予約が含まれます。",
+    "addAddon": "追加",
+    "requestAddon": "リクエスト"
   },
   "Billing": {
     "checkoutTitle": "お支払い手続き",
@@ -1473,6 +1623,8 @@
     "activeTitle": "{plan}プランをご利用中です",
     "activeBody": "ありがとうございます！プランに含まれるすべての機能を今すぐご利用いただけます。Paddle から領収書がメールで送信されました。",
     "receivedTitle": "お支払いを受け付けました",
-    "receivedBody": "ありがとうございます！プランが更新されるまで数分かかる場合があります。Paddle から領収書がメールで送信されました。"
+    "receivedBody": "ありがとうございます！プランが更新されるまで数分かかる場合があります。Paddle から領収書がメールで送信されました。",
+    "purchaseActiveTitle": "ご購入が有効になりました",
+    "purchaseActiveBody": "ありがとうございます。ご購入いただいたものはすべて利用できます。Paddle から領収書をメールでお送りしました。"
   }
 }

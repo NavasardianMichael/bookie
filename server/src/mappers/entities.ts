@@ -1,7 +1,14 @@
 import type { Prisma } from '@prisma/client'
 import type { BillingStatus, Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
 import { uniqueCategories } from '../services/categories.js'
-import { effectivePlan, getEntitlements, type PlanFields } from '../services/plans.js'
+import {
+  ADDON_GRANT_SELECT,
+  type AddonGrant,
+  effectivePlan,
+  type EntitlementFields,
+  getEntitlements,
+  isGrantLive,
+} from '../services/plans.js'
 import { isOpenToday, PUBLIC_PROVIDER_WHERE } from '../services/providerSearch.js'
 import { reviewAuthorName } from '../services/reviews.js'
 
@@ -13,6 +20,28 @@ type ProviderWithRelations = Provider & {
   /** Present when the query included `user` — public detail and owner profile both do. */
   user?: { email: string; emailVerifiedAt?: Date | null }
 }
+
+/**
+ * A detail payload's provider: what `providerInclude` loads, add-ons included, because the
+ * page's branding line is an entitlement. Not on `ProviderWithRelations`, which Explore's
+ * cards share through `providerListInclude` and which never gate anything.
+ */
+type EntitledProvider = ProviderWithRelations & { addons: readonly AddonGrant[] }
+
+/**
+ * The add-ons a provider holds right now, one row per source — owner and admin payloads
+ * only. Merged, they are already in `entitlements`; listed, they say what is paid for
+ * (`paddle`) and what was granted (`admin`), and until when.
+ */
+const mapLiveAddons = (grants: readonly AddonGrant[], now: Date) =>
+  grants
+    .filter((grant) => grant.quantity > 0 && isGrantLive(grant, now))
+    .map((grant) => ({
+      addon: grant.addon,
+      quantity: grant.quantity,
+      source: grant.source,
+      expiresAt: grant.expiresAt?.toISOString(),
+    }))
 
 const defaultWeekSchedule = {
   monday: { availability: { start: '', end: '' }, breaks: [] },
@@ -76,8 +105,7 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
   return {
     id: provider.id,
     basic: {
-      firstName: provider.firstName,
-      lastName: provider.lastName,
+      fullName: provider.fullName,
       description: provider.description ?? undefined,
       image: provider.imageUrl ?? undefined,
       categories: provider.categories.map((c) => mapBasicCategory(c.category)),
@@ -215,7 +243,7 @@ export const resolveOnlineBooking = (provider: { available: boolean }, bookingsF
  * Every other caller — the manage page's nested provider — gets `open` or `paused`: a
  * reschedule moves a booking that already exists, so an allowance never closes it.
  */
-export function mapSingleProvider(provider: ProviderWithRelations, options: { bookingsFull?: boolean } = {}) {
+export function mapSingleProvider(provider: EntitledProvider, options: { bookingsFull?: boolean } = {}) {
   const details = {
     ...mapProviderDetails(provider),
     onlineBooking: resolveOnlineBooking(provider, options.bookingsFull),
@@ -277,7 +305,7 @@ export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescrip
  * reaching past the mapper to add a field is the same leak by another route.
  */
 export function mapProviderProfile(
-  provider: ProviderWithRelations & {
+  provider: EntitledProvider & {
     user: { email: string; emailVerifiedAt: Date | null }
     phoneVisible?: boolean
   },
@@ -304,14 +332,16 @@ export function mapProviderProfile(
  * A provider's plan as its owner sees it — on `personal`, which only the owner payload
  * carries. `plan` is what was assigned; `effectivePlan` is what applies right now, which
  * differs only once `planExpiresAt` has passed. `entitlements` are the limits of the
- * *effective* plan, so a client never re-derives them (and never needs the catalogue).
+ * *effective* plan with every live add-on on top, so a client never re-derives them (and
+ * never needs the catalogue); `addons` lists those add-ons.
  */
-export function mapProviderPlan(provider: PlanFields, now: Date) {
+export function mapProviderPlan(provider: EntitlementFields, now: Date) {
   return {
     plan: provider.plan,
     effectivePlan: effectivePlan(provider, now),
     planExpiresAt: provider.planExpiresAt?.toISOString(),
     entitlements: getEntitlements(provider, now),
+    addons: mapLiveAddons(provider.addons, now),
   }
 }
 
@@ -364,14 +394,10 @@ export function mapCategoryDetail(
   }
 }
 
-/**
- * `firstName` and `lastName` stay separate all the way to the client — the DB never
- * stores a joined name. Callers that need one display string join it themselves.
- */
+/** One `fullName`, as the account holder wrote it — see `Provider.fullName`. */
 export function mapConsumer(consumer: {
   id: string
-  firstName: string
-  lastName: string
+  fullName: string
   phoneCode: number
   phoneNumber: bigint
   user: { email: string }
@@ -379,8 +405,7 @@ export function mapConsumer(consumer: {
   return {
     id: consumer.id,
     basic: {
-      firstName: consumer.firstName,
-      lastName: consumer.lastName,
+      fullName: consumer.fullName,
       // One representation, not two. The pre-formatted `phoneNumber: '+374…'` string this
       // replaces existed only as a fallback for when `phone` might be absent; the columns
       // are NOT NULL now, so it always is present and the client formats for display.
@@ -417,14 +442,12 @@ type BookingWithBooker = {
   consumerId: string | null
   consumer: {
     id: string
-    firstName: string
-    lastName: string
+    fullName: string
     phoneCode: number
     phoneNumber: bigint
     user: { email: string }
   } | null
-  guestFirstName: string | null
-  guestLastName: string | null
+  guestFullName: string | null
   guestPhoneCode: number | null
   guestPhoneNumber: bigint | null
   guestEmail: string | null
@@ -449,8 +472,7 @@ function mapBooker(booking: BookingWithBooker) {
     return {
       kind: 'consumer' as const,
       id: booking.consumer.id,
-      firstName: booking.consumer.firstName,
-      lastName: booking.consumer.lastName,
+      fullName: booking.consumer.fullName,
       // The identity email, read through the `User` relation — a Consumer no longer holds
       // one of its own. The phone comes off the Consumer row, which is where it moved.
       email: booking.consumer.user.email,
@@ -466,8 +488,7 @@ function mapBooker(booking: BookingWithBooker) {
   return {
     kind: 'guest' as const,
     id: undefined,
-    firstName: booking.guestFirstName ?? '',
-    lastName: booking.guestLastName ?? '',
+    fullName: booking.guestFullName ?? '',
     email: booking.guestEmail ?? undefined,
     phone: {
       code: booking.guestPhoneCode ?? 0,
@@ -510,8 +531,7 @@ export const providerBookingInclude = {
   consumer: {
     select: {
       id: true,
-      firstName: true,
-      lastName: true,
+      fullName: true,
       phoneCode: true,
       phoneNumber: true,
       user: { select: { email: true } },
@@ -537,7 +557,7 @@ type BookingWithProvider = {
   createdAt: Date
   serviceId: string
   service: { id: string; name: string } | null
-  provider: { id: string; firstName: string; lastName: string }
+  provider: { id: string; fullName: string }
 }
 
 export function mapConsumerSideBooking(booking: BookingWithProvider) {
@@ -560,15 +580,14 @@ export function mapConsumerSideBooking(booking: BookingWithProvider) {
     booker: {
       kind: 'provider' as const,
       id: booking.provider.id,
-      firstName: booking.provider.firstName,
-      lastName: booking.provider.lastName,
+      fullName: booking.provider.fullName,
     },
   }
 }
 
 export const consumerSideBookingInclude = {
   service: { select: { id: true, name: true } },
-  provider: { select: { id: true, firstName: true, lastName: true } },
+  provider: { select: { id: true, fullName: true } },
 } as const
 
 /**
@@ -588,6 +607,8 @@ export const providerInclude = {
   services: { where: { active: true } },
   gallery: true,
   user: { select: { email: true } },
+  // `showPoweredBy` is an entitlement, and an add-on can grant it.
+  addons: { select: ADDON_GRANT_SELECT },
 } as const
 
 /** `providerInclude` plus verification state, for the owner's own `GET /provider-profile`. */
@@ -615,7 +636,7 @@ export const providerListInclude = {
  * ------------------------------------------------------------------ */
 
 /**
- * The author's two name columns and **nothing else**.
+ * The author's name column and **nothing else**.
  *
  * Not `consumer: true`, and emphatically not `consumer: { include: { user: true } }`.
  * `GET /consumers` was deleted from this API for returning consumers' names and phone
@@ -628,10 +649,10 @@ export const providerListInclude = {
  * visible edit.
  */
 export const reviewListInclude = {
-  consumer: { select: { firstName: true, lastName: true } },
+  consumer: { select: { fullName: true } },
 } as const
 
-type ReviewWithAuthor = Review & { consumer: { firstName: string; lastName: string } }
+type ReviewWithAuthor = Review & { consumer: { fullName: string } }
 
 /**
  * A single review, as the public list and the write responses return it.
@@ -641,7 +662,8 @@ type ReviewWithAuthor = Review & { consumer: { firstName: string; lastName: stri
  * - **`consumerId`.** The client never needs it — `isMine` below answers the only
  *   question it was for — and publishing it would hand every visitor a key to the
  *   consumer table's id space.
- * - **The author's surname.** `reviewAuthorName` reduces it to an initial.
+ * - **The author's surname.** `reviewAuthorName` reduces the last word of the name to an
+ *   initial.
  * - **`hiddenAt` / `hiddenReason`.** A hidden review is filtered out of every public read
  *   entirely, so there is no state to describe; leaking the reason would publish the
  *   moderation note.
@@ -652,7 +674,7 @@ type ReviewWithAuthor = Review & { consumer: { firstName: string; lastName: stri
 export function mapReview(review: ReviewWithAuthor, viewerConsumerId?: string) {
   return {
     id: review.id,
-    author: reviewAuthorName(review.consumer.firstName, review.consumer.lastName),
+    author: reviewAuthorName(review.consumer.fullName),
     rating: review.rating,
     comment: review.comment ?? undefined,
     reply: review.providerReply ?? undefined,
@@ -672,10 +694,9 @@ export function mapReview(review: ReviewWithAuthor, viewerConsumerId?: string) {
  * request to a provider — the route is behind `requireAdmin`, and nothing else maps it.
  */
 export function mapAdminProvider(
-  provider: PlanFields & {
+  provider: EntitlementFields & {
     id: string
-    firstName: string
-    lastName: string
+    fullName: string
     slug: string | null
     listed: boolean
     paddleSubscriptionId: string | null
@@ -686,13 +707,18 @@ export function mapAdminProvider(
 ) {
   return {
     id: provider.id,
-    name: `${provider.firstName} ${provider.lastName}`.trim(),
+    name: provider.fullName,
     email: provider.user.email,
     slug: provider.slug ?? undefined,
     listed: provider.listed,
     plan: provider.plan,
     effectivePlan: effectivePlan(provider, now),
     planExpiresAt: provider.planExpiresAt?.toISOString(),
+    /**
+     * Live add-ons from both sources. An admin's grant (`admin`) survives every webhook; the
+     * paid ones (`paddle`) are shown so a comp is not given for something already bought.
+     */
+    addons: mapLiveAddons(provider.addons, now),
     /**
      * `'paddle'` while a Paddle subscription is live: its webhook will overwrite whatever an
      * admin saves here on its next event, so the admin screen says so.
@@ -718,9 +744,7 @@ export function mapReviewReport(report: ReviewReport & { review: ReviewWithAutho
       ...mapReview(report.review),
       isHidden: Boolean(report.review.hiddenAt),
       providerId: report.review.providerId ?? undefined,
-      providerName: report.review.provider
-        ? `${report.review.provider.firstName} ${report.review.provider.lastName}`
-        : undefined,
+      providerName: report.review.provider?.fullName,
     },
   }
 }

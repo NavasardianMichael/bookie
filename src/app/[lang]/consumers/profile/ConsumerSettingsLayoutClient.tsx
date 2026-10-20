@@ -14,9 +14,8 @@ type Props = {
 
 export const ConsumerSettingsLayoutClient: FC<Props> = ({ children }) => {
   const t = useTranslations('Settings')
-  const firstName = useAuthStore.use.firstName()
-  const lastName = useAuthStore.use.lastName()
-  const displayName = [firstName, lastName].filter(Boolean).join(' ') || t('consumerAccount')
+  const fullName = useAuthStore.use.fullName()
+  const displayName = fullName || t('consumerAccount')
 
   const items = useMemo(
     () =>

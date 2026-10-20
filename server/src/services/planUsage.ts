@@ -3,9 +3,10 @@ import {
   bookingPeriod,
   bookingsThisMonthWhere,
   type CapNotice,
+  type EntitlementFields,
   getEntitlements,
   hasRoomFor,
-  type PlanFields,
+  photoImportPeriod,
 } from './plans.js'
 import { prisma } from '../lib/prisma.js'
 
@@ -27,10 +28,33 @@ export const countBookingsThisMonth = (providerId: string, now: Date): Promise<n
  * all on a plan without a cap — which is every paid plan above Basic, so the public page of
  * most paying providers costs nothing extra.
  */
-export const isBookingAllowanceSpent = async (provider: PlanFields & { id: string }, now: Date): Promise<boolean> => {
+export const isBookingAllowanceSpent = async (provider: EntitlementFields & { id: string }, now: Date): Promise<boolean> => {
   const { maxBookingsPerMonth } = getEntitlements(provider, now)
   if (maxBookingsPerMonth === null) return false
   return !hasRoomFor(await countBookingsThisMonth(provider.id, now), maxBookingsPerMonth)
+}
+
+/** Photos read today (UTC). Rides `PhotoImport_providerId_createdAt_idx`. */
+export const countPhotoImportsToday = (providerId: string, now: Date): Promise<number> => {
+  const { start, end } = photoImportPeriod(now)
+  return prisma.photoImport.count({ where: { providerId, createdAt: { gte: start, lt: end } } })
+}
+
+/**
+ * Spends one of today's photo imports **before** the read, so two photos sent together cannot
+ * both pass a count that saw neither — the window between count and record is a request's
+ * width rather than a model call's. Returns the row's id for `releasePhotoImport`.
+ */
+export const recordPhotoImport = async (providerId: string): Promise<string> =>
+  (await prisma.photoImport.create({ data: { providerId }, select: { id: true } })).id
+
+/**
+ * Gives a spent import back when the read never happened — a timeout, Google's own rate
+ * limit, an outage. A free provider's one photo a day is spent by a photo that was read,
+ * not by our upstream having a bad minute.
+ */
+export const releasePhotoImport = async (id: string): Promise<void> => {
+  await prisma.photoImport.deleteMany({ where: { id } })
 }
 
 /**

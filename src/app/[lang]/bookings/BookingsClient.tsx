@@ -7,6 +7,7 @@ import { useAuthStore } from '@store/auth/store'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
+import { PhotoImportButton } from '@components/bookingImport/PhotoImportButton'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { BookingsSide } from './BookingsList'
 import { BookingsSkeleton } from './BookingsSkeleton'
@@ -41,6 +42,8 @@ export const BookingsClient: FC = () => {
   const profiles = useAuthStore.use.profiles()
   const getMe = useAuthStore.use.getMe()
   const [side, setSide] = useState<BookingsSide>('provider')
+  /** Bumped by a photo import, so the list and calendar re-read without losing their filters. */
+  const [importRevision, setImportRevision] = useState(0)
 
   /**
    * `src/proxy.ts` has already bounced a visitor with no cookie. This catches the cookie
@@ -80,16 +83,24 @@ export const BookingsClient: FC = () => {
         title={t('title')}
         subtitle={subtitle}
         actions={
-          canSwitch ? (
-            <Segmented<BookingsSide>
-              aria-label={t('viewLabel')}
-              value={providerSide}
-              onChange={setSide}
-              options={[
-                { value: 'provider', label: t('views.provider') },
-                { value: 'consumer', label: t('views.consumer') },
-              ]}
-            />
+          isProvider ? (
+            <div className='flex flex-wrap items-center gap-2'>
+              {/* Bookings *with* this provider only: an import writes to their own calendar. */}
+              {providerSide === 'provider' && (
+                <PhotoImportButton onImported={() => setImportRevision((current) => current + 1)} />
+              )}
+              {canSwitch && (
+                <Segmented<BookingsSide>
+                  aria-label={t('viewLabel')}
+                  value={providerSide}
+                  onChange={setSide}
+                  options={[
+                    { value: 'provider', label: t('views.provider') },
+                    { value: 'consumer', label: t('views.consumer') },
+                  ]}
+                />
+              )}
+            </div>
           ) : undefined
         }
       />
@@ -97,7 +108,7 @@ export const BookingsClient: FC = () => {
       {isProvider ? (
         // Keyed so a switch starts the other view fresh: its service filter lists a
         // different catalogue, and a day picked on one calendar means nothing on the other.
-        <ProviderBookingsClient key={providerSide} side={providerSide} />
+        <ProviderBookingsClient key={providerSide} side={providerSide} importRevision={importRevision} />
       ) : (
         <ConsumerAppointmentsClient />
       )}

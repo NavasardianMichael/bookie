@@ -20,6 +20,17 @@ path. Only a server module with no imports of its own is reachable this way: any
 pulling in `../config.js` needs env stubbing and does not belong here. `lib/rateLimit.ts`
 qualifies and is tested; `lib/mail.ts` does not.
 
+One module is reached anyway: `googleOauth.spec.ts` covers `lib/google-oauth.ts`
+(`fullNameOf`, the `email_verified` gate in `readGoogleProfile`, the `GOOGLE_ERROR` codes)
+by `vi.mock`-ing `../config.js` and `./oauth-state.js` with factories, so neither real
+module — nor the env file `config.js` loads — is ever evaluated. `pnpm typecheck` still
+follows the real imports, so the spec also does `import type {} from
+'…/server/src/types/express'` for the `Request` augmentation `oauth-state.ts` relies on. That
+is the pattern for a pure function stranded in a config-importing module, and a stopgap:
+lifting the function into an import-free module is better (`docs/BACKLOG.md` #12). It is not
+a licence to stub env vars. `request.spec.ts` covers `lib/request.ts` (`asFullName`)
+directly, since it imports nothing.
+
 One deliberate exception: `returnPath.spec.ts` also imports `@constants/auth` by alias, to
 assert the server's `EMAIL_VERIFY_QUERY` equals the web constant that the verification page
 reads links with. That cross-package pin is the *point* of the test — the two halves of an
@@ -29,7 +40,7 @@ way: `GOOGLE_SIGN_UP_QUERY` against the web constant, and the paths `googleSignU
 builds against `ROUTES` (`@constants/routes`). Reach across like this when a test's subject
 is an agreement between the packages, not merely for convenience — `organizations.spec.ts`
 does the same to pin the new-organization length caps to `@constants/form` (and
-`categories.spec.ts` the category limits),
+`categories.spec.ts` the category limits, `request.spec.ts` the name cap),
 `search.spec.ts` runs every case against both twins of the search matcher
 (`src/helpers/search.ts`, `server/src/lib/search.ts`), `planErrors.spec.ts` pins the plan
 codes, the plan order and the Plan tab link, `providerSeo.spec.ts` checks every `ROUTES`

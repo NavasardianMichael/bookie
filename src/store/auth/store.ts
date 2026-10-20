@@ -13,11 +13,11 @@ import { AuthActions, AuthState } from './types'
 const initialState: AuthState = {
   userType: null,
   profileId: null,
-  firstName: null,
-  lastName: null,
+  fullName: null,
   image: null,
   timeFormat: null,
   email: null,
+  hasPassword: null,
   profiles: null,
   isSignedOn: false,
   step: SIGN_ON_STEPS.accountTypeSelection,
@@ -30,11 +30,11 @@ const signedOn = (session: Session): Partial<AuthState> => ({
   isSignedOn: true,
   userType: session.role,
   profileId: session.profileId,
-  firstName: session.firstName ?? null,
-  lastName: session.lastName ?? null,
+  fullName: session.fullName ?? null,
   image: session.image ?? null,
   timeFormat: session.timeFormat ?? null,
   email: session.email ?? null,
+  hasPassword: session.hasPassword ?? null,
   profiles: session.profiles ?? null,
 })
 
@@ -118,11 +118,11 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
                 isSignedOn: false,
                 userType: null,
                 profileId: null,
-                firstName: null,
-                lastName: null,
+                fullName: null,
                 image: null,
                 timeFormat: null,
                 email: null,
+                hasPassword: null,
                 error: isGuest ? null : processError(error),
               })
               return null

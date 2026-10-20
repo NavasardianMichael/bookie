@@ -23,6 +23,21 @@ export const asTrimmedString = (value: unknown): string | undefined => {
 export const asBoundedString = (value: unknown, max: number): string | undefined =>
   asTrimmedString(value)?.slice(0, max)
 
+/**
+ * The cap on a person's name, mirrored by `MAX_CHARS_FOR_NAME` in `src/constants/form.ts`.
+ * Roomier than the 40 each half used to get: the joined legacy names reach 81.
+ */
+export const MAX_FULL_NAME_LENGTH = 100
+
+/**
+ * A person's name as one field — `Provider.fullName`, `Consumer.fullName`,
+ * `Appointment.guestFullName`. Runs of whitespace collapse to one space (a pasted tab or
+ * double space would otherwise sort and search as a different name), then capped as
+ * `asBoundedString` caps. `undefined` when nothing is left; each route words its own 400.
+ */
+export const asFullName = (value: unknown): string | undefined =>
+  typeof value === 'string' ? asBoundedString(value.replace(/\s+/g, ' '), MAX_FULL_NAME_LENGTH)?.trimEnd() : undefined
+
 /** RFC 5321's limit on a full address. Also the backtracking bound for `isEmail`. */
 export const MAX_EMAIL_LENGTH = 254
 

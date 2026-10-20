@@ -11,12 +11,11 @@ export type ConsumerAppointmentListItem = {
   status: string
   time: { startDate: string }
   createdAt?: string
-  provider?: { basic: { firstName: string; lastName: string } }
+  provider?: { basic: { fullName: string } }
   service?: { name: string }
 }
 
-const providerName = (item: ConsumerAppointmentListItem): string =>
-  item.provider ? `${item.provider.basic.firstName} ${item.provider.basic.lastName}`.trim() : ''
+const providerName = (item: ConsumerAppointmentListItem): string => item.provider?.basic.fullName ?? ''
 
 const isUpcoming = (item: ConsumerAppointmentListItem, nowMs: number): boolean =>
   new Date(item.time.startDate).getTime() >= nowMs &&

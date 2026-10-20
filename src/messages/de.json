@@ -51,6 +51,7 @@
     "accountSettings": "Kontoeinstellungen",
     "bookings": "Buchungen",
     "favorites": "Favoriten",
+    "pricing": "Preise",
     "profile": "Profil"
   },
   "Auth": {
@@ -66,8 +67,7 @@
       "choosePasswordPlaceholder": "Mindestens 8 Zeichen",
       "newPassword": "Neues Passwort",
       "confirmPassword": "Passwort bestätigen",
-      "firstName": "Vorname",
-      "lastName": "Nachname",
+      "fullName": "Vollständiger Name",
       "phone": "Telefonnummer",
       "countryCode": "Ländervorwahl"
     },
@@ -201,8 +201,7 @@
     "guest": {
       "heading": "Ihre Daten",
       "hint": "Wir benötigen diese Angaben, um Ihre Buchung zu bestätigen. Kein Konto erforderlich.",
-      "firstName": "Vorname",
-      "lastName": "Nachname",
+      "fullName": "Vollständiger Name",
       "phone": "Telefonnummer",
       "email": "E-Mail",
       "emailPlaceholder": "you@example.com",
@@ -321,8 +320,7 @@
     "title": "Kontaktieren Sie uns",
     "subtitle": "Nehmen Sie Kontakt mit dem Bookie-Team auf. Wir melden uns in der Regel innerhalb von 5 Werktagen.",
     "fields": {
-      "firstName": "Vorname",
-      "lastName": "Nachname",
+      "fullName": "Vollständiger Name",
       "email": "E-Mail",
       "message": "Nachricht",
       "messagePlaceholder": "Sagen Sie uns, wobei wir helfen können."
@@ -341,7 +339,9 @@
     },
     "topics": {
       "planUpgrade": "Anfrage: Tarif {plan}",
-      "planUpgradeMessage": "Hallo, ich möchte meine Seite auf den Tarif {plan} umstellen."
+      "planUpgradeMessage": "Hallo, ich möchte meine Seite auf den Tarif {plan} umstellen.",
+      "addonRequest": "Anfrage: {addon}",
+      "addonRequestMessage": "Hallo, ich möchte {addon} zu meiner Seite hinzufügen."
     }
   },
   "Settings": {
@@ -365,7 +365,8 @@
       "advanced": "Erweiterte Einstellungen",
       "seo": "SEO",
       "history": "Verlauf",
-      "plan": "Tarif"
+      "plan": "Tarif",
+      "payouts": "Auszahlungen"
     },
     "workspace": {
       "onProviderTitle": "Sie sind in Ihrem Anbieterbereich",
@@ -393,13 +394,13 @@
     },
     "profile": {
       "personalInfo": "Persönliche Angaben",
-      "firstName": "Vorname",
-      "lastName": "Nachname",
+      "fullName": "Vollständiger Name",
       "description": "Beschreibung",
       "email": "E-Mail-Adresse",
       "noAvatarHint": "Profilbild ist für Kundenkonten nicht verfügbar.",
       "imageHint": "JPG oder PNG. Maximale Größe 2 MB.",
       "upload": "Neu hochladen",
+      "removePhoto": "Foto entfernen",
       "providerSubtitle": "Aktualisieren Sie die Angaben, die auf Ihrem öffentlichen Profil erscheinen.",
       "sendEmailCode": "E-Mail zurücksetzen",
       "emailRequired": "Geben Sie zuerst eine E-Mail-Adresse ein.",
@@ -458,7 +459,7 @@
       "telegramTitle": "Telegram",
       "telegramProviderBody": "Erhalten Sie Ihre Buchungsbenachrichtigungen zusätzlich zur E-Mail auch in Telegram.",
       "telegramConsumerBody": "Erhalten Sie Erinnerungen und Buchungsupdates zusätzlich zur E-Mail auch in Telegram.",
-      "telegramLocked": "Telegram-Benachrichtigungen zu Ihrem Geschäft sind ab dem Tarif Basic enthalten. <plan>Tarife ansehen</plan>",
+      "telegramLocked": "Telegram-Benachrichtigungen zu Ihrem Geschäft sind ab dem Tarif Basic enthalten oder als Add-on erhältlich. <plan>Tarife ansehen</plan>",
       "telegramUnavailable": "Telegram-Benachrichtigungen sind derzeit nicht verfügbar.",
       "telegramConnect": "Telegram verbinden",
       "telegramOpen": "Telegram öffnen",
@@ -471,7 +472,7 @@
       "telegramDisconnectFailed": "Telegram konnte nicht getrennt werden",
       "calendarTitle": "Kalender-Synchronisierung",
       "calendarBody": "Abonnieren Sie Ihre Buchungen in Google Calendar, Apple Calendar oder Outlook. Neue Buchungen und Änderungen erscheinen dort automatisch.",
-      "calendarLocked": "Die Kalender-Synchronisierung ist ab dem Tarif Basic enthalten. <plan>Tarife ansehen</plan>",
+      "calendarLocked": "Die Kalender-Synchronisierung ist ab dem Tarif Basic enthalten oder als Add-on erhältlich. <plan>Tarife ansehen</plan>",
       "calendarCopy": "Kalenderlink kopieren",
       "calendarHint": "Fügen Sie in Ihrer Kalender-App einen Kalender per URL hinzu und setzen Sie diesen Link ein. Halten Sie ihn privat: Jeder, der ihn hat, kann Ihre Buchungen sehen.",
       "calendarReset": "Link zurücksetzen",
@@ -571,6 +572,18 @@
       "calendarHint": "Wählen Sie einen Tag, um zu sehen, wer gebucht hat.",
       "calendarFiltered": "Ein Tag angezeigt. Wählen Sie ihn erneut, um alle zu sehen.",
       "calendarLabel": "Buchungen nach Tag",
+      "hideCalendar": "Kalender ausblenden",
+      "showCalendar": "Kalender anzeigen",
+      "periodLabel": "Wann",
+      "periods": {
+        "upcoming": "Anstehend",
+        "today": "Heute",
+        "thisWeek": "Diese Woche",
+        "nextWeek": "Nächste Woche",
+        "lastWeek": "Letzte Woche",
+        "thisMonth": "Dieser Monat",
+        "lastMonth": "Letzter Monat"
+      },
       "clearDay": "Alle Tage",
       "previousMonth": "Vorheriger Monat",
       "nextMonth": "Nächster Monat",
@@ -719,8 +732,8 @@
       "slugPattern": "Verwenden Sie Kleinbuchstaben, Zahlen und einzelne Bindestriche dazwischen.",
       "slugChangeWarning": "Speichern ersetzt Ihren aktuellen Link. Wer /p/{slug} nutzt, erreicht Ihre Seite nicht mehr.",
       "saved": "Sucheinstellungen gespeichert.",
-      "slugLocked": "Ein eigener Link ist in den kostenpflichtigen Tarifen enthalten, daher nutzt Ihre Seite ihren Standardlink. <link>Tarife ansehen</link>",
-      "slugLockedKept": "Ihr eigener Link funktioniert weiterhin, aber um ihn zu ändern, brauchen Sie einen kostenpflichtigen Tarif. <link>Tarife ansehen</link>"
+      "slugLocked": "Ein eigener Link ist in den kostenpflichtigen Tarifen enthalten oder einzeln als Add-on erhältlich, daher nutzt Ihre Seite vorerst ihren Standardlink. <link>Tarife ansehen</link>",
+      "slugLockedKept": "Ihr eigener Link funktioniert weiterhin, aber um ihn zu ändern, brauchen Sie einen kostenpflichtigen Tarif oder das Add-on Eigener Seitenlink. <link>Tarife ansehen</link>"
     },
     "signOutTitle": "Abmelden?",
     "signOutBody": "Sie müssen sich erneut anmelden, um Ihr Konto zu verwalten.",
@@ -731,9 +744,15 @@
       "confirmTitle": "Konto löschen?",
       "confirmBody": "Alle Daten zu diesem Konto werden entfernt. Das kann nicht rückgängig gemacht werden.",
       "password": "Aktuelles Passwort",
-      "googleOnly": "Dieses Konto meldet sich mit Google an. Legen Sie zuerst ein Passwort fest, um die Löschung zu bestätigen.",
+      "googleOnly": "Dieses Konto meldet sich mit Google an, es gibt also kein Passwort. Bestätigen löscht es dauerhaft.",
       "hasAppointments": "Sie haben Termine. Stornieren Sie diese, bevor Sie Ihr Konto löschen.",
       "wrongPassword": "Das aktuelle Passwort ist falsch"
+    },
+    "payouts": {
+      "title": "Auszahlungen",
+      "subtitle": "Alle monatlichen Kosten, die Bookie berechnet, aus dem Tarifkatalog.",
+      "plan": "Tarif",
+      "cost": "Monatliche Kosten"
     },
     "plan": {
       "title": "Tarif",
@@ -766,7 +785,35 @@
       "switchingTitle": "Wechsel zu {plan}…",
       "switchPendingTitle": "Ihr Tarifwechsel wird verarbeitet",
       "switchPendingBody": "Paddle hat ihn angenommen; es kann einige Minuten dauern, bis er hier angezeigt wird. Aktualisieren Sie die Seite gleich noch einmal.",
-      "billingNote": "Zahlungen werden von Paddle abgewickelt. Unter „Abrechnung verwalten“ können Sie kündigen, Ihre Karte ändern oder Rechnungen herunterladen."
+      "billingNote": "Zahlungen werden von Paddle abgewickelt. Unter „Abrechnung verwalten“ können Sie kündigen, Ihre Karte ändern oder Rechnungen herunterladen.",
+      "addonsTitle": "Add-ons",
+      "addonsSubtitle": "Einzelne Funktionen und zusätzliche Kapazität, monatlich mit Ihrem Abonnement abgerechnet.",
+      "addonActive": "Aktiv",
+      "addonPacks": "{count, plural, one {# Paket} other {# Pakete}}",
+      "addonGranted": "Von Bookie gewährt",
+      "addonGrantedUntil": "Von Bookie gewährt bis {date}",
+      "addonIncluded": "In Ihrem Tarif enthalten",
+      "addonAdd": "Hinzufügen",
+      "addonRemove": "Entfernen",
+      "addonAddPack": "Paket hinzufügen",
+      "addonRemovePack": "Paket entfernen",
+      "addonRequest": "Anfragen",
+      "addonAddTitle": "{addon} hinzufügen?",
+      "addonAddPackTitle": "Ein Paket {addon} hinzufügen?",
+      "addonAddBody": "Es ist sofort verfügbar. Der Rest dieses Abrechnungszeitraums wird jetzt berechnet, danach verlängert es sich monatlich mit Ihrem Abonnement.",
+      "addonRemoveTitle": "{addon} entfernen?",
+      "addonRemovePackTitle": "Ein Paket {addon} entfernen?",
+      "addonRemoveBody": "Es endet sofort. Der ungenutzte Teil dieses Abrechnungszeitraums wird Ihrer nächsten Zahlung gutgeschrieben.",
+      "addonConfirmAdd": "Hinzufügen und bezahlen",
+      "addonConfirmRemove": "Entfernen",
+      "addonUpdatingTitle": "{addon} wird aktualisiert …",
+      "addonPendingTitle": "Ihre Add-on-Änderung ist unterwegs",
+      "switchDrops": "{plan} enthält {addons}, daher {count, plural, one {wird dieses Add-on} other {werden diese Add-ons}} aus Ihrem Abonnement entfernt.",
+      "switchTo": "Zu {plan} wechseln",
+      "switchToFreeBody": "Ihre Add-ons bleiben. Der ungenutzte Teil Ihres Tarifs wird Ihrer nächsten Zahlung gutgeschrieben.",
+      "betterPlanTitle": "{plan} wäre günstiger für Sie",
+      "betterPlanBody": "Der Tarif {plan} enthält, wofür Sie als Add-ons zahlen – für weniger pro Monat.",
+      "addonsCancelNote": "Add-ons verlängern sich mit Ihrem Abonnement. Wenn Sie es unter „Abrechnung verwalten“ kündigen, enden sie ebenfalls."
     }
   },
   "Bookings": {
@@ -775,6 +822,54 @@
     "views": {
       "provider": "Bei mir gebucht",
       "consumer": "Von mir gebucht"
+    },
+    "import": {
+      "button": "Aus Foto hinzufügen",
+      "title": "Buchungen aus einem Foto hinzufügen",
+      "intro": "Fotografieren Sie Ihre handschriftlichen Buchungen. Wir lesen sie aus, und Sie prüfen jede einzelne, bevor etwas gespeichert wird.",
+      "photoLabel": "Foto",
+      "photoPick": "Foto aufnehmen oder auswählen",
+      "photoChange": "Anderes Foto wählen",
+      "photoRequired": "Fügen Sie ein Foto Ihrer Buchungen hinzu",
+      "photoAlt": "Das ausgewählte Foto",
+      "noteLabel": "Hinweis zum Auslesen",
+      "notePlaceholder": "Z. B. „alle sind für Freitag“ oder „M = Maniküre“",
+      "privacy": "Fotos werden von Google Gemini ausgelesen und nicht von Bookie gespeichert. Im kostenlosen Kontingent von Google können die übermittelten Daten zur Verbesserung der Google-Dienste verwendet werden.",
+      "dailyLimit": "{count, plural, one {Ihr Tarif umfasst # Foto pro Tag.} other {Ihr Tarif umfasst # Fotos pro Tag.}}",
+      "read": "Foto auslesen",
+      "reading": "Ihre Buchungen werden ausgelesen…",
+      "emptyTitle": "Keine Buchungen gefunden",
+      "emptyBody": "Auf diesem Foto wurde nichts als Buchung erkannt. Versuchen Sie ein schärferes, gut beleuchtetes Foto, oder fügen Sie einen Hinweis hinzu, was darauf steht.",
+      "tryAnother": "Anderes Foto versuchen",
+      "noServices": "Legen Sie zuerst eine Leistung an – jede Buchung braucht eine.",
+      "reviewTitle": "{count, plural, one {# Buchung prüfen} other {# Buchungen prüfen}}",
+      "reviewIntro": "Korrigieren Sie alles, was falsch gelesen wurde. Jede Uhrzeit muss ein freies Zeitfenster in Ihrem Zeitplan sein.",
+      "row": "Buchung {number}",
+      "remove": "Buchung {number} entfernen",
+      "fullName": "Vollständiger Name des Kunden",
+      "phone": "Telefon",
+      "phoneInvalid": "Geben Sie eine Telefonnummer ein",
+      "service": "Leistung",
+      "servicePlaceholder": "Leistung auswählen",
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "timePlaceholder": "Uhrzeit wählen",
+      "noTimes": "Keine freien Zeiten an diesem Tag",
+      "notes": "Notizen",
+      "issues": {
+        "missing": "Wählen Sie eine Leistung, ein Datum und eine Uhrzeit.",
+        "offGrid": "Das ist an diesem Tag keines Ihrer Zeitfenster für diese Leistung. Wählen Sie eine Uhrzeit aus der Liste.",
+        "past": "Diese Uhrzeit ist bereits vorbei.",
+        "taken": "Sie haben zu dieser Uhrzeit bereits eine Buchung.",
+        "clash": "Gleiche Uhrzeit wie Buchung {number}."
+      },
+      "addRow": "Buchung hinzufügen",
+      "back": "Zurück",
+      "submit": "{count, plural, one {# Buchung hinzufügen} other {# Buchungen hinzufügen}}",
+      "needsAttention": "{count, plural, one {# Buchung erfordert Ihre Aufmerksamkeit} other {# Buchungen erfordern Ihre Aufmerksamkeit}}",
+      "added": "{count, plural, one {# Buchung hinzugefügt} other {# Buchungen hinzugefügt}}",
+      "slotsTaken": "Einige dieser Uhrzeiten wurden gerade gebucht. Sie sind unten markiert – wählen Sie andere.",
+      "seePlans": "Tarife ansehen"
     }
   },
   "Favorites": {
@@ -1133,7 +1228,8 @@
           "p3": "<b>Unser E-Mail-Versanddienst</b> – versendet Konto- und Buchungs-E-Mails.",
           "p4": "<b>Telegram</b> – stellt Benachrichtigungen zu, nur wenn Sie es verbinden.",
           "p5": "<b>Google</b> – meldet Sie an, nur wenn Sie „Mit Google fortfahren“ wählen.",
-          "p6": "Die Details einer Buchung werden mit dem Anbieter geteilt, bei dem sie vorgenommen wird, und die öffentlichen Kontaktdaten des Anbieters mit dem Kunden – genau darin besteht eine Buchung."
+          "p6": "<b>Google Gemini</b> – liest das Foto handschriftlicher Buchungen aus, nur wenn ein Anbieter Buchungen aus einem Foto hinzufügen möchte. Im kostenlosen Kontingent von Gemini kann Google die empfangenen Daten zur Verbesserung seiner Dienste verwenden. Wir speichern das Foto nicht.",
+          "p7": "Die Details einer Buchung werden mit dem Anbieter geteilt, bei dem sie vorgenommen wird, und die öffentlichen Kontaktdaten des Anbieters mit dem Kunden – genau darin besteht eine Buchung."
         },
         "cookies": {
           "title": "Cookies",
@@ -1248,6 +1344,7 @@
   "Validation": {
     "required": "Bitte {label} ausfüllen",
     "maxCharsForInput": "Maximal {max} Zeichen",
+    "maxCharsForName": "Maximal {max} Zeichen",
     "maxCharsForTextarea": "Maximal {max} Zeichen",
     "oneItemSelectedAtLeast": "Bitte mindestens einen Eintrag wählen",
     "email": "Ungültige E-Mail",
@@ -1291,11 +1388,19 @@
       "slotTaken": "Diese Uhrzeit wurde gerade vergeben. Bitte wählen Sie eine andere.",
       "bookingPaused": "Dieser Anbieter nimmt derzeit keine Online-Buchungen an. Bitte nehmen Sie direkt Kontakt auf.",
       "bookingFull": "Dieser Anbieter kann in diesem Monat keine weiteren Online-Buchungen annehmen. Bitte nehmen Sie direkt Kontakt auf.",
-      "serviceLimit": "Sie haben das Limit aktiver Leistungen Ihres Tarifs erreicht. Deaktivieren Sie eine Leistung oder wechseln Sie in einen höheren Tarif, um eine weitere hinzuzufügen.",
-      "featureLocked": "Diese Funktion ist in Ihrem Tarif nicht enthalten. Wechseln Sie in einen höheren Tarif, um sie zu nutzen.",
+      "serviceLimit": "Sie haben das Limit aktiver Leistungen erreicht. Deaktivieren Sie eine Leistung, buchen Sie ein Paket zusätzlicher Leistungen oder wechseln Sie in einen höheren Tarif.",
+      "featureLocked": "Diese Funktion ist in Ihrem Tarif nicht enthalten. Buchen Sie sie einzeln dazu oder wechseln Sie in einen höheren Tarif, um sie zu nutzen.",
       "notConfigured": "Online-Zahlungen sind derzeit nicht verfügbar. Fragen Sie den Tarif stattdessen an, und wir richten ihn für Sie ein.",
-      "alreadySubscribed": "Sie haben bereits ein Abonnement. Wechseln Sie den Tarif in Ihren Tarifeinstellungen.",
-      "noSubscription": "Es gibt kein aktives Abonnement, das geändert werden kann."
+      "alreadySubscribed": "Sie haben bereits ein Abonnement. Ändern Sie es in Ihren Tarifeinstellungen.",
+      "noSubscription": "Es gibt kein aktives Abonnement, das geändert werden kann.",
+      "photoImportLimit": "Sie haben den heutigen Foto-Import bereits genutzt. Morgen steht er wieder zur Verfügung, oder wechseln Sie in einen höheren Tarif für unbegrenzte Importe.",
+      "bookingLimit": "Mit diesen Buchungen würden Sie das monatliche Limit Ihres Tarifs überschreiten. Entfernen Sie einige oder wechseln Sie in einen höheren Tarif.",
+      "photoImportUnavailable": "Das Hinzufügen von Buchungen aus einem Foto ist derzeit nicht verfügbar.",
+      "photoUnreadable": "Wir konnten dieses Foto nicht lesen. Versuchen Sie ein schärferes, gut beleuchtetes.",
+      "addonIncluded": "Ihr Tarif enthält das bereits – es gibt nichts hinzuzufügen.",
+      "lastItem": "Damit wäre Ihr Abonnement leer. Um es zu beenden, kündigen Sie es unter „Abrechnung verwalten“.",
+      "changeUnavailable": "Ihr Abonnement kann gerade nicht geändert werden. Wenn eine Zahlung fehlgeschlagen ist, aktualisieren Sie Ihre Karte unter „Abrechnung verwalten“; andernfalls versuchen Sie es gleich noch einmal.",
+      "activeSubscription": "Diese Seite hat noch ein aktives Abonnement. Kündigen Sie es unter „Abrechnung verwalten“, bevor Sie die Seite löschen."
     },
     "pages": {
       "provider": "Die Seite dieses Anbieters konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
@@ -1364,7 +1469,12 @@
       "saved": "Tarif gespeichert",
       "pagesLabel": "Anbieterseiten",
       "paddle": "Paddle",
-      "paddleNote": "Abrechnung über Paddle: Eine manuelle Änderung hier wird bei der nächsten Aktualisierung des Abonnements überschrieben."
+      "paddleNote": "Abrechnung über Paddle: Eine manuelle Änderung hier wird bei der nächsten Aktualisierung des Abonnements überschrieben.",
+      "addonsLabel": "Gewährte Add-ons",
+      "addonsLastDayLabel": "Letzter Tag der Add-ons",
+      "saveAddons": "Add-ons speichern",
+      "addonsSaved": "Add-ons gespeichert",
+      "paidAddons": "Über Paddle bezahlt: {addons}"
     }
   },
   "Plans": {
@@ -1377,6 +1487,7 @@
     "features": {
       "maxActiveServices": "Aktive Leistungen",
       "maxBookingsPerMonth": "Online-Buchungen pro Monat",
+      "photoImportsPerDay": "Foto-Importe pro Tag",
       "analyticsHistoryDays": "Statistik-Verlauf",
       "customSlug": "Eigener Seitenlink",
       "telegramNotifications": "Telegram-Benachrichtigungen",
@@ -1391,12 +1502,42 @@
     "current": "Ihr Tarif",
     "requestTitle": "Tarif {plan} anfragen",
     "freeForever": "Für immer kostenlos",
-    "perMonth": "/ Monat"
+    "perMonth": "/ Monat",
+    "addons": {
+      "customSlug": {
+        "name": "Eigener Seitenlink",
+        "description": "Ihre eigene kurze Adresse, z. B. /p/ihr-name."
+      },
+      "telegramNotifications": {
+        "name": "Telegram-Benachrichtigungen",
+        "description": "Neue Buchungen, Änderungen und Erinnerungen per Telegram und per E-Mail."
+      },
+      "calendarFeed": {
+        "name": "Kalender-Synchronisierung",
+        "description": "Ihre Buchungen in Google, Apple oder Outlook Kalender, immer aktuell."
+      },
+      "removeBranding": {
+        "name": "Ohne Bookie-Branding",
+        "description": "Entfernt die Zeile „Buchungsseite von Bookie“ von Ihrer Seite."
+      },
+      "extraServices": {
+        "name": "Zusätzliche Leistungen",
+        "description": "{count} weitere aktive Leistungen pro Paket."
+      },
+      "extraBookings": {
+        "name": "Zusätzliche Buchungen",
+        "description": "{count} weitere Online-Buchungen pro Monat und Paket."
+      }
+    },
+    "perPackPerMonth": "pro Paket / Monat",
+    "addonIncludedIn": "In {plan} enthalten",
+    "addonIncludedFrom": "Ab {plan} enthalten",
+    "addonRequestTitle": "{addon} anfragen"
   },
   "Pricing": {
     "metaTitle": "Preise für Anbieter",
     "metaDescription": "Bookie-Tarife für Dienstleister: Starten Sie kostenlos oder wechseln Sie in einen höheren Tarif für mehr Leistungen, unbegrenzte Buchungen, Telegram-Benachrichtigungen und Kalender-Synchronisierung. Buchen ist für Kunden immer kostenlos.",
-    "title": "Tarife für Anbieter",
+    "title": "Preise",
     "subtitle": "Starten Sie kostenlos und wechseln Sie in einen höheren Tarif, wenn sich Ihr Kalender füllt. Kunden zahlen nie für eine Buchung.",
     "startFree": "Kostenlos starten",
     "requestPlan": "Diesen Tarif anfragen",
@@ -1457,8 +1598,17 @@
       "refunds": {
         "q": "Kann ich eine Rückerstattung erhalten?",
         "a": "Ja – fragen Sie innerhalb von 14 Tagen nach Ihrer ersten Zahlung für einen Tarif an oder jederzeit, wenn eine Abbuchung irrtümlich erfolgt ist. Siehe unsere <refund>Rückerstattungsrichtlinie</refund>."
+      },
+      "addons": {
+        "q": "Kann ich eine einzelne Funktion ohne Tarif kaufen?",
+        "a": "Ja. Jede Funktion und jedes Kapazitätspaket gibt es einzeln, monatlich, zu jedem Tarif – auch zum kostenlosen. Add-ons verlängern sich mit Ihrem Abonnement, und beim Wechsel in einen Tarif, der ein Add-on enthält, wird es automatisch entfernt – Sie zahlen also nie doppelt."
       }
-    }
+    },
+    "addonsTitle": "Add-ons",
+    "addonsSubtitle": "Sie brauchen nur eine Sache? Buchen Sie sie zu jedem Tarif dazu, auch zum kostenlosen. Jedes Add-on wird monatlich abgerechnet.",
+    "addonsBundleNote": "Tarife bündeln das günstiger – {plan} enthält alle Funktionen oben, dazu mehr Leistungen und Buchungen.",
+    "addAddon": "Hinzufügen",
+    "requestAddon": "Anfragen"
   },
   "Billing": {
     "checkoutTitle": "Kasse",
@@ -1473,6 +1623,8 @@
     "activeTitle": "Sie nutzen jetzt den Tarif {plan}",
     "activeBody": "Vielen Dank! Alles, was Ihr Tarif enthält, steht Ihnen jetzt zur Verfügung. Paddle hat Ihnen einen Beleg per E-Mail gesendet.",
     "receivedTitle": "Zahlung eingegangen",
-    "receivedBody": "Vielen Dank! Es kann einige Minuten dauern, bis Ihr Tarif aktualisiert ist. Paddle hat Ihnen einen Beleg per E-Mail gesendet."
+    "receivedBody": "Vielen Dank! Es kann einige Minuten dauern, bis Ihr Tarif aktualisiert ist. Paddle hat Ihnen einen Beleg per E-Mail gesendet.",
+    "purchaseActiveTitle": "Ihr Kauf ist aktiv",
+    "purchaseActiveBody": "Vielen Dank! Alles, was Sie gekauft haben, ist jetzt verfügbar. Paddle hat Ihnen eine Quittung per E-Mail geschickt."
   }
 }

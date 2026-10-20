@@ -4,16 +4,17 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Alert, Progress } from 'antd'
 import dynamic from 'next/dynamic'
 import { useFormatter, useTranslations } from 'next-intl'
-import { postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
-import { getPlansAPI, getProviderPlanAPI } from '@api/plans/main'
+import { postAddonAPI, postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
+import { getAddonsAPI, getPlansAPI, getProviderPlanAPI } from '@api/plans/main'
 import { useAwaitPlan } from '@hooks/useAwaitPlan'
 import { useErrorToast } from '@hooks/useErrorToast'
 import { useStartCheckout } from '@hooks/useStartCheckout'
-import { PaidPlan, Plan, PlanCatalogueEntry, ProviderPlanWithUsage } from '@interfaces/plans'
+import { AddonCatalogueEntry, PaidPlan, Plan, PlanCatalogueEntry, ProviderPlanWithUsage } from '@interfaces/plans'
 import { BILLING_STATUSES } from '@constants/billing'
-import { PLAN_ORDER, PLANS } from '@constants/plans'
-import { hasRoomFor, toPlanLastDay, usagePercent } from '@helpers/plans'
+import { ADDON_SOURCES, PLAN_ORDER, PLANS } from '@constants/plans'
+import { BillingTarget, hasRoomFor, heldQuantity, toPlanLastDay, usagePercent } from '@helpers/plans'
 import { PlanComparisonTable } from '@components/plans/PlanComparisonTable'
+import type { UpgradeRequest } from '@components/plans/PlanUpgradeSheet'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -23,8 +24,9 @@ import { PageHeader } from '@components/ui/layout/PageHeader'
 import { ResponsiveGrid } from '@components/ui/layout/ResponsiveGrid'
 import { Surface } from '@components/ui/layout/Surface'
 import { StatTile } from '@components/ui/StatTile'
+import { ProviderPlanAddons } from './ProviderPlanAddons'
 
-/** The contact form inside this sheet loads only after Request upgrade. */
+/** The contact form inside this sheet loads only after a Request. */
 const PlanUpgradeSheet = dynamic(
   () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet)
 )
@@ -33,21 +35,30 @@ const isAbove = (plan: Plan, than: Plan): boolean => PLAN_ORDER.indexOf(plan) > 
 
 const isPaid = (plan: Plan): plan is PaidPlan => plan !== PLANS.free
 
+/** A change Paddle has accepted, awaited until the webhook lands it. */
+type PendingChange = { target: BillingTarget; attempt: number }
+
+/** An add-on change waiting for its confirm: from the quantity paid for now to `quantity`. */
+type AddonChange = { addon: AddonCatalogueEntry; quantity: number; from: number }
+
 /**
- * The provider's plan: what they are on, what they have used this month, and every plan
- * side by side with a way to move.
+ * The provider's plan and add-ons: what they hold, what they have used this month, every plan
+ * side by side and every add-on, each with a way to change it.
  *
- * Two reads in one effect — the provider's plan with usage and billing
- * (`GET /provider-profile/plan`) and the catalogue (`GET /plans`) — because the page is
- * meaningless with either missing, so one failure replaces the whole panel with a Retry.
+ * Three reads in one effect — the provider's plan with usage and billing
+ * (`GET /provider-profile/plan`), the plans (`GET /plans`) and the add-ons
+ * (`GET /plans/addons`) — because the page is meaningless with any missing, so one failure
+ * replaces the whole panel with a Retry.
  *
- * How a plan is bought depends on what this deployment sells (docs/BILLING.md):
+ * A plan and its add-ons are **one subscription** (docs/BILLING.md → *Add-ons*), so:
  *
- * - **Purchasable, not subscribed** — Upgrade starts a Paddle checkout (`useStartCheckout`).
- * - **Subscribed** — Switch changes the subscription's plan, prorated, after a confirm;
- *   the page then waits for the webhook (`useAwaitPlan`) and shows the new plan. Leaving a
- *   paid plan for Free, the card and the invoices are in Paddle's billing portal.
- * - **Not purchasable** — Request upgrade sends the contact form, assigned by hand.
+ * - **Not subscribed** — Upgrade, or Add on an add-on, starts a Paddle checkout
+ *   (`useStartCheckout`).
+ * - **Subscribed** — a plan switch or an add-on change goes to the subscription after a
+ *   confirm, charged now and prorated; the page then waits for the webhook (`useAwaitPlan`).
+ *   A switch drops the add-ons the new plan includes, and the confirm names them. Free keeps
+ *   the add-ons; with none, leaving is a cancellation in Paddle's billing portal.
+ * - **Not purchasable** — Request sends the contact form, granted by hand.
  */
 export const ProviderPlanClient = () => {
   const t = useTranslations('Settings.plan')
@@ -55,16 +66,18 @@ export const ProviderPlanClient = () => {
   const tErrors = useTranslations('Errors')
   const format = useFormatter()
   const showError = useErrorToast()
-  const { startCheckout, pendingPlan } = useStartCheckout()
+  const { startCheckout, pending: pendingCheckout } = useStartCheckout()
 
   const [loaded, setLoaded] = useState<ProviderPlanWithUsage | null>(null)
   const [catalogue, setCatalogue] = useState<PlanCatalogueEntry[]>([])
+  const [addonCatalogue, setAddonCatalogue] = useState<AddonCatalogueEntry[]>([])
   const [error, setError] = useState<unknown>(null)
   const [revision, setRevision] = useState(0)
-  const [requested, setRequested] = useState<Plan | null>(null)
+  const [requested, setRequested] = useState<UpgradeRequest | null>(null)
   const [upgradeMounted, setUpgradeMounted] = useState(false)
-  const [switchTo, setSwitchTo] = useState<PaidPlan | null>(null)
-  const [switching, setSwitching] = useState<{ plan: PaidPlan; attempt: number } | null>(null)
+  const [switchTo, setSwitchTo] = useState<Plan | null>(null)
+  const [addonChange, setAddonChange] = useState<AddonChange | null>(null)
+  const [pending, setPending] = useState<PendingChange | null>(null)
   const [portalPending, setPortalPending] = useState(false)
 
   // `loading` is derived from the request's identity, never set at the top of the effect.
@@ -75,11 +88,12 @@ export const ProviderPlanClient = () => {
   useEffect(() => {
     let cancelled = false
 
-    void Promise.all([getProviderPlanAPI(), getPlansAPI()])
-      .then(([plan, plans]) => {
+    void Promise.all([getProviderPlanAPI(), getPlansAPI(), getAddonsAPI()])
+      .then(([plan, plans, addons]) => {
         if (cancelled) return
         setLoaded(plan)
         setCatalogue(plans)
+        setAddonCatalogue(addons)
         setError(null)
       })
       .catch((err: unknown) => {
@@ -94,8 +108,8 @@ export const ProviderPlanClient = () => {
     }
   }, [request])
 
-  // After a switch, the plan read by the wait replaces the one loaded before it.
-  const awaited = useAwaitPlan(switching?.plan ?? null, switching?.attempt)
+  // After a change, the plan read by the wait replaces the one loaded before it.
+  const awaited = useAwaitPlan(pending?.target ?? null, pending?.attempt)
   const current = awaited.status === 'done' ? awaited.current : loaded
 
   // UTC for the expiry and the booking month, which are both counted in UTC on the server.
@@ -133,7 +147,7 @@ export const ProviderPlanClient = () => {
     )
   }
 
-  const { entitlements, usage, effectivePlan, planExpiresAt, billing } = current
+  const { entitlements, usage, effectivePlan, planExpiresAt, billing, addons: held, betterPlan } = current
   const lapsed = current.plan !== effectivePlan
   const resetsOn = formatDay(new Date(usage.periodEnd))
   const bookingsFull = !hasRoomFor(usage.bookingsThisMonth, entitlements.maxBookingsPerMonth)
@@ -142,8 +156,19 @@ export const ProviderPlanClient = () => {
   const subscribed = billing !== null && billing.status !== BILLING_STATUSES.canceled
   const pastDue = billing?.status === BILLING_STATUSES.pastDue
   const purchasable = new Map(catalogue.map(({ id, purchasable }) => [id, purchasable]))
-  const sellsAny = catalogue.some(({ purchasable }) => purchasable)
-  const waitingForSwitch = switching !== null && awaited.status === 'waiting'
+  const sellsAny = catalogue.some(({ purchasable }) => purchasable) || addonCatalogue.some(({ purchasable }) => purchasable)
+  const waitingForChange = pending !== null && awaited.status === 'waiting'
+
+  const addonName = (addon: AddonCatalogueEntry['id']): string => tPlans(`addons.${addon}.name`)
+  const paidFor = addonCatalogue.filter((addon) => heldQuantity(held, addon.id, ADDON_SOURCES.paddle) > 0)
+  // What a switch to `plan` takes off the subscription: the paid add-ons it already includes.
+  const droppedBy = (plan: Plan): AddonCatalogueEntry[] => paidFor.filter((addon) => addon.includedIn.includes(plan))
+
+  const awaitChange = (target: BillingTarget): void => {
+    // Keep what the last change landed on while the next one is awaited.
+    if (awaited.status === 'done') setLoaded(awaited.current)
+    setPending((previous) => ({ target, attempt: (previous?.attempt ?? 0) + 1 }))
+  }
 
   const openPortal = async (): Promise<void> => {
     setPortalPending(true)
@@ -155,13 +180,32 @@ export const ProviderPlanClient = () => {
     }
   }
 
+  const openRequest = (next: UpgradeRequest): void => {
+    setUpgradeMounted(true)
+    setRequested(next)
+  }
+
   const confirmSwitch = async (): Promise<void> => {
     if (!switchTo) return
     await postChangePlanAPI({ plan: switchTo })
-    // Keep what the last switch landed on while the next one is awaited.
-    if (awaited.status === 'done') setLoaded(awaited.current)
-    setSwitching((previous) => ({ plan: switchTo, attempt: (previous?.attempt ?? 0) + 1 }))
+    awaitChange({ kind: 'plan', plan: switchTo })
     setSwitchTo(null)
+  }
+
+  const changeAddon = (addon: AddonCatalogueEntry, quantity: number): void => {
+    if (subscribed) {
+      setAddonChange({ addon, quantity, from: heldQuantity(held, addon.id, ADDON_SOURCES.paddle) })
+      return
+    }
+    if (quantity > 0) void startCheckout({ addons: [{ addon: addon.id, quantity }] })
+  }
+
+  const confirmAddon = async (): Promise<void> => {
+    if (!addonChange) return
+    const { addon, quantity } = addonChange
+    await postAddonAPI({ addon: addon.id, quantity })
+    awaitChange({ kind: 'addon', addon: addon.id, quantity })
+    setAddonChange(null)
   }
 
   const statusLine = (): { text: string; warning: boolean } | null => {
@@ -182,8 +226,16 @@ export const ProviderPlanClient = () => {
 
   const action = (plan: Plan): ReactNode => {
     if (!isPaid(plan)) {
-      // Leaving a subscription is a cancellation, which Paddle's portal owns.
-      return subscribed && !billing.cancelsAt && billing.manageable ? (
+      if (!subscribed || current.plan === PLANS.free) return null
+      // With add-ons, Free keeps them; without, leaving is a cancellation, which Paddle's portal owns.
+      if (paidFor.length > 0) {
+        return (
+          <AppButton disabled={waitingForChange} onClick={() => setSwitchTo(PLANS.free)}>
+            {t('switchTo', { plan: tPlans(`names.${PLANS.free}`) })}
+          </AppButton>
+        )
+      }
+      return !billing.cancelsAt && billing.manageable ? (
         <AppButton loading={portalPending} onClick={() => void openPortal()}>
           {t('cancelInPortal')}
         </AppButton>
@@ -192,13 +244,7 @@ export const ProviderPlanClient = () => {
 
     if (!purchasable.get(plan)) {
       return isAbove(plan, effectivePlan) ? (
-        <AppButton
-          type='primary'
-          onClick={() => {
-            setUpgradeMounted(true)
-            setRequested(plan)
-          }}
-        >
+        <AppButton type='primary' onClick={() => openRequest({ plan })}>
           {t('requestUpgrade')}
         </AppButton>
       ) : null
@@ -209,7 +255,7 @@ export const ProviderPlanClient = () => {
       return (
         <AppButton
           type={isAbove(plan, current.plan) ? 'primary' : 'default'}
-          disabled={waitingForSwitch}
+          disabled={waitingForChange}
           onClick={() => setSwitchTo(plan)}
         >
           {isAbove(plan, current.plan) ? t('upgrade') : t('switch')}
@@ -220,9 +266,9 @@ export const ProviderPlanClient = () => {
     return isAbove(plan, effectivePlan) ? (
       <AppButton
         type='primary'
-        loading={pendingPlan === plan}
-        disabled={pendingPlan !== null && pendingPlan !== plan}
-        onClick={() => void startCheckout(plan)}
+        loading={pendingCheckout === plan}
+        disabled={pendingCheckout !== null && pendingCheckout !== plan}
+        onClick={() => void startCheckout({ plan })}
       >
         {t('upgrade')}
       </AppButton>
@@ -240,6 +286,50 @@ export const ProviderPlanClient = () => {
   }
 
   const status = statusLine()
+
+  const pendingTitle = (): string | undefined => {
+    if (!pending) return undefined
+    const { target } = pending
+    if (awaited.status === 'waiting') {
+      if (target.kind === 'plan') return t('switchingTitle', { plan: tPlans(`names.${target.plan}`) })
+      if (target.kind === 'addon') return t('addonUpdatingTitle', { addon: addonName(target.addon) })
+    }
+    return target.kind === 'addon' ? t('addonPendingTitle') : t('switchPendingTitle')
+  }
+
+  const switchDescription = (): ReactNode => {
+    if (!switchTo) return null
+    const dropped = droppedBy(switchTo)
+    return (
+      <span className='flex flex-col gap-2'>
+        <span>{switchTo === PLANS.free ? t('switchToFreeBody') : t('switchBody')}</span>
+        {dropped.length > 0 && (
+          <span>
+            {t('switchDrops', {
+              plan: tPlans(`names.${switchTo}`),
+              addons: format.list(
+                dropped.map((addon) => addonName(addon.id)),
+                { type: 'conjunction' }
+              ),
+              count: dropped.length,
+            })}
+          </span>
+        )}
+      </span>
+    )
+  }
+
+  const addonTitle = (): string => {
+    if (!addonChange) return ''
+    const name = addonName(addonChange.addon.id)
+    const adding = addonChange.quantity > addonChange.from
+    if (addonChange.addon.kind === 'capacity') {
+      return adding ? t('addonAddPackTitle', { addon: name }) : t('addonRemovePackTitle', { addon: name })
+    }
+    return adding ? t('addonAddTitle', { addon: name }) : t('addonRemoveTitle', { addon: name })
+  }
+
+  const addonAdding = addonChange !== null && addonChange.quantity > addonChange.from
 
   return (
     <div className='flex flex-col gap-6'>
@@ -287,21 +377,32 @@ export const ProviderPlanClient = () => {
         />
       )}
 
-      {switching && awaited.status !== 'done' && (
+      {pending && awaited.status !== 'done' && (
         <Alert
           type='info'
           showIcon
-          title={
-            awaited.status === 'waiting'
-              ? t('switchingTitle', { plan: tPlans(`names.${switching.plan}`) })
-              : t('switchPendingTitle')
-          }
+          title={pendingTitle()}
           description={awaited.status === 'waiting' ? undefined : t('switchPendingBody')}
         />
       )}
 
       {/* The one state a visitor notices: the page has stopped taking bookings. */}
       {bookingsFull && <Alert type='warning' showIcon title={t('bookingsFullTitle')} description={t('bookingsFullBody', { date: resetsOn })} />}
+
+      {/* Add-ons that together cost more than a plan which includes them. */}
+      {subscribed && betterPlan && purchasable.get(betterPlan) && (
+        <Alert
+          type='info'
+          showIcon
+          title={t('betterPlanTitle', { plan: tPlans(`names.${betterPlan}`) })}
+          description={t('betterPlanBody', { plan: tPlans(`names.${betterPlan}`) })}
+          action={
+            <AppButton disabled={waitingForChange} onClick={() => setSwitchTo(betterPlan)}>
+              {t('switchTo', { plan: tPlans(`names.${betterPlan}`) })}
+            </AppButton>
+          }
+        />
+      )}
 
       <Surface className='flex flex-col gap-4'>
         <AppText size='overline' tone='muted' className='font-semibold'>
@@ -313,15 +414,51 @@ export const ProviderPlanClient = () => {
         </AppParagraph>
       </Surface>
 
-      {upgradeMounted && <PlanUpgradeSheet plan={requested} onClose={() => setRequested(null)} />}
+      {addonCatalogue.length > 0 && (
+        <Surface className='flex flex-col gap-4'>
+          <div className='flex flex-col gap-1'>
+            <AppText size='overline' tone='muted' className='font-semibold'>
+              {t('addonsTitle')}
+            </AppText>
+            <AppParagraph size='body-sm' className='m-0'>
+              {t('addonsSubtitle')}
+            </AppParagraph>
+          </div>
+          <ProviderPlanAddons
+            addons={addonCatalogue}
+            held={held}
+            effectivePlan={effectivePlan}
+            busy={waitingForChange}
+            pendingCheckout={pendingCheckout}
+            onChange={changeAddon}
+            onRequest={(addon) => openRequest({ addon: addon.id })}
+          />
+          {subscribed && (
+            <AppParagraph size='body-sm' className='m-0'>
+              {t('addonsCancelNote')}
+            </AppParagraph>
+          )}
+        </Surface>
+      )}
+
+      {upgradeMounted && <PlanUpgradeSheet request={requested} onClose={() => setRequested(null)} />}
 
       <AppConfirmModal
         open={switchTo !== null}
         title={switchTo ? t('switchTitle', { plan: tPlans(`names.${switchTo}`) }) : ''}
-        description={t('switchBody')}
+        description={switchDescription()}
         okText={t('switchConfirm')}
         onConfirm={confirmSwitch}
         onCancel={() => setSwitchTo(null)}
+      />
+
+      <AppConfirmModal
+        open={addonChange !== null}
+        title={addonTitle()}
+        description={addonAdding ? t('addonAddBody') : t('addonRemoveBody')}
+        okText={addonAdding ? t('addonConfirmAdd') : t('addonConfirmRemove')}
+        onConfirm={confirmAddon}
+        onCancel={() => setAddonChange(null)}
       />
     </div>
   )

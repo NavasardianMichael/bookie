@@ -16,7 +16,7 @@ import {
 import { buildIcsCalendar } from '../lib/ics.js'
 import { prisma } from '../lib/prisma.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
-import { asBoundedString, asTrimmedString, isEmail } from '../lib/request.js'
+import { asFullName, asTrimmedString, isEmail } from '../lib/request.js'
 import type { SessionPayload } from '../lib/session.js'
 import { hashUrlToken, isOwnerManageToken, mintOwnerManageToken, readOwnerManageAppointmentId } from '../lib/token.js'
 import { mapBasicProvider, mapSingleProvider, providerInclude } from '../mappers/entities.js'
@@ -39,8 +39,6 @@ const UPCOMING_STATUSES: readonly string[] = ['pending', 'scheduled', 'confirmed
 
 /** Matches `MAX_CHARS_FOR_TEXTAREA` and the `maxCharsForTextarea` rule on the client. */
 const MAX_NOTES_LENGTH = 300
-
-const MAX_GUEST_NAME_LENGTH = 40
 
 /**
  * Twenty an hour per address. Booking is public, so this is the only thing standing
@@ -87,20 +85,18 @@ const parseNotes = (notes: unknown): string | undefined => {
  * history. Tracked in `docs/BACKLOG.md`.
  */
 const parseGuest = (guest: unknown): GuestBooker => {
-  const { firstName, lastName, phone, email } = (guest ?? {}) as {
-    firstName?: unknown
-    lastName?: unknown
+  const { fullName: rawFullName, phone, email } = (guest ?? {}) as {
+    fullName?: unknown
     phone?: { code?: unknown; number?: unknown }
     email?: unknown
   }
 
-  const first = asBoundedString(firstName, MAX_GUEST_NAME_LENGTH)
-  const last = asBoundedString(lastName, MAX_GUEST_NAME_LENGTH)
+  const fullName = asFullName(rawFullName)
   const mail = asTrimmedString(email)?.toLowerCase()
   const code = Number(phone?.code)
   const number = Number(phone?.number)
 
-  if (!first || !last) throw new HttpError(400, 'guest.firstName and guest.lastName required', 400)
+  if (!fullName) throw new HttpError(400, 'guest.fullName required', 400)
   if (!Number.isInteger(number) || number <= 0) {
     throw new HttpError(400, 'guest.phone must carry a numeric number', 400)
   }
@@ -116,8 +112,7 @@ const parseGuest = (guest: unknown): GuestBooker => {
   }
 
   return {
-    firstName: first,
-    lastName: last,
+    fullName,
     phoneCode: Number.isInteger(code) && code > 0 ? code : 0,
     phoneNumber: BigInt(number),
     email: mail,
@@ -149,8 +144,7 @@ const resolveConsumerId = async (session: SessionPayload): Promise<string> => {
   const created = await prisma.consumer.create({
     data: {
       userId: session.userId,
-      firstName: provider.firstName,
-      lastName: provider.lastName,
+      fullName: provider.fullName,
       phoneCode: provider.phoneCode,
       phoneNumber: provider.phoneNumber,
       country: provider.country,
@@ -197,30 +191,26 @@ const buildBookingNotice = async (appointmentId: string) => {
       startAt: true,
       providerId: true,
       guestEmail: true,
-      guestFirstName: true,
-      guestLastName: true,
+      guestFullName: true,
       service: { select: { name: true } },
-      consumer: { select: { firstName: true, lastName: true, user: { select: { email: true } } } },
+      consumer: { select: { fullName: true, user: { select: { email: true } } } },
       provider: {
-        select: { firstName: true, lastName: true, timeZone: true, timeFormat: true, user: { select: { email: true } } },
+        select: { fullName: true, timeZone: true, timeFormat: true, user: { select: { email: true } } },
       },
     },
   })
   if (!row) return null
 
-  const bookerName =
-    [row.guestFirstName, row.guestLastName].filter(Boolean).join(' ') ||
-    [row.consumer?.firstName, row.consumer?.lastName].filter(Boolean).join(' ') ||
-    'A client'
+  const booker = row.guestFullName || row.consumer?.fullName
 
   return {
     to: row.guestEmail ?? row.consumer?.user.email ?? undefined,
     providerTo: row.provider.user.email,
     providerId: row.providerId,
-    bookerName,
-    bookerFirstName: row.guestFirstName ?? row.consumer?.firstName ?? 'there',
-    providerFirstName: row.provider.firstName,
-    providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
+    bookerName: booker || 'A client',
+    bookerGreetingName: booker || 'there',
+    providerGreetingName: row.provider.fullName || 'there',
+    providerName: row.provider.fullName || 'your provider',
     serviceName: row.service.name,
     when: formatBookingWhen(row.startAt, row.provider.timeZone, row.provider.timeFormat),
   }
@@ -239,16 +229,14 @@ const announceAllowance = (providerId: string, locale: string): void => {
 
 /** Guest contact details, or undefined when the booking names a real Consumer. */
 const mapGuest = (appointment: {
-  guestFirstName: string | null
-  guestLastName: string | null
+  guestFullName: string | null
   guestPhoneCode: number | null
   guestPhoneNumber: bigint | null
   guestEmail: string | null
 }) => {
-  if (!appointment.guestFirstName) return undefined
+  if (!appointment.guestFullName) return undefined
   return {
-    firstName: appointment.guestFirstName,
-    lastName: appointment.guestLastName ?? '',
+    fullName: appointment.guestFullName,
     // `Number(...)`, as every other BigInt crossing this boundary does — JSON has no
     // BigInt and `JSON.stringify` throws on one.
     phone: {
@@ -304,10 +292,7 @@ appointmentsRouter.get(
         consumer: a.consumer
           ? {
               id: a.consumer.id,
-              basic: {
-                firstName: a.consumer.firstName,
-                lastName: a.consumer.lastName,
-              },
+              basic: { fullName: a.consumer.fullName },
             }
           : undefined,
         guest: mapGuest(a),
@@ -359,7 +344,7 @@ appointmentsRouter.post(
      * that as a guest booking rather than 401ing them into registration.
      *
      * No guest payload + a dead cookie is still a 401: they believe they are signed
-     * in, and answering "guest.firstName required" would be the wrong error.
+     * in, and answering "guest.fullName required" would be the wrong error.
      *
      * A request with **no** cookie is a genuine guest and is untouched by this.
      */
@@ -428,7 +413,7 @@ appointmentsRouter.post(
         const send = requiresApproval ? sendBookingRequestedEmail : sendBookingConfirmationEmail
         const mailed = await send({
           to: notice.to,
-          firstName: notice.bookerFirstName,
+          greetingName: notice.bookerGreetingName,
           providerName: notice.providerName,
           serviceName: notice.serviceName,
           when: notice.when,
@@ -440,7 +425,7 @@ appointmentsRouter.post(
       if (requiresApproval && notice?.providerTo) {
         await sendBookingApprovalRequestEmail({
           to: notice.providerTo,
-          providerFirstName: notice.providerFirstName,
+          providerGreetingName: notice.providerGreetingName,
           bookerName: notice.bookerName,
           serviceName: notice.serviceName,
           when: notice.when,
@@ -485,7 +470,7 @@ appointmentsRouter.post(
 
 const managedInclude = {
   service: true,
-  consumer: { select: { firstName: true, lastName: true } },
+  consumer: { select: { fullName: true } },
   provider: { include: providerInclude },
 } as const
 
@@ -532,9 +517,7 @@ const serializeManaged = (
       description: appointment.service.description ?? undefined,
     },
     guest: mapGuest(appointment),
-    consumer: appointment.consumer
-      ? { firstName: appointment.consumer.firstName, lastName: appointment.consumer.lastName }
-      : undefined,
+    consumer: appointment.consumer ? { fullName: appointment.consumer.fullName } : undefined,
   },
   provider: mapSingleProvider(appointment.provider),
 })
@@ -559,7 +542,7 @@ const notifyReschedule = async (appointmentId: string, manageToken: string, loca
   if (notice.to && wanted.booker) {
     await sendBookingRescheduledToGuestEmail({
       to: notice.to,
-      firstName: notice.bookerFirstName,
+      greetingName: notice.bookerGreetingName,
       providerName: notice.providerName,
       when: notice.when,
       manageUrl,
@@ -568,7 +551,7 @@ const notifyReschedule = async (appointmentId: string, manageToken: string, loca
   if (!wanted.provider) return
   await sendBookingRescheduledToProviderEmail({
     to: notice.providerTo,
-    providerFirstName: notice.providerFirstName,
+    providerGreetingName: notice.providerGreetingName,
     guestName: notice.bookerName,
     serviceName: notice.serviceName,
     when: notice.when,
@@ -592,7 +575,7 @@ appointmentsRouter.get(
   '/manage/:token/ics',
   asyncHandler(async (req, res) => {
     const appointment = await findByManageToken(req.params.token)
-    const providerName = `${appointment.provider.firstName} ${appointment.provider.lastName}`.trim()
+    const providerName = appointment.provider.fullName
     const ics = buildIcsCalendar({
       events: [
         {

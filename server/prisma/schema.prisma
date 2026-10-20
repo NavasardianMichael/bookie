@@ -25,6 +25,25 @@ enum BillingStatus {
   canceled
 }
 
+/// Something sold on its own, monthly, on top of any plan (docs/BILLING.md → *Add-ons*).
+/// The four features are named after the entitlement each grants; the two packs add to a
+/// limit. What each one does is `ADDON_CATALOGUE` in `services/plans.ts`, not this list.
+enum Addon {
+  customSlug
+  telegramNotifications
+  calendarFeed
+  removeBranding
+  extraServices
+  extraBookings
+}
+
+/// Who granted an add-on row. The Paddle webhook replaces only `paddle` rows and an admin
+/// only `admin` rows, so neither writer can erase the other's grant.
+enum AddonSource {
+  paddle
+  admin
+}
+
 /// The lifecycle of a booking.
 ///
 /// `pending` is the only value that is not reached by default: it is written at create
@@ -178,8 +197,9 @@ model Provider {
   id                     String             @id @default(uuid())
   userId                 String             @unique
   user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  firstName              String
-  lastName               String
+  /// One field, as written by its owner — never split into given and family names, which
+  /// half the world does not order that way. `20261020000000_full_name` joined the old pair.
+  fullName               String
   description            String?
   imageUrl               String?
 
@@ -281,7 +301,7 @@ model Provider {
   /// switch. One flag for both. Draftable with `timeFormat`: it changes what the page
   /// shows, so it goes out on Publish. On until a provider turns it off.
   showClockChoices       Boolean            @default(true)
-  /// Unpublished edits: firstName, lastName, description, imageUrl, weekSchedule, timeZone,
+  /// Unpublished edits: fullName, description, imageUrl, weekSchedule, timeZone,
   /// timeFormat, showClockChoices, available, paymentInfo. Publish copies these onto the live columns.
   draft                  Json?
   /// `{ appointmentReminders, appointmentReminderMinutes (15|60|360|1440), bookingChanges, newBooking }`
@@ -336,6 +356,10 @@ model Provider {
   reviews                Review[]
   reviewReports          ReviewReport[]
   favorites              FavoriteProvider[]
+  /// Add-ons held beside the plan. Read only through `getEntitlements` (`ENTITLEMENT_SELECT`),
+  /// like `plan` itself — never to gate a feature directly.
+  addons                 ProviderAddon[]
+  photoImports           PhotoImport[]
 
   /// Explore's three hot orderings, all prefixed by `listed` because every public
   /// query filters on it. `newest` and the search paths ride the `listed` prefix and
@@ -346,9 +370,45 @@ model Provider {
   /// which is Explore's default, so it is read on nearly every public page view and
   /// written only when a review changes.
   @@index([listed, available, updatedAt])
-  @@index([listed, lastName, firstName])
+  @@index([listed, fullName])
   @@index([listed, ratingScore])
   @@index([paddleCustomerId])
+}
+
+/// One add-on a provider holds, from one source (docs/BILLING.md → *Add-ons*). Rows from
+/// both sources merge in `getEntitlements`: a feature is on if any live row grants it, a
+/// pack's quantities add up.
+///
+/// `expiresAt` is per row because the two writers set it independently: the webhook writes
+/// the subscription's period end plus grace on every `paddle` row, an admin picks a last day
+/// for theirs. Null = no end. Applied lazily at read time, like `planExpiresAt`.
+model ProviderAddon {
+  providerId String
+  provider   Provider    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  addon      Addon
+  source     AddonSource
+  /// 1 for a feature; how many packs for `extraServices` / `extraBookings`.
+  quantity   Int         @default(1)
+  expiresAt  DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@id([providerId, addon, source])
+}
+
+/// One photo of handwritten bookings that reached Gemini and came back read
+/// (`POST /provider-profile/bookings/import/parse`). Counted against
+/// `Entitlements.photoImportsPerDay`; durable because the in-memory limiter forgets on every
+/// restart, and a daily allowance that resets on a deploy is no allowance. Nothing about the
+/// photo or what it said is kept — only that one was read, and when.
+model PhotoImport {
+  id         String   @id @default(uuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  /// Today's count for one provider (`planUsage.ts#countPhotoImportsToday`).
+  @@index([providerId, createdAt])
 }
 
 model ProviderCategory {
@@ -393,8 +453,8 @@ model Consumer {
   id                     String             @id @default(uuid())
   userId                 String             @unique
   user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  firstName              String
-  lastName               String
+  /// As `Provider.fullName`.
+  fullName               String
 
   /// As `Provider.phoneCode`/`phoneNumber`, minus the publication: a consumer's number
   /// reaches only the provider they booked, through `mapProviderBooking`. Mandatory at
@@ -470,8 +530,10 @@ model Appointment {
   /// A guest booking requires name + phone (`appointment_actor_present`). Email is
   /// optional — phone is the contact we need to deliver the service. `guestEmail`
   /// remains the handle if a later feature reconciles a guest who registers.
-  guestFirstName   String?
-  guestLastName    String?
+  ///
+  /// Also the columns a provider's own entries use (`POST /provider-profile/bookings/import`):
+  /// a client the provider took on paper has no account either.
+  guestFullName    String?
   guestPhoneCode   Int?
   guestPhoneNumber BigInt?
   guestEmail       String?

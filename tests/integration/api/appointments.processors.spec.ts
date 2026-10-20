@@ -17,7 +17,7 @@ const booking = (id: string): ProviderBooking => ({
   status: 'scheduled',
   createdAt: '2026-09-10T09:00:00.000Z',
   service: { id: 'service-1', name: 'Cut' },
-  booker: { kind: 'consumer', id: 'consumer-1', firstName: 'Ada', lastName: 'Lovelace', phone: { code: 374, number: 10000000 } },
+  booker: { kind: 'consumer', id: 'consumer-1', fullName: 'Ada Lovelace', phone: { code: 374, number: 10000000 } },
 })
 
 const paged = (items: ProviderBooking[]): ProviderBookingsResponse => ({
@@ -75,7 +75,7 @@ describe('processManagedAppointmentResponse', () => {
         },
         provider: {
           id: 'provider-1',
-          basic: { firstName: 'Ada', lastName: 'Lovelace', available: true },
+          basic: { fullName: 'Ada Lovelace', available: true },
           details: {
             location: { address: '1 Main' },
             phone: { code: 374, number: 10000000 },

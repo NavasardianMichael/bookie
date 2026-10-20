@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, ReactNode } from 'react'
-import { AppstoreOutlined, BankOutlined, CalendarOutlined, HeartOutlined, TeamOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BankOutlined, CalendarOutlined, DollarOutlined, HeartOutlined, TeamOutlined } from '@ant-design/icons'
 import { useTranslations } from 'next-intl'
 import { AppRouteName } from '@interfaces/routes'
 import { ROUTES } from '@constants/routes'
@@ -19,6 +19,7 @@ const NAV_ICONS: Partial<Record<AppRouteName, ReactNode>> = {
   providers: <TeamOutlined aria-hidden />,
   categories: <AppstoreOutlined aria-hidden />,
   organizations: <BankOutlined aria-hidden />,
+  pricing: <DollarOutlined aria-hidden />,
   bookings: <CalendarOutlined aria-hidden />,
   favorites: <HeartOutlined aria-hidden />,
 }
@@ -36,7 +37,7 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
   return (
     <nav
       aria-label={isVertical ? t('mobileNavigation') : t('mainNavigation')}
-      // Wider gaps only from `xxl`. Below that the signed-in bar (five destinations,
+      // Wider gaps only from `xxl`. Below that the signed-in bar (six destinations,
       // language, avatar) is already flush with the viewport in the longer locales.
       className={cn(
         'flex',

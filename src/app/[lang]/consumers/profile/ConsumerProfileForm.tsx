@@ -35,8 +35,7 @@ type Props = {
 }
 
 type ProfileFormValues = {
-  firstName: string
-  lastName: string
+  fullName: string
   email?: string
   code?: CountryCode
   number?: string
@@ -53,8 +52,7 @@ const paymentFromProfile = (profile: Consumer): ProfileFormValues['paymentInfo']
 const valuesFromProfile = (profile: Consumer): ProfileFormValues => {
   const phone = toPhoneFormValues(profile.basic.phone ?? profile.basic.phoneNumber)
   return {
-    firstName: profile.basic.firstName,
-    lastName: profile.basic.lastName,
+    fullName: profile.basic.fullName,
     email: profile.basic.email ?? '',
     code: phone?.code,
     number: phone?.number ?? '',
@@ -74,7 +72,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState<unknown>(null)
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
 
   useEffect(() => {
     let cancelled = false
@@ -121,8 +119,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
     setSaving(true)
     try {
       const updated = await putConsumerProfileAPI({
-        firstName: values.firstName,
-        lastName: values.lastName,
+        fullName: values.fullName,
         paymentInfo: { methods: toPaymentMethods(values.paymentInfo) },
       })
       const currentPhone = profile?.basic.phone ?? profile?.basic.phoneNumber
@@ -146,7 +143,7 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
     }
   }
 
-  const displayName = profile ? `${profile.basic.firstName} ${profile.basic.lastName}`.trim() : t('consumerAccount')
+  const displayName = profile ? profile.basic.fullName : t('consumerAccount')
 
   if (loading) {
     return <Surface className='min-h-64 animate-pulse' />
@@ -193,16 +190,10 @@ export const ConsumerProfileForm = ({ verifyEmailToken }: Props) => {
           </div>
 
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='firstName'>{t('profile.firstName')}</FieldLabel>
-              <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('profile.firstName') }}>
-                <AppInput id='firstName' autoComplete='given-name' />
-              </AppFormItem>
-            </div>
-            <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='lastName'>{t('profile.lastName')}</FieldLabel>
-              <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('profile.lastName') }}>
-                <AppInput id='lastName' autoComplete='family-name' />
+            <div className='flex flex-col gap-1.5 md:col-span-2'>
+              <FieldLabel htmlFor='fullName'>{t('profile.fullName')}</FieldLabel>
+              <AppFormItem name='fullName' rules={nameRules} messageVariables={{ label: t('profile.fullName') }}>
+                <AppInput id='fullName' autoComplete='name' />
               </AppFormItem>
             </div>
             <div className='md:col-span-2'>

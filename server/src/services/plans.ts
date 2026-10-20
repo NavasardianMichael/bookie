@@ -1,4 +1,4 @@
-import type { Plan, Prisma } from '@prisma/client'
+import type { Addon, AddonSource, Plan, Prisma } from '@prisma/client'
 import { PLAN_ERROR } from '../lib/plan-errors.js'
 import { HttpError } from '../middleware/error.js'
 
@@ -39,6 +39,13 @@ export type Entitlements = {
   calendarFeed: boolean
   /** The public page drops its "Booking page by Bookie" line. */
   removeBranding: boolean
+  /**
+   * Photos of handwritten bookings read per UTC day (`photoImportPeriod`). Metered because
+   * every read spends the deployment's one shared Gemini quota, not because the feature is a
+   * paid one: Free gets a taste, paid plans are bounded only by the per-provider throttle in
+   * `routes/bookingImport.ts`.
+   */
+  photoImportsPerDay: number | null
 }
 
 /**
@@ -60,10 +67,32 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     telegramNotifications: false,
     calendarFeed: false,
     removeBranding: false,
+    photoImportsPerDay: 1,
   },
-  basic: { maxActiveServices: 10, maxBookingsPerMonth: 300, analyticsHistoryDays: 365, customSlug: true, ...PAID_CONVENIENCE },
-  standard: { maxActiveServices: 30, maxBookingsPerMonth: null, analyticsHistoryDays: null, customSlug: true, ...PAID_CONVENIENCE },
-  premium: { maxActiveServices: null, maxBookingsPerMonth: null, analyticsHistoryDays: null, customSlug: true, ...PAID_CONVENIENCE },
+  basic: {
+    maxActiveServices: 10,
+    maxBookingsPerMonth: 300,
+    analyticsHistoryDays: 365,
+    customSlug: true,
+    photoImportsPerDay: null,
+    ...PAID_CONVENIENCE,
+  },
+  standard: {
+    maxActiveServices: 30,
+    maxBookingsPerMonth: null,
+    analyticsHistoryDays: null,
+    customSlug: true,
+    photoImportsPerDay: null,
+    ...PAID_CONVENIENCE,
+  },
+  premium: {
+    maxActiveServices: null,
+    maxBookingsPerMonth: null,
+    analyticsHistoryDays: null,
+    customSlug: true,
+    photoImportsPerDay: null,
+    ...PAID_CONVENIENCE,
+  },
 }
 
 /**
@@ -99,8 +128,200 @@ export type PlanFields = { plan: Plan; planExpiresAt: Date | null }
 export const effectivePlan = (provider: PlanFields, now: Date): Plan =>
   provider.plan !== 'free' && provider.planExpiresAt !== null && provider.planExpiresAt <= now ? 'free' : provider.plan
 
-export const getEntitlements = (provider: PlanFields, now: Date): Entitlements =>
-  PLAN_CATALOGUE[effectivePlan(provider, now)]
+/**
+ * Add-ons — one feature, or a pack of capacity, sold monthly on its own on top of any plan,
+ * Free included (docs/BILLING.md → *Add-ons*). The plans stay the bundles: each costs less
+ * than the add-ons it would take to rebuild it from Free, and `plans.spec.ts` fails otherwise.
+ *
+ * A feature add-on turns on the entitlement it is named after. A pack adds `step` to a limit
+ * per unit; an unlimited limit stays unlimited, which is also what makes a pack pointless on
+ * a plan that has none (`isAddonIncluded`). The web's `ADDON_ORDER` must list the same values.
+ */
+export const ADDON_ORDER = [
+  'customSlug',
+  'telegramNotifications',
+  'calendarFeed',
+  'removeBranding',
+  'extraServices',
+  'extraBookings',
+] as const satisfies readonly Addon[]
+
+/** The on/off entitlements an add-on can sell. */
+export type FeatureKey = 'customSlug' | 'telegramNotifications' | 'calendarFeed' | 'removeBranding'
+/** The limits a pack can raise. */
+export type CapacityKey = 'maxActiveServices' | 'maxBookingsPerMonth'
+
+export type AddonSpec =
+  | { kind: 'feature'; grants: FeatureKey }
+  | { kind: 'capacity'; limit: CapacityKey; step: number; maxQuantity: number }
+
+export const ADDON_CATALOGUE: Readonly<Record<Addon, AddonSpec>> = {
+  customSlug: { kind: 'feature', grants: 'customSlug' },
+  telegramNotifications: { kind: 'feature', grants: 'telegramNotifications' },
+  calendarFeed: { kind: 'feature', grants: 'calendarFeed' },
+  removeBranding: { kind: 'feature', grants: 'removeBranding' },
+  extraServices: { kind: 'capacity', limit: 'maxActiveServices', step: 5, maxQuantity: 10 },
+  extraBookings: { kind: 'capacity', limit: 'maxBookingsPerMonth', step: 100, maxQuantity: 10 },
+}
+
+/**
+ * Each add-on's monthly USD price, per unit — the same display-fallback role as `PLAN_PRICES`:
+ * what is charged is the Paddle price behind `PADDLE_PRICE_ID_ADDON_<NAME>`. Placeholders,
+ * set so one or two add-ons cost less than Basic and a third does not; below about $2 Paddle's
+ * per-transaction fee (5% + 50¢) takes a third or more of a lone add-on.
+ */
+export const ADDON_PRICES: Readonly<Record<Addon, PlanPrice>> = {
+  customSlug: { amountCents: 199, currency: 'USD', interval: 'month' },
+  telegramNotifications: { amountCents: 199, currency: 'USD', interval: 'month' },
+  calendarFeed: { amountCents: 199, currency: 'USD', interval: 'month' },
+  removeBranding: { amountCents: 299, currency: 'USD', interval: 'month' },
+  extraServices: { amountCents: 199, currency: 'USD', interval: 'month' },
+  extraBookings: { amountCents: 199, currency: 'USD', interval: 'month' },
+}
+
+export const isAddon = (value: unknown): value is Addon => ADDON_ORDER.includes(value as Addon)
+
+/** How many of one add-on a provider can hold: one of a feature, up to `maxQuantity` packs. */
+export const maxAddonQuantity = (addon: Addon): number => {
+  const spec = ADDON_CATALOGUE[addon]
+  return spec.kind === 'feature' ? 1 : spec.maxQuantity
+}
+
+/** One add-on and how many of it — a cart line, or what a subscription holds. */
+export type AddonLine = { addon: Addon; quantity: number }
+
+/** One `ProviderAddon` row, as `getEntitlements` reads it. */
+export type AddonGrant = AddonLine & { source: AddonSource; expiresAt: Date | null }
+
+/**
+ * Everything `getEntitlements` reads. `addons` is required, not optional, so a select that
+ * forgets it fails to typecheck instead of silently ignoring what a provider paid for —
+ * select `ENTITLEMENT_SELECT` wherever a plan is about to be enforced.
+ */
+export type EntitlementFields = PlanFields & { addons: readonly AddonGrant[] }
+
+export const ADDON_GRANT_SELECT = {
+  addon: true,
+  source: true,
+  quantity: true,
+  expiresAt: true,
+} as const satisfies Prisma.ProviderAddonSelect
+
+export const ENTITLEMENT_SELECT = {
+  plan: true,
+  planExpiresAt: true,
+  addons: { select: ADDON_GRANT_SELECT },
+} as const satisfies Prisma.ProviderSelect
+
+/** A row in force: no end, or an end still ahead — the exclusive boundary `effectivePlan` uses. */
+export const isGrantLive = (grant: Pick<AddonGrant, 'expiresAt'>, now: Date): boolean =>
+  grant.expiresAt === null || grant.expiresAt > now
+
+/**
+ * The add-ons in force and how many of each, merged across sources — a feature granted twice
+ * is still one, packs add up — and clamped to `maxAddonQuantity`, so a Paddle price left at its
+ * default maximum of 100 cannot sell more than the catalogue offers. `source` narrows to one
+ * writer's rows: what the provider *pays* for is the `paddle` rows alone.
+ */
+export const heldAddons = (grants: readonly AddonGrant[], now: Date, source?: AddonSource): Map<Addon, number> => {
+  const held = new Map<Addon, number>()
+  for (const grant of grants) {
+    if (grant.quantity < 1 || !isGrantLive(grant, now) || (source && grant.source !== source)) continue
+    held.set(grant.addon, Math.min((held.get(grant.addon) ?? 0) + grant.quantity, maxAddonQuantity(grant.addon)))
+  }
+  return held
+}
+
+/** A plan's entitlements with add-ons on top. Never mutates `base`, which is shared. */
+export const applyAddons = (base: Entitlements, held: ReadonlyMap<Addon, number>): Entitlements => {
+  const merged: Entitlements = { ...base }
+  for (const [addon, quantity] of held) {
+    const spec = ADDON_CATALOGUE[addon]
+    if (spec.kind === 'feature') {
+      merged[spec.grants] = true
+    } else {
+      const limit = merged[spec.limit]
+      merged[spec.limit] = limit === null ? null : limit + spec.step * quantity
+    }
+  }
+  return merged
+}
+
+/**
+ * What a provider may do right now: the effective plan, plus every live add-on. With none it
+ * is the shared catalogue entry itself — no allocation on the common path.
+ */
+export const getEntitlements = (provider: EntitlementFields, now: Date): Entitlements => {
+  const base = PLAN_CATALOGUE[effectivePlan(provider, now)]
+  const held = heldAddons(provider.addons, now)
+  return held.size === 0 ? base : applyAddons(base, held)
+}
+
+/**
+ * Whether a plan already grants what an add-on sells — the feature itself, or an unlimited
+ * limit a pack cannot raise. Such an add-on is not sold on that plan, and a switch to it
+ * drops the add-on, so nobody pays twice.
+ */
+export const isAddonIncluded = (plan: Plan, addon: Addon): boolean => {
+  const spec = ADDON_CATALOGUE[addon]
+  const entitlements = PLAN_CATALOGUE[plan]
+  return spec.kind === 'feature' ? entitlements[spec.grants] : entitlements[spec.limit] === null
+}
+
+/** Every plan that already includes an add-on — what `GET /plans/addons` publishes. */
+export const plansIncluding = (addon: Addon): Plan[] => PLAN_ORDER.filter((plan) => isAddonIncluded(plan, addon))
+
+/** The monthly USD list price of a set of add-ons, in cents. */
+export const addonsMonthlyCents = (held: ReadonlyMap<Addon, number>): number =>
+  [...held].reduce((total, [addon, quantity]) => total + ADDON_PRICES[addon].amountCents * quantity, 0)
+
+/**
+ * A bigger plan that would cost the provider less than their plan plus the add-ons they pay
+ * for — the Plan tab's "Basic includes all of this" hint. Priced the way a switch would leave
+ * them: the add-ons that plan includes are dropped and the rest kept, exactly as
+ * `services/billing.ts#itemsForPlan` does, so nothing they hold is lost. The cheapest such
+ * plan, or null. In USD list prices: a country override in Paddle can disagree, which is
+ * acceptable for a hint.
+ */
+export const betterPlanFor = (plan: Plan, held: ReadonlyMap<Addon, number>): PaidPlan | null => {
+  let best: { plan: PaidPlan; cents: number } | null = null
+  const current = PLAN_PRICES[plan].amountCents + addonsMonthlyCents(held)
+
+  for (const candidate of PAID_PLANS) {
+    if (PLAN_ORDER.indexOf(candidate) <= PLAN_ORDER.indexOf(plan)) continue
+    const kept = new Map([...held].filter(([addon]) => !isAddonIncluded(candidate, addon)))
+    const cents = PLAN_PRICES[candidate].amountCents + addonsMonthlyCents(kept)
+    if (cents < current && (!best || cents < best.cents)) best = { plan: candidate, cents }
+  }
+
+  return best?.plan ?? null
+}
+
+/**
+ * Add-on lines from a request body: each a known add-on, at most once, with a whole quantity
+ * from 1 to its maximum. Shared by checkout and the admin grant, which must agree on what a
+ * valid line is.
+ */
+export const parseAddonLines = (raw: unknown): AddonLine[] => {
+  if (raw === undefined || raw === null) return []
+  if (!Array.isArray(raw)) throw new HttpError(400, 'addons must be a list', 400)
+
+  const lines: AddonLine[] = []
+  for (const entry of raw) {
+    const source = (entry ?? {}) as Record<string, unknown>
+    if (!isAddon(source.addon)) throw new HttpError(400, `addon must be one of: ${ADDON_ORDER.join(', ')}`, 400)
+    const quantity = source.quantity ?? 1
+    const max = maxAddonQuantity(source.addon)
+    if (typeof quantity !== 'number' || !Number.isInteger(quantity) || quantity < 1 || quantity > max) {
+      throw new HttpError(400, `quantity for ${source.addon} must be a whole number from 1 to ${max}`, 400)
+    }
+    if (lines.some((line) => line.addon === source.addon)) {
+      throw new HttpError(400, `${source.addon} is listed twice`, 400)
+    }
+    lines.push({ addon: source.addon, quantity })
+  }
+  return lines
+}
 
 /** Room for one more under `limit`, `null` being unlimited. */
 export const hasRoomFor = (used: number, limit: number | null): boolean => limit === null || used < limit
@@ -114,6 +335,28 @@ export const bookingPeriod = (now: Date): { start: Date; end: Date } => ({
   start: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
   end: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)),
 })
+
+/**
+ * The window `photoImportsPerDay` counts over: the current **UTC** day, `[start, end)` — the
+ * allowance's UTC caveat, for the same reason (docs/BACKLOG.md).
+ */
+export const photoImportPeriod = (now: Date): { start: Date; end: Date } => ({
+  start: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())),
+  end: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)),
+})
+
+/**
+ * Refuses a photo import past today's allowance. The message names when it comes back; the
+ * client words it from the code and links the Plan tab.
+ */
+export const assertPhotoImport = (usedToday: number, entitlements: Entitlements): void => {
+  if (hasRoomFor(usedToday, entitlements.photoImportsPerDay)) return
+  throw new HttpError(
+    403,
+    `Your plan includes ${entitlements.photoImportsPerDay} photo import a day. It resets at midnight UTC.`,
+    PLAN_ERROR.photoImportLimit
+  )
+}
 
 /**
  * The bookings that spend a provider's monthly allowance: created this month and not
@@ -192,19 +435,22 @@ export const capNoticesDue = (input: {
 }
 
 /**
- * The allowance-notice stamps to clear when a plan write changes the **effective** plan, so
- * the new plan's thresholds can notify again. Re-saving the same plan clears nothing, or a
- * provider would be told twice in a month that they are nearly full. Shared by the admin
- * route and the Paddle webhook — the two writers of `plan`.
+ * The allowance-notice stamps to clear when a write changes the **effective booking
+ * allowance**, so the new limit's thresholds can notify again. The allowance, not the plan: a
+ * pack of bookings raises it with no plan change at all. Re-saving the same thing clears
+ * nothing, or a provider would be told twice in a month that they are nearly full. Shared by
+ * the admin routes and the Paddle webhook — the writers of `plan` and of add-ons.
  */
 export const planChangeStampReset = (
-  current: PlanFields,
-  next: PlanFields,
+  current: EntitlementFields,
+  next: EntitlementFields,
   now: Date
 ): { bookingCapWarnedAt: null; bookingCapReachedAt: null } | Record<string, never> =>
-  effectivePlan(current, now) !== effectivePlan(next, now) ? { bookingCapWarnedAt: null, bookingCapReachedAt: null } : {}
+  getEntitlements(current, now).maxBookingsPerMonth !== getEntitlements(next, now).maxBookingsPerMonth
+    ? { bookingCapWarnedAt: null, bookingCapReachedAt: null }
+    : {}
 
-const isPlan = (value: unknown): value is Plan => PLAN_ORDER.includes(value as Plan)
+export const isPlan = (value: unknown): value is Plan => PLAN_ORDER.includes(value as Plan)
 
 /**
  * `PATCH /admin/providers/:id/plan`. `planExpiresAt` is an ISO instant in the future, or
@@ -232,4 +478,24 @@ export const parseAdminPlanBody = (body: unknown, now: Date): PlanFields => {
   }
 
   return { plan: source.plan, planExpiresAt }
+}
+
+/**
+ * `PATCH /admin/providers/:id/addons`: the complete set of add-ons an admin grants, which
+ * replaces their previous grant (`[]` withdraws it), and one last instant for all of them —
+ * an ISO instant in the future, or `null` / absent for no end. Paddle's rows are untouched.
+ */
+export const parseAdminAddonsBody = (body: unknown, now: Date): { addons: AddonLine[]; expiresAt: Date | null } => {
+  const source = (body ?? {}) as Record<string, unknown>
+  if (!Array.isArray(source.addons)) throw new HttpError(400, 'addons must be a list', 400)
+  const addons = parseAddonLines(source.addons)
+
+  const raw = source.expiresAt
+  if (raw === undefined || raw === null || raw === '' || addons.length === 0) return { addons, expiresAt: null }
+
+  const expiresAt = typeof raw === 'string' ? new Date(raw) : new Date(NaN)
+  if (Number.isNaN(expiresAt.getTime())) throw new HttpError(400, 'expiresAt must be an ISO timestamp', 400)
+  if (expiresAt <= now) throw new HttpError(400, 'expiresAt must be in the future', 400)
+
+  return { addons, expiresAt }
 }

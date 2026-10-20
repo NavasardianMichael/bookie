@@ -39,7 +39,7 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
 
   const showProfile = Boolean(isSignedOn && profileHref)
   const profileActive = Boolean(showProfile && profileHref && isActive(profileHref))
-  // Public provider page drops marketplace dests; guests then have nothing for this block.
+  // A route with no destinations and a signed-out visitor has nothing for this block.
   const showLinks = showProfile || routes.length > 0
 
   return (

@@ -51,6 +51,7 @@
     "accountSettings": "Pengaturan akun",
     "bookings": "Pemesanan",
     "favorites": "Favorit",
+    "pricing": "Harga",
     "profile": "Profil"
   },
   "Auth": {
@@ -66,8 +67,7 @@
       "choosePasswordPlaceholder": "Minimal 8 karakter",
       "newPassword": "Kata sandi baru",
       "confirmPassword": "Konfirmasi kata sandi",
-      "firstName": "Nama depan",
-      "lastName": "Nama belakang",
+      "fullName": "Nama lengkap",
       "phone": "Nomor telepon",
       "countryCode": "Kode negara"
     },
@@ -201,8 +201,7 @@
     "guest": {
       "heading": "Data Anda",
       "hint": "Kami memerlukan ini untuk mengonfirmasi pemesanan Anda. Tidak perlu akun.",
-      "firstName": "Nama depan",
-      "lastName": "Nama belakang",
+      "fullName": "Nama lengkap",
       "phone": "Nomor telepon",
       "email": "Email",
       "emailPlaceholder": "you@example.com",
@@ -321,8 +320,7 @@
     "title": "Hubungi kami",
     "subtitle": "Hubungi tim Bookie. Kami biasanya membalas dalam 5 hari kerja.",
     "fields": {
-      "firstName": "Nama Depan",
-      "lastName": "Nama Belakang",
+      "fullName": "Nama Lengkap",
       "email": "Email",
       "message": "Pesan",
       "messagePlaceholder": "Ceritakan hal yang Anda perlukan bantuannya."
@@ -341,7 +339,9 @@
     },
     "topics": {
       "planUpgrade": "Permintaan: paket {plan}",
-      "planUpgradeMessage": "Halo, saya ingin memindahkan halaman saya ke paket {plan}."
+      "planUpgradeMessage": "Halo, saya ingin memindahkan halaman saya ke paket {plan}.",
+      "addonRequest": "Permintaan: {addon}",
+      "addonRequestMessage": "Halo, saya ingin menambahkan {addon} ke halaman saya."
     }
   },
   "Settings": {
@@ -365,7 +365,8 @@
       "advanced": "Pengaturan lanjutan",
       "seo": "SEO",
       "history": "Riwayat",
-      "plan": "Paket"
+      "plan": "Paket",
+      "payouts": "Pembayaran"
     },
     "workspace": {
       "onProviderTitle": "Anda berada di ruang kerja penyedia",
@@ -393,13 +394,13 @@
     },
     "profile": {
       "personalInfo": "Informasi Pribadi",
-      "firstName": "Nama Depan",
-      "lastName": "Nama Belakang",
+      "fullName": "Nama Lengkap",
       "description": "Deskripsi",
       "email": "Alamat Email",
       "noAvatarHint": "Foto profil tidak tersedia untuk akun pengguna.",
       "imageHint": "JPG atau PNG. Ukuran maks 2 MB.",
       "upload": "Unggah baru",
+      "removePhoto": "Hapus foto",
       "providerSubtitle": "Perbarui detail yang ditampilkan di profil publik Anda.",
       "sendEmailCode": "Atur ulang email",
       "emailRequired": "Masukkan alamat email terlebih dahulu.",
@@ -458,7 +459,7 @@
       "telegramTitle": "Telegram",
       "telegramProviderBody": "Terima notifikasi pemesanan di Telegram selain melalui email.",
       "telegramConsumerBody": "Terima pengingat dan pembaruan pemesanan di Telegram selain melalui email.",
-      "telegramLocked": "Notifikasi Telegram tentang bisnis Anda tersedia mulai paket Dasar. <plan>Lihat paket</plan>",
+      "telegramLocked": "Notifikasi Telegram tentang bisnis Anda tersedia mulai paket Dasar, atau sebagai add-on. <plan>Lihat paket</plan>",
       "telegramUnavailable": "Notifikasi Telegram sedang tidak tersedia.",
       "telegramConnect": "Hubungkan Telegram",
       "telegramOpen": "Buka Telegram",
@@ -471,7 +472,7 @@
       "telegramDisconnectFailed": "Kami tidak dapat memutuskan Telegram",
       "calendarTitle": "Sinkronisasi kalender",
       "calendarBody": "Berlangganan pemesanan Anda dari Google Calendar, Apple Calendar, atau Outlook. Pemesanan baru dan perubahan akan muncul di sana secara otomatis.",
-      "calendarLocked": "Sinkronisasi kalender tersedia mulai paket Dasar. <plan>Lihat paket</plan>",
+      "calendarLocked": "Sinkronisasi kalender tersedia mulai paket Dasar, atau sebagai add-on. <plan>Lihat paket</plan>",
       "calendarCopy": "Salin tautan kalender",
       "calendarHint": "Di aplikasi kalender Anda, tambahkan kalender dari URL dan tempel tautan ini. Rahasiakan tautan ini: siapa pun yang memilikinya dapat melihat pemesanan Anda.",
       "calendarReset": "Atur ulang tautan",
@@ -571,6 +572,18 @@
       "calendarHint": "Pilih hari untuk melihat siapa yang memesan.",
       "calendarFiltered": "Menampilkan satu hari. Pilih kembali untuk melihat semuanya.",
       "calendarLabel": "Pemesanan per hari",
+      "hideCalendar": "Sembunyikan kalender",
+      "showCalendar": "Tampilkan kalender",
+      "periodLabel": "Kapan",
+      "periods": {
+        "upcoming": "Akan datang",
+        "today": "Hari ini",
+        "thisWeek": "Minggu ini",
+        "nextWeek": "Minggu depan",
+        "lastWeek": "Minggu lalu",
+        "thisMonth": "Bulan ini",
+        "lastMonth": "Bulan lalu"
+      },
       "clearDay": "Semua hari",
       "previousMonth": "Bulan sebelumnya",
       "nextMonth": "Bulan berikutnya",
@@ -719,8 +732,8 @@
       "slugPattern": "Gunakan huruf kecil, angka, dan tanda hubung tunggal di antaranya.",
       "slugChangeWarning": "Menyimpan ini menggantikan tautan Anda saat ini. Siapa pun yang menggunakan /p/{slug} tidak akan sampai ke halaman Anda.",
       "saved": "Pengaturan pencarian disimpan.",
-      "slugLocked": "Tautan khusus termasuk dalam paket berbayar, jadi halaman Anda memakai tautan standarnya. <link>Lihat paket</link>",
-      "slugLockedKept": "Tautan khusus Anda tetap berfungsi, tetapi untuk mengubahnya diperlukan paket berbayar. <link>Lihat paket</link>"
+      "slugLocked": "Tautan khusus tersedia di paket berbayar atau terpisah sebagai add-on, jadi untuk saat ini halaman Anda memakai tautan standarnya. <link>Lihat paket</link>",
+      "slugLockedKept": "Tautan khusus Anda tetap berfungsi, tetapi untuk mengubahnya diperlukan paket berbayar atau add-on Tautan halaman khusus. <link>Lihat paket</link>"
     },
     "signOutTitle": "Keluar?",
     "signOutBody": "Anda perlu masuk lagi untuk mengelola akun.",
@@ -731,9 +744,15 @@
       "confirmTitle": "Hapus akun Anda?",
       "confirmBody": "Semua data terkait akun ini akan dihapus. Tindakan ini tidak dapat dibatalkan.",
       "password": "Kata sandi saat ini",
-      "googleOnly": "Akun ini masuk dengan Google. Tetapkan kata sandi terlebih dahulu untuk mengonfirmasi penghapusan.",
+      "googleOnly": "Akun ini masuk dengan Google, jadi tidak ada kata sandi. Mengonfirmasi akan menghapusnya secara permanen.",
       "hasAppointments": "Anda memiliki janji temu. Batalkan dulu sebelum menghapus akun.",
       "wrongPassword": "Kata sandi saat ini salah"
+    },
+    "payouts": {
+      "title": "Pembayaran",
+      "subtitle": "Semua biaya bulanan yang ditagih Bookie, dari katalog paket.",
+      "plan": "Paket",
+      "cost": "Biaya bulanan"
     },
     "plan": {
       "title": "Paket",
@@ -766,7 +785,35 @@
       "switchingTitle": "Beralih ke {plan}…",
       "switchPendingTitle": "Perubahan paket Anda sedang diproses",
       "switchPendingBody": "Paddle telah menerimanya, dan mungkin perlu beberapa menit hingga muncul di sini. Muat ulang halaman sebentar lagi.",
-      "billingNote": "Pembayaran ditangani oleh Paddle. Batalkan, ganti kartu, atau unduh faktur melalui “Kelola penagihan”."
+      "billingNote": "Pembayaran ditangani oleh Paddle. Batalkan, ganti kartu, atau unduh faktur melalui “Kelola penagihan”.",
+      "addonsTitle": "Add-on",
+      "addonsSubtitle": "Fitur satuan dan kapasitas tambahan, ditagih bulanan bersama langganan Anda.",
+      "addonActive": "Aktif",
+      "addonPacks": "{count, plural, other {# bundel}}",
+      "addonGranted": "Diberikan oleh Bookie",
+      "addonGrantedUntil": "Diberikan oleh Bookie hingga {date}",
+      "addonIncluded": "Termasuk dalam paket Anda",
+      "addonAdd": "Tambah",
+      "addonRemove": "Hapus",
+      "addonAddPack": "Tambah bundel",
+      "addonRemovePack": "Hapus bundel",
+      "addonRequest": "Minta",
+      "addonAddTitle": "Tambahkan {addon}?",
+      "addonAddPackTitle": "Tambahkan satu bundel {addon}?",
+      "addonAddBody": "Langsung tersedia. Sisa periode penagihan ini ditagih sekarang, lalu diperpanjang setiap bulan bersama langganan Anda.",
+      "addonRemoveTitle": "Hapus {addon}?",
+      "addonRemovePackTitle": "Hapus satu bundel {addon}?",
+      "addonRemoveBody": "Langsung berhenti. Bagian yang belum terpakai dari periode penagihan ini dikreditkan ke pembayaran berikutnya.",
+      "addonConfirmAdd": "Tambah dan bayar",
+      "addonConfirmRemove": "Hapus",
+      "addonUpdatingTitle": "Memperbarui {addon}…",
+      "addonPendingTitle": "Perubahan add-on Anda sedang diproses",
+      "switchDrops": "{plan} sudah mencakup {addons}, jadi {count, plural, other {add-on tersebut dihapus}} dari langganan Anda.",
+      "switchTo": "Pindah ke {plan}",
+      "switchToFreeBody": "Add-on Anda tetap ada. Bagian paket yang belum terpakai dikreditkan ke pembayaran berikutnya.",
+      "betterPlanTitle": "{plan} akan lebih hemat untuk Anda",
+      "betterPlanBody": "Paket {plan} mencakup apa yang Anda bayar sebagai add-on, dengan biaya bulanan lebih rendah.",
+      "addonsCancelNote": "Add-on diperpanjang bersama langganan Anda. Membatalkannya di Kelola penagihan juga mengakhirinya."
     }
   },
   "Bookings": {
@@ -775,6 +822,54 @@
     "views": {
       "provider": "Dipesan pada saya",
       "consumer": "Dipesan oleh saya"
+    },
+    "import": {
+      "button": "Tambah dari foto",
+      "title": "Tambahkan pemesanan dari foto",
+      "intro": "Foto catatan pemesanan tulisan tangan Anda. Kami akan membacanya, dan Anda memeriksa setiap pemesanan sebelum apa pun disimpan.",
+      "photoLabel": "Foto",
+      "photoPick": "Ambil atau pilih foto",
+      "photoChange": "Pilih foto lain",
+      "photoRequired": "Tambahkan foto pemesanan Anda",
+      "photoAlt": "Foto yang Anda pilih",
+      "noteLabel": "Catatan untuk pembacaan",
+      "notePlaceholder": "Mis. “semuanya untuk hari Jumat” atau “M = manikur”",
+      "privacy": "Foto dibaca oleh Google Gemini dan tidak disimpan oleh Bookie. Pada tingkat gratis Google, data yang dikirim dapat digunakan untuk meningkatkan layanan Google.",
+      "dailyLimit": "{count, plural, other {Paket Anda mencakup # foto per hari.}}",
+      "read": "Baca foto",
+      "reading": "Membaca pemesanan Anda…",
+      "emptyTitle": "Tidak ada pemesanan ditemukan",
+      "emptyBody": "Tidak ada yang terbaca sebagai pemesanan di foto ini. Coba foto yang lebih tajam dan terang, atau tambahkan catatan tentang isinya.",
+      "tryAnother": "Coba foto lain",
+      "noServices": "Tambahkan layanan terlebih dahulu — setiap pemesanan memerlukan layanan.",
+      "reviewTitle": "{count, plural, other {Periksa # pemesanan}}",
+      "reviewIntro": "Perbaiki apa pun yang salah terbaca. Setiap waktu harus berupa slot kosong di jadwal Anda.",
+      "row": "Pemesanan {number}",
+      "remove": "Hapus pemesanan {number}",
+      "fullName": "Nama lengkap klien",
+      "phone": "Telepon",
+      "phoneInvalid": "Masukkan nomor telepon",
+      "service": "Layanan",
+      "servicePlaceholder": "Pilih layanan",
+      "date": "Tanggal",
+      "time": "Waktu",
+      "timePlaceholder": "Pilih waktu",
+      "noTimes": "Tidak ada waktu kosong pada hari ini",
+      "notes": "Catatan",
+      "issues": {
+        "missing": "Pilih layanan, tanggal, dan waktu.",
+        "offGrid": "Ini bukan salah satu slot Anda untuk layanan ini pada hari ini. Pilih waktu dari daftar.",
+        "past": "Waktu ini sudah lewat.",
+        "taken": "Anda sudah memiliki pemesanan pada waktu ini.",
+        "clash": "Waktunya sama dengan pemesanan {number}."
+      },
+      "addRow": "Tambahkan pemesanan",
+      "back": "Kembali",
+      "submit": "{count, plural, other {Tambahkan # pemesanan}}",
+      "needsAttention": "{count, plural, other {# pemesanan perlu Anda periksa}}",
+      "added": "{count, plural, other {# pemesanan ditambahkan}}",
+      "slotsTaken": "Beberapa waktu ini baru saja dipesan. Waktu tersebut ditandai di bawah — pilih waktu lain.",
+      "seePlans": "Lihat paket"
     }
   },
   "Favorites": {
@@ -1133,7 +1228,8 @@
           "p3": "<b>Layanan pengiriman email kami</b> — mengirim email akun dan pemesanan.",
           "p4": "<b>Telegram</b> — mengirimkan notifikasi, hanya jika Anda menghubungkannya.",
           "p5": "<b>Google</b> — menangani proses masuk Anda, hanya jika Anda memilih untuk melanjutkan dengan Google.",
-          "p6": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
+          "p6": "<b>Google Gemini</b> — membaca foto catatan pemesanan tulisan tangan, hanya jika penyedia memilih untuk menambahkan pemesanan dari foto. Pada tingkat gratis Gemini, Google dapat menggunakan data yang diterimanya untuk meningkatkan layanannya. Kami tidak menyimpan foto tersebut.",
+          "p7": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
         },
         "cookies": {
           "title": "Cookie",
@@ -1248,6 +1344,7 @@
   "Validation": {
     "required": "Harap isi {label}",
     "maxCharsForInput": "Maksimal {max} karakter",
+    "maxCharsForName": "Maksimal {max} karakter",
     "maxCharsForTextarea": "Maksimal {max} karakter",
     "oneItemSelectedAtLeast": "Pilih setidaknya satu item",
     "email": "Email tidak valid",
@@ -1291,11 +1388,19 @@
       "slotTaken": "Waktu itu baru saja dipesan. Silakan pilih waktu lain.",
       "bookingPaused": "Penyedia ini sedang tidak menerima pemesanan online. Hubungi langsung untuk memesan.",
       "bookingFull": "Penyedia ini tidak dapat menerima pemesanan online lagi bulan ini. Hubungi langsung untuk memesan.",
-      "serviceLimit": "Batas layanan aktif pada paket Anda sudah tercapai. Nonaktifkan satu layanan atau tingkatkan paket untuk menambah layanan lain.",
-      "featureLocked": "Fitur ini tidak termasuk dalam paket Anda. Tingkatkan paket untuk menggunakannya.",
+      "serviceLimit": "Batas layanan aktif sudah tercapai. Nonaktifkan satu layanan, tambahkan bundel layanan tambahan, atau tingkatkan paket Anda.",
+      "featureLocked": "Fitur ini tidak termasuk dalam paket Anda. Tambahkan secara terpisah atau tingkatkan paket untuk menggunakannya.",
       "notConfigured": "Pembayaran online sedang tidak tersedia. Sebagai gantinya, ajukan paket ini dan kami akan mengaturnya untuk Anda.",
-      "alreadySubscribed": "Anda sudah memiliki langganan. Ganti paket dari pengaturan Paket Anda.",
-      "noSubscription": "Tidak ada langganan aktif yang dapat diubah."
+      "alreadySubscribed": "Anda sudah memiliki langganan. Ubah dari pengaturan Paket Anda.",
+      "noSubscription": "Tidak ada langganan aktif yang dapat diubah.",
+      "photoImportLimit": "Anda sudah menggunakan impor foto hari ini. Fitur ini tersedia lagi besok, atau tingkatkan paket untuk impor tanpa batas.",
+      "bookingLimit": "Pemesanan ini akan melampaui batas bulanan paket Anda. Hapus sebagian, atau tingkatkan paket.",
+      "photoImportUnavailable": "Menambahkan pemesanan dari foto sedang tidak tersedia.",
+      "photoUnreadable": "Kami tidak dapat membaca foto ini. Coba foto yang lebih tajam dan terang.",
+      "addonIncluded": "Paket Anda sudah mencakup ini, jadi tidak ada yang perlu ditambahkan.",
+      "lastItem": "Langganan Anda akan kosong. Untuk mengakhirinya, batalkan di Kelola penagihan.",
+      "changeUnavailable": "Langganan Anda tidak bisa diubah saat ini. Jika pembayaran gagal, perbarui kartu Anda di Kelola penagihan; jika tidak, coba lagi sebentar lagi.",
+      "activeSubscription": "Halaman ini masih memiliki langganan aktif. Batalkan di Kelola penagihan sebelum menghapus halaman."
     },
     "pages": {
       "provider": "Kami tidak dapat memuat halaman penyedia ini. Silakan coba lagi.",
@@ -1364,7 +1469,12 @@
       "saved": "Paket disimpan",
       "pagesLabel": "Halaman penyedia",
       "paddle": "Paddle",
-      "paddleNote": "Ditagih melalui Paddle: perubahan manual di sini akan ditimpa oleh pembaruan langganan berikutnya."
+      "paddleNote": "Ditagih melalui Paddle: perubahan manual di sini akan ditimpa oleh pembaruan langganan berikutnya.",
+      "addonsLabel": "Add-on yang diberikan",
+      "addonsLastDayLabel": "Hari terakhir add-on",
+      "saveAddons": "Simpan add-on",
+      "addonsSaved": "Add-on disimpan",
+      "paidAddons": "Dibayar lewat Paddle: {addons}"
     }
   },
   "Plans": {
@@ -1377,6 +1487,7 @@
     "features": {
       "maxActiveServices": "Layanan aktif",
       "maxBookingsPerMonth": "Pemesanan online per bulan",
+      "photoImportsPerDay": "Impor foto per hari",
       "analyticsHistoryDays": "Riwayat analitik",
       "customSlug": "Tautan khusus",
       "telegramNotifications": "Notifikasi Telegram",
@@ -1391,12 +1502,42 @@
     "current": "Paket Anda",
     "requestTitle": "Ajukan paket {plan}",
     "freeForever": "Gratis selamanya",
-    "perMonth": "/ bulan"
+    "perMonth": "/ bulan",
+    "addons": {
+      "customSlug": {
+        "name": "Tautan halaman khusus",
+        "description": "Alamat singkat milik Anda sendiri, seperti /p/nama-anda."
+      },
+      "telegramNotifications": {
+        "name": "Notifikasi Telegram",
+        "description": "Pemesanan baru, perubahan, dan pengingat di Telegram selain lewat email."
+      },
+      "calendarFeed": {
+        "name": "Sinkronisasi kalender",
+        "description": "Pemesanan Anda di Google, Apple, atau Outlook Calendar, selalu terbaru."
+      },
+      "removeBranding": {
+        "name": "Tanpa branding Bookie",
+        "description": "Menghapus baris “Halaman pemesanan oleh Bookie” dari halaman Anda."
+      },
+      "extraServices": {
+        "name": "Layanan tambahan",
+        "description": "{count} layanan aktif tambahan per bundel."
+      },
+      "extraBookings": {
+        "name": "Pemesanan tambahan",
+        "description": "{count} pemesanan online tambahan per bulan per bundel."
+      }
+    },
+    "perPackPerMonth": "per bundel / bulan",
+    "addonIncludedIn": "Termasuk dalam {plan}",
+    "addonIncludedFrom": "Termasuk mulai {plan}",
+    "addonRequestTitle": "Minta {addon}"
   },
   "Pricing": {
     "metaTitle": "Harga untuk penyedia",
     "metaDescription": "Paket Bookie untuk penyedia layanan: mulai gratis, atau tingkatkan untuk lebih banyak layanan, pemesanan tanpa batas, notifikasi Telegram, dan sinkronisasi kalender. Pemesanan selalu gratis bagi klien.",
-    "title": "Paket untuk penyedia",
+    "title": "Harga",
     "subtitle": "Mulai gratis dan tingkatkan saat jadwal Anda mulai penuh. Klien tidak pernah membayar untuk memesan.",
     "startFree": "Mulai gratis",
     "requestPlan": "Ajukan paket ini",
@@ -1457,8 +1598,17 @@
       "refunds": {
         "q": "Bisakah saya mendapatkan pengembalian dana?",
         "a": "Ya — ajukan dalam 14 hari sejak pembayaran pertama Anda untuk sebuah paket, atau kapan saja jika ada tagihan yang dibuat karena kesalahan. Lihat <refund>kebijakan pengembalian dana</refund> kami."
+      },
+      "addons": {
+        "q": "Bisakah saya membeli satu fitur tanpa paket?",
+        "a": "Bisa. Setiap fitur dan bundel kapasitas dijual terpisah, bulanan, di atas paket apa pun — termasuk Gratis. Add-on diperpanjang bersama langganan Anda, dan saat pindah ke paket yang sudah mencakupnya, add-on itu dihapus otomatis sehingga Anda tidak pernah membayar dua kali."
       }
-    }
+    },
+    "addonsTitle": "Add-on",
+    "addonsSubtitle": "Hanya butuh satu hal? Tambahkan ke paket apa pun, termasuk Gratis. Setiap add-on ditagih bulanan.",
+    "addonsBundleNote": "Paket menggabungkannya dengan harga lebih murah — {plan} mencakup semua fitur di atas, plus lebih banyak layanan dan pemesanan.",
+    "addAddon": "Tambah",
+    "requestAddon": "Minta"
   },
   "Billing": {
     "checkoutTitle": "Pembayaran",
@@ -1473,6 +1623,8 @@
     "activeTitle": "Anda menggunakan paket {plan}",
     "activeBody": "Terima kasih! Semua yang termasuk dalam paket Anda kini tersedia. Paddle telah mengirimkan tanda terima ke email Anda.",
     "receivedTitle": "Pembayaran diterima",
-    "receivedBody": "Terima kasih! Pembaruan paket Anda mungkin memerlukan beberapa menit. Paddle telah mengirimkan tanda terima ke email Anda."
+    "receivedBody": "Terima kasih! Pembaruan paket Anda mungkin memerlukan beberapa menit. Paddle telah mengirimkan tanda terima ke email Anda.",
+    "purchaseActiveTitle": "Pembelian Anda aktif",
+    "purchaseActiveBody": "Terima kasih! Semua yang Anda beli sudah tersedia. Paddle telah mengirimkan tanda terima lewat email."
   }
 }

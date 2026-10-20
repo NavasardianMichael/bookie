@@ -206,7 +206,7 @@ export const ConsumerAppointmentsClient = () => {
           <ul className='flex list-none flex-col gap-3 p-0'>
             {visible.map((item) => {
               const providerName = item.provider
-                ? `${item.provider.basic.firstName} ${item.provider.basic.lastName}`.trim()
+                ? item.provider.basic.fullName
                 : t('unknownProvider')
               const when = new Date(item.time.startDate)
               const status = isBookingStatus(item.status) ? item.status : undefined

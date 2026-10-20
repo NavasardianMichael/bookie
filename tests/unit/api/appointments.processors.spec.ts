@@ -27,8 +27,7 @@ describe('processCreateAppointmentResponse', () => {
     const value = appointment({
       consumerId: undefined,
       guest: {
-        firstName: 'Alex',
-        lastName: 'Morgan',
+        fullName: 'Alex Morgan',
         phone: { code: 374, number: 77000201 },
         email: 'alex@example.com',
       },
@@ -37,7 +36,7 @@ describe('processCreateAppointmentResponse', () => {
     const processed = processCreateAppointmentResponse({ value, error: null })
 
     expect(processed.consumerId).toBeUndefined()
-    expect(processed.guest?.firstName).toBe('Alex')
+    expect(processed.guest?.fullName).toBe('Alex Morgan')
   })
 })
 

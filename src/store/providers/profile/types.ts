@@ -19,8 +19,7 @@ export type ProviderProfileState = StateCommonProps & ProviderProfile
 export type ProviderProfile = {
   id: string
   basic: {
-    firstName: string
-    lastName: string
+    fullName: string
     description?: string
     image?: string
     categories?: BasicCategory[]

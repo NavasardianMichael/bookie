@@ -22,7 +22,7 @@ import {
 } from '../lib/google-oauth.js'
 import { prisma } from '../lib/prisma.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
-import { asBoundedString, asTrimmedString } from '../lib/request.js'
+import { asFullName, asTrimmedString } from '../lib/request.js'
 import {
   DEFAULT_VERIFY_LOCALE,
   GOOGLE_SIGN_UP_QUERY,
@@ -79,8 +79,6 @@ const pendingCookieOptions = () => ({
  * Nothing is written to the database until `/complete`, so an abandoned flow leaves no row.
  */
 type PendingGoogleAccount = GoogleIdentity & { role: 'consumer' | 'provider' | null; locale: string }
-
-const MAX_NAME_LENGTH = 40
 
 const completeIpLimiter = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 })
 
@@ -355,7 +353,13 @@ const readPending = (req: Request): PendingGoogleAccount | null => {
   const raw = req.cookies?.[config.oauthPendingCookieName] as string | undefined
   if (!raw) return null
   try {
-    return jwt.verify(raw, config.jwtSecret) as PendingGoogleAccount
+    const pending = jwt.verify(raw, config.jwtSecret) as PendingGoogleAccount & { firstName?: string; lastName?: string }
+    // A cookie signed before names became one field still carries the pair. It lives only
+    // `oauthPendingTtlMs`, so this join outlasts the deploy by minutes and can go after.
+    if (!pending.fullName) {
+      pending.fullName = [pending.firstName, pending.lastName].filter(Boolean).join(' ')
+    }
+    return pending
   } catch {
     return null
   }
@@ -374,8 +378,7 @@ googleRouter.get(
 
     return ok(res, {
       email: pending.email,
-      firstName: pending.firstName,
-      lastName: pending.lastName,
+      fullName: pending.fullName,
       role: pending.role,
       image: pending.avatarUrl,
     })
@@ -398,9 +401,8 @@ googleRouter.post(
     const profile: RegistrationProfile = req.body?.profile ?? req.body ?? {}
     // Google's name is the default, but the form may correct it — a Google display name is
     // often a handle rather than the name a provider wants published.
-    const firstName = asBoundedString(profile.firstName, MAX_NAME_LENGTH) ?? pending.firstName
-    const lastName = asBoundedString(profile.lastName, MAX_NAME_LENGTH) ?? pending.lastName
-    if (!firstName) return fail(res, 'First name is required')
+    const fullName = asFullName(profile.fullName) ?? asFullName(pending.fullName)
+    if (!fullName) return fail(res, 'Full name is required')
 
     const phone = asPhone(req.body?.phone ?? (profile as { phone?: unknown }).phone)
     if (!phone) return fail(res, 'A valid phone code and number are required')
@@ -437,8 +439,7 @@ googleRouter.post(
           const provider = await tx.provider.create({
             data: {
               userId: saved.id,
-              firstName,
-              lastName: lastName ?? '',
+              fullName,
               phoneCode: phone.phoneCode,
               phoneNumber: phone.phoneNumber,
               country,
@@ -452,8 +453,7 @@ googleRouter.post(
           await tx.consumer.create({
             data: {
               userId: saved.id,
-              firstName,
-              lastName: lastName ?? '',
+              fullName,
               phoneCode: phone.phoneCode,
               phoneNumber: phone.phoneNumber,
               country,

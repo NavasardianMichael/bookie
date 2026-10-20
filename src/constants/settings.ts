@@ -41,7 +41,9 @@ export const CONSUMER_SETTINGS_NAV: { route: keyof typeof ROUTES; match?: 'exact
 /**
  * Running the business sits above configuring it: Approvals is opened daily (and
  * carries a queue that goes stale if nobody opens it), so it stays first after Profile.
- * Analytics is useful but not a queue, so it sits at the end. Bookings used to head that
+ * Analytics is useful but not a queue, so it sits with the other running-the-business tabs.
+ * Payouts is last. Plan left the sidebar — billing still opens `/providers/profile/plan`,
+ * and the public catalogue is Pricing in the header. Bookings used to head that
  * group and moved out to `/bookings`, in the header. `match: 'exact'` on the profile home
  * is load-bearing — `/providers/profile` is a prefix of every nested tab, so without it
  * the Profile item lights up on all of them.
@@ -60,8 +62,9 @@ export const PROVIDER_SETTINGS_NAV: {
   { route: ROUTE_KEYS.providerProfilePayments },
   { route: ROUTE_KEYS.providerProfileAnalytics },
   { route: ROUTE_KEYS.providerProfileAdvanced },
-  // Last: opened when a limit is hit or an upgrade is wanted, never as routine.
-  { route: ROUTE_KEYS.providerProfilePlan },
+  // Last in the sidebar. The plan page stays at `/providers/profile/plan` for billing;
+  // the header's Pricing link is the public catalogue.
+  { route: ROUTE_KEYS.providerProfilePayouts },
 ]
 
 export const toSettingsNavItems = (

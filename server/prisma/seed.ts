@@ -114,8 +114,7 @@ async function upsertUser(account: SeedAccount) {
 }
 
 /** `anna.petrosyan@bookie.am` — the identity address, distinct from a profile's public one. */
-const seedEmail = (firstName: string, lastName: string): string =>
-  `${firstName.toLowerCase()}.${lastName.toLowerCase()}@bookie.am`
+const seedEmail = (fullName: string): string => `${fullName.toLowerCase().split(/\s+/).join('.')}@bookie.am`
 
 async function main() {
   console.log('Seeding database...')
@@ -237,18 +236,18 @@ async function main() {
   }
 
   const providerDefs = [
-    { firstName: 'Anna', lastName: 'Petrosyan', org: 0, cats: [0], plan: Plan.standard },
-    { firstName: 'David', lastName: 'Hakobyan', org: 0, cats: [0], plan: Plan.free },
-    { firstName: 'Lilit', lastName: 'Sargsyan', org: 1, cats: [1], plan: Plan.premium },
-    { firstName: 'Armen', lastName: 'Grigoryan', org: 1, cats: [1], plan: Plan.basic },
-    { firstName: 'Narine', lastName: 'Avetisyan', org: 2, cats: [2], plan: Plan.standard },
-    { firstName: 'Tigran', lastName: 'Martirosyan', org: 2, cats: [2], plan: Plan.free },
-    { firstName: 'Sona', lastName: 'Melikyan', org: 3, cats: [3], plan: Plan.basic },
-    { firstName: 'Vardan', lastName: 'Khachatryan', org: 4, cats: [4], plan: Plan.premium },
-    { firstName: 'Ani', lastName: 'Danielyan', org: 5, cats: [5], plan: Plan.standard },
-    { firstName: 'Gor', lastName: 'Poghosyan', org: 5, cats: [5], plan: Plan.free },
-    { firstName: 'Mariam', lastName: 'Tonoyan', org: 6, cats: [0], plan: Plan.basic },
-    { firstName: 'Levon', lastName: 'Babayan', org: 7, cats: [1], plan: Plan.standard },
+    { fullName: 'Anna Petrosyan', org: 0, cats: [0], plan: Plan.standard },
+    { fullName: 'David Hakobyan', org: 0, cats: [0], plan: Plan.free },
+    { fullName: 'Lilit Sargsyan', org: 1, cats: [1], plan: Plan.premium },
+    { fullName: 'Armen Grigoryan', org: 1, cats: [1], plan: Plan.basic },
+    { fullName: 'Narine Avetisyan', org: 2, cats: [2], plan: Plan.standard },
+    { fullName: 'Tigran Martirosyan', org: 2, cats: [2], plan: Plan.free },
+    { fullName: 'Sona Melikyan', org: 3, cats: [3], plan: Plan.basic },
+    { fullName: 'Vardan Khachatryan', org: 4, cats: [4], plan: Plan.premium },
+    { fullName: 'Ani Danielyan', org: 5, cats: [5], plan: Plan.standard },
+    { fullName: 'Gor Poghosyan', org: 5, cats: [5], plan: Plan.free },
+    { fullName: 'Mariam Tonoyan', org: 6, cats: [0], plan: Plan.basic },
+    { fullName: 'Levon Babayan', org: 7, cats: [1], plan: Plan.standard },
   ]
 
   const providers = []
@@ -257,7 +256,7 @@ async function main() {
   for (const [index, def] of providerDefs.entries()) {
     const phoneNumber = index === 0 ? LOGIN_PROVIDER_PHONE : phoneSuffix++
     const user = await upsertUser({
-      email: seedEmail(def.firstName, def.lastName),
+      email: seedEmail(def.fullName),
       auth: 'local',
       passwordHash: localPasswordHash,
     })
@@ -268,9 +267,8 @@ async function main() {
       update: {},
       create: {
         userId: user.id,
-        firstName: def.firstName,
-        lastName: def.lastName,
-        description: `${def.firstName} ${def.lastName} — experienced specialist.`,
+        fullName: def.fullName,
+        description: `${def.fullName} — experienced specialist.`,
         imageUrl: '/logo.svg',
         phoneCode: PHONE_CODE,
         phoneNumber,
@@ -334,18 +332,16 @@ async function main() {
    * Google accounts authenticate with a `sub`, not a password, but they still have an email.
    */
   const consumerDefs: Array<{
-    firstName: string
-    lastName: string
+    fullName: string
     phone: bigint
     googleId?: string
   }> = [
-    { firstName: 'Alex', lastName: 'Consumer', phone: LOGIN_CONSUMER_PHONE },
-    { firstName: 'Maria', lastName: 'Patient', phone: BigInt(77000202) },
-    { firstName: 'Sam', lastName: 'Bookings', phone: BigInt(77000203) },
-    { firstName: 'Elena', lastName: 'Client', phone: BigInt(77000204) },
+    { fullName: 'Alex Consumer', phone: LOGIN_CONSUMER_PHONE },
+    { fullName: 'Maria Patient', phone: BigInt(77000202) },
+    { fullName: 'Sam Bookings', phone: BigInt(77000203) },
+    { fullName: 'Elena Client', phone: BigInt(77000204) },
     {
-      firstName: 'Gohar',
-      lastName: 'Nazaryan',
+      fullName: 'Gohar Nazaryan',
       phone: GOOGLE_CONSUMER_PHONE,
       googleId: GOOGLE_CONSUMER_SUB,
     },
@@ -353,7 +349,7 @@ async function main() {
 
   const consumers = []
   for (const def of consumerDefs) {
-    const email = seedEmail(def.firstName, def.lastName)
+    const email = seedEmail(def.fullName)
     const user = await upsertUser(
       def.googleId
         ? { email, auth: 'google', googleId: def.googleId }
@@ -364,8 +360,7 @@ async function main() {
       update: {},
       create: {
         userId: user.id,
-        firstName: def.firstName,
-        lastName: def.lastName,
+        fullName: def.fullName,
         phoneCode: PHONE_CODE,
         phoneNumber: def.phone,
         country: 'AM',
@@ -441,10 +436,9 @@ async function main() {
         currency: service0.currency,
         status: 'scheduled',
         notes: SEED_GUEST_APPOINTMENT_NOTE,
-        // `appointment_actor_present` requires all four once `consumerId` is null.
+        // `appointment_actor_present` requires a name and a phone once `consumerId` is null.
         // Email is the handle now that accounts are keyed on it, not phone.
-        guestFirstName: 'Narek',
-        guestLastName: 'Visitor',
+        guestFullName: 'Narek Visitor',
         guestPhoneCode: PHONE_CODE,
         guestPhoneNumber: GUEST_PHONE,
         guestEmail: 'narek.visitor@example.com',
@@ -512,8 +506,7 @@ async function main() {
         status: 'pending',
         notes: SEED_PENDING_GUEST_NOTE,
         paymentMethods: ['card_on_site'],
-        guestFirstName: 'Anahit',
-        guestLastName: 'Walkin',
+        guestFullName: 'Anahit Walkin',
         guestPhoneCode: PHONE_CODE,
         guestPhoneNumber: GUEST_PHONE,
         guestEmail: 'anahit.walkin@example.com',

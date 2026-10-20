@@ -1,5 +1,7 @@
 import { Endpoint } from '@interfaces/api'
 import {
+  AddonCatalogueEntry,
+  AddonLine,
   AdminProvider,
   AdminProvidersList,
   Plan,
@@ -13,6 +15,12 @@ export type GetPlansAPI = Endpoint<{
   processed: PlanCatalogueEntry[]
 }>
 
+export type GetAddonsAPI = Endpoint<{
+  payload: void
+  response: AddonCatalogueEntry[]
+  processed: AddonCatalogueEntry[]
+}>
+
 export type GetProviderPlanAPI = Endpoint<{
   payload: void
   response: ProviderPlanWithUsage
@@ -22,7 +30,7 @@ export type GetProviderPlanAPI = Endpoint<{
 /* --- Admin ---------------------------------------------------------------- */
 
 export type AdminProvidersQuery = Partial<{
-  /** Matches first name, last name, account email or slug. */
+  /** Matches the name, account email or slug. */
   q: string
   page: number
   perPage: number
@@ -40,6 +48,18 @@ export type PatchAdminProviderPlanAPI = Endpoint<{
     plan: Plan
     /** ISO instant in the future, or `null` for no end. Dropped by the API for `free`. */
     planExpiresAt: string | null
+  }
+  response: AdminProvider
+  processed: AdminProvider
+}>
+
+export type PatchAdminProviderAddonsAPI = Endpoint<{
+  payload: {
+    id: AdminProvider['id']
+    /** The whole admin grant, replacing the previous one; `[]` withdraws it. */
+    addons: AddonLine[]
+    /** ISO instant in the future, or `null` for no end. */
+    expiresAt: string | null
   }
   response: AdminProvider
   processed: AdminProvider

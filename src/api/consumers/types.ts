@@ -5,8 +5,7 @@ import { ConsumerEmailNotificationPrefs, PaymentInfo } from '@interfaces/setting
 export type ConsumerProfileResponse = Consumer
 
 export type PutConsumerProfileRequestPayload = Partial<{
-  firstName: string
-  lastName: string
+  fullName: string
   emailNotificationPrefs: ConsumerEmailNotificationPrefs
   paymentInfo: PaymentInfo | null
 }>

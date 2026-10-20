@@ -6,7 +6,7 @@ import { asBoundedString } from '../lib/request.js'
 import { mapAdminProvider, mapReviewReport } from '../mappers/entities.js'
 import { requireAdmin } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
-import { parseAdminPlanBody, planChangeStampReset } from '../services/plans.js'
+import { ENTITLEMENT_SELECT, parseAdminAddonsBody, parseAdminPlanBody, planChangeStampReset } from '../services/plans.js'
 import { resolvePageWindow } from '../services/providerSearch.js'
 import { recomputeProviderRating } from '../services/reviews.js'
 
@@ -61,7 +61,7 @@ adminRouter.get(
       include: {
         review: {
           include: {
-            consumer: { select: { firstName: true, lastName: true } },
+            consumer: { select: { fullName: true } },
             provider: true,
           },
         },
@@ -127,20 +127,18 @@ const PROVIDERS_PAGE_SIZE = 20
 /** Only the columns `mapAdminProvider` reads — never the profile, schedule or contact data. */
 const ADMIN_PROVIDER_SELECT = {
   id: true,
-  firstName: true,
-  lastName: true,
+  fullName: true,
   slug: true,
   listed: true,
-  plan: true,
-  planExpiresAt: true,
+  ...ENTITLEMENT_SELECT,
   paddleSubscriptionId: true,
   billingStatus: true,
   user: { select: { email: true } },
 } as const
 
 /**
- * Every word must match somewhere — first name, last name, account email or slug — so
- * "anna petrosyan" finds the provider whose names are in two columns. A plain
+ * Every word must match somewhere — name, account email or slug — so "anna petrosyan"
+ * and "petrosyan anna" find the same provider. A plain
  * case-insensitive `contains`: this is an operator's lookup over a few hundred rows, not
  * Explore, and the typo-tolerant retry would only muddy which account is being changed.
  */
@@ -150,8 +148,7 @@ const providerSearchWhere = (q: string | undefined): Prisma.ProviderWhereInput =
   return {
     AND: words.map((word) => ({
       OR: [
-        { firstName: { contains: word, mode: 'insensitive' as const } },
-        { lastName: { contains: word, mode: 'insensitive' as const } },
+        { fullName: { contains: word, mode: 'insensitive' as const } },
         { slug: { contains: word.toLowerCase() } },
         { user: { email: { contains: word, mode: 'insensitive' as const } } },
       ],
@@ -174,7 +171,7 @@ adminRouter.get(
     const providers = await prisma.provider.findMany({
       where,
       select: ADMIN_PROVIDER_SELECT,
-      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+      orderBy: { fullName: 'asc' },
       skip,
       take: perPage,
     })
@@ -205,7 +202,7 @@ adminRouter.patch(
 
     const current = await prisma.provider.findUnique({
       where: { id: req.params.id! },
-      select: { id: true, plan: true, planExpiresAt: true },
+      select: { id: true, ...ENTITLEMENT_SELECT },
     })
     if (!current) throw new HttpError(404, 'Provider not found', 404)
 
@@ -214,7 +211,7 @@ adminRouter.patch(
       data: {
         plan: next.plan,
         planExpiresAt: next.planExpiresAt,
-        ...planChangeStampReset(current, next, now),
+        ...planChangeStampReset(current, { ...next, addons: current.addons }, now),
       },
       select: ADMIN_PROVIDER_SELECT,
     })
@@ -222,6 +219,56 @@ adminRouter.patch(
     console.info(
       `[admin] plan ${provider.id}: ${current.plan} -> ${next.plan}` +
         ` (until ${next.planExpiresAt?.toISOString() ?? 'no end'}) by user ${req.session!.userId}`
+    )
+
+    return ok(res, mapAdminProvider(provider, now))
+  })
+)
+
+/**
+ * Grant add-ons by hand — a comp, or where Paddle does not sell them. The body is the
+ * complete grant, which **replaces this admin's previous one** (`[]` withdraws it), with one
+ * last instant for all of it. Only `admin` rows are touched: what the provider pays for
+ * through Paddle stays exactly as the webhook wrote it, and the webhook never touches these.
+ *
+ * Clears this month's allowance-notice stamps when the booking allowance changes, like a
+ * plan write. Logged with the acting account.
+ */
+adminRouter.patch(
+  '/providers/:id/addons',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const now = new Date()
+    const grant = parseAdminAddonsBody(req.body, now)
+
+    const current = await prisma.provider.findUnique({
+      where: { id: req.params.id! },
+      select: { id: true, ...ENTITLEMENT_SELECT },
+    })
+    if (!current) throw new HttpError(404, 'Provider not found', 404)
+
+    const adminRows = grant.addons.map((line) => ({ ...line, source: 'admin' as const, expiresAt: grant.expiresAt }))
+    const next = {
+      ...current,
+      addons: [...current.addons.filter((row) => row.source !== 'admin'), ...adminRows],
+    }
+
+    const provider = await prisma.$transaction(async (tx) => {
+      await tx.providerAddon.deleteMany({ where: { providerId: current.id, source: 'admin' } })
+      if (adminRows.length) {
+        await tx.providerAddon.createMany({ data: adminRows.map((row) => ({ providerId: current.id, ...row })) })
+      }
+      return tx.provider.update({
+        where: { id: current.id },
+        data: planChangeStampReset(current, next, now),
+        select: ADMIN_PROVIDER_SELECT,
+      })
+    })
+
+    const granted = grant.addons.map((line) => `${line.addon} ×${line.quantity}`).join(', ') || 'none'
+    console.info(
+      `[admin] addons ${provider.id}: ${granted}` +
+        ` (until ${grant.expiresAt?.toISOString() ?? 'no end'}) by user ${req.session!.userId}`
     )
 
     return ok(res, mapAdminProvider(provider, now))

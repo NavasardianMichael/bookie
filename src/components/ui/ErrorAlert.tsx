@@ -1,6 +1,6 @@
 'use client'
 
-import { FC, ReactNode } from 'react'
+import { FC, Fragment, ReactNode } from 'react'
 import { Alert } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useErrorMessage } from '@hooks/useErrorMessage'
@@ -47,7 +47,9 @@ export const ErrorAlert: FC<ErrorAlertProps> = ({
   const { text, classified, details } = describe(error, overrides)
 
   const actions = [
-    action,
+    // Keyed like the two below: the three render as one list, and the call site's element
+    // carries no key of its own.
+    action ? <Fragment key='action'>{action}</Fragment> : null,
     onRetry && classified.retryable ? (
       <AppButton key='retry' size='small' onClick={onRetry} loading={retrying}>
         {tCommon('tryAgain')}

@@ -17,9 +17,10 @@ server/
                   unused), organizations (pure) + organizationLink
                   (resolveOrganizationId — registration and the settings profile),
                   searchFallback (the typo-tolerant retry of an empty search), plans (the
-                  catalogue, prices and every limit rule — pure), planUsage (its counts and
+                  catalogue, add-ons, prices and every limit rule — pure), planUsage (its counts and
                   stamps), planNotices (the booking-allowance emails), billing (Paddle
-                  subscription → plan — pure) + billingSync (applies a webhook event),
+                  subscription items → plan + add-ons, the item builders — pure) + billingSync
+                  (applies a webhook event),
                   noticeRules (who gets which channel — pure), notify (sends), bookingNotify
                   (every booking notice), reminders (when one is due — pure)
     jobs/         reminderJob — the one background job, started by index.ts
@@ -28,7 +29,8 @@ server/
     lib/          api-response, auth-notices, billing-errors, booking-errors, booking-mail,
                   booking-notices (the words of every booking notice), category-names (every
                   seeded category's label in all 16 locales; twin of `Categories.names`), cookie-domain,
-                  email-verify, google-oauth, ics, mail, notice-render (one notice → email
+                  email-verify, google-oauth, ics, keyed-lock (an in-process mutex per key —
+                  billing's read-modify-write), mail, notice-render (one notice → email
                   and Telegram), oauth-state, paddle (the only Paddle client), paddle-signature,
                   password, password-reset, payment (in-person methods, not billing),
                   plan-errors, plan-mail, prisma, rateLimit, request, return-path,
@@ -296,7 +298,11 @@ route cannot be turned into a scan of one provider's whole history. It replaced
 emails. Strategy and catalogue: [docs/BILLING.md](../docs/BILLING.md). Four rules:
 
 - **Never read `Provider.plan` to gate a feature.** `getEntitlements(provider, now)` applies
-  `planExpiresAt` too; a direct read would keep granting a lapsed plan.
+  `planExpiresAt` too, and merges every live add-on (`ProviderAddon`) on top; a direct read
+  would keep granting a lapsed plan and ignore what was bought on its own. Its input type
+  *requires* `addons`, so select **`ENTITLEMENT_SELECT`** wherever a plan is enforced — a
+  narrow `{ plan, planExpiresAt }` select fails to typecheck. Detail payloads get add-ons
+  through `providerInclude`; Explore's `providerListInclude` does not need them.
 - **Nothing consumer-facing is ever withdrawn by a plan.** Over-cap services stay live and
   editable (`takesServiceSlot` only blocks an inactive → active move), a grandfathered slug
   keeps resolving and survives SEO saves (`needsCustomSlug`), and slug resolution never
@@ -318,8 +324,11 @@ booking route answers.
 moderation** (list reports, hide/restore a review, close a report) and **plan assignment**
 (`GET /admin/providers`, `PATCH /admin/providers/:id/plan`) — one of the two writers of
 `Provider.plan`; the Paddle webhook is the other, and overwrites a manual assignment on a
-provider with a live subscription at its next event (the row says `billing: 'paddle'`). A
-plan write is logged with the acting `userId`, because there is no audit table.
+provider with a live subscription at its next event (the row says `billing: 'paddle'`). It
+also **grants add-ons** (`PATCH /admin/providers/:id/addons`), which writes only `admin`
+`ProviderAddon` rows — the webhook never touches them, and this route never touches the
+`paddle` ones. A plan or add-on write is logged with the acting `userId`, because there is no
+audit table.
 
 - **Admin is not a role.** `SessionPayload.role` is only `consumer | provider`; an admin
   signs in with whichever account they already have and is recognised by their identity
@@ -360,19 +369,32 @@ The rule `lib/mail.ts` keeps for `MAIL_API_KEY` holds for every credential: one 
 it from `config`, never returns, logs or puts it in an error. `PADDLE_API_KEY` →
 `lib/paddle.ts`; `TELEGRAM_BOT_TOKEN` → `lib/telegram.ts` (it is part of every request URL,
 so a failure logs Telegram's description, never the URL); `GOOGLE_CLIENT_SECRET` →
-`lib/google-oauth.ts`. Each is empty in a fresh clone and the feature reports itself
-unavailable rather than throwing — `isPaddleConfigured()`, `isTelegramConfigured()`, and
-`/health` reports both.
+`lib/google-oauth.ts`; `GEMINI_API_KEY` → `lib/gemini.ts` (sent as the `x-goog-api-key`
+header, never in the URL). Each is empty in a fresh clone and the feature reports itself
+unavailable rather than throwing — `isPaddleConfigured()`, `isTelegramConfigured()`,
+`isGeminiConfigured()`, and `/health` reports all three.
+
+A photo sent to Gemini is held **in memory only** (`multer.memoryStorage()` in
+`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves to anyone.
 
 ## Billing — the webhook is the only writer of billing state
 
-`routes/billing.ts` only *asks* Paddle for things — a checkout, a plan switch, a portal link.
-What a provider holds is written by `POST /billing/webhook` alone, through
-`services/billingSync.ts`, from the subscription snapshot every `subscription.*` event
-carries (`services/billing.ts#subscriptionToFields`). It writes `plan` and `planExpiresAt`,
-so `getEntitlements` reads billing exactly as it reads an admin assignment. Out-of-order
-and repeated events are handled by `billingEventAt` and by a snapshot being idempotent — no
-events table. The full state table is in [docs/BILLING.md](../docs/BILLING.md).
+`routes/billing.ts` only *asks* Paddle for things — a checkout, a plan switch, an add-on
+change, a portal link. What a provider holds is written by `POST /billing/webhook` alone,
+through `services/billingSync.ts`, from the subscription snapshot every `subscription.*` event
+carries (`services/billing.ts#subscriptionToSnapshot`). It writes `plan`, `planExpiresAt` and
+the `paddle` `ProviderAddon` rows, so `getEntitlements` reads billing exactly as it reads an
+admin assignment. Out-of-order and repeated events are handled by `billingEventAt` and by a
+snapshot being idempotent — no events table — and the columns and rows are written in one
+transaction claimed by compare-and-set on `billingEventAt`. The full state table is in
+[docs/BILLING.md](../docs/BILLING.md).
+
+**One subscription, several items.** A change reads the items from Paddle, never from our
+webhook-fed copy, and `PATCH`es the whole list back (Paddle removes what is left out), inside
+`billingLock` (`lib/keyed-lock.ts`) — per-process, like `lib/rateLimit.ts`; a second API
+instance needs `pg_advisory_xact_lock` instead. The item builders (`itemsForPlan`,
+`itemsForAddon`) keep an existing item's own price id and pass unknown items through, so a
+change never strips something a subscriber is still paying for.
 
 ## Notifications — email and Telegram, decided in one place
 

@@ -1,6 +1,5 @@
 import { AppRouteName } from '@interfaces/routes'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import { isPublicProviderPage } from '@helpers/routes'
 
 /**
  * Nav destinations carry a **route name only**. The visible label is looked up by
@@ -15,14 +14,14 @@ export const HEADER_ROUTES: AppRouteName[] = [
   ROUTE_KEYS.providers,
   ROUTE_KEYS.categories,
   ROUTE_KEYS.organizations,
+  ROUTE_KEYS.pricing,
 ]
 
 /**
  * The signed-in account's own pages, appended to whatever `navRoutes` the route shows.
  *
- * Separate from `HEADER_ROUTES` because they follow the *session*, not the route: they
- * appear on the public provider page too, which drops the marketplace destinations but
- * keeps the avatar — and these belong with the avatar, not with the marketplace.
+ * Separate from `HEADER_ROUTES` because they follow the *session*, not the route: every
+ * page that shows the nav, including a public provider page, appends them once signed in.
  * Both pages are guarded (`src/proxy.ts`), so offering them to a guest would only be a
  * detour through sign-in.
  */
@@ -65,11 +64,10 @@ const DEFAULT_CONFIG: HeaderConfig = {
   navRoutes: HEADER_ROUTES,
 }
 
-/** Public booking page: marketplace dests stay off; the logo is the way back. */
-const PUBLIC_PROVIDER_NAV_ROUTES: AppRouteName[] = []
-
 /**
  * Only the exceptions are listed; everything else falls back to DEFAULT_CONFIG.
+ * A public provider page shares the `providers` route name with Explore, and it shows
+ * this same nav.
  */
 const HEADER_CONFIG_OVERRIDES: Partial<Record<AppRouteName, Partial<HeaderConfig>>> = {
   [ROUTE_KEYS.accountTypeSelection]: { showNav: false },
@@ -84,20 +82,10 @@ const HEADER_CONFIG_OVERRIDES: Partial<Record<AppRouteName, Partial<HeaderConfig
   [ROUTE_KEYS.logout]: { showNav: false },
 }
 
-export const getHeaderConfig = (routeName?: AppRouteName, pathname?: string): HeaderConfig => {
-  const config: HeaderConfig = {
-    ...DEFAULT_CONFIG,
-    ...(routeName ? HEADER_CONFIG_OVERRIDES[routeName] : undefined),
-  }
-
-  // Not an OVERRIDES entry: Providers list and the public page share the `providers`
-  // route name, so the extra segment is what distinguishes them.
-  if (pathname && isPublicProviderPage(pathname)) {
-    return { ...config, navRoutes: PUBLIC_PROVIDER_NAV_ROUTES }
-  }
-
-  return config
-}
+export const getHeaderConfig = (routeName?: AppRouteName): HeaderConfig => ({
+  ...DEFAULT_CONFIG,
+  ...(routeName ? HEADER_CONFIG_OVERRIDES[routeName] : undefined),
+})
 
 /** The destinations to render: the route's own, then the account's when signed in. */
 export const withAccountRoutes = (navRoutes: AppRouteName[], isSignedOn: boolean): AppRouteName[] =>

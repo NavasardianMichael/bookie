@@ -201,8 +201,9 @@ export const parseReplyBody = (body: unknown): string => {
 }
 
 /**
- * A reviewer is named by their first name and a last initial — never the full surname,
- * never an id, never an address.
+ * A reviewer is named by the first word of their name and the initial of the last —
+ * never the full surname, never an id, never an address. A one-word name stays as is,
+ * and middle words are dropped rather than published.
  *
  * `server/CLAUDE.md`'s "Consumers are never public" deleted `GET /consumers` for
  * returning names and phone numbers to anyone who asked. A review has to be attributable
@@ -210,9 +211,11 @@ export const parseReplyBody = (body: unknown): string => {
  * provider to recognise a real customer, not enough to identify a stranger. The payload
  * carries no consumer id at all, so there is nothing to look anybody up by.
  */
-export const reviewAuthorName = (firstName: string, lastName: string): string => {
-  const initial = lastName.trim().charAt(0)
-  return initial ? `${firstName.trim()} ${initial.toUpperCase()}.` : firstName.trim()
+export const reviewAuthorName = (fullName: string): string => {
+  const words = fullName.trim().split(/\s+/).filter(Boolean)
+  if (words.length < 2) return words[0] ?? ''
+  const initial = words[words.length - 1].charAt(0).toUpperCase()
+  return `${words[0]} ${initial}.`
 }
 
 /**

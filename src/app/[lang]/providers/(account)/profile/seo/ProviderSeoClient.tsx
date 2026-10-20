@@ -173,7 +173,7 @@ export const ProviderSeoClient = () => {
     void getProviderProfileAPI()
       .then((profile) => {
         if (cancelled) return
-        const name = `${profile.basic.firstName} ${profile.basic.lastName}`.trim()
+        const name = profile.basic.fullName
         const organization = profile.basic.organization?.basic.name
         const categories = profile.basic.categories?.map((category) => category.name) ?? []
         // What the public page composes when an override is absent, reproduced here so

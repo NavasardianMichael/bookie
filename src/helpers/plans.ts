@@ -1,4 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs'
+import { Addon, AddonSource, Plan, ProviderAddon, ProviderPlanWithUsage } from '@interfaces/plans'
+import { BILLING_STATUSES } from '@constants/billing'
+import { ADDON_SOURCES } from '@constants/plans'
 
 /**
  * A plan's expiry is an instant — the first moment it no longer applies — but people think
@@ -37,3 +40,32 @@ export const usagePercent = (used: number, limit: number | null): number | null 
 
 /** Room for one more under `limit` (`null` is unlimited) — the client twin of the API's `hasRoomFor`. */
 export const hasRoomFor = (used: number, limit: number | null): boolean => limit === null || used < limit
+
+/**
+ * How many of an add-on the provider holds right now, from one source or all. Packs from
+ * both sources add up, a feature held twice is still one — the API's `heldAddons`, for the
+ * list `GET /provider-profile/plan` sends.
+ */
+export const heldQuantity = (addons: readonly ProviderAddon[], addon: Addon, source?: AddonSource): number =>
+  addons
+    .filter((held) => held.addon === addon && (!source || held.source === source))
+    .reduce((total, held) => total + held.quantity, 0)
+
+/**
+ * What a billing change is waiting on, before the webhook lands it:
+ *
+ * - `plan` — that plan is the one in force (a switch);
+ * - `addon` — exactly `quantity` of it is paid for, 0 being none (an add-on change);
+ * - `subscribed` — a subscription is live at all. What a checkout waits on, because Paddle's
+ *   overlay lets the buyer change quantities or remove items, so the exact cart is not known.
+ */
+export type BillingTarget =
+  | { kind: 'plan'; plan: Plan }
+  | { kind: 'addon'; addon: Addon; quantity: number }
+  | { kind: 'subscribed' }
+
+export const isBillingTargetReached = (target: BillingTarget, current: ProviderPlanWithUsage): boolean => {
+  if (target.kind === 'plan') return current.effectivePlan === target.plan
+  if (target.kind === 'addon') return heldQuantity(current.addons, target.addon, ADDON_SOURCES.paddle) === target.quantity
+  return current.billing !== null && current.billing.status !== BILLING_STATUSES.canceled
+}

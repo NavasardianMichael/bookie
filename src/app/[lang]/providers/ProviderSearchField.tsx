@@ -89,7 +89,7 @@ export const ProviderSearchField: FC<Props> = ({ params }) => {
   }
 
   const options = suggestions.providers.map((provider) => {
-    const name = `${provider.basic.firstName} ${provider.basic.lastName}`
+    const name = provider.basic.fullName
     return {
       value: provider.id,
       // rc-select's hidden accessible listbox would otherwise announce the option's

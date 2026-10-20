@@ -10,7 +10,7 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { PaymentInfo, PaymentMethod } from '@interfaces/settings'
 import { Locale } from '@i18n/config'
 import { localePath } from '@i18n/pathname'
-import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
+import { MAX_CHARS_FOR_INPUT, MAX_CHARS_FOR_NAME, MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTE_KEYS } from '@constants/routes'
 import { PAYMENT_METHODS } from '@constants/settings'
 import { generateEntityPath } from '@helpers/entities'
@@ -53,8 +53,7 @@ export type BookingCreated = {
 type FormValues = {
   notes?: string
   paymentMethods?: PaymentMethod[]
-  firstName?: string
-  lastName?: string
+  fullName?: string
   email?: string
   phone?: string
 }
@@ -171,7 +170,9 @@ const BookingConfirmSuccess: FC<SuccessProps> = ({ booking, created, onSharePend
           aria-hidden
           className='bg-brand-100 text-brand flex size-12 shrink-0 items-center justify-center rounded-brand-sm'
         >
-          <CheckCircleIcon className='h-6 w-6' />
+          <CheckCircleIcon
+            className={created.requiresApproval ? 'h-6 w-6' : 'text-brand-success h-6 w-6'}
+          />
         </span>
         <div className='min-w-0'>
           <AppTitle level='h3' size='h3'>
@@ -229,7 +230,7 @@ const BookingConfirmForm: FC<FormProps> = ({
   const selectedMethods = Form.useWatch('paymentMethods', form) ?? initiallyChecked
 
   const notesRules = useFormItemRules('maxCharsForTextarea')
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
   const phoneRules = useFormItemRules('required')
   const emailRules = useFormItemRules('email')
 
@@ -239,8 +240,7 @@ const BookingConfirmForm: FC<FormProps> = ({
       paymentMethods: values.paymentMethods?.length ? values.paymentMethods : undefined,
       guest: needsGuestDetails
         ? {
-            firstName: values.firstName!,
-            lastName: values.lastName!,
+            fullName: values.fullName!,
             phone: toGuestPhoneNumber(values.phone!),
             email: values.email?.trim() || undefined,
           }
@@ -279,34 +279,13 @@ const BookingConfirmForm: FC<FormProps> = ({
             </AppParagraph>
           </div>
 
-          <div className='grid gap-4 sm:grid-cols-2'>
-            <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='booking-first-name' requirement='Required'>
-                {t('guest.firstName')}
-              </FieldLabel>
-              <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('guest.firstName') }}>
-                <AppInput
-                  id='booking-first-name'
-                  autoComplete='given-name'
-                  enterKeyHint='next'
-                  maxLength={MAX_CHARS_FOR_INPUT}
-                />
-              </AppFormItem>
-            </div>
-
-            <div className='flex flex-col gap-1.5'>
-              <FieldLabel htmlFor='booking-last-name' requirement='Required'>
-                {t('guest.lastName')}
-              </FieldLabel>
-              <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('guest.lastName') }}>
-                <AppInput
-                  id='booking-last-name'
-                  autoComplete='family-name'
-                  enterKeyHint='next'
-                  maxLength={MAX_CHARS_FOR_INPUT}
-                />
-              </AppFormItem>
-            </div>
+          <div className='flex flex-col gap-1.5'>
+            <FieldLabel htmlFor='booking-full-name' requirement='Required'>
+              {t('guest.fullName')}
+            </FieldLabel>
+            <AppFormItem name='fullName' rules={nameRules} messageVariables={{ label: t('guest.fullName') }}>
+              <AppInput id='booking-full-name' autoComplete='name' enterKeyHint='next' maxLength={MAX_CHARS_FOR_NAME} />
+            </AppFormItem>
           </div>
 
           <div className='flex flex-col gap-1.5'>

@@ -25,7 +25,7 @@ must name an address the caller already holds and the user has proven.
 ```ts
 import { sendExternalMail, sendInternalMail } from '../lib/mail.js'
 
-await sendInternalMail({ subject, body, senderEmail, firstName, lastName, details })
+await sendInternalMail({ subject, body, senderEmail, firstName: fullName, details })
 await sendExternalMail({ to, subject, text, html, replyTo })
 ```
 
@@ -43,6 +43,7 @@ never left: unconfigured, timed out, or DNS.
 
 ```
 subject?  body?  senderEmail?  firstName?  lastName?  phoneNumber?
+(this app keeps one `fullName` per person — send it whole as `firstName`, omit `lastName`)
 details?  (object, rendered alongside — keep small and non-sensitive)
 website?  (honeypot; must be empty)
 ```

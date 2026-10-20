@@ -5,6 +5,13 @@ export const MAX_CHARS_FOR_INPUT = 40
 export const MAX_CHARS_FOR_TEXTAREA = 300
 
 /**
+ * A person's full name — one field everywhere (`Provider.fullName`, `Consumer.fullName`,
+ * a guest booker's). Keep in step with `MAX_FULL_NAME_LENGTH` in
+ * `server/src/lib/request.ts`, which truncates at the same figure.
+ */
+export const MAX_CHARS_FOR_NAME = 100
+
+/**
  * The contact page's message box, deliberately larger than `MAX_CHARS_FOR_TEXTAREA` —
  * that figure sizes a profile blurb, while a support request needs room to describe what
  * went wrong.
@@ -16,8 +23,8 @@ export const MAX_CHARS_FOR_TEXTAREA = 300
 export const MAX_CHARS_FOR_CONTACT_MESSAGE = 2000
 
 /**
- * An organization registered alongside a provider. Names run longer than a person's
- * (`MAX_CHARS_FOR_INPUT` sizes a first name), and an address or a website longer still.
+ * An organization registered alongside a provider. Its name gets a person's full-name
+ * room (`MAX_CHARS_FOR_NAME`), and an address or a website more still.
  * Keep in step with `server/src/services/organizations.ts`, which truncates at the same
  * figures; the description uses `MAX_CHARS_FOR_TEXTAREA` on both sides.
  */
@@ -36,6 +43,7 @@ export const MAX_CHARS_FOR_CATEGORY_NAME = 40
 const _RULE_NAMES = {
   required: 'required',
   maxCharsForInput: 'maxCharsForInput',
+  maxCharsForName: 'maxCharsForName',
   maxCharsForTextarea: 'maxCharsForTextarea',
   email: 'email',
   oneItemSelectedAtLeast: 'oneItemSelectedAtLeast',
@@ -51,6 +59,7 @@ const _RULE_NAMES = {
 export const FORM_ITEM_RULES: Record<(typeof _RULE_NAMES)[keyof typeof _RULE_NAMES], RuleObject> = {
   required: { required: true, message: 'Please fill in ${label}' },
   maxCharsForInput: { max: MAX_CHARS_FOR_INPUT, message: `Max count of characters is ${MAX_CHARS_FOR_INPUT}` },
+  maxCharsForName: { max: MAX_CHARS_FOR_NAME, message: `Max count of characters is ${MAX_CHARS_FOR_NAME}` },
   maxCharsForTextarea: {
     max: MAX_CHARS_FOR_TEXTAREA,
     message: `Max count of characters is ${MAX_CHARS_FOR_TEXTAREA}`,

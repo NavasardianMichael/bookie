@@ -48,16 +48,16 @@ export type ProviderBookingsSort = 'startDesc' | 'startAsc' | 'createdDesc' | 'n
  *
  * `nameAsc` orders on the Consumer relation first, which puts guest bookings — where
  * that relation is null and Postgres sorts nulls last on an ascending order — together
- * at the end, ordered among themselves by `guestLastName`. Two keys are needed because
+ * at the end, ordered among themselves by `guestFullName`. Two keys are needed because
  * a booker's name lives in one of two places depending on whether they had an account.
- * Only `guestLastName` takes an explicit `nulls`; `Consumer.lastName` is non-nullable,
+ * Only `guestFullName` takes an explicit `nulls`; `Consumer.fullName` is non-nullable,
  * so Prisma does not accept the modifier there.
  */
 const ORDER_BY: Record<ProviderBookingsSort, Prisma.AppointmentOrderByWithRelationInput[]> = {
   startDesc: [{ startAt: 'desc' }],
   startAsc: [{ startAt: 'asc' }],
   createdDesc: [{ createdAt: 'desc' }],
-  nameAsc: [{ consumer: { lastName: 'asc' } }, { guestLastName: { sort: 'asc', nulls: 'last' } }],
+  nameAsc: [{ consumer: { fullName: 'asc' } }, { guestFullName: { sort: 'asc', nulls: 'last' } }],
 }
 
 export const PROVIDER_BOOKINGS_SORTS = Object.keys(ORDER_BY) as ProviderBookingsSort[]
@@ -111,10 +111,8 @@ const toSearchTerms = (raw: unknown): string[] =>
  */
 const matchesTerm = (spellings: readonly string[]): Prisma.AppointmentWhereInput => ({
   OR: spellings.flatMap((term): Prisma.AppointmentWhereInput[] => [
-    { consumer: { firstName: { contains: term, mode: 'insensitive' } } },
-    { consumer: { lastName: { contains: term, mode: 'insensitive' } } },
-    { guestFirstName: { contains: term, mode: 'insensitive' } },
-    { guestLastName: { contains: term, mode: 'insensitive' } },
+    { consumer: { fullName: { contains: term, mode: 'insensitive' } } },
+    { guestFullName: { contains: term, mode: 'insensitive' } },
     { guestEmail: { contains: term, mode: 'insensitive' } },
     { service: { name: { contains: term, mode: 'insensitive' } } },
   ]),
@@ -177,8 +175,7 @@ export function parseProviderBookingsQuery(
  */
 const matchesConsumerTerm = (spellings: readonly string[]): Prisma.AppointmentWhereInput => ({
   OR: spellings.flatMap((term): Prisma.AppointmentWhereInput[] => [
-    { provider: { firstName: { contains: term, mode: 'insensitive' } } },
-    { provider: { lastName: { contains: term, mode: 'insensitive' } } },
+    { provider: { fullName: { contains: term, mode: 'insensitive' } } },
     { service: { name: { contains: term, mode: 'insensitive' } } },
   ]),
 })
@@ -187,7 +184,7 @@ const CONSUMER_ORDER_BY: Record<ProviderBookingsSort, Prisma.AppointmentOrderByW
   startDesc: [{ startAt: 'desc' }],
   startAsc: [{ startAt: 'asc' }],
   createdDesc: [{ createdAt: 'desc' }],
-  nameAsc: [{ provider: { lastName: 'asc' } }, { provider: { firstName: 'asc' } }],
+  nameAsc: [{ provider: { fullName: 'asc' } }],
 }
 
 export function parseConsumerBookingsQuery(

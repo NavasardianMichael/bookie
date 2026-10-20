@@ -56,13 +56,12 @@ type Props = {
 }
 
 type FormValues = {
-  firstName: string
-  lastName: string
+  fullName: string
   description?: string
   email?: string
   code?: CountryCode
   number?: string
-  image?: string | File
+  image?: string | File | null
   /** Live setting — whether the number appears on the public page. */
   phoneVisible: boolean
   /** Live, through its own endpoint. Present only while the Organization section is open. */
@@ -82,13 +81,13 @@ const mergeDraft = (profile: ProviderProfile): FormValues => {
   const draft = profile.draft
   const phone = toPhoneFormValues(profile.details.phone)
   return {
-    firstName: draft?.firstName ?? profile.basic.firstName,
-    lastName: draft?.lastName ?? profile.basic.lastName,
+    fullName: draft?.fullName ?? profile.basic.fullName,
     description: (draft?.description ?? profile.basic.description) || '',
     email: profile.details.email ?? '',
     code: phone?.code,
     number: phone?.number ?? '',
-    image: draft?.imageUrl ?? profile.basic.image,
+    image:
+      profile.draft && 'imageUrl' in profile.draft ? (profile.draft.imageUrl ?? undefined) : profile.basic.image,
     // Absent on a payload written before the column existed; on is the API default.
     phoneVisible: profile.details.phoneVisible !== false,
     organization: profile.basic.organization
@@ -110,9 +109,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   const [error, setError] = useState<unknown>(null)
   const [loadError, setLoadError] = useState<unknown>(null)
   const [revision, setRevision] = useState(0)
-  /** Open while an organization is linked, or once the provider chooses to add one. */
-  const [organizationOpen, setOrganizationOpen] = useState(false)
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
   const descriptionRules = useFormItemRules('maxCharsForTextarea')
   const { resolveOrganization, dialog: similarOrganizationsDialog } = useSimilarOrganizationCheck((organization) =>
     form.setFieldValue('organization', { id: organization.id, name: organization.basic.name })
@@ -132,7 +129,6 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         setProfile(data)
         const values = mergeDraft(data)
         form.setFieldsValue(values)
-        setOrganizationOpen(Boolean(values.organization))
         setLoadError(null)
       })
       .catch((err: unknown) => {
@@ -157,20 +153,16 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
   }
 
   // Watch the live fields — `getFieldsValue()` warns if it runs before `<Form form>` mounts.
-  const watchedFirstName = Form.useWatch('firstName', form)
-  const watchedLastName = Form.useWatch('lastName', form)
-  const displayName =
-    `${watchedFirstName ?? profile?.basic.firstName ?? ''} ${watchedLastName ?? profile?.basic.lastName ?? ''}`.trim()
+  const watchedFullName = Form.useWatch('fullName', form)
+  const displayName = (watchedFullName ?? profile?.basic.fullName ?? '').trim()
 
   const applyResult = (data: ProviderProfile) => {
     setProfile(data)
     const values = mergeDraft(data)
     form.setFieldsValue(values)
-    setOrganizationOpen(Boolean(values.organization))
     const portrait = data.draft?.imageUrl ?? data.basic.image
     setAuthState({
-      firstName: data.basic.firstName,
-      lastName: data.basic.lastName,
+      fullName: data.basic.fullName,
       // Draft wins: Save draft writes the upload there, and the live column stays
       // `/logo.svg` until Publish. Only a real upload — the seed is not a face.
       image: isUploadedAsset(portrait ?? undefined) ? (portrait ?? null) : null,
@@ -250,10 +242,10 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
     try {
       const data = await putProviderProfileAPI({
         mode: 'draft',
-        firstName: values.firstName,
-        lastName: values.lastName,
+        fullName: values.fullName,
         description: values.description,
         image: values.image instanceof File ? values.image : undefined,
+        clearImage: values.image === null ? true : undefined,
       })
       applyResult(await withSavedLiveFields(data, values, live))
     } catch (err) {
@@ -273,10 +265,10 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
       // Ensure draft has latest fields, then publish.
       await putProviderProfileAPI({
         mode: 'draft',
-        firstName: values.firstName,
-        lastName: values.lastName,
+        fullName: values.fullName,
         description: values.description,
         image: values.image instanceof File ? values.image : undefined,
+        clearImage: values.image === null ? true : undefined,
       })
       const data = await putProviderProfileAPI({ mode: 'publish' })
       applyResult(await withSavedLiveFields(data, values, live))
@@ -307,6 +299,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         <ProviderPageActions
           listed={profile?.listed !== false}
           profileId={profile?.id ?? profileId}
+          name={displayName}
           disabled={!profile || pendingAction !== null}
           onListedChange={(listed) => {
             setProfile((prev) => (prev ? { ...prev, listed } : prev))
@@ -345,20 +338,15 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 name={displayName || 'Provider'}
                 hint={t('profile.imageHint')}
                 uploadLabel={t('profile.upload')}
+                removeLabel={t('profile.removePhoto')}
               />
             </AppFormItem>
 
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <div className='flex flex-col gap-1.5'>
-                <FieldLabel htmlFor='firstName'>{t('profile.firstName')}</FieldLabel>
-                <AppFormItem name='firstName' rules={nameRules} messageVariables={{ label: t('profile.firstName') }}>
-                  <AppInput id='firstName' autoComplete='given-name' />
-                </AppFormItem>
-              </div>
-              <div className='flex flex-col gap-1.5'>
-                <FieldLabel htmlFor='lastName'>{t('profile.lastName')}</FieldLabel>
-                <AppFormItem name='lastName' rules={nameRules} messageVariables={{ label: t('profile.lastName') }}>
-                  <AppInput id='lastName' autoComplete='family-name' />
+              <div className='flex flex-col gap-1.5 md:col-span-2'>
+                <FieldLabel htmlFor='fullName'>{t('profile.fullName')}</FieldLabel>
+                <AppFormItem name='fullName' rules={nameRules} messageVariables={{ label: t('profile.fullName') }}>
+                  <AppInput id='fullName' autoComplete='name' />
                 </AppFormItem>
               </div>
               <div className='flex flex-col gap-1.5 md:col-span-2'>
@@ -409,17 +397,13 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
                 <CategoriesSection disabled={!profile || pendingAction !== null} />
               </div>
               {/*
-                Closed — the "Add organization" button — unless one is linked; the load opens
-                it then. Disabled until the profile arrives, so it cannot be opened empty over
-                an organization that is about to load.
+                Always the fields — an empty name is "no organization". Disabled until the
+                profile arrives, so Detach cannot clear a link that is about to load.
               */}
               <div className='flex flex-col gap-4 md:col-span-2'>
                 <OrganizationSection
-                  open={organizationOpen}
-                  onOpenChange={(next) => {
-                    setOrganizationOpen(next)
-                    setDirty(true)
-                  }}
+                  variant='settings'
+                  onDetached={() => setDirty(true)}
                   disabled={!profile || pendingAction !== null}
                 />
               </div>
@@ -441,7 +425,6 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
             if (!profile) return
             const values = mergeDraft(profile)
             form.setFieldsValue(values)
-            setOrganizationOpen(Boolean(values.organization))
             setDirty(false)
           }}
           onSaveDraft={() => void handleSaveDraft()}

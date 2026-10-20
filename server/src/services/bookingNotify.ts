@@ -1,6 +1,6 @@
 import type { Recipient } from './noticeRules.js'
 import { deliver } from './notify.js'
-import { getEntitlements } from './plans.js'
+import { ENTITLEMENT_SELECT, getEntitlements } from './plans.js'
 import type { ReminderSide } from './reminders.js'
 import { config } from '../config.js'
 import { buildBookingManageUrl, formatBookingWhen } from '../lib/booking-mail.js'
@@ -41,25 +41,21 @@ const partiesSelect = {
   startAt: true,
   providerId: true,
   guestEmail: true,
-  guestFirstName: true,
-  guestLastName: true,
+  guestFullName: true,
   service: { select: { name: true } },
   consumer: {
     select: {
-      firstName: true,
-      lastName: true,
+      fullName: true,
       emailNotificationPrefs: true,
       user: { select: { email: true, telegramChatId: true } },
     },
   },
   provider: {
     select: {
-      firstName: true,
-      lastName: true,
+      fullName: true,
       timeZone: true,
       timeFormat: true,
-      plan: true,
-      planExpiresAt: true,
+      ...ENTITLEMENT_SELECT,
       emailNotificationPrefs: true,
       user: { select: { email: true, telegramChatId: true } },
     },
@@ -78,19 +74,16 @@ const loadParties = async (appointmentId: string): Promise<Parties | null> => {
   const row = await prisma.appointment.findUnique({ where: { id: appointmentId }, select: partiesSelect })
   if (!row) return null
 
-  const bookerName =
-    [row.guestFirstName, row.guestLastName].filter(Boolean).join(' ') ||
-    [row.consumer?.firstName, row.consumer?.lastName].filter(Boolean).join(' ') ||
-    'A client'
+  const booker = row.guestFullName || row.consumer?.fullName
 
   return {
     appointmentId: row.id,
     providerId: row.providerId,
     facts: {
-      bookerName,
-      bookerFirstName: row.guestFirstName ?? row.consumer?.firstName ?? 'there',
-      providerName: `${row.provider.firstName} ${row.provider.lastName}`.trim() || 'your provider',
-      providerFirstName: row.provider.firstName,
+      bookerName: booker || 'A client',
+      bookerGreetingName: booker || 'there',
+      providerName: row.provider.fullName || 'your provider',
+      providerGreetingName: row.provider.fullName || 'there',
       serviceName: row.service.name,
       when: formatBookingWhen(row.startAt, row.provider.timeZone, row.provider.timeFormat),
     },

@@ -3,16 +3,30 @@ import { APIResponse } from '@interfaces/api'
 import { paramsToQueryString } from '@helpers/api'
 import { ENDPOINTS } from './endpoints'
 import {
+  processAddonsResponse,
+  processAdminProviderAddonsResponse,
   processAdminProviderPlanResponse,
   processAdminProvidersResponse,
   processPlansResponse,
   processProviderPlanResponse,
 } from './processors'
-import { GetAdminProvidersAPI, GetPlansAPI, GetProviderPlanAPI, PatchAdminProviderPlanAPI } from './types'
+import {
+  GetAddonsAPI,
+  GetAdminProvidersAPI,
+  GetPlansAPI,
+  GetProviderPlanAPI,
+  PatchAdminProviderAddonsAPI,
+  PatchAdminProviderPlanAPI,
+} from './types'
 
 export const getPlansAPI: GetPlansAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetPlansAPI['response']>>(ENDPOINTS.getPlans)
   return processPlansResponse(data)
+}
+
+export const getAddonsAPI: GetAddonsAPI['api'] = async () => {
+  const { data } = await axiosInstance.get<APIResponse<GetAddonsAPI['response']>>(ENDPOINTS.getAddons)
+  return processAddonsResponse(data)
 }
 
 export const getProviderPlanAPI: GetProviderPlanAPI['api'] = async () => {
@@ -36,4 +50,12 @@ export const patchAdminProviderPlanAPI: PatchAdminProviderPlanAPI['api'] = async
     body
   )
   return processAdminProviderPlanResponse(data)
+}
+
+export const patchAdminProviderAddonsAPI: PatchAdminProviderAddonsAPI['api'] = async ({ id, ...body }) => {
+  const { data } = await axiosInstance.patch<APIResponse<PatchAdminProviderAddonsAPI['response']>>(
+    `${ENDPOINTS.patchAdminProviderAddons}/${id}/addons`,
+    body
+  )
+  return processAdminProviderAddonsResponse(data)
 }

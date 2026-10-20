@@ -3,8 +3,9 @@
 How to wire Paddle Billing to Bookie's provider subscriptions. What the integration *does*
 — the flow, the state table, the webhook rules — is [`docs/BILLING.md`](BILLING.md); this is
 the operator's checklist. It follows regionify's `docs/PADDLE_AND_PLANS_SETUP.md`, whose
-integration has taken payments in both environments, adapted from one-time badges to three
-**monthly recurring prices**.
+integration has taken payments in both environments, adapted from one-time badges to
+**monthly recurring prices** — three plans and six add-ons, held as items of one
+subscription per provider.
 
 Sandbox and live are **separate Paddle accounts**: separate products, prices, keys, tokens,
 webhook secrets and approved domains. Do the sandbox end to end first.
@@ -17,16 +18,25 @@ webhook secrets and approved domains. Do the sandbox end to end first.
 | `PADDLE_WEBHOOK_SECRET` | same | The notification destination's signing secret. Comma-separated during a rotation |
 | `PADDLE_SANDBOX` | same | `true` → `sandbox-api.paddle.com`; anything else → live |
 | `PADDLE_PRICE_ID_BASIC` / `_STANDARD` / `_PREMIUM` | same | One monthly price per paid plan (`pri_…`). A plan without one is not sold through Paddle |
+| `PADDLE_PRICE_ID_ADDON_CUSTOM_SLUG` / `_TELEGRAM` / `_CALENDAR_FEED` / `_REMOVE_BRANDING` / `_EXTRA_SERVICES` / `_EXTRA_BOOKINGS` | same | One monthly price per add-on (docs/BILLING.md → *Add-ons*). An add-on without one falls back to the request form |
 | `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | root `.env.local` / repo Secret or Variable | Client-side token for Paddle.js — public by design |
 | `NEXT_PUBLIC_PADDLE_ENV` | same | `sandbox` or `production`. Must agree with `PADDLE_SANDBOX` |
 
-With none of them set, `/pricing` shows the USD prices from `PLAN_PRICES` and every paid
-plan falls back to the contact-form request. That is the default for local development.
+**Every `PADDLE_PRICE_ID_*` is a comma-separated list: the first id is the one sold, every id
+is recognised.** When you change a price in Paddle, existing subscribers stay on the old one —
+put the new id first and keep the old one after it, or the webhook stops recognising what
+they pay for and their plan or add-on lapses.
 
-## 1. Product and prices
+With none of them set, `/pricing` shows the USD prices from `PLAN_PRICES` and `ADDON_PRICES`,
+and every paid plan and add-on falls back to the contact-form request. That is the default
+for local development.
+
+## 1. Products and prices
 
 Paddle → **Catalog → Products → New product**: one product, e.g. *Bookie plan*. On it, three
-prices, each **recurring, billed every 1 month**:
+prices, each **recurring, billed every 1 month**, each with **quantity minimum 1, maximum
+1** — the checkout overlay lets a buyer change a quantity, and a plan bought twice is
+nonsense:
 
 | Plan | Price | Env var |
 |---|---|---|
@@ -34,9 +44,32 @@ prices, each **recurring, billed every 1 month**:
 | Standard | USD 14.99 | `PADDLE_PRICE_ID_STANDARD` |
 | Premium | USD 24.99 | `PADDLE_PRICE_ID_PREMIUM` |
 
-They must match `PLAN_PRICES` in `server/src/services/plans.ts`, which is what `/pricing`
-shows until Paddle's localized preview loads. Add per-country price overrides in Paddle if
-you want round local prices; the pricing page picks them up through `/pricing-preview`.
+A second product, e.g. *Bookie add-ons*, with six prices, also **recurring, every 1 month**
+(every item of a subscription must share the billing period):
+
+| Add-on | Price | Quantity | Env var |
+|---|---|---|---|
+| Custom page link | USD 1.99 | min 1, max 1 | `PADDLE_PRICE_ID_ADDON_CUSTOM_SLUG` |
+| Telegram notifications | USD 1.99 | min 1, max 1 | `PADDLE_PRICE_ID_ADDON_TELEGRAM` |
+| Calendar sync | USD 1.99 | min 1, max 1 | `PADDLE_PRICE_ID_ADDON_CALENDAR_FEED` |
+| No Bookie branding | USD 2.99 | min 1, max 1 | `PADDLE_PRICE_ID_ADDON_REMOVE_BRANDING` |
+| Extra services (+5 per pack) | USD 1.99 | min 1, max 10 | `PADDLE_PRICE_ID_ADDON_EXTRA_SERVICES` |
+| Extra bookings (+100 per pack) | USD 1.99 | min 1, max 10 | `PADDLE_PRICE_ID_ADDON_EXTRA_BOOKINGS` |
+
+The quantity maximums must match `maxQuantity` in `ADDON_CATALOGUE`. Paddle's default is
+100; the webhook clamps to the catalogue anyway, but a buyer would be charged for packs that
+grant nothing.
+
+Every price must match `PLAN_PRICES` / `ADDON_PRICES` in `server/src/services/plans.ts`,
+which is what `/pricing` shows until Paddle's localized preview loads. Add per-country price
+overrides in Paddle if you want round local prices; the pricing page picks them up through
+`/pricing-preview`.
+
+**Changes are charged now, prorated, with one exception Paddle forces:** it refuses an
+immediate charge under USD 0.70, so a small add-on bought late in a period (or a switch in
+its last day or two) is retried with the prorated amount added to the next renewal instead
+(`lib/paddle.ts#updateSubscriptionItems`). Each immediate charge is its own transaction, and
+Paddle allows 20 an hour and 100 a day per subscription.
 
 ## 2. API key
 
@@ -48,7 +81,7 @@ answers every call with `403 forbidden`:
 |---|---|
 | `transaction.write` | `POST /transactions` — the checkout |
 | `transaction.read` | `POST /pricing-preview`, and the webhook's fallback lookup of a transaction's `custom_data` |
-| `subscription.read`, `subscription.write` | `PATCH /subscriptions/{id}` — switching plans |
+| `subscription.read`, `subscription.write` | `GET` + `PATCH /subscriptions/{id}` — reading the items, then switching plans and changing add-ons |
 | `customer_portal_session.write` | `POST /customers/{id}/portal-sessions` — Manage billing |
 
 **Keys expire — 90 days by default, a year at most.** An expired key fails every call with
@@ -129,6 +162,20 @@ ngrok http 9004   # API — the webhook destination
 6. **Developer Tools → Simulations**: send `subscription.past_due` (plan kept, expiry = period
    start + 7 days, the tab warns) and `subscription.canceled` (plan `free`). Re-send an older
    event: the log says *superseded … skipped*.
+
+Then the add-ons, with a second seeded provider on Free:
+
+7. **Add** *Custom page link* on the Plan tab (or `/pricing`): a checkout for that one item.
+   Afterwards `plan` stays `free`, `planExpiresAt` stays null, a `ProviderAddon` row with
+   `source = paddle` appears, and the SEO tab's slug field unlocks.
+8. **Add a pack** of extra services: a confirm, charged now and prorated; the services cap
+   on the Plan tab rises by 5. Add one late in the period to see the under-70¢ retry go
+   through (`[paddle] … retrying billed at renewal` in the API log).
+9. **Upgrade** to Basic: the confirm says Custom page link is dropped. Paddle then holds Basic
+   and the services pack only.
+10. **Switch to Free** in the Free column: the plan item goes, the pack stays.
+11. Remove the last pack: refused with *That would leave your subscription empty*; cancel
+    under Manage billing instead, after which every `paddle` row is gone.
 
 The sandbox has no "recent deliveries" view; Simulations is how to fire events at will.
 

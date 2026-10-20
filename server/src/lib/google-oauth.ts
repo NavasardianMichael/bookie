@@ -35,8 +35,7 @@ export type GoogleIdentity = {
   /** Google's `sub`. **The account key** — never the email, which users can change. */
   googleId: string
   email: string
-  firstName: string
-  lastName: string
+  fullName: string
   avatarUrl?: string
 }
 
@@ -64,22 +63,23 @@ export const GOOGLE_ERROR = {
 const isVerifiedFlag = (value: unknown): boolean => value === true || value === 'true'
 
 /**
- * Splits Google's display name when it does not give the parts separately. Names are
- * mandatory on both profile tables, so something has to be there; the email's local part is
- * the last resort rather than a server placeholder like "New Provider".
+ * The name to prefill, as one string. Google's display name first — it is the name as the
+ * person writes it, in their own order — then the given and family parts joined, and the
+ * email's local part as the last resort rather than a server placeholder like
+ * "New Provider": a name is mandatory on both profile tables. The completion form shows it
+ * for correction either way. Exported for `tests/unit/server/`.
  */
-const splitName = (profile: Profile, email: string): { firstName: string; lastName: string } => {
-  const given = profile.name?.givenName?.trim()
-  const family = profile.name?.familyName?.trim()
-  if (given) return { firstName: given, lastName: family || '' }
+export const fullNameOf = (
+  profile: Pick<Profile, 'displayName' | 'name'>,
+  email: string
+): string => {
+  const display = profile.displayName?.trim().replace(/\s+/g, ' ')
+  if (display) return display
 
-  const display = profile.displayName?.trim()
-  if (display) {
-    const [first, ...rest] = display.split(/\s+/)
-    return { firstName: first ?? '', lastName: rest.join(' ') }
-  }
+  const parts = [profile.name?.givenName?.trim(), profile.name?.familyName?.trim()].filter(Boolean)
+  if (parts.length) return parts.join(' ')
 
-  return { firstName: email.split('@')[0] ?? 'Bookie', lastName: '' }
+  return email.split('@')[0] || 'Bookie'
 }
 
 /**
@@ -105,7 +105,7 @@ export const readGoogleProfile = (profile: Profile): GoogleIdentity | null => {
   }
 
   const avatarUrl = profile.photos?.[0]?.value?.trim()
-  return { googleId, email, ...splitName(profile, email), avatarUrl: avatarUrl || undefined }
+  return { googleId, email, fullName: fullNameOf(profile, email), avatarUrl: avatarUrl || undefined }
 }
 
 let registered = false

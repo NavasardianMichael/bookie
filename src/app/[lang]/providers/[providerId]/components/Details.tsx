@@ -97,7 +97,7 @@ export const ProviderDetails: FC<Props> = ({ initialState, initialServiceId }) =
       {closedReason ? (
         <BookingClosedNotice
           reason={closedReason}
-          providerName={`${basic.firstName} ${basic.lastName}`.trim()}
+          providerName={basic.fullName}
           phone={phone}
           email={details.email}
         />

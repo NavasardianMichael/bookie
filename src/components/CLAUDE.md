@@ -43,8 +43,18 @@ Plan tab's client island renders the same table. `PlanPrice` is its one hydratin
 USD price first, Paddle's localized total once `usePlanPrices` answers (one request per page
 for all four cells). `PricingIncluded` and `PricingFaq` are antd-free too — the FAQ is native
 `<details>`, like `bare/ErrorDetails`. `PlanUpgradeSheet` is the request form in an
-`AppSheet`, kept for a plan this deployment does not sell through Paddle (`purchasable:
-false`); otherwise buying goes through `useStartCheckout` — see `docs/BILLING.md`.
+`AppSheet`, kept for a plan or an add-on this deployment does not sell through Paddle
+(`purchasable: false`; it takes `{ plan } | { addon, quantity }`); otherwise buying goes
+through `useStartCheckout` — see `docs/BILLING.md`. `AddonCatalogue` is the table's sibling
+for add-ons — a card per add-on, antd-free, with `renderStatus` / `renderAction` slots the
+Plan tab fills and `/pricing` fills with `PricingAddonAction`; `AddonPrice` is its hydrating
+price, `PlanPrice`'s twin.
+
+`bookingImport/` is *Add from photo* on `/bookings`: `PhotoImportButton` (the header action)
+opens `PhotoImportSheet`, an `AppSheet` with two steps — `PhotoImportPickForm` (photo +
+note, owns the read) and `PhotoImportReviewForm` (a `Form.List` of `PhotoImportRow`s). The
+rows' slot rules are `@helpers/bookingImport`, the public grid's engine; the calendar's busy
+times come from `useProviderBusy`. Submit stays disabled while any row is flagged.
 
 `legal/LegalDocument` renders Terms, Privacy and the Refund Policy from `src/constants/legal.ts`
 and `Legal.*` — antd-free, so the whole text is in the server HTML Paddle's reviewers read.

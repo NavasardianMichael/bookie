@@ -3,6 +3,7 @@ import { ok } from '../lib/api-response.js'
 import { mergeConsumerNotificationPrefs } from '../lib/notification-prefs.js'
 import { toPaymentMethods } from '../lib/payment.js'
 import { prisma } from '../lib/prisma.js'
+import { asFullName } from '../lib/request.js'
 import type { SessionPayload } from '../lib/session.js'
 import { mapConsumer } from '../mappers/entities.js'
 import { requireAuth } from '../middleware/auth.js'
@@ -82,13 +83,16 @@ consumerProfileRouter.put(
   '/',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, emailNotificationPrefs, paymentInfo } = req.body ?? {}
+    const { fullName: rawFullName, emailNotificationPrefs, paymentInfo } = req.body ?? {}
+    // Absent leaves the name alone; present must be a name. It used to be written through
+    // unread, so a blank string could wipe it.
+    const fullName = rawFullName === undefined ? undefined : asFullName(rawFullName)
+    if (rawFullName !== undefined && !fullName) throw new HttpError(400, 'Full name is required', 400)
 
     const consumer = await prisma.consumer.update({
       where: { id: await ownConsumerId(req.session!) },
       data: {
-        firstName: firstName ?? undefined,
-        lastName: lastName ?? undefined,
+        fullName,
         emailNotificationPrefs:
           emailNotificationPrefs === undefined ? undefined : mergeConsumerNotificationPrefs(emailNotificationPrefs),
         // Consumers only store preferred methods — never a pay-to number or notes.

@@ -59,10 +59,10 @@ while the rest of the funnel does not. The route-by-route plan for the remaining
 | `/bookings` | ƒ | Real — every appointment on the account, whichever side the session holds. Header destination when signed in, `noindex`, proxy-guarded. See [Bookings](#bookings--bookings) |
 | `/favorites` | ƒ | Real — providers the account saved with the heart on a provider card. A Server Component grid of `ProviderCard`s over `GET /favorites`, cookie forwarded; a revoked cookie's 401 redirects to sign-in. Header destination when signed in, `noindex`, proxy-guarded |
 | `/contact` | ● | Real — contact form; prefilled from the session, `POST /contact` |
-| `/pricing` | ƒ | Real — the plan comparison table over `GET /plans` with each plan's USD price, then *Included in every plan* and the billing FAQ, all server-rendered. Islands: the per-column actions (guest → provider registration; provider → a Paddle checkout via `useStartCheckout`, or the request sheet when the plan is not `purchasable`) and the price cells, which swap in Paddle's localized total (`usePlanPrices`). Indexed and in the sitemap; the footer hides its link from consumer sessions. See `docs/BILLING.md` |
+| `/pricing` | ƒ | Real — titled Pricing. The plan comparison table over `GET /plans` with each plan's USD price, then the add-ons sold on their own (`AddonCatalogue` over `GET /plans/addons`), *Included in every plan* and the billing FAQ, all server-rendered. In the header. Islands: the per-column and per-add-on actions (guest → provider registration; provider → a Paddle checkout via `useStartCheckout`, or the request sheet when it is not `purchasable`) and the price cells, which swap in Paddle's localized total (`usePlanPrices`). Indexed and in the sitemap; the footer hides its link from consumer sessions. See `docs/BILLING.md` |
 | `/terms`, `/privacy`, `/refund-policy` | ● | Real — one `LegalDocument` each, over `Legal.<doc>.sections.*` (`src/constants/legal.ts` is the shape). Paddle's live review requires all three, Terms naming Paddle as Merchant of Record; linked from the footer and registration's consent notice |
 | `/billing/checkout` | ƒ | Where Paddle sends a checkout (`?_ptxn=`). Loads Paddle.js, which opens the overlay itself. **Public** — Paddle links here from its own emails too. `noindex`, out of the sitemap and `/routes-overview`. Reads its query in the Server Component |
-| `/billing/return` | ƒ | After `checkout.completed`: waits (`useAwaitPlan`) until the plan bought is in force. Proxy-guarded, `noindex` |
+| `/billing/return` | ƒ | After `checkout.completed`: waits (`useAwaitPlan`) until a subscription is live — not the exact cart, which Paddle's overlay can change — and names the plan only when it is in force. Proxy-guarded, `noindex` |
 | `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password`, `verify-email`, the two registration pages and `account-type-selection`, which read `searchParams` |
 | `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state — `AdminReviewsClient` reads that 404 as an empty list, not as an error; any other failure shows with a Retry |
 | `/admin/providers` | ƒ | Real — plan assignment: search providers, set a plan and its last day. Same guard and same 404-as-empty reading as `/admin/reviews`; `AdminNav` links the two |
@@ -73,11 +73,12 @@ while the rest of the funnel does not. The route-by-route plan for the remaining
 so Next lazy-loads the panel. Provider phone change lives in the Profile tab's Personal
 Information block, not a sidebar item; so does the provider's **organization** — registration's
 `OrganizationSection` (search, link an existing one, add a new one after the similar-name
-question, detach), opened on load when one is linked and saved **live** by either Save draft
-or Publish through `PATCH /provider-profile/organization`, like the phone; and so do its
+question, detach). On this tab the name stays on screen and is optional — Detach shows only
+while an organization is linked — and either Save draft or Publish writes it **live** through
+`PATCH /provider-profile/organization`, like the phone; and so do its
 **categories** — the shared `CategoriesSection` (search, pick, add new, remove; up to 3), saved
-live through `PUT /provider-profile/categories`; listing controls (copy URL, publish/unpublish,
-delete page) live on that tab's hero, not a Listing sidebar item. **Delete account**
+live through `PUT /provider-profile/categories`; listing controls (copy URL, share profile, publish/unpublish)
+live on that tab's hero, not a Listing sidebar item. **Delete account**
 sits at the end of both Profile tabs (`DELETE /identity/account`, password reauth) —
 it is not the listing trash icon, which only removes the public page. Consumer phone and
 preferred payment methods live in the Profile tab, not sidebar items — the old
@@ -109,9 +110,10 @@ daily page.
 |---|---|---|
 | Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
 | Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
-| Advanced settings | `/providers/profile/advanced` | Time zone (with the device-zone suggestion for a row that has none), 12/24-hour clock, and the visitor clock-choices switch — moved out of Availability, which keeps the weekly hours and *Accepting bookings* and names the zone with a link here. Drafted like Availability: `PUT /provider-profile` with `mode: 'draft'`, then `'publish'`. Sits after Analytics, before Plan |
+| Advanced settings | `/providers/profile/advanced` | Time zone (with the device-zone suggestion for a row that has none), 12/24-hour clock, and the visitor clock-choices switch — moved out of Availability, which keeps the weekly hours and *Accepting bookings* and names the zone with a link here. Drafted like Availability: `PUT /provider-profile` with `mode: 'draft'`, then `'publish'`. Sits after Analytics, before Payouts |
 | SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo`. The slug field is read-only without the plan's `customSlug`, and the slug is then left out of the save |
-| Plan | `/providers/profile/plan` | Current plan with "Renews on" / "Ends on" (or an admin plan's expiry), *Manage billing* (Paddle's portal), a past-due warning, this month's usage meters, the comparison table with prices. Per column: *Upgrade* (checkout) when not subscribed, *Switch* (prorated, `AppConfirmModal`, then waits for the webhook) when subscribed, *Request upgrade* (the contact form) when the plan is not sold through Paddle. `GET /provider-profile/plan` + `GET /plans`. Last in the nav |
+| Plan | `/providers/profile/plan` | Current plan with "Renews on" / "Ends on" (or an admin plan's expiry), *Manage billing* (Paddle's portal), a past-due warning, this month's usage meters, the comparison table with prices. Per column: *Upgrade* (checkout) when not subscribed, *Switch* (prorated, `AppConfirmModal`, then waits for the webhook) when subscribed, *Request upgrade* (the contact form) when the plan is not sold through Paddle; the switch confirm names the add-ons the new plan includes, which are dropped. The Free column offers *Switch to Free* while paid add-ons remain (they stay), else *Cancel subscription*. Below it, the add-ons (`ProviderPlanAddons`): included / active / granted, *Add* or *Remove*, ±1 pack — a checkout when not subscribed, else `POST /billing/addon` behind a confirm, then the same wait. A *better plan* alert when a plan would cost less than the add-ons paid for. `GET /provider-profile/plan` + `GET /plans` + `GET /plans/addons`. Not a sidebar tab — checkout and the allowance emails still land here. The header's Pricing link is the public catalogue |
+| Payouts | `/providers/profile/payouts` | Every plan's monthly cost from `GET /plans` (USD first, then the visitor's currency). Last in the nav, in the slot Plan used to hold |
 | Notifications | `/providers/profile/notifications` (and the consumer side) | The event preferences (`emailNotificationPrefs`, which also govern Telegram), then *Telegram* (`TelegramConnect`) and, providers only, *Calendar sync* (`CalendarFeed`). Both blocks act on their own, outside the form's Save. Telegram for a provider's business and the feed need Basic or up; the blocks say so and link to the Plan tab |
 
 The services page and the Analytics and SEO tabs gate on `personal.entitlements` from the
@@ -147,12 +149,18 @@ profile's Appointments tab. `BookingsClient` picks the panel from the session:
 | Session | Panel | Reads |
 |---|---|---|
 | consumer | `ConsumerAppointmentsClient` — search, status filter, sort; cancel, edit (manage link), write a review | `GET /appointments` |
-| provider | `ProviderBookingsClient side='provider'` — month calendar over a filtered, sorted, paged list | `GET /provider-profile/bookings` + `/calendar` |
+| provider | `ProviderBookingsClient side='provider'` — the month calendar is its own full-width row, with a control in its top center that shows or hides the grid; filters, sort and the booking list sit together below | `GET /provider-profile/bookings` + `/calendar` |
 | provider whose account also holds a Consumer profile | the above, plus a `Segmented` "Booked with me / Booked by me" switch; the second is `side='consumer'` | `GET /provider-profile/consumer-bookings` + `/calendar` |
 
 The page owns the one `PageHeader`; the panels render none. The switch shows only when
 `GET /identity/me` reports `profiles.consumer`, so a provider who has never booked anyone
 is not offered an empty view of a record that does not exist.
+
+Beside the switch, on the provider side only, sits **Add from photo**
+(`@components/bookingImport/PhotoImportButton` — see *Bookings a provider enters* in
+`docs/DATABASE_STRUCTURE.md`). A finished import bumps `BookingsClient`'s `importRevision`,
+which `ProviderBookingsClient` adds into the same `revision` its own status writes bump, so
+the list and the calendar re-read without remounting — the month and the filters survive.
 
 Six decisions worth not undoing:
 
@@ -162,9 +170,9 @@ Six decisions worth not undoing:
    fetch for themselves, so URL state would add a server round-trip to every filter change
    in exchange for a shareable link to a page only its owner can open. The view switch is
    local for the same reason.
-2. **The calendar *is* the day filter.** Selecting a day narrows the list; selecting it
-   again clears. There is no separate date-range control, because two controls writing one
-   piece of state is how they come to disagree.
+2. **The calendar and the period chips write one range.** Selecting a day narrows the list
+   to it; selecting it again clears. A chip (upcoming, this week, next week, last week, …)
+   covers that span instead, and picking one clears the other so they cannot disagree.
 3. **`loading` is derived, never set at the top of an effect.** Each panel memoizes its
    request into an object that doubles as its identity and compares it against the last
    fulfilled one. `react-hooks/set-state-in-effect` is an ESLint **error** here — the same
@@ -278,21 +286,21 @@ too, so they moved into route groups that do not contain this page: `[lang]/(hom
 (the home skeleton) and `providers/(explore)/` (the Explore skeleton). The URLs are
 unchanged.
 
-**Header nav on this page is not the marketplace nav.** Explore, Categories and
-Organizations stay off the bar so they do not compete with booking. The lockup,
-and the language switcher + Sign In (or the avatar) remain. Providers itself (`/providers` exactly)
-keeps the full nav — `matchRouteName` maps both URLs to `providers`, so the extra
-segment is what `getHeaderConfig` uses. Config lives in `src/constants/header.ts`.
+**Header nav on this page is the same bar as the rest of the app.** Explore, Categories
+and Organizations, then Bookings and Favorites once signed in, plus the language switcher
+and Sign In or the avatar. A public provider page shares the `providers` route name with
+Explore, so `getHeaderConfig` does not special-case the extra segment. Config lives in
+`src/constants/header.ts`.
 
 **Bookings and Favorites follow the session, not the route.** `HEADER_ACCOUNT_ROUTES` is
 appended to whatever `navRoutes` a route shows, by `withAccountRoutes`, once the session is
-signed in. So they stay on the public provider page, beside the avatar they belong with,
-and a guest never sees them. The mobile drawer gets the same list and drops Sign In
+signed in. A guest never sees them. The mobile drawer gets the same list and drops Sign In
 once signed in. The inline bar does not fit below `xl` (1200px): five destinations,
 the language switcher and the avatar overflow a 788px viewport and scroll the page
 sideways. Below `xl` the drawer is the nav. Icons and the provider's name beside the
 avatar wait until `xxl` — at 1200px they overflow the longer locales, and the avatar
-still names the account link.
+still names the account control. Hovering that control opens the language picker's
+popup with the same list as that account's settings sidebar.
 
 ### Explore's state is the query string
 
@@ -499,7 +507,7 @@ Google:  [any screen] → API /identity/google → Google → API callback
    ├─ known account      → /auth/callback          → getMe() → role decides
    └─ first time         → the registration form for its role, in Google mode (?google=1)
                             (no role yet → /auth/account-type-selection?google=1 → the form)
-                            names + email prefilled, email locked, no password
+                            full name + email prefilled, email locked, no password
                             → POST /identity/google/complete — signed in, no emailed link
                             → newAccountLandingPath(role), as above
 
@@ -565,12 +573,12 @@ Each of these is a decision, not an oversight — do not "fix" them back:
 | One free-text phone input | Country `Select` + number, joined by `Space.Compact` | A single field cannot be validated against a country's numbering plan. `libphonenumber-js` needs the country. |
 | Provider "Business Name" free text | `OrganizationSection`: a dashed **Add organization** button that opens a debounced `?q=` search from the first character (5 suggestions, typo-tolerant, prefix matches first), a **Detach** button, and an "Add “…” as a new organization" row — its own block under a divider, offered even when the name exists — that reveals the new organization's page fields | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text alone resolves nothing — the provider picks an existing organization or explicitly adds a new one, and validation refuses anything in between. A new one is created in the registration transaction with its description, address, phone (its own country picker, preselecting the provider's) and website, and takes the provider's phone country. Organizations have **no email** — the column was dropped on 2026-09-28. **On submit, a new organization's name is looked up** (`useSimilarOrganizationCheck` → `GET /organizations/similar`): if the same or a similar name exists, `SimilarOrganizationsDialog` asks the provider to join it or create theirs anyway, and Cancel returns to the form without submitting. Names are trimmed and whitespace-collapsed on both sides before saving. Sits after the passwords, at the end of the form. The same form serves Google sign-up; the section is also used by the settings Profile tab, where it can also change or detach the organization. |
 | Provider phone optional | **Required**, as for consumers | Both registration forms order it name → email → phone → password (the provider's organization section after them), and both label it "Phone number". |
-| Consumer: mobile + **optional** email | First/last name added; email now **required** | Names because `Consumer.firstName`/`lastName` are non-null and the mockup left no way to fill them. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
-| Provider: 3 fields | First/last name added alongside Organization | Same reason: `Provider.firstName`/`lastName` are non-null and were being filled with "New Provider". |
+| Consumer: mobile + **optional** email | Full name added; email now **required** | The name because `Consumer.fullName` is non-null and the mockup left no way to fill it. One field, not a first/last pair (joined on 2026-10-20): half the world does not order a name that way. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
+| Provider: 3 fields | Full name added alongside Organization | Same reason: `Provider.fullName` is non-null and was being filled with "New Provider". |
 | Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height, no `size='large'` | `src/styles/CLAUDE.md` invariant 10; `h-[NNpx]` and `size='large'` are grep gates. |
 | `text-5xl` hero headline | `AppTitle size='h1'` | The fluid scale's `display` step is 72px at `lg`, too large for a half-width panel; `h1` caps at 40px. |
 | Terms / Privacy as `href="#"` | Real `/terms` and `/privacy` placeholder routes | A dead anchor in a consent notice is worse than a page saying the document is not published. |
-| Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. The public provider page keeps the bar but drops Explore / Categories / Organizations. |
+| Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. The public provider page keeps that same bar. |
 
 **The phone number validates on submit, not per keystroke.** A number is invalid at every
 digit but the last, so on-change validation greeted the first digit with an error. The

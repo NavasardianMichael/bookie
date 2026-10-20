@@ -3,23 +3,23 @@
 import { FC, useState } from 'react'
 import { App } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
-import { deleteProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
-import { useAuthStore } from '@store/auth/store'
+import { putProviderProfileAPI } from '@api/providers/main'
 import { type Locale } from '@i18n/config'
-import { useRouter } from '@i18n/navigation'
 import { localePath } from '@i18n/pathname'
 import { ROUTES } from '@constants/routes'
 import { absoluteUrl } from '@helpers/url'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppLink } from '@components/ui/bare/AppLink'
-import { CopyIcon, EyeIcon, TrashIcon } from '@components/ui/icons'
+import { CopyIcon, EyeIcon, ShareIcon } from '@components/ui/icons'
 
 type ListingAction = 'publish' | 'unpublish'
 
 type Props = {
   listed: boolean
   profileId: string | null
+  /** Web Share sheet title. The shared URL is the public profile, not this settings page. */
+  name: string
   disabled?: boolean
   onListedChange: (listed: boolean) => void
 }
@@ -33,19 +33,16 @@ const heroIconClassName = 'hover:bg-white/20'
 const heroIconStyles = { root: { color: 'var(--brand-surface)' } }
 
 /**
- * Copy / publish / delete for the public provider page. These lived on a Listing
+ * Copy / share / publish for the public provider page. These lived on a Listing
  * settings tab; they belong on the Profile hero because they act on the page itself,
  * not on a separate settings concern.
  */
-export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, onListedChange }) => {
+export const ProviderPageActions: FC<Props> = ({ listed, profileId, name, disabled, onListedChange }) => {
   const t = useTranslations('Settings')
-  const tErrors = useTranslations('Errors')
+  const tCommon = useTranslations('Common')
   const locale = useLocale() as Locale
   const { message } = App.useApp()
-  const { push } = useRouter()
-  const logout = useAuthStore.use.logout()
   const [listingAction, setListingAction] = useState<ListingAction | null>(null)
-  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const publicPath = profileId ? `${ROUTES.providers}/${profileId}` : null
   const publicUrl = publicPath ? absoluteUrl(localePath(locale, publicPath)) : null
@@ -70,11 +67,22 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
     }
   }
 
-  // AppConfirmModal awaits this and keeps the dialog open on rejection.
-  const onDelete = async () => {
-    await deleteProviderProfileAPI()
-    await logout()
-    push(ROUTES.home)
+  const shareProfile = async () => {
+    if (!publicUrl) return
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: name || tCommon('share'), url: publicUrl })
+        return
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(publicUrl)
+      message.success(tCommon('linkCopied'))
+    } catch {
+      message.error(tCommon('copyFailed'))
+    }
   }
 
   return (
@@ -95,10 +103,10 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
           shape='circle'
           className={heroIconClassName}
           styles={heroIconStyles}
-          icon={<TrashIcon className='h-5 w-5' />}
-          aria-label={t('listing.deletePage')}
-          disabled={disabled}
-          onClick={() => setDeleteOpen(true)}
+          icon={<ShareIcon className='h-5 w-5' />}
+          aria-label={tCommon('share')}
+          disabled={disabled || !publicUrl}
+          onClick={() => void shareProfile()}
         />
       </div>
       <div className='relative z-10 mt-6 flex flex-wrap gap-3'>
@@ -138,16 +146,6 @@ export const ProviderPageActions: FC<Props> = ({ listed, profileId, disabled, on
         open={listingAction !== null}
         onConfirm={onConfirmListing}
         onCancel={() => setListingAction(null)}
-      />
-      <AppConfirmModal
-        tone='danger'
-        title={t('listing.deleteTitle')}
-        description={t('listing.deleteBody')}
-        okText={t('listing.deletePage')}
-        open={deleteOpen}
-        onConfirm={onDelete}
-        errorOverrides={{ 409: tErrors('conflicts.pageHasAppointments') }}
-        onCancel={() => setDeleteOpen(false)}
       />
     </>
   )

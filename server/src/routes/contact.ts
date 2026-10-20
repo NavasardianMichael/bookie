@@ -1,11 +1,12 @@
+import type { Addon } from '@prisma/client'
 import { Router } from 'express'
 import { config } from '../config.js'
 import { fail, ok } from '../lib/api-response.js'
 import { escapeHtml, isMailConfigured, sendInternalMail } from '../lib/mail.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
-import { asBoundedString, asTrimmedString, isEmail } from '../lib/request.js'
+import { asBoundedString, asFullName, asTrimmedString, isEmail } from '../lib/request.js'
 import { asyncHandler } from '../middleware/error.js'
-import { PLAN_ORDER } from '../services/plans.js'
+import { ADDON_ORDER, maxAddonQuantity, PLAN_ORDER } from '../services/plans.js'
 
 /**
  * The public contact page's only endpoint.
@@ -22,8 +23,6 @@ import { PLAN_ORDER } from '../services/plans.js'
  */
 export const contactRouter = Router()
 
-/** Matches `MAX_CHARS_FOR_INPUT` on the client, which validates the same fields. */
-const MAX_NAME_LENGTH = 40
 /** Matches `MAX_CHARS_FOR_CONTACT_MESSAGE` on the client. */
 const MAX_MESSAGE_LENGTH = 2000
 
@@ -47,17 +46,28 @@ const htmlBodyFor = (message: string, email: string): string =>
   `<p style="white-space:pre-wrap">${escapeHtml(message)}</p>`
 
 /**
- * What a message is about, when the page sending it knows — today only the Plan tab's
- * upgrade request. **Allowlisted, never a free-text subject**: the subject line is ours,
- * and a visitor-supplied one would let anyone dress a message up as something it is not.
- * Where Paddle does not sell a plan (no key or price configured), these requests are how it
- * is sold (docs/BILLING.md); the subject names the plan so the inbox can be worked at a glance.
+ * What a message is about, when the page sending it knows — the Plan tab's and `/pricing`'s
+ * requests for a plan or an add-on. **Allowlisted, never a free-text subject**: the subject
+ * line is ours, and a visitor-supplied one would let anyone dress a message up as something
+ * it is not. Where Paddle does not sell a plan or an add-on (no key or price configured),
+ * these requests are how it is sold — an admin grants it on `/admin/providers`
+ * (docs/BILLING.md); the subject names it so the inbox can be worked at a glance.
  */
-const TOPICS = ['planUpgrade'] as const
+const TOPICS = ['planUpgrade', 'addonRequest'] as const
 type Topic = (typeof TOPICS)[number]
 
 const asTopic = (raw: unknown): Topic | undefined => TOPICS.find((topic) => topic === raw)
 const asPlan = (raw: unknown) => PLAN_ORDER.find((plan) => plan === raw)
+const asAddon = (raw: unknown) => ADDON_ORDER.find((addon) => addon === raw)
+
+/** A pack count from the request, or undefined: a request never fails over its quantity. */
+const asQuantity = (raw: unknown, addon: Addon | undefined): number | undefined =>
+  addon && typeof raw === 'number' && Number.isInteger(raw) && raw >= 1 && raw <= maxAddonQuantity(addon) ? raw : undefined
+
+const SUBJECT_BY_TOPIC: Record<Topic, (what: string | undefined, name: string) => string> = {
+  planUpgrade: (plan, name) => `Plan upgrade request — ${plan ?? 'plan not chosen'} — ${name}`,
+  addonRequest: (addon, name) => `Add-on request — ${addon ?? 'add-on not chosen'} — ${name}`,
+}
 
 contactRouter.post(
   '/',
@@ -72,12 +82,10 @@ contactRouter.post(
       return ok(res, true)
     }
 
-    const firstName = asBoundedString(req.body?.firstName, MAX_NAME_LENGTH)
-    const lastName = asBoundedString(req.body?.lastName, MAX_NAME_LENGTH)
+    const fullName = asFullName(req.body?.fullName)
     const message = asBoundedString(req.body?.message, MAX_MESSAGE_LENGTH)
 
-    if (!firstName) return fail(res, 'First name is required')
-    if (!lastName) return fail(res, 'Last name is required')
+    if (!fullName) return fail(res, 'Full name is required')
     if (!message) return fail(res, 'Message is required')
 
     // Required, and a malformed address is rejected rather than forwarded — a reply-to
@@ -85,9 +93,12 @@ contactRouter.post(
     const email = asTrimmedString(req.body?.email)?.toLowerCase()
     if (!email || !isEmail(email)) return fail(res, 'Valid email required')
 
-    // An unknown topic or plan is dropped, not refused: the message itself still matters.
+    // An unknown topic, plan or add-on is dropped, not refused: the message itself still matters.
     const topic = asTopic(req.body?.topic)
     const plan = topic === 'planUpgrade' ? asPlan(req.body?.plan) : undefined
+    const addon = topic === 'addonRequest' ? asAddon(req.body?.addon) : undefined
+    const quantity = asQuantity(req.body?.quantity, addon)
+    const asked = topic === 'addonRequest' ? (addon && quantity && quantity > 1 ? `${addon} ×${quantity}` : addon) : plan
 
     /**
      * Counted **after** validation, and after the honeypot, so only a submission that is
@@ -114,26 +125,30 @@ contactRouter.post(
       if (config.nodeEnv === 'production') {
         return fail(res, 'Contact is temporarily unavailable. Please try again later.', 503, 503)
       }
-      console.log(`[contact] ${topic ? `${topic} ${plan ?? ''} ` : ''}${firstName} ${lastName} <${email}>\n${message}`)
+      console.log(`[contact] ${topic ? `${topic} ${asked ?? ''} ` : ''}${fullName} <${email}>\n${message}`)
       return ok(res, true)
     }
 
     const result = await sendInternalMail({
-      subject:
-        topic === 'planUpgrade'
-          ? `Plan upgrade request — ${plan ?? 'plan not chosen'} — ${firstName} ${lastName}`
-          : `Contact form — ${firstName} ${lastName}`,
+      subject: topic ? SUBJECT_BY_TOPIC[topic](asked, fullName) : `Contact form — ${fullName}`,
       body: htmlBodyFor(message, email),
       senderEmail: email,
-      firstName,
-      lastName,
+      // The engine's contract still names the pair (`lib/mail.ts`); the whole name rides
+      // in `firstName`, and `lastName` stays out rather than duplicating it.
+      firstName: fullName,
       details: {
         signedIn: Boolean(req.session),
         role: req.session?.role,
         // The provider id from the session, never the body — it is what the admin plan
         // screen is searched by, and a body field could name somebody else's page.
         ...(topic
-          ? { topic, plan, providerId: req.session?.role === 'provider' ? req.session.profileId : undefined }
+          ? {
+              topic,
+              plan,
+              addon,
+              quantity,
+              providerId: req.session?.role === 'provider' ? req.session.profileId : undefined,
+            }
           : {}),
       },
     })

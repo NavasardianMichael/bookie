@@ -42,7 +42,7 @@ export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
   const tPlans = useTranslations('Plans')
   const isSignedOn = useAuthStore.use.isSignedOn()
   const userType = useAuthStore.use.userType()
-  const { startCheckout, pendingPlan } = useStartCheckout()
+  const { startCheckout, pending } = useStartCheckout()
   const [requesting, setRequesting] = useState(false)
   const [sheetMounted, setSheetMounted] = useState(false)
 
@@ -68,9 +68,9 @@ export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
     return (
       <AppButton
         type='primary'
-        loading={pendingPlan === plan}
-        disabled={pendingPlan !== null && pendingPlan !== plan}
-        onClick={() => void startCheckout(plan)}
+        loading={pending === plan}
+        disabled={pending !== null && pending !== plan}
+        onClick={() => void startCheckout({ plan })}
       >
         {t('choosePlan', { plan: tPlans(`names.${plan}`) })}
       </AppButton>
@@ -88,7 +88,7 @@ export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
       >
         {t('requestPlan')}
       </AppButton>
-      {sheetMounted && <PlanUpgradeSheet plan={requesting ? plan : null} onClose={() => setRequesting(false)} />}
+      {sheetMounted && <PlanUpgradeSheet request={requesting ? { plan } : null} onClose={() => setRequesting(false)} />}
     </>
   )
 }

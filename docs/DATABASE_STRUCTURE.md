@@ -11,16 +11,41 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **Organization** | Clinic / facility. Its categories are its listed providers', derived on read — none are stored. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
 | **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
 | **Service** | Bookable offering. Title and duration are required; price, currency, description and image are optional — a service has **no category**. `active` hides a withdrawn service from consumers without deleting it |
-| **Consumer** | Patient/client profile — `firstName` + `lastName`, contact phone, email prefs + payment info. Identity email lives on `User`, not here |
+| **Consumer** | Patient/client profile — `fullName` (see [Names](#names)), contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
 | **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot), the overlap index `[providerId, startAt]`, `[providerId, createdAt]` for the monthly booking allowance, and `[status, startAt]` for the reminder job. `providerRemindedAt` / `bookerRemindedAt` stamp each side's reminder (claimed by compare-and-set; a reschedule clears both). `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
+| **ProviderAddon** | An add-on a provider holds — a single feature or a capacity pack sold beside the plan — from one source: `paddle` (the webhook) or `admin` (`/admin/providers`). Composite primary key `(providerId, addon, source)`, its own `quantity` and `expiresAt`; cascades with the provider. See [Plans and entitlements](#plans-and-entitlements) |
+| **PhotoImport** | One photo of handwritten bookings Gemini read — `providerId` and `createdAt`, nothing about the photo. The meter behind `photoImportsPerDay`; see [Bookings a provider enters](#bookings-a-provider-enters--the-photo-import) |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
+
+### Names
+
+A person's name is **one field**, as written: `Provider.fullName` and `Consumer.fullName`
+(NOT NULL) and `Appointment.guestFullName` (nullable; a signed-in booking has none). There
+is no given/family split anywhere — not in the schema, the API or the forms — because many
+names are not "given family" and every form used to ask twice for what people think of as one
+thing. `20261020000000_full_name` joined the old pairs — the unpublished `Provider.draft`
+overlays included, whose key is now `fullName` too — each part trimmed and an empty one
+skipped, so `'Anna' + ''` became `Anna`, not `Anna `.
+
+Every write goes through `asFullName` (`server/src/lib/request.ts`): whitespace runs
+collapse to one space, the ends are trimmed, and the result is capped at **100**
+(`MAX_FULL_NAME_LENGTH`, mirrored by `MAX_CHARS_FOR_NAME` in `src/constants/form.ts` and
+pinned by `tests/unit/server/request.spec.ts`). Where a name is shown in part, or made up:
+
+- **A review's author** is the first word plus the last word's initial — `Anna P.` —
+  never the surname (`reviewAuthorName`, `services/reviews.ts`). A one-word name stays as is.
+- **A notice greets by the full name** — `Hi Anna Petrosyan,` — since there is no first-name
+  field to pick a word from (`bookerGreetingName` / `providerGreetingName` in
+  `lib/booking-notices.ts`).
+- **A Google sign-up is prefilled** with Google's display name, else its given and family
+  names joined, else the email's local part (`fullNameOf`, `lib/google-oauth.ts`).
 
 ## Relationships
 
 ```
-Consumer ←→ Appointment ←→ Provider
+Consumer ←→ Appointment ←→ Provider ──→ ProviderAddon
     ↓           ↓           ↓
   Review      Service    Organization
     ↓           ↑
@@ -61,10 +86,10 @@ generic messages append the original error's message. The table is in `server/CL
 | POST | `/identity/forgot-password` | public — always answers the same, to avoid an enumeration oracle |
 | POST | `/identity/reset-password` | public — `{ token, password }`; bumps `tokenVersion` |
 | POST | `/identity/change-password` | session |
-| GET | `/identity/me` | session — `{ role, profileId, firstName, lastName, image?, timeFormat?, email, … }` |
+| GET | `/identity/me` | session — `{ role, profileId, fullName, image?, timeFormat?, email, … }` |
 | POST | `/identity/logout` | session |
 | PATCH | `/identity/phone` | session — phone is profile data now, not identity |
-| POST | `/identity/provider-profile` | session — adds a Provider profile to an account that has none: `{ phone, profile: { firstName, lastName, country?, organizationId? \| newOrganization? } }`, validated as `/register` validates them (organization through `resolveOrganizationId`). Created unlisted with an empty schedule; the Consumer row is untouched. Re-issues the session as `provider`. `409` when the account already has one |
+| POST | `/identity/provider-profile` | session — adds a Provider profile to an account that has none: `{ phone, profile: { fullName, country?, organizationId? \| newOrganization? } }`, validated as `/register` validates them (organization through `resolveOrganizationId`). Created unlisted with an empty schedule; the Consumer row is untouched. Re-issues the session as `provider`. `409` when the account already has one |
 | POST | `/identity/change-email/send` | session — `{ email, returnPath }`; emails a link (dev: API console) |
 | POST | `/identity/change-email/confirm` | session — same handler as `/verify-email` |
 | DELETE | `/identity/account` | session — `{ password }`; Google-only accounts refused until a password is set; consumers with appointments get 409 |
@@ -75,7 +100,7 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/providers?q=&categoryId=&available=&openToday=&favorites=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below. `favorites=true` is the caller's saved providers |
 | GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
 | GET | `/providers/:id/busy?from=&to=` | public, same unlisted rule as `/:id` — booked intervals only (instants, no booker); window capped at 100 days. Replaced `/:id/availability`, see [Booking](#booking) |
-| GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page) |
+| GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page — `409` / `4307` while a Paddle subscription is live, which must be cancelled first) |
 | GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments booked *with* them, see [Provider workspace](#provider-workspace) |
 | GET | `/provider-profile/bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for the calendar grid |
 | GET | `/provider-profile/consumer-bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments they booked as a client; empty if the User has no Consumer row |
@@ -84,14 +109,16 @@ generic messages append the original error's message. The table is in `server/CL
 | PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug`. Setting or changing the slug needs the plan's `customSlug` (`403` / `4102`); unchanged and cleared slugs always pass |
 | PATCH | `/provider-profile/organization` | provider — the settings Organization section, saved live: `{ organizationId }` links an existing one, `{ newOrganization }` creates one exactly as registration does (same-name backstop unless `allowSimilar`), `{ organizationId: null }` detaches. `404` for an unknown id, `400` for a body naming none of these. Answers the owner profile |
-| GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, billing: { status, periodEndsAt?, cancelsAt?, manageable } \| null, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }` |
+| GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, addons: [{ addon, quantity, source, expiresAt? }], betterPlan, billing: { status, periodEndsAt?, cancelsAt?, manageable } \| null, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }`. `entitlements` already include the live add-ons; `betterPlan` is a bigger plan that would cost less than the plan plus the paid add-ons, or `null` |
 | GET | `/plans` | public — the catalogue, cheapest first: `[{ id, entitlements, price: { amountCents, currency, interval }, purchasable }]`. `price` is the USD display fallback; `purchasable` is whether Paddle sells it here |
+| GET | `/plans/addons` | public — every add-on: `[{ id, kind: 'feature' \| 'capacity', step, maxQuantity, price, purchasable, includedIn }]`. `step` is what one pack adds (`null` for a feature); `includedIn` lists the plans that already grant it |
 | GET | `/provider-profile/calendar-feed` | provider — `{ url }` of the private iCal feed; needs the plan's `calendarFeed` (`403` / `4102`) |
 | POST | `/provider-profile/calendar-feed/rotate` | provider — bumps `calendarFeedVersion`, revoking the old URL; answers the new `{ url }` |
 | GET | `/calendar/:providerId/:token.ics` | public capability URL — `text/calendar` of live bookings, −30 d to +365 d. `404` for a bad token or a plan without `calendarFeed` |
-| GET | `/billing/prices` | public, rate-limited — Paddle's localized monthly total per paid plan for the caller's IP, `{ basic, standard, premium }`, `null` where unknown |
-| POST | `/billing/checkout` | provider — `{ plan, locale }` → `201 { checkoutUrl }` (a Paddle transaction). `409` / `4302` while a subscription is live; `503` / `4301` when the plan is not sold |
-| POST | `/billing/change-plan` | provider — `{ plan }` → `202`; prorated now, the webhook applies it. `409` / `4303` without a live subscription |
+| GET | `/billing/prices` | public, rate-limited — Paddle's localized monthly total per paid plan and per add-on (a pack priced for one) for the caller's IP, `{ basic, standard, premium, customSlug, …, extraBookings }`, `null` where unknown |
+| POST | `/billing/checkout` | provider — `{ plan?, addons?: [{ addon, quantity }], locale }`, at least one item → `201 { checkoutUrl }` (a Paddle transaction). `409` / `4302` while a subscription is live; `409` / `4304` for an add-on the plan includes; `503` / `4301` when something is not sold |
+| POST | `/billing/change-plan` | provider — `{ plan }` (`free` allowed while add-ons remain) → `202`; prorated now, the add-ons the new plan includes are dropped, the webhook applies it. `409` / `4303` without a live subscription, `4305` if nothing would be left, `4306` when Paddle will not change it right now |
+| POST | `/billing/addon` | provider — `{ addon, quantity }` (0 removes) → `202`; prorated now. `409` / `4303` without a live subscription (check out instead), `4304` included in the plan, `4305` if nothing would be left, `4306` not right now |
 | POST | `/billing/portal` | provider — `{ url }` into Paddle's customer portal (temporary; never cache) |
 | POST | `/billing/webhook` | Paddle only — raw body, `Paddle-Signature` HMAC; mounted ahead of the JSON parser and `requireSameOrigin`. See [BILLING.md](BILLING.md) |
 | GET | `/telegram/status` | session — `{ available, linked, username? }` |
@@ -106,8 +133,9 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/admin/reviews/reports?status=&page=&perPage=` | **admin** (`ADMIN_EMAILS` allowlist) |
 | PATCH | `/admin/reviews/:id/visibility` | admin — hide/restore, recomputes the aggregate |
 | PATCH | `/admin/reviews/reports/:id` | admin — `resolved` or `dismissed` |
-| GET | `/admin/providers?q=&page=&perPage=` | admin — providers by name / account email / slug, with `plan`, `effectivePlan`, `planExpiresAt` |
+| GET | `/admin/providers?q=&page=&perPage=` | admin — providers by name / account email / slug, with `plan`, `effectivePlan`, `planExpiresAt`, `addons` (live, both sources) |
 | PATCH | `/admin/providers/:id/plan` | admin — `{ plan, planExpiresAt? }` (a future ISO instant or `null`; dropped for `free`). Rows carry `billing: 'paddle'` while a subscription is live, whose next webhook event overwrites a manual change |
+| PATCH | `/admin/providers/:id/addons` | admin — `{ addons: [{ addon, quantity }], expiresAt? }`: the complete admin grant, replacing the previous one (`[]` withdraws it). Writes only `source: 'admin'` rows; the webhook never touches them |
 | GET | `/organizations?q=`, `/organizations/similar?name=`, `/organizations/:id` | public |
 | GET | `/categories`, `/categories/:id` | public — the directory: every predefined category, plus each added one a listed provider uses; a category's providers and the organizations they work for. `?q=&limit=` instead answers the provider forms' suggestions (`{ id, name }[]`, ranked, typo-tolerant, any translated label) |
 | GET | `/categories/similar?name=` | public — the categories a new one would probably duplicate, asked about before adding |
@@ -124,7 +152,8 @@ generic messages append the original error's message. The table is in `server/CL
 There is **no public consumer directory**. `GET /consumers` and `GET /consumers/:id` were removed.
 
 `POST /contact` has **no table behind it**, on purpose. It validates
-`{ firstName, lastName, email, message, website? }`, drops anything with the `website`
+`{ fullName, email, message, website? }` (the engine's request still names its field
+`firstName`, so the whole name travels in it and `lastName` is left out), drops anything with the `website`
 honeypot filled in, rate-limits 5/hour per IP, then forwards to the mail engine's
 `/mail/internal/send`. The admin inbox is the system of record — a `ContactMessage` table
 would duplicate it and hold free-text PII with no retention policy or reader. A failed
@@ -188,7 +217,7 @@ load-bearing about it:
 - **`page` is clamped against the real total**, which is why `count` runs *before*
   `findMany` instead of beside it. `?page=999` returns the last page, so deleting rows
   cannot leave a bookmarked URL showing an empty grid under a "1 of 4" pager.
-- **`q` terms are ANDed, each matching any of** `firstName`, `lastName`,
+- **`q` terms are ANDed, each matching any of** `fullName`,
   `organization.name`, `services.name`, `categories.category.name`. So "sarah massage"
   narrows. `description` is deliberately excluded: longest column, weakest signal.
 - **A category matches by its label in every language.** `Category.name` stores the
@@ -238,8 +267,8 @@ load-bearing about it:
   a second schedule payload.
 
 `Provider` carries three composite indexes for this, all prefixed by `listed` because
-every public query filters on it: `[listed, available, updatedAt]`, `[listed, lastName,
-firstName]` (the name orderings) and `[listed, ratingScore]`. `newest` and the search
+every public query filters on it: `[listed, available, updatedAt]`, `[listed,
+fullName]` (the name orderings) and `[listed, ratingScore]`. `newest` and the search
 paths ride the `listed` prefix. The third index used to be argued against here as a write
 cost for the least-used control; `ratingScore` is not that — it is the second term of
 `recommended`, so it is read on nearly every public page view and written only when a
@@ -320,12 +349,12 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 
 ### Provider publish model
 
-- **`listed`** — when `false`, the provider is hidden from Explore and public detail 404s for everyone except the owner (Preview). New accounts start unlisted. Copy URL, publish/unpublish, and delete page live on the Profile settings hero — there is no Listing sidebar tab.
+- **`listed`** — when `false`, the provider is hidden from Explore and public detail 404s for everyone except the owner (Preview). New accounts start unlisted. Copy URL, share profile, and publish/unpublish live on the Profile settings hero — there is no Listing sidebar tab.
 - **`DELETE /provider-profile`** — removes the page. `409` when appointments exist (`Appointment.providerId` has no `onDelete`). A User with no remaining Consumer profile is removed with the page.
 - **`available`** — pause new bookings; independent of listing. Enforced by
   `POST /appointments` (see [When online booking is closed](#when-online-booking-is-closed));
   it used to be read by Explore alone while bookings kept arriving.
-- **`draft`** — JSON overlay (`firstName`, `lastName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `showClockChoices`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft.
+- **`draft`** — JSON overlay (`fullName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `showClockChoices`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft. `clearImage: true` on that save sets `imageUrl` to null, and Publish then takes the portrait off the live page.
 - **`timeZone`** — the IANA zone `weekSchedule` is written in. Draftable, because it moves
   every published hour. See [Time zones](#time-zones).
 - **`timeFormat`** — `h12` / `h24` (Prisma enum `TimeFormat`), nullable. Draftable with
@@ -468,11 +497,14 @@ Only providers are billed. The strategy, the catalogue and the roadmap are in
 | `Provider.billingStatus` | Enum `BillingStatus` (`active` \| `trialing` \| `past_due` \| `paused` \| `canceled`) — Paddle's status, for display |
 | `Provider.billingPeriodEndsAt` / `billingCancelsAt` | The renewal date, and a scheduled cancellation's date — the Plan tab's "Renews on" / "Ends on" |
 | `Provider.billingEventAt` | `occurred_at` of the last webhook event applied; an older one is ignored |
-| `Provider.bookingCapWarnedAt` / `bookingCapReachedAt` | The 80% and 100% allowance emails. "Sent this month" = stamp ≥ the UTC month's start; claimed by compare-and-set |
+| `Provider.bookingCapWarnedAt` / `bookingCapReachedAt` | The 80% and 100% allowance emails. "Sent this month" = stamp ≥ the UTC month's start; claimed by compare-and-set. Cleared when a write changes the effective booking allowance — a plan or a pack of bookings |
+| `ProviderAddon` | One add-on held, per source: enum `Addon` (`customSlug` \| `telegramNotifications` \| `calendarFeed` \| `removeBranding` \| `extraServices` \| `extraBookings`), enum `AddonSource` (`paddle` \| `admin`), `quantity` (1 for a feature, the pack count otherwise), `expiresAt` (null = no end; applied on read like `planExpiresAt`). The webhook replaces the `paddle` rows with every snapshot, all with the subscription's lapse; the admin route replaces the `admin` rows. Rows from both merge |
 | `Appointment @@index([providerId, createdAt])` | The monthly allowance counts by creation time |
 
 Every limit is read through `getEntitlements` in `server/src/services/plans.ts` — never
-`Provider.plan` directly. Where each is enforced:
+`Provider.plan` directly. It merges the effective plan with every live `ProviderAddon` row,
+so an add-on raises a limit or turns a feature on wherever the plan would. Where each is
+enforced:
 
 | Limit | Enforced at | Refusal |
 |---|---|---|
@@ -480,6 +512,8 @@ Every limit is read through `getEntitlements` in `server/src/services/plans.ts` 
 | `customSlug` | `PATCH /provider-profile/seo` when the slug is set or changed | `403`, code `4102` |
 | `maxBookingsPerMonth` | `POST /appointments`, after the paused check and before the overlap check | `409`, code `4202` (see [When online booking is closed](#when-online-booking-is-closed)) |
 | `analyticsHistoryDays` | `GET /provider-profile/analytics` | clamped, not refused |
+| `photoImportsPerDay` | `POST /provider-profile/bookings/import/parse`, before the Gemini call | `403`, code `4103` |
+| `maxBookingsPerMonth` (a provider's own entries) | `POST /provider-profile/bookings/import`, for the whole batch | `403`, code `4104` (see [Bookings a provider enters](#bookings-a-provider-enters--the-photo-import)) |
 
 **On downgrade nothing is withdrawn.** Over-cap services stay live and editable — only
 adding or reactivating is blocked; a slug set before slugs were paid keeps resolving, and
@@ -639,7 +673,7 @@ or the consumer's `User.email`) and the provider's identity `User.email`. A send
 Request body adds `notes` (trimmed, **max 300**, matching `MAX_CHARS_FOR_TEXTAREA`),
 `paymentMethods` (narrowed server-side to what the provider accepts — the client
 offering only those is a convenience, not the guarantee), and `guest`
-(`{ firstName, lastName, phone: { code, number }, email? }`). Name and phone
+(`{ fullName, phone: { code, number }, email? }`). Name and phone
 are required; email is optional. Anonymous bookings send `phone.code: 0` (no
 country picker).
 
@@ -664,7 +698,7 @@ Other rules:
   two limits (per-process counters, and `trust proxy` being unset).
 - Every appointment must name a booker. Prisma cannot express that, so the
   **`appointment_actor_present`** CHECK constraint does — either `consumerId`, or
-  guest first name + last name + phone. Email on a guest booking is optional.
+  `guestFullName` + `guestPhoneNumber`. Email on a guest booking is optional.
 - `Appointment.consumer` declares **`onDelete: Restrict` explicitly**. Prisma defaults an
   *optional* relation to `SetNull`, which would quietly turn a deleted consumer's
   appointments into guest bookings carrying no guest details.
@@ -684,6 +718,46 @@ The providers who registered while it was optional were deleted, account and all
 profile. It is saved live on `PUT /provider-profile` (not draftable), and
 `mapProviderDetails` omits `phone` when it is false. The owner payload always returns the
 number so settings can still edit it.
+
+### Bookings a provider enters — the photo import
+
+*Add from photo* on `/bookings` turns a photo of a provider's handwritten bookings into real
+ones, in two calls under `/provider-profile/bookings/import` (`routes/bookingImport.ts`,
+mounted before `providerProfileRouter`, `requireProvider`, provider id from the session):
+
+| Route | Body | Answers |
+|---|---|---|
+| `POST /parse` | multipart `image` (JPEG/PNG/WebP/HEIC, ≤ 10 MB, **memory only**), `note` (≤ 300), `tz`, `locale` | `{ drafts: BookingDraft[] }` — possibly empty |
+| `POST /` | `{ bookings: [{ serviceId, startAt, fullName, phone: { code, number }, notes? }], locale }`, 1–30 rows | `201 { created }` |
+
+**`/parse`** sends the photo, the provider's active services (id, name, duration), their today
+and weekday in `Provider.timeZone` (else `tz`, else UTC) and the note — fenced as context —
+to Gemini (`lib/gemini.ts`, `generateContent` with a JSON schema whose `serviceId` is an enum
+of this provider's ids). The answer is narrowed field by field
+(`services/bookingImport.ts#parseImportResponse`): a real calendar day, a 24-hour time, a
+phone of 5–15 digits, an id of theirs — anything else becomes `null` for the review sheet to
+ask about. Refusals: no key → `503` `4401`; a read the model refused or left empty → `422`
+`4402`; Google's own `429` → `429` with its `Retry-After`; over `photoImportsPerDay` → `403`
+`4103`; more than 10 reads an hour per provider (every plan, in-memory) → `429`. Each read
+writes a `PhotoImport` row first and deletes it if the call fails, so a free provider's one
+photo a day is spent only by a photo that was read.
+
+**`/`** is `createProviderAppointments`, all or nothing in one transaction. It applies a
+*provider's* rules, not a visitor's:
+
+- the service is theirs and active, `startAt` is in the future, and no row overlaps a live
+  booking or another row of the batch — `409` `SLOT_TAKEN_MESSAGE` otherwise;
+- the batch fits the monthly allowance — `403` `4104` otherwise. These are bookings like any
+  other and count like them;
+- **`available: false` does not refuse** — it pauses *online* booking, and recording a client
+  taken by phone is exactly what a provider does while it is paused;
+- **written `scheduled`, never `pending`** — the provider is the approver and has approved.
+
+The client goes in the guest columns (`guestFullName`, `guestPhoneCode`/`guestPhoneNumber`),
+as any booking without an account does; no email goes anywhere. The slot *grid* is the
+client's rule, as on the public route: the review sheet offers only free slots of the
+service's grid (`src/helpers/bookingImport.ts`) and keeps Submit disabled until every row sits
+on one.
 
 ## Time zones
 
@@ -773,8 +847,7 @@ request, not only at login.
   // Mandatory for both roles. Profile data — never verified, never unique.
   "phone": { "code": 374, "number": 77000201 },
   "profile": {
-    "firstName": "Alex",
-    "lastName": "Morgan",
+    "fullName": "Alex Morgan",       // one field, as written; capped at 100 (see Names)
     "country": "AM",                  // ISO 3166-1 alpha-2; not derivable from phone.code
     // Provider only, and mutually exclusive: an id links an existing organization; a
     // `newOrganization` creates one. Send neither for a sole trader.
@@ -815,7 +888,7 @@ not yet an identity anyone owns.
 ```jsonc
 // POST /identity/login  ->  sets the httpOnly cookie
 { "email": "alex@company.com", "password": "a-strong-password" }
-// value: { role, profileId, userId, firstName, lastName, image? }
+// value: { role, profileId, userId, fullName, image? }
 ```
 
 Failures carry a stable application `code` from `AUTH_ERROR` (`4001` invalid credentials,
@@ -840,12 +913,13 @@ Both **redirect**; they never answer JSON, so failures come back as `?error=<cod
 - A brand-new identity is parked in a short-lived cookie and sent to the ordinary
   registration form for its role in Google mode (`?google=1`; the account-type choice when
   the flow started from sign-in), because Google supplies neither a role nor a phone and both
-  profile tables need them. The form prefills the names and the locked email, asks no
+  profile tables need them. The form prefills the full name (`fullNameOf` — see
+  [Names](#names)) and the locked email, asks no
   password, and posts to `POST /identity/google/complete` — nothing is written before that.
   The paths and the flag are `googleSignUpPath` / `GOOGLE_SIGN_UP_QUERY` in
   `server/src/lib/return-path.ts`, pinned to the web's by `returnPath.spec.ts`.
 
-`GET /identity/me` returns `{ role, profileId, firstName, lastName, image? }` and the account
+`GET /identity/me` returns `{ role, profileId, fullName, image? }` and the account
 flags (`email`, `hasPassword`, `hasGoogle`, `profiles`, …) from the session cookie, which is
 how the client recovers its role after a refresh (the cookie is httpOnly) and how the Header
 renders an avatar without a second fetch. A provider session also carries the published

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AUTH_ERROR_CODES } from '@constants/auth'
 import { BILLING_ERROR_CODES } from '@constants/billing'
 import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
+import { IMPORT_ERROR_CODES } from '@constants/bookingImport'
 import { PLAN_ERROR_CODES } from '@constants/plans'
 import {
   buildErrorDetails,
@@ -218,12 +219,18 @@ describe('resolveErrorCopyKey', () => {
     expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
   })
 
+  it.each(Object.entries(IMPORT_ERROR_CODES))('names the catalogue copy for photo import code %s', (name, code) => {
+    const classified = classifyError(axiosError({ status: 422, data: envelope(code, 'import') }))
+    expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
+  })
+
   it('has catalogue copy for every stable code, under a unique name', () => {
     const names = [
       ...Object.keys(AUTH_ERROR_CODES),
       ...Object.keys(BOOKING_ERROR_CODES),
       ...Object.keys(PLAN_ERROR_CODES),
       ...Object.keys(BILLING_ERROR_CODES),
+      ...Object.keys(IMPORT_ERROR_CODES),
     ]
     expect(new Set(names).size).toBe(names.length)
     names.forEach((name) => expect(en.Errors.codes).toHaveProperty(name))
@@ -256,7 +263,7 @@ describe('resolveErrorText', () => {
   })
 
   it('matches an override on the HTTP status when the envelope code is -1', () => {
-    const minusOne = classifyError(axiosError({ status: 400, data: envelope(-1, 'First name is required') }))
+    const minusOne = classifyError(axiosError({ status: 400, data: envelope(-1, 'Full name is required') }))
     expect(resolveErrorText(minusOne, translate, { 400: 'Check the form' })).toBe('Check the form')
   })
 

@@ -15,7 +15,7 @@ describe('processLoginResponse', () => {
   // The login response decides where the app goes next: `role` picks the provider
   // workspace over the consumer home.
   it('unwraps the session', () => {
-    const session: Session = { role: 'provider', profileId: 'p-1', userId: 'u-1', firstName: 'Anna' }
+    const session: Session = { role: 'provider', profileId: 'p-1', userId: 'u-1', fullName: 'Anna Petrosyan' }
 
     expect(processLoginResponse(envelope(session))).toEqual(session)
   })
@@ -55,8 +55,7 @@ describe('processGooglePendingResponse', () => {
   it('unwraps the parked identity, including a role Google could not supply', () => {
     const pending: PendingGoogleAccount = {
       email: 'alex@example.com',
-      firstName: 'Alex',
-      lastName: 'Morgan',
+      fullName: 'Alex Morgan',
       role: null,
     }
 

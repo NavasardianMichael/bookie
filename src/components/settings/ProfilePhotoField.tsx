@@ -1,22 +1,23 @@
 'use client'
 
 import { FC, useEffect, useMemo } from 'react'
-import { UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { Upload } from 'antd'
 import type { ImgCropProps } from 'antd-img-crop'
-import { resolveAssetUrl } from '@helpers/images'
+import { isUploadedAsset, resolveAssetUrl } from '@helpers/images'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { LazyImgCrop } from '@components/ui/LazyImgCrop'
 
 type Props = {
-  /** A `File` between the crop and the save, the stored path once the API has it. */
-  value?: string | File
-  onChange?: (next: string | File | undefined) => void
+  /** A `File` between the crop and the save, the stored path once the API has it, `null` once removed. */
+  value?: string | File | null
+  onChange?: (next: string | File | null) => void
   name: string
   hint: string
   uploadLabel: string
+  removeLabel: string
   /** Injected by the wrapping `Form.Item` when the parent form is disabled. */
   disabled?: boolean
 }
@@ -32,12 +33,13 @@ type Props = {
  * `beforeUpload={() => false}`: ImgCrop resolves its crop promise with that `false`
  * and the File never lands on `onChange`.
  */
-export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uploadLabel, disabled }) => {
+export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uploadLabel, removeLabel, disabled }) => {
   const isFile = typeof File !== 'undefined' && value instanceof File
   const previewUrl = useMemo(
     () => (isFile ? URL.createObjectURL(value) : resolveAssetUrl(typeof value === 'string' ? value : undefined)),
     [isFile, value]
   )
+  const canRemove = isFile || (typeof value === 'string' && isUploadedAsset(value))
 
   useEffect(() => {
     if (!isFile || !previewUrl) return
@@ -60,13 +62,27 @@ export const ProfilePhotoField: FC<Props> = ({ value, onChange, name, hint, uplo
       <AppAvatar src={previewUrl} name={name} size={80} />
       <div className='flex flex-col gap-2'>
         <AppParagraph size='body-sm'>{hint}</AppParagraph>
-        <LazyImgCrop aspect={1} onModalOk={onModalOk}>
-          <Upload disabled={disabled} maxCount={1} showUploadList={false} customRequest={() => undefined}>
-            <AppButton icon={<UploadOutlined />} disabled={disabled}>
-              {uploadLabel}
+        <div className='flex flex-wrap items-center gap-2'>
+          <LazyImgCrop aspect={1} onModalOk={onModalOk}>
+            <Upload disabled={disabled} maxCount={1} showUploadList={false} customRequest={() => undefined}>
+              <AppButton type='dashed' icon={<UploadOutlined />} disabled={disabled}>
+                {uploadLabel}
+              </AppButton>
+            </Upload>
+          </LazyImgCrop>
+          {canRemove && (
+            <AppButton
+              type='dashed'
+              danger
+              icon={<DeleteOutlined />}
+              disabled={disabled}
+              aria-label={removeLabel}
+              onClick={() => onChange?.(null)}
+            >
+              {removeLabel}
             </AppButton>
-          </Upload>
-        </LazyImgCrop>
+          )}
+        </div>
       </div>
     </div>
   )

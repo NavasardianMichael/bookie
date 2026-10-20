@@ -12,6 +12,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 |---|---|---|
 | Bookable slots for a date / range | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
+| Bookings list preset (`upcoming`, this week, next week, …) → `from`/`to` | `bookingPeriodRange` | `bookingPeriod.ts` |
 | Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
 | Provider card status (available / fully blocked / closed) | `getProviderAvailabilityStatus` | `providerAvailability.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
@@ -30,6 +31,11 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Was a failed booking "someone got there first" | `isSlotTakenError` | `booking.ts` |
 | Was a failed booking refused because the provider is not taking bookings online (paused / full) | `getBookingClosedReason` | `booking.ts` |
 | Does the public page offer its calendar (`details.onlineBooking`, missing = open) | `isOnlineBookingOpen` | `booking.ts` |
+| Is a photo-imported booking on a free slot — and if not: missing, off the grid, past, taken, or clashing with another row | `checkDraftSlot` | `bookingImport.ts` |
+| The free slots a photo-imported row may move to, minus the calendar and the other rows | `draftTimeOptions` | `bookingImport.ts` |
+| A row's start instant / interval in the provider's zone | `draftStart`, `draftInterval` | `bookingImport.ts` |
+| Which months' busy times a set of rows needs, and each month's padded window | `draftMonths`, `draftMonthWindow` | `bookingImport.ts` |
+| An `HH:mm` slot value as a label on the provider's clock | `formatDraftTime` | `bookingImport.ts` — **client-only** |
 | Consumer appointments tab: upcoming + search/status/sort | `filterAndSortConsumerAppointments` | `consumerAppointments.ts` |
 | Booking details list + copy-as-text | `buildBookingSummaryFields`, `formatBookingSummaryPlainText` | `bookingSummary.ts` |
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
@@ -62,6 +68,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Is this a real upload vs a bundled asset? | `isUploadedAsset` | `images.ts` |
 | Avatar `src` (uploads / crop blobs; never `/logo.svg`) | `resolveAvatarSrc` | `images.ts` |
 | Avatar initials fallback | `getInitials` | `images.ts` |
+| Shrink a photo before upload (longest edge, JPEG; undecodable → unchanged) | `downscaleImage` | `imageResize.ts` — **client-only** |
 | Escape JSON-LD for a `<script>` | `serializeJsonLd` | `jsonLd.ts` |
 | Service worker script + offline document | `buildServiceWorkerScript`, `buildOfflineDocument` | `pwa.ts` |
 | Google Maps link from an address | `generateGoogleMapsLink` | `location.ts` |
@@ -75,7 +82,6 @@ Everything here is pure and framework-free unless the last column says otherwise
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
-| Is this a public provider booking page | `isPublicProviderPage` | `routes.ts` |
 | Which settings tree a path is in / where the workspace switch sends it | `workspaceOf`, `counterpartPath` | `workspace.ts` |
 | Where an account lands once it gains a role (sign-up, becoming a provider) | `newAccountLandingPath` | `workspace.ts` |
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
@@ -90,12 +96,13 @@ Everything here is pure and framework-free unless the last column says otherwise
 | PNG data URL of a string (booking QR) | `toQrDataUrl` | `qr.ts` |
 | A plan's last day ↔ its expiry instant (UTC midnight after it) | `toPlanExpiryISO`, `toPlanLastDay`, `toPlanLastDayValue` | `plans.ts` |
 | Usage against a plan limit (`null` = unlimited) | `usagePercent`, `hasRoomFor` | `plans.ts` |
+| How many of an add-on a provider holds; whether a billing change (plan, add-on, checkout) has landed | `heldQuantity`, `BillingTarget`, `isBillingTargetReached` | `plans.ts` |
 | Check a password against the shared policy | `checkPasswordPolicy` | `password.ts` |
 
 ## Things to know before using them
 
-- **`booking.ts` and `schedule.ts` both `dayjs.extend(customParseFormat)` at module
-  scope.** It is mandatory: without it `dayjs('09:00', 'HH:mm')` is an Invalid Date and
+- **`booking.ts`, `schedule.ts` and `bookingImport.ts` all `dayjs.extend(customParseFormat)`
+  at module scope.** It is mandatory: without it `dayjs('09:00', 'HH:mm')` is an Invalid Date and
   every schedule silently comes back empty. If you construct your own dayjs in a new
   module, extend it yourself.
 - **`getSlotsForDate` / `getSlotsForDateRange` take an injectable `now`.** That is the

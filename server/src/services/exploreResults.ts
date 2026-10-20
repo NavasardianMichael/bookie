@@ -16,8 +16,7 @@ export type ExploreProviderRow = Prisma.ProviderGetPayload<{ include: typeof pro
 const relevanceSelect = (matched: readonly TermSpellings[]) =>
   ({
     id: true,
-    firstName: true,
-    lastName: true,
+    fullName: true,
     available: true,
     ratingScore: true,
     updatedAt: true,

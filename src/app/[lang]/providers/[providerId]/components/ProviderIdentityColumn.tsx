@@ -41,7 +41,7 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
   const { basic, details } = provider
   const organization = basic.organization
   const categories = basic.categories
-  const fullName = `${basic.firstName} ${basic.lastName}`
+  const fullName = basic.fullName
   // Only a real upload is a portrait; the seeded `/logo.svg` gets the placeholder.
   const image = isUploadedAsset(basic.image) ? resolveAssetUrl(basic.image) : undefined
   const phone = details.phone ? generateFriendlyPhoneNumber(details.phone, { delimiter: ' ', prefix: '+' }) : undefined

@@ -23,16 +23,14 @@ import { TermsNotice } from '../components/TermsNotice'
 import { GoogleSignUpWaiting, useGoogleSignUp } from '../components/useGoogleSignUp'
 
 type ConsumerRegistrationFormValues = PhoneFormValues & {
-  firstName: string
-  lastName: string
+  fullName: string
   email: string
   password: string
   confirmPassword: string
 }
 
 const INITIAL_VALUES: ConsumerRegistrationFormValues = {
-  firstName: '',
-  lastName: '',
+  fullName: '',
   email: '',
   code: undefined,
   number: '',
@@ -52,7 +50,7 @@ const INITIAL_VALUES: ConsumerRegistrationFormValues = {
  * account cannot hold a session.
  *
  * **Google mode** (`viaGoogle`, from `?google=1`) is the same form for a first-time Google
- * account: names and email prefilled from what Google supplied, the email locked — it is
+ * account: name and email prefilled from what Google supplied, the email locked — it is
  * what Google verified — and no password. Submitting finishes the account through
  * `/identity/google/complete`, which signs it in, so it lands where a new consumer starts.
  */
@@ -72,13 +70,13 @@ export const ConsumerRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
   const google = useGoogleSignUp(viaGoogle)
   const pending = google.status === 'ready' ? google.pending : null
 
-  const nameRules = useFormItemRules('required', 'maxCharsForInput')
+  const nameRules = useFormItemRules('required', 'maxCharsForName')
   const emailRules = useFormItemRules('required', 'email')
 
   const handleFinish = async (values: ConsumerRegistrationFormValues) => {
     setSubmitError(null)
     const phone = toPhoneNumber(values.code!, values.number)
-    const profile = { firstName: values.firstName, lastName: values.lastName, country: values.code }
+    const profile = { fullName: values.fullName, country: values.code }
 
     if (pending) {
       try {
@@ -133,9 +131,7 @@ export const ConsumerRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
         layout='vertical'
         requiredMark={false}
         initialValues={
-          pending
-            ? { ...INITIAL_VALUES, firstName: pending.firstName, lastName: pending.lastName, email: pending.email }
-            : INITIAL_VALUES
+          pending ? { ...INITIAL_VALUES, fullName: pending.fullName, email: pending.email } : INITIAL_VALUES
         }
         onFinish={handleFinish}
         onValuesChange={() => setSubmitError(null)}
@@ -145,22 +141,11 @@ export const ConsumerRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
         {submitError !== null && <ErrorAlert error={submitError} />}
 
         <RegistrationField
-          name='firstName'
-          label={t('fields.firstName')}
+          name='fullName'
+          label={t('fields.fullName')}
           requirement='Required'
-          placeholder={t('fields.firstName')}
-          autoComplete='given-name'
-          rules={nameRules}
-          icon={<UserIcon className='text-brand-muted h-4 w-4' />}
-          disabled={isPending}
-        />
-
-        <RegistrationField
-          name='lastName'
-          label={t('fields.lastName')}
-          requirement='Required'
-          placeholder={t('fields.lastName')}
-          autoComplete='family-name'
+          placeholder={t('fields.fullName')}
+          autoComplete='name'
           rules={nameRules}
           icon={<UserIcon className='text-brand-muted h-4 w-4' />}
           disabled={isPending}

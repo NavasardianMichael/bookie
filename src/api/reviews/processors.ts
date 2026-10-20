@@ -9,9 +9,9 @@ import {
 /**
  * The empty page an unrated provider answers with.
  *
- * Built rather than left `undefined` so the section renders its "no reviews yet" state
- * from the same shape as a populated one — a component that has to handle both a missing
- * summary and a zero-count summary has two empty states and will get one of them wrong.
+ * Built rather than left `undefined` so a zero-count summary is the same shape as a
+ * populated one. The public section renders nothing from it unless this visitor can
+ * write the first review.
  */
 const emptyReviews = (): GetProviderReviewsAPI['processed'] => ({
   items: [],

@@ -8,7 +8,7 @@
 #   SSH_HOST, SSH_USER, SSH_KEY, SSH_PORT (optional, default 22)
 #   APP_DIR          deployment root, e.g. /home/michael/apps/bookie
 #   ENV_API_BASE64   base64 of the API env file — DATABASE_URL, JWT_SECRET,
-#                    CORS_ORIGIN, MAIL_*, GOOGLE_*, PADDLE_*, TELEGRAM_*.
+#                    CORS_ORIGIN, MAIL_*, GOOGLE_*, PADDLE_*, TELEGRAM_*, GEMINI_*.
 #                    NODE_ENV/PORT/HOST/UPLOAD_DIR are appended below, so do not
 #                    put them in the secret.
 #   NEXT_PUBLIC_API_URL    e.g. https://api.bookie.mnavasardian.com

@@ -6,6 +6,10 @@ export const BILLING_ERROR_CODES = {
   notConfigured: 4301,
   alreadySubscribed: 4302,
   noSubscription: 4303,
+  addonIncluded: 4304,
+  lastItem: 4305,
+  changeUnavailable: 4306,
+  activeSubscription: 4307,
 } as const
 
 /** A Paddle subscription's status, as `GET /provider-profile/plan` reports it. */

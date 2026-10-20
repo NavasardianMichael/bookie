@@ -15,10 +15,10 @@ const { useAuthStoreBase } = await import('@store/auth/store')
 const EMPTY = {
   userType: null,
   profileId: null,
-  firstName: null,
-  lastName: null,
+  fullName: null,
   image: null,
   email: null,
+  hasPassword: null,
   isSignedOn: false,
   step: 'accountTypeSelection',
   error: null,
@@ -30,7 +30,7 @@ const REGISTRATION = {
   email: 'alex@example.com',
   password: 'a-strong-password',
   phone: { code: 374, number: 77000201 },
-  profile: { firstName: 'Alex', lastName: 'Morgan' },
+  profile: { fullName: 'Alex Morgan' },
   locale: 'en',
 }
 
@@ -68,7 +68,7 @@ describe('auth store', () => {
     vi.mocked(loginAPI).mockResolvedValue({
       role: 'provider',
       profileId: 'p-1',
-      firstName: 'Anna',
+      fullName: 'Anna Petrosyan',
       email: 'anna@bookie.am',
     } as never)
 
@@ -77,6 +77,7 @@ describe('auth store', () => {
     expect(session.role).toBe('provider')
     expect(useAuthStoreBase.getState().userType).toBe('provider')
     expect(useAuthStoreBase.getState().profileId).toBe('p-1')
+    expect(useAuthStoreBase.getState().fullName).toBe('Anna Petrosyan')
     expect(useAuthStoreBase.getState().email).toBe('anna@bookie.am')
     expect(useAuthStoreBase.getState().isSignedOn).toBe(true)
   })
@@ -103,7 +104,7 @@ describe('auth store', () => {
     const session = await useAuthStoreBase.getState().completeGoogle({
       role: 'consumer',
       phone: { code: 374, number: 77000201 },
-      profile: { firstName: 'Alex', lastName: 'Morgan' },
+      profile: { fullName: 'Alex Morgan' },
     })
 
     expect(session.profileId).toBe('c-7')

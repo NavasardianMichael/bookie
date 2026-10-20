@@ -30,29 +30,34 @@ type ConfirmValues = {
  * Danger zone at the end of both Profile tabs. The listing trash icon on the
  * provider hero deletes the *public page* (`DELETE /provider-profile`); this
  * deletes the User (`DELETE /identity/account`) and everything that cascades
- * from it. The API re-asks for the password so a stolen session is not enough.
+ * from it. An account with a password re-enters it, so a stolen session is not
+ * enough. A Google-only account has no password, so the dialog confirms without one.
  */
 export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
   const t = useTranslations('Settings')
   const { push } = useRouter()
   const logout = useAuthStore.use.logout()
+  const hasPassword = useAuthStore.use.hasPassword()
+  const googleOnly = hasPassword === false
   const [form] = Form.useForm<ConfirmValues>()
   const [open, setOpen] = useState(false)
   const passwordRules = useFormItemRules('required')
 
   // AppConfirmModal awaits this, surfaces a rejection and keeps the dialog open.
   const onConfirm = async () => {
-    let values: ConfirmValues
-    try {
-      values = await form.validateFields()
-    } catch (err) {
-      // A failed rule is already shown under the password field; anything else is not.
-      if (isFormValidationError(err)) return
-      throw err
+    let password: string | undefined
+    if (!googleOnly) {
+      try {
+        password = (await form.validateFields()).password
+      } catch (err) {
+        // A failed rule is already shown under the password field; anything else is not.
+        if (isFormValidationError(err)) return
+        throw err
+      }
     }
 
     try {
-      await deleteAccountAPI({ password: values.password })
+      await deleteAccountAPI(password ? { password } : {})
     } catch (err) {
       const appError = processError(err)
       if (appError.code === AUTH_ERROR_CODES.googleOnlyAccount) {
@@ -105,15 +110,24 @@ export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
           form.resetFields()
         }}
       >
-        <Form form={form} layout='vertical' requiredMark={false} onFinish={() => undefined}>
-          <PasswordField
-            name='password'
-            label={t('deleteAccount.password')}
-            autoComplete='current-password'
-            rules={passwordRules}
-            requirement='Required'
-          />
-        </Form>
+        {googleOnly || !open ? null : (
+          <Form form={form} layout='vertical' requiredMark={false} autoComplete='off' onFinish={() => undefined}>
+            {/* Decoy the password manager fills instead of the confirm field. Hidden from
+                layout and the tab order; `display: none` would make the manager skip it. */}
+            <div className='pointer-events-none absolute h-0 w-0 overflow-hidden' aria-hidden>
+              <input type='text' tabIndex={-1} autoComplete='username' defaultValue='' />
+              <input type='password' tabIndex={-1} autoComplete='current-password' defaultValue='' />
+            </div>
+            <PasswordField
+              name='password'
+              id='account-removal-confirm'
+              label={t('deleteAccount.password')}
+              autoComplete='off'
+              rules={passwordRules}
+              requirement='Required'
+            />
+          </Form>
+        )}
       </AppConfirmModal>
     </>
   )

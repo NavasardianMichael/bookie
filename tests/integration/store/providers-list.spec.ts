@@ -11,7 +11,7 @@ const { useProvidersListStoreBase, useProvidersListStore } = await import('@stor
 const EMPTY_PAGINATION = { total: 0, page: 1, perPage: 0, pageCount: 1 }
 const EMPTY = { list: { allIds: [], byId: {} }, pagination: EMPTY_PAGINATION, isPending: false, error: null }
 
-const basicProvider = (id: string) => ({ id, basic: { firstName: 'Ada', lastName: 'L', available: true } })
+const basicProvider = (id: string) => ({ id, basic: { fullName: 'Ada L', available: true } })
 
 describe('providers list store', () => {
   beforeEach(() => {

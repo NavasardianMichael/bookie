@@ -10,6 +10,12 @@
  *
  * - `serviceLimit` — one more active service than the plan allows (create, or reactivate).
  * - `featureLocked` — a feature the plan does not include (today: changing the vanity slug).
+ * - `photoImportLimit` — today's photo imports are spent (`Entitlements.photoImportsPerDay`).
+ *   Its own code rather than `featureLocked`, because the feature *is* included: the
+ *   client says when it comes back as well as what an upgrade would change.
+ * - `bookingLimit` — bookings the provider enters themselves would pass the monthly
+ *   allowance. The provider-side twin of `BOOKING_ERROR.bookingFull`, which is worded for a
+ *   visitor and must not mention a plan.
  *
  * A booking refused because a provider's monthly allowance is spent is **not** here. That
  * refusal reaches a visitor, never the provider, and is `BOOKING_ERROR.bookingFull`: the
@@ -18,4 +24,6 @@
 export const PLAN_ERROR = {
   serviceLimit: 4101,
   featureLocked: 4102,
+  photoImportLimit: 4103,
+  bookingLimit: 4104,
 } as const

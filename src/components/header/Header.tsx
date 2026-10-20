@@ -11,8 +11,8 @@ import { BrandLockup } from '@components/brand/BrandLockup'
 import { LanguageSwitcher } from '@components/layout/LanguageSwitcher'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppLink } from '@components/ui/bare/AppLink'
-import { AppText } from '@components/ui/bare/AppText'
 import { Container } from '@components/ui/layout/Container'
+import { AccountMenu } from './AccountMenu'
 import { MobileNav } from './MobileNav'
 import { NavLinks } from './NavLinks'
 
@@ -22,8 +22,7 @@ export const Header = () => {
   const getMe = useAuthStore.use.getMe()
   const isSignedOn = useAuthStore.use.isSignedOn()
   const userType = useAuthStore.use.userType()
-  const firstName = useAuthStore.use.firstName()
-  const lastName = useAuthStore.use.lastName()
+  const fullName = useAuthStore.use.fullName()
   const image = useAuthStore.use.image()
 
   useEffect(() => {
@@ -32,7 +31,7 @@ export const Header = () => {
   }, [getMe, showLogo, showNav])
 
   const routes = withAccountRoutes(navRoutes, isSignedOn)
-  const displayName = [firstName, lastName].filter(Boolean).join(' ') || t('account')
+  const displayName = fullName || t('account')
   const accountHref = userType === USER_TYPES.provider ? ROUTES.providerProfile : ROUTES.consumerProfile
 
   // Consumer registration hides both; an empty bar would still steal header height.
@@ -52,29 +51,13 @@ export const Header = () => {
                 <LanguageSwitcher className='min-w-36 text-sm font-semibold' variant='borderless' />
                 <span aria-hidden className='bg-brand-border h-6 w-px shrink-0' />
                 {isSignedOn ? (
-                  <AppLink
-                    href={accountHref}
-                    variant='plain'
-                    className='group inline-flex shrink-0 items-center gap-3 no-underline hover:no-underline'
-                    aria-label={t('accountSettings')}
-                  >
-                    {/* From `xxl` only. The name, with five destinations, is what pushes the
-                        signed-in bar past a 1200px viewport in the longer locales, and the
-                        avatar still names the link. Underline stays on the name: the plain
-                        variant would draw it across the whole anchor, badge included. */}
-                    {userType === USER_TYPES.provider && (
-                      <span className='hidden text-right xxl:block'>
-                        <AppText
-                          as='span'
-                          size='body-sm'
-                          className='block font-semibold group-hover:underline [text-underline-offset:5px]'
-                        >
-                          {displayName}
-                        </AppText>
-                      </span>
-                    )}
-                    <AppAvatar src={image ?? undefined} name={displayName} size={40} />
-                  </AppLink>
+                  <AccountMenu
+                    name={displayName}
+                    image={image}
+                    showName={userType === USER_TYPES.provider}
+                    role={userType ?? USER_TYPES.consumer}
+                    isActive={isActive}
+                  />
                 ) : (
                   <AppLink
                     href={ROUTES[HEADER_SIGN_IN]}

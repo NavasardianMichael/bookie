@@ -234,6 +234,9 @@ are the edges they knowingly stop at:
   bound `services/plans.ts#bookingPeriod` with `providerBookings.ts#monthRangeInZone` in the
   provider's zone (UTC while it is null) — and the 80%/100% stamps' "sent this month" check
   with it, or a notice can fire twice across the two month starts.
+- **The photo-import day is the UTC day.** `photoImportPeriod` has the allowance month's
+  caveat: a Free provider east of Greenwich gets their next photo a few hours into their own
+  day. Same fix — bound it in `Provider.timeZone`.
 - **Explore cannot show "full".** The card's availability pill reads `available` only; a
   full provider still looks Available until the page opens. Showing it needs a count per
   card per page render.
@@ -295,10 +298,10 @@ failure answers*) covers every surface. These are the edges it deliberately stop
   map, so a form cannot highlight which field the server refused. The client mirrors the
   rules that matter (`usePasswordRules`, the form rules), so a server 400 is mostly
   client/server drift; shown as the generic *validation* copy.
-- **The two auth code mirrors are pinned only by inspection.** `AUTH_ERROR_CODES` and
-  `GOOGLE_ERROR_CODES` (`src/constants/auth.ts`) copy `server/src/routes/identity.ts` and
-  `lib/google-oauth.ts`; both server modules import config, so no unit test reaches them.
-  Same fix as #12: lift the constants into an import-free module.
+- **`AUTH_ERROR_CODES` is pinned only by inspection.** It (`src/constants/auth.ts`) copies
+  `server/src/routes/identity.ts`, a router that imports Prisma and config, so no unit test
+  reaches it. Same fix as #12: lift the constants into an import-free module.
+  (`GOOGLE_ERROR_CODES` is now pinned by `tests/unit/server/googleOauth.spec.ts`.)
 - **The service worker's offline page is English-only** (`src/helpers/pwa.ts`). It has a
   working *Try again*; translating it means inlining 15 copies of two sentences into
   `/sw.js` and choosing by the navigation's locale segment.

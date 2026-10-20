@@ -1,10 +1,18 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { deriveCookieDomain } from './lib/cookie-domain.js'
+import type { PaddleCatalogue } from './services/billing.js'
 
 import './load-env.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+/** A comma-separated env list of Paddle price ids, blanks dropped. */
+const priceIdList = (raw: string | undefined): string[] =>
+  (raw ?? '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean)
 
 const nodeEnv = process.env.NODE_ENV ?? 'development'
 const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:7004'
@@ -129,11 +137,27 @@ export const config = {
       .map((secret) => secret.trim())
       .filter(Boolean),
     sandbox: process.env.PADDLE_SANDBOX === 'true',
-    priceIds: {
-      basic: process.env.PADDLE_PRICE_ID_BASIC ?? '',
-      standard: process.env.PADDLE_PRICE_ID_STANDARD ?? '',
-      premium: process.env.PADDLE_PRICE_ID_PREMIUM ?? '',
-    },
+    /**
+     * Every Paddle price this deployment recognises — one variable per plan and per add-on
+     * (docs/BILLING.md → *Add-ons*). Each is comma-separated: **the first id is the one sold,
+     * every id is recognised**, so after a price change a subscriber left on the old price
+     * keeps what they pay for. Empty sells nothing.
+     */
+    catalogue: {
+      plans: {
+        basic: priceIdList(process.env.PADDLE_PRICE_ID_BASIC),
+        standard: priceIdList(process.env.PADDLE_PRICE_ID_STANDARD),
+        premium: priceIdList(process.env.PADDLE_PRICE_ID_PREMIUM),
+      },
+      addons: {
+        customSlug: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_CUSTOM_SLUG),
+        telegramNotifications: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_TELEGRAM),
+        calendarFeed: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_CALENDAR_FEED),
+        removeBranding: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_REMOVE_BRANDING),
+        extraServices: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_EXTRA_SERVICES),
+        extraBookings: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_EXTRA_BOOKINGS),
+      },
+    } satisfies PaddleCatalogue,
   },
   /**
    * The Telegram bot that carries notifications beside email (docs/NOTIFICATIONS.md).
@@ -146,6 +170,20 @@ export const config = {
     botToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
     botUsername: (process.env.TELEGRAM_BOT_USERNAME ?? '').replace(/^@/, ''),
     webhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET ?? '',
+  },
+  /**
+   * Google Gemini — reads a photo of a provider's handwritten bookings
+   * (`POST /provider-profile/bookings/import/parse`). `apiKey` is read **only** by
+   * `lib/gemini.ts`, exactly as `mail.apiKey` is by `lib/mail.ts`, and is never logged.
+   *
+   * Empty disables the import rather than throwing — the button answers 503 and everything
+   * else works. A free-tier key is enough; its content may be used by Google to improve its
+   * products, which the upload step and the Privacy Policy say. `model` is overridable so a
+   * retired model is an env change, not a deploy.
+   */
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY ?? '',
+    model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
   },
   /**
    * The appointment-reminder job (`jobs/reminderJob.ts`). On by default; `REMINDERS_ENABLED=false`
@@ -164,12 +202,21 @@ export const isGoogleOAuthConfigured = (): boolean =>
   Boolean(config.google.clientId && config.google.clientSecret && config.google.redirectUri)
 
 /**
- * Whether a checkout can be offered at all: an API key and at least one price. Which plans
- * are actually for sale is per price — `isPlanPurchasable` in `routes/plans.ts`.
+ * Whether a checkout can be offered at all: an API key and at least one price, of a plan or an
+ * add-on. What is actually for sale is per price — `isPlanPurchasable` / `isAddonPurchasable`
+ * in `routes/billing.ts`.
  */
 export const isPaddleConfigured = (): boolean =>
-  Boolean(config.paddle.apiKey && Object.values(config.paddle.priceIds).some(Boolean))
+  Boolean(
+    config.paddle.apiKey &&
+      [...Object.values(config.paddle.catalogue.plans), ...Object.values(config.paddle.catalogue.addons)].some(
+        (ids) => ids.length > 0
+      )
+  )
 
 /** Whether the Connect button can work: a bot to message, a name to link to, a secret to check. */
 export const isTelegramConfigured = (): boolean =>
   Boolean(config.telegram.botToken && config.telegram.botUsername && config.telegram.webhookSecret)
+
+/** Whether a photo of handwritten bookings can be read at all. */
+export const isGeminiConfigured = (): boolean => Boolean(config.gemini.apiKey && config.gemini.model)
