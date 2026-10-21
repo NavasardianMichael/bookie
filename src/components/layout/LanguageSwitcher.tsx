@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { setLocale } from '@i18n/actions'
 import { type Locale, LOCALE_LABELS, LOCALES } from '@i18n/config'
 import { usePathname, useRouter } from '@i18n/navigation'
+import { hasUnsavedChanges } from '@helpers/unsavedChangesGuard'
 
 const OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }))
 
@@ -51,6 +52,14 @@ export const LanguageSwitcher: FC<Props> = ({ className = 'min-w-44', variant = 
   const [isPending, startTransition] = useTransition()
 
   const handleChange = (next: Locale) => {
+    // The dialog only appears for a navigation that is still inside the click.
+    // Waiting on the cookie first would let the gesture expire and the page
+    // would change without asking. The URL already names the language.
+    if (hasUnsavedChanges()) {
+      void setLocale(next)
+      router.replace(pathname, { locale: next })
+      return
+    }
     startTransition(async () => {
       await setLocale(next)
       router.replace(pathname, { locale: next })

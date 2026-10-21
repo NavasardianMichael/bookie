@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { resendVerificationAPI } from '@api/auth/main'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { useRouter } from '@i18n/navigation'
 import { AUTH_ERROR_CODES, GOOGLE_ERROR_CODES, GoogleErrorCode } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
@@ -53,6 +54,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
   const locale = useLocale()
   const { push } = useRouter()
   const [form] = Form.useForm<SignInFormValues>()
+  const unsaved = useFormUnsavedGuard()
 
   const login = useAuthStore.use.login()
   const isPending = useAuthStore.use.isPending()
@@ -84,6 +86,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
     setResent(false)
     try {
       const session = await login(values)
+      unsaved.release()
       push(session.role === 'provider' ? ROUTES.providerProfile : ROUTES.home)
     } catch (err) {
       // Code, not message: the client has to render a *button* for this one branch, and
@@ -143,7 +146,10 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
         layout='vertical'
         requiredMark={false}
         onFinish={handleFinish}
-        onValuesChange={() => setError(null)}
+        onValuesChange={() => {
+          unsaved.mark()
+          setError(null)
+        }}
         scrollToFirstError
         className='flex w-full flex-col gap-4'
       >

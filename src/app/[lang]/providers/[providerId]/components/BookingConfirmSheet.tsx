@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { buildBookingCalendarFileUrl } from '@api/appointments/main'
 import { GuestBookingDetails } from '@api/appointments/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { PaymentInfo, PaymentMethod } from '@interfaces/settings'
 import { Locale } from '@i18n/config'
 import { localePath } from '@i18n/pathname'
@@ -90,7 +91,7 @@ type Props = {
 /**
  * Step four: confirm, annotate, and — for a visitor with no account — say who you are.
  *
- * This is **not** the slot dialog `src/app/CLAUDE.md` rules out. That one asked *which
+ * This is **not** the slot dialog `docs/routes/provider-page.md` rules out. That one asked *which
  * time*, so it hid the calendar it was answering behind a mask. Service, day and time
  * are all still picked in the panels and all still on screen; this opens only once
  * they are settled, and shows what was picked rather than replacing it.
@@ -226,6 +227,7 @@ const BookingConfirmForm: FC<FormProps> = ({
 }) => {
   const t = useTranslations('Booking')
   const [form] = Form.useForm<FormValues>()
+  const unsaved = useFormUnsavedGuard()
   const initiallyChecked = paymentMethodOptions.length ? paymentMethodOptions : [...PAYMENT_METHODS]
   const selectedMethods = Form.useWatch('paymentMethods', form) ?? initiallyChecked
 
@@ -255,6 +257,7 @@ const BookingConfirmForm: FC<FormProps> = ({
       requiredMark={false}
       initialValues={{ paymentMethods: initiallyChecked }}
       onFinish={handleFinish}
+      onValuesChange={unsaved.mark}
       scrollToFirstError
       disabled={isBooking}
       className='flex w-full flex-col gap-6'

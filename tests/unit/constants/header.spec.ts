@@ -1,6 +1,13 @@
 import english from '@messages/en.json'
 import { describe, expect, it } from 'vitest'
-import { getHeaderConfig, HEADER_ACCOUNT_ROUTES, HEADER_ROUTES, withAccountRoutes } from '@constants/header'
+import {
+  DIRECTORIES_PRESENT,
+  getHeaderConfig,
+  HEADER_ACCOUNT_ROUTES,
+  HEADER_ROUTES,
+  withAccountRoutes,
+  withoutEmptyDirectories,
+} from '@constants/header'
 import { ROUTE_KEYS } from '@constants/routes'
 
 describe('getHeaderConfig', () => {
@@ -14,17 +21,40 @@ describe('getHeaderConfig', () => {
 })
 
 describe('withAccountRoutes', () => {
-  it('adds Bookings and Favorites after the route’s own destinations once signed in', () => {
+  it('adds Bookings and Favorites once signed in, and keeps Pricing last', () => {
     expect(withAccountRoutes(HEADER_ROUTES, true)).toEqual([
-      ...HEADER_ROUTES,
+      ROUTE_KEYS.providers,
+      ROUTE_KEYS.categories,
+      ROUTE_KEYS.organizations,
       ROUTE_KEYS.bookings,
       ROUTE_KEYS.favorites,
+      ROUTE_KEYS.pricing,
     ])
   })
 
   // Both pages are guarded, so a guest would only be detoured through sign-in.
   it('offers a guest neither', () => {
     expect(withAccountRoutes(HEADER_ROUTES, false)).toEqual(HEADER_ROUTES)
+  })
+})
+
+describe('withoutEmptyDirectories', () => {
+  it('keeps every directory link when each table has a row', () => {
+    expect(withoutEmptyDirectories(HEADER_ROUTES, DIRECTORIES_PRESENT)).toEqual(HEADER_ROUTES)
+  })
+
+  it('drops a directory whose table is empty and still leaves Pricing last once signed in', () => {
+    const routes = withAccountRoutes(
+      withoutEmptyDirectories(HEADER_ROUTES, { providers: true, categories: false, organizations: false }),
+      true
+    )
+
+    expect(routes).toEqual([
+      ROUTE_KEYS.providers,
+      ROUTE_KEYS.bookings,
+      ROUTE_KEYS.favorites,
+      ROUTE_KEYS.pricing,
+    ])
   })
 })
 

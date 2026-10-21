@@ -22,6 +22,7 @@ import {
   shouldApplyEvent,
   type SubscriptionEvent,
   subscriptionToSnapshot,
+  toPaymentHistory,
 } from '../../../server/src/services/billing'
 
 /** Each list's first id is the one sold; `pri_slug_old` is a retired price still recognised. */
@@ -61,6 +62,50 @@ const event = (sub: PaddleSubscription, occurredAt = '2026-10-04T10:00:00.000Z')
   eventType: 'subscription.updated',
   occurredAt: new Date(occurredAt),
   subscription: sub,
+})
+
+describe('toPaymentHistory', () => {
+  const charge = {
+    id: 'txn_1',
+    status: 'completed',
+    billed_at: '2026-10-04T10:00:00.000Z',
+    currency_code: 'USD',
+    items: [
+      { price: { id: 'pri_basic' }, quantity: 1 },
+      { price: { id: 'pri_slug_old' }, quantity: 1 },
+      { price: { id: 'pri_unknown' }, quantity: 1 },
+    ],
+    details: { totals: { grand_total: '1990', currency_code: 'USD' } },
+  }
+
+  it('keeps settled charges, names our prices, and converts minor units', () => {
+    expect(toPaymentHistory([charge, { ...charge, id: 'txn_draft', status: 'draft' }], CATALOGUE)).toEqual([
+      {
+        id: 'txn_1',
+        paidAt: '2026-10-04T10:00:00.000Z',
+        status: 'paid',
+        currency: 'USD',
+        total: 19.9,
+        plan: 'basic',
+        addons: [{ addon: 'customSlug', quantity: 1 }],
+      },
+    ])
+  })
+
+  it('sorts newest first and leaves a zero-decimal currency whole', () => {
+    const older = { ...charge, id: 'txn_old', billed_at: '2026-09-01T00:00:00.000Z' }
+    const yen = {
+      ...charge,
+      id: 'txn_yen',
+      currency_code: 'JPY',
+      billed_at: '2026-10-20T00:00:00.000Z',
+      details: { totals: { total: '1990' } },
+    }
+    expect(toPaymentHistory([older, yen], CATALOGUE).map((row) => [row.id, row.total])).toEqual([
+      ['txn_yen', 1990],
+      ['txn_old', 19.9],
+    ])
+  })
 })
 
 describe('verifyPaddleSignature', () => {

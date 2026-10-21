@@ -3,10 +3,13 @@ import { AntdRegistry } from '@ant-design/nextjs-registry'
 import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
+import { getDirectoryPresenceAPI } from '@api/directory/main'
 import { getAntdLocale } from '@i18n/antdLocale'
 import { getDirection, LOCALES } from '@i18n/config'
 import { routing } from '@i18n/routing'
+import { DIRECTORIES_PRESENT } from '@constants/header'
 import { cn } from '@helpers/cn'
+import { reportError } from '@helpers/reportError'
 import { getSiteUrl } from '@helpers/url'
 import { App } from '@components/App'
 import '@styles/globals.css'
@@ -110,6 +113,12 @@ export default async function RootLayout({ children, params }: Props) {
   // Loaded on the server so only the active locale's ~6-10KB crosses the RSC
   // boundary and none of the 16 antd bundles enter the client bundle.
   const antdLocale = await getAntdLocale(locale)
+  // A failed read keeps the three links. That includes `next build`, which prerenders
+  // this shell without the API running.
+  const directory = await getDirectoryPresenceAPI().catch((error: unknown) => {
+    reportError(error, 'header:directory')
+    return DIRECTORIES_PRESENT
+  })
 
   return (
     // The font variables go on <html> so they also cover antd portals (Modal,
@@ -125,7 +134,7 @@ export default async function RootLayout({ children, params }: Props) {
           {/* Messages are picked up from the request config, so no `messages`
               prop: next-intl streams them to the client provider itself. */}
           <NextIntlClientProvider>
-            <App antdLocale={antdLocale} direction={direction} locale={locale}>
+            <App antdLocale={antdLocale} direction={direction} directory={directory} locale={locale}>
               {children}
             </App>
           </NextIntlClientProvider>

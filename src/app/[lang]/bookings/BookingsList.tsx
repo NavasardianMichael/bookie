@@ -234,7 +234,8 @@ export const BookingsList: FC<Props> = ({
   const [serviceId, setServiceId] = useState<string | undefined>()
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
-  const [sort, setSort] = useState<ProviderBookingsSort>('startDesc')
+  // Oldest first under Upcoming puts the next booking — from today — at the top.
+  const [sort, setSort] = useState<ProviderBookingsSort>('startAsc')
   const rangeKey = `${selectedDayKey ?? ''}:${period ?? ''}`
   const [pageState, setPageState] = useState({ rangeKey, page: 1 })
   const page = pageState.rangeKey === rangeKey ? pageState.page : 1
@@ -330,12 +331,19 @@ export const BookingsList: FC<Props> = ({
     setServiceId(undefined)
     setSearch('')
     setSearchInput('')
-    setSort('startDesc')
+    setSort('startAsc')
     setPage(1)
     onClearDay()
   }, [onClearDay, setPage])
 
-  const hasFilters = Boolean(selectedDayKey || period || statuses.length || (!isConsumer && serviceId) || search)
+  const hasFilters = Boolean(
+    selectedDayKey ||
+    period !== 'upcoming' ||
+    statuses.length ||
+    (!isConsumer && serviceId) ||
+    search ||
+    sort !== 'startAsc'
+  )
 
   /**
    * Deliberately written with no try/catch: `AppConfirmModal` awaits this, surfaces a

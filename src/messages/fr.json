@@ -749,10 +749,20 @@
       "wrongPassword": "Le mot de passe actuel est incorrect"
     },
     "payouts": {
-      "title": "Versements",
-      "subtitle": "Tous les coûts mensuels facturés par Bookie, d’après le catalogue des formules.",
-      "plan": "Formule",
-      "cost": "Coût mensuel"
+      "title": "Paiements",
+      "subtitle": "Votre formule, les options activées et les paiements déjà versés à Bookie.",
+      "activePlan": "Formule active",
+      "activeFeature": "Active",
+      "history": "Historique des paiements",
+      "emptyTitle": "Aucun paiement pour le moment",
+      "emptyBody": "Les paiements que vous faites à Bookie pour une formule ou une option apparaissent ici.",
+      "date": "Date",
+      "payment": "Paiement",
+      "amount": "Montant",
+      "status": "Statut",
+      "paid": "Payé",
+      "billed": "Facturé",
+      "unknownPayment": "Paiement Bookie"
     },
     "plan": {
       "title": "Formule",
@@ -1541,7 +1551,6 @@
     "subtitle": "Commencez gratuitement et passez à la formule supérieure quand votre agenda se remplit. Les clients ne paient jamais pour réserver.",
     "startFree": "Commencer gratuitement",
     "requestPlan": "Demander cette formule",
-    "clientsFree": "Les clients ne paient jamais rien pour réserver via Bookie.",
     "manualNote": "Pour l’instant, les formules payantes sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer.",
     "getStarted": "Commencer",
     "choosePlan": "Choisir {plan}",

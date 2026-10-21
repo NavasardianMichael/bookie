@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { App } from 'antd'
+import { App, Spin } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import dynamic from 'next/dynamic'
@@ -55,7 +55,14 @@ dayjs.extend(customParseFormat)
  * and stays mounted, so opening it again does not fetch it.
  */
 const BookingConfirmSheet = dynamic(
-  () => import('./BookingConfirmSheet').then((mod) => mod.BookingConfirmSheet)
+  () => import('./BookingConfirmSheet').then((mod) => mod.BookingConfirmSheet),
+  {
+    loading: () => (
+      <div className='flex justify-center py-10'>
+        <Spin />
+      </div>
+    ),
+  }
 )
 
 const DEFAULT_DURATION_MINUTES = 30

@@ -9,6 +9,7 @@ import { postContactMessageAPI } from '@api/contact/main'
 import { ContactTopic } from '@api/contact/types'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { Addon, Plan } from '@interfaces/plans'
 import { MAX_CHARS_FOR_CONTACT_MESSAGE } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
@@ -47,6 +48,7 @@ export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
   const t = useTranslations('Contact')
   const tPlans = useTranslations('Plans')
   const [form] = Form.useForm<ContactFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const isSignedOn = useAuthStore.use.isSignedOn()
   const fullName = useAuthStore.use.fullName()
   const email = useAuthStore.use.email()
@@ -130,6 +132,7 @@ export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
         addon,
         quantity,
       })
+      unsaved.release()
       setIsSent(true)
     } catch (err) {
       // Kept on screen with the values intact — nothing is stored server-side, so a
@@ -171,6 +174,7 @@ export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
       layout='vertical'
       requiredMark={false}
       onFinish={handleFinish}
+      onValuesChange={unsaved.mark}
       scrollToFirstError
       className='flex flex-col gap-4'
     >

@@ -750,9 +750,19 @@
     },
     "payouts": {
       "title": "Pembayaran",
-      "subtitle": "Semua biaya bulanan yang ditagih Bookie, dari katalog paket.",
-      "plan": "Paket",
-      "cost": "Biaya bulanan"
+      "subtitle": "Paket Anda, fitur yang aktif, dan pembayaran yang sudah Anda lakukan ke Bookie.",
+      "activePlan": "Paket aktif",
+      "activeFeature": "Aktif",
+      "history": "Riwayat pembayaran",
+      "emptyTitle": "Belum ada pembayaran",
+      "emptyBody": "Pembayaran ke Bookie untuk paket atau fitur muncul di sini.",
+      "date": "Tanggal",
+      "payment": "Pembayaran",
+      "amount": "Jumlah",
+      "status": "Status",
+      "paid": "Lunas",
+      "billed": "Ditagih",
+      "unknownPayment": "Pembayaran ke Bookie"
     },
     "plan": {
       "title": "Paket",
@@ -1541,7 +1551,6 @@
     "subtitle": "Mulai gratis dan tingkatkan saat jadwal Anda mulai penuh. Klien tidak pernah membayar untuk memesan.",
     "startFree": "Mulai gratis",
     "requestPlan": "Ajukan paket ini",
-    "clientsFree": "Klien tidak pernah membayar apa pun untuk memesan melalui Bookie.",
     "manualNote": "Untuk saat ini, paket berbayar diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya.",
     "getStarted": "Mulai",
     "choosePlan": "Pilih {plan}",

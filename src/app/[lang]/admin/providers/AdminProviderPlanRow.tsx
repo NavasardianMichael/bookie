@@ -6,6 +6,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useFormatter, useTranslations } from 'next-intl'
 import { patchAdminProviderPlanAPI } from '@api/plans/main'
 import { useErrorToast } from '@hooks/useErrorToast'
+import { useUnsavedChangesGuard } from '@hooks/useUnsavedChangesGuard'
 import { AddonCatalogueEntry, AdminProvider, Plan } from '@interfaces/plans'
 import { ADDON_SOURCES, PLAN_ORDER, PLAN_TAG_COLORS, PLANS } from '@constants/plans'
 import { ROUTES } from '@constants/routes'
@@ -46,6 +47,7 @@ export const AdminProviderPlanRow: FC<Props> = ({ provider, addons, onSaved }) =
   // Free has nothing to lapse from, so its expiry is ignored — and the API drops it too.
   const planExpiresAt = plan === PLANS.free || !lastDay ? null : toPlanExpiryISO(lastDay)
   const dirty = plan !== provider.plan || planExpiresAt !== (provider.planExpiresAt ?? null)
+  useUnsavedChangesGuard(dirty)
   const lapsed = provider.effectivePlan !== provider.plan
 
   const lastDayLabel = (iso: string): string =>

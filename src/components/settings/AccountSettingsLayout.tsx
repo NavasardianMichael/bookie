@@ -7,6 +7,7 @@ import { usePathname, useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
+import { suppressUnsavedChangesGuard } from '@helpers/unsavedChangesGuard'
 import { workspaceOf } from '@helpers/workspace'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { ErrorState } from '@components/ui/ErrorState'
@@ -96,11 +97,13 @@ export const AccountSettingsLayout: FC<Props> = ({
         // "sign in"; bouncing a signed-in user there mid-outage told them their session
         // was gone when it was the server. The outage renders below with a Retry.
         if (useAuthStoreBase.getState().error) return
+        suppressUnsavedChangesGuard()
         replace(ROUTES.signIn)
         return
       }
       const holdsThisSide = session.profiles?.[accountRole] ?? session.role === accountRole
       if (!holdsThisSide) {
+        suppressUnsavedChangesGuard()
         replace(session.role === USER_TYPES.provider ? ROUTES.providerProfile : ROUTES.consumerProfile)
       }
     }
@@ -113,6 +116,9 @@ export const AccountSettingsLayout: FC<Props> = ({
 
   const onConfirmSignOut = async () => {
     await logout()
+    // The account is already signed out. Asking now could cancel the navigation
+    // and leave a signed-out session sitting on the settings form.
+    suppressUnsavedChangesGuard()
     push(ROUTES.home)
   }
 

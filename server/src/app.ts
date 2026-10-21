@@ -14,6 +14,7 @@ import { calendarRouter, providerCalendarRouter } from './routes/calendar.js'
 import { categoriesRouter } from './routes/categories.js'
 import { consumerProfileRouter } from './routes/consumers.js'
 import { contactRouter } from './routes/contact.js'
+import { directoryRouter } from './routes/directory.js'
 import { favoritesRouter } from './routes/favorites.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
@@ -99,6 +100,7 @@ export function createApp() {
   app.use('/calendar', calendarRouter)
   app.use('/organizations', organizationsRouter)
   app.use('/categories', categoriesRouter)
+  app.use('/directory', directoryRouter)
   app.use('/contact', contactRouter)
   app.use('/consumer-profile', consumerProfileRouter)
   app.use('/favorites', favoritesRouter)

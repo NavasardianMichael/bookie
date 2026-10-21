@@ -750,9 +750,19 @@
     },
     "payouts": {
       "title": "Pagamentos",
-      "subtitle": "Todos os custos mensais cobrados pelo Bookie, a partir do catálogo de planos.",
-      "plan": "Plano",
-      "cost": "Custo mensal"
+      "subtitle": "Seu plano, os recursos ativados e os pagamentos que você já fez ao Bookie.",
+      "activePlan": "Plano ativo",
+      "activeFeature": "Ativo",
+      "history": "Histórico de pagamentos",
+      "emptyTitle": "Nenhum pagamento ainda",
+      "emptyBody": "Os pagamentos que você faz ao Bookie por um plano ou um recurso aparecem aqui.",
+      "date": "Data",
+      "payment": "Pagamento",
+      "amount": "Valor",
+      "status": "Status",
+      "paid": "Pago",
+      "billed": "Faturado",
+      "unknownPayment": "Pagamento ao Bookie"
     },
     "plan": {
       "title": "Plano",
@@ -1541,7 +1551,6 @@
     "subtitle": "Comece grátis e mude de plano quando sua agenda encher. Os clientes nunca pagam para reservar.",
     "startFree": "Começar grátis",
     "requestPlan": "Solicitar este plano",
-    "clientsFree": "Os clientes nunca pagam nada para reservar pelo Bookie.",
     "manualNote": "Por enquanto, os planos pagos são configurados pela nossa equipe. Envie uma solicitação e responderemos por e-mail para ativá-lo.",
     "getStarted": "Começar",
     "choosePlan": "Escolher {plan}",

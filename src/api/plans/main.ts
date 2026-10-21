@@ -29,8 +29,12 @@ export const getAddonsAPI: GetAddonsAPI['api'] = async () => {
   return processAddonsResponse(data)
 }
 
-export const getProviderPlanAPI: GetProviderPlanAPI['api'] = async () => {
-  const { data } = await axiosInstance.get<APIResponse<GetProviderPlanAPI['response']>>(ENDPOINTS.getProviderPlan)
+export const getProviderPlanAPI: GetProviderPlanAPI['api'] = async (params) => {
+  const cookie = params?.cookie
+  const { data } = await axiosInstance.get<APIResponse<GetProviderPlanAPI['response']>>(
+    ENDPOINTS.getProviderPlan,
+    cookie ? { headers: { Cookie: cookie } } : undefined
+  )
   return processProviderPlanResponse(data)
 }
 

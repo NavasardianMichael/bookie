@@ -8,10 +8,12 @@ import { useTranslations } from 'next-intl'
 import { deleteAccountAPI } from '@api/auth/main'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { useRouter } from '@i18n/navigation'
 import { AUTH_ERROR_CODES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { isFormValidationError, processError, UserFacingError } from '@helpers/error'
+import { suppressUnsavedChangesGuard } from '@helpers/unsavedChangesGuard'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -36,6 +38,7 @@ type ConfirmValues = {
 export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
   const t = useTranslations('Settings')
   const { push } = useRouter()
+  const unsaved = useFormUnsavedGuard()
   const logout = useAuthStore.use.logout()
   const hasPassword = useAuthStore.use.hasPassword()
   const googleOnly = hasPassword === false
@@ -75,6 +78,8 @@ export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
     // Cookie is already cleared by the API. `logout` still resets the store;
     // its POST may 401 and the axios interceptor leaves that through.
     await logout()
+    suppressUnsavedChangesGuard()
+    unsaved.release()
     push(ROUTES.home)
   }
 
@@ -108,10 +113,18 @@ export const DeleteAccountSection: FC<Props> = ({ disabled }) => {
         onCancel={() => {
           setOpen(false)
           form.resetFields()
+          unsaved.release()
         }}
       >
         {googleOnly || !open ? null : (
-          <Form form={form} layout='vertical' requiredMark={false} autoComplete='off' onFinish={() => undefined}>
+          <Form
+            form={form}
+            layout='vertical'
+            requiredMark={false}
+            autoComplete='off'
+            onFinish={() => undefined}
+            onValuesChange={unsaved.mark}
+          >
             {/* Decoy the password manager fills instead of the confirm field. Hidden from
                 layout and the tab order; `display: none` would make the manager skip it. */}
             <div className='pointer-events-none absolute h-0 w-0 overflow-hidden' aria-hidden>

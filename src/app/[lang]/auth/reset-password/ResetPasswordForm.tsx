@@ -4,6 +4,7 @@ import { FC, useState } from 'react'
 import { Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { resetPasswordAPI } from '@api/auth/main'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { useRouter } from '@i18n/navigation'
 import { PASSWORD_MIN_LENGTH } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
@@ -29,6 +30,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
   const t = useTranslations('Auth')
   const { push } = useRouter()
   const [form] = Form.useForm<ResetPasswordFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<unknown>(null)
@@ -39,6 +41,7 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
     setError(null)
     try {
       await resetPasswordAPI({ token, password: values.password })
+      unsaved.release()
       setDone(true)
     } catch (err) {
       setError(err)
@@ -100,7 +103,10 @@ export const ResetPasswordForm: FC<Props> = ({ token }) => {
         layout='vertical'
         requiredMark={false}
         onFinish={handleFinish}
-        onValuesChange={() => setError(null)}
+        onValuesChange={() => {
+          unsaved.mark()
+          setError(null)
+        }}
         scrollToFirstError
         className='flex w-full flex-col gap-4'
       >

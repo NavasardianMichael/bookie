@@ -1,5 +1,6 @@
 import { ADDON_ORDER } from '@constants/plans'
 import {
+  GetBillingPaymentsAPI,
   GetPlanPricesAPI,
   LocalizedPlanPrices,
   PostAddonAPI,
@@ -28,3 +29,5 @@ export const processChangePlanResponse: PostChangePlanAPI['processor'] = (respon
 export const processAddonResponse: PostAddonAPI['processor'] = (response) => response.value
 
 export const processBillingPortalResponse: PostBillingPortalAPI['processor'] = (response) => response.value.url
+
+export const processBillingPaymentsResponse: GetBillingPaymentsAPI['processor'] = (response) => response.value ?? []

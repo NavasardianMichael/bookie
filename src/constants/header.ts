@@ -18,6 +18,23 @@ export const HEADER_ROUTES: AppRouteName[] = [
 ]
 
 /**
+ * Whether each directory table has any row (`GET /directory`). A `false` drops that
+ * header link. The all-true value is also the fallback when the check cannot be read,
+ * so an outage keeps the links rather than hiding a directory that is there.
+ */
+export type DirectoryPresence = {
+  providers: boolean
+  categories: boolean
+  organizations: boolean
+}
+
+export const DIRECTORIES_PRESENT: DirectoryPresence = {
+  providers: true,
+  categories: true,
+  organizations: true,
+}
+
+/**
  * The signed-in account's own pages, appended to whatever `navRoutes` the route shows.
  *
  * Separate from `HEADER_ROUTES` because they follow the *session*, not the route: every
@@ -87,6 +104,22 @@ export const getHeaderConfig = (routeName?: AppRouteName): HeaderConfig => ({
   ...(routeName ? HEADER_CONFIG_OVERRIDES[routeName] : undefined),
 })
 
-/** The destinations to render: the route's own, then the account's when signed in. */
-export const withAccountRoutes = (navRoutes: AppRouteName[], isSignedOn: boolean): AppRouteName[] =>
-  isSignedOn ? [...navRoutes, ...HEADER_ACCOUNT_ROUTES] : navRoutes
+/**
+ * The destinations to render. Bookings and Favorites follow the route's own links once
+ * signed in, and Pricing stays last either way — it is a marketplace link, but it sits
+ * after the account's pages so the list ends on it.
+ */
+export const withAccountRoutes = (navRoutes: AppRouteName[], isSignedOn: boolean): AppRouteName[] => {
+  const pricing = navRoutes.filter((name) => name === ROUTE_KEYS.pricing)
+  const rest = navRoutes.filter((name) => name !== ROUTE_KEYS.pricing)
+  return isSignedOn ? [...rest, ...HEADER_ACCOUNT_ROUTES, ...pricing] : [...rest, ...pricing]
+}
+
+/** Drops Providers, Categories or Organizations when that table has no rows at all. */
+export const withoutEmptyDirectories = (navRoutes: AppRouteName[], presence: DirectoryPresence): AppRouteName[] =>
+  navRoutes.filter((name) => {
+    if (name === ROUTE_KEYS.providers) return presence.providers
+    if (name === ROUTE_KEYS.categories) return presence.categories
+    if (name === ROUTE_KEYS.organizations) return presence.organizations
+    return true
+  })

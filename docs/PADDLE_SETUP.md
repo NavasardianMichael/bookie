@@ -80,7 +80,7 @@ answers every call with `403 forbidden`:
 | Permission | Used by |
 |---|---|
 | `transaction.write` | `POST /transactions` — the checkout |
-| `transaction.read` | `POST /pricing-preview`, and the webhook's fallback lookup of a transaction's `custom_data` |
+| `transaction.read` | `POST /pricing-preview`, `GET /transactions` (the Payouts history), and the webhook's fallback lookup of a transaction's `custom_data` |
 | `subscription.read`, `subscription.write` | `GET` + `PATCH /subscriptions/{id}` — reading the items, then switching plans and changing add-ons |
 | `customer_portal_session.write` | `POST /customers/{id}/portal-sessions` — Manage billing |
 

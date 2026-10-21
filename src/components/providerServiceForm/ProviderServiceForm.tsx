@@ -4,6 +4,7 @@ import React from 'react'
 import { Flex, Form, InputNumber } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
@@ -31,6 +32,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
   const tCommon = useTranslations('Common')
   const tActions = useTranslations('Settings.actions')
   const [form] = Form.useForm<ProviderServiceFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const requiredRuleSet = useFormItemRules('required')
   const inputTextRequiredMaxCharsCountRuleSet = useFormItemRules('required', 'maxCharsForInput')
   const textareaMaxCharsCountRuleSet = useFormItemRules('maxCharsForTextarea')
@@ -45,6 +47,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
       className='mt-4 flex min-w-0 w-full flex-col gap-4'
       layout='vertical'
       onFinish={onSubmit}
+      onValuesChange={unsaved.mark}
       scrollToFirstError
       disabled={isSubmitting}
     >

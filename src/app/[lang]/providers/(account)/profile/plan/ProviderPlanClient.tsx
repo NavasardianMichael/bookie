@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect, useMemo, useState } from 'react'
-import { Alert, Progress } from 'antd'
+import { Alert, Progress, Spin } from 'antd'
 import dynamic from 'next/dynamic'
 import { useFormatter, useTranslations } from 'next-intl'
 import { postAddonAPI, postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
@@ -28,7 +28,14 @@ import { ProviderPlanAddons } from './ProviderPlanAddons'
 
 /** The contact form inside this sheet loads only after a Request. */
 const PlanUpgradeSheet = dynamic(
-  () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet)
+  () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet),
+  {
+    loading: () => (
+      <div className='flex justify-center py-10'>
+        <Spin />
+      </div>
+    ),
+  }
 )
 
 const isAbove = (plan: Plan, than: Plan): boolean => PLAN_ORDER.indexOf(plan) > PLAN_ORDER.indexOf(than)

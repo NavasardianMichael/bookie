@@ -10,6 +10,7 @@ import { createImportedBookingsAPI } from '@api/bookingImport/main'
 import { BookingDraft, ImportedBookingRequest } from '@api/bookingImport/types'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { useProviderBusy } from '@hooks/useProviderBusy'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { IMPORT_MAX_ROWS } from '@constants/bookingImport'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { isOpenOnDate, isSlotTakenError } from '@helpers/booking'
@@ -69,6 +70,7 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
   const t = useTranslations('Bookings.import')
   const locale = useLocale()
   const [form] = Form.useForm<FormValues>()
+  const unsaved = useFormUnsavedGuard()
   // Fixed for the sheet's life: a slot that passes while the provider is still editing is
   // caught by the API's own `startAt > now`.
   const [now] = useState(() => new Date())
@@ -155,6 +157,7 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
       requiredMark={false}
       initialValues={initialValues}
       onFinish={handleFinish}
+      onValuesChange={unsaved.mark}
       disabled={submitting}
       scrollToFirstError
       className='flex w-full flex-col gap-6'

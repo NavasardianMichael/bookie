@@ -5,6 +5,8 @@ import { App as AntApp, ConfigProvider } from 'antd'
 import type { Locale as AntdLocale } from 'antd/es/locale'
 import type { Direction, Locale } from '@i18n/config'
 import { setDayjsLocale } from '@i18n/dayjs'
+import { type DirectoryPresence } from '@constants/header'
+import { installUnsavedChangesGuard } from '@helpers/unsavedChangesGuard'
 import { antdTheme } from '@styles/theme'
 import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { UnhandledErrorListener } from './errors/UnhandledErrorListener'
@@ -12,6 +14,10 @@ import { Header } from './header/Header'
 import { Footer } from './layout/Footer'
 import { SkipLink } from './layout/SkipLink'
 import { ServiceWorkerRegistrar } from './pwa/ServiceWorkerRegistrar'
+
+// Before Next's router patches `history`, so a Back press on a dirty form can be
+// turned into the browser's leave dialog. Idempotent across Fast Refresh.
+installUnsavedChangesGuard()
 
 /**
  * A single document-level scroller.
@@ -29,9 +35,11 @@ export type AppProps = PropsWithChildren<{
   antdLocale: AntdLocale
   direction: Direction
   locale: Locale
+  /** Which directory tables have a row. The header drops a link whose table is empty. */
+  directory: DirectoryPresence
 }>
 
-export const App: FC<AppProps> = ({ antdLocale, children, direction, locale }) => {
+export const App: FC<AppProps> = ({ antdLocale, children, direction, directory, locale }) => {
   // dayjs's locale is a module global, so it is set here — on the client, where
   // there is exactly one — rather than on the server, where concurrent requests
   // in different languages would race. antd's pickers read month and weekday
@@ -47,7 +55,7 @@ export const App: FC<AppProps> = ({ antdLocale, children, direction, locale }) =
         <ServiceWorkerRegistrar />
         <UnhandledErrorListener />
         <div className='flex min-h-dvh flex-col'>
-          <Header />
+          <Header directory={directory} />
           <main id='main' className='flex-1 app-safe-b'>
             {children}
           </main>

@@ -1,24 +1,34 @@
 'use client'
 
 import { FC, useState } from 'react'
+import { Spin } from 'antd'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useStartCheckout } from '@hooks/useStartCheckout'
 import { Plan } from '@interfaces/plans'
 import { USER_TYPES } from '@constants/auth'
-import { PLANS } from '@constants/plans'
+import { PLAN_ORDER, PLANS } from '@constants/plans'
 import { ROUTES } from '@constants/routes'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
 
 /** The contact form inside this sheet loads only after Request plan. */
 const PlanUpgradeSheet = dynamic(
-  () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet)
+  () => import('@components/plans/PlanUpgradeSheet').then((mod) => mod.PlanUpgradeSheet),
+  {
+    loading: () => (
+      <div className='flex justify-center py-10'>
+        <Spin />
+      </div>
+    ),
+  }
 )
 
 type Props = {
   plan: Plan
+  /** The signed-in provider's effective plan. Absent for a guest, a client, or a failed read. */
+  currentPlan?: Plan
   /** Whether this deployment sells the plan through Paddle (`GET /plans`). */
   purchasable: boolean
 }
@@ -34,10 +44,12 @@ type Props = {
  * - **A plan this deployment cannot sell** (no Paddle key or price) keeps the contact-form
  *   request it had before checkout existed, assigned by hand from `/admin/providers`.
  *
- * The session comes from the auth store, so a signed-in provider sees the guest link until
- * the Header's `getMe()` lands — the same settle the footer's links make.
+ * Their column and every cheaper one are disabled. A provider whose plan could not be read
+ * still waits on the auth store, and sees the guest link until `getMe()` lands.
  */
-export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
+const rank = (plan: Plan): number => PLAN_ORDER.indexOf(plan)
+
+export const PricingPlanAction: FC<Props> = ({ plan, currentPlan, purchasable }) => {
   const t = useTranslations('Pricing')
   const tPlans = useTranslations('Plans')
   const isSignedOn = useAuthStore.use.isSignedOn()
@@ -47,12 +59,23 @@ export const PricingPlanAction: FC<Props> = ({ plan, purchasable }) => {
   const [sheetMounted, setSheetMounted] = useState(false)
 
   const isProvider = isSignedOn && userType === USER_TYPES.provider
+  const heldOrBelow = currentPlan !== undefined && rank(plan) <= rank(currentPlan)
 
-  if (!isProvider) {
+  // `currentPlan` is read on the server, so a provider's column is right in the first
+  // HTML. The auth store is still empty then — waiting on it would flash the guest link.
+  if (currentPlan === undefined && !isProvider) {
     return (
       <AppLink href={ROUTES.providerRegistration} variant='button' tone={plan === PLANS.free ? 'default' : 'primary'}>
         {plan === PLANS.free ? t('startFree') : t('getStarted')}
       </AppLink>
+    )
+  }
+
+  if (heldOrBelow) {
+    return (
+      <AppButton type='default' disabled>
+        {plan === currentPlan ? tPlans('current') : t('choosePlan', { plan: tPlans(`names.${plan}`) })}
+      </AppButton>
     )
   }
 

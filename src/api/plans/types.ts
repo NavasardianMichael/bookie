@@ -22,7 +22,8 @@ export type GetAddonsAPI = Endpoint<{
 }>
 
 export type GetProviderPlanAPI = Endpoint<{
-  payload: void
+  /** `cookie` is how a Server Component forwards the session. The browser call omits it. */
+  payload: { cookie?: string } | void
   response: ProviderPlanWithUsage
   processed: ProviderPlanWithUsage
 }>

@@ -749,10 +749,20 @@
       "wrongPassword": "Aktualne hasło jest nieprawidłowe"
     },
     "payouts": {
-      "title": "Wypłaty",
-      "subtitle": "Wszystkie miesięczne koszty naliczane przez Bookie, z katalogu planów.",
-      "plan": "Plan",
-      "cost": "Koszt miesięczny"
+      "title": "Płatności",
+      "subtitle": "Twój plan, włączone funkcje i płatności, które już trafiły do Bookie.",
+      "activePlan": "Aktywny plan",
+      "activeFeature": "Włączona",
+      "history": "Historia płatności",
+      "emptyTitle": "Nie ma jeszcze płatności",
+      "emptyBody": "Płatności do Bookie za plan lub funkcję pojawiają się tutaj.",
+      "date": "Data",
+      "payment": "Płatność",
+      "amount": "Kwota",
+      "status": "Status",
+      "paid": "Opłacona",
+      "billed": "Zafakturowana",
+      "unknownPayment": "Płatność do Bookie"
     },
     "plan": {
       "title": "Plan",
@@ -1541,7 +1551,6 @@
     "subtitle": "Zacznij za darmo i przejdź na wyższy plan, gdy kalendarz się zapełni. Klienci nigdy nie płacą za rezerwację.",
     "startFree": "Zacznij za darmo",
     "requestPlan": "Poproś o ten plan",
-    "clientsFree": "Klienci nigdy nic nie płacą za rezerwację przez Bookie.",
     "manualNote": "Na razie płatne plany włącza nasz zespół. Wyślij prośbę, a odpowiemy e-mailem, aby go aktywować.",
     "getStarted": "Zacznij",
     "choosePlan": "Wybierz plan {plan}",

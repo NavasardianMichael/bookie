@@ -749,10 +749,20 @@
       "wrongPassword": "Das aktuelle Passwort ist falsch"
     },
     "payouts": {
-      "title": "Auszahlungen",
-      "subtitle": "Alle monatlichen Kosten, die Bookie berechnet, aus dem Tarifkatalog.",
-      "plan": "Tarif",
-      "cost": "Monatliche Kosten"
+      "title": "Zahlungen",
+      "subtitle": "Ihr Tarif, die aktivierten Funktionen und die Zahlungen, die Sie bereits an Bookie geleistet haben.",
+      "activePlan": "Aktiver Tarif",
+      "activeFeature": "Aktiv",
+      "history": "Zahlungsverlauf",
+      "emptyTitle": "Noch keine Zahlungen",
+      "emptyBody": "Zahlungen an Bookie für einen Tarif oder eine Funktion erscheinen hier.",
+      "date": "Datum",
+      "payment": "Zahlung",
+      "amount": "Betrag",
+      "status": "Status",
+      "paid": "Bezahlt",
+      "billed": "Berechnet",
+      "unknownPayment": "Zahlung an Bookie"
     },
     "plan": {
       "title": "Tarif",
@@ -1541,7 +1551,6 @@
     "subtitle": "Starten Sie kostenlos und wechseln Sie in einen höheren Tarif, wenn sich Ihr Kalender füllt. Kunden zahlen nie für eine Buchung.",
     "startFree": "Kostenlos starten",
     "requestPlan": "Diesen Tarif anfragen",
-    "clientsFree": "Kunden zahlen nie etwas, um über Bookie zu buchen.",
     "manualNote": "Kostenpflichtige Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten.",
     "getStarted": "Loslegen",
     "choosePlan": "{plan} wählen",

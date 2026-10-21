@@ -750,9 +750,19 @@
     },
     "payouts": {
       "title": "Payouts",
-      "subtitle": "Every monthly cost Bookie charges, from the plan catalogue.",
-      "plan": "Plan",
-      "cost": "Monthly cost"
+      "subtitle": "Your plan, the features you have turned on, and the payments you have made to Bookie.",
+      "activePlan": "Active plan",
+      "activeFeature": "Active",
+      "history": "Payment history",
+      "emptyTitle": "No payments yet",
+      "emptyBody": "Payments you make to Bookie for a plan or a feature appear here.",
+      "date": "Date",
+      "payment": "Payment",
+      "amount": "Amount",
+      "status": "Status",
+      "paid": "Paid",
+      "billed": "Billed",
+      "unknownPayment": "Bookie payment"
     },
     "plan": {
       "title": "Plan",
@@ -1541,7 +1551,6 @@
     "subtitle": "Start free and move up when your calendar fills. Clients never pay to book.",
     "startFree": "Start free",
     "requestPlan": "Request this plan",
-    "clientsFree": "Clients never pay anything to book through Bookie.",
     "manualNote": "Paid plans are arranged by our team for now. Send a request and we will reply by email to set it up.",
     "getStarted": "Get started",
     "choosePlan": "Choose {plan}",

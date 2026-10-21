@@ -1,6 +1,7 @@
 'use client'
 
 import { FC } from 'react'
+import { useUnsavedChangesGuard } from '@hooks/useUnsavedChangesGuard'
 import { cn } from '@helpers/cn'
 import { AppButton } from '@components/ui/AppButton'
 import { AppText } from '@components/ui/bare/AppText'
@@ -44,6 +45,7 @@ export const SettingsActionBar: FC<SettingsActionBarProps> = ({
   className,
 }) => {
   const pending = pendingAction !== null
+  useUnsavedChangesGuard(dirty)
 
   return (
     <div

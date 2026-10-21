@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { parseBookingPhotoAPI } from '@api/bookingImport/main'
 import { BookingDraft } from '@api/bookingImport/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { IMPORT_NOTE_MAX, IMPORT_PHOTO_MAX_EDGE } from '@constants/bookingImport'
 import { downscaleImage } from '@helpers/imageResize'
 import { AppButton } from '@components/ui/AppButton'
@@ -40,6 +41,7 @@ export const PhotoImportPickForm: FC<Props> = ({ initialValues, dailyLimit, onPe
   const t = useTranslations('Bookings.import')
   const locale = useLocale()
   const [form] = Form.useForm<PhotoPickValues>()
+  const unsaved = useFormUnsavedGuard()
   const [reading, setReading] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const noteRules = useFormItemRules('maxCharsForTextarea')
@@ -68,6 +70,7 @@ export const PhotoImportPickForm: FC<Props> = ({ initialValues, dailyLimit, onPe
       requiredMark={false}
       initialValues={initialValues}
       onFinish={handleFinish}
+      onValuesChange={unsaved.mark}
       disabled={reading}
       className='flex w-full flex-col gap-6'
     >

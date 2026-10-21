@@ -42,3 +42,20 @@ export type PostBillingPortalAPI = Endpoint<{
   response: { url: string }
   processed: string
 }>
+
+/** One settled charge. `total` is major units of `currency`. */
+export type ProviderPayment = {
+  id: string
+  paidAt: string
+  status: 'paid' | 'billed'
+  currency: string
+  total: number
+  plan?: PaidPlan
+  addons: AddonLine[]
+}
+
+export type GetBillingPaymentsAPI = Endpoint<{
+  payload: void
+  response: ProviderPayment[]
+  processed: ProviderPayment[]
+}>

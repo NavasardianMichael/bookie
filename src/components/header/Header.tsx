@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useHeaderConfig } from '@hooks/useHeaderConfig'
 import { USER_TYPES } from '@constants/auth'
-import { HEADER_SIGN_IN, withAccountRoutes } from '@constants/header'
+import { type DirectoryPresence, HEADER_SIGN_IN, withAccountRoutes, withoutEmptyDirectories } from '@constants/header'
 import { ROUTES } from '@constants/routes'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { LanguageSwitcher } from '@components/layout/LanguageSwitcher'
@@ -16,7 +16,11 @@ import { AccountMenu } from './AccountMenu'
 import { MobileNav } from './MobileNav'
 import { NavLinks } from './NavLinks'
 
-export const Header = () => {
+type Props = {
+  directory: DirectoryPresence
+}
+
+export const Header = ({ directory }: Props) => {
   const t = useTranslations('Nav')
   const { showLogo, showNav, navRoutes, isActive } = useHeaderConfig()
   const getMe = useAuthStore.use.getMe()
@@ -30,7 +34,7 @@ export const Header = () => {
     void getMe()
   }, [getMe, showLogo, showNav])
 
-  const routes = withAccountRoutes(navRoutes, isSignedOn)
+  const routes = withAccountRoutes(withoutEmptyDirectories(navRoutes, directory), isSignedOn)
   const displayName = fullName || t('account')
   const accountHref = userType === USER_TYPES.provider ? ROUTES.providerProfile : ROUTES.consumerProfile
 

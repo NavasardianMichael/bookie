@@ -13,10 +13,12 @@ import { getConsumerProfileAPI } from '@api/consumers/main'
 import { useAuthStore } from '@store/auth/store'
 import { Consumer } from '@store/consumers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { CategoryValue, NewOrganizationFormValues, OrganizationValue } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { ROUTES } from '@constants/routes'
 import { toCategoryChoices, toPhoneFormValues, toPhoneNumber } from '@helpers/registration'
+import { suppressUnsavedChangesGuard } from '@helpers/unsavedChangesGuard'
 import { newAccountLandingPath } from '@helpers/workspace'
 import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -60,6 +62,7 @@ export const BecomeProviderForm: FC = () => {
   const tErrors = useTranslations('Errors')
   const { replace } = useRouter()
   const [form] = Form.useForm<BecomeProviderFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const becomeProvider = useAuthStore.use.becomeProvider()
   const isPending = useAuthStore.use.isPending()
   const profiles = useAuthStore.use.profiles()
@@ -75,7 +78,10 @@ export const BecomeProviderForm: FC = () => {
   const categoryCheck = useSimilarCategoryCheck((categories) => form.setFieldValue('categories', categories))
 
   useEffect(() => {
-    if (profiles?.provider) replace(ROUTES.providerProfile)
+    if (!profiles?.provider) return
+    // An automatic bounce, not the visitor abandoning the form.
+    suppressUnsavedChangesGuard()
+    replace(ROUTES.providerProfile)
   }, [profiles, replace])
 
   useEffect(() => {
@@ -112,6 +118,7 @@ export const BecomeProviderForm: FC = () => {
         },
       })
       // `replace`: back would only land on a form this account can no longer use.
+      unsaved.release()
       replace(newAccountLandingPath(session.role))
     } catch (error) {
       setSubmitError(error)
@@ -146,7 +153,10 @@ export const BecomeProviderForm: FC = () => {
             requiredMark={false}
             initialValues={valuesFromConsumer(consumer)}
             onFinish={handleFinish}
-            onValuesChange={() => setSubmitError(null)}
+            onValuesChange={() => {
+              unsaved.mark()
+              setSubmitError(null)
+            }}
             scrollToFirstError
             className='flex w-full flex-col gap-4'
           >

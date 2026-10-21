@@ -750,9 +750,19 @@
     },
     "payouts": {
       "title": "付款",
-      "subtitle": "Bookie 收取的各项月费，来自方案目录。",
-      "plan": "方案",
-      "cost": "月费"
+      "subtitle": "你的方案、已开通的功能，以及你已经付给 Bookie 的款项。",
+      "activePlan": "当前方案",
+      "activeFeature": "已开通",
+      "history": "付款记录",
+      "emptyTitle": "还没有付款",
+      "emptyBody": "你为方案或功能付给 Bookie 的款项会显示在这里。",
+      "date": "日期",
+      "payment": "付款",
+      "amount": "金额",
+      "status": "状态",
+      "paid": "已支付",
+      "billed": "已出账",
+      "unknownPayment": "付给 Bookie 的款项"
     },
     "plan": {
       "title": "套餐",
@@ -1541,7 +1551,6 @@
     "subtitle": "免费开始，日程排满时再升级。客户预约从不付费。",
     "startFree": "免费开始",
     "requestPlan": "申请此套餐",
-    "clientsFree": "客户通过 Bookie 预约无需支付任何费用。",
     "manualNote": "目前付费套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。",
     "getStarted": "开始使用",
     "choosePlan": "选择{plan}",

@@ -60,7 +60,9 @@ const FOOTER_COLUMNS: { titleKey: string; links: FooterLink[] }[] = [
  * the cookie, as the landing hero does: this renders in the root layout, and a `cookies()`
  * read there would make every route dynamic. The guest-only and provider-only links
  * therefore settle just after hydration, far below the fold. A column left with no links
- * goes with them, so a signed-in footer has no bare Account heading.
+ * goes with them, so a signed-in footer has no bare Account heading. The grid follows
+ * what remains: three columns (brand, Platform, Company) once Account is gone, four
+ * while every column still has links.
  */
 export const Footer: FC = () => {
   const t = useTranslations('Footer')
@@ -76,8 +78,10 @@ export const Footer: FC = () => {
   return (
     <footer className='border-brand-border bg-surface mt-auto border-t'>
       <Container className='py-12 sm:py-16'>
-        <div className='grid grid-cols-2 gap-10 md:grid-cols-4 lg:gap-8'>
-          <div className='col-span-2 flex flex-col gap-5 md:col-span-1 lg:col-span-1'>
+        <div
+          className={`grid grid-cols-2 gap-10 lg:gap-8 ${columns.length > 2 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}
+        >
+          <div className='col-span-2 flex flex-col gap-5 md:col-span-1'>
             <BrandLockup size='sm' />
             <AppParagraph size='body-sm' className='max-w-xs'>
               {t('blurb')}

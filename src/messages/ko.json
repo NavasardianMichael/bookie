@@ -749,10 +749,20 @@
       "wrongPassword": "현재 비밀번호가 올바르지 않습니다"
     },
     "payouts": {
-      "title": "지급",
-      "subtitle": "Bookie가 청구하는 월 비용을 요금제 목록에서 보여 줍니다.",
-      "plan": "요금제",
-      "cost": "월 비용"
+      "title": "결제",
+      "subtitle": "이용 중인 요금제, 켜 둔 기능, Bookie에 이미 낸 결제입니다.",
+      "activePlan": "이용 중인 요금제",
+      "activeFeature": "사용 중",
+      "history": "결제 내역",
+      "emptyTitle": "아직 결제가 없습니다",
+      "emptyBody": "요금제나 기능을 위해 Bookie에 낸 결제가 여기에 표시됩니다.",
+      "date": "날짜",
+      "payment": "결제",
+      "amount": "금액",
+      "status": "상태",
+      "paid": "결제됨",
+      "billed": "청구됨",
+      "unknownPayment": "Bookie 결제"
     },
     "plan": {
       "title": "요금제",
@@ -1541,7 +1551,6 @@
     "subtitle": "무료로 시작하고 일정이 채워지면 업그레이드하세요. 고객은 예약에 비용을 내지 않습니다.",
     "startFree": "무료로 시작",
     "requestPlan": "이 요금제 신청",
-    "clientsFree": "고객은 Bookie로 예약할 때 어떤 비용도 내지 않습니다.",
     "manualNote": "현재 유료 요금제는 저희 팀이 직접 설정합니다. 신청하시면 이메일로 연락드려 설정해 드립니다.",
     "getStarted": "시작하기",
     "choosePlan": "{plan} 선택",

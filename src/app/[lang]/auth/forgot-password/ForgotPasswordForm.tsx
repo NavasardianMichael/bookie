@@ -5,6 +5,7 @@ import { Form } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { forgotPasswordAPI } from '@api/auth/main'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { ROUTES } from '@constants/routes'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -30,6 +31,7 @@ export const ForgotPasswordForm: FC = () => {
   const t = useTranslations('Auth')
   const locale = useLocale()
   const [form] = Form.useForm<ForgotPasswordFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<unknown>(null)
@@ -41,6 +43,7 @@ export const ForgotPasswordForm: FC = () => {
     setError(null)
     try {
       await forgotPasswordAPI({ email: values.email, locale })
+      unsaved.release()
       setSubmitted(true)
     } catch (err) {
       setError(err)
@@ -84,7 +87,10 @@ export const ForgotPasswordForm: FC = () => {
         layout='vertical'
         requiredMark={false}
         onFinish={handleFinish}
-        onValuesChange={() => setError(null)}
+        onValuesChange={() => {
+          unsaved.mark()
+          setError(null)
+        }}
         className='flex w-full flex-col gap-4'
       >
         <RegistrationField

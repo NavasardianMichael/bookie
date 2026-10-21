@@ -69,6 +69,93 @@ export const itemForPriceId = (priceId: string | undefined, catalogue: PaddleCat
   return addon ? { kind: 'addon', addon } : null
 }
 
+/** A charge that actually went through. Drafts and unfinished checkouts are not history. */
+const SETTLED_TRANSACTION_STATUSES = ['completed', 'paid', 'billed'] as const
+
+export type ProviderPaymentStatus = 'paid' | 'billed'
+
+/** One payment this provider made to Bookie, newest first. */
+export type ProviderPayment = {
+  id: string
+  paidAt: string
+  status: ProviderPaymentStatus
+  currency: string
+  /** Major units of `currency` — dollars, not cents. */
+  total: number
+  plan?: PaidPlan
+  addons: AddonLine[]
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const asText = (value: unknown): string | undefined => (typeof value === 'string' && value ? value : undefined)
+
+/** Paddle reports totals in minor units. JPY has none; most currencies have two. */
+const minorToMajor = (minor: string, currency: string): number | null => {
+  const amount = Number(minor)
+  if (!Number.isFinite(amount)) return null
+  let digits = 2
+  try {
+    digits = new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits ?? 2
+  } catch {
+    digits = 2
+  }
+  return amount / 10 ** digits
+}
+
+/**
+ * Paddle's transaction list → the payments the Payouts page shows. Unknown prices are
+ * dropped from the line (the charge itself stays). Unreadable rows are skipped.
+ */
+export const toPaymentHistory = (raw: unknown, catalogue: PaddleCatalogue): ProviderPayment[] => {
+  if (!Array.isArray(raw)) return []
+
+  const payments: ProviderPayment[] = []
+  for (const row of raw) {
+    if (!isRecord(row)) continue
+    const statusRaw = asText(row.status)
+    if (!statusRaw || !SETTLED_TRANSACTION_STATUSES.includes(statusRaw as (typeof SETTLED_TRANSACTION_STATUSES)[number])) {
+      continue
+    }
+    const id = asText(row.id)
+    const paidAt = asText(row.billed_at) ?? asText(row.created_at)
+    const currency = asText(row.currency_code)
+    const details = isRecord(row.details) ? row.details : undefined
+    const totals = details && isRecord(details.totals) ? details.totals : undefined
+    const minor = totals ? (asText(totals.grand_total) ?? asText(totals.total)) : undefined
+    if (!id || !paidAt || !currency || !minor || Number.isNaN(Date.parse(paidAt))) continue
+    const total = minorToMajor(minor, currency)
+    if (total === null) continue
+
+    let plan: PaidPlan | undefined
+    const addons: AddonLine[] = []
+    if (Array.isArray(row.items)) {
+      for (const line of row.items) {
+        if (!isRecord(line)) continue
+        const price = isRecord(line.price) ? line.price : undefined
+        const sold = itemForPriceId(asText(price?.id), catalogue)
+        const quantity = typeof line.quantity === 'number' && line.quantity > 0 ? line.quantity : 1
+        if (!sold) continue
+        if (sold.kind === 'plan') plan = sold.plan
+        else addons.push({ addon: sold.addon, quantity })
+      }
+    }
+
+    payments.push({
+      id,
+      paidAt: new Date(paidAt).toISOString(),
+      status: statusRaw === 'billed' ? 'billed' : 'paid',
+      currency,
+      total,
+      ...(plan ? { plan } : {}),
+      addons,
+    })
+  }
+
+  return payments.sort((left, right) => right.paidAt.localeCompare(left.paidAt))
+}
+
 const BILLING_STATUSES = ['active', 'trialing', 'past_due', 'paused', 'canceled'] as const satisfies readonly BillingStatus[]
 
 const isBillingStatus = (value: unknown): value is BillingStatus => BILLING_STATUSES.includes(value as BillingStatus)

@@ -6,6 +6,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useFormatter, useTranslations } from 'next-intl'
 import { patchAdminProviderAddonsAPI } from '@api/plans/main'
 import { useErrorToast } from '@hooks/useErrorToast'
+import { useUnsavedChangesGuard } from '@hooks/useUnsavedChangesGuard'
 import { Addon, AddonCatalogueEntry, AddonLine, AdminProvider } from '@interfaces/plans'
 import { ADDON_SOURCES } from '@constants/plans'
 import { toPlanExpiryISO, toPlanLastDayValue } from '@helpers/plans'
@@ -53,6 +54,7 @@ export const AdminProviderAddonsEditor: FC<Props> = ({ provider, addons, onSaved
   const expiresAt = lines.length && lastDay ? toPlanExpiryISO(lastDay) : null
   const dirty =
     addons.some(({ id }) => (quantities[id] ?? 0) !== savedQuantity(id)) || expiresAt !== (lines.length ? savedExpiry : null)
+  useUnsavedChangesGuard(dirty)
 
   const setQuantity = (addon: Addon, quantity: number): void =>
     setQuantities((current) => ({ ...current, [addon]: quantity }))

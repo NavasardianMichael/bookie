@@ -4,6 +4,7 @@ import { FC } from 'react'
 import { Form } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
@@ -39,6 +40,7 @@ export const ReviewTextForm: FC<Props> = ({
 }) => {
   const tCommon = useTranslations('Common')
   const [form] = Form.useForm<ReviewTextFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const rules = useFormItemRules('required', 'maxCharsForTextarea')
 
   return (
@@ -47,6 +49,7 @@ export const ReviewTextForm: FC<Props> = ({
       initialValues={initialValues}
       layout='vertical'
       onFinish={onSubmit}
+      onValuesChange={unsaved.mark}
       scrollToFirstError
       disabled={isSubmitting}
       className='flex w-full flex-col gap-6'

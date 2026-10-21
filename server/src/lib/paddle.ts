@@ -15,6 +15,7 @@ import { config } from '../config.js'
  * |---|---|---|
  * | `createCheckoutTransaction` | `POST /transactions` | `transaction.write` |
  * | `getTransactionProviderId` | `GET /transactions/{id}` | `transaction.read` |
+ * | `listCustomerTransactions` | `GET /transactions?customer_id=` | `transaction.read` |
  * | `previewPrices` | `POST /pricing-preview` | `transaction.read` |
  * | `getSubscriptionItems` | `GET /subscriptions/{id}` | `subscription.read` |
  * | `updateSubscriptionItems` | `PATCH /subscriptions/{id}` | `subscription.write` |
@@ -119,6 +120,21 @@ export const getTransactionProviderId = async (transactionId: string): Promise<s
   )
   const id = data.custom_data?.provider_id
   return typeof id === 'string' && id ? id : undefined
+}
+
+/**
+ * Charges that settled for this customer, newest first, one page. The caller parses them
+ * with `services/billing.ts#toPaymentHistory`. Drafts stay out: an abandoned checkout is
+ * not a payment.
+ */
+export const listCustomerTransactions = async (customerId: string): Promise<unknown> => {
+  const query = [
+    `customer_id=${encodeURIComponent(customerId)}`,
+    'status=completed,paid,billed',
+    'order_by=billed_at[DESC]',
+    'per_page=50',
+  ].join('&')
+  return request<unknown>('GET', `/transactions?${query}`, 'transactions')
 }
 
 /**

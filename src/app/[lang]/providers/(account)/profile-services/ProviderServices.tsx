@@ -27,7 +27,13 @@ import { ProviderServiceCard } from './ProviderServiceCard'
 /** The service form (and its cropper) load when Add or Edit opens the sheet. */
 const ProviderServiceForm = dynamic(
   () => import('@components/providerServiceForm/ProviderServiceForm').then((mod) => mod.ProviderServiceForm),
-  { loading: () => <Spin /> }
+  {
+    loading: () => (
+      <div className='flex justify-center py-10'>
+        <Spin />
+      </div>
+    ),
+  }
 )
 
 type Props = {

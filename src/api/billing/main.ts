@@ -3,12 +3,20 @@ import { APIResponse } from '@interfaces/api'
 import { ENDPOINTS } from './endpoints'
 import {
   processAddonResponse,
+  processBillingPaymentsResponse,
   processBillingPortalResponse,
   processChangePlanResponse,
   processCheckoutResponse,
   processPlanPricesResponse,
 } from './processors'
-import { GetPlanPricesAPI, PostAddonAPI, PostBillingPortalAPI, PostChangePlanAPI, PostCheckoutAPI } from './types'
+import {
+  GetBillingPaymentsAPI,
+  GetPlanPricesAPI,
+  PostAddonAPI,
+  PostBillingPortalAPI,
+  PostChangePlanAPI,
+  PostCheckoutAPI,
+} from './types'
 
 export const getPlanPricesAPI: GetPlanPricesAPI['api'] = async () => {
   const { data } = await axiosInstance.get<APIResponse<GetPlanPricesAPI['response']>>(ENDPOINTS.getPrices)
@@ -33,4 +41,9 @@ export const postAddonAPI: PostAddonAPI['api'] = async (payload) => {
 export const postBillingPortalAPI: PostBillingPortalAPI['api'] = async () => {
   const { data } = await axiosInstance.post<APIResponse<PostBillingPortalAPI['response']>>(ENDPOINTS.postPortal)
   return processBillingPortalResponse(data)
+}
+
+export const getBillingPaymentsAPI: GetBillingPaymentsAPI['api'] = async () => {
+  const { data } = await axiosInstance.get<APIResponse<GetBillingPaymentsAPI['response']>>(ENDPOINTS.getPayments)
+  return processBillingPaymentsResponse(data)
 }

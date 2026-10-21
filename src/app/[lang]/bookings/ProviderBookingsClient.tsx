@@ -43,7 +43,8 @@ export const ProviderBookingsClient: FC<Props> = ({ side, importRevision = 0 }) 
 
   const [month, setMonth] = useState<Dayjs>(() => dayjs().startOf('month'))
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null)
-  const [period, setPeriod] = useState<BookingPeriod | null>(null)
+  // Upcoming, not the whole history: the list should open on what is still ahead.
+  const [period, setPeriod] = useState<BookingPeriod | null>('upcoming')
   const [countsByDay, setCountsByDay] = useState<Record<string, DayBookingCount>>({})
   const [revision, setRevision] = useState(0)
   /** The calendar's own Retry — separate from `revision`, which reloads the list too. */
@@ -113,7 +114,7 @@ export const ProviderBookingsClient: FC<Props> = ({ side, importRevision = 0 }) 
 
   const handleClearDay = useCallback(() => {
     setSelectedDayKey(null)
-    setPeriod(null)
+    setPeriod('upcoming')
   }, [])
 
   const handleStatusWritten = useCallback(() => {

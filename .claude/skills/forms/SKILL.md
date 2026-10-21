@@ -238,6 +238,20 @@ is a `File` between the crop and the save and the stored `/uploads/...` path aft
   with no item is dropped by `validateFields()`, so Save draft sends no file and the
   live portrait comes back.
 
+## Leaving with unsaved edits
+
+Editing a field and then leaving the page — another link, the header, Back, refresh, or
+closing the tab — asks with the **browser's** leave dialog. Cancelling stays on the page.
+
+Settings tabs already know they are dirty (`SettingsActionBar`). That flag is what arms
+the dialog, including a dirty state that did not come from typing (Detach, the suggested
+time zone). Other forms call `useFormUnsavedGuard` and pass `mark` to `onValuesChange`.
+`setFieldsValue` / `setFieldValue` do not fire `onValuesChange`, so a prefill does not
+count as an edit.
+
+A navigation that *is* the successful submit (`push` after register or sign-in) calls
+`release()` first. Otherwise the dialog would ask after the save had already landed.
+
 ## Out of scope
 
 `OTPCodeInput.tsx` uses neither system: plain `useState`, and its `Form.Item` is nameless

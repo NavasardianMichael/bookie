@@ -9,6 +9,7 @@ import {
   createCheckoutTransaction,
   createPortalSession,
   getSubscriptionItems,
+  listCustomerTransactions,
   PaddleError,
   previewPrices,
   updateSubscriptionItems,
@@ -34,6 +35,7 @@ import {
   planOfLines,
   planPriceId,
   type SubscriptionLine,
+  toPaymentHistory,
 } from '../services/billing.js'
 import { applySubscriptionEvent } from '../services/billingSync.js'
 import {
@@ -61,7 +63,8 @@ import {
  *    `GET /provider-profile/plan` until a subscription is live.
  * 3. Afterwards: `POST /billing/change-plan` and `POST /billing/addon` change the items,
  *    charged now, prorated; `POST /billing/portal` opens Paddle's customer portal to cancel,
- *    change the card or download invoices.
+ *    change the card or download invoices. `GET /billing/payments` lists the charges that
+ *    already settled — it only reads Paddle, and writes nothing.
  *
  * A change reads the subscription's items **from Paddle** and writes the whole list back
  * (Paddle removes whatever is left out), under a per-provider lock so two quick clicks cannot
@@ -170,6 +173,27 @@ const isPublicIp = (ip: string | undefined): ip is string => {
   if (v4 === '::1' || v4.startsWith('fc') || v4.startsWith('fd') || v4.startsWith('fe80')) return false
   return !/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.)/.test(v4)
 }
+
+/**
+ * Payments this provider has already made to Bookie. Empty when they have never checked
+ * out, or when Paddle is not configured — the Payouts page still shows the plan they hold,
+ * which an admin may have assigned. The newest 50 settled charges; drafts are not payments.
+ */
+billingRouter.get(
+  '/payments',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const provider = await loadBilling(req.session!.profileId)
+    if (!isPaddleConfigured() || !provider.paddleCustomerId) return ok(res, [])
+
+    try {
+      const transactions = await listCustomerTransactions(provider.paddleCustomerId)
+      return ok(res, toPaymentHistory(transactions, catalogue()))
+    } catch (error) {
+      upstream(error)
+    }
+  })
+)
 
 /**
  * Every paid plan's and every add-on's monthly price as Paddle would charge this visitor —

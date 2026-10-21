@@ -79,6 +79,7 @@ generic messages append the original error's message. The table is in `server/CL
 | Method | Path | Auth |
 | --- | --- | --- |
 | GET | `/health` | public |
+| GET | `/directory` | public — `{ providers, categories, organizations }`, each a boolean: whether that table has any row. The header hides a link whose value is `false`. Any row counts, including an unlisted provider |
 | POST | `/identity/register` | public — email + password + role; **does not sign in**, mails a verification link |
 | POST | `/identity/login` | public (sets httpOnly cookie) |
 | POST | `/identity/verify-email` | public — `{ token }`; copies `pendingEmail` onto `email` |
@@ -120,6 +121,7 @@ generic messages append the original error's message. The table is in `server/CL
 | POST | `/billing/change-plan` | provider — `{ plan }` (`free` allowed while add-ons remain) → `202`; prorated now, the add-ons the new plan includes are dropped, the webhook applies it. `409` / `4303` without a live subscription, `4305` if nothing would be left, `4306` when Paddle will not change it right now |
 | POST | `/billing/addon` | provider — `{ addon, quantity }` (0 removes) → `202`; prorated now. `409` / `4303` without a live subscription (check out instead), `4304` included in the plan, `4305` if nothing would be left, `4306` not right now |
 | POST | `/billing/portal` | provider — `{ url }` into Paddle's customer portal (temporary; never cache) |
+| GET | `/billing/payments` | provider — settled Paddle charges for this provider's customer, newest first, at most 50: `[{ id, paidAt, status: 'paid' \| 'billed', currency, total, plan?, addons: [{ addon, quantity }] }]`. `total` is major units. `[]` when they never checked out or Paddle is unconfigured. `502` when Paddle does not answer |
 | POST | `/billing/webhook` | Paddle only — raw body, `Paddle-Signature` HMAC; mounted ahead of the JSON parser and `requireSameOrigin`. See [BILLING.md](BILLING.md) |
 | GET | `/telegram/status` | session — `{ available, linked, username? }` |
 | POST/DELETE | `/telegram/link` | session — POST answers a one-time `t.me/<bot>?start=<token>` link (15 min); DELETE unlinks |

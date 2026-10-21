@@ -9,4 +9,6 @@ export const ENDPOINTS = {
   postAddon: '/billing/addon',
   /** A fresh link into Paddle's customer portal. */
   postPortal: '/billing/portal',
+  /** Charges this provider has already paid to Bookie. */
+  getPayments: '/billing/payments',
 } as const

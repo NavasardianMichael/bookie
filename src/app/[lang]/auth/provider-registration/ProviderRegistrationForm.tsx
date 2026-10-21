@@ -5,6 +5,7 @@ import { Alert, Divider, Form } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { useFormItemRules } from '@hooks/useFormItemRules'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { CategoryValue, NewOrganizationFormValues, OrganizationValue } from '@interfaces/auth'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
@@ -75,6 +76,7 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
   const locale = useLocale()
   const { push, replace } = useRouter()
   const [form] = Form.useForm<ProviderRegistrationFormValues>()
+  const unsaved = useFormUnsavedGuard()
   const register = useAuthStore.use.register()
   const completeGoogle = useAuthStore.use.completeGoogle()
   const isPending = useAuthStore.use.isPending()
@@ -108,6 +110,7 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
       try {
         const session = await completeGoogle({ role: USER_TYPES.provider, phone, profile })
         // `replace`: the identity this form finished is spent, so back has nothing to return to.
+        unsaved.release()
         replace(newAccountLandingPath(session.role))
       } catch (error) {
         setSubmitError(error)
@@ -124,6 +127,7 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
         profile,
         locale,
       })
+      unsaved.release()
       push(ROUTES.verifyEmail)
     } catch (error) {
       setSubmitError(error)
@@ -158,7 +162,10 @@ export const ProviderRegistrationForm: React.FC<Props> = ({ viaGoogle = false })
           pending ? { ...INITIAL_VALUES, fullName: pending.fullName, email: pending.email } : INITIAL_VALUES
         }
         onFinish={handleFinish}
-        onValuesChange={() => setSubmitError(null)}
+        onValuesChange={() => {
+          unsaved.mark()
+          setSubmitError(null)
+        }}
         scrollToFirstError
         className='flex w-full flex-col gap-4'
       >

@@ -3,6 +3,7 @@
 import { FC } from 'react'
 import { Form, Rate } from 'antd'
 import { useTranslations } from 'next-intl'
+import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
@@ -34,6 +35,7 @@ export const ReviewForm: FC<Props> = ({ initialValues, isSubmitting, submitLabel
   const t = useTranslations('Provider.reviews')
   const tCommon = useTranslations('Common')
   const [form] = Form.useForm<ReviewFormValues>()
+  const unsaved = useFormUnsavedGuard()
 
   return (
     <Form
@@ -41,6 +43,7 @@ export const ReviewForm: FC<Props> = ({ initialValues, isSubmitting, submitLabel
       initialValues={initialValues ?? { rating: 0 }}
       layout='vertical'
       onFinish={onSubmit}
+      onValuesChange={unsaved.mark}
       scrollToFirstError
       disabled={isSubmitting}
       className='flex w-full flex-col gap-6'
