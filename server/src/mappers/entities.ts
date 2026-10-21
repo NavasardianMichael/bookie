@@ -415,7 +415,7 @@ export function mapConsumer(consumer: {
       },
       // Non-optional: a Consumer always has a User, and a User always has an identity
       // email. A consumer's client reads `basic.email` where a provider's reads
-      // `details.email` — see `src/app/CLAUDE.md`. `emailVerifiedAt` is deliberately not
+      // `details.email`. `emailVerifiedAt` is deliberately not
       // here: both roles read it from `details`, so it has one home per payload.
       email: consumer.user.email,
     },

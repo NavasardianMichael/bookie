@@ -84,8 +84,4 @@ export const getCategoryAPI: GetCategoryAPI['api'] = async (args) => fetchCatego
 The private fetcher takes a **primitive**, deliberately — `cache` keys on argument
 identity, so an object argument would never hit.
 
-## Known non-canonical code — do not copy
-
-- **`src/constants/api.ts`** is a byte-identical duplicate of `paramsToQueryString` from
-  `src/helpers/api.ts`. Delete it rather than extend — the `src/helpers/api.ts` copy is the
-  live one (`api/organizations/main.ts` builds the `?q=` search with it).
+Query strings are built with `paramsToQueryString` (`src/helpers/api.ts`).

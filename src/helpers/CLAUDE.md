@@ -82,6 +82,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
 | Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
+| Is this URL the page already on screen (query and hash ignored) | `isSamePageUrl` | `unsavedChanges.ts` |
 | Which settings tree a path is in / where the workspace switch sends it | `workspaceOf`, `counterpartPath` | `workspace.ts` |
 | Where an account lands once it gains a role (sign-up, becoming a provider) | `newAccountLandingPath` | `workspace.ts` |
 | Normalize / flatten `{ allIds, byId }` | `flatToNormalized`, `normalizedToFlat` | `commons.ts` |
@@ -151,31 +152,22 @@ Everything here is pure and framework-free unless the last column says otherwise
   on the host you are actually on.
 - `errorMiddleware` (`store.ts`) is auth-only and does **not** catch rejections thrown
   inside async store actions.
-- **`password.ts` mirrors `server/src/lib/password.ts#validatePassword` and must stay in
-  step.** It returns a failure *reason* rather than a message, so the copy lives in the
-  locale catalogues and `usePasswordRules` (`src/hooks/`) maps it. The server module cannot
-  be imported from `tests/` — `@node-rs/argon2`'s `Algorithm` is an ambient const enum that
-  `isolatedModules` refuses — so the cases in `tests/unit/helpers/password.spec.ts` mirror
-  it rather than call it. **A partial mirror is worse than none:** the auth screens first
-  checked only length, so a password the server rejected passed client validation and failed
-  on submit with a message the form had never shown.
+- **`password.ts` mirrors `server/src/lib/password.ts#validatePassword` rule for rule** — a
+  partial mirror is worse than none. It returns a failure *reason*, mapped to copy by
+  `usePasswordRules` (`src/hooks/`). The server module cannot be imported from `tests/`
+  (`@node-rs/argon2`'s const enum vs `isolatedModules`), so
+  `tests/unit/helpers/password.spec.ts` mirrors its cases.
 - **`pwa.ts` builds a network-only service worker.** Failed navigations get an inlined
   offline document; HTML pages and the API are never cached. A stale slot list is worse
   than an offline screen. Do not add a cache-first or stale-while-revalidate strategy
   there without a specific, non-booking asset in mind.
-- **`payment.ts` is the only sanctioned reader of a `paymentInfo` column.** That column is
-  opaque `Json?`, so several shapes reach the client: the current `{ methods, payToNumber?,
-  notes? }`, leftover `{ cardNumber, accountNumber }` from the two-field shape, a leftover
-  `{ reference }` from the original single-field shape, the pre-migration `{ method }` that
-  a stale `Provider.draft` overlay can still carry, and `null`. `toPaymentMethods`
-  normalises the method set and drops values outside the enum, which matters because the
-  labels are looked up as `t()` keys — an unknown value would throw rather than degrade.
-  `toPaymentShare` reads the copyable pay-to number, joining leftover split fields and
-  treating `reference` as that number. It is public only when `bank_transfer` is selected
-  (`acceptsBankTransfer`). `needsPublicShareConfirm` is true only when that number will go
-  public *and* differs from the saved value (including newly ticking bank transfer with a
-  number already filled), which is what gates the save dialog. `server/src/lib/payment.ts`
-  is the methods twin; `server/` is a separate package with no import path into `src/`.
+- **`payment.ts` is the only sanctioned reader of a `paymentInfo` column.** It is opaque
+  `Json?` and several legacy shapes still reach the client (`{ methods, payToNumber?, notes? }`,
+  `{ cardNumber, accountNumber }`, `{ reference }`, a draft's `{ method }`, `null`).
+  `toPaymentMethods` drops values outside the enum — the labels are `t()` keys, so an unknown
+  value would throw. The pay-to number is public only with `bank_transfer`
+  (`acceptsBankTransfer`); `needsPublicShareConfirm` gates the save dialog. Twin:
+  `server/src/lib/payment.ts`.
 
 ## Impure — treat differently
 
@@ -184,19 +176,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | `commons.ts#sleep` | Timer |
 | `api.ts#getMockAsFakeAPI` | Unused one-line `Promise.resolve` |
 | `reportError.ts#reportError` | `console.error` — the one seam where a failure is *recorded*. Every deliberately silent catch goes through it, and a monitoring client belongs here and nowhere else |
-
-## Dead code — do not extend
-
-**Currently: none.** The three long-standing entries here were cleared on 2026-09-11 —
-`src/constants/api.ts` (a byte-identical duplicate of `api.ts#paramsToQueryString`, which
-now has real callers in `api/organizations/main.ts` and `api/appointments/main.ts`),
-`urlSearchParams.ts`, and `booking.ts#getVisibleTimeRange` / `#groupSlotsByPartOfDay`.
-
-The last two went with FullCalendar itself. They existed for the booking view the public
-profile used to run — the first fed `slotMinTime`/`slotMaxTime`, the second sectioned the
-slot sheet — and were kept on the theory that the unbuilt `provider_calendar_dashboard`
-would want them back. That dashboard shipped in 2026-09-09 as a month grid over a list and
-needed neither, so the theory expired and they went.
+| `unsavedChangesGuard.ts` | The leave-page dialog: `beforeunload`, link clicks, Back, and `router.push` / `replace`. Readers come from `useUnsavedChangesGuard` (`src/hooks/`). `isSamePageUrl` in `unsavedChanges.ts` is the pure half |
 
 ## Nearby, easily missed
 

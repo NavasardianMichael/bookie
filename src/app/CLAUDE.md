@@ -3,621 +3,113 @@
 Use the `/route` command to scaffold a new one, and the `design-system` skill for what to
 put in it.
 
+**Before changing a feature, read its design record** — the decisions there are deliberate
+and easy to "fix" back by accident:
+
+| Changing | Read |
+|---|---|
+| Explore (`/providers`): URL state, search suggestions, Suspense, matched service | `docs/routes/explore.md` |
+| Public provider page, booking panels, time-zone controls, `/p/[slug]` | `docs/routes/provider-page.md` |
+| `/bookings`, `/favorites`, the heart | `docs/routes/bookings-and-favorites.md` |
+| A settings tab, the workspace switch | `docs/routes/account-settings.md` |
+| Registration, sign-in, Google, become-provider | `docs/routes/auth.md` |
+| Plans, `/pricing`, the Plan tab, checkout | `docs/BILLING.md` |
+
 ## Every route is under `[lang]`
 
 The root layout is `src/app/[lang]/layout.tsx`, so the paths below are all really
-`/[lang]/…` — `/en/providers`, `/es/providers`, one URL per language. Only these stay at
-the app root, because they are locale-agnostic documents or must sit beside the root
-layout: `global-error.tsx`, `not-found.tsx`, `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`,
-`opengraph-image.tsx`, `manifest.ts`, `sw.js/route.ts`, `sitemap.ts`, `robots.ts`, `favicon.ico`.
+`/[lang]/…`. Only these stay at the app root, because they are locale-agnostic or must sit
+beside the root layout: `global-error.tsx`, `not-found.tsx`, `icon.tsx`,
+`icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx`, `manifest.ts`,
+`sw.js/route.ts`, `sitemap.ts`, `robots.ts`, `favicon.ico`.
 
-**Write paths without the locale.** `ROUTES` is locale-free and `AppLink` adds the prefix;
-`localePath()` (`@i18n/pathname`) does it for raw URL strings. A page's `alternates` come
-from `localizedAlternates()` (`@i18n/metadata`), which also emits the 16 `hreflang` links —
-so metadata must be `generateMetadata`, not a static `metadata` object, on any indexable
-route. See `src/i18n/CLAUDE.md`.
+**Write paths without the locale.** `ROUTES` (`src/constants/routes.ts`, the only home of a
+path string) is locale-free and `AppLink` adds the prefix; `localePath()` (`@i18n/pathname`)
+does it for raw URL strings. A page's `alternates` come from `localizedAlternates()`
+(`@i18n/metadata`), so metadata must be `generateMetadata`, not a static `metadata` object,
+on any indexable route. See `src/i18n/CLAUDE.md`.
 
-## The map
+## Rendering
 
-`ƒ` = server-rendered on demand, `○` = prerendered static, `●` = prerendered per locale (SSG).
+**Today every `[lang]` route builds as `ƒ`** (re-checked 2026-10-01; cause unknown — see
+`docs/BACKLOG.md` → *Infrastructure*). The intended state prerenders the routes that read no
+`searchParams` once per locale (`/contact`, `/terms`, `/privacy`, `/refund-policy`, most of
+`/auth/*`, `/routes-overview`). That needs both `generateStaticParams` in the root layout
+**and** `i18n/request.ts` reading `lang()` from `next/root-params`, which keeps next-intl
+off `headers()`. Do **not** call `setRequestLocale` — it is deprecated. A page that reads
+`searchParams` can never be static. The route-by-route plan is the rendering roadmap in
+`docs/DEPLOYMENT.md`.
 
-**11 routes under `[lang]` prerender to static HTML, one copy per locale; the rest are
-`ƒ`.** Verified against `next build`: the `prerender-manifest` holds **176** routes — 11
-× 16 locales plus the app-root documents (`icon`, `apple-icon`, `opengraph-image`,
-`manifest`, `sitemap`, `robots`, `favicon`, `_not-found`, `_global-error`).
+## The map (under `/[lang]`)
 
-> **Currently false.** Since at least `c28e276` every `[lang]` route builds as `ƒ` and the
-> manifest holds 11 entries (re-checked 2026-10-01 on a clean `HEAD`). The `●` marks in the
-> table below are the intended state. Cause unknown — see `docs/BACKLOG.md` → *Infrastructure*.
+| Route | What it is |
+|---|---|
+| `/` | Marketing landing. Sign-up actions are guest-only, from a server-side session read (below) |
+| `/providers` | Explore — search with suggestions, category rail, filter + sort, paged. State is the query string |
+| `/providers/[providerId]` | Public profile: identity + hours + location, booking as three panels, then reviews |
+| `/providers/profile` (+ tabs), `/providers/profile-services` | Provider workspace shell (route group `providers/(account)`) |
+| `/consumers/profile` (+ tabs) | Consumer account settings |
+| `/p/[slug]` | Vanity link — a **Route Handler** that 307s to `/providers/<slug>` |
+| `/b/[token]` | Public booking manage page (view / cancel / reschedule) by capability token. A page, not a redirect |
+| `/organizations`, `/organizations/[id]`, `/categories`, `/categories/[id]` | Lists and details |
+| `/bookings` | Every appointment on the account, either side. Signed-in header destination, `noindex`, proxy-guarded |
+| `/favorites` | Providers saved with the heart. Server Component grid, `noindex`, proxy-guarded |
+| `/contact` | Contact form, `POST /contact` (below) |
+| `/pricing` | Plan comparison + add-ons over `GET /plans`, `/plans/addons`, server-rendered; a signed-in provider's plan, every cheaper one and every add-on it includes render disabled. Paddle islands. Indexed — `docs/BILLING.md` |
+| `/terms`, `/privacy`, `/refund-policy` | One `LegalDocument` each over `Legal.<doc>.sections.*`; required by Paddle's review |
+| `/billing/checkout` | Where Paddle sends a checkout (`?_ptxn=`); **public**, `noindex` |
+| `/billing/return` | Waits (`useAwaitPlan`) until a subscription is live. Proxy-guarded, `noindex` |
+| `/auth/*` | The sign-on funnel — `docs/routes/auth.md` |
+| `/admin/reviews`, `/admin/providers` | Moderation and plan assignment. `noindex`, not in sitemap or `/routes-overview`. No client guard: the API answers 404 to non-admins, which the page reads as an empty list |
+| `/routes-overview` | Dev aid; `notFound()` in production |
 
-Two things are required together, and `generateStaticParams` alone is not enough:
-`generateStaticParams` in the root layout, **and `i18n/request.ts` reading `lang()` from
-`next/root-params`**. That is what keeps next-intl off `headers()`, a dynamic API that
-would force every route back to `ƒ`. Do **not** call `setRequestLocale` — it is
-deprecated; the locale already comes from the `[lang]` root param.
+**Retired URLs are one-line Route Handlers**: `export const GET = localeRedirect(ROUTES.x)`
+(`@i18n/routeRedirect`). The old booking tabs (`/providers/profile/bookings`,
+`…/consumer-bookings`, `…/history`, `/consumers/profile/appointments`) 307 to `/bookings`.
 
-A page that reads `searchParams` can never be static, which is why `/auth/sign-in`,
-`/auth/reset-password`, `/auth/verify-email`, both registration pages and
-`/auth/account-type-selection` (which read the Google sign-up flag, `?google=1`) stay `ƒ`
-while the rest of the funnel does not. The route-by-route plan for the remaining dynamic routes is the rendering roadmap in
-[docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
+### Provider settings tabs
 
-| Route (under `/[lang]`) | | State |
+| Tab | Route | Reads / writes |
 |---|---|---|
-| `/` | ƒ | Real — marketing landing (hero, feature lists for clients and for providers, category rail, providers, CTA). The hero's sign-up buttons are guest-only, from a server-side session read; a signed-in visitor, on either side, gets one *Explore providers* link in their place. Signed-in visitors are never redirected away from `/`, so the logo always lands here. See [The landing page](#the-landing-page--) |
-| `/providers` | ƒ | Real — explore: search with a provider-suggestions dropdown (Enter / Search submits), category chip rail, filter + sort, paged |
-| `/providers/[providerId]` | ƒ | Real — 2-col: identity + hours + location; booking as three stacked panels, then reviews. `?reviewPage=` pages the review list; the pager's hrefs carry `#reviews` so paging does not throw the reader back to the top. `?service=<id>` (from an Explore card) starts booking with that service selected |
-| `/providers/profile` (+ nested tabs) | ƒ | Real — provider workspace shell: settings, plus Approvals / Analytics / SEO / Plan |
-| `/providers/profile-services` | ƒ | Real — service CRUD (same account shell) |
-| `/p/[slug]` | ƒ | Real — vanity link. A **Route Handler**, not a page; 307s to `/providers/<slug>` |
-| `/b/[token]` | ƒ | Real — public booking manage page (view / cancel / reschedule). Capability token, not the appointment id. **A page**, not a 307. Reschedule PATCHes the same row and keeps this URL; "Back to booking" is an in-page control above the title, not a route. |
-| `/organizations` | ƒ | Real — list |
-| `/organizations/[organizationId]` | ƒ | Real — detail |
-| `/categories` | ƒ | Real — list |
-| `/categories/[categoryId]` | ƒ | Real — providers in a category |
-| `/consumers/profile` (+ nested tabs) | ƒ | Real — consumer account settings (private) |
-| `/bookings` | ƒ | Real — every appointment on the account, whichever side the session holds. Header destination when signed in, `noindex`, proxy-guarded. See [Bookings](#bookings--bookings) |
-| `/favorites` | ƒ | Real — providers the account saved with the heart on a provider card. A Server Component grid of `ProviderCard`s over `GET /favorites`, cookie forwarded; a revoked cookie's 401 redirects to sign-in. Header destination when signed in, `noindex`, proxy-guarded |
-| `/contact` | ● | Real — contact form; prefilled from the session, `POST /contact` |
-| `/pricing` | ƒ | Real — titled Pricing. The plan comparison table over `GET /plans` with each plan's USD price, then the add-ons sold on their own (`AddonCatalogue` over `GET /plans/addons`), *Included in every plan* and the billing FAQ, all server-rendered. In the header. Islands: the per-column and per-add-on actions (guest → provider registration; provider → a Paddle checkout via `useStartCheckout`, or the request sheet when it is not `purchasable`) and the price cells, which swap in Paddle's localized total (`usePlanPrices`). Indexed and in the sitemap; the footer hides its link from consumer sessions. See `docs/BILLING.md` |
-| `/terms`, `/privacy`, `/refund-policy` | ● | Real — one `LegalDocument` each, over `Legal.<doc>.sections.*` (`src/constants/legal.ts` is the shape). Paddle's live review requires all three, Terms naming Paddle as Merchant of Record; linked from the footer and registration's consent notice |
-| `/billing/checkout` | ƒ | Where Paddle sends a checkout (`?_ptxn=`). Loads Paddle.js, which opens the overlay itself. **Public** — Paddle links here from its own emails too. `noindex`, out of the sitemap and `/routes-overview`. Reads its query in the Server Component |
-| `/billing/return` | ƒ | After `checkout.completed`: waits (`useAwaitPlan`) until a subscription is live — not the exact cart, which Paddle's overlay can change — and names the plan only when it is in force. Proxy-guarded, `noindex` |
-| `/auth/*` | ● ƒ | Real — see the funnel below. `●` except `sign-in`, `reset-password`, `verify-email`, the two registration pages and `account-type-selection`, which read `searchParams` |
-| `/admin/reviews` | ƒ | Real — review moderation queue. `noindex`, absent from the sitemap, and excluded from `/routes-overview`. No client-side guard: the API answers `/admin/*` with **404** to anyone outside `ADMIN_EMAILS`, so a non-admin simply sees the empty state — `AdminReviewsClient` reads that 404 as an empty list, not as an error; any other failure shows with a Retry |
-| `/admin/providers` | ƒ | Real — plan assignment: search providers, set a plan and its last day. Same guard and same 404-as-empty reading as `/admin/reviews`; `AdminNav` links the two |
-| `/routes-overview` | ● | Dev aid; `notFound()` in production |
-
-**Account settings** live under `/consumers/profile` and `/providers/profile` (route group
-`providers/(account)` also wraps `profile-services`). Each sidebar tab is a nested route
-so Next lazy-loads the panel. Provider phone change lives in the Profile tab's Personal
-Information block, not a sidebar item; so does the provider's **organization** — registration's
-`OrganizationSection` (search, link an existing one, add a new one after the similar-name
-question, detach). On this tab the name stays on screen and is optional — Detach shows only
-while an organization is linked — and either Save draft or Publish writes it **live** through
-`PATCH /provider-profile/organization`, like the phone; and so do its
-**categories** — the shared `CategoriesSection` (search, pick, add new, remove; up to 3), saved
-live through `PUT /provider-profile/categories`; listing controls (copy URL, share profile, publish/unpublish)
-live on that tab's hero, not a Listing sidebar item. **Delete account**
-sits at the end of both Profile tabs (`DELETE /identity/account`, password reauth) —
-it is not the listing trash icon, which only removes the public page. Consumer phone and
-preferred payment methods live in the Profile tab, not sidebar items — the old
-`/consumers/profile/phone` and `/consumers/profile/payments` routes 307 to Profile.
-**Bookings is not a settings tab on either side any more.** `/providers/profile/bookings`,
-`/providers/profile/consumer-bookings`, `/providers/profile/history` and
-`/consumers/profile/appointments` are Route Handlers that 307 to `/bookings`. Each is one
-line: `export const GET = localeRedirect(ROUTES.bookings)` (`@i18n/routeRedirect`), pinned
-by `tests/unit/app/bookingsRedirects.spec.ts`.
-Visual language follows the prototypes; deviations match
-registration: keep the global Header/Footer, no dark mode, no password/2FA/security, no
-autosave (Discard / Save, plus Save draft / Publish for providers). Providers may
-publish their own card or account number on the public page after confirming a
-save dialog that those details will be public;
-the app never collects a *client's* card. Provider `listed` hides Explore + public 404;
-`available` only pauses bookings — the API refuses them and the public page shows the
-closed notice (below). The Header swaps the language switcher + Sign In for an avatar
-when `getMe()` succeeds.
-
-**Two of the provider tabs are not settings.** `Approvals` and `Analytics` are for running
-the business rather than configuring it. They share the shell because a second nav and a
-second shell would be two mental models for one workspace — not because they are settings.
-`PROVIDER_SETTINGS_NAV` keeps Approvals first after Profile (its queue goes stale) and
-puts Analytics at the end. Bookings was the third and moved out to `/bookings` (see
-below). Both sides of an account open it daily, and the settings shell is neither side's
-daily page.
-
-| Tab | Route | Shape |
-|---|---|---|
-| Approvals | `/providers/profile/approvals` | The switch that decides whether submitted bookings wait, over the queue it produces. `PUT /provider-profile` for the setting, `GET /provider-profile/bookings?status=pending` for the list, `PATCH /provider-profile/bookings/:id/decision` for each row |
-| Analytics | `/providers/profile/analytics` | Range presets including All, `StatTile` row, `bare/BarChart` series. `GET /provider-profile/analytics` |
-| Advanced settings | `/providers/profile/advanced` | Time zone (with the device-zone suggestion for a row that has none), 12/24-hour clock, and the visitor clock-choices switch — moved out of Availability, which keeps the weekly hours and *Accepting bookings* and names the zone with a link here. Drafted like Availability: `PUT /provider-profile` with `mode: 'draft'`, then `'publish'`. Sits after Analytics, before Payouts |
-| SEO | `/providers/profile/seo` | Title / description / vanity slug. `PATCH /provider-profile/seo`. The slug field is read-only without the plan's `customSlug`, and the slug is then left out of the save |
-| Plan | `/providers/profile/plan` | Current plan with "Renews on" / "Ends on" (or an admin plan's expiry), *Manage billing* (Paddle's portal), a past-due warning, this month's usage meters, the comparison table with prices. Per column: *Upgrade* (checkout) when not subscribed, *Switch* (prorated, `AppConfirmModal`, then waits for the webhook) when subscribed, *Request upgrade* (the contact form) when the plan is not sold through Paddle; the switch confirm names the add-ons the new plan includes, which are dropped. The Free column offers *Switch to Free* while paid add-ons remain (they stay), else *Cancel subscription*. Below it, the add-ons (`ProviderPlanAddons`): included / active / granted, *Add* or *Remove*, ±1 pack — a checkout when not subscribed, else `POST /billing/addon` behind a confirm, then the same wait. A *better plan* alert when a plan would cost less than the add-ons paid for. `GET /provider-profile/plan` + `GET /plans` + `GET /plans/addons`. Not a sidebar tab — checkout and the allowance emails still land here. The header's Pricing link is the public catalogue |
-| Payouts | `/providers/profile/payouts` | Every plan's monthly cost from `GET /plans` (USD first, then the visitor's currency). Last in the nav, in the slot Plan used to hold |
-| Notifications | `/providers/profile/notifications` (and the consumer side) | The event preferences (`emailNotificationPrefs`, which also govern Telegram), then *Telegram* (`TelegramConnect`) and, providers only, *Calendar sync* (`CalendarFeed`). Both blocks act on their own, outside the form's Save. Telegram for a provider's business and the feed need Basic or up; the blocks say so and link to the Plan tab |
-
-The services page and the Analytics and SEO tabs gate on `personal.entitlements` from the
-owner profile they already load — no extra request. Each control the plan does not allow is
-disabled with a line linking to the Plan tab; the API refuses the same write regardless.
-
-Three decisions in there worth not undoing:
-
-1. **SEO saves live; it does not use the draft overlay** the other public-facing tabs use.
-   The draft model exists so a provider can rework the *visible* page without it going out
-   half-finished, and a title tag has no half-finished state. Running a drafted description
-   beside a live address on one screen would be the confusing part, so the whole tab is one
-   Save. See `docs/DATABASE_STRUCTURE.md`.
-2. **Approvals is its own tab, not a filter on Bookings** — even though it reads the same
-   endpoint with `status=pending`. Bookings is a record to scan, with its verbs behind a
-   kebab; Approvals asks one question per row and puts both answers on the surface, with
-   every detail the decision rests on (phone, email, notes, price, payment intent) rendered
-   rather than hidden. It has no filters, no search and no calendar on purpose: a queue you
-   have to filter is a queue you are not working through. The setting lives on the same
-   screen because a switch is unintelligible away from what it produces — and an empty
-   queue otherwise cannot be told apart from a switch that is off. It stayed in settings
-   when Bookings left, because the setting it sits beside is configuration.
-3. **Analytics is not filtered with Bookings.** Charts stay on Analytics with the range
-   control; the booking list on `/bookings` is not filtered by that range, and the calendar
-   day-filter lives there, not on Analytics.
-
-### Bookings — `/bookings`
-
-One page for the whole account, in the header beside Favorites, and **not** inside either
-settings shell. It replaced the provider workspace's Bookings tab and the consumer
-profile's Appointments tab. `BookingsClient` picks the panel from the session:
-
-| Session | Panel | Reads |
-|---|---|---|
-| consumer | `ConsumerAppointmentsClient` — search, status filter, sort; cancel, edit (manage link), write a review | `GET /appointments` |
-| provider | `ProviderBookingsClient side='provider'` — the month calendar is its own full-width row, with a control in its top center that shows or hides the grid; filters, sort and the booking list sit together below | `GET /provider-profile/bookings` + `/calendar` |
-| provider whose account also holds a Consumer profile | the above, plus a `Segmented` "Booked with me / Booked by me" switch; the second is `side='consumer'` | `GET /provider-profile/consumer-bookings` + `/calendar` |
-
-The page owns the one `PageHeader`; the panels render none. The switch shows only when
-`GET /identity/me` reports `profiles.consumer`, so a provider who has never booked anyone
-is not offered an empty view of a record that does not exist.
-
-Beside the switch, on the provider side only, sits **Add from photo**
-(`@components/bookingImport/PhotoImportButton` — see *Bookings a provider enters* in
-`docs/DATABASE_STRUCTURE.md`). A finished import bumps `BookingsClient`'s `importRevision`,
-which `ProviderBookingsClient` adds into the same `revision` its own status writes bump, so
-the list and the calendar re-read without remounting — the month and the filters survive.
-
-Six decisions worth not undoing:
-
-1. **Filter state is local component state, not the URL** — the opposite of Explore, and
-   deliberately. Explore's grid is a Server Component, so its query has to survive a
-   round-trip regardless and the address bar is free. These panels are client islands that
-   fetch for themselves, so URL state would add a server round-trip to every filter change
-   in exchange for a shareable link to a page only its owner can open. The view switch is
-   local for the same reason.
-2. **The calendar and the period chips write one range.** Selecting a day narrows the list
-   to it; selecting it again clears. A chip (upcoming, this week, next week, last week, …)
-   covers that span instead, and picking one clears the other so they cannot disagree.
-3. **`loading` is derived, never set at the top of an effect.** Each panel memoizes its
-   request into an object that doubles as its identity and compares it against the last
-   fulfilled one. `react-hooks/set-state-in-effect` is an ESLint **error** here — the same
-   rule that shapes `BookingPanel` — and a derived flag cannot drift out of step with the
-   fetch the way two `setLoading` calls on separate paths can.
-4. **A provider's own bookings-as-client go through `side='consumer'`, not
-   `ConsumerAppointmentsClient`.** `GET /appointments` scopes by the session's *role*, and a
-   provider session is answered with the bookings made *with* them. The panel is keyed on
-   `side`, so a switch starts the other view fresh: its service filter lists a different
-   catalogue, and a day picked on one calendar means nothing on the other.
-5. **It is outside the settings shell, so it has no workspace switch.** Its own switch
-   covers the same gesture for bookings, and `workspaceOf` does not claim `/bookings`. The
-   `bookings` ↔ `appointments` pair was dropped from `src/helpers/workspace.ts`, because
-   both ends are redirect stubs now.
-6. **A pending row's kebab is empty**, and links to Approvals instead. Its two verbs send
-   email; `PATCH /appointments/:id` does not, so confirming one from there would put it on
-   the calendar in silence. The API refuses that write for the same reason.
-
-### Favorites — `/favorites` and the heart
-
-`FavoriteButton` (`@components/favorites`) sits in `EntityCard`'s `mediaAction` slot on
-every `ProviderCard`: top-end of the media well, above the stretched link. The card
-stays a Server Component and only the button hydrates.
-
-- **The owner's own card has no heart.** `useFavoriteProvider` compares the card's id with
-  the session's `profileId`. A session resolves provider-first, so that one comparison
-  covers every account that holds a page. `PUT /favorites/:id` answers 403 regardless.
-- **Guests see it too.** Their heart navigates to sign-in instead of toggling, and it
-  carries no `aria-pressed`, because it is not a toggle for them.
-- **Optimistic, and undone on failure.** `useFavoritesListStore.setFavorite` flips first and
-  flips back if the write rejects; the button then raises `useErrorToast`.
-- **The ids load once per session, however many hearts mount.** See `useFavoriteProvider`:
-  the effect reads the store's *live* `isPending` rather than the hook's snapshot, which is
-  what stops a grid of nine hearts firing nine requests. `loadedFor` is the `profileId` the
-  ids belong to, so signing in as someone else in the same tab reloads them.
-- **Un-favouriting on `/favorites` leaves the card in place** until the next visit. A card
-  that vanished under the pointer could not be put back.
-
-### One account, two workspaces
-
-`AccountSettingsLayout` renders a **workspace switch above the panel on every settings
-subpage**, moving between `/providers/profile/*` and `/consumers/profile/*`.
-
-It exists because one `User` can hold both profiles — booking anyone creates the Consumer
-row (`resolveConsumerId` on the API) — while the session carries a single role, resolved
-provider-first at login. The two trees used to be mutually exclusive: the layout bounced
-any role mismatch, so a provider could never open the consumer record their own booking
-had created, and its notification and payment preferences sat on defaults unreachable.
-
-Four things hold it together:
-
-- **It navigates; it does not re-authenticate.** No cookie is reissued and
-  `SessionPayload` is unchanged. `consumerProfileRouter` resolves the row from
-  `session.userId` rather than from the session's role, so a provider reading their own
-  consumer settings is reading their own record — see `server/CLAUDE.md`.
-- **It renders only when the account holds both profiles.** `GET /identity/me` reports
-  `profiles`, because `role` cannot answer the question. Offering the switch to a provider
-  who has never booked would point at a record that does not exist.
-- **The destination comes from a table**, `src/helpers/workspace.ts`, not from rewriting
-  the path. The consumer side has two tabs to the provider side's nine, so "swap the
-  first segment" would invent `/consumers/profile/analytics`. A tab with no counterpart
-  falls back to the other side's home. Pinned by `tests/unit/helpers/workspace.spec.ts`,
-  including that every destination is a declared `ROUTES` entry and never a retired
-  booking tab. Bookings has no pair in the table: it left both trees for `/bookings`.
-- **The layout guard now asks whether the account holds *this* side**, not whether the
-  session's role matches it. A payload without `profiles` falls back to the old, narrower
-  rule rather than letting an unknown through.
-
-**The vanity link is a `route.ts`, not a `page.tsx`** — and that distinction was found the
-hard way. As a page it emitted a *soft* redirect: the root layout streams first, so by the
-time `redirect()` threw, the response had already begun and Next fell back to a client-side
-navigation. HTTP 200, an empty shell, no `Location` header. That renders fine in a browser
-and is worthless to a crawler, which is the one audience a shareable link has. **Any route
-whose whole job is to redirect belongs in a Route Handler**, which returns a real
-`Response` before anything renders.
-
-It takes **no database round-trip**: `GET /providers/:idOrSlug` accepts either form, so
-`/p/<slug>` is a pure URL rewrite to `/providers/<slug>` — one hop, nothing to fail, and an
-unknown slug 404s through the detail page's own `notFound()` with the app's real
-not-found UI instead of a bare handler response. **307, never 308**, for the reason
-`personalizedRedirect` in `src/proxy.ts` already gives: a permanent redirect is cached by
-the browser and would outlive a slug change.
-
-Two URLs reaching one page is not a duplicate, because `generateMetadata` builds its
-canonical from the **resolved entity's id** rather than the route segment. `/providers/<slug>`
-and `/providers/<uuid>` both canonical to the id URL, so only one is ever indexed while the
-memorable form stays in the address bar. Taking the canonical from the segment — which the
-page did before that route accepted slugs — would give one page two canonicals.
-
-`src/proxy.ts` needed **no change** for any of this: `PROTECTED_PREFIXES` holds
-`ROUTES.providerProfile` and the guard is a prefix test, so every nested tab is already
-cookie-guarded. `/bookings` and `/favorites` sit outside every settings prefix, so each has
-its own entry there and in `robots.ts`.
-
-The public provider profile intentionally drops a few prototype pieces: no left-column
-Services list (choosing a service is only the booking picker), no map embed (the address
-links out to Maps), working hours as their own card above Location, service cards
-with wrapping titles and no icons, and no "Book an appointment" column heading — the
-service picker is the start of that flow. Share is an icon in the identity card's
-top-end corner rather than the prototype's full-width Share button.
-
-**The identity column is the segment layout, not the page.** `loading.tsx` wraps the
-page in Suspense, and Next streams the resolved page as `<div hidden>` until an inline
-script reveals it. A document preview and a crawler that does not run that script never
-see what is in there — which is how the name, description, and links disappeared from
-the provider document while the header and footer (rendered in the locale layout,
-outside the boundary) stayed. `[providerId]/layout.tsx` paints the card, the phone
-number as visible text, working hours, and the JSON-LD; `[providerId]/loading.tsx`
-skeletons only the booking column. Two ancestor loading files used to wrap that layout
-too, so they moved into route groups that do not contain this page: `[lang]/(home)/`
-(the home skeleton) and `providers/(explore)/` (the Explore skeleton). The URLs are
-unchanged.
-
-**Header nav on this page is the same bar as the rest of the app.** Explore, Categories
-and Organizations, then Bookings and Favorites once signed in, plus the language switcher
-and Sign In or the avatar. A public provider page shares the `providers` route name with
-Explore, so `getHeaderConfig` does not special-case the extra segment. Config lives in
-`src/constants/header.ts`.
-
-**Bookings and Favorites follow the session, not the route.** `HEADER_ACCOUNT_ROUTES` is
-appended to whatever `navRoutes` a route shows, by `withAccountRoutes`, once the session is
-signed in. A guest never sees them. The mobile drawer gets the same list and drops Sign In
-once signed in. The inline bar does not fit below `xl` (1200px): five destinations,
-the language switcher and the avatar overflow a 788px viewport and scroll the page
-sideways. Below `xl` the drawer is the nav. Icons and the provider's name beside the
-avatar wait until `xxl` — at 1200px they overflow the longer locales, and the avatar
-still names the account control. Hovering that control opens the language picker's
-popup with the same list as that account's settings sidebar.
-
-### Explore's state is the query string
-
-`/providers` keeps search, category, filters, sort and page in the URL, and
-`providers/exploreParams.ts` is the only module that knows their names. The page parses;
-the two client islands patch. Nothing about this list lives in a store.
-
-```
-/providers?q=hair&category=<id>&available=true&openToday=true&sort=nameAsc&page=3
-```
-
-Why the URL and not `useProvidersListStore`: the grid is a Server Component, so the
-query has to survive a round-trip regardless. Keeping it in the address bar gives one
-source of truth instead of two, a shareable and back-buttonable result set, and no
-provider rows duplicated into client state. **Do not hydrate the list store here** —
-`src/store/CLAUDE.md` says the same thing in general terms; this is the concrete case.
-
-Six decisions worth not undoing:
-
-1. **A category chip filters in place; it does not navigate.** The chip patches
-   `?category=`, so the visitor's search and sort survive the click, and re-clicking the
-   active chip clears it. `/categories/[categoryId]` still exists and is still where
-   *View all* leads — those are single-category landing pages, not this rail's target.
-2. **Only the search box and the sort/filter pair are client islands.** The chips and the
-   pager are plain anchors: they work before hydration, they prefetch, and a crawler can
-   follow them. `ui/layout/Pagination` is antd-free for exactly that reason.
-3. **The search field is locally controlled and the URL is its output.** `params.q`
-   seeds the first render and is written back only when the URL changes from outside
-   the field (Clear all filters, Back); `committedRef` is how the field tells that apart
-   from its own submit landing. It `replace`s rather than `push`es, like sort and filter,
-   with `scroll: false`.
-4. **Typing suggests; only a submit searches.** Typing fills an antd `AutoComplete`
-   dropdown with the first `PROVIDER_SUGGESTIONS_LIMIT` (5) matches, fetched on the
-   client by `useProviderSuggestions` through the ordinary `GET /providers` with a small
-   `perPage` — no endpoint of its own. The debounce and stale-answer guard are
-   `@hooks/useDebouncedLookup`, shared with the registration Organization field. A search
-   that finds nothing is retried by the API with typo- and accent-tolerant spellings, so
-   "masage" still suggests the massage therapist. The query comes from `toProviderSuggestionsQuery`,
-   which keeps the current category, filters and sort, so the dropdown previews the grid
-   Enter would produce. Picking a row opens that provider's page. The grid moves only on
-   **Enter** or the **Search** button, which close the dropdown and write `?q=`; the
-   clear button submits `''`, but emptying the box by hand is still just typing. That is
-   the same staging the filter sheet uses — *Show results* is its only navigation — and
-   it replaced a Server Component round-trip per debounced keystroke.
-
-   Enter is handled in the `AutoComplete`'s `onKeyDown`, not the form's `onSubmit`:
-   rc-select handles the key first and `preventDefault`s an Enter that picked a
-   highlighted row, which is how a pick and a submit are told apart. An Enter on a closed
-   list also makes rc-select reopen it, and closing it from the same handler lands both
-   updates in one batch, so the dropdown does not flash. The `<form role='search'>` is
-   there for the button and the landmark.
-5. **Only the results subtree suspends.** `<Suspense>` wraps `ProvidersResults` alone:
-   the heading, search box, rail and toolbar are already correct for the new query, so
-   re-rendering them would only make the controls flicker. The boundary has **no**
-   `key` — a key remounts it and throws the current grid away for a skeleton on every
-   query. Search and sort/filter wrap URL updates in a shared `useTransition`, so the
-   current cards stay under a translucent overlay (`ExplorePending`) while the next
-   set streams in. The skeleton remains the cold-load fallback (`loading.tsx` and the
-   boundary's first paint).
-6. **A card names the one service a search matched, and only when a service matched.**
-   `GET /providers` adds `matchedService` and `moreMatchingServices` to a row whose match
-   was a service (`docs/DATABASE_STRUCTURE.md`, *the Explore query*); `ProviderCard` renders
-   them through `MatchedServiceLink` in the card's `footer`. A provider found by name, and
-   any card on favourites, categories or the home page, stays plain. One service rather than
-   every match keeps the grid's cards one height; the rest are "+N more", which opens the
-   profile's service list. The service links to `?service=<id>#booking-services`
-   (`[providerId]/components/serviceParams.ts`), read by the page's Server Component and
-   checked against the provider's own catalogue before `ProviderDetails` starts with it
-   selected. The suggestions dropdown shows the same service as its row's subtitle.
-
-Where Explore deviates from `design/initial prototype/explore_service_providers`:
-
-| Prototype | Built as | Why |
-|---|---|---|
-| Search + **Location** field + Search button | Search field with a suggestions dropdown + Search button; no Location | `Provider.address` is free text with no geocoding, so a Location box would match strings rather than places — a radius search that is not one. The button came back on 2026-09-28, when the grid stopped following every keystroke. It is icon-only below `sm`. |
-| "Sort by: Recommended" as inline text | Icon `Button` + `Dropdown`, beside *Service providers* | Paired with the filter control, per the request; the label still shows from `sm` up. |
-| Rating badge and star on every card | Built (2026-09-15); rating sits in the card body, availability is a pill on the image, top-start | Three statuses from `available` + `openToday`, not remaining slots: Available (green), Closed (orange, no hours today), Fully blocked (red, bookings paused). Remaining-slot math is the same omission as "Next: Today, 2 PM". |
-| "Next: Today, 2 PM" on every card | Omitted | One availability computation per card, per page render. |
-| `1 2 3 … 12` pager | Same, as links, elided at ±2 around the current page | Survives 200 pages as well as 12. |
-
-**Picking is three stacked panels; confirming is a sheet.** `ProviderDetails` owns the one
-piece of state all three panels share — the chosen service — and renders `ServicePicker`,
-then `BookingPanel`, which is `BookingMonth` over `BookingSlots`:
-
-| Step | Question | Notes |
-|---|---|---|
-| `ServicePicker` | What? | Native radios in labels; everything inside a label is phrasing content, so a service name is a `<strong>`, not a heading |
-| `BookingMonth` | Which day? | Month grid, Monday-first. A day with no open slots is `disabled`, not hidden. The spill-over days from the neighbouring months follow the same rule — slots are stepped across the whole grid — and picking one pages the grid to its month |
-| `BookingSlots` | Which time? | Every open time in one flat grid — no paging, no "view more". "Book now" **opens the sheet**; it does not book |
-| `BookingConfirmSheet` | Confirm, annotate, identify | `BookingSummary` (a real `<dl>` of the pick, including preferred payment) + notes + payment methods, plus name/phone/email when the visitor is anonymous. After create, share / copy URL / copy details / generate QR replace the old manage-link + View booking CTA |
-
-**When the provider is not taking bookings online, `BookingClosedNotice` replaces
-`BookingPanel`.** `details.onlineBooking` is `paused` (their `available` switch) or `full`
-(their monthly allowance spent); either way the notice says so without naming a plan and
-offers the provider's phone and email. `ServicePicker` stays, retitled *Services*: it is
-the page's only list of what they offer. A submit refused mid-visit with
-`BOOKING_ERROR_CODES` closes the sheet and flips to the notice locally
-(`getBookingClosedReason`), since no other time would go through either.
-
-Four things not to undo here:
-
-1. **No FullCalendar, and no dialog that asks *which time*.** The old view ran a
-   month/week/day switcher whose day click opened an `AppSheet` of times, so the day and
-   the time were never on screen together and the summary being confirmed sat behind a
-   mask. `Calendar.tsx` and `SlotPicker.tsx` are gone; do not reintroduce either.
-   FullCalendar consequently has **no usage left in `src/`** — see `docs/BACKLOG.md`.
-
-   `BookingConfirmSheet` is not that dialog and does not reopen the question: service,
-   day and time are all still picked in the panels and all still on screen behind it. It
-   opens only once they are settled, and *shows* the pick rather than replacing it. It
-   exists because a booking needs notes, a payment intent, and — since `POST /appointments`
-   is public — a way for someone with no account to say who they are.
-2. **The chosen day is derived, not stored.** `BookingPanel` keeps only what the visitor
-   *picked*; the day actually shown is that pick while it is still an open day of the
-   visible month, and the soonest open day otherwise. One rule covers the empty first
-   paint (the store hydrates in an effect), a service swap that re-steps every day, and
-   paging the month. `react-hooks/set-state-in-effect` is an ESLint **error** here, so
-   syncing it back into state is not an option either. A catalogue of one service starts
-   selected. The only open time on the day being shown is selected the same way the day
-   is — derived, not written back in an effect. A time the visitor picked holds while it
-   is still open; several open times stay unpicked, and a time already requested on this
-   visit does not count as open. Book now treats that selection as already made: it
-   scrolls to the first step that is still empty (the service list, then the calendar,
-   then the times) and opens the confirm sheet only once both are set. A selected time
-   with no service scrolls to the service list instead of asking for another time.
-3. **Days travel as `DAY_KEY_FORMAT` strings.** That is already the key `countSlotsByDay`
-   returns, and it keeps date parsing to the single site that needs a real `Date`. Any
-   module that parses one must `dayjs.extend(customParseFormat)` itself — `booking.ts`
-   extends it for `booking.ts` only.
-4. **Every booked time is an instant on the provider's clock.** `BookingPanel` passes
-   `details.timeZone` to the slot helpers and `BookingMonth` (whose "today" is the provider's).
-   The public `BookingSlots` header is a UTC-offset control, GMT−12 through GMT+12, in place
-   of the zone name, and a 12/24-hour switch beside it. Each starts on the provider's own
-   choice — the offset for the day on screen, and their clock, or the reader's locale when
-   they never chose a clock — so the times do not move until the visitor picks.    Either
-   control only changes how those instants are printed. The calendar day and the slot
-   that gets booked stay on the provider's clock. Opening hours reprint on the same
-   offset and 12/24-hour clock as the slots, and name that clock under the list; a
-   shift that lands on the day before or after says which day. The
-   provider turns both controls off together (`details.showClockChoices`, Availability);
-   the header then names the zone and prints their clock, and the hours list does too. The confirm
-   summary prints on the same clock the buttons showed. A visitor whose own clock still differs also sees their time for the picked slot.
-   It used to say "Local time" while stepping the hours in the visitor's zone, so a booker
-   abroad was offered the provider's 09:00 at their own 09:00. A provider with no zone set
-   is still read in the visitor's zone, and that page names the zone instead of offering the
-   control. The manage page (`/b/[token]`) keeps the written zone name. Where each surface
-   gets its zone: *Time zones* in `docs/DATABASE_STRUCTURE.md`. The same panels take
-   `details.timeFormat` alongside it, so slots, the summary and the hours list (`WorkingHours`)
-   print on the provider's 12- or 24-hour clock — *12- or 24-hour clock* in that doc.
-
-### The landing page — `/`
-
-Hero → *For clients* → *For providers* → category rail → providers → CTA band. The two
-audience blocks are one Server Component, `(home)/HomeAudienceFeatures.tsx`, over
-`Home.audiences.<consumers|providers>` in every catalogue.
-
-Two things not to undo:
-
-1. **The sign-up actions are for guests only — the hero's Find a provider / Join as a
-   provider and the CTA band's Get started — and the session is read on the server.** `(home)/loadSession.ts` answers `null` without the
-   `SESSION_COOKIE` (no API call, so guests and crawlers pay nothing) and otherwise
-   verifies the cookie with `getMeAPI({ cookie })`, in parallel with the page's two list
-   fetches. A client island reading `useAuthStore` would paint the buttons for every
-   signed-in hard load and then yank them out once the Header's `getMe()` landed — a flash
-   plus a layout jump in the hero. The cost is that `/` reads `cookies()`; see the
-   rendering roadmap in [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md). The footer drops its
-   guest-only links (Find a provider, Sign in, Join as a provider, Create account) on every
-   page, but from the auth store — see `Footer.tsx` for why the root layout must not read
-   the cookie.
-2. **The feature lists claim only what ships.** Each entry was checked against the tree,
-   not the settings UI: reminder emails, for one, have a preference toggle but no sender,
-   so neither list mentions them. A new entry needs its key in `FEATURES` and its copy in
-   all 16 catalogues (`tests/unit/i18n/catalogues.spec.ts` fails otherwise).
-
-## The sign-on funnel
-
-**Identity is an email and a password, or Google.** Phone/OTP was removed on 2026-09-11,
-the client half of the migration the API took on 2026-09-10. There is no
-`/auth/phone-number-input`, no `/auth/code-input`, and no `pendingSignOn` draft in
-`localStorage` — registration is one screen and creates the account outright.
-
-**Registration is role-specific and sign-in is not.** Which form you open decides the role,
-exactly as `design/initial prototype/{consumer,provider}_registration` have it — there is no
-account-type toggle inside a form. That holds for Google too: a first-time Google account is
-sent to the **same** registration form for its role, or to the account-type choice when it
-started from sign-in and has no role yet.
-
-```
-/auth/account-type-selection      two links, no form state
-   ├─→ /auth/consumer-registration   split screen: name, email, phone, password
-   └─→ /auth/provider-registration   card: name, email, phone, password, optional categories
-                                     (up to 3) and organization
-                    │
-                    ▼  POST /identity/register — mails a link, does NOT sign in
-        /auth/verify-email          ?token= → confirms AND signs in → newAccountLandingPath(role)
-                                    provider → /providers/profile/availability, consumer → /providers
-
-/auth/sign-in                     email + password, or Continue with Google
-   ├─ consumer → /
-   ├─ provider → /providers/profile
-   └─ /auth/forgot-password → (email) → /auth/reset-password?token=
-
-Google:  [any screen] → API /identity/google → Google → API callback
-   ├─ known account      → /auth/callback          → getMe() → role decides
-   └─ first time         → the registration form for its role, in Google mode (?google=1)
-                            (no role yet → /auth/account-type-selection?google=1 → the form)
-                            full name + email prefilled, email locked, no password
-                            → POST /identity/google/complete — signed in, no emailed link
-                            → newAccountLandingPath(role), as above
-
-Consumer-only account:  /consumers/profile (shell banner) → /consumers/profile/become-provider
-   name + phone (prefilled from the Consumer row) + optional organization
-   → POST /identity/provider-profile — creates the Provider, re-issues the session as provider
-   → /providers/profile/availability
-```
-
-**A new account lands where its work starts**, not on the landing page: a provider on
-Availability (a page with no hours cannot be booked), a consumer on Explore. Sign-in is not
-a new account and keeps its own destinations. **Becoming a provider** is offered where the
-workspace switch sits, by `BecomeProviderPrompt`, only while `GET /identity/me` reports
-`profiles.provider === false`; once the Provider row exists, the switch takes its place.
-
-Five things that are easy to get wrong here:
-
-1. **Registering does not sign you in.** An unverified account cannot hold a session —
-   `middleware/auth.ts` re-checks that on *every* authenticated request, not just at login —
-   so the funnel continues from the recipient's inbox. A form that navigates into the app
-   after `register()` is a bug. The emailed link is what signs them in: `/verify-email`
-   issues the session, and `VerifyEmailClient` then reads it (`getMe`) and opens
-   `newAccountLandingPath(role)`; its "Email verified" screen is only the fallback.
-2. **Every anti-enumeration response looks identical.** `register` and `forgot-password`
-   answer `{ value: true }` for a taken address, a new one, and a failed send alike. Do not
-   branch the UI on them: "we sent it" versus "no such account" rebuilds the oracle the
-   routes were written to remove.
-3. **`?error=` on `/auth/sign-in` is the Google failure channel.** The API's callback is a
-   browser navigation and cannot answer JSON, so it redirects back with a `GOOGLE_ERROR`
-   code. The copy lives in `Auth.googleErrors.*`, and the page reads the param in the
-   **Server Component** — `next/navigation` is a grep gate and `@i18n/navigation` exposes no
-   `useSearchParams`.
-4. **The Google button is a full-page navigation, never a fetch.** The flow is a chain of
-   top-level redirects and the API sets its cookie on its own origin part way through; an
-   XHR would follow it invisibly and leave the browser holding no session.
-5. **`/auth/layout.tsx` is a pass-through.** The funnel's white card is `AuthCard`
-   (`@components/ui/layout`), which each step opts into. It cannot live in the layout because
-   Next nested layouts compose rather than replace, and the consumer split screen has no card.
-
-Password rules are mirrored client-side by `usePasswordRules` (`src/hooks/`), which matches
-`server/src/lib/password.ts` **rule for rule**. A partial mirror is worse than none: the
-first version checked only length, so a password the server rejects for having no digit
-passed validation and came back as an error the form had never warned about. Choosing a
-password is always two fields (`NewPasswordFields`): registration and reset both require
-confirm. Sign-in is the one single-password screen.
-
-`src/proxy.ts` guards the signed-in areas on cookie presence only — Next's docs are explicit
-that Proxy is not an authorization layer, so real enforcement stays in the API's
-`requireProvider` / `requireConsumer`.
-
-**Booking is not part of that funnel.** `POST /appointments` is public: a visitor books
-without an account, and any signed-in visitor books as themselves whatever their role.
-`BookingPanel` reads `isSignedOn` / `isPending` from the auth store only to decide whether
-the sheet needs to ask who they are — never to gate the action.
-
-### Where the registration screens deviate from the mockups, and why
-
-Each of these is a decision, not an oversight — do not "fix" them back:
-
-| Mockup | Built as | Why |
-|---|---|---|
-| Google sign-up button + "Or register with…" divider | **Built, both** | Reversed on 2026-09-11. The mockup was right and the original note ("no OAuth exists") expired when the API gained it — `GoogleButton` sits above the divider on both registration screens and on sign-in. |
-| One free-text phone input | Country `Select` + number, joined by `Space.Compact` | A single field cannot be validated against a country's numbering plan. `libphonenumber-js` needs the country. |
-| Provider "Business Name" free text | `OrganizationSection`: a dashed **Add organization** button that opens a debounced `?q=` search from the first character (5 suggestions, typo-tolerant, prefix matches first), a **Detach** button, and an "Add “…” as a new organization" row — its own block under a divider, offered even when the name exists — that reveals the new organization's page fields | Two providers at one business should share an `Organization` row, not two unrelated strings. Typed text alone resolves nothing — the provider picks an existing organization or explicitly adds a new one, and validation refuses anything in between. A new one is created in the registration transaction with its description, address, phone (its own country picker, preselecting the provider's) and website, and takes the provider's phone country. Organizations have **no email** — the column was dropped on 2026-09-28. **On submit, a new organization's name is looked up** (`useSimilarOrganizationCheck` → `GET /organizations/similar`): if the same or a similar name exists, `SimilarOrganizationsDialog` asks the provider to join it or create theirs anyway, and Cancel returns to the form without submitting. Names are trimmed and whitespace-collapsed on both sides before saving. Sits after the passwords, at the end of the form. The same form serves Google sign-up; the section is also used by the settings Profile tab, where it can also change or detach the organization. |
-| Provider phone optional | **Required**, as for consumers | Both registration forms order it name → email → phone → password (the provider's organization section after them), and both label it "Phone number". |
-| Consumer: mobile + **optional** email | Full name added; email now **required** | The name because `Consumer.fullName` is non-null and the mockup left no way to fill it. One field, not a first/last pair (joined on 2026-10-20): half the world does not order a name that way. Email because it stopped being contact data and became the identity — the account is keyed on it and the verification link is the only way in. |
-| Provider: 3 fields | Full name added alongside Organization | Same reason: `Provider.fullName` is non-null and was being filled with "New Provider". |
-| Fixed `h-11` / `h-12` / `h-14` controls | antd's default control height, no `size='large'` | `src/styles/CLAUDE.md` invariant 10; `h-[NNpx]` and `size='large'` are grep gates. |
-| `text-5xl` hero headline | `AppTitle size='h1'` | The fluid scale's `display` step is 72px at `lg`, too large for a half-width panel; `h1` caps at 40px. |
-| Terms / Privacy as `href="#"` | Real `/terms` and `/privacy` placeholder routes | A dead anchor in a consent notice is worse than a page saying the document is not published. |
-| Own header + footer per mockup | Global chrome, except consumer registration hides the header | `Header`/`Footer` are mounted once in `src/components/App.tsx`. Per-route chrome is configured in `src/constants/header.ts`. The consumer split carries its own mark; a content-width header sat the logo between the two columns, so that route sets `showLogo` and `showNav` off and the header returns null. The public provider page keeps that same bar. |
-
-**The phone number validates on submit, not per keystroke.** A number is invalid at every
-digit but the last, so on-change validation greeted the first digit with an error. The
-field uses `useValidateAfterSubmit` (`src/hooks/`): silent until a submit checks it, then
-live on every change and on a country change. The error names the country's format —
-"Please enter a valid phone number, e.g. +374 XX XXXXXX" — from `getPhoneNumberPattern`.
-The new-organization phone and website, and the organization name itself, work the same way.
-
-Labels are rendered by `FieldLabel` with an explicit `htmlFor`, **not** antd's
-`Form.Item label`. Required fields take a trailing `*`; optional fields carry no mark.
-antd puts its label in an `inline-flex` element sized to its content, so that mark cannot
-be laid out against the input's edge without beating antd's unlayered CSS — which would
-need a `!` suffix, and that is a grep gate. Because the `Form.Item` then has no `label`,
-`messageVariables={{ label }}` must be passed explicitly or the `'Please fill in ${label}'`
-message renders literally.
-
-### The contact page
-
-Nothing is fetched on the server, so the page carries **no `force-dynamic`** and no
-`loading.tsx` — there is no server round-trip for a skeleton to cover. `ContactForm.tsx`
-is the only client island, and it is what reads the session.
-
-Two things not to undo:
-
-1. **Prefill fills only empty fields.** Name and email both arrive with `getMe()`. The
-   address is the account's identity email, so a provider session and a consumer session
-   prefill the same way. A visitor can start typing before that request lands;
-   overwriting what they wrote is the bug this prevents.
-2. **The hidden `website` field is a honeypot, not dead markup.** It is a nameless-looking
-   `Form.Item name='website'` with `noStyle` inside an `aria-hidden` `hidden` wrapper, so
-   it reaches the DOM a bot parses but no person or screen reader. The server drops any
-   submission that has it set — and answers with a plain success, because telling a bot it
-   was caught only teaches it to leave the field alone.
-
-Nothing is stored server-side, so a failed send keeps the form's values on screen and
-shows the error. See `server/CLAUDE.md` and the `mail` skill.
-
-Route paths live only in `src/constants/routes.ts` (`ROUTE_KEYS` + `ROUTES`). Never
-hardcode a path string in a component.
+| Approvals | `/providers/profile/approvals` | The approval switch (`PUT /provider-profile`) over its queue (`GET /provider-profile/bookings?status=pending`, `PATCH …/:id/decision`) |
+| Analytics | `/providers/profile/analytics` | `StatTile` row + `bare/BarChart`; `GET /provider-profile/analytics` |
+| Advanced settings | `/providers/profile/advanced` | Time zone, 12/24-hour clock, visitor clock-choices switch. Drafted like Availability |
+| SEO | `/providers/profile/seo` | Title / description / slug, `PATCH /provider-profile/seo` — **saves live, no draft** |
+| Plan | `/providers/profile/plan` | Not a sidebar tab. Current plan, usage, upgrade/switch/cancel, add-ons — `docs/BILLING.md` |
+| Payouts | `/providers/profile/payouts` | Plan + add-on cards (`GET /provider-profile/plan`), settled charges (`GET /billing/payments`) |
+| Notifications | `/providers/profile/notifications` (and consumer side) | Event prefs, then `TelegramConnect` and (providers) `CalendarFeed` — each saves on its own button |
+
+No settings tab autosaves: Discard / Save, plus Save draft / Publish for providers. A
+control the plan does not allow is disabled with a link to the Plan tab; the API refuses
+the write regardless.
+
+## Cross-cutting rules
+
+- **Any route whose whole job is to redirect is a Route Handler**, never a `page.tsx` — a
+  page redirect inside a streaming layout arrives as a soft client navigation with HTTP 200
+  and no `Location`. **307, never 308**: a permanent redirect is cached by the browser.
+- **`src/proxy.ts` guards signed-in areas on cookie presence only.** Proxy is not an
+  authorization layer; enforcement is the API's `requireProvider` / `requireAuth`.
+  `PROTECTED_PREFIXES` is a prefix test, so nested tabs are covered; `/bookings` and
+  `/favorites` have their own entries there and in `robots.ts`.
+- **Booking is not part of the sign-on funnel.** `POST /appointments` is public.
+  `BookingPanel` reads the auth store only to decide whether the sheet asks who the visitor
+  is — never to gate the action.
+- **Header nav** is one bar for every page, configured in `src/constants/header.ts`:
+  Providers, Categories, Organizations, then Bookings and Favorites once signed in
+  (`withAccountRoutes`), then Pricing, last. Each directory link is omitted when its table
+  has no rows (`GET /directory`, read in the locale layout); a failed read keeps them. Below
+  `xl` the drawer is the nav; icons beside links wait until `xxl`.
+- **The landing page (`/`) reads the session on the server** — `(home)/loadSession.ts`
+  answers `null` without `SESSION_COOKIE` (no API call), else `getMeAPI({ cookie })` in
+  parallel with the page's fetches. A client island would flash the guest buttons on every
+  signed-in load. The footer hides guest-only links from the auth store instead, because
+  the root layout must not read the cookie (`Footer.tsx`). The feature lists claim only what
+  ships; a new entry needs its key in `FEATURES` and copy in all 16 catalogues.
+- **`/contact` fetches nothing on the server**: no `force-dynamic`, no `loading.tsx`.
+  Prefill (from `getMe()`) fills only **empty** fields. The hidden `website` field is a
+  honeypot — the server drops a submission that fills it and answers success. Nothing is
+  stored, so a failed send keeps the values on screen. See the `mail` skill.
 
 ## Conventions
 
@@ -632,99 +124,66 @@ export default async function Providers() {
 }
 ```
 
-**`export default` is required here** — Next.js resolves these file-convention modules by
-their default binding, so a named export breaks routing rather than merely reading oddly:
-`page`, `layout`, `loading`, `error`, `global-error`, `not-found`, `template`, `default`,
-`icon`, `apple-icon`, `opengraph-image`, `twitter-image`, `manifest`, `sitemap`, `robots`.
-Do not "fix" these into named exports.
+- **`export default` is required** on file-convention modules — Next resolves them by their
+  default binding: `page`, `layout`, `loading`, `error`, `global-error`, `not-found`,
+  `template`, `default`, `icon`, `apple-icon`, `opengraph-image`, `twitter-image`,
+  `manifest`, `sitemap`, `robots`. Declare it inline (`export default function Page()`).
+  Every other file here uses a named export.
+- `force-dynamic` is a build workaround (missing `NEXT_PUBLIC_API_URL` at build), not a
+  design choice — see `docs/BACKLOG.md`.
+- **Do not use a Zustand store for data a page already fetched.** `useSingleProviderStore`
+  is the counter-example, not the model.
+- **`params` is a Promise** — `const { providerId } = await params`. Type it as
+  `params: Promise<{ lang: string }>` only when the page uses a segment; never take it just
+  to feed next-intl the locale. Do **not** use the generated `PageProps<'/…'>` /
+  `LayoutProps<'/…'>` globals — they need `.next/types`, which a clean CI tree lacks.
+- **Single-entity fetches go through the `React.cache`-wrapped getter**, or
+  `generateMetadata` and the page body each make their own HTTP call.
+- **Every list and detail route gets a sibling `loading.tsx`** mirroring the page's layout.
+  Exception: a `loading.tsx` ancestor streams its children as hidden HTML, so a fact that
+  must be in the document cannot sit under one. That is why the provider identity column is
+  `[providerId]/layout.tsx` and the home and Explore skeletons live in the route groups
+  `[lang]/(home)/` and `providers/(explore)/`.
 
-Everything else in this directory has a free choice, so it follows the repo preference for
-a named export: `HomeHeroPreview.tsx`, `[providerId]/components/*`, `auth/sign-in/SignInForm.tsx`.
-
-Where the default is required, still **declare it inline** — `export default function Page()`
-rather than `const Page = () => …` plus a trailing `export default Page`. `eslint.config.mjs`
-whitelists these file names by glob, so only a sibling component file draws the warning.
-
-`force-dynamic` is a build workaround, not a design choice — it stops `next build`
-prerendering against a missing `NEXT_PUBLIC_API_URL`. See `docs/BACKLOG.md`.
-The route-by-route plan for undoing this — which groups can go static, which can go ISR,
-and what blocks each — is the rendering roadmap in
-[docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
-
-**Do not use a Zustand store for data a page already fetched.** Stores are for client
-interactivity. `useSingleProviderStore` is the counter-example, not the model.
-
-**`params` is a Promise** in this Next version — `const { providerId } = await params`.
-Type it as `params: Promise<{ lang: string }>` (plus any other segments) only when the
-page actually uses a segment. Do **not** take `params` just to feed the locale to
-next-intl — that is `lang()` in `i18n/request.ts`. Do **not** use the generated
-`PageProps<'/…'>` / `LayoutProps<'/…'>` globals: they only exist after `next dev` or
-`next build` writes `.next/types`, so `pnpm typecheck` on a clean tree (CI) cannot see
-them.
-
-**Single-entity fetches must go through the `React.cache`-wrapped getter**, or
-`generateMetadata` and the page body each make their own HTTP call.
-
-**Every list and detail route gets a sibling `loading.tsx`** mirroring the page's own
-layout, so the skeleton→content handoff costs no layout shift. One exception, on
-purpose: the public provider identity column lives in `[providerId]/layout.tsx`, and
-that segment's `loading.tsx` skeletons only the booking column. A `loading.tsx`
-ancestor streams its resolved children as hidden HTML until a script reveals them, so
-a fact that has to be in the document — the name, the links — cannot sit under one.
-The home skeleton is `[lang]/(home)/loading.tsx` and the Explore skeleton is
-`providers/(explore)/loading.tsx` for the same reason: left at the parent segment they
-wrapped this page.
-
-### Error boundaries
+## Error boundaries
 
 **Every `error.tsx` is five lines around `@components/errors/RouteErrorFallback`**, passing
-Next's `error` and **`retry`** plus a `description` from `Errors.pages.*` and a `context`
-for the log line. `retry` (stable since Next 16.3) re-fetches and re-renders the segment;
-`reset` only re-renders, so every "Try again" wired to it could never recover from the
-failed fetch that put it there. The fallback reports the error, shows friendly copy in
-production, and adds the original message and stack in development — which for a Server
-Component failure is the axios message `axiosInstance.ts` rewrote to name the call.
+Next's `error` and **`retry`** plus a `description` from `Errors.pages.*` and a `context`.
+`retry` re-fetches and re-renders; `reset` only re-renders, so it cannot recover from the
+failed fetch that put it there.
 
-A boundary renders **inside its own segment's layout** but not around it, which decides
-where each one lives:
+A boundary renders inside its own segment's layout but not around it:
 
-| Boundary | Catches | Why there |
-|---|---|---|
-| `[lang]/error.tsx` | everything not caught lower | The generic fallback, inside the app chrome |
-| `providers/error.tsx`, `organizations/error.tsx`, `categories/error.tsx` | the list pages | List copy |
-| `providers/[providerId]`, `organizations/[organizationId]`, `categories/[categoryId]`, `b/[token]` | one entity | Detail copy — they used to fall through to the *list* boundary and say "could not load the providers list" on a profile |
-| `providers/(account)/error.tsx`, `consumers/profile/error.tsx` | a settings panel | `inline`, so the sidebar stays on screen around the failure |
+| Boundary | Catches |
+|---|---|
+| `[lang]/error.tsx` | everything not caught lower, inside the app chrome |
+| `providers/`, `organizations/`, `categories/` `error.tsx` | the list pages |
+| `providers/[providerId]`, `organizations/[organizationId]`, `categories/[categoryId]`, `b/[token]` | one entity (detail copy) |
+| `providers/(account)/error.tsx`, `consumers/profile/error.tsx` | a settings panel — `inline`, so the sidebar stays |
 
-A crash in a **layout** goes one level up — in `[lang]/layout.tsx` itself, to
-`global-error.tsx`.
+A crash in a **layout** goes one level up — in `[lang]/layout.tsx`, to `global-error.tsx`.
 
-**A dead link is a 404, not an error.** A detail page wraps its `cache()`d getter in a
-loader that calls `notFound()` when `isNotFoundError(e)` and rethrows anything else —
-`loadProvider`, `loadManaged`, `loadCategory`, `loadOrganization`. Without it an unknown
-category id threw to the error boundary: "something went wrong" for a page that simply
-does not exist, with a Retry that could never work.
-
-**A Server Component that should degrade rather than throw** (the reviews section) catches,
-calls `reportError`, and renders its own message with `errors/RefreshButton` —
-`router.refresh()` re-runs the server fetch without resetting the page's client islands.
+- **A dead link is a 404, not an error.** A detail page wraps its `cache()`d getter in a
+  loader that calls `notFound()` when `isNotFoundError(e)` and rethrows anything else —
+  `loadProvider`, `loadManaged`, `loadCategory`, `loadOrganization`.
+- **A Server Component that should degrade rather than throw** (the reviews section)
+  catches, calls `reportError`, and renders its own message with `errors/RefreshButton`.
 
 ## Files that behave unusually
 
 | File | Why |
 |---|---|
-| `layout.tsx` | Owns the `viewport` export — without it mobile renders at ~980px and every responsive style is invisible. Font variable goes on `<html>` so antd portals inherit it. `appleWebApp` is the iOS home-screen complement to `manifest.ts`. |
-| `global-error.tsx` | Renders **outside** `ConfigProvider` and next-intl's provider, so it **cannot use antd or `useTranslations`**. Inline styles fed from `tokens.ts`. It reads the locale off the URL and imports that catalogue in an effect (prerendered, so reading `window` in render would mismatch); a hardcoded English copy is only the fallback for when the catalogue chunk is what failed. Offers `retry` and a full Reload, and the original error in development. |
-| `not-found.tsx` (app root) | The 404 for URLs matching **no route**. A nested `not-found` only catches `notFound()` inside its own segment, so without this file an unknown address got Next's built-in page. Renders above `[lang]/layout.tsx`: no stylesheet, font or `ConfigProvider` — inline styles from `tokens.ts`, same as `global-error.tsx` — and Next supplies `<html>`/`<body>`, so it must not render its own. Copy is `DEFAULT_LOCALE`: there is no `[lang]` param above the root layout, so `next/root-params` has nothing to read. |
-| `[lang]/not-found.tsx` | The 404 for `notFound()` calls **inside** `[lang]` — every dead provider, category and organization link. Full app chrome, fully translated, and **antd-free**: antd's `Result` is `"use client"`, so the old version shipped an empty shell to the crawler that followed the dead link. |
-| `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | `ImageResponse`/satori — cannot resolve CSS variables, so they import from `tokens.ts` (via `BookieAppIcon` for the icons). Served at `/icon` etc. with no file extension; `src/proxy.ts` must not locale-prefix those paths. `/icon-maskable` is a Route Handler rather than a metadata file convention, because Next only recognises `icon` / `apple-icon`. |
-| `manifest.ts` | Generated, not a static file. Single-locale — `start_url` and shortcuts are `/<DEFAULT_LOCALE>…`, not `/`, because localePrefix is always and `/` is a 307. `id` stays `'/'` so a later start_url change does not install a second app. No `orientation` lock — that would pin a desktop/tablet install to portrait. |
-| `sw.js/route.ts` | Service worker. Network-only for navigations (booking HTML and the API must not be cached); failed navigations get an inlined offline document from `src/helpers/pwa.ts`. Registered in production only by `ServiceWorkerRegistrar`. `/sw.js` has an extension, so the proxy matcher never sees it. |
-| `sitemap.ts`, `robots.ts` | App-root, locale-agnostic. The sitemap emits every indexable route × 16 locales with full `alternates`; nothing else links to `/th/categories` except its `hreflang` tag, so this is the only way those get crawled. |
-| `routes-overview/` | Guarded with `notFound()` in production. |
+| `layout.tsx` | Owns the `viewport` export (without it mobile renders at ~980px). Font variable and `CSS_VAR_SCOPE` go on `<html>`. `appleWebApp` complements `manifest.ts`. |
+| `global-error.tsx` | Renders **outside** `ConfigProvider` and next-intl — **no antd, no `useTranslations`**. Inline styles from `tokens.ts`; loads the URL's catalogue in an effect, hardcoded English as fallback. |
+| `not-found.tsx` (app root) | 404 for URLs matching **no route**. Above `[lang]/layout.tsx`: no stylesheet or `ConfigProvider`, inline styles, copy in `DEFAULT_LOCALE`, must not render its own `<html>`/`<body>`. |
+| `[lang]/not-found.tsx` | 404 for `notFound()` inside `[lang]`. Full chrome, translated, **antd-free** so the crawler gets real HTML. |
+| `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | satori cannot resolve CSS variables — import from `tokens.ts`. Extensionless paths the proxy must not locale-prefix. |
+| `manifest.ts` | `start_url`/shortcuts are `/<DEFAULT_LOCALE>…` (`/` is a 307); `id` stays `'/'`; no `orientation` lock. |
+| `sw.js/route.ts` | Network-only service worker (`src/helpers/pwa.ts`); registered in production only by `ServiceWorkerRegistrar`. |
+| `sitemap.ts`, `robots.ts` | Every indexable route × 16 locales with `alternates` — the only way most locale variants get crawled. |
 
 ## Structured data
 
 JSON-LD builders live in `src/linkedDataSchema/`, serialized through
-`@components/ui/bare/JsonLd` (which uses `helpers/jsonLd.ts`). Never
-`serialize-javascript` — it emits a JavaScript object literal, not JSON, and strict
-consumers reject it.
+`@components/ui/bare/JsonLd` (`helpers/jsonLd.ts`). Never `serialize-javascript` — it emits
+a JavaScript object literal, not JSON.

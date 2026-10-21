@@ -24,7 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * Deliberately **no `force-dynamic`**: nothing is fetched on the server here, so this page
  * needs none of the build workaround the list routes carry. `i18n/request.ts` reads
  * `lang()` from `next/root-params`, so next-intl does not fall back to `headers()` and
- * the page prerenders to static HTML, one copy per locale — see `src/app/CLAUDE.md`.
+ * the page can prerender once per locale (today every `[lang]` route still builds `ƒ` —
+ * see *Rendering* in `src/app/CLAUDE.md`).
  *
  * The form is the only client island, and it is what reads the session.
  */

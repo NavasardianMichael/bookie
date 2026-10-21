@@ -2,7 +2,8 @@
 
 **A raw hex or a magic control dimension may appear in `tokens.ts` only.** Everything
 else derives from it. The `design-system` skill covers *how to build UI*; this file is
-the list of things that must not break.
+the list of things that must not break. (The numbers below are cited by
+`scripts/gates.mjs` — keep them stable.)
 
 ## One owner per value
 
@@ -20,185 +21,110 @@ Breakpoints: antd v6 defaults, NEVER overridden  ←→  globals.css @theme lite
 
 ## The invariants
 
-1. Hex and magic px: `tokens.ts` only. The brand-ramp mirror in `globals.css` §4 is the
-   one declared exception and says so in a comment — `RATING` (`--color-rating`,
-   `--color-rating-empty`) is mirrored in the same block, for the same reason and with the
-   same comment.
-
-   **`RATING` is not `STATUS.warning`, though both are amber.** A four-star rating is not
-   a caution, and aliasing them would mean a future retune of the warning colour silently
-   restyled every rating on the site — with neither name warning you. Filled stars are
-   the brand navy (`BRAND[900]`, `text-brand` on `RatingStars`). The antd `Rate` in the
-   write form sets `starColor` to that same navy and `starBg` to `RATING.empty`, as a
-   component token rather than a class, because `starColor` is cssinjs and a CSS override
-   would lose to antd's unlayered styles, which is how a `!` suffix (a grep gate) gets
-   reached for.
-2. `globals.css` §2 is the only place that may name an `--ant-*` variable. An antd
-   upgrade or prefix change must stay a one-file edit.
+1. Hex and magic px: `tokens.ts` only. The one declared exception is the brand-ramp and
+   `RATING` mirror in `globals.css` §4, which says so in a comment. **`RATING` is not
+   `STATUS.warning`**, though both are amber — a rating is not a caution. Filled stars are
+   the brand navy; the antd `Rate` sets `starColor` / `starBg` as component tokens, not
+   classes.
+2. `globals.css` §2 is the only place that may name an `--ant-*` variable, so an antd
+   upgrade or prefix change stays a one-file edit.
 3. **Never override antd's `screen*` tokens.** Overriding one forces all 21, and
    `validateBreakpoints()` throws at runtime if the Min/Max chain is inconsistent.
-4. `--breakpoint-*: initial` resets Tailwind's own scale first, so `2xl:` cannot
-   silently mean 1536px. There must be zero `2xl:`/`3xl:` usages.
+4. `--breakpoint-*: initial` resets Tailwind's own scale, so `2xl:` cannot silently mean
+   1536px. Zero `2xl:`/`3xl:` usages.
 5. `<BreakpointInvariant/>` asserts tokens.ts ↔ globals.css ↔ antd agree, in dev only.
 6. No dark mode, ever. `color-scheme: light`, zero `dark:` classes.
-7. The app font variable is `--font-app`, never `--font-sans`. The face is Manrope
-   (`src/styles/fonts.ts`), matching `design/initial prototype`. Everything reads the
-   composed `--font-stack`, which appends `--font-script` — the per-locale face for the
-   six scripts Manrope has no glyphs for — *after* Manrope, so per-glyph fallback keeps
-   Latin text in Manrope inside an Arabic or CJK UI. `--font-script` is read through a
-   `var()` fallback and never given a `:root` default, for the reason in trap 2. See
-   `src/i18n/CLAUDE.md`.
-8. Body copy is charcoal (`NEUTRAL[900]`, `#121417`); navy (`BRAND[900]`) is the brand
-   accent, not the text colour. Copy *on* navy uses `tone='inverse'` (`text-white`) —
-   never `text-brand-muted` or a `text-white/N` utility fighting the default muted
-   paragraph colour. The canvas is `colorBgLayout` / `--brand-surface-sunken`
-   (`#f6f7f8`); white is reserved for `Surface` panels and the sticky header.
-9. `--spacing-header` is `4rem` (the prototype's 64px bar). `h-header` and the
-   `PageShell variant='fill'` calc both read it.
-10. **Control height is antd's own unmodified default at the seed-token level.**
-    `theme.ts` sets no global `controlHeight*`. A `CONTROL` token existed briefly and
-    was removed: every call site had to remember `size='large'` to reach it, individual
-    antd controls drifted out of sync, and the app ended up with a mix of 40px and 48px
-    controls. Do not reintroduce a global height scale.
+7. The app font variable is `--font-app`, never `--font-sans` (trap 2). The face is Manrope
+   (`src/styles/fonts.ts`). Everything reads the composed `--font-stack`, which appends
+   `--font-script` — the per-locale face for the six scripts Manrope lacks — *after* Manrope,
+   so Latin text inside an Arabic or CJK UI stays Manrope. `--font-script` is read through a
+   `var()` fallback, never given a `:root` default. Only the active locale's class goes on
+   `<html>`; script faces are `preload: false`. next/font arguments must be written literals
+   (do not DRY `fonts.ts`), and `subsets` only decides preloading, not what is served.
+8. Body copy is charcoal (`NEUTRAL[900]`); navy (`BRAND[900]`) is the accent, not the text
+   colour. Copy *on* navy uses `tone='inverse'` — never `text-brand-muted` or `text-white/N`.
+   The canvas is `colorBgLayout` / `--brand-surface-sunken`; white is reserved for `Surface`
+   panels and the sticky header.
+9. `--spacing-header` is `4rem`. `h-header` and the `PageShell variant='fill'` calc read it.
+10. **Control height is antd's own unmodified default.** `theme.ts` sets no global
+    `controlHeight*`; do not reintroduce a global height scale (a `CONTROL` token was tried
+    and produced a 40/48px mix).
 
-    **Do not pass `size='large'`.** antd's default (`middle`) is the size every
-    control, button, and input should be. The remaining `size='large'` call sites
-    are the complete list — they are deliberate, not leftover debt:
+    **Do not pass `size='large'`.** The remaining call sites are the complete allowlist,
+    mirrored in `scripts/gates.mjs`:
 
     | File | Why it stayed |
     |---|---|
-    | `ProviderSearchField.tsx` | Explore's search box, and its Search button — which sits beside it and must match its height |
+    | `ProviderSearchField.tsx` | Explore's search box and its Search button, which must match |
     | `BookingSlots.tsx` | the Book now CTA |
     | `AuthCallbackClient.tsx`, `VerifyEmailClient.tsx`, `useGoogleSignUp.tsx` | full-page `Spin` on the auth waiting screens |
 
-    A new `size='large'` is a design exception and must be added to this table (and
-    the grep gate) in the same change. Do not copy it from these files onto a
-    neighbouring control.
+    A new `size='large'` is a design exception: add it to this table and the gate in the
+    same change.
 
-    **Select and Button match Input height on their own component tokens.** Select has
-    no `paddingBlock` / `paddingInline` tokens, so it sets `controlHeight` on its
-    `components.Select` block to match Input's 6 / 12 padding. Button's `paddingBlock`
-    exists on the type but antd 6 hardcodes vertical padding to 0 and sizes the
-    control with `controlHeight`; the seed default is 32, so the Button block sets the
-    same derived height as Select and only overrides `paddingInline` for the horizontal
-    padding. Change the shared `FIELD_PADDING_*` constants in `theme.ts`,
-    not a call-site height. `AppLink`'s `button` variant is an anchor, not an antd
-    Button, so the token does not reach it: its `h-9` mirrors the Button height by
-    hand, and `theme.spec.ts` fails if the two drift apart.
-11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg`
-    (8/12) via `borderRadius`/`borderRadiusLG`. antd's own 6/8 reads visibly squarer
-    than every prototype screen. Two static values, no scale, no breakpoints; they feed
-    `rounded-brand-sm`/`rounded-brand`, so antd components and Tailwind surfaces move
-    together. Change them here, never at a call site.
-12. **`CSS_VAR_SCOPE` must stay on `<html>`.** antd scopes its emitted `--ant-*` block
-    to `theme.cssVar.key`; `app/layout.tsx` puts that class on `<html>` so the block
-    lands on `:root`, which is what globals.css §2 reads. Without it antd derives the
-    key from `useId()` and the only elements carrying it are antd's own components — so
-    every `bg-brand`, `rounded-brand` and `border-brand-border` in the app silently
-    resolves to nothing (transparent fills, 0 radius, default borders). This shipped
-    broken once; `tests/unit/styles/theme.spec.ts` now pins both ends.
+    **Select and Button match Input height on their own component tokens** (`controlHeight`
+    on `components.Select` / `components.Button`, derived from the shared `FIELD_PADDING_*`
+    constants in `theme.ts`). Change those constants, never a call-site height. `AppLink`'s
+    `button` variant is an anchor: its `h-9` mirrors the Button by hand, and `theme.spec.ts`
+    fails if they drift.
+11. **Radius is the one sizing token that *is* overridden** — `RADII.base`/`RADII.lg` (8/12)
+    via `borderRadius`/`borderRadiusLG`, feeding `rounded-brand-sm`/`rounded-brand` too.
+    Change them here, never at a call site.
+12. **`CSS_VAR_SCOPE` must stay on `<html>`.** antd scopes its `--ant-*` block to
+    `theme.cssVar.key`; without that class on `<html>` the block never lands on `:root`, and
+    every `bg-brand`, `rounded-brand` and `border-brand-border` resolves to nothing. Pinned
+    by `tests/unit/styles/theme.spec.ts`.
 
 ### Why breakpoints are the one accepted duplication
 
-Both directions are impossible, verified in `node_modules`:
-
-- antd's `theme/useToken.js` lists all 21 `screen*` tokens in a `preserve` map, so
-  cssinjs never emits them as CSS variables — `_util/responsiveObserver.js` feeds them
-  to `window.matchMedia()` as JS numbers.
-- Tailwind's `--breakpoint-*` compile into `@media (width >= X)`, and **media queries
-  cannot resolve `var()`**.
-
-So single-source is achieved by *deletion*: adopt antd's scale, override zero `screen*`
-tokens, declare the numbers once as Tailwind literals, assert the mirror at runtime.
-The literals are **px, not rem**, on purpose — media-query `rem` is relative to the
-browser's default font size while `matchMedia` strings are px, so a user raising their
-default font size would silently desync the two.
+antd never emits its `screen*` tokens as CSS variables (they are fed to `matchMedia()` as JS
+numbers), and media queries cannot resolve `var()`. So: adopt antd's scale, override zero
+`screen*` tokens, declare the numbers once as Tailwind literals, and assert the mirror at
+runtime. The literals are **px, not rem** — media-query `rem` follows the browser's default
+font size while `matchMedia` strings are px.
 
 ## Traps — read before touching this code
 
-1. **The `!`-suffix debt cannot be fixed by import order or `@layer`.** `@import
-   'tailwindcss'` puts utilities in `@layer utilities`; antd's runtime cssinjs `<style>`
-   blocks are **unlayered**, and unlayered beats layered. The only durable fix is moving
-   the value into an antd token — which is what `Form.itemMarginBottom: 0` does. Current
-   `!`-suffix count is 0; keep it there. Our own muted `p`/`li`/`dd` rule is the
-   exception that *does* belong in `@layer base`: unlayered, it beat every
-   `text-white/*` on navy heroes. Do not lift it back out of the layer.
-2. **`--font-sans` collides with Tailwind v4's own default theme variable.** `:root` and
-   next/font's generated class have identical specificity, so the winner would depend on
-   stylesheet order. The app font is `--font-app`; `globals.css` maps `--font-sans` onto it.
-3. **`@ant-design/icons` is client-only** (it uses `createContext`). A Server Component
-   importing it fails at **build** time, not runtime. Server-safe inline SVGs live in
-   `src/components/ui/icons.tsx`. In a `'use client'` island, import from
-   `@ant-design/icons` instead of adding a path there — see `src/components/CLAUDE.md`.
-4. **antd seed colours must be literal hex.** `colorPrimary` is fed to antd's palette
-   generator to derive Hover/Active/Bg variants; a `var()` string produces garbage swatches.
-5. **Tailwind v4 tree-shakes unused `@theme` variables.** `--text-h1`, `--breakpoint-xxl`
-   etc. only appear in the output once something uses them. `BreakpointInvariant` treats
-   `NaN` as "not used yet", not a mismatch.
+1. **A `!` suffix cannot be fixed by import order or `@layer`.** antd's cssinjs `<style>`
+   blocks are **unlayered**, and unlayered beats Tailwind's `@layer utilities`. The durable
+   fix is an antd token (as `Form.itemMarginBottom: 0` does). `!`-suffix count is 0; keep it
+   there. Our muted `p`/`li`/`dd` rule is the exception that *does* belong in `@layer base`.
+2. **`--font-sans` collides with Tailwind v4's own default theme variable** — `:root` and
+   next/font's class have identical specificity. The app font is `--font-app`; `globals.css`
+   maps `--font-sans` onto it.
+3. **`@ant-design/icons` is client-only** (`createContext`). A Server Component importing it
+   fails at **build** time. Server-safe SVGs live in `src/components/ui/icons.tsx`; client
+   islands import from `@ant-design/icons` — see `src/components/CLAUDE.md`.
+4. **antd seed colours must be literal hex.** `colorPrimary` feeds antd's palette generator;
+   a `var()` string produces garbage swatches.
+5. **Tailwind v4 tree-shakes unused `@theme` variables.** `BreakpointInvariant` treats `NaN`
+   as "not used yet", not a mismatch.
 6. **Container width classes must be static strings in a lookup object**, never template
-   interpolation — Tailwind v4 scans source text and will not generate an assembled class.
-7. `@theme` edits sometimes need a turbopack restart. If a breakpoint seems ignored,
-   restart before debugging.
-8. **Write the canonical class name, never a legacy alias.** Tailwind still compiles the
-   old spellings, so a stale one costs nothing at build time and shows up only as an IDE
-   diagnostic — which is exactly why they accumulate. The alias table Tailwind 4.3 ships
-   (`Ko` in `tailwindcss/dist/lib.js`) is the whole list: `break-words` →
-   `wrap-break-word`, `overflow-ellipsis` → `text-ellipsis`, `order-none` → `order-0`,
-   bare `start-*`/`end-*` → `inset-s-*`/`inset-e-*`. The v3 spellings Tailwind dropped
-   outright count too: `flex-shrink-*`/`flex-grow-*` are `shrink-*`/`grow-*`, and
-   `*-opacity-N` is the `/N` opacity modifier. `AppDescriptionList.tsx:46` was the last
-   holdout; the gate below keeps it at zero.
-9. **A component's tokens are not always the ones its markup reads, and our navy makes
-   that visible.** `Dropdown` renders `ant-dropdown-menu-item` and styles it in
-   `dropdown/style/index.js` off the **global** `controlItemBg*` aliases — it never
-   consults `Menu`'s `itemSelectedBg` / `itemHoverBg`, so a `components.Menu` block
-   aimed at a dropdown is dead config that typechecks. Trap 4 is why it matters here:
-   antd derives `controlItemBgActive` from `colorPrimary`, and `BRAND[900]` is dark and
-   desaturated enough that the derivation lands on mid-grey (`#868a8f`) rather than a
-   pale tint — so a selected dropdown item read as a *disabled* row. `components.Dropdown`
-   now pins the three aliases to the brand ramp.
-
-   The same rule hardcodes the selected item's colour to `colorPrimary` with no token
-   behind it, which is why that fill is `BRAND[100]` and not `BRAND[900]`: a navy fill
-   would paint navy text on navy. **Read the component's own `style/index.js` before
-   picking a token** — the type accepts every alias, so nothing warns you.
+   interpolation — Tailwind scans source text.
+7. `@theme` edits sometimes need a turbopack restart.
+8. **Write the canonical class name, never a legacy alias** — they still compile, so they
+   only show up as IDE diagnostics: `break-words` → `wrap-break-word`, `overflow-ellipsis` →
+   `text-ellipsis`, `order-none` → `order-0`, bare `start-*`/`end-*` →
+   `inset-s-*`/`inset-e-*`, `flex-shrink-*`/`flex-grow-*` → `shrink-*`/`grow-*`,
+   `*-opacity-N` → the `/N` modifier. Gated.
+9. **A component's tokens are not always the ones its markup reads.** `Dropdown` styles its
+   items off the **global** `controlItemBg*` aliases, never `Menu`'s tokens, so a
+   `components.Menu` block aimed at a dropdown is dead config that typechecks. Our navy makes
+   antd's derived `controlItemBgActive` land on mid-grey, so `components.Dropdown` pins the
+   three aliases to the brand ramp (selected fill `BRAND[100]`, since the text is
+   `colorPrimary`). **Read the component's own `style/index.js` before picking a token.**
 
 ## Grep gates
 
-```bash
-pnpm gates      # also runs inside `pnpm verify`
-```
-
-The gates live in **`scripts/gates.mjs`**, which is the source of truth. They used to be
-prose here, in `src/components/CLAUDE.md` and in the `design-system` skill — three copies,
-none of them executable, and they had already drifted apart. Add a new gate to the script;
-this section explains *why* each exists, not how it is spelled.
-
-| Gate | Why |
-|---|---|
-| no `dark:` variants | One light theme, permanently |
-| no `combineClassNames` | Superseded by `cn()` |
-| no `bookie-blue` / `bookie-gray` | Colours come from `tokens.ts` |
-| no `!` class suffixes | Move the value into an antd token instead |
-| no `2xl:` / `3xl:` | Both scales were deleted |
-| no `h-[NNpx]` | Use the control-height tokens |
-| no hex outside `src/styles/` | A hex belongs in `tokens.ts` and nowhere else |
-| no legacy Tailwind aliases | They still compile but mean something else — trap 8 |
-| no new `size='large'` | antd's default is the app size; the seven remaining call sites are the complete allowlist — invariant 10 |
-
-Each gate is scoped by file extension. That is load-bearing: unscoped, every pattern
-matches the docs describing it and the gate can never pass. It is also why the script sits
-in `scripts/` rather than under `src/`.
-
-**One gate was silently broken for as long as it existed.** The `!`-suffix one-liner used
-a POSIX bracket expression that treats a backslash as a literal backslash rather than an
-escape, so it only ever matched a `!` directly after a `]` — never `block!`. It reported 0
-while five real suffixes sat in `providerProfileForm/`. They went with that form
-(deleted 2026-10-13), and the gate now holds at zero with no exceptions.
+`pnpm gates` (inside `pnpm verify`) runs **`scripts/gates.mjs`**, the source of truth — add a
+new gate there, not as prose here. Each gate is scoped by file extension (unscoped, every
+pattern would match the docs describing it). Current gates in this layer: no `dark:`, no
+`combineClassNames` (use `cn()`), no `bookie-blue`/`bookie-gray`, no `!` suffixes, no
+`2xl:`/`3xl:`, no `h-[NNpx]`, no hex outside `src/styles/`, no legacy Tailwind aliases
+(trap 8), no new `size='large'` (invariant 10).
 
 ## Known leak sites
 
-antd `style={{…}}` / `styles={{ slot }}` props are still design-system values, but a few
-call sites hardcode px there — two CSS Modules. Prefer a token or a Tailwind class via `classNames`.
-`opengraph-image.tsx` and `icon.tsx` are legitimate exceptions — satori cannot resolve
-CSS variables, so they import from `tokens.ts` directly.
+A few antd `style={{…}}` / `styles={{ slot }}` call sites (two CSS Modules) still hardcode px —
+prefer a token or a Tailwind class via `classNames`. `opengraph-image.tsx` and `icon.tsx` are
+legitimate exceptions: satori cannot resolve CSS variables, so they import `tokens.ts`.

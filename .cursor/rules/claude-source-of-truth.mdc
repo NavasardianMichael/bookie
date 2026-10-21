@@ -11,7 +11,8 @@ Do not copy Claude instruction text into Cursor files. Read the canonical file a
 |---|---|
 | Global conventions | `CLAUDE.md` |
 | Layer invariants | `src/*/CLAUDE.md`, `server/CLAUDE.md`, `tests/CLAUDE.md` (attached by glob rules when you edit there) |
-| Skills (`design-system`, `forms`, `new-domain`) | `.claude/skills/` — auto-discovered; do not duplicate in `.cursor/skills/` |
+| Feature design records (why Explore, bookings, settings, auth are built as they are) | `docs/routes/*.md` — indexed at the top of `src/app/CLAUDE.md` |
+| Skills (`design-system`, `components`, `forms`, `mail`, `new-domain`, `translations`) | `.claude/skills/` — auto-discovered; do not duplicate in `.cursor/skills/` |
 | Slash workflows | `/route`, `/commit-and-push`, `/best-avoid-practices` → `.cursor/skills/` wrappers read `.claude/commands/` |
 | Hard booking / schedule / architecture reasoning | Delegate to the `architect` subagent (`.cursor/agents/architect.md` → `.claude/agents/architect.md`) |
 | Env secrets | Never read `.env*` except `*.env.example` — see `CLAUDE.md` § Env files; enforced by `.cursor/hooks/` |

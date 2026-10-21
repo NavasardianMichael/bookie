@@ -281,8 +281,8 @@ are the edges they knowingly stop at:
 
 ## Errors — what the 2026-09-23 pass left open
 
-The error pipeline (`src/components/CLAUDE.md` → *Errors*, `server/CLAUDE.md` → *What a
-failure answers*) covers every surface. These are the edges it deliberately stops at:
+The error pipeline (`src/components/CLAUDE.md` → *Errors*, `server/CLAUDE.md` → *The response
+envelope*) covers every surface. These are the edges it deliberately stops at:
 
 - **No monitoring.** `src/helpers/reportError.ts` is `console.error`, so a failure a visitor
   sees is recorded only in their own console, and the digest an error page shows can be
@@ -419,8 +419,8 @@ Needs a real browser or device:
 - **No `[lang]` route prerenders any more.** Found 2026-09-28: `next build` on a clean
   checkout of `c28e276` (a fresh worktree, no env files) reports every `/[lang]/*` route as
   `ƒ`, and `.next/prerender-manifest.json` holds **11** routes — only the app-root
-  documents. `src/app/CLAUDE.md` and the *Rendering* section of `docs/DEPLOYMENT.md` still
-  claim 176 (11 routes × 16 locales + the root documents), with `/terms`, `/contact` and the
+  documents. The *Rendering* section of `docs/DEPLOYMENT.md` still
+  claims 176 (11 routes × 16 locales + the root documents), with `/terms`, `/contact` and the
   auth steps as `●`. `next build --debug-prerender` names no bailout, so the cause is not
   found yet; start from the two conditions those docs say must hold together
   (`generateStaticParams` in the root layout, `lang()` from `next/root-params` in

@@ -17,7 +17,7 @@ The repo's knowledge is deliberately distributed. Before analysing, read what ap
 - `CLAUDE.md` — commands, path alias (`@*` → `./src/*`), the codebase map
 - `src/api/CLAUDE.md`, `src/store/CLAUDE.md` — layer contracts and the known
   non-canonical code you should not treat as precedent
-- `src/styles/CLAUDE.md` — design-token invariants and 8 traps
+- `src/styles/CLAUDE.md` — design-token invariants and traps
 - `src/components/CLAUDE.md` — the server/client boundary rule
 - `docs/BACKLOG.md` — known outstanding defects. Check whether the thing you are looking
   at is already a documented bug before diagnosing it as new.

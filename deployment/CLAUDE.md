@@ -34,8 +34,9 @@ re-copy it.
   streams RSC payloads, and buffering defeats every Suspense boundary.
 - **`/_next/static/` and `/uploads/` are served from disk; `/_next/image` is not.** It is
   the optimizer and must reach Node.
-- **Two origins, deliberately.** The `bookie_session` cookie is host-only on the API origin.
-  Collapsing the two hosts into one breaks `CORS_ORIGIN`, `GOOGLE_REDIRECT_URI` and
+- **Two origins, deliberately.** The `bookie_session` cookie is set by the API with
+  `Domain` = the web host, so both hosts receive it (`server/CLAUDE.md` → *The session
+  cookie*). Collapsing the two hosts into one breaks `CORS_ORIGIN`, `GOOGLE_REDIRECT_URI` and
   `next.config.ts`'s `new URL(NEXT_PUBLIC_API_URL)`, which throws on a relative value.
 - **`shared/uploads` and `shared/.env.api` live outside the releases** and must stay there —
   release rotation deletes everything under `releases/`.

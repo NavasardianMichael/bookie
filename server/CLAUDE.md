@@ -5,42 +5,34 @@ Schema and route reference: [docs/DATABASE_STRUCTURE.md](../docs/DATABASE_STRUCT
 
 ```
 server/
-  prisma.config.ts          Prisma CLI config — schema path + migrate's seed command
-  prisma/schema.prisma, seed.ts
+  prisma.config.ts   Prisma CLI config — schema path + migrate's seed command
+  prisma/            schema.prisma, seed.ts
   src/
-    app.ts, index.ts, config.ts, load-env.ts
-    routes/       Express routers, one per resource — billing (+ the Paddle webhook), telegram
-                  (+ the bot's webhook) and calendar (the iCal feed) among them
-    services/     appointments + availability logic, Explore's provider query (providerSearch)
-                  + its reads (exploreResults) + relevance order and matched service
-                  (providerRelevance — pure), categories (pure) + providerCategories (resolve, set, prune
-                  unused), organizations (pure) + organizationLink
-                  (resolveOrganizationId — registration and the settings profile),
-                  searchFallback (the typo-tolerant retry of an empty search), plans (the
-                  catalogue, add-ons, prices and every limit rule — pure), planUsage (its counts and
-                  stamps), planNotices (the booking-allowance emails), billing (Paddle
-                  subscription items → plan + add-ons, the item builders — pure) + billingSync
-                  (applies a webhook event),
-                  noticeRules (who gets which channel — pure), notify (sends), bookingNotify
-                  (every booking notice), reminders (when one is due — pure)
-    jobs/         reminderJob — the one background job, started by index.ts
-    mappers/      Prisma -> frontend DTOs
-    middleware/   auth, error
-    lib/          api-response, auth-notices, billing-errors, booking-errors, booking-mail,
-                  booking-notices (the words of every booking notice), category-names (every
-                  seeded category's label in all 16 locales; twin of `Categories.names`), cookie-domain,
-                  email-verify, google-oauth, ics, keyed-lock (an in-process mutex per key —
-                  billing's read-modify-write), mail, notice-render (one notice → email
-                  and Telegram), oauth-state, paddle (the only Paddle client), paddle-signature,
-                  password, password-reset, payment (in-person methods, not billing),
-                  plan-errors, plan-mail, prisma, rateLimit, request, return-path,
-                  review-mail, search (twin of src/helpers/search.ts), searchCorrection,
-                  session, telegram (the only Bot API client), telegram-updates, time-format
-                  (Provider.timeFormat: validate, and the time every notice prints; twin of
-                  src/helpers/timeFormat.ts), time-zone (Provider.timeZone: validate +
-                  canonicalise; twin of src/helpers/timeZone.ts),
-                  token
+    app.ts           the only place routers are mounted
+    index.ts         starts the server and the one background job (jobs/reminderJob)
+    config.ts        the only reader of process.env (with load-env.ts)
+    routes/          one router per resource
+    services/        domain logic; the pure halves are unit-tested
+    mappers/         Prisma -> frontend DTOs (entities.ts)
+    middleware/      auth, error, csrf
+    lib/             clients, codes, notices, small utilities
 ```
+
+Modules worth knowing by name:
+
+- **Pure, reachable from `tests/unit/server/`:** `services/plans.ts` (catalogue, add-ons,
+  prices, every limit rule), `billing.ts` (Paddle items → plan + add-ons, item builders),
+  `noticeRules.ts`, `reminders.ts`, `providerRelevance.ts`, `categories.ts`,
+  `organizations.ts`; `lib/paddle-signature.ts`, `ics.ts`, `telegram-updates.ts`,
+  `notice-render.ts`, `return-path.ts`, `booking-errors.ts`, `error-response.ts`.
+  Their I/O halves (`billingSync`, `notify`, `bookingNotify`, `planUsage`, `exploreResults`)
+  are not.
+- **Twins of `src/` modules, kept identical by hand** (no import path between packages):
+  `lib/search.ts` ↔ `src/helpers/search.ts`, `lib/time-format.ts` ↔ `src/helpers/timeFormat.ts`,
+  `lib/time-zone.ts` ↔ `src/helpers/timeZone.ts`, `lib/payment.ts` ↔ `src/helpers/payment.ts`,
+  `lib/password.ts` ↔ `src/helpers/password.ts`, `lib/category-names.ts` ↔ `Categories.names`.
+- `lib/keyed-lock.ts` and `lib/rateLimit.ts` are **in-process** — a second API instance
+  needs `pg_advisory_xact_lock` and Redis respectively.
 
 ## The response envelope is non-negotiable
 
@@ -51,465 +43,240 @@ Every JSON response, success or failure:
 { "value": null, "error": { "code": number, "message": string } }
 ```
 
-Build it with the helpers in `src/lib/api-response.ts` — never hand-roll `res.json`.
-The frontend's `Endpoint<>` contract in `src/interfaces/api.ts` depends on this shape.
-
-### What a failure answers
+Build it with the helpers in `src/lib/api-response.ts` — never hand-roll `res.json`. The
+frontend's `Endpoint<>` contract in `src/interfaces/api.ts` depends on this shape.
 
 A route raises what it means with `throw new HttpError(status, message, code?)` (or
-`fail()` in the identity routes). Everything else that reaches `middleware/error.ts` is
-mapped by `lib/error-response.ts` — import-free so `tests/unit/server/errorResponse.spec.ts`
-can reach it:
-
-| Thrown | Status | `message` in production |
-|---|---|---|
-| body-parser: malformed JSON / body too large | 400 / 413 | `Malformed JSON body` / `Request body too large` |
-| multer: too many files, unexpected field / file too large | 400 / 413 | multer's own |
-| Prisma `P2025` / `P2002` / `P2003` | 404 / 409 / 409 | `Not found` / `Conflict` |
-| Prisma validation (an unvalidated body field of the wrong type) | 400 | `Invalid request` |
-| any other `http-errors` 4xx | its status | `Bad request` |
-| anything else | 500 | `Internal server error` |
-| no route matched (`app.ts`, before `errorHandler`) | 404 | `Not found` |
-
-**Outside production the generic messages carry the original** — `Internal server error:
-Cannot read properties of undefined…` — because the web app's development details show the
-envelope's message, and "Internal server error" alone tells a developer nothing. The client
-never shows this text in production; it picks translated copy by **status** and code
-(`src/components/CLAUDE.md` → *Errors*). That is why the status matters more than the
-message: every client-error row above used to answer 500 (and an unknown path an HTML
-page), so a client mistake read as an outage, with a Retry that could never work.
-
-A handler that has already answered and then throws goes to Express's default handler
-(`res.headersSent`) — writing a second response inside `errorHandler` would throw there.
+`fail()` in the identity routes). Everything else reaching `middleware/error.ts` is mapped
+by `lib/error-response.ts`: body-parser and multer errors → 400/413, Prisma `P2025` → 404,
+`P2002`/`P2003` → 409, Prisma validation → 400, other `http-errors` 4xx keep their status,
+anything else → 500, no matching route → 404. **The status matters more than the message**:
+the client picks translated copy by status and code (`src/components/CLAUDE.md` → *Errors*).
+Outside production the generic messages carry the original error. A handler that already
+answered and then throws goes to Express's default handler (`res.headersSent`).
 
 ## Rules
 
 - **ESM with explicit `.js` extensions on relative imports** (`./routes/providers.js`),
-  even though the sources are `.ts`. This is a hard requirement of the module setup —
-  omitting the extension fails at runtime, not at compile time.
-- Route mounting happens only in `app.ts`. A new resource means a new router file plus
-  one `app.use` line.
+  even though the sources are `.ts`. Omitting it fails at runtime, not at compile time.
+- Route mounting happens only in `app.ts`: a new resource is a router file plus one
+  `app.use` line.
 - Prisma shapes must not leak to the client — go through `src/mappers/entities.ts`.
 - `optionalAuth` runs globally; per-route protection comes from `middleware/auth.ts`.
-- Config is centralised in `src/config.ts` with defaults. Read `process.env` there, not
-  scattered through routes. Every module that reads `process.env` at module scope must
-  import `./load-env.js` itself — `config.ts` and `lib/prisma.ts` do. It resolves the
-  server's own env file by path, so `pnpm watch` (cwd = repo root) cannot leave Prisma
-  pointed at the Next.js env.
-- **The API reads `server/.env` and nothing else.** There is no Next.js-style cascade
-  here: `load-env.ts` hands `dotenv.config` one absolute path, so a
-  `.development.local` / `.production.local` sibling is **never loaded by the running
-  process**. Those are deploy-payload staging files, read only by
-  `scripts/env-to-base64.mjs` (`pnpm env:base64 <name>`) to build the `ENV_API_BASE64`
-  secret.
-
-  This is a trap because the web half *does* cascade — Next.js loads its own
-  `.development.local` automatically — so two packages in one repo treat identically
-  named files differently. A credential edited in the server's `.development.local`
-  changes nothing about what the dev API sends, and the symptom points outward rather
-  than at the file: the mail engine answers `403 Invalid API key` for a key you can see
-  is correct in the file you just edited. Local values belong in `server/.env`.
-- **Prisma CLI config lives in `prisma.config.ts`**, not in a `prisma` block in
-  `package.json` — that block is deprecated in Prisma 6.19 and gone in 7. A config file
-  makes the CLI skip its implicit env loading ("Prisma config detected, skipping
-  environment variable loading"), which is why the file imports `dotenv/config` itself.
-  Remove that import and `prisma migrate deploy` runs with no `DATABASE_URL`.
+- Read `process.env` only in `src/config.ts`. Every module that reads it at module scope
+  imports `./load-env.js` itself (`config.ts` and `lib/prisma.ts` do).
+- **The API reads `server/.env` and nothing else.** `load-env.ts` hands `dotenv.config` one
+  absolute path, so a `.development.local` / `.production.local` sibling is **never loaded
+  by the running process** — those are deploy-payload staging files read only by
+  `pnpm env:base64`. The web half *does* cascade, so identically named files behave
+  differently in the two packages: a credential edited in the server's `.development.local`
+  changes nothing (the symptom is e.g. the mail engine answering `403 Invalid API key`).
+- **Prisma CLI config lives in `prisma.config.ts`**, which makes the CLI skip its implicit
+  env loading — so the file imports `dotenv/config` itself. Remove that import and
+  `prisma migrate deploy` runs with no `DATABASE_URL`.
+- Production runs `node dist/src/index.js` (tsc output), never `tsx`.
+  `scripts/build-api-release.mjs` builds the standalone release; `app.ts` sets
+  `trust proxy` to 1 for the single nginx hop. See `docs/DEPLOYMENT.md`.
+- Uploads are served at `/uploads` on the API origin as **root-relative** paths; the
+  frontend prefixes them (`resolveAssetUrl`). Never return absolute URLs.
 
 ## The session cookie has to reach the *web* host too
 
-Production serves the two halves from different hosts — `bookie.<domain>` and
-`api.bookie.<domain>` — while local dev serves both from `localhost`, where `:7004` and
-`:9004` differ only by a port and cookies ignore ports.
+Production serves `bookie.<domain>` and `api.bookie.<domain>`; dev serves both from
+`localhost`, where cookies ignore ports. `src/proxy.ts` and Server Components on the web
+host read `bookie_session` too, so a host-only API cookie works in dev and silently fails in
+production (sign-in succeeds, every guarded route 307s back). `lib/session.ts` therefore
+sets `Domain` from `config.cookieDomain`, which defaults in production to `CORS_ORIGIN`'s
+hostname (the web host, which covers the API subdomain).
 
-So a **host-only cookie is same-host in dev and cross-host in production**, and this one is
-not only read by the API. `src/proxy.ts` guards every signed-in route on the web host by
-checking `bookie_session` is merely *present*; Server Components forward the request's
-cookies to the API (`app/[lang]/providers/[providerId]/page.tsx`). Both live on
-`bookie.<domain>` and see nothing without a `Domain`.
-
-That shipped: sign-in succeeded, the client believed it held a session because its XHRs to
-`api.` did carry the cookie, and the first navigation to a guarded route 307'd back to
-sign-in. Nothing reproduced locally and the API was healthy throughout.
-
-`lib/session.ts` therefore sets `Domain` from `config.cookieDomain`, which defaults in
-production to **`CORS_ORIGIN`'s hostname** — the web host, which covers its own subdomains
-and so covers the API. Two things follow:
-
-- **Do not widen it to the bare registrable domain.** `.mnavasardian.com` would put this
-  session JWT on every request to every sibling app, `api-mail-engine` included.
-- **`clearSessionCookie` must keep repeating the set attributes.** A browser overwrites a
-  cookie only when name, path *and domain* all match, so a logout that forgets `Domain`
-  leaves the session alive. The options are factored into one function for this reason.
-
-The Google OAuth cookies (`bookie_oauth`, `bookie_oauth_pending`) stay host-only on
-purpose: they are set and read by this API alone, within `/identity/google`.
+- **Do not widen it to the bare registrable domain** — it would put the session JWT on
+  every sibling app.
+- **`clearSessionCookie` must repeat the set attributes**, `Domain` included, or logout
+  leaves the session alive. That is why the options live in one function.
+- The Google OAuth cookies (`bookie_oauth`, `bookie_oauth_pending`) stay host-only.
 
 ## Email goes through the mail engine, and only from here
 
-`src/lib/mail.ts` is the **only** client for the external mail engine and the only module
-that reads `MAIL_API_KEY`. Procedure, request contract and worked examples are in the
-**`mail` skill** (`.claude/skills/mail/SKILL.md`); the non-negotiables are here because
-this file loads whenever you touch `server/`:
+`src/lib/mail.ts` is the **only** client for the external mail engine and the only reader of
+`MAIL_API_KEY`. Procedure and contract: the **`mail` skill**. Non-negotiables:
 
-- **The frontend never calls the engine.** `src/` has no key and adding one would ship it
-  to the browser. The client posts to our API, which forwards — that is the whole reason
-  `POST /contact` exists rather than the form calling out directly.
-- **The key never leaves `lib/mail.ts`.** Not returned, not put in an error, not logged. A
-  failed send logs the status and the engine's own message, never the request headers.
-- **`internal` reaches us, `external` reaches a user.** `/mail/internal/send` takes no
-  `to` at all — the engine owns the admin address — so it cannot be aimed. Never use it to
-  mail a user, or `external` to mail ourselves.
-- **Escape visitor-authored text before it reaches an HTML body** (`escapeHtml`). The
-  engine's DOMPurify pass stops scripts, not an `<a href>` or `<img>` someone typed.
-- **A public route that sends must rate-limit at our edge first.** The engine's 10/minute
-  is per IP *as it sees them*, and it only sees this server — so all traffic shares one
-  bucket with transactional mail. `lib/rateLimit.ts`, in-memory and per-process: move it
-  to Redis before running a second API instance.
-- **An unconfigured engine is normal in dev and an outage in production.** `.env.example`
-  ships an empty `MAIL_API_KEY`, so `isMailConfigured()` is false locally; log and succeed
-  there, `503` in production. `MailResult` never throws, so an ignored return value is a
-  silently dropped email. Booking confirmation and reschedule notify (`lib/booking-mail.ts`)
-  **must** ignore a failure: the appointment is already saved; create returns
-  `emailSent: false`, reschedule still `200`.
+- **The frontend never calls the engine** — it posts to our API, which forwards.
+- **The key never leaves `lib/mail.ts`** — not returned, logged, or put in an error.
+- **`internal` reaches us, `external` reaches a user.** Never swap them.
+- **Escape visitor-authored text before it reaches an HTML body** (`escapeHtml`).
+- **A public route that sends must rate-limit at our edge first** (`lib/rateLimit.ts`).
+- **Unconfigured is normal in dev, an outage in production**: log and succeed locally,
+  `503` in production. `MailResult` never throws, so an ignored return value is a dropped
+  email. A send that follows a committed write (booking mail, review report) logs and
+  carries on — the row is the record.
 
-**Contact messages are not persisted, deliberately.** `POST /contact` validates,
-honeypots, rate-limits and forwards — there is no `ContactMessage` table. The admin inbox
-is the system of record; a table would duplicate it, hold name/email/free-text PII with no
-retention policy, and never be read while there is no admin surface. That is also why the
-route reports a failed send instead of banking the message silently.
-
-**Review reports *are* persisted, and the difference is the reader.** `POST /reviews/:id/report`
-writes a `ReviewReport` row *and* emails us. That is not a change of heart about the rule
-above — it is the rule applied to a case where its premise no longer holds. The argument
-against a `ContactMessage` table turned on there being no admin surface to read it;
-`/admin/reviews` is that surface, and it has to know which reports are still open. So the
-email is the alert and the row is the queue.
-
-Two consequences follow, and both are the opposite of `contact.ts`:
-
-- **A failed send does not fail the request.** The row is already committed and the queue
-  already has it, so `lib/review-mail.ts` logs and returns `void` — there is no outcome a
-  caller should branch on. Contact surfaces its failure because it has nothing to fall
-  back on. Same bargain `lib/booking-mail.ts` makes with a confirmed booking.
-- **The rate limiter is keyed on the provider id, not the IP.** The route is
-  authenticated, so there is a stable identity to count against — and that identity is
-  exactly what is being abused when someone tries to bury a page's reviews under reports.
-  An IP key would let one provider spend everyone else's budget from a shared network.
+**Contact messages are not persisted** (no `ContactMessage` table; the inbox is the system
+of record), so `POST /contact` reports a failed send. **Review reports are persisted**
+(`ReviewReport`, read by `/admin/reviews`), so their failed email does not fail the request,
+and their rate limit is keyed on the provider id, not the IP.
 
 ## An emailed link has a reader, and the param name is the contract
 
-Every link this server mails is consumed by a page in `src/app/`, and the two halves live in
-different packages with no shared type between them. Nothing catches a disagreement: the
-query param is a string on one side and a string on the other, so a mismatch typechecks,
-lints, builds, and reaches the inbox — where the page reads `undefined` and tells the
-visitor their link expired. That shipped once, on signup verification.
+Every link this server mails is read by a page in `src/app/`, with no shared type between
+the packages — a mismatch typechecks and reaches the inbox, where the page reads
+`undefined` and says the link expired. So: **mint the link in `lib/return-path.ts`, read
+the param from `src/constants/auth.ts` / `ROUTES`, and pin the pair in a unit test.**
 
-So: **mint the param from `lib/return-path.ts` and read it from `src/constants/auth.ts`, and
-keep the pair pinned by a test.**
+| Link | Minted by | Param / path | Read by | Pinned by |
+|---|---|---|---|---|
+| Signup verification, email change | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `auth/verify-email`, `{providers,consumers}/profile` | `returnPath.spec.ts` |
+| Password reset | `buildPasswordResetUrl` | `PASSWORD_RESET_QUERY` (`token`) | `auth/reset-password` | **inspection only** — see `docs/BACKLOG.md` |
+| Booking approval request | `buildApprovalsUrl` | `PROVIDER_APPROVALS_PATH` | `profile/approvals` | `bookingErrors.spec.ts` |
+| Booking allowance (80% / 100%) | `buildPlanUrl` | `PROVIDER_PLAN_PATH` | `profile/plan` | `planErrors.spec.ts` |
+| Provider notices | `buildBookingsUrl` | `BOOKINGS_PATH` | `/bookings` | `billingErrors.spec.ts` |
+| Paddle checkout | `buildBillingCheckoutUrl` | `BILLING_CHECKOUT_PATH` (+ Paddle's `_ptxn`) | `billing/checkout` | `billingErrors.spec.ts` |
 
-| Link | Minted by | Param | Read by |
-|---|---|---|---|
-| Signup verification | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `app/[lang]/auth/verify-email` |
-| Email change | `buildEmailVerifyUrl` | `EMAIL_VERIFY_QUERY` (`verifyEmail`) | `app/[lang]/{providers,consumers}/profile` |
+The two query names are **not** interchangeable — `TOKEN_QUERY` on a verification page is
+the exact bug this prevents. A new link gets a row here and a pinned test, which means its
+builder lives in a module a test can import. **`isAllowedEmailVerifyReturnPath` takes no
+role**: it accepts either settings home, because a provider with a Consumer profile changes
+their email from `/consumers/profile` (pinned by `returnPath.spec.ts`).
 
-**`isAllowedEmailVerifyReturnPath` takes no role.** It accepts either settings home and
-nothing else. It used to narrow to the caller's own side, which was never the
-open-redirect guard — `splitLocalePath` is — and became a bug the moment the settings
-shell gained its workspace switch: a provider who holds a Consumer profile changes their
-email from `/consumers/profile`, their session still reads `provider`, and the send
-answered `Invalid return path`. Do not put the role back; pinned by
-`tests/unit/server/returnPath.spec.ts`.
-| Password reset | `buildPasswordResetUrl` | `PASSWORD_RESET_QUERY` (`token`) | `app/[lang]/auth/reset-password` |
-| Booking approval request | `buildApprovalsUrl` | *(path, not a param)* `PROVIDER_APPROVALS_PATH` | `app/[lang]/providers/(account)/profile/approvals` |
-| Booking allowance (80% / 100%) | `buildPlanUrl` | *(path, not a param)* `PROVIDER_PLAN_PATH` | `app/[lang]/providers/(account)/profile/plan` — pinned by `tests/unit/server/planErrors.spec.ts` |
-| Provider notices (new booking, change, cancellation, reminder) | `buildBookingsUrl` | *(path)* `BOOKINGS_PATH` | `app/[lang]/bookings` — pinned by `tests/unit/server/billingErrors.spec.ts` |
-| Paddle checkout (`checkout.url`, + Paddle's `?_ptxn=`) | `buildBillingCheckoutUrl` | *(path)* `BILLING_CHECKOUT_PATH`; `_ptxn` is Paddle's | `app/[lang]/billing/checkout` — pinned by `billingErrors.spec.ts` |
-
-The approvals link is the same trap with a path instead of a query param, and it is pinned
-the same way: the builder lives in `lib/return-path.ts` — the only half a unit test can
-reach — and `tests/unit/server/bookingErrors.spec.ts` asserts it equals
-`ROUTES.providerProfileApprovals`. `lib/booking-mail.ts` re-exports it, so call sites did
-not change.
-
-`tests/unit/server/bookingErrors.spec.ts` pins `BOOKING_ERROR` (`4201` paused, `4202`
-full) against the web's `BOOKING_ERROR_CODES` the same way: the booking sheet swaps its
-calendar for the contact notice on either, so a renumbering on one side leaves a visitor
-retrying a page that cannot book. It also pins a second cross-package string:
-`SLOT_TAKEN_MESSAGE`, which is thrown by `services/appointments.ts` and matched by
-`src/helpers/booking.ts#isSlotTakenError` to tell "somebody took that time" apart from every
-other 409 the booking route answers. It lives in `lib/booking-errors.ts`, a module that
-imports nothing, purely so the test can hold both sides at once. Renaming it alone
-typechecks and ships — and the only symptom is a recoverable error degrading back into a
-raw red toast.
-
-The two names are **not** interchangeable, which is the trap — reaching for `TOKEN_QUERY` on a
-verification page is the exact bug above.
-
-`buildEmailVerifyUrl` and `EMAIL_VERIFY_QUERY` were moved into `lib/return-path.ts` (and are
-re-exported from `lib/email-verify.ts`, so call sites did not change) for one reason: that
-module imports nothing but `lib/request.ts`, which makes it the only half of the pair a test
-can reach. `tests/unit/server/returnPath.spec.ts` imports the server constant and the web one
-side by side and asserts they are equal, so renaming either alone now fails there.
-
-`buildPasswordResetUrl` is **not** pinned that way — `lib/password-reset.ts` imports config,
-Prisma and the mail client, so no unit test can reach it. The reset pair agrees today and is
-held only by inspection; see `docs/BACKLOG.md`. When you add a link, add its row here and
-give it a pinned test, which means putting the builder somewhere a test can import.
+The same pin covers two more cross-package strings in `lib/booking-errors.ts` (an
+import-free module, so the test can hold both sides): `BOOKING_ERROR` (`4201` paused, `4202`
+full) against the web's `BOOKING_ERROR_CODES`, and `SLOT_TAKEN_MESSAGE` against
+`src/helpers/booking.ts#isSlotTakenError`.
 
 ## Booking approval: the slot is held either way
 
-`Provider.requiresBookingApproval` (default **false**) decides whether a submitted booking
-lands as `pending` and waits on `/providers/profile/approvals`, or as `scheduled` and goes
-straight onto the calendar. Four rules hold it together, and `docs/DATABASE_STRUCTURE.md`
-has the full table.
+`Provider.requiresBookingApproval` (default **false**) decides whether a booking lands as
+`pending` or `scheduled`. Full table: `docs/DATABASE_STRUCTURE.md`.
 
-- **`pending` is a live status.** `LIVE_STATUSES` in `services/appointments.ts` is
-  `['pending', 'scheduled', 'confirmed']`, and the overlap check *and*
-  `getProviderBusyIntervals` both read that one declaration. The grid a visitor sees and
-  the guard that rejects their submit must never be able to disagree about what "taken"
-  means. Leaving a slot open until a decision would double-book whoever asks second, and
-  the provider would then be refusing a booking the app had told them was fine.
-- **Approving writes `scheduled`, not a sixth state.** That is exactly the row an
-  auto-approving provider would have had, so nothing downstream has to learn a second
-  spelling of "on the calendar". Declining writes `cancelled`.
-- **Only `PATCH /provider-profile/bookings/:id/decision` may move a booking out of
-  `pending`**, and `PATCH /appointments/:id` refuses it for the receiving provider with a
-  409. The difference is mail: the decision route sends it and the status route does not,
-  so confirming from the Bookings kebab would put the booking on the calendar and leave a
-  client who was told they were under review with no word either way. The *booker* can
-  still cancel a pending booking — from the manage link or their own list — because a
-  request awaiting someone else is exactly what its maker must be able to withdraw.
-- **The approval-request email is not gated on `emailNotificationPrefs.newBooking`.** That
-  preference silences a notice about something already settled. This one is the only thing
-  that makes a decision happen at all, so silencing it would leave a client waiting on a
-  provider who was never told to decide. It is also sent independently of the booker's
-  own mail succeeding.
+- **`pending` is a live status.** `LIVE_STATUSES` (`services/appointments.ts`) is
+  `['pending', 'scheduled', 'confirmed']`, read by both the overlap check and
+  `getProviderBusyIntervals`, so the grid and the guard never disagree about "taken".
+- **Approving writes `scheduled`, not a new state.** Declining writes `cancelled`.
+- **Only `PATCH /provider-profile/bookings/:id/decision` moves a booking out of `pending`**
+  — it sends the mail; `PATCH /appointments/:id` refuses it for the receiving provider with
+  a 409. The *booker* can still cancel a pending booking.
+- **The approval-request email is not gated on `emailNotificationPrefs.newBooking`** — it
+  is what makes a decision happen at all.
 
-`GET /providers/:id/busy` is the public read the grid subtracts. It returns instants and
-nothing else — no id, service or booker — and caps its window at 100 days so a public
-route cannot be turned into a scan of one provider's whole history. It replaced
-`getProviderAvailability`, whose fixed 30-minute grid no client could use; see
-`docs/BACKLOG.md` #6 for why two slot engines existed and what closing it changed.
+`GET /providers/:id/busy` is the public read the grid subtracts: instants only (no id,
+service or booker), window capped at 100 days.
 
 ## Plans — every limit goes through `getEntitlements`
 
-`services/plans.ts` holds the catalogue and every rule (pure, `now` injected, unit-tested);
+`services/plans.ts` holds the catalogue and every rule (pure, `now` injected);
 `services/planUsage.ts` counts and stamps; `services/planNotices.ts` sends the allowance
-emails. Strategy and catalogue: [docs/BILLING.md](../docs/BILLING.md). Four rules:
+emails. Strategy: [docs/BILLING.md](../docs/BILLING.md).
 
 - **Never read `Provider.plan` to gate a feature.** `getEntitlements(provider, now)` applies
-  `planExpiresAt` too, and merges every live add-on (`ProviderAddon`) on top; a direct read
-  would keep granting a lapsed plan and ignore what was bought on its own. Its input type
-  *requires* `addons`, so select **`ENTITLEMENT_SELECT`** wherever a plan is enforced — a
-  narrow `{ plan, planExpiresAt }` select fails to typecheck. Detail payloads get add-ons
-  through `providerInclude`; Explore's `providerListInclude` does not need them.
-- **Nothing consumer-facing is ever withdrawn by a plan.** Over-cap services stay live and
-  editable (`takesServiceSlot` only blocks an inactive → active move), a grandfathered slug
-  keeps resolving and survives SEO saves (`needsCustomSlug`), and slug resolution never
-  looks at the plan. Block growth, never remove.
-- **A visitor is never told about a plan.** A spent allowance closes the online calendar
-  with `BOOKING_ERROR.bookingFull` and a plan-neutral `details.onlineBooking: 'full'` — the
-  public payload carries no plan, limit or count (`tests/unit/server/mappers.spec.ts`).
-- **The booking allowance is a soft cap.** Count and insert are not one transaction; an
-  overshoot of one under a simultaneous submit is accepted, like the overlap race.
-
-The allowance emails are **not gated on `emailNotificationPrefs`**, for the reason the
-approval-request email is not: once the page stops taking bookings, they are the only way
-the provider learns clients are being turned away. They are sent fire-and-forget after the
-booking route answers.
-
-## `/admin/*` — the admin surface
-
-`routes/admin.ts`, behind `requireAdmin` (`middleware/auth.ts`). Two jobs: **review
-moderation** (list reports, hide/restore a review, close a report) and **plan assignment**
-(`GET /admin/providers`, `PATCH /admin/providers/:id/plan`) — one of the two writers of
-`Provider.plan`; the Paddle webhook is the other, and overwrites a manual assignment on a
-provider with a live subscription at its next event (the row says `billing: 'paddle'`). It
-also **grants add-ons** (`PATCH /admin/providers/:id/addons`), which writes only `admin`
-`ProviderAddon` rows — the webhook never touches them, and this route never touches the
-`paddle` ones. A plan or add-on write is logged with the acting `userId`, because there is no
-audit table.
-
-- **Admin is not a role.** `SessionPayload.role` is only `consumer | provider`; an admin
-  signs in with whichever account they already have and is recognised by their identity
-  email appearing in `config.adminEmails` (`ADMIN_EMAILS`, comma-separated). The email is
-  re-read from the `User` row per request, so removing someone takes effect on their next
-  request rather than when their 7-day cookie expires. A column would have meant a
-  `SessionPayload` change and a claim that grants access without a second look at the
-  database.
-- **An empty allowlist admits nobody**, checked explicitly rather than relying on
-  `[].includes()` — true today, one refactor away from not being.
-- **It answers 404, never 403.** A 403 confirms the surface exists and that the account
-  merely lacks the grant, which is the first useful thing to learn before attacking it.
-  `/routes-overview` excludes the route for the same reason (`src/constants/header.ts`).
-- **Hiding is a `hiddenAt` timestamp, never a delete**, and it recomputes the provider's
-  aggregate in the same transaction — a review removed for abuse must stop dragging the
-  score it was written to damage, and a wrongly hidden one has to be restorable.
-
-## Webhooks are mounted before the JSON parser and `requireSameOrigin`
-
-`POST /billing/webhook` (Paddle) and `POST /telegram/webhook` are the only routes called by
-another server, and `app.ts` mounts both **ahead of** `express.json()` and
-`requireSameOrigin`, on their exact paths:
-
-- **Paddle signs the raw bytes.** Its route gets `express.raw`; once `express.json` has
-  consumed the stream, the HMAC can no longer be checked. `lib/paddle-signature.ts` verifies
-  against every secret in `PADDLE_WEBHOOK_SECRET`, so a rotation can run two destinations.
-- **Neither sends `Origin` or `Referer`**, which `requireSameOrigin` refuses in production.
-  Each authenticates its caller instead — the HMAC, and `setWebhook`'s secret token.
-- **A webhook answers 2xx to anything it cannot act on**, and 5xx only when applying failed on
-  our side, so the sender retries exactly what can still succeed.
-
-Do not move them below the parser "for consistency", and do not add a third webhook
-anywhere else.
-
-## Third-party secrets each have one reader
-
-The rule `lib/mail.ts` keeps for `MAIL_API_KEY` holds for every credential: one module reads
-it from `config`, never returns, logs or puts it in an error. `PADDLE_API_KEY` →
-`lib/paddle.ts`; `TELEGRAM_BOT_TOKEN` → `lib/telegram.ts` (it is part of every request URL,
-so a failure logs Telegram's description, never the URL); `GOOGLE_CLIENT_SECRET` →
-`lib/google-oauth.ts`; `GEMINI_API_KEY` → `lib/gemini.ts` (sent as the `x-goog-api-key`
-header, never in the URL). Each is empty in a fresh clone and the feature reports itself
-unavailable rather than throwing — `isPaddleConfigured()`, `isTelegramConfigured()`,
-`isGeminiConfigured()`, and `/health` reports all three.
-
-A photo sent to Gemini is held **in memory only** (`multer.memoryStorage()` in
-`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves to anyone.
+  `planExpiresAt` and merges live add-ons (`ProviderAddon`). Select **`ENTITLEMENT_SELECT`**
+  wherever a plan is enforced — a narrow `{ plan, planExpiresAt }` select fails to typecheck.
+- **Nothing consumer-facing is ever withdrawn by a plan.** Over-cap services stay live
+  (`takesServiceSlot` only blocks inactive → active), a grandfathered slug keeps resolving
+  (`needsCustomSlug`). Block growth, never remove.
+- **A visitor is never told about a plan.** A spent allowance answers
+  `BOOKING_ERROR.bookingFull` and a plan-neutral `details.onlineBooking: 'full'`; the public
+  payload carries no plan, limit or count (`mappers.spec.ts`).
+- **The booking allowance is a soft cap** — an overshoot of one under a simultaneous submit
+  is accepted.
+- The allowance emails are **not gated on `emailNotificationPrefs`** and are sent
+  fire-and-forget after the booking route answers.
 
 ## Billing — the webhook is the only writer of billing state
 
-`routes/billing.ts` only *asks* Paddle for things — a checkout, a plan switch, an add-on
-change, a portal link. What a provider holds is written by `POST /billing/webhook` alone,
-through `services/billingSync.ts`, from the subscription snapshot every `subscription.*` event
-carries (`services/billing.ts#subscriptionToSnapshot`). It writes `plan`, `planExpiresAt` and
-the `paddle` `ProviderAddon` rows, so `getEntitlements` reads billing exactly as it reads an
-admin assignment. Out-of-order and repeated events are handled by `billingEventAt` and by a
-snapshot being idempotent — no events table — and the columns and rows are written in one
-transaction claimed by compare-and-set on `billingEventAt`. The full state table is in
-[docs/BILLING.md](../docs/BILLING.md).
+`routes/billing.ts` only *asks* Paddle (checkout, switch, add-on change, portal link). What a
+provider holds — `plan`, `planExpiresAt`, the `paddle` `ProviderAddon` rows — is written by
+`POST /billing/webhook` alone, through `services/billingSync.ts`, from the subscription
+snapshot every `subscription.*` event carries. Out-of-order and repeated events are handled
+by compare-and-set on `billingEventAt` in one transaction — no events table.
 
-**One subscription, several items.** A change reads the items from Paddle, never from our
-webhook-fed copy, and `PATCH`es the whole list back (Paddle removes what is left out), inside
-`billingLock` (`lib/keyed-lock.ts`) — per-process, like `lib/rateLimit.ts`; a second API
-instance needs `pg_advisory_xact_lock` instead. The item builders (`itemsForPlan`,
-`itemsForAddon`) keep an existing item's own price id and pass unknown items through, so a
-change never strips something a subscriber is still paying for.
+A change reads the items **from Paddle**, never from our copy, and `PATCH`es the whole list
+back (Paddle removes what is left out) inside `billingLock`. The item builders keep an
+existing item's own price id and pass unknown items through. Full state table:
+`docs/BILLING.md`.
 
-## Notifications — email and Telegram, decided in one place
+## Webhooks are mounted before the JSON parser and `requireSameOrigin`
 
-`services/noticeRules.ts#channelsFor` decides who gets which channel; `services/bookingNotify.ts`
-is every booking notice after the fact. A provider's own Telegram needs the plan's
-`telegramNotifications`; a client's never depends on any plan. **Every notice is
-best-effort** — the booking is committed — and is fired without awaiting where the response
-should not wait. There is no SMS. See [docs/NOTIFICATIONS.md](../docs/NOTIFICATIONS.md).
+`POST /billing/webhook` (Paddle) and `POST /telegram/webhook` are the only server-to-server
+routes. `app.ts` mounts both **ahead of** `express.json()` and `requireSameOrigin`:
+
+- **Paddle signs the raw bytes** — its route gets `express.raw`. `lib/paddle-signature.ts`
+  accepts every secret in `PADDLE_WEBHOOK_SECRET`, so a rotation can run two destinations.
+- **Neither sends `Origin`/`Referer`**; each authenticates with the HMAC or the bot's secret
+  token instead.
+- **Answer 2xx to anything we cannot act on**, 5xx only when applying failed on our side.
+
+Do not move them below the parser, and do not add a third webhook anywhere else.
+
+## Third-party secrets each have one reader
+
+One module reads each credential from `config` and never returns, logs or puts it in an
+error: `MAIL_API_KEY` → `lib/mail.ts`, `PADDLE_API_KEY` → `lib/paddle.ts`,
+`TELEGRAM_BOT_TOKEN` → `lib/telegram.ts` (it is in every request URL — log Telegram's
+description, never the URL), `GOOGLE_CLIENT_SECRET` → `lib/google-oauth.ts`,
+`GEMINI_API_KEY` → `lib/gemini.ts` (sent as the `x-goog-api-key` header). Each is empty in a
+fresh clone and the feature reports itself unavailable (`isPaddleConfigured()`,
+`isTelegramConfigured()`, `isGeminiConfigured()`, `/health`) rather than throwing. Google
+sign-in without credentials redirects back with `?error=google_unavailable`.
+
+A photo sent to Gemini is held **in memory only** (`multer.memoryStorage()` in
+`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves.
+
+## Notifications
+
+`services/noticeRules.ts#channelsFor` decides who gets which channel;
+`services/bookingNotify.ts` sends every booking notice. A provider's own Telegram needs the
+plan's `telegramNotifications`; a client's never depends on a plan. **Every notice is
+best-effort** — the booking is committed. No SMS. See `docs/NOTIFICATIONS.md`.
 
 **The reminder job is the API's one background job** (`jobs/reminderJob.ts`), started by
-`index.ts` and never by `createApp`. Everything else stays computed on read — plan expiry
-included — because a single process with no scheduler is still the design. The job claims
-each send by compare-and-set on `Appointment.providerRemindedAt` / `bookerRemindedAt` before
-sending, so it is at-most-once even with a second poller. Any new code that moves a booking
-to a new time must clear both stamps, as `rescheduleAppointment` does.
+`index.ts`, never by `createApp`. Everything else is computed on read. It claims each send
+by compare-and-set on `Appointment.providerRemindedAt` / `bookerRemindedAt`, so it is
+at-most-once. **Code that moves a booking to a new time must clear both stamps**, as
+`rescheduleAppointment` does.
 
-## Production
+## `/admin/*`
 
-`pnpm build` (tsc) emits `dist/`, and production runs `node dist/src/index.js` — not `tsx`,
-which is a dev-only dependency. `scripts/build-api-release.mjs` turns `dist/` + `prisma/`
-into a standalone single-package release that installs its own dependencies on the host;
-its header explains why the API cannot ship as a workspace slice. `app.ts` sets
-`trust proxy` to 1 for the single nginx hop, and `HOST=127.0.0.1` keeps the listener off
-every public interface. Procedure: [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md).
+`routes/admin.ts`, behind `requireAdmin`: review moderation, plan assignment
+(`PATCH /admin/providers/:id/plan`) and add-on grants (`PATCH /admin/providers/:id/addons`,
+`admin` rows only — the webhook never touches them, this route never touches `paddle` ones).
+The webhook overwrites a manual plan on a provider with a live subscription. Plan and
+add-on writes are logged with the acting `userId` (no audit table).
 
-## Local stack
+- **Admin is not a role.** It is the identity email appearing in `ADMIN_EMAILS`, re-read
+  from the `User` row per request. An empty allowlist admits nobody, checked explicitly.
+- **It answers 404, never 403** — a 403 confirms the surface exists.
+- **Hiding a review is a `hiddenAt` timestamp, never a delete**, and recomputes the
+  provider's aggregate in the same transaction.
 
-```bash
-cp server/.env.example server/.env   # placeholders; matches docker-compose creds
-pnpm db:up                            # needs Docker Desktop
-pnpm db:setup                         # migrate + seed
-pnpm watch                            # web :7004 + api :9004
-```
+## Consumer data is never public
 
-Every **local** seeded account signs in with the password `bookie-dev-1234`, hashed by
-`lib/password.ts` exactly as registration does. Emails and the rest are in
-[docs/DEV_CREDS.md](../docs/DEV_CREDS.md). The seed also creates one Google-only consumer
-(`gohar.nazaryan@bookie.am`) with an email and a fake `googleId` and no password — email
-is required on that row too.
+There is no public consumer read. `consumerProfileRouter` runs on **`requireAuth`** and
+derives the row from `session.userId` — never a parameter — so the only record any caller
+can reach is their own. That is what lets a provider who also booked as a client reach
+their own consumer settings. `requireProvider` stays for provider capabilities.
 
-Google sign-in stays disabled until `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` /
-`GOOGLE_REDIRECT_URI` are set; `GET /health` reports `{ google: false }` and
-`GET /identity/google` redirects back with `?error=google_unavailable` rather than failing.
-
-Uploads are served from the API's own origin at `/uploads`. The API returns
-root-relative paths, so the frontend must prefix them — that is what
-`src/helpers/images.ts#resolveAssetUrl` does. Do not return absolute URLs from here.
+**`GET /provider-profile/bookings` returns the booker's name, phone and email** — a
+deliberate widening: the provider id comes off `req.session.profileId`, so it reaches only
+the provider those appointments belong to. Those fields live in `mapProviderBooking`
+(`mappers/entities.ts`) and **nowhere else** — not `GET /appointments`, `mapConsumer`,
+`mapConsumerSideBooking`, or any route keyed on a consumer id. The provider list's name
+search matches `guestEmail` but **not** a consumer's email, so a provider cannot probe which
+addresses hold accounts.
 
 ## The seed must stay idempotent
 
-`pnpm install` runs `scripts/postinstall.mjs`, which migrates *and* seeds. So the seed
-re-runs on every install, against a database that already holds the previous run's rows.
-Every write in `prisma/seed.ts` has to tolerate that:
+`pnpm install` runs `scripts/postinstall.mjs`, which migrates *and* seeds, so the seed
+re-runs against the previous run's rows. Local seeded accounts use the password
+`bookie-dev-1234` (`docs/DEV_CREDS.md`).
 
 | Model | What makes it re-runnable |
 |---|---|
 | User, Category | `upsert` on a unique key (`email`, `name`) |
 | Provider, Consumer | `upsert` on `userId`, with `update: {}` |
-| Organization | `findFirst` on `name` — that column has **no** unique constraint |
-| Appointment, Review | `findFirst` on the identifying columns — neither has a unique key |
-| FavoriteProvider | `createMany({ skipDuplicates: true })` against the composite `(userId, providerId)` key |
+| Organization | `findFirst` on `name` — **no** unique constraint |
+| Appointment, Review | `findFirst` on the identifying columns — no unique key |
+| FavoriteProvider | `createMany({ skipDuplicates: true })` on `(userId, providerId)` |
 
-`Review` seeding is a `reviewDefs[]` loop guarded by `findFirst` on the consumer/provider
-pair, and the seed ends by calling `recomputeProviderRating` for every provider. That last
-step is unconditional on purpose: the migration backfills the aggregates once, but a
-developer who edits `reviewDefs` or deletes a row by hand needs the four denormalised
-columns to follow, and one aggregate per provider on a seed run costs nothing.
-
-Reach for `upsert` only where a unique constraint actually exists; the other three models
-have none, so a plain `create` is what duplicates them. `update: {}` is deliberate — a
-re-run must not duplicate a provider's nested `services` or overwrite rows edited while
-developing. The cost is that editing `providerDefs` does not refresh a provider that
-already exists; delete the row or run `npx prisma migrate reset` in `server/`.
-
-Two bugs this section exists to prevent, both fixed: `provider.create` threw `P2002` on
-`Provider.userId` on every install after the first, and `organization.create` silently
-appended another eight organizations per run — no error, just a growing table.
-
-## Consumers are never public
-
-`GET /consumers` and `GET /consumers/:id` used to be mounted unauthenticated and returned
-every consumer's name and phone number to anyone who asked. Nothing in the app called them.
-They are gone, and `consumersRouter` no longer exists — only `consumerProfileRouter`, behind
-`requireConsumer`, which scopes every read and write to the caller's own record.
-
-If a provider ever needs to see who booked them, that belongs on the appointment and scoped
-to that provider, not on a lookup keyed by a guessable id.
-
-**`consumerProfileRouter` runs on `requireAuth`, not a role guard — and that is not a
-widening.** It used to sit behind `requireConsumer`, which was a role check standing in for
-an identity check, exactly the mistake `POST /appointments` corrected. `loadProfile`
-resolves a session to `provider` whenever the User holds both profiles, so a provider who
-booked anyone got a Consumer row from `resolveConsumerId` and was then locked out of it —
-their own notification preferences and payment methods unreachable, permanently on
-defaults. The row is now derived from `session.userId` and is still never a parameter, so
-there is exactly one record any caller can reach: their own. `requireConsumer` is deleted
-rather than left unused; `requireProvider` stays, because a Provider profile is a
-capability (a public page, a catalogue, a calendar) rather than a second view of the same
-person.
-
-### …and that is exactly what `GET /provider-profile/bookings` is
-
-It returns the booking consumer's **name, phone and email**, which `GET /appointments`
-does not. That is a deliberate widening, taken under the rule above rather than around it:
-
-- **Why it exists.** A day's client list that cannot be phoned is not a client list. Guest
-  bookings already carry the same four fields, so withholding them for signed-in consumers
-  made the provider's calendar arbitrarily less useful for their *better* customers.
-- **What bounds it.** The route is on `providerProfileRouter` behind `requireProvider`, and
-  the provider id comes off `req.session.profileId` — it is never a parameter, so there is
-  no id to tamper with and no way to aim it at another provider's calendar. The contact
-  details reach only the provider those appointments belong to.
-- **Where it is allowed to live.** `mapProviderBooking` in `mappers/entities.ts`, and
-  nowhere else. Do not add these fields to `GET /appointments`, to `mapConsumer`, to
-  `mapConsumerSideBooking`, or to any route keyed on a consumer id. The consumer-side
-  workspace list names the *other* provider and must not carry their phone or email.
-  A search by name on the receiving-provider list deliberately matches `guestEmail` but
-  **not** a consumer's email, so a provider cannot probe for which addresses hold accounts.
+Use `upsert` only where a unique constraint exists; a plain `create` on the others
+duplicates them. `update: {}` is deliberate, so editing `providerDefs` does not refresh an
+existing provider — delete the row or run `npx prisma migrate reset` in `server/`. The seed
+ends by calling `recomputeProviderRating` for every provider, unconditionally.

@@ -54,23 +54,23 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | HTTP calls, endpoint URLs, response processors | `src/api/<domain>/` — 4 files, see `src/api/CLAUDE.md` |
 | Client state, entity types | `src/store/<domain>/<slice>/` — see `src/store/CLAUDE.md` |
 | Routes and pages | `src/app/` — see `src/app/CLAUDE.md` for the route map |
+| Why a feature is built the way it is (Explore, provider page, bookings, settings, auth) | `docs/routes/` — indexed at the top of `src/app/CLAUDE.md` |
 | Reusable UI | `src/components/ui/` — see `src/components/CLAUDE.md` |
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
-| Matching typed search text, duplicate-name checks | `src/helpers/search.ts` (twin: `server/src/lib/search.ts`) · empty-search retry `server/src/services/searchFallback.ts` · Explore's relevance order and matched service `server/src/services/providerRelevance.ts` · translated category names `server/src/lib/category-names.ts` |
+| Matching typed search text, duplicate-name checks | `src/helpers/search.ts` (twin: `server/src/lib/search.ts`) · Explore's ranking `server/src/services/providerRelevance.ts`, empty-search retry `searchFallback.ts` |
 | Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
 | Showing an error (dev details vs production copy, Retry) | `src/helpers/error.ts` (classify) · `src/components/ui/ErrorAlert.tsx`, `ErrorState.tsx` · `src/hooks/useErrorToast.tsx` · `src/components/errors/` — see *Errors* in `src/components/CLAUDE.md` |
 | Error copy, all 16 locales | `Errors.kinds.*` (by failure kind), `Errors.codes.*` (by stable code), `Errors.pages.*` in `src/messages/` |
 | Ratings, reviews, the Explore ranking | `server/src/services/reviews.ts` (the Bayesian score + parsers) · `server/src/routes/reviews.ts` · `src/api/reviews/` |
-| Favourites (the heart on a provider card, `/favorites`) | `server/src/routes/favorites.ts` · `src/api/favorites/` · `src/store/favorites/list/` · `src/hooks/useFavoriteProvider.ts` · `src/components/favorites/` — see `src/app/CLAUDE.md` |
-| Bookings page (`/bookings`, both sides of an account) | `src/app/[lang]/bookings/` — see `src/app/CLAUDE.md` |
-| Admin: review moderation, plan assignment and add-on grants | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/reviews/`, `admin/providers/` — see `server/CLAUDE.md` |
-| Plans, add-ons (single features and capacity packs on any plan), prices, limits, `/pricing`, the Plan tab (only providers pay) | `docs/BILLING.md` · `server/src/services/plans.ts` (catalogue, add-ons, prices, every rule) · `src/api/plans/` · `src/components/plans/` |
-| Paddle subscriptions — checkout, webhook, switch, add-on changes, billing portal | `docs/PADDLE_SETUP.md` (operator setup) · `server/src/routes/billing.ts` · `server/src/services/billing.ts` (pure: items → plan + add-ons, item builders) + `billingSync.ts` · `server/src/lib/paddle.ts` (the only key reader) · `src/api/billing/` · `src/app/[lang]/billing/` · `src/hooks/useStartCheckout.ts`, `useAwaitPlan.ts`, `usePlanPrices.ts` |
-| Notifications — who gets which email / Telegram, the reminder job | `docs/NOTIFICATIONS.md` · `server/src/services/noticeRules.ts` (pure: channels) · `notify.ts` · `bookingNotify.ts` · `server/src/lib/booking-notices.ts` (the words) · `server/src/jobs/reminderJob.ts` |
-| Bookings from a photo of handwritten notes ("Add from photo" on `/bookings`, Google Gemini) | `server/src/routes/bookingImport.ts` · `server/src/services/bookingImport.ts` (pure: prompt, schema, parsers) · `server/src/lib/gemini.ts` (the only key reader) · `createProviderAppointments` in `server/src/services/appointments.ts` · `src/api/bookingImport/` · `src/helpers/bookingImport.ts` (slot rules) · `src/components/bookingImport/` — see *Bookings a provider enters* in `docs/DATABASE_STRUCTURE.md` |
-| Telegram (Connect, the bot's webhook) | `server/src/routes/telegram.ts` · `server/src/lib/telegram.ts` (the only token reader) · `src/api/telegram/` · `src/components/settings/TelegramConnect.tsx` |
-| Calendar — the provider's iCal feed, a client's `.ics` | `server/src/routes/calendar.ts` · `server/src/lib/ics.ts` · `src/api/calendar/` · `src/components/settings/CalendarFeed.tsx` |
+| Favourites (the heart, `/favorites`) | `server/src/routes/favorites.ts` · `src/store/favorites/list/` · `src/hooks/useFavoriteProvider.ts` — see `docs/routes/bookings-and-favorites.md` |
+| Bookings page (`/bookings`, both sides of an account) | `src/app/[lang]/bookings/` — see `docs/routes/bookings-and-favorites.md` |
+| Admin: review moderation, plan assignment, add-on grants | `server/src/routes/admin.ts` behind `ADMIN_EMAILS` · `src/app/[lang]/admin/` |
+| Plans, add-ons, prices, limits, `/pricing`, the Plan tab | `docs/BILLING.md` · `server/src/services/plans.ts` (every rule) · `src/components/plans/` |
+| Paddle — checkout, webhook, switch, add-ons, portal | `docs/PADDLE_SETUP.md` · `server/src/routes/billing.ts` · `server/src/services/billing.ts` + `billingSync.ts` · `src/app/[lang]/billing/` |
+| Notifications — who gets which email / Telegram, the reminder job | `docs/NOTIFICATIONS.md` · `server/src/services/noticeRules.ts` · `server/src/jobs/reminderJob.ts` |
+| "Add from photo" on `/bookings` (Google Gemini) | `server/src/services/bookingImport.ts` · `src/helpers/bookingImport.ts` · `src/components/bookingImport/` — see *Bookings a provider enters* in `docs/DATABASE_STRUCTURE.md` |
+| Telegram, the iCal feed / `.ics` | `server/src/routes/telegram.ts`, `calendar.ts` · `src/components/settings/TelegramConnect.tsx`, `CalendarFeed.tsx` |
 | Terms, Privacy, Refund Policy | `src/components/legal/LegalDocument.tsx` + `src/constants/legal.ts` · copy in `Legal.*` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
@@ -83,16 +83,11 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | CI and deploy pipelines | `.github/workflows/` |
 | What's still outstanding | `docs/BACKLOG.md` |
 
-**Ten directories carry their own `CLAUDE.md`** — `src/api`, `src/app`,
-`src/components`, `src/helpers`, `src/i18n`, `src/store`, `src/styles`, `server`,
-`tests`, `deployment`. Each holds
-that layer's invariants and its known non-canonical code. They load automatically when
-you open a file in that directory, so read the relevant one before editing rather than
-inferring the pattern from neighbouring files.
-
-Because they load on *touch*, they cannot route you to a directory you have not opened
-yet — that is this table's job. If you are about to grep the codebase to learn a
-convention, check the table first.
+**Ten directories carry their own `CLAUDE.md`** (`src/api`, `src/app`, `src/components`,
+`src/helpers`, `src/i18n`, `src/store`, `src/styles`, `server`, `tests`, `deployment`) with
+that layer's invariants. They load when you touch a file there, so they cannot route you to
+a directory you have not opened yet — that is this table's job. Check it before grepping to
+learn a convention.
 
 ## Skills
 
@@ -104,18 +99,10 @@ convention, check the table first.
 - **`mail`** — sending email through the external mail engine: the internal-vs-external
   endpoint split, the request contract, and where the API key may live. Use it before
   writing any send.
+- **`translations`** — adding or changing copy in the 16 catalogues, or adding a locale.
 
-## Cursor
-
-Cursor loads `.claude/skills/` and `.claude/agents/` natively — do not duplicate those
-bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
-
-| Cursor | Points at |
-|---|---|
-| `.cursor/rules/*.mdc` | Nested `CLAUDE.md` files (glob-scoped) + `.cursor/rules/claude-source-of-truth.mdc` index |
-| `.cursor/skills/` | `.claude/commands/` — `/route`, `/commit-and-push`, `/best-avoid-practices` |
-| `.cursor/agents/architect.md` | `.claude/agents/architect.md` (adds `readonly` + Opus model) |
-| `.cursor/hooks.json` | `.claude/hooks/deny-env-access.mjs` for shell; native read guard for `.env*` |
+Cursor adapters in `.cursor/` only point at these files; their map is
+`.cursor/rules/claude-source-of-truth.mdc`. Do not copy instruction text into them.
 
 ## Working rules
 
@@ -123,23 +110,18 @@ bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
   structure and naming exactly. Do not invent a new pattern where one exists.
 - **Reuse before creating.** `src/helpers/CLAUDE.md` indexes every utility; check it.
 - **Read an antd prop's current type before you write it** — Ctrl+click it, or open
-  `node_modules/antd/es/<component>/index.d.ts`. antd 6.6.1 marks 199 props across 62
-  components `@deprecated` and TypeScript errors on none of them, so `pnpm typecheck`
-  stays green while the prop breaks on the next major. Never carry a prop over from
-  memory or a v4/v5 snippet. The deprecated→current mapping and its grep gate live in
-  `src/components/CLAUDE.md`.
+  `node_modules/antd/es/<component>/index.d.ts`. antd 6.6.1 has 199 `@deprecated` props
+  and TypeScript errors on none of them. Never carry a prop over from memory or a v4/v5
+  snippet. The deprecated→current mapping lives in `src/components/CLAUDE.md`.
 - No `any` without an explicit justification in a comment.
 - Explicit types on parameters and return values. Strongly typed `Props` on every component.
 - **Prefer a named export declared inline** — `export const AppButton = …` over
-  `export default AppButton` or a trailing `export { AppButton }`. A default export lets
-  each import site invent its own name for the symbol, so a rename never propagates and
-  the codebase stops being greppable; a trailing `export {}` splits the declaration from
-  the fact that it is public. Re-exporting from another module
-  (`export { AppButton } from './AppButton'`) is how barrels work and is fine.
-  **A preference, not a requirement:** when a framework or tool resolves the module *by*
-  its default binding, the default export is a contract — leave it. That covers Next.js
-  route modules (see `src/app/CLAUDE.md`), config files, and ambient `.d.ts` declarations.
-  `no-restricted-syntax` in `eslint.config.mjs` flags the free cases as a **warning**.
+  `export default AppButton` or a trailing `export { AppButton }`: a default export lets
+  each import site rename the symbol, so renames never propagate. Barrel re-exports
+  (`export { AppButton } from './AppButton'`) are fine. Where a framework resolves the
+  module *by* its default binding — Next.js route modules (`src/app/CLAUDE.md`), config
+  files, ambient `.d.ts` — the default export is a contract; leave it. ESLint warns on
+  the free cases.
 - Absolute imports from `src/`. Import order is enforced — `pnpm lint-fix` sorts it.
 - Keep files small and single-purpose; split rather than append.
 - Comment only where the purpose is not obvious from the code and its naming.
@@ -167,9 +149,6 @@ bodies in `.cursor/`. Thin Cursor adapters live in `.cursor/` and point here:
 
 Documentation here is load-bearing: agents and humans both read it instead of re-deriving
 the codebase. **A stale doc is worse than no doc** — it produces confident wrong work.
-This repo has been bitten by exactly that (a handoff file claimed a phase was unstarted
-months after it shipped).
-
 So when a change lands, update the docs **in the same change**, not later:
 
 | What you did | Where it gets recorded |
@@ -177,6 +156,7 @@ So when a change lands, update the docs **in the same change**, not later:
 | Added a subsystem, layer, or directory | A new `CLAUDE.md` in that directory + a row in *Where things live* above |
 | Added a tool, script, or dependency | *Commands* above, plus the nested `CLAUDE.md` that owns it |
 | Established a convention or best practice | The nested `CLAUDE.md` for that layer — or a skill in `.claude/skills/` if it is a procedure rather than a rule |
+| Made or changed a feature's design decision (the *why*, not a rule) | That feature's `docs/routes/*.md` (or `docs/BILLING.md`, `NOTIFICATIONS.md`) — keep the nested `CLAUDE.md` to rules and pointers |
 | Completed a large refactor | Summarise in `docs/history/`, update every affected nested `CLAUDE.md`, and delete what it resolved from `docs/BACKLOG.md` |
 | Found a defect you are not fixing now | `docs/BACKLOG.md`, plus a test asserting current behaviour named `KNOWN BUG:` |
 | Fixed something listed in the backlog | Remove the entry and flip its test to assert correct behaviour |

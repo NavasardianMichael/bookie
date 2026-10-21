@@ -88,7 +88,7 @@ Do not hydrate a store with props a Server Component already fetched.
 **`providers/list` is the live example of that rule.** `GET /providers` is paged, so the
 slice carries a `pagination` window alongside `list` and `getProvidersList` takes an
 optional `ProvidersListQuery`. Explore does **not** use it: that page keeps its query in
-the URL and fetches on the server — see `src/app/CLAUDE.md`. The slice stays for a
+the URL and fetches on the server — see `docs/routes/explore.md`. The slice stays for a
 genuinely client-side provider list, and `pagination` is read back from the response
 rather than echoed, because the API clamps an out-of-range `page`.
 
@@ -114,13 +114,10 @@ That is not an action taking `get` — the store itself still destructures only 
   `AuthCallbackClient`) checks it first: sending a signed-in user to sign-in mid-outage told
   them their session was gone when it was the server. Every other store rethrows to its
   caller, which shows the failure (`src/components/CLAUDE.md` → *Errors*).
-- **`src/store/categories/list/store.ts`** starts empty and loads only where a page asks.
-  It used to ship fake seed data in `initialState` — one row whose `allIds` entry (`'c-1'`)
-  did not even match its own `byId` key (`'smth'`) — so every category picker offered an id
-  the API had never issued. No picker reads a list store any more: the provider Categories
-  and Organization fields search the API as the provider types (`useCategorySuggestions`,
-  `useOrganizationSuggestions`). There is no `organizations/list` slice; its only reader was
-  the deleted onboarding form.
+- **`initialState` holds no fake rows.** `categories/list` starts empty and loads only where
+  a page asks. Pickers do not read list stores at all — the Categories and Organization
+  fields search the API as the provider types (`useCategorySuggestions`,
+  `useOrganizationSuggestions`).
 - **`errorMiddleware`** (`src/helpers/store.ts`) is auth-only and only reassigns
   `api.setState` — it does **not** catch rejections thrown inside async actions.
 - Action return types drift between `() => void` and `() => Promise<void>` for

@@ -20,52 +20,26 @@ path. Only a server module with no imports of its own is reachable this way: any
 pulling in `../config.js` needs env stubbing and does not belong here. `lib/rateLimit.ts`
 qualifies and is tested; `lib/mail.ts` does not.
 
-One module is reached anyway: `googleOauth.spec.ts` covers `lib/google-oauth.ts`
-(`fullNameOf`, the `email_verified` gate in `readGoogleProfile`, the `GOOGLE_ERROR` codes)
-by `vi.mock`-ing `../config.js` and `./oauth-state.js` with factories, so neither real
-module — nor the env file `config.js` loads — is ever evaluated. `pnpm typecheck` still
-follows the real imports, so the spec also does `import type {} from
-'…/server/src/types/express'` for the `Request` augmentation `oauth-state.ts` relies on. That
-is the pattern for a pure function stranded in a config-importing module, and a stopgap:
-lifting the function into an import-free module is better (`docs/BACKLOG.md` #12). It is not
-a licence to stub env vars. `request.spec.ts` covers `lib/request.ts` (`asFullName`)
-directly, since it imports nothing.
-
-One deliberate exception: `returnPath.spec.ts` also imports `@constants/auth` by alias, to
-assert the server's `EMAIL_VERIFY_QUERY` equals the web constant that the verification page
-reads links with. That cross-package pin is the *point* of the test — the two halves of an
-emailed link have no shared type, and when they disagreed the only symptom was a valid link
-reported as expired (see `server/CLAUDE.md`). It pins the Google sign-up redirect the same
-way: `GOOGLE_SIGN_UP_QUERY` against the web constant, and the paths `googleSignUpPath`
-builds against `ROUTES` (`@constants/routes`). Reach across like this when a test's subject
-is an agreement between the packages, not merely for convenience — `organizations.spec.ts`
-does the same to pin the new-organization length caps to `@constants/form` (and
-`categories.spec.ts` the category limits, `request.spec.ts` the name cap),
-`search.spec.ts` runs every case against both twins of the search matcher
-(`src/helpers/search.ts`, `server/src/lib/search.ts`), `planErrors.spec.ts` pins the plan
-codes, the plan order and the Plan tab link, `providerSeo.spec.ts` checks every `ROUTES`
-segment is a reserved slug, `timeFormat.spec.ts` pins `Provider.timeFormat`'s values and
-their `Intl` hour cycles to `@constants/schedule` and `@helpers/timeFormat`, and
-`categoryNames.spec.ts` rebuilds `server/src/lib/category-names.ts` from every catalogue's
-`Categories.names` and `@constants/categories`, so a retranslated category cannot leave
-Explore matching the old word.
-
-Explore's ranking is reachable for the same reason as the plan rules below:
-`services/providerRelevance.ts` is pure, and `providerRelevance.spec.ts` covers the order and
-the matched service. The reads around it (`services/exploreResults.ts`) import Prisma and are
-not.
-
-The plan rules are reachable here because `server/src/services/plans.ts` is pure and takes
-`now` — including the Prisma `where` that counts the booking allowance
-(`bookingsThisMonthWhere`), which is how "cancelled bookings do not count" is tested without
-a database. Billing, notifications and the calendar were built the same way, so their rules
-are reachable too: `services/billing.ts` (Paddle state → plan, event ordering),
-`lib/paddle-signature.ts`, `services/noticeRules.ts` (channels), `services/reminders.ts`
-(when one is due), `lib/ics.ts`, `lib/telegram-updates.ts` and `lib/notice-render.ts`. Their
-I/O halves (`billingSync.ts`, `notify.ts`, `bookingNotify.ts`, `jobs/reminderJob.ts`) are not.
-`billingErrors.spec.ts` pins the billing codes, the checkout page Paddle redirects to, and
-the bookings link in provider notices. The counts themselves, and the routes' wiring, are not reachable from
+**So put server rules in pure modules.** That is why `services/plans.ts` takes `now` and
+returns even the Prisma `where` for the booking allowance (`bookingsThisMonthWhere`), and why
+billing, notices, reminders, relevance and the calendar each have a pure half (list in
+`server/CLAUDE.md`). Their I/O halves and the routes' wiring are not reachable from
 `pnpm test` (see `docs/BACKLOG.md`).
+
+A pure function stranded in a config-importing module can be reached as `googleOauth.spec.ts`
+does — `vi.mock` `../config.js` and `./oauth-state.js` with factories, plus `import type {}
+from '…/server/src/types/express'` for the `Request` augmentation. That is a stopgap; lifting
+the function into an import-free module is better (`docs/BACKLOG.md` #12), and it is not a
+licence to stub env vars.
+
+**Reach across packages only when the test's subject is an agreement between them.** The two
+halves of an emailed link, an error code or a twin module share no type, so a pin is the only
+thing that catches drift: `returnPath.spec.ts` (`EMAIL_VERIFY_QUERY`, `GOOGLE_SIGN_UP_QUERY`
+vs `@constants/auth` and `ROUTES`), `bookingErrors.spec.ts`, `planErrors.spec.ts`,
+`billingErrors.spec.ts`, `search.spec.ts` (every case against both twins),
+`timeFormat.spec.ts`, `categoryNames.spec.ts` (rebuilds `category-names.ts` from every
+catalogue), `providerSeo.spec.ts`, and the length-cap pins in `organizations.spec.ts`,
+`categories.spec.ts`, `request.spec.ts`.
 
 ```bash
 pnpm test         # unit + integration — fast, no external dependencies
@@ -108,13 +82,7 @@ anywhere. E2E is deliberately excluded from it.
 These assert **current, wrong** behaviour so a fix is a deliberate, visible change rather
 than a surprise failure. Each names its entry in `docs/BACKLOG.md`. When you fix the
 underlying defect, rewrite the test to assert the correct behaviour and remove the
-backlog entry — do not delete the test.
-
-**Currently: none.** All five went green on 2026-09-11 — `splitScheduleIntoParts`
-mutating its caller's breaks, `normalizedToFlat` yielding `undefined`, duplicate ids
-surviving a normalize round-trip, `generateEntityUrl('home', …)` doubling the slash, and
-`processError(null)` throwing. Each test was rewritten to assert the fixed behaviour
-rather than deleted, so the defect cannot come back unnoticed.
+backlog entry — do not delete the test. (Currently there are none.)
 
 ## What is worth testing here
 

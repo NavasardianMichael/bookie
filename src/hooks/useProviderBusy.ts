@@ -24,7 +24,7 @@ export type ProviderBusy = {
  * nothing, and moving it into a new month reads only that month.
  *
  * `loading` is derived from what is missing rather than set before the fetch, the rule the
- * Bookings panels follow (`src/app/CLAUDE.md`): state is only ever written from the request's
+ * Bookings panels follow (`docs/routes/bookings-and-favorites.md`): state is only ever written from the request's
  * own callbacks.
  */
 export const useProviderBusy = (providerId: string | null, months: readonly string[]): ProviderBusy => {
