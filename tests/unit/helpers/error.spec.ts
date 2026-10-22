@@ -5,6 +5,7 @@ import { BILLING_ERROR_CODES } from '@constants/billing'
 import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { IMPORT_ERROR_CODES } from '@constants/bookingImport'
 import { PLAN_ERROR_CODES } from '@constants/plans'
+import { ASSISTANT_ERROR_CODES } from '@constants/profileAssistant'
 import {
   buildErrorDetails,
   classifyError,
@@ -224,6 +225,11 @@ describe('resolveErrorCopyKey', () => {
     expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
   })
 
+  it.each(Object.entries(ASSISTANT_ERROR_CODES))('names the catalogue copy for profile assistant code %s', (name, code) => {
+    const classified = classifyError(axiosError({ status: 422, data: envelope(code, 'assistant') }))
+    expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
+  })
+
   it('has catalogue copy for every stable code, under a unique name', () => {
     const names = [
       ...Object.keys(AUTH_ERROR_CODES),
@@ -231,6 +237,7 @@ describe('resolveErrorCopyKey', () => {
       ...Object.keys(PLAN_ERROR_CODES),
       ...Object.keys(BILLING_ERROR_CODES),
       ...Object.keys(IMPORT_ERROR_CODES),
+      ...Object.keys(ASSISTANT_ERROR_CODES),
     ]
     expect(new Set(names).size).toBe(names.length)
     names.forEach((name) => expect(en.Errors.codes).toHaveProperty(name))

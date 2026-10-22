@@ -12,6 +12,7 @@ and easy to "fix" back by accident:
 | Public provider page `/p/[slug]`, its URL and SEO, booking panels, time-zone controls | `docs/routes/provider-page.md` |
 | `/bookings`, `/favorites`, the heart | `docs/routes/bookings-and-favorites.md` |
 | A settings tab, the workspace switch | `docs/routes/account-settings.md` |
+| The profile assistant (the ⚡ button, the AI-drafted workspace review) | `docs/routes/profile-assistant.md` |
 | Registration, sign-in, Google, become-provider | `docs/routes/auth.md` |
 | Plans, `/pricing`, the Plan tab, checkout | `docs/BILLING.md` |
 

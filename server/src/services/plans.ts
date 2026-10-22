@@ -46,6 +46,12 @@ export type Entitlements = {
    * `routes/bookingImport.ts`.
    */
   photoImportsPerDay: number | null
+  /**
+   * Profile-assistant runs (a description turned into a drafted workspace) per UTC day, over
+   * the same window as photo imports. Metered for the same reason: each one spends the shared
+   * Gemini quota. Applying a draft is free; only generating one counts.
+   */
+  profileAssistantRunsPerDay: number | null
 }
 
 /**
@@ -68,6 +74,7 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     calendarFeed: false,
     removeBranding: false,
     photoImportsPerDay: 1,
+    profileAssistantRunsPerDay: 1,
   },
   basic: {
     maxActiveServices: 10,
@@ -75,6 +82,7 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     analyticsHistoryDays: 365,
     customSlug: true,
     photoImportsPerDay: null,
+    profileAssistantRunsPerDay: null,
     ...PAID_CONVENIENCE,
   },
   standard: {
@@ -83,6 +91,7 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     analyticsHistoryDays: null,
     customSlug: true,
     photoImportsPerDay: null,
+    profileAssistantRunsPerDay: null,
     ...PAID_CONVENIENCE,
   },
   premium: {
@@ -91,6 +100,7 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     analyticsHistoryDays: null,
     customSlug: true,
     photoImportsPerDay: null,
+    profileAssistantRunsPerDay: null,
     ...PAID_CONVENIENCE,
   },
 }
@@ -355,6 +365,19 @@ export const assertPhotoImport = (usedToday: number, entitlements: Entitlements)
     403,
     `Your plan includes ${entitlements.photoImportsPerDay} photo import a day. It resets at midnight UTC.`,
     PLAN_ERROR.photoImportLimit
+  )
+}
+
+/**
+ * Refuses a profile-assistant run past today's allowance — `assertPhotoImport`'s twin, over the
+ * same UTC day (`photoImportPeriod`).
+ */
+export const assertProfileAssistantRun = (usedToday: number, entitlements: Entitlements): void => {
+  if (hasRoomFor(usedToday, entitlements.profileAssistantRunsPerDay)) return
+  throw new HttpError(
+    403,
+    `Your plan includes ${entitlements.profileAssistantRunsPerDay} profile assistant run a day. It resets at midnight UTC.`,
+    PLAN_ERROR.profileAssistantLimit
   )
 }
 

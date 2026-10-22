@@ -13,6 +13,8 @@
  * - `photoImportLimit` — today's photo imports are spent (`Entitlements.photoImportsPerDay`).
  *   Its own code rather than `featureLocked`, because the feature *is* included: the
  *   client says when it comes back as well as what an upgrade would change.
+ * - `profileAssistantLimit` — today's profile-assistant runs are spent
+ *   (`Entitlements.profileAssistantRunsPerDay`). Its own code for the reason `photoImportLimit` has one.
  * - `bookingLimit` — bookings the provider enters themselves would pass the monthly
  *   allowance. The provider-side twin of `BOOKING_ERROR.bookingFull`, which is worded for a
  *   visitor and must not mention a plan.
@@ -26,4 +28,5 @@ export const PLAN_ERROR = {
   featureLocked: 4102,
   photoImportLimit: 4103,
   bookingLimit: 4104,
+  profileAssistantLimit: 4105,
 } as const

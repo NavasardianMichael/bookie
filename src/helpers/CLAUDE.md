@@ -45,6 +45,8 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
 | Bookable windows → availability + breaks | `rangesToDaySchedule` | `schedule.ts` |
 | Is the provider open at all this week? | `hasWeekScheduleHours` | `schedule.ts` |
+| A week ↔ the availability editor's open/ranges form (`ScheduleDaysForm`) · a new window's default | `weekScheduleToDayForms`, `dayFormsToWeekSchedule`, `defaultScheduleRange` | `schedule.ts` |
+| Profile assistant: the workspace as a proposal · proposal ↔ review form · what differs (steps, service status, removed) · the service-cap growth rule | `proposalFromProfile`, `proposalToReviewValues`, `reviewValuesToProposal`, `changedSteps`, `serviceStatus`, `removedServices`, `exceedsServiceCap` | `profileAssistant.ts` |
 | Minutes → `"1 h 30 min"` | `formatDuration` | `duration.ts` |
 | Minutes → ISO `PT90M` (schema.org, `<time>`) | `toIsoDuration` | `duration.ts` |
 | Merge Tailwind classes | `cn` | `cn.ts` |
@@ -57,6 +59,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Canonical URL of an entity's page | `generateEntityUrl` | `entities.ts` |
 | **A provider's public page** — `/p/<slug ?? id>`, path or absolute URL. Never build it from the id alone | `providerPagePath`, `providerPageUrl`, `providerPageKey` | `entities.ts` |
 | The provider page's auto title / description (no SEO override set) · cut text at a word | `composeProviderTitle`, `composeProviderDescription`, `trimAtWord` | `providerSeo.ts` |
+| The SEO tab's caps and slug rule (mirrors of `server/src/services/providerSeo.ts`) | `MAX_SEO_TITLE`, `MAX_SEO_DESCRIPTION`, `MIN_SLUG_LENGTH`, `MAX_SLUG_LENGTH`, `isWellFormedSlug` | `providerSeo.ts` |
 | The `/llms.txt` body | `buildLlmsTxt` | `llmsTxt.ts` |
 | Root-relative path of an entity's page (for `push`/`Link`) | `generateEntityPath` | `entities.ts` |
 | Country + national number → `{ code, number }` | `toPhoneNumber` | `registration.ts` |

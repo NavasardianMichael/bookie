@@ -11,7 +11,7 @@ import { config } from '../config.js'
  * than the newer Interactions API because it is stateless — nothing about a provider's
  * clients is stored on Google's side between calls.
  *
- * Built for the **free tier**: one request per photo and no retries here. A free key's
+ * Built for the **free tier**: one request per photo or description and no retries here. A free key's
  * per-minute quota is small and shared by every provider, so a retry loop would spend it for
  * everyone; a `429` goes back to the caller with Google's suggested wait instead.
  */
@@ -55,13 +55,14 @@ const parseRetryDelay = (body: GeminiErrorBody | null): number | undefined => {
 export type GenerateJsonInput = {
   systemInstruction: string
   text: string
-  image: { mimeType: string; data: Buffer }
+  /** A photo to read beside `text`. Absent for a text-only call (the profile assistant). */
+  image?: { mimeType: string; data: Buffer }
   /** A JSON Schema the answer must follow (`generationConfig.responseJsonSchema`). */
   responseSchema: object
 }
 
 /**
- * One image plus instructions in, the model's JSON answer out — as text, for the caller's own
+ * Instructions (and at most one image) in, the model's JSON answer out — as text, for the caller's own
  * parser to narrow. Throws `GeminiError` for every way of not getting one: unconfigured
  * (`0`), no response (`0`, maybe `timedOut`), Google's refusal (its status), or an answer that
  * was blocked or empty (`422`).
@@ -81,7 +82,9 @@ export const generateJson = async (input: GenerateJsonInput): Promise<string> =>
             role: 'user',
             // The image first, then the words about it — Google's order for a single image.
             parts: [
-              { inline_data: { mime_type: input.image.mimeType, data: input.image.data.toString('base64') } },
+              ...(input.image
+                ? [{ inline_data: { mime_type: input.image.mimeType, data: input.image.data.toString('base64') } }]
+                : []),
               { text: input.text },
             ],
           },

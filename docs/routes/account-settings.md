@@ -95,3 +95,7 @@ the session carries a single role, resolved provider-first at login.
 - **The layout guard asks whether the account holds *this* side**, not whether the
   session's role matches it. A payload without `profiles` falls back to the old, narrower
   rule.
+- **The provider side adds a header action**, the profile assistant's ⚡ button
+  (`headerAction`). It sits to the switch's right, or alone at the same spot when there is no
+  switch — a new provider has no Consumer row, so it must not depend on the switch. See
+  [profile-assistant.md](profile-assistant.md).

@@ -57,6 +57,21 @@ export const releasePhotoImport = async (id: string): Promise<void> => {
   await prisma.photoImport.deleteMany({ where: { id } })
 }
 
+/** Profile-assistant drafts generated today (UTC). Rides `ProfileAssistantRun_providerId_createdAt_idx`. */
+export const countAssistantRunsToday = (providerId: string, now: Date): Promise<number> => {
+  const { start, end } = photoImportPeriod(now)
+  return prisma.profileAssistantRun.count({ where: { providerId, createdAt: { gte: start, lt: end } } })
+}
+
+/** Spends one of today's runs before the model call — `recordPhotoImport`'s reasoning. */
+export const recordAssistantRun = async (providerId: string): Promise<string> =>
+  (await prisma.profileAssistantRun.create({ data: { providerId }, select: { id: true } })).id
+
+/** Gives a run back when no draft came of it — `releasePhotoImport`'s reasoning. */
+export const releaseAssistantRun = async (id: string): Promise<void> => {
+  await prisma.profileAssistantRun.deleteMany({ where: { id } })
+}
+
 /**
  * Claims this month's allowance notice for exactly one caller.
  *

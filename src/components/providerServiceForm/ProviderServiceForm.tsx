@@ -27,6 +27,11 @@ type Props = {
   weekSchedule?: WeekSchedule
   timeZone?: string
   timeFormat: TimeFormat
+  /**
+   * Offer the photo field — on by default. The profile assistant's review turns it off: its
+   * apply is one JSON write, and a photo is added on the Services tab afterwards.
+   */
+  withImage?: boolean
 }
 
 /**
@@ -42,6 +47,7 @@ export const ProviderServiceForm: React.FC<Props> = ({
   weekSchedule,
   timeZone,
   timeFormat,
+  withImage = true,
 }) => {
   const t = useTranslations('Services')
   const tCommon = useTranslations('Common')
@@ -97,9 +103,11 @@ export const ProviderServiceForm: React.FC<Props> = ({
         </AppFormItem>
       </div>
 
-      <AppFormItem name='image' label={t('formImage')} hasFeedback={false} className='min-w-0'>
-        <ProviderServiceFormImage />
-      </AppFormItem>
+      {withImage && (
+        <AppFormItem name='image' label={t('formImage')} hasFeedback={false} className='min-w-0'>
+          <ProviderServiceFormImage />
+        </AppFormItem>
+      )}
 
       <ProviderServiceFormAvailability weekSchedule={weekSchedule} timeZone={timeZone} timeFormat={timeFormat} />
 

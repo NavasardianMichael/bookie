@@ -21,6 +21,7 @@ const FEATURE_ROWS: (keyof Entitlements)[] = [
   'maxActiveServices',
   'maxBookingsPerMonth',
   'photoImportsPerDay',
+  'profileAssistantRunsPerDay',
   'analyticsHistoryDays',
   'customSlug',
   'telegramNotifications',

@@ -2,7 +2,8 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import minMax from 'dayjs/plugin/minMax'
 import { DaySchedule, DaySchedulePart, WeekSchedule } from '@store/providers/profile/types'
-import { MAX_DAY_RANGES, WEEK_DAYS_LIST } from '@constants/schedule'
+import { ScheduleDaysForm, ScheduleRangeForm } from '@interfaces/schedule'
+import { MAX_DAY_RANGES, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 
 /**
  * Returns the available parts (availability - breaks).
@@ -116,6 +117,54 @@ export const rangesToDaySchedule = (ranges: DaySchedulePart[]): DaySchedule => {
 
   return { availability: { start: first.start, end: last.end }, breaks }
 }
+
+/** The window a newly opened day, or a newly added range, starts with. */
+export const defaultScheduleRange = (): ScheduleRangeForm => ({
+  start: dayjs('09:00', SCHEDULE_VALUE_FORMAT),
+  end: dayjs('17:00', SCHEDULE_VALUE_FORMAT),
+})
+
+/**
+ * A stored week as the availability editor holds it: each day open when it has hours, with
+ * its bookable windows (availability minus breaks) as pickers. A closed day keeps one default
+ * window ready, so ticking it open shows hours rather than an empty row.
+ */
+export const weekScheduleToDayForms = (weekSchedule: WeekSchedule | undefined): ScheduleDaysForm =>
+  WEEK_DAYS_LIST.reduce((acc, day) => {
+    // Cloned first — `splitScheduleIntoParts` must not see the caller's break objects.
+    const source = weekSchedule?.[day]
+    const parts = splitScheduleIntoParts({
+      availability: { start: source?.availability?.start ?? '', end: source?.availability?.end ?? '' },
+      breaks: (source?.breaks ?? []).map((brk) => ({ ...brk })),
+    })
+    acc[day] = {
+      open: parts.length > 0,
+      ranges: parts.length
+        ? parts.map((part) => ({
+            start: dayjs(part.start, SCHEDULE_VALUE_FORMAT),
+            end: dayjs(part.end, SCHEDULE_VALUE_FORMAT),
+          }))
+        : [defaultScheduleRange()],
+    }
+    return acc
+  }, {} as ScheduleDaysForm)
+
+/** The availability editor's week back to the stored shape — inverse of `weekScheduleToDayForms`. */
+export const dayFormsToWeekSchedule = (days: ScheduleDaysForm): WeekSchedule =>
+  WEEK_DAYS_LIST.reduce((acc, day) => {
+    const row = days[day]
+    acc[day] = row?.open
+      ? rangesToDaySchedule(
+          (row.ranges ?? [])
+            .filter((range) => range.start && range.end)
+            .map((range) => ({
+              start: range.start!.format(SCHEDULE_VALUE_FORMAT),
+              end: range.end!.format(SCHEDULE_VALUE_FORMAT),
+            }))
+        )
+      : { ...EMPTY_DAY, breaks: [] }
+    return acc
+  }, {} as WeekSchedule)
 
 /**
  * Whether the provider is open at all in the week.

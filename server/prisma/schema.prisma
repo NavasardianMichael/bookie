@@ -355,6 +355,12 @@ model Provider {
   /// which is the only way a new joiner is ever discovered. See `services/reviews.ts`.
   ratingScore            Float              @default(4)
 
+  /// When the provider first closed or applied the profile assistant. Null opens it by itself
+  /// on their next visit to settings — a new account's first look at an empty workspace.
+  /// Existing providers were backfilled by `20261025000000_profile_assistant`, so it never
+  /// ambushes them.
+  assistantSeenAt        DateTime?
+
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   categories             ProviderCategory[]
@@ -368,6 +374,7 @@ model Provider {
   /// like `plan` itself — never to gate a feature directly.
   addons                 ProviderAddon[]
   photoImports           PhotoImport[]
+  assistantRuns          ProfileAssistantRun[]
 
   /// Explore's three hot orderings, all prefixed by `listed` because every public
   /// query filters on it. `newest` and the search paths ride the `listed` prefix and
@@ -429,6 +436,19 @@ model PhotoImport {
   createdAt  DateTime @default(now())
 
   /// Today's count for one provider (`planUsage.ts#countPhotoImportsToday`).
+  @@index([providerId, createdAt])
+}
+
+/// One profile-assistant draft Gemini generated (`POST /provider-profile/assistant/generate`).
+/// Counted against `Entitlements.profileAssistantRunsPerDay`, durable for the reason
+/// `PhotoImport` is. Nothing the provider wrote is kept — only that a draft was made, and when.
+model ProfileAssistantRun {
+  id         String   @id @default(uuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  /// Today's count for one provider (`planUsage.ts#countAssistantRunsToday`).
   @@index([providerId, createdAt])
 }
 

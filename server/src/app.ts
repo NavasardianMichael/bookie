@@ -19,6 +19,7 @@ import { favoritesRouter } from './routes/favorites.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
 import { plansRouter, providerPlanRouter } from './routes/plans.js'
+import { profileAssistantRouter } from './routes/profileAssistant.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
 import { providerReviewsRouter, reviewsRouter } from './routes/reviews.js'
 import { telegramRouter, telegramWebhookRouter } from './routes/telegram.js'
@@ -88,6 +89,7 @@ export function createApp() {
   // Before `providerProfileRouter`, on its exact prefix, so none of that router's
   // `/bookings/:id` patterns can ever claim `import`.
   app.use('/provider-profile/bookings/import', bookingImportRouter)
+  app.use('/provider-profile/assistant', profileAssistantRouter)
   app.use('/provider-profile', providerProfileRouter)
   // Same arrangement as the reviews pair above: `GET /provider-profile/plan` lives in
   // `routes/plans.ts` with the rest of the plan surface, and no path overlaps.

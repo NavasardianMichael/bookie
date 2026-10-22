@@ -25,6 +25,7 @@ Change them there and nowhere else — the web reads them from the API (`GET /pl
 | **Price** (USD, monthly) | $0 | $4.99 | $14.99 | $24.99 |
 | Active services | 3 | 10 | 30 | unlimited |
 | Online bookings a month | 50 | 300 | unlimited | unlimited |
+| Profile assistant drafts | `POST /provider-profile/assistant/generate` | Past `profileAssistantRunsPerDay` (Free: 1 per UTC day, paid: unlimited) → `403`, code `4105` (`PLAN_ERROR.profileAssistantLimit`). Counted in `ProfileAssistantRun` rows, the photo-import pattern. Applying a draft is free; its services still meet the cap, but only an apply that *grows* the active count past it is refused (`4101`) |
 | Analytics history | 30 days | 365 days | full | full |
 | Custom `/p/<slug>` link | — | ✓ | ✓ | ✓ |
 | Telegram notifications (the provider's own) | — | ✓ | ✓ | ✓ |

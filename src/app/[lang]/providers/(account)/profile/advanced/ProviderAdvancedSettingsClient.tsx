@@ -2,20 +2,18 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { ControlOutlined } from '@ant-design/icons'
-import { Alert, Form, Segmented, Switch } from 'antd'
-import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { Alert, Form, Switch } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { ProviderProfile } from '@store/providers/profile/types'
 import { useViewerTimeZone } from '@hooks/useViewerTimeZone'
 import { TimeFormat } from '@interfaces/schedule'
-import { SCHEDULE_VALUE_FORMAT, TIME_FORMATS, TIME_FORMATS_LIST } from '@constants/schedule'
-import { getTimeDisplayFormat, resolveTimeFormat } from '@helpers/timeFormat'
+import { resolveTimeFormat } from '@helpers/timeFormat'
 import { formatTimeZoneName, getRuntimeTimeZone, isSameWallClock } from '@helpers/timeZone'
 import { ProviderProfileTimeZone } from '@components/settings/ProviderProfileTimeZone'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
+import { TimeFormatToggle } from '@components/settings/TimeFormatToggle'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -23,8 +21,6 @@ import { AppTitle } from '@components/ui/bare/AppTitle'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
-
-dayjs.extend(customParseFormat)
 
 type FormValues = {
   /** The zone the weekly hours are written in. Undefined only until a suggestion fills it on load. */
@@ -61,30 +57,6 @@ const DeviceTimeZoneHint = () => {
     <AppText size='body-sm' tone='muted'>
       {t('availability.timeZoneDeviceDiffers', { zone: formatTimeZoneName(device, locale) })}
     </AppText>
-  )
-}
-
-/** 21:30 on each clock, so the choice is shown rather than described. */
-const SAMPLE_TIME = dayjs('21:30', SCHEDULE_VALUE_FORMAT)
-
-/**
- * 12- or 24-hour. `value` and `onChange` are injected by `Form.Item` (the `forms` skill's
- * control contract), which is why this is a component rather than a bare `Segmented`.
- */
-const TimeFormatToggle = ({ value, onChange }: { value?: TimeFormat; onChange?: (next: TimeFormat) => void }) => {
-  const t = useTranslations('Settings')
-
-  return (
-    <Segmented<TimeFormat>
-      value={value}
-      onChange={onChange}
-      options={TIME_FORMATS_LIST.map((format) => ({
-        value: format,
-        label: t(format === TIME_FORMATS.h24 ? 'availability.timeFormat24' : 'availability.timeFormat12', {
-          time: SAMPLE_TIME.format(getTimeDisplayFormat(format)),
-        }),
-      }))}
-    />
   )
 }
 

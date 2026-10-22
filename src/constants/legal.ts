@@ -6,7 +6,7 @@
  * Record), a Privacy Policy and a Refund Policy are published (docs/PADDLE_SETUP.md). Change
  * a document and its date together.
  */
-export const LEGAL_LAST_UPDATED = '2026-10-20'
+export const LEGAL_LAST_UPDATED = '2026-10-22'
 
 export type LegalDocumentKey = 'terms' | 'privacy' | 'refund'
 

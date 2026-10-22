@@ -9,7 +9,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, the linked Telegram chat (`telegramChatId` unique, `telegramUsername`, `telegramLinkedAt`) and its one live Connect token (`telegramLinkTokenHash`, `telegramLinkExpiresAt` — see [docs/NOTIFICATIONS.md](NOTIFICATIONS.md)), optional 1:1 Consumer/Provider |
 | **Category** | A provider's specialty (unique name). Attached to **providers only**, 0–3 each (`ProviderCategory`) — see [Categories](#categories). Predefined ones (the six seeded, translated in every locale) are permanent; ones providers add are deleted once no provider uses them |
 | **Organization** | Clinic / facility. Its categories are its listed providers', derived on read — none are stored. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
-| **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
+| **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug`, `assistantSeenAt` (null opens the profile assistant by itself — see [The profile assistant](#the-profile-assistant)) |
 | **Service** | Bookable offering. Title and duration are required; price, currency, description and image are optional — a service has **no category**. `active` hides a withdrawn service from consumers without deleting it. `availability` (JSON, NULL = always) narrows the **days** it is offered on, never the hours — see [Which days a service is offered on](#which-days-a-service-is-offered-on) |
 | **Consumer** | Patient/client profile — `fullName` (see [Names](#names)), contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
@@ -17,6 +17,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
 | **ProviderAddon** | An add-on a provider holds — a single feature or a capacity pack sold beside the plan — from one source: `paddle` (the webhook) or `admin` (`/admin/providers`). Composite primary key `(providerId, addon, source)`, its own `quantity` and `expiresAt`; cascades with the provider. See [Plans and entitlements](#plans-and-entitlements) |
 | **PhotoImport** | One photo of handwritten bookings Gemini read — `providerId` and `createdAt`, nothing about the photo. The meter behind `photoImportsPerDay`; see [Bookings a provider enters](#bookings-a-provider-enters--the-photo-import) |
+| **ProfileAssistantRun** | One workspace draft Gemini generated from a provider's description — `providerId` and `createdAt`, nothing they wrote. The meter behind `profileAssistantRunsPerDay`; see [The profile assistant](#the-profile-assistant) |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
 
 ### Names
@@ -109,6 +110,10 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/provider-profile/consumer-bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for that client-side list |
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound). Clamped to the plan's `analyticsHistoryDays`, measured from now |
 | PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
+| GET | `/provider-profile/assistant` | provider — `{ pending, available, runsPerDay, runsToday }`: whether the assistant opens by itself, whether Gemini is configured, today's allowance. See [The profile assistant](#the-profile-assistant) |
+| POST | `/provider-profile/assistant/generate` | provider — `{ description (≤ 2000), locale, tz }` → `{ proposal }`, the whole workspace drafted from it. Saves nothing |
+| POST | `/provider-profile/assistant/apply` | provider — the reviewed proposal; writes and publishes it all in one transaction → `true` |
+| POST | `/provider-profile/assistant/dismiss` | provider — stamps `assistantSeenAt`, so it stops opening by itself → `true` |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug`. Setting or changing the slug needs the plan's `customSlug` (`403` / `4102`); unchanged and cleared slugs always pass |
 | PATCH | `/provider-profile/organization` | provider — the settings Organization section, saved live: `{ organizationId }` links an existing one, `{ newOrganization }` creates one exactly as registration does (same-name backstop unless `allowSimilar`), `{ organizationId: null }` detaches. `404` for an unknown id, `400` for a body naming none of these. Answers the owner profile |
 | GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, addons: [{ addon, quantity, source, expiresAt? }], betterPlan, billing: { status, periodEndsAt?, cancelsAt?, manageable } \| null, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }`. `entitlements` already include the live add-ons; `betterPlan` is a bigger plan that would cost less than the plan plus the paid add-ons, or `null` |
@@ -559,6 +564,8 @@ enforced:
 | `maxBookingsPerMonth` | `POST /appointments`, after the paused check and before the overlap check | `409`, code `4202` (see [When online booking is closed](#when-online-booking-is-closed)) |
 | `analyticsHistoryDays` | `GET /provider-profile/analytics` | clamped, not refused |
 | `photoImportsPerDay` | `POST /provider-profile/bookings/import/parse`, before the Gemini call | `403`, code `4103` |
+| `profileAssistantRunsPerDay` | `POST /provider-profile/assistant/generate`, before the Gemini call | `403`, code `4105` |
+| `maxActiveServices` (the profile assistant) | `POST /provider-profile/assistant/apply`, only when the apply *grows* the active count past the cap | `403`, code `4101` |
 | `maxBookingsPerMonth` (a provider's own entries) | `POST /provider-profile/bookings/import`, for the whole batch | `403`, code `4104` (see [Bookings a provider enters](#bookings-a-provider-enters--the-photo-import)) |
 
 **On downgrade nothing is withdrawn.** Over-cap services stay live and editable — only
@@ -814,6 +821,48 @@ as any booking without an account does; no email goes anywhere. The slot *grid* 
 client's rule, as on the public route: the review sheet offers only free slots of the
 service's grid (`src/helpers/bookingImport.ts`) and keeps Submit disabled until every row sits
 on one.
+
+### The profile assistant
+
+The magic button beside the workspace switch on every provider settings tab. A provider
+describes their business in their own words, in any language; Gemini drafts their whole
+workspace from it; they review it tab by tab and approve. Routes under
+`/provider-profile/assistant` (`routes/profileAssistant.ts`, mounted before
+`providerProfileRouter`, `requireProvider`, provider id from the session); rules in
+`services/profileAssistant.ts` (pure). Design notes:
+[docs/routes/profile-assistant.md](routes/profile-assistant.md).
+
+**`/generate`** sends the current workspace as JSON — profile, categories, **active**
+services with their ids, the week as bookable windows, clock, approval, payment methods and
+note, notifications, SEO — what the plan allows (service cap, `customSlug`), the predefined
+categories, and the description fenced in `<<< >>>`. The answer is the **whole desired
+state**, not a patch: a service it leaves out is removed, and a week it gives hours for closes
+every day it does not mention. Every field is narrowed to what its settings tab accepts —
+service availability through `parseServiceAvailability`, SEO through `parseProviderSeoBody`,
+the zone through `toTimeZone` — and an empty or unusable value keeps the current one. An id is
+an enum of the provider's own, and a repeated one becomes a new service. The pay-to number,
+phone, photos, Telegram and the calendar feed are never drafted. Refusals: no key → `503`
+`4501`; nothing usable came back → `422` `4502`; Google's `429` → `429` with its
+`Retry-After`; over `profileAssistantRunsPerDay` → `403` `4105`; more than 5 drafts an hour
+(every plan, in-memory) → `429`. A `ProfileAssistantRun` row is written first and deleted if
+no draft came of it, as photo import does.
+
+**`/apply`** re-validates the reviewed proposal as strictly as each tab validates its own
+fields (`parseApplyBody`, including the new `parseWeekSchedule`), then writes it in **one
+transaction**: the provider's columns (name, description, week, zone, clock, approval,
+payment methods and note with the existing pay-to number kept, notifications, SEO, slug, and
+`assistantSeenAt`), the same keys dropped from `Provider.draft` so a stale draft cannot
+overwrite them on Publish, categories (`setProviderCategories`, a new name linked or created),
+and services. A service the proposal leaves out is **deleted when nothing ever booked it and
+switched off when something did** (`Appointment.serviceId` has no `onDelete`); an inactive
+one is left alone. `listed` and `available` are untouched. The plan's service cap refuses only
+growth (`403` `4101`), a slug change needs `customSlug` (`403` `4102`), and a taken slug is
+`409`. `refreshProviderSeoStamp` runs after.
+
+`assistantSeenAt` is null for a new account, so the settings layout opens the assistant by
+itself on their first visit; closing it (`/dismiss`) or applying stamps it.
+`20261025000000_profile_assistant` stamped every existing provider, so only accounts created
+since are greeted.
 
 ## Time zones
 

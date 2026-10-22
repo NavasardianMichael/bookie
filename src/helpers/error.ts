@@ -6,6 +6,7 @@ import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { IMPORT_ERROR_CODES } from '@constants/bookingImport'
 import { ErrorKind, RETRYABLE_ERROR_KINDS } from '@constants/errors'
 import { PLAN_ERROR_CODES } from '@constants/plans'
+import { ASSISTANT_ERROR_CODES } from '@constants/profileAssistant'
 
 const UNKNOWN_ERROR_MESSAGE = 'An unknown error occurred'
 
@@ -198,7 +199,14 @@ export const classifyError = (e: unknown): ClassifiedError => {
  * across families — `tests/unit/helpers/error.spec.ts` resolves every one.
  */
 const CODE_NAMES = new Map<number, string>(
-  [AUTH_ERROR_CODES, BOOKING_ERROR_CODES, PLAN_ERROR_CODES, BILLING_ERROR_CODES, IMPORT_ERROR_CODES].flatMap((codes) =>
+  [
+    AUTH_ERROR_CODES,
+    BOOKING_ERROR_CODES,
+    PLAN_ERROR_CODES,
+    BILLING_ERROR_CODES,
+    IMPORT_ERROR_CODES,
+    ASSISTANT_ERROR_CODES,
+  ].flatMap((codes) =>
     Object.entries(codes).map(([name, code]): [number, string] => [code, name])
   )
 )

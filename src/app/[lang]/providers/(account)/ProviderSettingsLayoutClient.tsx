@@ -1,13 +1,18 @@
 'use client'
 
-import { FC, ReactNode, useEffect, useMemo } from 'react'
+import { FC, Fragment, ReactNode, useEffect, useMemo, useState } from 'react'
 import { ControlOutlined, DollarOutlined } from '@ant-design/icons'
-import { Badge } from 'antd'
+import { App, Badge } from 'antd'
 import { useTranslations } from 'next-intl'
+import { dismissProfileAssistantAPI, getProfileAssistantStatusAPI } from '@api/profileAssistant/main'
+import { ProfileAssistantStatus } from '@api/profileAssistant/types'
+import { useAuthStore } from '@store/auth/store'
 import { useProviderApprovalsStore } from '@store/providers/approvals/store'
 import { ROUTE_KEYS } from '@constants/routes'
 import { PROVIDER_SETTINGS_NAV, toSettingsNavItems } from '@constants/settings'
 import { reportError } from '@helpers/reportError'
+import { ProfileAssistantButton } from '@components/profileAssistant/ProfileAssistantButton'
+import { ProfileAssistantSheet } from '@components/profileAssistant/ProfileAssistantSheet'
 import { AccountSettingsLayout } from '@components/settings/AccountSettingsLayout'
 import {
   BellIcon,
@@ -28,6 +33,11 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
   const t = useTranslations('Settings')
   const pendingApprovals = useProviderApprovalsStore.use.count()
   const getPendingApprovalsCount = useProviderApprovalsStore.use.getPendingApprovalsCount()
+  const getMe = useAuthStore.use.getMe()
+  const { message } = App.useApp()
+  const [assistantStatus, setAssistantStatus] = useState<ProfileAssistantStatus | null>(null)
+  const [assistantOpen, setAssistantOpen] = useState(false)
+  const [assistantRevision, setAssistantRevision] = useState(0)
 
   /**
    * Counted once for the whole account area, because the badge is on the sidebar and
@@ -44,6 +54,42 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
     // not announced — the Approvals tab itself shows the real queue and its errors.
     void getPendingApprovalsCount().catch((error: unknown) => reportError(error, 'ProviderSettingsLayout:approvalsBadge'))
   }, [getPendingApprovalsCount])
+
+  /**
+   * The profile assistant opens by itself once, for a provider who has never closed or applied
+   * it — a new account's first look at an empty workspace. Read once for the whole area, like
+   * the badge; a failed read only means it does not open by itself, so it is recorded, not shown.
+   */
+  useEffect(() => {
+    let cancelled = false
+    void getProfileAssistantStatusAPI()
+      .then((status) => {
+        if (cancelled) return
+        setAssistantStatus(status)
+        if (status.pending && status.available) setAssistantOpen(true)
+      })
+      .catch((error: unknown) => reportError(error, 'ProviderSettingsLayout:assistantStatus'))
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  /** Closed without applying: it stops opening by itself. The button still opens it. */
+  const closeAssistant = (): void => {
+    setAssistantOpen(false)
+    if (!assistantStatus?.pending) return
+    setAssistantStatus({ ...assistantStatus, pending: false })
+    void dismissProfileAssistantAPI().catch((error: unknown) => reportError(error, 'ProviderSettingsLayout:assistantDismiss'))
+  }
+
+  const handleAssistantApplied = (): void => {
+    setAssistantOpen(false)
+    if (assistantStatus) setAssistantStatus({ ...assistantStatus, pending: false })
+    setAssistantRevision((revision) => revision + 1)
+    void message.success(t('assistant.applied'))
+    // The header shows the name, and the workspace prints times on the published clock.
+    void getMe()
+  }
 
   const items = useMemo(
     () =>
@@ -101,13 +147,23 @@ export const ProviderSettingsLayoutClient: FC<Props> = ({ children }) => {
   )
 
   return (
-    <AccountSettingsLayout
-      accountRole='provider'
-      items={items}
-      title={t('settings')}
-      subtitle={t('providerSubtitle')}
-    >
-      {children}
-    </AccountSettingsLayout>
+    <>
+      <AccountSettingsLayout
+        accountRole='provider'
+        items={items}
+        title={t('settings')}
+        subtitle={t('providerSubtitle')}
+        headerAction={<ProfileAssistantButton onClick={() => setAssistantOpen(true)} />}
+      >
+        {/* Re-keyed after the assistant applies, so the open tab re-reads what it just wrote. */}
+        <Fragment key={assistantRevision}>{children}</Fragment>
+      </AccountSettingsLayout>
+      <ProfileAssistantSheet
+        open={assistantOpen}
+        onClose={closeAssistant}
+        onApplied={handleAssistantApplied}
+        dailyLimit={assistantStatus?.runsPerDay ?? null}
+      />
+    </>
   )
 }

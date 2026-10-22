@@ -3,7 +3,8 @@ import multer from 'multer'
 import { isGeminiConfigured } from '../config.js'
 import { ok } from '../lib/api-response.js'
 import { resolveBookingLocale } from '../lib/booking-mail.js'
-import { GeminiError, generateJson } from '../lib/gemini.js'
+import { generateJson } from '../lib/gemini.js'
+import { type GeminiErrorCopy, toGeminiHttpError } from '../lib/gemini-errors.js'
 import { IMPORT_ERROR } from '../lib/import-errors.js'
 import { prisma } from '../lib/prisma.js'
 import { createRateLimiter } from '../lib/rateLimit.js'
@@ -75,26 +76,13 @@ const throttle = (limiter: typeof parseLimiter, key: string, res: Parameters<typ
   throw new HttpError(429, 'Too many photo imports. Please try again later.', 429)
 }
 
-/**
- * Every way of not getting an answer, as the client should hear it. Google's own `429` keeps
- * its suggested wait; a refused or empty read is `unreadable`, the one case where another
- * photo — not another try — is the fix.
- */
-const toHttpError = (error: unknown, res: Parameters<typeof ok>[0]): unknown => {
-  if (!(error instanceof GeminiError)) return error
-  if (error.status === 429) {
-    res.setHeader('Retry-After', String(error.retryAfterSeconds ?? 60))
-    return new HttpError(429, 'Photo reading is busy. Please try again shortly.', 429)
-  }
-  if (error.status === 422 || error.status === 400) {
-    return new HttpError(422, 'The photo could not be read', IMPORT_ERROR.photoUnreadable)
-  }
-  // A key Google refuses is a misconfiguration this deployment has, not a passing outage.
-  if (error.status === 401 || error.status === 403) {
-    return new HttpError(503, 'Photo import is not available right now', IMPORT_ERROR.photoImportUnavailable)
-  }
-  if (error.timedOut) return new HttpError(504, 'Reading the photo took too long', 504)
-  return new HttpError(502, 'Photo reading is unavailable', 502)
+/** How a failed read is worded; the mapping itself is `lib/gemini-errors.ts`. */
+const PHOTO_ERROR_COPY: GeminiErrorCopy = {
+  busy: 'Photo reading is busy. Please try again shortly.',
+  unreadable: { message: 'The photo could not be read', code: IMPORT_ERROR.photoUnreadable },
+  unavailable: { message: 'Photo import is not available right now', code: IMPORT_ERROR.photoImportUnavailable },
+  timedOut: 'Reading the photo took too long',
+  failed: 'Photo reading is unavailable',
 }
 
 /**
@@ -166,7 +154,7 @@ bookingImportRouter.post(
       })
     } catch (error) {
       await releasePhotoImport(importId)
-      throw toHttpError(error, res)
+      throw toGeminiHttpError(error, res, PHOTO_ERROR_COPY)
     }
 
     return ok(res, { drafts: parseImportResponse(answer, new Set(serviceIds)) })

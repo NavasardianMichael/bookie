@@ -65,6 +65,7 @@ import { resolveProviderId } from '../services/providerLookup.js'
 import { parseProvidersListQuery, PUBLIC_PROVIDER_WHERE, resolvePageWindow } from '../services/providerSearch.js'
 import { parseProviderSeoBody } from '../services/providerSeo.js'
 import { refreshProviderSeoStamp } from '../services/providerSeoStamp.js'
+import { recordSlugChange } from '../services/providerWrites.js'
 import {
   countWithCorrection,
   loadConsumerBookingsVocabulary,
@@ -971,24 +972,10 @@ providerProfileRouter.patch(
       assertSlugChange(current.slug, data.slug, getEntitlements(current, new Date()))
       previousSlug = current.slug
     }
-    const slugChanged = data.slug !== undefined && data.slug !== previousSlug
-
     try {
-      /**
-       * A slug given up is remembered (`ProviderSlugHistory`), so `/p/<old>` keeps opening
-       * this page. A slug being claimed is forgotten by whoever held it before — only a
-       * *current* slug blocks a claim (the unique index, caught below), so a provider can
-       * take over a link another one abandoned.
-       */
+      // The history around a changed slug (`recordSlugChange`); the unique index is caught below.
       const provider = await prisma.$transaction(async (tx) => {
-        if (slugChanged && data.slug) await tx.providerSlugHistory.deleteMany({ where: { slug: data.slug } })
-        if (slugChanged && previousSlug) {
-          await tx.providerSlugHistory.upsert({
-            where: { slug: previousSlug },
-            create: { slug: previousSlug, providerId },
-            update: { providerId },
-          })
-        }
+        if (data.slug !== undefined) await recordSlugChange(tx, providerId, previousSlug, data.slug)
         return tx.provider.update({ where: { id: providerId }, data, include: providerInclude })
       })
       await refreshProviderSeoStamp(providerId)

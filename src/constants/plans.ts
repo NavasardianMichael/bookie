@@ -62,4 +62,5 @@ export const PLAN_ERROR_CODES = {
   featureLocked: 4102,
   photoImportLimit: 4103,
   bookingLimit: 4104,
+  profileAssistantLimit: 4105,
 } as const

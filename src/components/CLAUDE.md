@@ -43,6 +43,13 @@ Feature folders outside the tiers:
   `PlanUpgradeSheet` is the request form for what is not `purchasable`; otherwise buying is
   `useStartCheckout`. See `docs/BILLING.md`.
 - `bookingImport/` — *Add from photo* on `/bookings`; slot rules are `@helpers/bookingImport`.
+- `profileAssistant/` — the ⚡ button on provider settings and its sheet: a description, then
+  a review of every drafted tab and Approve (`docs/routes/profile-assistant.md`). The repo's
+  **only antd `Steps`** (`type='inline'`, the sheet is 40rem wide; v6 props: `orientation`,
+  `titlePlacement`, `content` — not `direction`, `labelPlacement`, `description`). Its steps
+  reuse the tabs' fields rather than copying them: `settings/AvailabilityDayRow` (the
+  Availability tab's day editor, bound under any `name` path), `settings/TimeFormatToggle`,
+  and `ProviderServiceForm` with `withImage={false}`.
 - `legal/LegalDocument` (antd-free), `brand/PoweredByBookie` (reads the plan-neutral
   `details.showPoweredBy`, never the plan), `settings/TelegramConnect` and
   `settings/CalendarFeed` (each saves on its own button, outside the tab's Save).

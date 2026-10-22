@@ -8,14 +8,21 @@ import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, patchProviderSeoAPI } from '@api/providers/main'
 import { ProviderSeo } from '@store/providers/profile/types'
-import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
 import { translateCategoryName } from '@helpers/categoryName'
 import { getCountryName } from '@helpers/country'
 import { providerPagePath } from '@helpers/entities'
 import { isFormValidationError } from '@helpers/error'
 import { resolveAvatarSrc } from '@helpers/images'
-import { composeProviderDescription, composeProviderTitle } from '@helpers/providerSeo'
+import {
+  composeProviderDescription,
+  composeProviderTitle,
+  isWellFormedSlug,
+  MAX_SEO_DESCRIPTION,
+  MAX_SEO_TITLE,
+  MAX_SLUG_LENGTH,
+  MIN_SLUG_LENGTH,
+} from '@helpers/providerSeo'
 import { getSiteUrl } from '@helpers/url'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
@@ -30,30 +37,15 @@ import { GlobeIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
-/**
- * Mirrors `server/src/services/providerSeo.ts`. The client counts against the same caps
- * the API enforces, so the counter and the rejection can never disagree — and because the
- * server *rejects* rather than truncates, a mismatch would show as a failed save with no
- * visible cause.
- */
-const MAX_TITLE = 60
-const MAX_DESCRIPTION = MAX_CHARS_FOR_TEXTAREA
-const MIN_SLUG = 3
-const MAX_SLUG = 40
+/** The API's caps, shared with the profile assistant's SEO step (`@helpers/providerSeo`). */
+const MAX_TITLE = MAX_SEO_TITLE
+const MAX_DESCRIPTION = MAX_SEO_DESCRIPTION
+const MIN_SLUG = MIN_SLUG_LENGTH
+const MAX_SLUG = MAX_SLUG_LENGTH
 
 /** The bands Google actually renders in full. Below them a result looks unfinished. */
 const GOOD_TITLE_FROM = 30
 const GOOD_DESCRIPTION_FROM = 70
-
-/**
- * Mirrors `isWellFormedSlug` in `server/src/services/providerSeo.ts`, and is written the
- * same flat way for the same reason: the nested-quantifier form reads as a ReDoS risk to
- * the linter even though it is linear here.
- */
-const SLUG_CHARS = /^[a-z0-9-]+$/
-
-const isWellFormedSlug = (value: string): boolean =>
-  SLUG_CHARS.test(value) && !value.startsWith('-') && !value.endsWith('-') && !value.includes('--')
 
 
 /**

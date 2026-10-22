@@ -22,3 +22,9 @@ export const API_REQUEST_TIMEOUT_MS = 30_000
  * off a phone on a slow uplink can legitimately take a minute to send.
  */
 export const API_UPLOAD_TIMEOUT_MS = 120_000
+
+/**
+ * A plain JSON call that waits on Gemini — the profile assistant. The API gives the model a
+ * minute (`GEMINI_TIMEOUT_MS`), so the default 30 s would give up on an answer still coming.
+ */
+export const API_AI_TIMEOUT_MS = 90_000

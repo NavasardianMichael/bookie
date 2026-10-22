@@ -23,7 +23,8 @@ Modules worth knowing by name:
 - **Pure, reachable from `tests/unit/server/`:** `services/plans.ts` (catalogue, add-ons,
   prices, every limit rule), `billing.ts` (Paddle items → plan + add-ons, item builders),
   `noticeRules.ts`, `reminders.ts`, `providerRelevance.ts`, `categories.ts`,
-  `organizations.ts`; `lib/paddle-signature.ts`, `ics.ts`, `telegram-updates.ts`,
+  `organizations.ts`, `profileAssistant.ts` (the assistant's prompt, schema, narrowing and
+  service diff); `lib/paddle-signature.ts`, `assistant-errors.ts`, `ics.ts`, `telegram-updates.ts`,
   `notice-render.ts`, `return-path.ts`, `booking-errors.ts`, `error-response.ts`,
   `service-availability.ts`; `services/providerSeoFingerprint.ts` (what moves a provider
   page's sitemap `lastmod` — its I/O half is `providerSeoStamp.ts`).
@@ -223,7 +224,10 @@ fresh clone and the feature reports itself unavailable (`isPaddleConfigured()`,
 sign-in without credentials redirects back with `?error=google_unavailable`.
 
 A photo sent to Gemini is held **in memory only** (`multer.memoryStorage()` in
-`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves.
+`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves. The
+profile assistant's description is never stored either; only a `ProfileAssistantRun` row
+records that a draft was made. Both features map Gemini's failures through
+`lib/gemini-errors.ts#toGeminiHttpError`, each with its own words and codes.
 
 ## Notifications
 

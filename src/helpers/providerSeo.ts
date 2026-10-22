@@ -82,3 +82,23 @@ export const composeProviderDescription = ({
   const line = join([lead.replace(CLOSING_MARK, ''), join(categories, ', '), join(services, ', '), location], ' | ')
   return trimAtWord(`${line}${closing}`, MAX_CHARS_FOR_TEXTAREA)
 }
+
+/**
+ * The SEO tab's caps — mirrors of `server/src/services/providerSeo.ts`, so a counter and the
+ * API's rejection can never disagree. The server *rejects* rather than truncates, so a mismatch
+ * would show as a failed save with no visible cause.
+ */
+export const MAX_SEO_TITLE = 60
+export const MAX_SEO_DESCRIPTION = MAX_CHARS_FOR_TEXTAREA
+export const MIN_SLUG_LENGTH = 3
+export const MAX_SLUG_LENGTH = 40
+
+/**
+ * Mirrors `isWellFormedSlug` in `server/src/services/providerSeo.ts`, and is written the same
+ * flat way for the same reason: the nested-quantifier form reads as a ReDoS risk to the linter
+ * even though it is linear here. ASCII only — a Cyrillic homograph would read as someone else's.
+ */
+const SLUG_CHARS = /^[a-z0-9-]+$/
+
+export const isWellFormedSlug = (value: string): boolean =>
+  SLUG_CHARS.test(value) && !value.startsWith('-') && !value.endsWith('-') && !value.includes('--')

@@ -14,6 +14,7 @@ const entitlements = (maxActiveServices: number | null): Entitlements => ({
   calendarFeed: true,
   removeBranding: true,
   photoImportsPerDay: null,
+  profileAssistantRunsPerDay: null,
 })
 
 const entry = (id: Plan, maxActiveServices: number | null, amountCents = 0): PlanCatalogueEntry => ({

@@ -54,7 +54,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | HTTP calls, endpoint URLs, response processors | `src/api/<domain>/` — 4 files, see `src/api/CLAUDE.md` |
 | Client state, entity types | `src/store/<domain>/<slice>/` — see `src/store/CLAUDE.md` |
 | Routes and pages | `src/app/` — see `src/app/CLAUDE.md` for the route map |
-| Why a feature is built the way it is (Explore, provider page, bookings, settings, auth) | `docs/routes/` — indexed at the top of `src/app/CLAUDE.md` |
+| Why a feature is built the way it is (Explore, provider page, bookings, settings, auth, profile assistant) | `docs/routes/` — indexed at the top of `src/app/CLAUDE.md` |
 | Reusable UI | `src/components/ui/` — see `src/components/CLAUDE.md` |
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
@@ -69,6 +69,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Plans, add-ons, prices, limits, `/pricing`, the Plan tab | `docs/BILLING.md` · `server/src/services/plans.ts` (every rule) · `src/components/plans/` |
 | Paddle — checkout, webhook, switch, add-ons, portal | `docs/PADDLE_SETUP.md` · `server/src/routes/billing.ts` · `server/src/services/billing.ts` + `billingSync.ts` · `src/app/[lang]/billing/` |
 | Notifications — who gets which email / Telegram, the reminder job | `docs/NOTIFICATIONS.md` · `server/src/services/noticeRules.ts` · `server/src/jobs/reminderJob.ts` |
+| Profile assistant — the ⚡ settings button that drafts a provider's workspace from a description (Google Gemini) | `server/src/services/profileAssistant.ts` + `routes/profileAssistant.ts` · `src/components/profileAssistant/` · `src/helpers/profileAssistant.ts` — see `docs/routes/profile-assistant.md` |
 | "Add from photo" on `/bookings` (Google Gemini) | `server/src/services/bookingImport.ts` · `src/helpers/bookingImport.ts` · `src/components/bookingImport/` — see *Bookings a provider enters* in `docs/DATABASE_STRUCTURE.md` |
 | Telegram, the iCal feed / `.ics` | `server/src/routes/telegram.ts`, `calendar.ts` · `src/components/settings/TelegramConnect.tsx`, `CalendarFeed.tsx` |
 | Terms, Privacy, Refund Policy | `src/components/legal/LegalDocument.tsx` + `src/constants/legal.ts` · copy in `Legal.*` |
