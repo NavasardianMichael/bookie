@@ -1,5 +1,7 @@
 import { ComponentProps, FC, PropsWithChildren } from 'react'
+import NextLink from 'next/link'
 import { Link } from '@i18n/navigation'
+import { isLocaleFreePath } from '@i18n/pathname'
 import { cn } from '@helpers/cn'
 
 export type AppLinkVariant = 'inline' | 'plain' | 'unstyled' | 'button' | 'chip'
@@ -48,6 +50,10 @@ const BUTTON_TONES: Record<AppLinkTone, string> = {
  * That prefixing is the reason this component is the only place internal links
  * are built. `ROUTES` stays locale-free and every `<AppLink href={ROUTES.x}>` in
  * the app gets `/es/x` for free. Never reach for `next/link` directly.
+ *
+ * The one exception is the public provider page, `/p/<key>`, which has no locale segment
+ * (`isLocaleFreePath`): prefixed, it would cost a 308 back to the bare URL. It goes through
+ * `next/link` unprefixed, and the proxy picks the language from the cookie.
  */
 export const AppLink: FC<PropsWithChildren<Props>> = ({
   href,
@@ -67,6 +73,23 @@ export const AppLink: FC<PropsWithChildren<Props>> = ({
 
   // Without `noopener` the opened page keeps a window.opener handle back into this one.
   const safeRel = target === '_blank' ? (rel ?? 'noopener noreferrer') : rel
+
+  if (typeof href === 'string' && isLocaleFreePath(href)) {
+    return (
+      <NextLink
+        href={href}
+        target={target}
+        rel={safeRel}
+        prefetch={prefetch}
+        replace={replace}
+        scroll={scroll}
+        className={classes}
+        {...props}
+      >
+        {children}
+      </NextLink>
+    )
+  }
 
   if (typeof href === 'string' && !href.startsWith('/')) {
     return (

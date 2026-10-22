@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { WeekSchedule } from '@store/providers/profile/types'
+import { ServiceAvailability, WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT } from '@constants/schedule'
-import { BookingSlot, BusyInterval, dropBusySlots, getSlotsForDate } from './booking'
+import { BookingSlot, BusyInterval, dropBusySlots, getSlotsForDate, isOpenOnDate } from './booking'
 import { inTimeZone, zonedTimeToDate } from './timeZone'
 
 dayjs.extend(customParseFormat)
@@ -31,6 +31,8 @@ export type DraftSchedule = {
   timeZone?: string
   /** Minutes per **active** service. A service missing here cannot be booked. */
   durations: Readonly<Record<string, number>>
+  /** Which days each service is offered on. A service missing here is offered whenever the provider is open. */
+  availability?: Readonly<Record<string, ServiceAvailability>>
 }
 
 /**
@@ -38,13 +40,15 @@ export type DraftSchedule = {
  * applies is the one worth telling the provider:
  *
  * - `missing` — no service, date or time yet.
+ * - `serviceClosed` — the provider is open that day, but this service is not offered on it
+ *   (`ServiceAvailability`). Told apart from `offGrid` because the fix is a different *date*.
  * - `offGrid` — not a slot this service's grid has on that day: outside the hours, on a
  *   closed day, in a break, or between two slot starts (`14:10` on a 30-minute grid).
  * - `past` — a real slot, already gone.
  * - `taken` — overlaps a booking already on the calendar.
  * - `clash` — overlaps an earlier row of this same sheet, which keeps the time.
  */
-export type DraftSlotIssue = 'missing' | 'offGrid' | 'past' | 'taken' | 'clash'
+export type DraftSlotIssue = 'missing' | 'serviceClosed' | 'offGrid' | 'past' | 'taken' | 'clash'
 
 export type DraftSlotCheck = { issue: DraftSlotIssue; clashWith?: number }
 
@@ -110,10 +114,16 @@ export const checkDraftSlot = ({
   const day = row?.date ? dayCarrier(row.date) : null
   if (!row || !duration || !start || !day) return { issue: 'missing' }
 
+  const availability = schedule.availability?.[row.serviceId!]
+  if (isOpenOnDate(schedule.weekSchedule, day) && !isOpenOnDate(schedule.weekSchedule, day, availability)) {
+    return { issue: 'serviceClosed' }
+  }
+
   // `now: new Date(0)` is the whole day's grid, past slots included — so a time that was a
   // real slot this morning reads as `past`, not as `offGrid`.
   const grid = getSlotsForDate({
     weekSchedule: schedule.weekSchedule,
+    availability,
     date: day,
     durationMinutes: duration,
     now: new Date(0),
@@ -157,6 +167,7 @@ export const draftTimeOptions = ({
 
   const slots: BookingSlot[] = getSlotsForDate({
     weekSchedule: schedule.weekSchedule,
+    availability: schedule.availability?.[row!.serviceId!],
     date: day,
     durationMinutes: duration,
     now,

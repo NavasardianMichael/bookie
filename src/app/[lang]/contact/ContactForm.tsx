@@ -42,9 +42,14 @@ type Props = {
   plan?: Plan
   addon?: Addon
   quantity?: number
+  /**
+   * Told when a send starts and settles, so a sheet hosting the form can lock every way
+   * out while the message is in flight (`AppSheet`'s `pending`).
+   */
+  onPendingChange?: (pending: boolean) => void
 }
 
-export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
+export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity, onPendingChange }) => {
   const t = useTranslations('Contact')
   const tPlans = useTranslations('Plans')
   const [form] = Form.useForm<ContactFormValues>()
@@ -120,6 +125,7 @@ export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
 
   const handleFinish = async (values: ContactFormValues) => {
     setIsSubmitting(true)
+    onPendingChange?.(true)
     setError(null)
     try {
       await postContactMessageAPI({
@@ -140,6 +146,7 @@ export const ContactForm: FC<Props> = ({ topic, plan, addon, quantity }) => {
       setError(err)
     } finally {
       setIsSubmitting(false)
+      onPendingChange?.(false)
     }
   }
 

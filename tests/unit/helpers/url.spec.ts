@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateEntityUrl } from '@helpers/entities'
+import { generateEntityUrl, providerPagePath, providerPageUrl } from '@helpers/entities'
 import { absoluteUrl, getSiteUrl, toWebsiteUrl } from '@helpers/url'
 
 // `getSiteUrl` re-reads process.env on every call, so these assert relative to it
@@ -66,5 +66,22 @@ describe('toWebsiteUrl', () => {
     expect(toWebsiteUrl('acme .am')).toBeUndefined()
     expect(toWebsiteUrl('   ')).toBeUndefined()
     expect(toWebsiteUrl(undefined)).toBeUndefined()
+  })
+})
+
+describe('providerPagePath', () => {
+  // `/p/<key>` is the page's one URL, with no locale segment.
+  it('is /p/<slug> when the provider has a slug', () => {
+    expect(providerPagePath({ id: 'abc', slug: 'acme-hair' })).toBe('/p/acme-hair')
+  })
+
+  it('falls back to the id without one', () => {
+    expect(providerPagePath({ id: 'abc' })).toBe('/p/abc')
+    expect(providerPagePath({ id: 'abc', slug: null })).toBe('/p/abc')
+    expect(providerPagePath({ id: 'abc', slug: '' })).toBe('/p/abc')
+  })
+
+  it('is absolute on the site origin as providerPageUrl', () => {
+    expect(providerPageUrl({ id: 'abc', slug: 'acme-hair' })).toBe(`${getSiteUrl()}/p/acme-hair`)
   })
 })

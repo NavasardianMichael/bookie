@@ -1,4 +1,4 @@
-import { ROUTES } from '@constants/routes'
+import { providerPagePath,ProviderPageRef } from '@helpers/entities'
 import { BOOKING_SERVICES_ID } from './publicBookingCta'
 
 /**
@@ -41,10 +41,10 @@ export const startingServiceId = (offeredIds: readonly string[], requestedId?: s
 }
 
 /**
- * Locale-free, as every `ROUTES` path is — `AppLink` adds the prefix. The fragment lands on
- * the service list, where the chosen card shows selected and the calendar follows.
+ * The provider's page (`providerPagePath`, `/p/<slug ?? id>`). The fragment lands on the
+ * service list, where the chosen card shows selected and the calendar follows.
  */
-export const buildServiceHref = (providerId: string, serviceId?: string): string => {
+export const buildServiceHref = (provider: ProviderPageRef, serviceId?: string): string => {
   const query = serviceId ? `?${SERVICE_PARAM}=${encodeURIComponent(serviceId)}` : ''
-  return `${ROUTES.providers}/${providerId}${query}#${BOOKING_SERVICES_ID}`
+  return `${providerPagePath(provider)}${query}#${BOOKING_SERVICES_ID}`
 }

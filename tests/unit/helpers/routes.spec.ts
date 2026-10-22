@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isRouteActive, matchRouteName } from '@helpers/routes'
+import { isExactRouteActive, isRouteActive, matchRouteName } from '@helpers/routes'
 
 describe('matchRouteName', () => {
   it('resolves a dynamic detail path to its parent route', () => {
@@ -55,5 +55,21 @@ describe('isRouteActive', () => {
   it('treats home as exact', () => {
     expect(isRouteActive('/', '/')).toBe(true)
     expect(isRouteActive('/providers', '/')).toBe(false)
+  })
+})
+
+describe('isExactRouteActive', () => {
+  it('is true only when this page is that destination', () => {
+    expect(isExactRouteActive('/providers', '/providers')).toBe(true)
+    expect(isExactRouteActive('/providers/', '/providers')).toBe(true)
+    expect(isExactRouteActive('/categories', '/categories')).toBe(true)
+  })
+
+  it('is false for a child page and for every other page', () => {
+    expect(isExactRouteActive('/providers/abc', '/providers')).toBe(false)
+    expect(isExactRouteActive('/providers/profile', '/providers')).toBe(false)
+    expect(isExactRouteActive('/categories/dental', '/categories')).toBe(false)
+    expect(isExactRouteActive('/contact', '/providers')).toBe(false)
+    expect(isExactRouteActive('/', '/providers')).toBe(false)
   })
 })

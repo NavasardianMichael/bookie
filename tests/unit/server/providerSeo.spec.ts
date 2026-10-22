@@ -75,7 +75,7 @@ describe('parseProviderSeoBody — text sanitising', () => {
     // counted live in the browser, so an over-length body is a non-browser caller, and a
     // half-title reaches Google mid-word.
     expect(throws({ seoTitle: 'a'.repeat(MAX_SEO_TITLE + 1) })).toThrow(/60 characters or fewer/)
-    expect(throws({ seoDescription: 'a'.repeat(MAX_SEO_DESCRIPTION + 1) })).toThrow(/160 characters or fewer/)
+    expect(throws({ seoDescription: 'a'.repeat(MAX_SEO_DESCRIPTION + 1) })).toThrow(/300 characters or fewer/)
   })
 
   it('counts code points, not UTF-16 units, so an emoji is one character', () => {

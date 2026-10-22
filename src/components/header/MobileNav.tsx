@@ -14,6 +14,8 @@ import { NavLinks } from './NavLinks'
 
 type Props = {
   routes: AppRouteName[]
+  /** Locale-free path, forwarded to the same list the desktop bar renders. */
+  pathname: string
   isActive: (route: string) => boolean
   /** Hides Sign In, which would otherwise sit under Bookings and Favorites. */
   isSignedOn: boolean
@@ -30,7 +32,7 @@ type Props = {
  * sibling combinator while the icon bars were descendants of the label.
  * antd's Drawer provides all of it and is already in the bundle.
  */
-export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref }) => {
+export const MobileNav: FC<Props> = ({ routes, pathname, isActive, isSignedOn, profileHref }) => {
   const t = useTranslations('Nav')
   const [open, setOpen] = useState(false)
 
@@ -84,7 +86,7 @@ export const MobileNav: FC<Props> = ({ routes, isActive, isSignedOn, profileHref
                   {t('profile')}
                 </AppLink>
               )}
-              <NavLinks routes={routes} orientation='vertical' isActive={isActive} onNavigate={close} />
+              <NavLinks routes={routes} orientation='vertical' pathname={pathname} onNavigate={close} />
             </div>
           )}
           <LanguageSwitcher className='self-start font-semibold' variant='borderless' />

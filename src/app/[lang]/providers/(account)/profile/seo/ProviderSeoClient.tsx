@@ -8,11 +8,14 @@ import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, patchProviderSeoAPI } from '@api/providers/main'
 import { ProviderSeo } from '@store/providers/profile/types'
-import { DEFAULT_LOCALE, isLocale } from '@i18n/config'
-import { localePath } from '@i18n/pathname'
+import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { ROUTES } from '@constants/routes'
+import { translateCategoryName } from '@helpers/categoryName'
+import { getCountryName } from '@helpers/country'
+import { providerPagePath } from '@helpers/entities'
 import { isFormValidationError } from '@helpers/error'
 import { resolveAvatarSrc } from '@helpers/images'
+import { composeProviderDescription, composeProviderTitle } from '@helpers/providerSeo'
 import { getSiteUrl } from '@helpers/url'
 import { SettingsActionBar } from '@components/settings/SettingsActionBar'
 import { AppButton } from '@components/ui/AppButton'
@@ -34,7 +37,7 @@ import { Surface } from '@components/ui/layout/Surface'
  * visible cause.
  */
 const MAX_TITLE = 60
-const MAX_DESCRIPTION = 160
+const MAX_DESCRIPTION = MAX_CHARS_FOR_TEXTAREA
 const MIN_SLUG = 3
 const MAX_SLUG = 40
 
@@ -52,8 +55,6 @@ const SLUG_CHARS = /^[a-z0-9-]+$/
 const isWellFormedSlug = (value: string): boolean =>
   SLUG_CHARS.test(value) && !value.startsWith('-') && !value.endsWith('-') && !value.includes('--')
 
-/** Length in code points, matching the server's cap. */
-const clampChars = (value: string, max: number): string => [...value].slice(0, max).join('')
 
 /**
  * ASCII slug from a display name, so an empty vanity field can still show the address
@@ -97,6 +98,12 @@ const SlugInput: FC<SlugInputProps> = ({ urlPrefix, ...props }) => (
   </Space.Compact>
 )
 
+/**
+ * The title and description boxes show what the page actually uses: the provider's override,
+ * or else the generated value (`@helpers/providerSeo`). A box still holding the generated text
+ * is saved as **no override** (`toOverride`), so it keeps following the profile — saving it as
+ * text would freeze it, and a later service or category change would no longer reach it.
+ */
 const toFormValues = (
   seo: ProviderSeo | undefined,
   fallback: { title: string; description: string; slug: string }
@@ -105,6 +112,12 @@ const toFormValues = (
   seoDescription: seo?.description ?? fallback.description,
   slug: seo?.slug ?? fallback.slug,
 })
+
+/** `''` (no override, generate it) for an empty box or one still holding the generated text. */
+const toOverride = (value: string, generated: string): string => {
+  const trimmed = value.trim()
+  return trimmed === generated.trim() ? '' : trimmed
+}
 
 /** How full a field is, as the counter's tone. */
 const counterTone = (length: number, good: number, max: number): 'muted' | 'brand' | 'danger' => {
@@ -123,18 +136,19 @@ const counterTone = (length: number, good: number, max: number): 'muted' | 'bran
  * one screen — a drafted description beside a live address — would be the confusing part,
  * so the whole tab is one Save.
  *
- * **Every field is an override.** Emptying one restores the composed default (name,
- * organization, categories) rather than blanking the tag, which is why the preview below
- * shows the fallback rather than an empty line. The inputs are prefilled with that
- * default so the provider sees what search actually uses, not a blank box.
+ * **Every field is an override.** An empty box means the composed default
+ * (`@helpers/providerSeo`), which follows the profile as it changes; the default shows as
+ * the box's placeholder and in the preview, so the provider still sees what search uses.
  */
 export const ProviderSeoClient = () => {
   const t = useTranslations('Settings.seo')
+  const tProvider = useTranslations('Provider')
+  const tCategories = useTranslations('Categories')
+  const locale = useLocale()
   const tActions = useTranslations('Settings.actions')
   const tCommon = useTranslations('Common')
   const tErrors = useTranslations('Errors')
   const { message } = App.useApp()
-  const locale = useLocale()
   const [form] = Form.useForm<FormValues>()
 
   const [saved, setSaved] = useState<FormValues>(EMPTY)
@@ -160,6 +174,7 @@ export const ProviderSeoClient = () => {
   const [revision, setRevision] = useState(0)
 
   const title = Form.useWatch('seoTitle', form) ?? ''
+  const isGeneratedTitle = !!fallback.title && title.trim() === fallback.title.trim()
   const description = Form.useWatch('seoDescription', form) ?? ''
   const slug = Form.useWatch('slug', form) ?? ''
 
@@ -175,21 +190,25 @@ export const ProviderSeoClient = () => {
         if (cancelled) return
         const name = profile.basic.fullName
         const organization = profile.basic.organization?.basic.name
-        const categories = profile.basic.categories?.map((category) => category.name) ?? []
-        // What the public page composes when an override is absent, reproduced here so
-        // the fields and the preview show the real fallback rather than an empty line.
-        // It mirrors `generateMetadata` in `providers/[providerId]/page.tsx`.
+        const categories =
+          profile.basic.categories?.map((category) => translateCategoryName(category.name, tCategories)) ?? []
+        const country = getCountryName(profile.details.country, locale)
+        const services = profile.services.allIds
+          .map((id) => profile.services.byId[id!])
+          .filter((service) => service && service.active !== false)
+          .map((service) => service!.name)
+        // What the public page composes when an override is absent — the same helpers its
+        // `generateMetadata` uses (`[slug]/providerPageSeo.ts`), so the placeholders and the
+        // preview show exactly what search sees.
         const nextFallback = {
-          title: clampChars(
-            [name, organization, categories.join(', ')].filter(Boolean).join(' | '),
-            MAX_TITLE
-          ),
-          description: clampChars(
-            organization
-              ? t('fallbackWithOrganization', { name, organization })
-              : t('fallbackDescription', { name }),
-            MAX_DESCRIPTION
-          ),
+          title: composeProviderTitle({ name, categories, organization, country }),
+          description: composeProviderDescription({
+            categories,
+            services,
+            intro: tProvider('fallbackDescription', { name }),
+            address: profile.details.location.address,
+            country,
+          }),
           slug: suggestSlug(organization || name),
         }
         const values = toFormValues(profile.seo, {
@@ -222,19 +241,12 @@ export const ProviderSeoClient = () => {
     return () => {
       cancelled = true
     }
-  }, [form, request, t])
+  }, [form, locale, request, t, tCategories, tProvider])
 
-  /**
-   * `useLocale()` is typed `string` — it reads the active segment, which nothing at the
-   * type level guarantees is one of ours. Narrowed once here rather than at each of the
-   * two call sites below.
-   */
-  const activeLocale = isLocale(locale) ? locale : DEFAULT_LOCALE
-
+  // The page is `/p/<slug>`, or `/p/<id>` without one — never locale-prefixed.
   const vanityUrlFor = useCallback(
-    (value: string) =>
-      `${getSiteUrl()}${localePath(activeLocale, value ? `${ROUTES.providerVanity}/${value}` : ROUTES.providers)}`,
-    [activeLocale]
+    (value: string) => `${getSiteUrl()}${providerPagePath({ id: profileId ?? '', slug: value || undefined })}`,
+    [profileId]
   )
 
   const typedSlug = slug.trim().toLowerCase()
@@ -273,8 +285,8 @@ export const ProviderSeoClient = () => {
       // this column alone", and the provider emptying a box means the opposite.
       const segment = values.slug.trim().toLowerCase()
       const next = await patchProviderSeoAPI({
-        seoTitle: values.seoTitle.trim(),
-        seoDescription: values.seoDescription.trim(),
+        seoTitle: toOverride(values.seoTitle, fallback.title),
+        seoDescription: toOverride(values.seoDescription, fallback.description),
         // The id is the page's default address, not a vanity slug. Sending it would be
         // rejected — a slug must not look like a profile id. Omitted, not cleared, when
         // the plan has no custom link: absent leaves whatever is stored alone.
@@ -325,13 +337,27 @@ export const ProviderSeoClient = () => {
               name='seoTitle'
               label={t('seoTitle')}
               extra={
-                <AppText className='text-xs' tone={counterTone(title.length, GOOD_TITLE_FROM, MAX_TITLE)}>
+                <AppText
+                  className='text-xs'
+                  tone={isGeneratedTitle ? 'muted' : counterTone(title.length, GOOD_TITLE_FROM, MAX_TITLE)}
+                >
                   {t('counter', { count: title.length, max: MAX_TITLE })} · {t('seoTitleHint')}
                 </AppText>
               }
-              rules={[{ max: MAX_TITLE, message: t('tooLong', { max: MAX_TITLE }) }]}
+              rules={[
+                {
+                  validator: (_, value: string | undefined) =>
+                    // The generated title is not the provider's text, so it is not held to their cap.
+                    !value || value.trim() === fallback.title.trim() || [...value.trim()].length <= MAX_TITLE
+                      ? Promise.resolve()
+                      : Promise.reject(new Error(t('tooLong', { max: MAX_TITLE }))),
+                },
+              ]}
             >
-              <AppInput placeholder={fallback.title || t('seoTitlePlaceholder')} maxLength={MAX_TITLE} />
+              <AppInput
+                placeholder={fallback.title || t('seoTitlePlaceholder')}
+                maxLength={isGeneratedTitle ? undefined : MAX_TITLE}
+              />
             </AppFormItem>
 
             <AppFormItem
@@ -383,7 +409,7 @@ export const ProviderSeoClient = () => {
               ]}
             >
               <SlugInput
-                urlPrefix={`${getSiteUrl()}${localePath(activeLocale, ROUTES.providerVanity)}/`}
+                urlPrefix={`${getSiteUrl()}${ROUTES.providerPage}/`}
                 placeholder={fallback.slug || t('slugPlaceholder')}
                 maxLength={MAX_SLUG}
                 readOnly={slugLocked}

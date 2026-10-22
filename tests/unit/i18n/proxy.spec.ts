@@ -113,3 +113,50 @@ describe('proxy — cache safety', () => {
     expect(response.status).toBe(200)
   })
 })
+
+/**
+ * The public provider page, `/p/<key>` — the one page route without a locale segment, so each
+ * provider has a single indexable URL (`docs/routes/provider-page.md`). The bare URL is
+ * *rewritten* (the address bar keeps it); a prefixed one is moved to it for good.
+ */
+describe('proxy — the provider page', () => {
+  const rewrittenTo = (response: Response) => response.headers.get('x-middleware-rewrite')
+
+  it('rewrites /p/<key> to the negotiated locale without changing the address', () => {
+    const response = proxy(request('/p/acme-hair', { 'accept-language': 'de' }))
+
+    expect(response.headers.get('location')).toBeNull()
+    expect(rewrittenTo(response)).toBe(`${SITE}/de/p/acme-hair`)
+  })
+
+  it('lets ?lang= outrank the cookie and the browser header', () => {
+    const response = proxy(request('/p/acme-hair?lang=hy', { 'accept-language': 'de', cookie: 'NEXT_LOCALE=ja' }))
+
+    expect(rewrittenTo(response)).toBe(`${SITE}/hy/p/acme-hair?lang=hy`)
+  })
+
+  it('falls back to the cookie when ?lang= is not one of ours', () => {
+    const response = proxy(request('/p/acme-hair?lang=klingon', { 'accept-language': 'de', cookie: 'NEXT_LOCALE=ja' }))
+
+    expect(new URL(rewrittenTo(response)!).pathname).toBe('/ja/p/acme-hair')
+  })
+
+  it('says which language it picked', () => {
+    const response = proxy(request('/p/acme-hair', { 'accept-language': 'de' }))
+
+    expect(response.headers.get('content-language')).toBe('de')
+  })
+
+  it('moves a locale-prefixed /<lang>/p/<key> to the bare URL for good', () => {
+    const response = proxy(request('/es/p/acme-hair?service=s-1'))
+
+    expect(response.status).toBe(308)
+    expect(response.headers.get('location')).toBe(`${SITE}/p/acme-hair?service=s-1&lang=es`)
+  })
+
+  it('does not treat a path that merely starts with /p as the provider page', () => {
+    const response = proxy(request('/pricing', { 'accept-language': 'de' }))
+
+    expect(response.headers.get('location')).toBe(`${SITE}/de/pricing`)
+  })
+})

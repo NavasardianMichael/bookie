@@ -3,14 +3,17 @@
 import React from 'react'
 import { Flex, Form, InputNumber } from 'antd'
 import { useTranslations } from 'next-intl'
+import { WeekSchedule } from '@store/providers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
+import { TimeFormat } from '@interfaces/schedule'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { MAX_CHARS_FOR_TEXTAREA } from '@constants/form'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppTextArea } from '@components/ui/AppTextArea'
+import { ProviderServiceFormAvailability } from './ProviderServiceFormAvailability'
 import { ProviderServiceFormCurrency } from './ProviderServiceFormCurrency'
 import { ProviderServiceFormDuration } from './ProviderServiceFormDuration'
 import { ProviderServiceFormImage } from './ProviderServiceFormImage'
@@ -20,6 +23,10 @@ type Props = {
   isSubmitting: boolean
   onSubmit: (values: ProviderServiceFormValues) => void
   closeModal: () => void
+  /** The provider's published hours, zone and clock — the frame the availability section works inside. */
+  weekSchedule?: WeekSchedule
+  timeZone?: string
+  timeFormat: TimeFormat
 }
 
 /**
@@ -27,7 +34,15 @@ type Props = {
  * `value`/`onChange`: `Field` clones each child with the store's value last, so a
  * second binding would win the render and lose the submit.
  */
-export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitting, onSubmit, closeModal }) => {
+export const ProviderServiceForm: React.FC<Props> = ({
+  initialValues,
+  isSubmitting,
+  onSubmit,
+  closeModal,
+  weekSchedule,
+  timeZone,
+  timeFormat,
+}) => {
   const t = useTranslations('Services')
   const tCommon = useTranslations('Common')
   const tActions = useTranslations('Settings.actions')
@@ -44,7 +59,7 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
       form={form}
       initialValues={initialValues}
       requiredMark
-      className='mt-4 flex min-w-0 w-full flex-col gap-4'
+      className='mt-4 flex min-w-0 w-full flex-col gap-4 [&_.ant-form-item-label>label]:font-semibold'
       layout='vertical'
       onFinish={onSubmit}
       onValuesChange={unsaved.mark}
@@ -85,6 +100,8 @@ export const ProviderServiceForm: React.FC<Props> = ({ initialValues, isSubmitti
       <AppFormItem name='image' label={t('formImage')} hasFeedback={false} className='min-w-0'>
         <ProviderServiceFormImage />
       </AppFormItem>
+
+      <ProviderServiceFormAvailability weekSchedule={weekSchedule} timeZone={timeZone} timeFormat={timeFormat} />
 
       <Flex justify='end' gap={8} className='mt-4'>
         <AppButton type='default' className='grow' onClick={closeModal}>

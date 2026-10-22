@@ -85,6 +85,26 @@ export type ProviderBusyInterval = {
   endAt: string
 }
 
+/**
+ * One listed provider as the sitemap and `llms.txt` read it. `updatedAt` is when anything a
+ * search engine sees on the page last changed (`Provider.seoUpdatedAt`), not the row's own
+ * `updatedAt`. Category names are stored ones — English for the predefined six.
+ */
+export type ProviderSitemapEntry = {
+  id: string
+  slug?: string
+  fullName: string
+  updatedAt: string
+  categories: string[]
+  services: string[]
+}
+
+export type GetProvidersSitemapAPI = Endpoint<{
+  payload: void
+  response: ProviderSitemapEntry[]
+  processed: ProviderSitemapEntry[]
+}>
+
 export type GetProviderBusyAPI = Endpoint<{
   payload: { id: string; from: string; to: string }
   response: ProviderBusyInterval[]
@@ -156,6 +176,8 @@ export type ProviderServiceRequestPayload = Partial<{
    */
   imageUrl?: string
   active: boolean
+  /** Which days the service is offered on; `{ mode: 'always' }` clears the rule. */
+  availability: ProviderService['availability']
 }>
 
 export type PostProviderServiceAPI = Endpoint<{

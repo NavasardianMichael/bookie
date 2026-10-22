@@ -71,8 +71,12 @@ export const ROUTE_KEYS = {
    * `server/src/lib/return-path.ts` and pinned by `tests/unit/server/planErrors.spec.ts`.
    */
   providerProfilePlan: 'providerProfilePlan',
-  /** Vanity link. `/p/<slug>` redirects to the provider's canonical profile URL. */
-  providerVanity: 'providerVanity',
+  /**
+   * The public provider page: `/p/<slug ?? id>`. The one page route with **no locale
+   * segment** — the language rides in `?lang=` so each provider has a single indexable URL
+   * (`docs/routes/provider-page.md`). Build links with `providerPagePath` (`@helpers/entities`).
+   */
+  providerPage: 'providerPage',
   /** Public booking manage page. `/b/<token>` — capability URL, not the appointment id. */
   bookingManage: 'bookingManage',
   /**
@@ -136,7 +140,7 @@ export const ROUTES: Record<keyof typeof ROUTE_KEYS, string> = {
   [ROUTE_KEYS.providerProfilePayments]: '/providers/profile/payments',
   [ROUTE_KEYS.providerProfilePayouts]: '/providers/profile/payouts',
   [ROUTE_KEYS.providerProfilePlan]: '/providers/profile/plan',
-  [ROUTE_KEYS.providerVanity]: '/p',
+  [ROUTE_KEYS.providerPage]: '/p',
   [ROUTE_KEYS.bookingManage]: '/b',
   [ROUTE_KEYS.adminReviews]: '/admin/reviews',
   [ROUTE_KEYS.adminProviders]: '/admin/providers',

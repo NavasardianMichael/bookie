@@ -279,7 +279,7 @@ The admin inbox gets a line (`sendInternalMail`) on `subscription.created`, `.ca
 - Services above a new, lower cap stay live and editable; the provider just cannot add or
   reactivate one until they are under it.
 - A slug set before custom links were paid keeps resolving and survives every SEO save; it
-  only cannot be changed. `GET /providers/:idOrSlug` never consults the plan, so a printed
+  only cannot be changed. `GET /providers/:key` never consults the plan, so a printed
   link never breaks.
 - Bookings are never cancelled by a plan change.
 - A client's reminders and Telegram notices do not depend on the provider's plan.

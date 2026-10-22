@@ -216,6 +216,7 @@
     "copyCardNumber": "Copy card number",
     "dayPast": "This date is in the past.",
     "dayClosed": "The provider does not work on this day.",
+    "dayServiceUnavailable": "This service is not offered on this day.",
     "dayNoSlots": "No available times on this day.",
     "notesLabel": "Notes for the provider",
     "notesPlaceholder": "Anything they should know before your appointment",
@@ -869,6 +870,7 @@
       "notes": "Notes",
       "issues": {
         "missing": "Choose a service, a date and a time.",
+        "serviceClosed": "This service isn't offered on this day. Choose another date.",
         "offGrid": "This isn't one of your slots for this service on this day. Choose a time from the list.",
         "past": "This time has already passed.",
         "taken": "You already have a booking at this time.",
@@ -1350,7 +1352,39 @@
     "formImage": "Image",
     "currencyPlaceholder": "Type or pick a currency",
     "onboardingDone": "Finished setting up? Your profile is live — see what clients see.",
-    "viewProfile": "View my profile"
+    "viewProfile": "View my profile",
+    "availability": {
+      "title": "Availability",
+      "help": "Choose the days this service can be booked. Times always follow your own opening hours.",
+      "modes": {
+        "always": "Always",
+        "recurring": "Recurring",
+        "dates": "Specific days"
+      },
+      "recurrenceLabel": "Repeats on",
+      "recurrences": {
+        "weekdays": "Weekdays",
+        "monthDays": "Days of the month"
+      },
+      "closedDay": "You're closed on this day. Change it on the <link>Availability</link> page.",
+      "monthDaysLabel": "Days of the month",
+      "monthDaysPlaceholder": "Pick days, e.g. 16",
+      "monthDaysNote": "Repeats every month. A day a month doesn't have, like the 31st in April, is skipped.",
+      "datesCalendar": "Pick dates",
+      "datesSelected": "Selected dates",
+      "datesEmpty": "No dates picked yet. Click days in the calendar to add them.",
+      "removeDate": "Remove {date}",
+      "pickWeekday": "Pick at least one weekday.",
+      "pickMonthDay": "Pick at least one day of the month.",
+      "pickDate": "Pick at least one date.",
+      "withinHours": "Bookable only within your opening hours.",
+      "neverBookable": "This service can't be booked with these settings: none of the chosen days fall within your opening hours.",
+      "summary": {
+        "weekdays": "Weekdays: {days}",
+        "monthDays": "Monthly on days: {days}",
+        "dates": "{count, plural, one {# date} other {# dates}}"
+      }
+    }
   },
   "Validation": {
     "required": "Please fill in {label}",
@@ -1399,6 +1433,7 @@
       "slotTaken": "That time has just been taken. Please choose another time.",
       "bookingPaused": "This provider is not taking bookings online right now. Contact them directly to book.",
       "bookingFull": "This provider cannot take any more online bookings this month. Contact them directly to book.",
+      "outsideHours": "This service isn't offered at that time. Please choose another time.",
       "serviceLimit": "Your limit on active services is reached. Deactivate a service, add a pack of extra services, or upgrade your plan.",
       "featureLocked": "This feature is not included in your plan. Add it on its own or upgrade your plan to use it.",
       "notConfigured": "Online payments are not available right now. Request the plan instead and we will set it up for you.",

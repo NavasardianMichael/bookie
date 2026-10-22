@@ -216,6 +216,7 @@
     "copyCardNumber": "카드 번호 복사",
     "dayPast": "이미 지난 날짜예요.",
     "dayClosed": "이 제공자는 이날 근무하지 않아요.",
+    "dayServiceUnavailable": "이 서비스는 이날 제공되지 않아요.",
     "dayNoSlots": "이날 예약 가능한 시간이 없어요.",
     "notesLabel": "제공자에게 전달할 내용",
     "notesPlaceholder": "예약 전에 알아 두어야 할 사항",
@@ -869,6 +870,7 @@
       "notes": "메모",
       "issues": {
         "missing": "서비스, 날짜, 시간을 선택하세요.",
+        "serviceClosed": "이 서비스는 이날 제공되지 않아요. 다른 날짜를 선택하세요.",
         "offGrid": "이날 이 서비스의 시간대가 아니에요. 목록에서 시간을 선택하세요.",
         "past": "이미 지난 시간이에요.",
         "taken": "이 시간에 이미 예약이 있어요.",
@@ -1350,7 +1352,39 @@
     "duplicateService": "서비스 복제",
     "duplicateTitle": "이 서비스를 복제할까요?",
     "duplicateBody": "같은 내용으로 새 서비스가 만들어집니다.",
-    "duplicate": "복제"
+    "duplicate": "복제",
+    "availability": {
+      "title": "예약 가능일",
+      "help": "이 서비스를 예약할 수 있는 날을 선택하세요. 시간은 항상 내 영업시간을 따라요.",
+      "modes": {
+        "always": "항상",
+        "recurring": "반복",
+        "dates": "특정 날짜"
+      },
+      "recurrenceLabel": "반복 기준",
+      "recurrences": {
+        "weekdays": "요일",
+        "monthDays": "매월 날짜"
+      },
+      "closedDay": "이날은 휴무예요. <link>예약 가능 시간</link> 페이지에서 바꿀 수 있어요.",
+      "monthDaysLabel": "매월 날짜",
+      "monthDaysPlaceholder": "날짜 선택 (예: 16)",
+      "monthDaysNote": "매월 반복돼요. 4월 31일처럼 그달에 없는 날은 건너뛰어요.",
+      "datesCalendar": "날짜 선택",
+      "datesSelected": "선택한 날짜",
+      "datesEmpty": "아직 선택한 날짜가 없어요. 달력에서 날짜를 눌러 추가하세요.",
+      "removeDate": "{date} 삭제",
+      "pickWeekday": "요일을 하나 이상 선택하세요.",
+      "pickMonthDay": "매월 날짜를 하나 이상 선택하세요.",
+      "pickDate": "날짜를 하나 이상 선택하세요.",
+      "withinHours": "영업시간 안에서만 예약할 수 있어요.",
+      "neverBookable": "이 설정으로는 서비스를 예약할 수 없어요. 선택한 날이 모두 영업시간 밖이에요.",
+      "summary": {
+        "weekdays": "요일: {days}",
+        "monthDays": "매월 {days}일",
+        "dates": "{count, plural, other {날짜 #개}}"
+      }
+    }
   },
   "Validation": {
     "required": "{label}을(를) 입력하세요",
@@ -1399,6 +1433,7 @@
       "slotTaken": "방금 다른 분이 그 시간을 예약했어요. 다른 시간을 선택해 주세요.",
       "bookingPaused": "이 제공자는 현재 온라인 예약을 받지 않습니다. 예약하려면 직접 연락해 주세요.",
       "bookingFull": "이 제공자는 이번 달에 더 이상 온라인 예약을 받을 수 없습니다. 예약하려면 직접 연락해 주세요.",
+      "outsideHours": "이 서비스는 그 시간에 제공되지 않아요. 다른 시간을 선택하세요.",
       "serviceLimit": "활성 서비스 한도에 도달했습니다. 서비스를 하나 비활성화하거나, 추가 서비스 팩을 더하거나, 요금제를 업그레이드하세요.",
       "featureLocked": "이 기능은 현재 요금제에 포함되어 있지 않습니다. 따로 추가하거나 요금제를 업그레이드하면 사용할 수 있습니다.",
       "notConfigured": "지금은 온라인 결제를 이용할 수 없습니다. 대신 요금제를 신청하시면 저희가 설정해 드립니다.",

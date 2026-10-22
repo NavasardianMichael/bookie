@@ -83,7 +83,7 @@ Gated by `pnpm gates`: `<Modal` belongs to the two wrappers and nowhere else.
 and is rendered after the user asks** — `next/dynamic` still downloads a component mounted
 while closed. Confirm dialogs stay eager. Existing splits: `qrcode` (in `toQrDataUrl`),
 `antd-img-crop` (`LazyImgCrop`), the booking confirm sheet, the service form, the
-plan-request sheet, the week-schedule TimePicker editor, Paddle.js. Their fallback is antd
+plan-request sheet, Paddle.js. Their fallback is antd
 `Spin` at default size, centred (`LazyImgCrop` has none, on purpose); a route
 `loading.tsx` stays a pulse skeleton, because it renders on the server.
 

@@ -48,6 +48,16 @@ const nextConfig: NextConfig = {
     dangerouslyAllowLocalIP: apiIsLoopback,
     formats: ['image/avif', 'image/webp'],
   },
+  /**
+   * User agents that get `generateMetadata`'s tags in `<head>`, blocking, instead of streamed
+   * into `<body>` after the page. Next's default list (copied from
+   * `next/dist/shared/lib/router/utils/html-bots.js` — setting this *replaces* it) plus the
+   * AI crawlers, which read the raw HTML without running scripts: without this, a provider
+   * page's title and description reach them late or not at all. Recheck the default list
+   * after a Next upgrade.
+   */
+  htmlLimitedBots:
+    /[\w-]+-Google|Google-[\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight|GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-SearchBot|Claude-User|anthropic-ai|PerplexityBot|Perplexity-User|CCBot|Bytespider|Amazonbot|cohere-ai|DuckAssistBot/i,
   async redirects() {
     return [
       {

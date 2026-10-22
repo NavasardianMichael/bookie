@@ -24,6 +24,8 @@ export const SLOT_TAKEN_MESSAGE = 'Time slot not available'
 export const BOOKING_ERROR_CODES = {
   bookingPaused: 4201,
   bookingFull: 4202,
+  /** Not a closed page: the time is outside what the service is offered at. Another time fixes it. */
+  outsideHours: 4203,
 } as const
 
 /**

@@ -216,6 +216,7 @@
     "copyCardNumber": "Copia il numero della carta",
     "dayPast": "Questa data è già passata.",
     "dayClosed": "Il professionista non lavora in questo giorno.",
+    "dayServiceUnavailable": "Questo servizio non è disponibile in questo giorno.",
     "dayNoSlots": "Nessun orario disponibile in questo giorno.",
     "notesLabel": "Note per il professionista",
     "notesPlaceholder": "Tutto ciò che deve sapere prima dell'appuntamento",
@@ -869,6 +870,7 @@
       "notes": "Note",
       "issues": {
         "missing": "Scegli un servizio, una data e un orario.",
+        "serviceClosed": "Questo servizio non è disponibile in questo giorno. Scegli un'altra data.",
         "offGrid": "Questo non è uno dei tuoi slot per questo servizio in questo giorno. Scegli un orario dall’elenco.",
         "past": "Questo orario è già passato.",
         "taken": "Hai già una prenotazione a quest’ora.",
@@ -1350,7 +1352,39 @@
     "duplicateService": "Duplica servizio",
     "duplicateTitle": "Duplicare questo servizio?",
     "duplicateBody": "Verrà creato un nuovo servizio con gli stessi dettagli.",
-    "duplicate": "Duplica"
+    "duplicate": "Duplica",
+    "availability": {
+      "title": "Disponibilità",
+      "help": "Scegli i giorni in cui questo servizio si può prenotare. Gli orari seguono sempre il tuo orario di apertura.",
+      "modes": {
+        "always": "Sempre",
+        "recurring": "Ricorrente",
+        "dates": "Giorni specifici"
+      },
+      "recurrenceLabel": "Si ripete",
+      "recurrences": {
+        "weekdays": "Giorni della settimana",
+        "monthDays": "Giorni del mese"
+      },
+      "closedDay": "In questo giorno sei chiuso. Modificalo nella pagina <link>Disponibilità</link>.",
+      "monthDaysLabel": "Giorni del mese",
+      "monthDaysPlaceholder": "Scegli i giorni, es. 16",
+      "monthDaysNote": "Si ripete ogni mese. Un giorno che il mese non ha, come il 31 aprile, viene saltato.",
+      "datesCalendar": "Scegli le date",
+      "datesSelected": "Date selezionate",
+      "datesEmpty": "Nessuna data scelta. Fai clic sui giorni del calendario per aggiungerle.",
+      "removeDate": "Rimuovi {date}",
+      "pickWeekday": "Scegli almeno un giorno della settimana.",
+      "pickMonthDay": "Scegli almeno un giorno del mese.",
+      "pickDate": "Scegli almeno una data.",
+      "withinHours": "Prenotabile solo durante il tuo orario di apertura.",
+      "neverBookable": "Con queste impostazioni il servizio non si può prenotare: nessuno dei giorni scelti rientra nel tuo orario di apertura.",
+      "summary": {
+        "weekdays": "Giorni: {days}",
+        "monthDays": "Ogni mese, nei giorni: {days}",
+        "dates": "{count, plural, one {# data} other {# date}}"
+      }
+    }
   },
   "Validation": {
     "required": "Compila {label}",
@@ -1399,6 +1433,7 @@
       "slotTaken": "Quell'orario è appena stato prenotato. Scegline un altro.",
       "bookingPaused": "Questo professionista al momento non accetta prenotazioni online. Mettiti in contatto direttamente per prenotare.",
       "bookingFull": "Questo professionista non può accettare altre prenotazioni online questo mese. Mettiti in contatto direttamente per prenotare.",
+      "outsideHours": "Questo servizio non è disponibile a quest'ora. Scegli un altro orario.",
       "serviceLimit": "Hai raggiunto il limite di servizi attivi. Disattiva un servizio, aggiungi un pacchetto di servizi extra o passa a un piano superiore.",
       "featureLocked": "Questa funzione non è inclusa nel tuo piano. Aggiungila singolarmente o passa a un piano superiore per usarla.",
       "notConfigured": "I pagamenti online non sono disponibili al momento. Richiedi invece il piano e lo attiveremo noi per te.",

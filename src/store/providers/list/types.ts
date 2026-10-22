@@ -3,7 +3,10 @@ import { Normalized } from '@interfaces/commons'
 import { StateCommonProps } from '@interfaces/store'
 import { ProviderProfile, ProviderService } from '../profile/types'
 
-export type BasicProvider = Pick<ProviderProfile, 'id' | 'basic'>
+export type BasicProvider = Pick<ProviderProfile, 'id' | 'basic'> & {
+  /** The public page key when the provider set one — the page is `/p/<slug ?? id>` (`providerPagePath`). */
+  slug?: string
+}
 
 /** The service a search matched, as its result card prints it. */
 export type MatchedService = Pick<ProviderService, 'id' | 'name' | 'duration' | 'price' | 'currency'>

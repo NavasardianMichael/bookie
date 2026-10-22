@@ -53,6 +53,7 @@ const partiesSelect = {
   provider: {
     select: {
       fullName: true,
+      slug: true,
       timeZone: true,
       timeFormat: true,
       ...ENTITLEMENT_SELECT,
@@ -67,6 +68,8 @@ type Parties = {
   provider: Recipient
   booker: Recipient
   providerId: string
+  /** The public page key, `slug ?? id` — what `/p/<key>` links are built from. */
+  providerKey: string
   appointmentId: string
 }
 
@@ -79,6 +82,7 @@ const loadParties = async (appointmentId: string): Promise<Parties | null> => {
   return {
     appointmentId: row.id,
     providerId: row.providerId,
+    providerKey: row.provider.slug ?? row.providerId,
     facts: {
       bookerName: booker || 'A client',
       bookerGreetingName: booker || 'there',
@@ -117,7 +121,7 @@ const manageUrl = (parties: Parties, locale: string): string =>
 const bookingsUrl = (locale: string): string => buildBookingsUrl(config.corsOrigin, locale)
 
 const providerPageUrl = (parties: Parties, locale: string): string =>
-  buildProviderPageUrl(config.corsOrigin, locale, parties.providerId)
+  buildProviderPageUrl(config.corsOrigin, locale, parties.providerKey)
 
 /** Runs a notifier and logs instead of throwing — the shape every export below shares. */
 const safely = async (label: string, run: () => Promise<void>): Promise<void> => {

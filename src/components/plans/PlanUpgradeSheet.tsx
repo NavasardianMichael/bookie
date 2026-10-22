@@ -1,6 +1,6 @@
 'use client'
 
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { ContactForm } from '@app/[lang]/contact/ContactForm'
 import { useTranslations } from 'next-intl'
 import { Addon, Plan } from '@interfaces/plans'
@@ -27,6 +27,8 @@ type Props = {
  */
 export const PlanUpgradeSheet: FC<Props> = ({ request, onClose }) => {
   const t = useTranslations('Plans')
+  /** A request in flight: the sheet cannot be dismissed until it lands or fails. */
+  const [pending, setPending] = useState(false)
 
   const title = !request
     ? ''
@@ -35,12 +37,18 @@ export const PlanUpgradeSheet: FC<Props> = ({ request, onClose }) => {
       : t('addonRequestTitle', { addon: t(`addons.${request.addon}.name`) })
 
   return (
-    <AppSheet open={request !== null} onClose={onClose} title={title}>
+    <AppSheet open={request !== null} onClose={onClose} title={title} pending={pending}>
       {request &&
         ('plan' in request ? (
-          <ContactForm key={request.plan} topic='planUpgrade' plan={request.plan} />
+          <ContactForm key={request.plan} topic='planUpgrade' plan={request.plan} onPendingChange={setPending} />
         ) : (
-          <ContactForm key={request.addon} topic='addonRequest' addon={request.addon} quantity={request.quantity} />
+          <ContactForm
+            key={request.addon}
+            topic='addonRequest'
+            addon={request.addon}
+            quantity={request.quantity}
+            onPendingChange={setPending}
+          />
         ))}
     </AppSheet>
   )

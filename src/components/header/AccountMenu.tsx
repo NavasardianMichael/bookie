@@ -125,6 +125,7 @@ export const AccountMenu: FC<Props> = ({ name, image, showName, role, isActive }
         variant='borderless'
         popupMatchSelectWidth={false}
         placement='bottomRight'
+        classNames={{ popup: { root: 'app-scrollbar' } }}
         getPopupContainer={(node) => node.parentElement ?? document.body}
         // The row highlight is the current path. The trigger itself is the account.
         labelRender={() => ''}

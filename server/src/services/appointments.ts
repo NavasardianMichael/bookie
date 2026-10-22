@@ -6,6 +6,7 @@ import { BOOKING_ERROR, SLOT_TAKEN_MESSAGE } from '../lib/booking-errors.js'
 import { toPaymentMethods } from '../lib/payment.js'
 import { PLAN_ERROR } from '../lib/plan-errors.js'
 import { prisma } from '../lib/prisma.js'
+import { isWithinBookableHours, toServiceAvailability } from '../lib/service-availability.js'
 import { hashUrlToken, mintUrlToken } from '../lib/token.js'
 import { HttpError } from '../middleware/error.js'
 
@@ -25,6 +26,30 @@ function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60_000)
 }
 
+const OUTSIDE_HOURS_MESSAGE = 'This service is not offered at that time'
+
+/**
+ * Refuses a time the service is not offered at — outside the provider's hours, or outside
+ * the service's own days and hours inside them (`lib/service-availability.ts`). The grid
+ * never offers such a time; this is what makes the public route agree with it.
+ */
+function assertBookableHours(input: {
+  provider: { weekSchedule: Prisma.JsonValue; timeZone: string | null } | null
+  service: { availability: Prisma.JsonValue }
+  startAt: Date
+  endAt: Date
+}): void {
+  if (!input.provider) return
+  const fits = isWithinBookableHours({
+    weekSchedule: input.provider.weekSchedule,
+    availability: toServiceAvailability(input.service.availability),
+    timeZone: input.provider.timeZone,
+    startAt: input.startAt,
+    endAt: input.endAt,
+  })
+  if (!fits) throw new HttpError(409, OUTSIDE_HOURS_MESSAGE, BOOKING_ERROR.outsideHours)
+}
+
 /**
  * Bookings that already hold a slot, within a window.
  *
@@ -37,7 +62,9 @@ function addMinutes(date: Date, minutes: number) {
  *
  * So the split is by *responsibility* rather than by layer: the client owns stepping
  * (it knows the service), the server owns what is taken (it owns the rows). This returns
- * intervals, not slots, which is the only shape that does not presuppose a step.
+ * intervals, not slots, which is the only shape that does not presuppose a step. The
+ * server does check that a booking *fits* the hours the service is offered at
+ * (`assertBookableHours`) — fit, not the step.
  *
  * It is a **public** read on a public page, so it carries instants and nothing else —
  * no id, no service, no booker. What it discloses is exactly what the grid already
@@ -116,6 +143,7 @@ export async function createAppointment(input: {
   }
 
   const endAt = addMinutes(input.startAt, service.durationMinutes)
+  assertBookableHours({ provider, service, startAt: input.startAt, endAt })
 
   const conflict = await findOverlappingAppointment({
     providerId: input.providerId,
@@ -215,11 +243,12 @@ async function findOverlappingAppointment(
  * - **Never `pending`.** Approval is the provider's decision, and they have made it. Written
  *   `scheduled`, the one "on the calendar" state (docs/DATABASE_STRUCTURE.md → Booking approval).
  *
- * What does apply: the service is theirs and active, the time is in the future and free —
- * against live bookings and against the batch itself — and the plan's monthly allowance has
- * room for every row, because these are bookings like any other and count like them. The
- * slot grid is the client's rule, as it is for the public route: the server owns what is
- * taken, not how the day is stepped.
+ * What does apply: the service is theirs and active, the time is in the future, inside the
+ * hours the service is offered at, and free — against live bookings and against the batch
+ * itself — and the plan's monthly allowance has room for every row, because these are
+ * bookings like any other and count like them. How the day is stepped stays the client's
+ * rule, as it is for the public route: the server checks a booking *fits*, not that it
+ * starts on a grid line.
  *
  * The overlap reads and the insert share one transaction. That does not lock out a visitor
  * booking the same slot in the same instant — no route here does (docs/BACKLOG.md) — but it
@@ -231,7 +260,7 @@ async function findOverlappingAppointment(
 export async function createProviderAppointments(providerId: string, rows: readonly ImportRow[], now: Date) {
   const provider = await prisma.provider.findUnique({
     where: { id: providerId },
-    select: { id: true, organizationId: true, ...ENTITLEMENT_SELECT },
+    select: { id: true, organizationId: true, weekSchedule: true, timeZone: true, ...ENTITLEMENT_SELECT },
   })
   if (!provider) throw new HttpError(404, 'Provider not found', 404)
 
@@ -245,7 +274,9 @@ export async function createProviderAppointments(providerId: string, rows: reado
     if (!service) throw new HttpError(404, 'Service not found', 404)
     if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
     if (row.startAt <= now) throw new HttpError(400, 'A booking cannot start in the past', 400)
-    return { row, service, endAt: addMinutes(row.startAt, service.durationMinutes) }
+    const endAt = addMinutes(row.startAt, service.durationMinutes)
+    assertBookableHours({ provider, service, startAt: row.startAt, endAt })
+    return { row, service, endAt }
   })
 
   if (findBatchClashes(timed.map(({ row, endAt }) => ({ startAt: row.startAt, endAt }))).length) {
@@ -316,6 +347,11 @@ export async function rescheduleAppointment(input: {
   if (!service.active) throw new HttpError(409, 'This service is no longer available', 409)
 
   const endAt = addMinutes(input.startAt, service.durationMinutes)
+  const provider = await prisma.provider.findUnique({
+    where: { id: appointment.providerId },
+    select: { weekSchedule: true, timeZone: true },
+  })
+  assertBookableHours({ provider, service, startAt: input.startAt, endAt })
 
   const conflict = await findOverlappingAppointment({
     providerId: appointment.providerId,

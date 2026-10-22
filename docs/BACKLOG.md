@@ -106,26 +106,20 @@ What changed is that it is now *recoverable*: `SLOT_TAKEN_MESSAGE` is pinned acr
 packages by `tests/unit/server/bookingErrors.spec.ts`, and the sheet matches on it to
 refresh the grid and say "pick another time" instead of showing a raw error.
 
-### 6b. `POST /appointments` never checks `startAt` against the provider's hours
+### 6b. ~~`POST /appointments` never checks `startAt` against the provider's hours~~ — done 2026-10-22, except a provider with no time zone
 
-Found 2026-09-22 while testing booking approval. `createAppointment` validates the service,
-the overlap and the payment methods — and nothing at all about *when* the slot is. A direct
-POST books 03:00 on a day the provider is closed, and it lands on their calendar looking
-like any other appointment.
+Resolved with per-service availability. `createAppointment`, `rescheduleAppointment` and
+`createProviderAppointments` now refuse a booking that does not fit inside a window the
+service is offered in on the provider's clock — `409`, `BOOKING_ERROR.outsideHours` (`4203`)
+— through `server/src/lib/service-availability.ts`, a twin of the grid's
+`src/helpers/serviceAvailability.ts` pinned by `tests/unit/server/serviceAvailability.spec.ts`.
 
-The UI never offers such a time, which is why this has never been seen: the grid is built
-from `weekSchedule`. But `POST /appointments` is **public**, so the UI is not the guard —
-the same reasoning that put the overlap check server-side applies here and was not
-followed through.
-
-The fix is to run the request's `startAt` through the same availability-minus-breaks
-arithmetic the client uses, server-side, and `409` a slot that is not one. That means
-sharing `splitScheduleIntoParts`-equivalent logic across the two packages, or duplicating
-it with a test pinning the two — which is why it is a backlog entry rather than a line.
-
-**No `KNOWN BUG:` test pins this**, against the usual rule: `services/appointments.ts`
-imports Prisma, so `tests/unit/server/` cannot reach it (`tests/CLAUDE.md`), and nothing in
-`pnpm test` touches a database. The same blind spot as entry 4.
+**Still open: a provider whose `timeZone` is NULL is not checked.** Their grid reads the
+hours on each visitor's own clock, so the server cannot know which wall clock a booking was
+made on, and any guess would refuse real bookings. The fix is to make `timeZone` required
+(backfilled from the browser on the next sign-in, as the Advanced tab already offers) and
+then drop the skip in `isWithinBookableHours`. Pinned by the "does not check a provider with
+no time zone" case in that spec.
 
 ### 6c. ~~`/providers/profile/consumer-bookings` has no entry point~~ — done 2026-09-23
 
@@ -519,6 +513,15 @@ nothing linked to it any more. The columns (`Provider.address`, `locationUrl`,
 `ProviderGallery`) and the live `PUT /provider-profile` fields that write them are still
 there, and the public page still shows them, so seeded values render but a provider cannot
 change theirs. Fix: give them a home in the settings Profile tab.
+
+## A provider has no structured city
+
+Found 2026-10-22 while optimising the public provider page for search. The address is one
+free-text field, so the page can state the **country** cleanly (title, `areaServed`, a visible
+line) but a city only as part of whatever the provider typed. "dentist Yerevan" then matches
+on the description and the body, never on a field. A `city` column — picked from a list,
+like the country — would let the auto title read `Name | Categories | City, Country`, give
+the JSON-LD `addressLocality`, and let Explore filter by place.
 
 ## Smaller, carried over
 

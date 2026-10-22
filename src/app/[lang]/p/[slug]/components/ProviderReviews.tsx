@@ -16,6 +16,8 @@ import { WriteReviewButton } from './WriteReviewButton'
 
 type Props = {
   providerId: string
+  /** The page key the pager links under (`providerPagePath`). */
+  slug?: string
   /** 1-based, off the URL. The API clamps it, so this is a request, not a promise. */
   page: number
 }
@@ -33,7 +35,7 @@ const STAR_ROWS = [5, 4, 3, 2, 1] as const
  * page of reviews in front of it: the page is five rows and the average is over all of
  * them, so computing it here would show a different number on page 2.
  */
-export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
+export const ProviderReviews: FC<Props> = async ({ providerId, slug, page }) => {
   const [t, tCommon, cookieStore] = await Promise.all([
     getTranslations('Provider.reviews'),
     getTranslations('Common'),
@@ -158,7 +160,7 @@ export const ProviderReviews: FC<Props> = async ({ providerId, page }) => {
                 page={data.page}
                 pageCount={data.pageCount}
                 total={data.total}
-                buildHref={(next) => buildReviewsHref(providerId, next)}
+                buildHref={(next) => buildReviewsHref({ id: providerId, slug }, next)}
                 label={t('pagesLabel')}
                 previousLabel={tCommon('previousPage')}
                 nextLabel={tCommon('nextPage')}

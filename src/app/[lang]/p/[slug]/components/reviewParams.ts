@@ -1,4 +1,4 @@
-import { ROUTES } from '@constants/routes'
+import { providerPagePath,ProviderPageRef } from '@helpers/entities'
 
 /**
  * The review list's paging lives in the URL, for the same reason Explore's filters do:
@@ -20,16 +20,15 @@ export const parseReviewsPage = (raw: Record<string, string | string[] | undefin
 }
 
 /**
- * Locale-free, as every `ROUTES` path is — `AppLink` adds the prefix.
- *
- * Built from the provider's **id**, never the route segment: this page also serves
- * `/providers/<slug>`, and paging off the segment would give one page two addresses.
- * Page 1 drops the parameter so the unpaged section has exactly one URL.
+ * The provider's page (`providerPagePath`), built from the provider — never the route
+ * segment: the page also answers to its id and to slugs given up, and paging off the
+ * segment would give one page several addresses. Page 1 drops the parameter so the
+ * unpaged section has exactly one URL.
  *
  * The `#reviews` fragment is what makes paging usable at all — without it, following a
  * pager two thirds down a long profile lands the reader back at the top of the page.
  */
-export const buildReviewsHref = (providerId: string, page: number): string => {
+export const buildReviewsHref = (provider: ProviderPageRef, page: number): string => {
   const query = page > 1 ? `?${REVIEWS_PAGE_PARAM}=${page}` : ''
-  return `${ROUTES.providers}/${providerId}${query}#reviews`
+  return `${providerPagePath(provider)}${query}#reviews`
 }

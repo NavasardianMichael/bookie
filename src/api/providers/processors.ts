@@ -7,6 +7,7 @@ import {
   GetProviderBusyAPI,
   GetProviderProfileAPI,
   GetProvidersListAPI,
+  GetProvidersSitemapAPI,
   GetSingleProviderAPI,
   PatchProviderSeoAPI,
   PutProviderServiceAPI,
@@ -94,6 +95,9 @@ export const processProviderServiceResponse: PutProviderServiceAPI['processor'] 
  * throwing inside the grid that is trying to render their open times.
  */
 export const processProviderBusyResponse: GetProviderBusyAPI['processor'] = (response) => response.value ?? []
+
+/** `?? []` so an empty directory reads as no providers rather than throwing in the sitemap. */
+export const processProvidersSitemapResponse: GetProvidersSitemapAPI['processor'] = (response) => response.value ?? []
 
 /** `?? {}` so a provider who has never opened the SEO tab reads as "no overrides set". */
 export const processProviderSeoResponse: PatchProviderSeoAPI['processor'] = (response) => response.value ?? {}

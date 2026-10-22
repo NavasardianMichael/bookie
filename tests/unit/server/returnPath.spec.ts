@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LOCALES } from '@i18n/config'
+import { LANG_PARAM, LOCALES } from '@i18n/config'
 // The one aliased import here, and the point of the last describe block: the web constant is
 // the *consumer* of what this module mints, and only a test that holds both can catch them
 // drifting apart.
@@ -11,6 +11,7 @@ import { ROUTES } from '@constants/routes'
 import {
   asVerifyLocale,
   buildEmailVerifyUrl,
+  buildProviderPageUrl,
   DEFAULT_VERIFY_LOCALE,
   EMAIL_VERIFY_QUERY,
   GOOGLE_SIGN_UP_PATHS,
@@ -18,6 +19,7 @@ import {
   googleSignUpPath,
   isAllowedEmailVerifyReturnPath,
   isAllowedPublicReturnPath,
+  PROVIDER_PAGE_PATH,
   splitLocalePath,
 } from '../../../server/src/lib/return-path'
 
@@ -258,5 +260,26 @@ describe('googleSignUpPath', () => {
       unknown: ROUTES.accountTypeSelection,
     })
     expect(GOOGLE_SIGN_UP_QUERY).toBe(WEB_GOOGLE_SIGN_UP_QUERY)
+  })
+})
+
+/**
+ * The link a declined or cancelled booker gets back to the provider's page. The page is
+ * `/p/<key>` with the language as a query parameter (`src/proxy.ts`), so a locale-prefixed
+ * link would cost every recipient a redirect — and a different route name would 404.
+ */
+describe('buildProviderPageUrl', () => {
+  it('points at the page route the web app serves', () => {
+    expect(PROVIDER_PAGE_PATH).toBe(ROUTES.providerPage)
+  })
+
+  it('carries the language as the query parameter the proxy reads', () => {
+    expect(buildProviderPageUrl('https://bookie.example', 'hy', 'acme-hair')).toBe(
+      `https://bookie.example/p/acme-hair?${LANG_PARAM}=hy`
+    )
+  })
+
+  it('tolerates a trailing slash on the origin and encodes the key', () => {
+    expect(buildProviderPageUrl('https://bookie.example/', 'en', 'a/b')).toBe('https://bookie.example/p/a%2Fb?lang=en')
   })
 })

@@ -73,6 +73,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Telegram, the iCal feed / `.ics` | `server/src/routes/telegram.ts`, `calendar.ts` · `src/components/settings/TelegramConnect.tsx`, `CalendarFeed.tsx` |
 | Terms, Privacy, Refund Policy | `src/components/legal/LegalDocument.tsx` + `src/constants/legal.ts` · copy in `Legal.*` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
+| The public provider page's URL (`/p/<slug ?? id>`, no locale segment), its SEO, the sitemap, `llms.txt` | `src/app/[lang]/p/[slug]/` · `src/proxy.ts` · `src/app/sitemap.ts` — see `docs/routes/provider-page.md` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |
 | Route paths, form rules, week days, plans | `src/constants/` — paths only in `routes.ts` |
 | Locales, translations, `Accept-Language` | `src/i18n/` — see `src/i18n/CLAUDE.md`; catalogues in `src/messages/` |

@@ -41,6 +41,7 @@ import { asyncHandler, HttpError } from '../middleware/error.js'
 import { type CategoryChoice, MAX_PROVIDER_CATEGORIES, parseCategoryChoices } from '../services/categories.js'
 import { resolveOrganizationId } from '../services/organizationLink.js'
 import { providerCategoryIds, pruneUnusedCategories, setProviderCategories } from '../services/providerCategories.js'
+import { refreshProviderSeoStamp } from '../services/providerSeoStamp.js'
 import { recomputeProviderRating } from '../services/reviews.js'
 
 export const identityRouter = Router()
@@ -1000,6 +1001,7 @@ identityRouter.patch(
     const data = { ...phone, ...(country ? { country } : {}) }
     if (req.session!.role === 'provider') {
       await prisma.provider.update({ where: { id: req.session!.profileId }, data })
+      await refreshProviderSeoStamp(req.session!.profileId)
     } else {
       await prisma.consumer.update({ where: { id: req.session!.profileId }, data })
     }
@@ -1178,6 +1180,7 @@ identityRouter.delete(
     // stale average would tell someone their deletion did not happen when it did.
     for (const providerId of ratedProviderIds) {
       await recomputeProviderRating(prisma, providerId)
+      await refreshProviderSeoStamp(providerId)
     }
 
     clearSessionCookie(res)

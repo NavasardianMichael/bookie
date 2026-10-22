@@ -136,11 +136,11 @@ const AvailabilityDayRow = ({ day, timeFormat }: { day: WeekDay; timeFormat: Tim
               {fields.map((field) => (
                 <div key={field.key} className='flex flex-wrap items-center gap-2'>
                   <AppFormItem name={[field.name, 'start']} className='m-0'>
-                    <TimePicker format={pickerFormat} minuteStep={15} needConfirm={false} />
+                    <TimePicker className='min-w-40' format={pickerFormat} minuteStep={15} needConfirm={false} />
                   </AppFormItem>
                   <AppText tone='muted'>{t('availability.to')}</AppText>
                   <AppFormItem name={[field.name, 'end']} className='m-0'>
-                    <TimePicker format={pickerFormat} minuteStep={15} needConfirm={false} />
+                    <TimePicker className='min-w-40' format={pickerFormat} minuteStep={15} needConfirm={false} />
                   </AppFormItem>
                   {fields.length > 1 && (
                     <AppButton

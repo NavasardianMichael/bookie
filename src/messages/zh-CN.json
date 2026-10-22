@@ -216,6 +216,7 @@
     "copyCardNumber": "复制卡号",
     "dayPast": "该日期已过。",
     "dayClosed": "该服务提供者此日不营业。",
+    "dayServiceUnavailable": "此服务在这天不提供。",
     "dayNoSlots": "此日没有可预约时段。",
     "notesLabel": "给服务提供者的备注",
     "notesPlaceholder": "预约前需要告知的任何事项",
@@ -869,6 +870,7 @@
       "notes": "备注",
       "issues": {
         "missing": "请选择服务、日期和时间。",
+        "serviceClosed": "此服务在这天不提供。请选择其他日期。",
         "offGrid": "这不是你在这一天为该服务开放的时段。请从列表中选择时间。",
         "past": "这个时间已经过去。",
         "taken": "你在这个时间已有预约。",
@@ -1350,7 +1352,39 @@
     "duplicateService": "复制服务",
     "duplicateTitle": "复制这项服务？",
     "duplicateBody": "将创建一个包含相同信息的新服务。",
-    "duplicate": "复制"
+    "duplicate": "复制",
+    "availability": {
+      "title": "可预约时间",
+      "help": "选择此服务可预约的日期。时间始终以你自己的营业时间为准。",
+      "modes": {
+        "always": "始终",
+        "recurring": "重复",
+        "dates": "指定日期"
+      },
+      "recurrenceLabel": "重复方式",
+      "recurrences": {
+        "weekdays": "按星期",
+        "monthDays": "按每月日期"
+      },
+      "closedDay": "你这天不营业。可在<link>可预约时间</link>页面中修改。",
+      "monthDaysLabel": "每月日期",
+      "monthDaysPlaceholder": "选择日期，例如 16",
+      "monthDaysNote": "每月重复。某月没有的日期（如 4 月 31 日）会被跳过。",
+      "datesCalendar": "选择日期",
+      "datesSelected": "已选日期",
+      "datesEmpty": "尚未选择日期。点击日历中的日期即可添加。",
+      "removeDate": "移除 {date}",
+      "pickWeekday": "请至少选择一个星期几。",
+      "pickMonthDay": "请至少选择每月中的一天。",
+      "pickDate": "请至少选择一个日期。",
+      "withinHours": "只能在你的营业时间内预约。",
+      "neverBookable": "按当前设置无法预约此服务：所选日期都不在你的营业时间内。",
+      "summary": {
+        "weekdays": "每周：{days}",
+        "monthDays": "每月：{days} 日",
+        "dates": "{count, plural, other {# 个日期}}"
+      }
+    }
   },
   "Validation": {
     "required": "请填写{label}",
@@ -1399,6 +1433,7 @@
       "slotTaken": "该时间刚刚被预约。请另选一个时间。",
       "bookingPaused": "该服务提供者目前不接受在线预约。请直接联系预约。",
       "bookingFull": "该服务提供者本月无法再接受在线预约。请直接联系预约。",
+      "outsideHours": "此服务在该时间不提供。请选择其他时间。",
       "serviceLimit": "已达到有效服务上限。停用一项服务、添加一份额外服务，或升级套餐。",
       "featureLocked": "你的套餐不包含此功能。单独添加或升级套餐即可使用。",
       "notConfigured": "在线支付暂不可用。请改为申请该套餐，我们会为你开通。",

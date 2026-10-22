@@ -9,7 +9,7 @@ import { useErrorToast } from '@hooks/useErrorToast'
 import { useUnsavedChangesGuard } from '@hooks/useUnsavedChangesGuard'
 import { AddonCatalogueEntry, AdminProvider, Plan } from '@interfaces/plans'
 import { ADDON_SOURCES, PLAN_ORDER, PLAN_TAG_COLORS, PLANS } from '@constants/plans'
-import { ROUTES } from '@constants/routes'
+import { providerPagePath } from '@helpers/entities'
 import { toPlanExpiryISO, toPlanLastDay, toPlanLastDayValue } from '@helpers/plans'
 import { AppButton } from '@components/ui/AppButton'
 import { AppText } from '@components/ui/bare/AppText'
@@ -77,7 +77,7 @@ export const AdminProviderPlanRow: FC<Props> = ({ provider, addons, onSaved }) =
           </AppText>
           {provider.slug && (
             <AppText size='caption' tone='muted'>
-              {`${ROUTES.providerVanity}/${provider.slug}`}
+              {providerPagePath({ id: provider.id, slug: provider.slug })}
             </AppText>
           )}
         </div>

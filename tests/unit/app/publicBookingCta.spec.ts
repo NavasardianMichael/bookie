@@ -4,7 +4,7 @@ import {
   BOOKING_TIMES_ID,
   bookingContinueSection,
   bookingContinueTarget,
-} from '@app/[lang]/providers/[providerId]/components/publicBookingCta'
+} from '@app/[lang]/p/[slug]/components/publicBookingCta'
 import { describe, expect, it } from 'vitest'
 
 const open = { hasService: false, hasDay: false, hasTime: false, cannotBookOwn: false }

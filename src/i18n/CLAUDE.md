@@ -53,9 +53,12 @@ The URL is authoritative. `src/proxy.ts` only decides where *unprefixed* traffic
   lower-preference tag beat a best-fit on a higher one (`pt-PT,en;q=0.9` → `en`).
   `matchAcceptLanguage` treats quality as the outer loop. Pinned by
   `tests/unit/i18n/matchAcceptLanguage.spec.ts`. Do not re-enable `localeDetection`.
-- **Provider pages:** `/es/providers/abc` renders Spanish whatever the provider chose. Their
-  own language is meant to become the page's `x-default` and the target of a bare
-  `/providers/abc` (needs the `locale` column — not built yet).
+- **Provider pages are the one locale-free page route:** `/p/<key>`, language in `?lang=`.
+  `src/proxy.ts` rewrites a bare `/p/<key>` to `/<locale>/p/<key>` (`?lang=` → cookie →
+  `Accept-Language`) and 308s a prefixed `/<lang>/p/<key>` to the bare URL.
+  `isLocaleFreePath` (`pathname.ts`) makes `localePath`, `AppLink` and `useRouter` leave these
+  paths unprefixed; build them with `providerPagePath`. One canonical per provider, no
+  hreflang — `docs/routes/provider-page.md`.
 
 ## SEO — two metadata tiers, picked by whose words are on the page
 

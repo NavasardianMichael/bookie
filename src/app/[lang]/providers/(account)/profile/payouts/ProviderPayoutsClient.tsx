@@ -140,6 +140,7 @@ export const ProviderPayoutsClient = () => {
             icon={<CrownOutlined className='text-lg' />}
             label={t('activePlan')}
             value={tPlans(`names.${plan.effectivePlan}`)}
+            valueClassName='text-h3'
             hint={planHint()}
             action={
               <AppLink href={ROUTES.pricing} className='text-body-sm font-semibold'>

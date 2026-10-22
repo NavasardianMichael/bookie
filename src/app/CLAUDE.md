@@ -9,7 +9,7 @@ and easy to "fix" back by accident:
 | Changing | Read |
 |---|---|
 | Explore (`/providers`): URL state, search suggestions, Suspense, matched service | `docs/routes/explore.md` |
-| Public provider page, booking panels, time-zone controls, `/p/[slug]` | `docs/routes/provider-page.md` |
+| Public provider page `/p/[slug]`, its URL and SEO, booking panels, time-zone controls | `docs/routes/provider-page.md` |
 | `/bookings`, `/favorites`, the heart | `docs/routes/bookings-and-favorites.md` |
 | A settings tab, the workspace switch | `docs/routes/account-settings.md` |
 | Registration, sign-in, Google, become-provider | `docs/routes/auth.md` |
@@ -46,10 +46,10 @@ off `headers()`. Do **not** call `setRequestLocale` — it is deprecated. A page
 |---|---|
 | `/` | Marketing landing. Sign-up actions are guest-only, from a server-side session read (below) |
 | `/providers` | Explore — search with suggestions, category rail, filter + sort, paged. State is the query string |
-| `/providers/[providerId]` | Public profile: identity + hours + location, booking as three panels, then reviews |
+| `/providers/[providerId]` | **Route Handler** — 308 to `/p/<key>?lang=<lang>`, the page's old address |
 | `/providers/profile` (+ tabs), `/providers/profile-services` | Provider workspace shell (route group `providers/(account)`) |
 | `/consumers/profile` (+ tabs) | Consumer account settings |
-| `/p/[slug]` | Vanity link — a **Route Handler** that 307s to `/providers/<slug>` |
+| `/p/[slug]` | **Public provider page** — identity + hours + location, booking as three panels, then reviews. Served **without a locale prefix**: the proxy rewrites `/p/<key>` to `/<locale>/p/<key>` (`?lang=` → cookie → `Accept-Language`). `key` is the slug or the id — `docs/routes/provider-page.md` |
 | `/b/[token]` | Public booking manage page (view / cancel / reschedule) by capability token. A page, not a redirect |
 | `/organizations`, `/organizations/[id]`, `/categories`, `/categories/[id]` | Lists and details |
 | `/bookings` | Every appointment on the account, either side. Signed-in header destination, `noindex`, proxy-guarded |
@@ -141,9 +141,10 @@ export default async function Providers() {
   `generateMetadata` and the page body each make their own HTTP call.
 - **Every list and detail route gets a sibling `loading.tsx`** mirroring the page's layout.
   Exception: a `loading.tsx` ancestor streams its children as hidden HTML, so a fact that
-  must be in the document cannot sit under one. That is why the provider identity column is
-  `[providerId]/layout.tsx` and the home and Explore skeletons live in the route groups
-  `[lang]/(home)/` and `providers/(explore)/`.
+  must be in the document cannot sit under one. That is why the public provider page
+  (`p/[slug]`) has **none at all** — its services and reviews are search content, and a
+  missing provider must answer a real 404 — and why the home and Explore skeletons live in
+  the route groups `[lang]/(home)/` and `providers/(explore)/`.
 
 ## Error boundaries
 
@@ -158,7 +159,7 @@ A boundary renders inside its own segment's layout but not around it:
 |---|---|
 | `[lang]/error.tsx` | everything not caught lower, inside the app chrome |
 | `providers/`, `organizations/`, `categories/` `error.tsx` | the list pages |
-| `providers/[providerId]`, `organizations/[organizationId]`, `categories/[categoryId]`, `b/[token]` | one entity (detail copy) |
+| `p/[slug]`, `organizations/[organizationId]`, `categories/[categoryId]`, `b/[token]` | one entity (detail copy) |
 | `providers/(account)/error.tsx`, `consumers/profile/error.tsx` | a settings panel — `inline`, so the sidebar stays |
 
 A crash in a **layout** goes one level up — in `[lang]/layout.tsx`, to `global-error.tsx`.

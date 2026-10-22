@@ -216,6 +216,7 @@
     "copyCardNumber": "Kartennummer kopieren",
     "dayPast": "Dieses Datum liegt in der Vergangenheit.",
     "dayClosed": "Der Anbieter arbeitet an diesem Tag nicht.",
+    "dayServiceUnavailable": "Dieser Service wird an diesem Tag nicht angeboten.",
     "dayNoSlots": "An diesem Tag sind keine Zeiten verfügbar.",
     "notesLabel": "Anmerkungen für den Anbieter",
     "notesPlaceholder": "Alles, was vor Ihrem Termin bekannt sein sollte",
@@ -869,6 +870,7 @@
       "notes": "Notizen",
       "issues": {
         "missing": "Wählen Sie eine Leistung, ein Datum und eine Uhrzeit.",
+        "serviceClosed": "Dieser Service wird an diesem Tag nicht angeboten. Wählen Sie ein anderes Datum.",
         "offGrid": "Das ist an diesem Tag keines Ihrer Zeitfenster für diese Leistung. Wählen Sie eine Uhrzeit aus der Liste.",
         "past": "Diese Uhrzeit ist bereits vorbei.",
         "taken": "Sie haben zu dieser Uhrzeit bereits eine Buchung.",
@@ -1350,7 +1352,39 @@
     "duplicateService": "Service duplizieren",
     "duplicateTitle": "Diesen Service duplizieren?",
     "duplicateBody": "Ein neuer Service wird mit denselben Angaben erstellt.",
-    "duplicate": "Duplizieren"
+    "duplicate": "Duplizieren",
+    "availability": {
+      "title": "Verfügbarkeit",
+      "help": "Wählen Sie die Tage, an denen dieser Service buchbar ist. Die Zeiten richten sich immer nach Ihren eigenen Öffnungszeiten.",
+      "modes": {
+        "always": "Immer",
+        "recurring": "Wiederkehrend",
+        "dates": "Bestimmte Tage"
+      },
+      "recurrenceLabel": "Wiederholt sich",
+      "recurrences": {
+        "weekdays": "Wochentage",
+        "monthDays": "Tage im Monat"
+      },
+      "closedDay": "An diesem Tag haben Sie geschlossen. Ändern Sie das auf der Seite <link>Verfügbarkeit</link>.",
+      "monthDaysLabel": "Tage im Monat",
+      "monthDaysPlaceholder": "Tage wählen, z. B. 16",
+      "monthDaysNote": "Wiederholt sich jeden Monat. Ein Tag, den ein Monat nicht hat, etwa der 31. April, wird übersprungen.",
+      "datesCalendar": "Daten wählen",
+      "datesSelected": "Gewählte Daten",
+      "datesEmpty": "Noch keine Daten gewählt. Klicken Sie auf Tage im Kalender, um sie hinzuzufügen.",
+      "removeDate": "{date} entfernen",
+      "pickWeekday": "Wählen Sie mindestens einen Wochentag.",
+      "pickMonthDay": "Wählen Sie mindestens einen Tag im Monat.",
+      "pickDate": "Wählen Sie mindestens ein Datum.",
+      "withinHours": "Nur innerhalb Ihrer Öffnungszeiten buchbar.",
+      "neverBookable": "Mit diesen Einstellungen ist der Service nicht buchbar: Keiner der gewählten Tage liegt in Ihren Öffnungszeiten.",
+      "summary": {
+        "weekdays": "Wochentage: {days}",
+        "monthDays": "Monatlich an den Tagen: {days}",
+        "dates": "{count, plural, one {# Datum} other {# Daten}}"
+      }
+    }
   },
   "Validation": {
     "required": "Bitte {label} ausfüllen",
@@ -1399,6 +1433,7 @@
       "slotTaken": "Diese Uhrzeit wurde gerade vergeben. Bitte wählen Sie eine andere.",
       "bookingPaused": "Dieser Anbieter nimmt derzeit keine Online-Buchungen an. Bitte nehmen Sie direkt Kontakt auf.",
       "bookingFull": "Dieser Anbieter kann in diesem Monat keine weiteren Online-Buchungen annehmen. Bitte nehmen Sie direkt Kontakt auf.",
+      "outsideHours": "Dieser Service wird zu dieser Zeit nicht angeboten. Bitte wählen Sie eine andere Zeit.",
       "serviceLimit": "Sie haben das Limit aktiver Leistungen erreicht. Deaktivieren Sie eine Leistung, buchen Sie ein Paket zusätzlicher Leistungen oder wechseln Sie in einen höheren Tarif.",
       "featureLocked": "Diese Funktion ist in Ihrem Tarif nicht enthalten. Buchen Sie sie einzeln dazu oder wechseln Sie in einen höheren Tarif, um sie zu nutzen.",
       "notConfigured": "Online-Zahlungen sind derzeit nicht verfügbar. Fragen Sie den Tarif stattdessen an, und wir richten ihn für Sie ein.",

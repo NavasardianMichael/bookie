@@ -129,8 +129,10 @@ export type ProviderProfile = {
 export type ProviderSeo = {
   title?: string
   description?: string
-  /** Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL. */
+  /** The public page key: the page is `/p/<slug>`, or `/p/<id>` without one. */
   slug?: string
+  /** When anything search engines see on the public page last changed — `dateModified`. */
+  updatedAt?: string
 }
 
 /**
@@ -159,6 +161,22 @@ export type DaySchedule = {
 
 export type DaySchedulePart = { start: string; end: string }
 
+/**
+ * Which days a service can be booked on. It picks **days, never hours**: on an offered day
+ * the service runs during the provider's own hours (`weekSchedule`), which are the only
+ * time frame there is. Effective windows: `@helpers/serviceAvailability`. Server twin and
+ * validation: `server/src/lib/service-availability.ts`.
+ *
+ * - `weekdays` — every listed weekday.
+ * - `monthDays` — every listed day of every month (1–31); a day a month lacks is skipped.
+ * - `dates` — each listed `YYYY-MM-DD`, on the provider's calendar.
+ */
+export type ServiceAvailability =
+  | { mode: 'always' }
+  | { mode: 'weekdays'; days: WeekDay[] }
+  | { mode: 'monthDays'; days: number[] }
+  | { mode: 'dates'; dates: string[] }
+
 export type ProviderService = {
   id: string
   name: string
@@ -169,6 +187,8 @@ export type ProviderService = {
   image?: string
   /** False when the provider has withdrawn this offering. Defaults to true from the API. */
   active: boolean
+  /** `{ mode: 'always' }` from the API when the provider set no rule. */
+  availability: ServiceAvailability
 }
 
 /**

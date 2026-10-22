@@ -6,6 +6,8 @@ export const ENDPOINTS = {
    * out. The id is interpolated in `main.ts`; this holds base paths only.
    */
   getProviderBusy: '/providers',
+  /** Every listed provider's page key and change stamp — the sitemap and `llms.txt`. */
+  getProvidersSitemap: '/providers/sitemap',
   getProviderProfile: '/provider-profile',
   putProviderProfile: '/provider-profile',
   patchProviderSeo: '/provider-profile/seo',

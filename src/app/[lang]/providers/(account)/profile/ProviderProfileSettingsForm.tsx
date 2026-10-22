@@ -299,6 +299,7 @@ export const ProviderProfileSettingsForm = ({ verifyEmailToken }: Props) => {
         <ProviderPageActions
           listed={profile?.listed !== false}
           profileId={profile?.id ?? profileId}
+          slug={profile?.seo?.slug}
           name={displayName}
           disabled={!profile || pendingAction !== null}
           onListedChange={(listed) => {

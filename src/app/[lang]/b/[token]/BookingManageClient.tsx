@@ -1,11 +1,11 @@
 'use client'
 
 import { FC, useCallback, useMemo, useState } from 'react'
-import { BookingMonth } from '@app/[lang]/providers/[providerId]/components/BookingMonth'
-import { BookingShareActions } from '@app/[lang]/providers/[providerId]/components/BookingShareActions'
-import { BookingSlots } from '@app/[lang]/providers/[providerId]/components/BookingSlots'
-import { BookingSummary, BookingSummaryData } from '@app/[lang]/providers/[providerId]/components/BookingSummary'
-import { ServicePicker } from '@app/[lang]/providers/[providerId]/components/ServicePicker'
+import { BookingMonth } from '@app/[lang]/p/[slug]/components/BookingMonth'
+import { BookingShareActions } from '@app/[lang]/p/[slug]/components/BookingShareActions'
+import { BookingSlots } from '@app/[lang]/p/[slug]/components/BookingSlots'
+import { BookingSummary, BookingSummaryData } from '@app/[lang]/p/[slug]/components/BookingSummary'
+import { ServicePicker } from '@app/[lang]/p/[slug]/components/ServicePicker'
 import { App, Tag } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
@@ -92,17 +92,19 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
 
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
+  const availability = service?.availability
 
   const monthSlots = useMemo(
     () =>
       getSlotsForDateRange({
         weekSchedule: details?.weekSchedule,
+        availability,
         start: month.startOf('month').toDate(),
         end: month.endOf('month').add(1, 'day').startOf('day').toDate(),
         durationMinutes,
         timeZone,
       }),
-    [details?.weekSchedule, durationMinutes, month, timeZone]
+    [availability, details?.weekSchedule, durationMinutes, month, timeZone]
   )
 
   const slotCountByDay = useMemo(() => countSlotsByDay(monthSlots, timeZone), [monthSlots, timeZone])
@@ -125,9 +127,9 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
   const daySlots = useMemo(
     () =>
       selectedDate
-        ? getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes, timeZone })
+        ? getSlotsForDate({ weekSchedule: details?.weekSchedule, availability, date: selectedDate, durationMinutes, timeZone })
         : [],
-    [details?.weekSchedule, durationMinutes, selectedDate, timeZone]
+    [availability, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
   )
 
   const validSelectedStart = useMemo(
@@ -301,6 +303,7 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
             selectedDayKey={selectedDayKey}
             slotCountByDay={slotCountByDay}
             weekSchedule={details?.weekSchedule}
+            availability={availability}
             timeZone={timeZone}
             serviceName={service?.name}
             onSelectDay={handleSelectDay}

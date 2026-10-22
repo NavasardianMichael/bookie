@@ -132,6 +132,16 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
                 </AppLink>
               </AppParagraph>
             )}
+            {/* The country on its own when there is no address: it is a location search term,
+                and the page should state it in text, not only in the JSON-LD. */}
+            {!details.location.address && countryName && (
+              <AppParagraph size='body-sm' className='m-0'>
+                <AppText as='strong' tone='default'>
+                  {tCommon('country')}:{' '}
+                </AppText>
+                {countryName}
+              </AppParagraph>
+            )}
             {email && (
               <AppParagraph size='body-sm' className='m-0'>
                 <AppText as='strong' tone='default'>

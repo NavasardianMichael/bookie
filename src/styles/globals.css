@@ -127,6 +127,11 @@
      token would let a retune of one restyle the other. */
   --color-rating: #e0a415;
   --color-rating-empty: #cfd5e0;
+
+  /* The `app-scrollbar` thumb — the browser's native greys. Mirrors SCROLLBAR in
+     src/styles/tokens.ts. */
+  --color-scrollbar-thumb: #c1c1c1;
+  --color-scrollbar-thumb-hover: #a8a8a8;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -302,4 +307,44 @@ button.copyable-link-copy.ant-btn:hover {
 
 @utility app-safe-b {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/** A roomier scrollbar with a slim thumb: the track is wider than the thumb, which a
+    transparent border insets (`background-clip: padding-box`). WebKit/Blink only —
+    `scrollbar-width` is kept from them because Chrome 121+ ignores every
+    `::-webkit-scrollbar` rule once it is set; Firefox, which has no pseudo-elements,
+    gets `thin` instead.
+    A Select menu scrolls `.ant-select-dropdown-list-holder`, not the popup the class
+    sits on, so the same thumb follows that holder. */
+@utility app-scrollbar {
+  &::-webkit-scrollbar,
+  & .ant-select-dropdown-list-holder::-webkit-scrollbar {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  &::-webkit-scrollbar-track,
+  & .ant-select-dropdown-list-holder::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb,
+  & .ant-select-dropdown-list-holder::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar-thumb);
+    background-clip: padding-box;
+    border: 0.25rem solid transparent;
+    border-radius: 9999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover,
+  & .ant-select-dropdown-list-holder::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-thumb-hover);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    &,
+    & .ant-select-dropdown-list-holder {
+      scrollbar-width: thin;
+    }
+  }
 }

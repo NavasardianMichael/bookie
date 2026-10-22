@@ -7,7 +7,10 @@ import { ProviderProfile } from '../profile/types'
  * payload to decide the title and description. They are meta tags, so nothing about
  * them is owner-only — unlike `personal`, `listed` and `draft`, which stay off it.
  */
-export type SingleProvider = Pick<ProviderProfile, 'id' | 'basic' | 'details' | 'services' | 'seo'>
+export type SingleProvider = Pick<ProviderProfile, 'id' | 'basic' | 'details' | 'services' | 'seo'> & {
+  /** `datePublished` of the page's JSON-LD. */
+  createdAt?: string
+}
 
 export type SingleProviderState = StateCommonProps & SingleProvider
 

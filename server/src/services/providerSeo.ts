@@ -22,8 +22,12 @@ import { HttpError } from '../middleware/error.js'
  */
 export const MAX_SEO_TITLE = 60
 
-/** Same reasoning, for the ~160 characters of description a result snippet shows. */
-export const MAX_SEO_DESCRIPTION = 160
+/**
+ * The description's cap is the auto description's (`MAX_CHARS_FOR_TEXTAREA` on the web), so
+ * the SEO tab can show the generated text in the box and let the provider edit it. Google
+ * shows about the first 160 characters; the rest is still read by search and AI systems.
+ */
+export const MAX_SEO_DESCRIPTION = 300
 
 export const MIN_SLUG_LENGTH = 3
 export const MAX_SLUG_LENGTH = 40

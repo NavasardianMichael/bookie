@@ -1,15 +1,17 @@
-﻿import { Graph, Offer, OfferCatalog, Person, ProfessionalService } from 'schema-dts'
+import { Graph, Offer, OfferCatalog, Person, ProfessionalService, WebPage } from 'schema-dts'
 import { BasicProvider } from '@store/providers/list/types'
 import { ProviderService } from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
+import { DEFAULT_LOCALE, isLocale } from '@i18n/config'
+import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { isOnlineBookingOpen } from '@helpers/booking'
 import { formatDuration } from '@helpers/duration'
-import { generateEntityUrl } from '@helpers/entities'
-import { resolveAbsoluteAssetUrl } from '@helpers/images'
+import { generateEntityUrl, providerPageUrl } from '@helpers/entities'
+import { isUploadedAsset, resolveAbsoluteAssetUrl } from '@helpers/images'
 import { generateGoogleMapsLink } from '@helpers/location'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
-import { absoluteUrl } from '@helpers/url'
+import { absoluteUrl, getSiteUrl } from '@helpers/url'
 import { getBreadcrumbLDSchema } from './breadcrumbs'
 import { getOpeningHoursLDSchema } from './schedule'
 
@@ -66,12 +68,27 @@ const getPriceRange = (services: ProviderService[]): string | undefined => {
  */
 export const getBasicProviderLDSchema = (provider: BasicProvider): Person => ({
   '@type': 'Person',
-  '@id': `${generateEntityUrl(ROUTE_KEYS.providers, provider.id)}#person`,
+  '@id': `${providerPageUrl(provider)}#person`,
   name: provider.basic.fullName,
   description: provider.basic.description,
   image: resolveAbsoluteAssetUrl(provider.basic.image),
-  url: generateEntityUrl(ROUTE_KEYS.providers, provider.id),
+  url: providerPageUrl(provider),
 })
+
+/**
+ * What the page resolved for itself (`[slug]/providerPageSeo.ts`), so the JSON-LD states the
+ * same title, description and names as the `<head>` — plus the breadcrumb labels, which are
+ * copy and so arrive translated.
+ */
+export type ProviderLDContext = {
+  locale: string
+  canonical: string
+  title: string
+  description: string
+  categoryNames: string[]
+  countryName?: string
+  labels: { home: string; providers: string }
+}
 
 /**
  * A graph rather than a single node.
@@ -86,17 +103,18 @@ export const getBasicProviderLDSchema = (provider: BasicProvider): Person => ({
  * all: both are fetched on the server but only rendered inside the client
  * calendar, so nothing about them reached a crawler.
  */
-export const getProviderLDSchema = (provider: SingleProvider): Graph => {
+export const getProviderLDSchema = (provider: SingleProvider, context: ProviderLDContext): Graph => {
   const { basic, details, services } = provider
 
-  const pageUrl = generateEntityUrl(ROUTE_KEYS.providers, provider.id)
+  const pageUrl = context.canonical
   const businessId = `${pageUrl}#business`
   const personId = `${pageUrl}#person`
+  const webPageId = `${pageUrl}#webpage`
 
   const fullName = basic.fullName
   const image = resolveAbsoluteAssetUrl(basic.image)
   const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
-  const categoryNames = basic.categories?.map((category) => category.name) ?? []
+  const categoryNames = context.categoryNames
   const openingHours = getOpeningHoursLDSchema(details.weekSchedule)
   const rating = basic.rating
 
@@ -134,6 +152,7 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
       name: details.location.address,
       address: details.location.address,
     },
+    mainEntityOfPage: { '@id': webPageId },
   }
 
   const business: ProfessionalService = {
@@ -150,6 +169,8 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
       streetAddress: details.location.address,
       addressCountry: details.country,
     },
+    areaServed: context.countryName ? { '@type': 'Country', name: context.countryName } : undefined,
+    mainEntityOfPage: { '@id': webPageId },
     hasMap: details.location.url ?? generateGoogleMapsLink(details.location.address),
     parentOrganization: employer,
     employee: { '@id': personId },
@@ -195,17 +216,39 @@ export const getProviderLDSchema = (provider: SingleProvider): Graph => {
       : undefined,
   }
 
+  const locale = isLocale(context.locale) ? context.locale : DEFAULT_LOCALE
+  const breadcrumb = getBreadcrumbLDSchema([
+    { name: context.labels.home, path: localePath(locale, ROUTES[ROUTE_KEYS.home]) },
+    { name: context.labels.providers, path: localePath(locale, ROUTES[ROUTE_KEYS.providers]) },
+    { name: fullName, path: pageUrl },
+  ])
+
+  /**
+   * The page as a document, apart from what it is about: `dateModified` is when anything a
+   * search engine sees here last changed (`seo.updatedAt`, moved by the server's fingerprint),
+   * which is what a crawler and an AI index read to decide whether to refresh their copy.
+   */
+  // `ProfilePage`, the WebPage subtype Google reads for a page about one person.
+  const webPage: WebPage = {
+    '@type': 'ProfilePage',
+    '@id': webPageId,
+    url: pageUrl,
+    name: context.title,
+    description: context.description,
+    inLanguage: context.locale,
+    isPartOf: { '@id': `${getSiteUrl()}#website` },
+    about: { '@id': businessId },
+    mainEntity: { '@id': personId },
+    // A real upload only: the seeded placeholder is an SVG mark, not a picture of anyone.
+    primaryImageOfPage: isUploadedAsset(basic.image) && image ? { '@type': 'ImageObject', url: image } : undefined,
+    datePublished: provider.createdAt,
+    dateModified: provider.seo?.updatedAt,
+    breadcrumb,
+  }
+
   return {
     '@context': 'https://schema.org',
-    '@graph': [
-      business,
-      person,
-      getBreadcrumbLDSchema([
-        { name: 'Home', path: ROUTES[ROUTE_KEYS.home] },
-        { name: 'Providers', path: ROUTES[ROUTE_KEYS.providers] },
-        { name: fullName, path: `${ROUTES[ROUTE_KEYS.providers]}/${provider.id}` },
-      ]),
-    ],
+    '@graph': [webPage, business, person],
   }
 }
 
@@ -227,7 +270,7 @@ export const getProvidersListLDSchema = (providers: BasicProvider[]): Graph => (
         itemListElement: providers.map((provider, index) => ({
           '@type': 'ListItem',
           position: index + 1,
-          url: generateEntityUrl(ROUTE_KEYS.providers, provider.id),
+          url: providerPageUrl(provider),
           item: getBasicProviderLDSchema(provider),
         })),
       },

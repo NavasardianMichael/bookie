@@ -8,6 +8,7 @@ import { requireAdmin } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
 import { ENTITLEMENT_SELECT, parseAdminAddonsBody, parseAdminPlanBody, planChangeStampReset } from '../services/plans.js'
 import { resolvePageWindow } from '../services/providerSearch.js'
+import { refreshProviderSeoStamp } from '../services/providerSeoStamp.js'
 import { recomputeProviderRating } from '../services/reviews.js'
 
 /**
@@ -113,6 +114,7 @@ adminRouter.patch(
       })
       if (review.providerId) await recomputeProviderRating(tx, review.providerId)
     })
+    if (review.providerId) await refreshProviderSeoStamp(review.providerId)
 
     return ok(res, true)
   })

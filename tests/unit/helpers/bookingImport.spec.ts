@@ -97,6 +97,43 @@ describe('checkDraftSlot', () => {
   })
 })
 
+/**
+ * A service offered on some days only (`ServiceAvailability`). The provider is open on
+ * Monday 2026-03-02, but `wednesdays` runs on Wednesdays — which they are closed on, so it
+ * can never be booked — and `mondays` on Mondays. Blocked like the public grid, and told
+ * apart from `offGrid` because the fix is another date.
+ */
+describe('checkDraftSlot with a service offered on some days', () => {
+  const withRules: DraftSchedule = {
+    ...schedule,
+    durations: { ...schedule.durations, mondays: 30, wednesdays: 30 },
+    availability: {
+      mondays: { mode: 'weekdays', days: ['monday'] },
+      wednesdays: { mode: 'weekdays', days: ['wednesday'] },
+    },
+  }
+  const checkWith = (rows: DraftSlotRow[]) => checkDraftSlot({ rows, index: 0, schedule: withRules, busy: [], now: LONG_AGO })
+
+  it('flags a day the provider is open but the service is not offered', () => {
+    expect(checkWith([row('09:30', 'wednesdays')])).toEqual({ issue: 'serviceClosed' })
+  })
+
+  it('passes a slot on a day the service is offered', () => {
+    expect(checkWith([row('09:30', 'mondays')])).toBeNull()
+  })
+
+  // A closed provider day stays `offGrid`: no service could fix it, only a different day.
+  it('keeps a day the provider is closed as off the grid', () => {
+    expect(checkWith([row('09:00', 'mondays', '2026-03-03')])).toEqual({ issue: 'offGrid' })
+  })
+
+  it('offers no times on a day the service is not offered', () => {
+    expect(
+      draftTimeOptions({ rows: [row('09:30', 'wednesdays')], index: 0, schedule: withRules, busy: [], now: LONG_AGO })
+    ).toEqual([])
+  })
+})
+
 describe('draftTimeOptions', () => {
   it("offers the service's free slots on the provider's clock, minus the calendar and the other rows", () => {
     const busy = [{ startAt: '2026-03-02T05:00:00.000Z', endAt: '2026-03-02T05:30:00.000Z' }] // 09:00

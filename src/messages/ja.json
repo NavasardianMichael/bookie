@@ -216,6 +216,7 @@
     "copyCardNumber": "カード番号をコピー",
     "dayPast": "この日付は過去です。",
     "dayClosed": "この提供者はこの日は休業です。",
+    "dayServiceUnavailable": "このサービスはこの日には提供されていません。",
     "dayNoSlots": "この日は予約できる時間がありません。",
     "notesLabel": "提供者への連絡事項",
     "notesPlaceholder": "予約前に伝えておきたいこと",
@@ -869,6 +870,7 @@
       "notes": "備考",
       "issues": {
         "missing": "サービス、日付、時間を選択してください。",
+        "serviceClosed": "このサービスはこの日には提供されていません。別の日付を選んでください。",
         "offGrid": "この日のこのサービスの予約枠ではありません。リストから時間を選択してください。",
         "past": "この時間はすでに過ぎています。",
         "taken": "この時間にはすでに予約があります。",
@@ -1350,7 +1352,39 @@
     "duplicateService": "サービスを複製",
     "duplicateTitle": "このサービスを複製しますか？",
     "duplicateBody": "同じ内容の新しいサービスが作成されます。",
-    "duplicate": "複製"
+    "duplicate": "複製",
+    "availability": {
+      "title": "予約可能日",
+      "help": "このサービスを予約できる日を選んでください。時間は常にあなたの営業時間に従います。",
+      "modes": {
+        "always": "常に",
+        "recurring": "繰り返し",
+        "dates": "特定の日"
+      },
+      "recurrenceLabel": "繰り返し方法",
+      "recurrences": {
+        "weekdays": "曜日",
+        "monthDays": "毎月の日付"
+      },
+      "closedDay": "この日は休業日です。<link>受付時間</link>ページで変更できます。",
+      "monthDaysLabel": "毎月の日付",
+      "monthDaysPlaceholder": "日付を選択（例: 16）",
+      "monthDaysNote": "毎月繰り返します。4月31日のように、その月にない日はスキップされます。",
+      "datesCalendar": "日付を選択",
+      "datesSelected": "選択した日付",
+      "datesEmpty": "まだ日付が選ばれていません。カレンダーの日をクリックして追加してください。",
+      "removeDate": "{date} を削除",
+      "pickWeekday": "曜日を1つ以上選んでください。",
+      "pickMonthDay": "毎月の日付を1つ以上選んでください。",
+      "pickDate": "日付を1つ以上選んでください。",
+      "withinHours": "営業時間内のみ予約できます。",
+      "neverBookable": "この設定ではこのサービスを予約できません。選んだ日がどれも営業時間外です。",
+      "summary": {
+        "weekdays": "曜日: {days}",
+        "monthDays": "毎月: {days}日",
+        "dates": "{count, plural, other {# 日}}"
+      }
+    }
   },
   "Validation": {
     "required": "{label}を入力してください",
@@ -1399,6 +1433,7 @@
       "slotTaken": "その時間はたった今予約されました。別の時間をお選びください。",
       "bookingPaused": "この提供者は現在オンライン予約を受け付けていません。予約は直接お問い合わせください。",
       "bookingFull": "この提供者は今月これ以上オンライン予約を受け付けられません。予約は直接お問い合わせください。",
+      "outsideHours": "このサービスはその時間には提供されていません。別の時間を選んでください。",
       "serviceLimit": "有効にできるサービス数の上限に達しました。サービスを停止するか、追加サービスのパックを追加するか、プランをアップグレードしてください。",
       "featureLocked": "この機能はご利用のプランに含まれていません。単体で追加するか、プランをアップグレードするとご利用いただけます。",
       "notConfigured": "オンライン決済は現在ご利用いただけません。代わりにプランをお申し込みいただければ、こちらで設定します。",

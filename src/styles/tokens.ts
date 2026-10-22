@@ -65,6 +65,17 @@ export const RATING = {
 } as const
 
 /**
+ * The scrollbar thumb of `app-scrollbar` (`globals.css` §8). Chromium's own default greys:
+ * styling the track wider means styling the thumb too, and there is no value that says
+ * "the browser's colour", so the native look is restated here. Neutral, not the brand ramp
+ * — a scrollbar is chrome, not content.
+ */
+export const SCROLLBAR = {
+  thumb: '#c1c1c1',
+  thumbHover: '#a8a8a8',
+} as const
+
+/**
  * Corner radius, in px. Two static values, not a scale and not responsive:
  * `base` is controls and chips (the prototype's `rounded-lg`), `lg` is cards and
  * panels (its `rounded-xl`). antd's own defaults are 6/8, which read visibly

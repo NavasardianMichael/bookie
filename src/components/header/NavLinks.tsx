@@ -6,12 +6,14 @@ import { useTranslations } from 'next-intl'
 import { AppRouteName } from '@interfaces/routes'
 import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
+import { isExactRouteActive } from '@helpers/routes'
 import { AppLink } from '@components/ui/bare/AppLink'
 
 type Props = {
   routes: AppRouteName[]
   orientation: 'horizontal' | 'vertical'
-  isActive: (route: string) => boolean
+  /** Locale-free path. A link is current only when this is exactly that destination. */
+  pathname: string
   onNavigate?: () => void
 }
 
@@ -28,7 +30,7 @@ const NAV_ICONS: Partial<Record<AppRouteName, ReactNode>> = {
  * The route list, rendered once and shared by the desktop nav and the mobile
  * drawer — previously duplicated verbatim between the two.
  */
-export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate }) => {
+export const NavLinks: FC<Props> = ({ routes, orientation, pathname, onNavigate }) => {
   const t = useTranslations('Nav')
   const isVertical = orientation === 'vertical'
 
@@ -46,7 +48,7 @@ export const NavLinks: FC<Props> = ({ routes, orientation, isActive, onNavigate 
     >
       {routes.map((name) => {
         const route = ROUTES[name]
-        const active = isActive(route)
+        const active = isExactRouteActive(pathname, route)
         const icon = NAV_ICONS[name]
 
         return (

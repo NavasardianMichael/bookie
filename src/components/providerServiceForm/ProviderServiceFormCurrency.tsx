@@ -6,6 +6,7 @@ import type { DefaultOptionType } from 'antd/es/select'
 import { useTranslations } from 'next-intl'
 import { isSameName, matchesSearch } from '@helpers/search'
 import { PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE } from './constants'
+import { PROVIDER_SERVICE_FORM_POPUP_PROPS } from './constants'
 
 type Props = {
   /** `value` and `onChange` are injected by the wrapping `Form.Item`. */
@@ -51,6 +52,7 @@ export const ProviderServiceFormCurrency: FC<Props> = ({ value, onChange, disabl
       allowClear
       showSearch={{ filterOption: matchesQuery }}
       className='w-full'
+      {...PROVIDER_SERVICE_FORM_POPUP_PROPS}
     />
   )
 }

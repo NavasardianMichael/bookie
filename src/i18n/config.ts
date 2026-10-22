@@ -44,6 +44,13 @@ export const DEFAULT_LOCALE: Locale = 'en'
 export const LOCALE_COOKIE = 'NEXT_LOCALE'
 
 /**
+ * The query parameter that picks the language of the public provider page, `/p/<key>` — the
+ * one page route with no locale segment. `src/proxy.ts` reads it first, before the cookie
+ * and `Accept-Language`. Mirrored in `server/src/lib/return-path.ts#buildProviderPageUrl`.
+ */
+export const LANG_PARAM = 'lang'
+
+/**
  * Set by `src/proxy.ts` on every request, because a Server Component cannot
  * otherwise see the path — and `resolveLocale` needs it to tell a provider's
  * public page (rendered in *that provider's* language) from everything else.

@@ -22,7 +22,7 @@ type Props = {
 
 export const Header = ({ directory }: Props) => {
   const t = useTranslations('Nav')
-  const { showLogo, showNav, navRoutes, isActive } = useHeaderConfig()
+  const { pathname, showLogo, showNav, navRoutes, isActive } = useHeaderConfig()
   const getMe = useAuthStore.use.getMe()
   const isSignedOn = useAuthStore.use.isSignedOn()
   const userType = useAuthStore.use.userType()
@@ -49,7 +49,7 @@ export const Header = ({ directory }: Props) => {
         {showNav && (
           <>
             <div className='ml-auto hidden items-center gap-4 xl:flex xxl:gap-6'>
-              <NavLinks routes={routes} orientation='horizontal' isActive={isActive} />
+              <NavLinks routes={routes} orientation='horizontal' pathname={pathname} />
               <div className='flex items-center gap-3'>
                 <span aria-hidden className='bg-brand-border h-6 w-px shrink-0' />
                 <LanguageSwitcher className='min-w-36 text-sm font-semibold' variant='borderless' />
@@ -81,6 +81,7 @@ export const Header = ({ directory }: Props) => {
               )}
               <MobileNav
                 routes={routes}
+                pathname={pathname}
                 isActive={isActive}
                 isSignedOn={isSignedOn}
                 profileHref={isSignedOn ? accountHref : undefined}

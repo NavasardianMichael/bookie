@@ -1,17 +1,22 @@
 import type { MetadataRoute } from 'next'
+import { getProvidersSitemapAPI } from '@api/providers/main'
 import { LOCALES } from '@i18n/config'
 import { localePath } from '@i18n/pathname'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
+import { providerPageUrl } from '@helpers/entities'
+import { reportError } from '@helpers/reportError'
 import { absoluteUrl } from '@helpers/url'
+
+/** Read per request: a provider who publishes or edits their page is listed with its new date at once. */
+export const dynamic = 'force-dynamic'
 
 /**
  * Public, indexable routes — **locale-free paths**, one entry each. Every one is
  * emitted once per locale below.
  *
  * Deliberately excluded: the auth funnel and the signed-in areas (nothing to
- * index, and `/providers/profile*` is behind the proxy's guard), `/routes-overview`
- * (dev-only, `notFound()` in production), and the entity detail routes, which need
- * a data fetch — see the note at the bottom.
+ * index, and `/providers/profile*` is behind the proxy's guard) and `/routes-overview`
+ * (dev-only, `notFound()` in production). Provider pages are listed separately below.
  */
 const INDEXABLE_ROUTE_KEYS = [
   ROUTE_KEYS.home,
@@ -39,20 +44,28 @@ const CHANGE_FREQUENCY: Partial<Record<(typeof INDEXABLE_ROUTE_KEYS)[number], Me
   }
 
 /**
- * One entry per route per locale, each carrying the full `alternates.languages`
- * set so crawlers see the 16 variants as one page in many languages rather than
- * 15 competing near-duplicates.
+ * One entry per static route per locale, each carrying the full `alternates.languages` set
+ * so crawlers see the 16 variants as one page in many languages — and then **one entry per
+ * listed provider**.
  *
- * Not yet listed: `/providers/[providerId]`, `/categories/[categoryId]` and
- * `/organizations/[organizationId]`. Those need a fetch of every published id,
- * and the list endpoints are unpaginated today — worth adding once there is a
- * real catalogue behind them, since detail pages are the ones with long-tail
- * search value.
+ * A provider page is a single URL, `/p/<slug ?? id>`, whatever the language (`?lang=`, never a
+ * path segment), so it is listed once with no alternates. `lastModified` is the provider's
+ * `seoUpdatedAt`: moved by the API only when something search engines see on the page
+ * changed — a service, a category, the address, an override on the SEO tab, a new review —
+ * so a crawler that trusts `lastmod` re-reads exactly the pages that changed.
+ *
+ * A failed provider read is reported and the static entries still go out: a sitemap missing
+ * its providers for one fetch is better than no sitemap.
+ *
+ * Google reads at most 50,000 URLs per sitemap: 144 static entries leave room for ~49,800
+ * providers. Past that, split the providers out with `generateSitemaps`.
+ *
+ * `/categories/[categoryId]` and `/organizations/[organizationId]` are not listed yet.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date()
 
-  return INDEXABLE_ROUTE_KEYS.flatMap((routeName) => {
+  const pages: MetadataRoute.Sitemap = INDEXABLE_ROUTE_KEYS.flatMap((routeName) => {
     const path = ROUTES[routeName]
 
     const languages = Object.fromEntries(LOCALES.map((locale) => [locale, absoluteUrl(localePath(locale, path))]))
@@ -64,4 +77,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       alternates: { languages },
     }))
   })
+
+  const providers = await getProvidersSitemapAPI().catch((error: unknown) => {
+    reportError(error, 'sitemap:providers')
+    return []
+  })
+
+  return [
+    ...pages,
+    ...providers.map((provider) => ({
+      url: providerPageUrl(provider),
+      lastModified: new Date(provider.updatedAt),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+  ]
 }

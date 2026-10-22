@@ -30,6 +30,30 @@ The services page and the Analytics and SEO tabs gate on `personal.entitlements`
 owner profile they already load — no extra request. Each control the plan does not allow
 is disabled with a line linking to the Plan tab; the API refuses the same write regardless.
 
+## Services: which days each one is offered on
+
+The service form ends with an **Availability** section: *Always*, *Recurring* (Weekdays or
+Days of the month) or *Specific days*. Available on every plan. The rule itself is in
+`docs/DATABASE_STRUCTURE.md` → *Which days a service is offered on*; the decisions behind it:
+
+- **Days only, no time pickers.** The provider's Availability tab is the one time frame. A
+  second set of hours per service would be a second schedule to keep inside the first, and
+  every mismatch between them a day that looks open and is not. The Weekdays cards borrow
+  the Availability tab's look and show that day's hours read-only; a day the provider is
+  closed cannot be ticked, and Specific days disables closed and past days in its calendar.
+- **Narrowed on read, not clamped on save.** Changing the provider's hours later changes
+  every service at once, with no stored rule left pointing at hours that no longer exist.
+  The form warns when a pick can never be booked (every chosen weekday or date closed) but
+  still saves it, since it fixes itself when the provider opens those days.
+- **A missing month day is skipped**, not moved to the month's last day: "every 31st" that
+  quietly became "April 30th" would book a day the provider never chose.
+- **The form keeps every mode's pick** while it is open, so trying Weekdays and going back
+  to Always loses nothing; only the active mode is sent. Switching an *Always* service to
+  Weekdays starts with the provider's open weekdays ticked.
+- **Photo import is held to it too.** A row on a day its service is not offered on is
+  flagged (`serviceClosed`) and cannot be saved until it is moved, and the API refuses it
+  (`4203`) like a visitor's booking.
+
 ## Two of the provider tabs are not settings
 
 `Approvals` and `Analytics` are for running the business rather than configuring it. They

@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import type { BillingStatus, Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
+import { toServiceAvailability } from '../lib/service-availability.js'
 import { uniqueCategories } from '../services/categories.js'
 import {
   ADDON_GRANT_SELECT,
@@ -104,6 +105,11 @@ export function mapOrganization(org: OrganizationWithProviders) {
 export function mapBasicProvider(provider: ProviderWithRelations) {
   return {
     id: provider.id,
+    /**
+     * The public page is `/p/<slug ?? id>`, so every payload that links to it carries the
+     * slug — a card built from the id alone would point at a URL the page canonicalises away.
+     */
+    slug: provider.slug ?? undefined,
     basic: {
       fullName: provider.fullName,
       description: provider.description ?? undefined,
@@ -267,10 +273,13 @@ export function mapSingleProvider(provider: EntitledProvider, options: { booking
 
   return {
     id: provider.id,
+    slug: provider.slug ?? undefined,
     basic: mapBasicProvider(provider).basic,
     details,
     services: normalized,
     seo: mapProviderSeo(provider),
+    /** `datePublished` of the page's JSON-LD. */
+    createdAt: provider.createdAt.toISOString(),
   }
 }
 
@@ -284,11 +293,36 @@ export function mapSingleProvider(provider: EntitledProvider, options: { booking
  * tell "no override, compose the default" from "an override that happens to be empty" —
  * the distinction the whole override model rests on.
  */
-export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescription' | 'slug'>) {
+export function mapProviderSeo(provider: Pick<Provider, 'seoTitle' | 'seoDescription' | 'slug' | 'seoUpdatedAt'>) {
   return {
     title: provider.seoTitle ?? undefined,
     description: provider.seoDescription ?? undefined,
     slug: provider.slug ?? undefined,
+    /** When anything search engines see last changed — `dateModified` (`services/providerSeoStamp.ts`). */
+    updatedAt: provider.seoUpdatedAt.toISOString(),
+  }
+}
+
+/**
+ * One listed provider as the sitemap and `llms.txt` need it: the page key, the change stamp,
+ * and the words `llms.txt` prints beside the link. Category names stay in their stored
+ * (English, for the predefined ones) form — `llms.txt` is one language.
+ */
+export function mapSitemapProvider(provider: {
+  id: string
+  slug: string | null
+  fullName: string
+  seoUpdatedAt: Date
+  categories: { category: { name: string } }[]
+  services: { name: string }[]
+}) {
+  return {
+    id: provider.id,
+    slug: provider.slug ?? undefined,
+    fullName: provider.fullName,
+    updatedAt: provider.seoUpdatedAt.toISOString(),
+    categories: provider.categories.map(({ category }) => category.name),
+    services: provider.services.map((service) => service.name),
   }
 }
 
@@ -378,6 +412,7 @@ export function mapService(service: Service) {
     currency: service.currency ?? undefined,
     image: service.imageUrl ?? undefined,
     active: service.active,
+    availability: toServiceAvailability(service.availability),
   }
 }
 

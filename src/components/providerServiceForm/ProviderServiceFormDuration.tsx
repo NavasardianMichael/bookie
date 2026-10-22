@@ -4,6 +4,7 @@ import { FC, useMemo } from 'react'
 import { AutoComplete } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
 import { formatDuration } from '@helpers/duration'
+import { PROVIDER_SERVICE_FORM_POPUP_PROPS } from './constants'
 
 /** Offered as suggestions; a provider can still type any whole minute count. */
 const DURATION_SUGGESTIONS_MINUTES = [15, 20, 30, 45, 60, 90, 120]
@@ -56,6 +57,7 @@ export const ProviderServiceFormDuration: FC<Props> = ({ value, onChange, disabl
       // filter would only hide the suggestions.
       showSearch={{ filterOption: false }}
       className='w-full'
+      {...PROVIDER_SERVICE_FORM_POPUP_PROPS}
     />
   )
 }

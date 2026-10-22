@@ -189,9 +189,21 @@ export const PROVIDER_PLAN_PATH = '/providers/profile/plan'
 
 export const buildPlanUrl = (origin: string, locale: string): string => withLocale(origin, locale, PROVIDER_PLAN_PATH)
 
-/** The provider's public page — where a declined booker goes to pick another time. */
-export const buildProviderPageUrl = (origin: string, locale: string, providerId: string): string =>
-  withLocale(origin, locale, `/providers/${providerId}`)
+/**
+ * The provider's public page — where a declined booker goes to pick another time.
+ *
+ * `/p/<key>` is the one public page route **without** a locale segment: the language rides
+ * in `?lang=`, so every language consolidates onto one indexable URL per provider
+ * (`docs/routes/provider-page.md`). `key` is the slug when the provider has one, else the
+ * id. Pinned against `ROUTES.providerPage` by `tests/unit/server/returnPath.spec.ts`.
+ */
+export const PROVIDER_PAGE_PATH = '/p'
+
+export const buildProviderPageUrl = (origin: string, locale: string, providerKey: string): string => {
+  const url = new URL(`${PROVIDER_PAGE_PATH}/${encodeURIComponent(providerKey)}`, origin.endsWith('/') ? origin : `${origin}/`)
+  url.searchParams.set('lang', locale)
+  return url.toString()
+}
 
 /**
  * The page Paddle sends a checkout to: `POST /billing/checkout` hands this to Paddle as the

@@ -383,7 +383,7 @@ request. They are simply near-free to serve now: no API call, no render.
 
 The lever for the detail pages is `cacheComponents: true`, a stable top-level config in
 Next 16 that makes Partial Prerendering the App Router default — a prerendered shell served
-immediately with dynamic holes streaming in. That fits `/providers/[providerId]`, where
+immediately with dynamic holes streaming in. That fits the provider page (`/p/[slug]`), where
 identity, hours and location are static and only the slot grid is live. It replaces
 `force-dynamic` and `revalidate` with `use cache` + `cacheTag` at the component level.
 

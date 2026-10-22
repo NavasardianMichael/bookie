@@ -7,6 +7,7 @@ import {
   mapProviderBooking,
   mapProviderPlan,
   mapReview,
+  mapService,
   mapSingleProvider,
   resolveOnlineBooking,
 } from '../../../server/src/mappers/entities'
@@ -41,6 +42,8 @@ const providerRow = (overrides: Partial<ProviderRow> = {}): ProviderRow =>
     seoTitle: null,
     seoDescription: null,
     slug: null,
+    seoUpdatedAt: new Date('2026-10-20T08:00:00.000Z'),
+    createdAt: new Date('2026-01-05T08:00:00.000Z'),
     plan: 'premium',
     addons: [],
     ...overrides,
@@ -261,5 +264,51 @@ describe('mapBasicOrganization', () => {
 
   it('has none when the read did not include its providers', () => {
     expect(mapBasicOrganization(organization).basic.categories).toEqual([])
+  })
+})
+
+describe('mapService', () => {
+  type ServiceRow = Parameters<typeof mapService>[0]
+  const serviceRow = (availability: unknown): ServiceRow =>
+    ({
+      id: 's-1',
+      providerId: 'p-1',
+      name: 'Haircut',
+      durationMinutes: 30,
+      description: null,
+      price: null,
+      currency: null,
+      imageUrl: null,
+      active: true,
+      availability,
+    }) as ServiceRow
+
+  // NULL is the column's meaning for every service written before the rule existed.
+  it('answers always for a service with no rule', () => {
+    expect(mapService(serviceRow(null)).availability).toEqual({ mode: 'always' })
+  })
+
+  it('carries a stored rule through', () => {
+    expect(mapService(serviceRow({ mode: 'monthDays', days: [1, 16] })).availability).toEqual({
+      mode: 'monthDays',
+      days: [1, 16],
+    })
+  })
+})
+
+/**
+ * The public page lives at `/p/<slug ?? id>` and states when it last changed, so the payload
+ * carries the slug on every list item and the change stamp on the detail.
+ */
+describe('provider page keys and dates', () => {
+  it('carries the slug on the detail payload and on list items, undefined when unset', () => {
+    expect(mapSingleProvider(providerRow({ slug: 'acme-hair' })).slug).toBe('acme-hair')
+    expect(mapSingleProvider(providerRow()).slug).toBeUndefined()
+  })
+
+  it('publishes the SEO change stamp and the creation date, not the row updatedAt', () => {
+    const mapped = mapSingleProvider(providerRow())
+    expect(mapped.seo.updatedAt).toBe('2026-10-20T08:00:00.000Z')
+    expect(mapped.createdAt).toBe('2026-01-05T08:00:00.000Z')
   })
 })

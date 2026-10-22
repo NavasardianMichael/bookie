@@ -24,13 +24,17 @@ Modules worth knowing by name:
   prices, every limit rule), `billing.ts` (Paddle items → plan + add-ons, item builders),
   `noticeRules.ts`, `reminders.ts`, `providerRelevance.ts`, `categories.ts`,
   `organizations.ts`; `lib/paddle-signature.ts`, `ics.ts`, `telegram-updates.ts`,
-  `notice-render.ts`, `return-path.ts`, `booking-errors.ts`, `error-response.ts`.
+  `notice-render.ts`, `return-path.ts`, `booking-errors.ts`, `error-response.ts`,
+  `service-availability.ts`; `services/providerSeoFingerprint.ts` (what moves a provider
+  page's sitemap `lastmod` — its I/O half is `providerSeoStamp.ts`).
   Their I/O halves (`billingSync`, `notify`, `bookingNotify`, `planUsage`, `exploreResults`)
   are not.
 - **Twins of `src/` modules, kept identical by hand** (no import path between packages):
   `lib/search.ts` ↔ `src/helpers/search.ts`, `lib/time-format.ts` ↔ `src/helpers/timeFormat.ts`,
   `lib/time-zone.ts` ↔ `src/helpers/timeZone.ts`, `lib/payment.ts` ↔ `src/helpers/payment.ts`,
-  `lib/password.ts` ↔ `src/helpers/password.ts`, `lib/category-names.ts` ↔ `Categories.names`.
+  `lib/password.ts` ↔ `src/helpers/password.ts`, `lib/category-names.ts` ↔ `Categories.names`,
+  `lib/service-availability.ts` ↔ `src/helpers/serviceAvailability.ts` (which days a service is
+  offered on; the server half refuses a booking outside them with `4203`).
 - `lib/keyed-lock.ts` and `lib/rateLimit.ts` are **in-process** — a second API instance
   needs `pg_advisory_xact_lock` and Redis respectively.
 
@@ -129,6 +133,7 @@ the param from `src/constants/auth.ts` / `ROUTES`, and pin the pair in a unit te
 | Booking approval request | `buildApprovalsUrl` | `PROVIDER_APPROVALS_PATH` | `profile/approvals` | `bookingErrors.spec.ts` |
 | Booking allowance (80% / 100%) | `buildPlanUrl` | `PROVIDER_PLAN_PATH` | `profile/plan` | `planErrors.spec.ts` |
 | Provider notices | `buildBookingsUrl` | `BOOKINGS_PATH` | `/bookings` | `billingErrors.spec.ts` |
+| Declined / cancelled booker → provider page | `buildProviderPageUrl` | `PROVIDER_PAGE_PATH` (`/p/<slug ?? id>?lang=`, **no locale segment**) | `p/[slug]` | `returnPath.spec.ts` |
 | Paddle checkout | `buildBillingCheckoutUrl` | `BILLING_CHECKOUT_PATH` (+ Paddle's `_ptxn`) | `billing/checkout` | `billingErrors.spec.ts` |
 
 The two query names are **not** interchangeable — `TOKEN_QUERY` on a verification page is

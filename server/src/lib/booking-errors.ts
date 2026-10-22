@@ -33,8 +33,12 @@ export const SLOT_TAKEN_MESSAGE = 'Time slot not available'
  * - `bookingPaused` — the provider switched `available` off.
  * - `bookingFull` — the provider's plan allows no more bookings this month. The message
  *   the client shows never names the plan: the visitor is not the one who pays.
+ * - `outsideHours` — the time is not one the service is offered at: outside the provider's
+ *   hours, or outside the service's own days and hours inside them
+ *   (`lib/service-availability.ts`). Picking another time fixes it.
  */
 export const BOOKING_ERROR = {
   bookingPaused: 4201,
   bookingFull: 4202,
+  outsideHours: 4203,
 } as const

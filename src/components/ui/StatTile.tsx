@@ -12,6 +12,8 @@ export type StatTileProps = {
   hint?: ReactNode
   /** A link or button pinned to the bottom of the tile. */
   action?: ReactNode
+  /** Overrides the value's type step. The default is the large stat number. */
+  valueClassName?: string
   layout?: 'row' | 'stack'
   /** `brand` is the filled navy tile that closes the dashboard's stat row. */
   tone?: 'default' | 'brand'
@@ -33,6 +35,7 @@ export const StatTile: FC<StatTileProps> = ({
   icon,
   hint,
   action,
+  valueClassName,
   layout = 'stack',
   tone = 'default',
   className,
@@ -52,7 +55,9 @@ export const StatTile: FC<StatTileProps> = ({
   // A stat number is data, not a section title, so it stays a <p> and never
   // enters the document outline.
   const valueNode = (
-    <p className={cn('text-h2 tnum m-0 font-extrabold', inverse ? 'text-white' : 'text-brand-text')}>{value}</p>
+    <p className={cn('text-h2 tnum m-0 font-extrabold', inverse ? 'text-white' : 'text-brand-text', valueClassName)}>
+      {value}
+    </p>
   )
 
   return (

@@ -4,14 +4,21 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { Spin, Tabs } from 'antd'
 import dynamic from 'next/dynamic'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
 import { useProviderProfileStore } from '@store/providers/profile/store'
 import { ProviderServiceFormValues } from '@interfaces/services'
+import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
 import { hasRoomFor } from '@helpers/plans'
 import { reportError } from '@helpers/reportError'
-import { processProviderServiceFormToRequestPayload } from '@components/providerServiceForm/processors'
+import { openWeekdays } from '@helpers/serviceAvailability'
+import { resolveTimeFormat } from '@helpers/timeFormat'
+import { calendarDayOf } from '@helpers/timeZone'
+import {
+  processProviderServiceFormToRequestPayload,
+  toServiceAvailabilityFormValues,
+} from '@components/providerServiceForm/processors'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
@@ -49,9 +56,11 @@ const CLOSED_STATUSES = ['cancelled', 'completed', 'no_show']
 export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const t = useTranslations('Services')
   const tErrors = useTranslations('Errors')
+  const locale = useLocale()
   const {
     id: providerId,
     services,
+    details,
     personal,
     getProviderProfileData,
     postProviderService,
@@ -192,6 +201,11 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       // never `setFieldsValue`: AppSheet destroys its Form while closed, so the
       // instance reached from here would be disconnected. The form is keyed on the
       // service id below, and that remount is what applies these values.
+      const availability = toServiceAvailabilityFormValues(
+        service?.availability,
+        openWeekdays(details.weekSchedule),
+        calendarDayOf(new Date(), details.timeZone).format(DAY_KEY_FORMAT)
+      )
       setEditValues(
         service
           ? {
@@ -202,13 +216,14 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
               price: service.price,
               currency: service.currency,
               image: service.image,
+              availability,
             }
-          : initialValues
+          : { ...initialValues, availability }
       )
       setFormError(null)
       setEditServiceModalOpened(true)
     },
-    [byId, initialValues]
+    [byId, details.timeZone, details.weekSchedule, initialValues]
   )
 
   const toggleService = toggleServiceId ? byId[toggleServiceId] : undefined
@@ -261,6 +276,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         ...(duplicateSource.currency ? { currency: duplicateSource.currency } : {}),
         ...(duplicateSource.image ? { imageUrl: duplicateSource.image } : {}),
         active: duplicateSource.active,
+        availability: duplicateSource.availability,
       },
     })
     closeDuplicateModal()
@@ -387,6 +403,9 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
               isSubmitting={isSubmitting}
               onSubmit={onSubmitService}
               closeModal={closeEditServiceModal}
+              weekSchedule={details.weekSchedule}
+              timeZone={details.timeZone}
+              timeFormat={resolveTimeFormat(details.timeFormat, locale)}
             />
           </>
         ) : null}

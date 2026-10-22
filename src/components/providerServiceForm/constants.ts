@@ -13,3 +13,14 @@ export const PROVIDER_SERVICE_FORM_CURRENCY_TEMPLATE: SelectProps['options'] = [
   { value: CURRENCY_IDS.amd, label: CURRENCY_NAMES.amd },
   { value: CURRENCY_IDS.rub, label: CURRENCY_NAMES.rub },
 ]
+
+/**
+ * Spread onto this form's dropdowns so their scrollbar matches the sheet's. antd draws a
+ * virtual list's scrollbar itself, out of reach of CSS; these lists are a few dozen rows at
+ * most, so virtualisation is turned off, the list scrolls natively, and `app-scrollbar`
+ * (`globals.css` §8) styles it.
+ */
+export const PROVIDER_SERVICE_FORM_POPUP_PROPS = {
+  virtual: false,
+  classNames: { popup: { root: '[&_.rc-virtual-list-holder]:app-scrollbar' } },
+} as const

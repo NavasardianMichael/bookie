@@ -216,6 +216,7 @@
     "copyCardNumber": "Salin nomor kartu",
     "dayPast": "Tanggal ini sudah lewat.",
     "dayClosed": "Penyedia tidak bekerja pada hari ini.",
+    "dayServiceUnavailable": "Layanan ini tidak tersedia pada hari ini.",
     "dayNoSlots": "Tidak ada waktu tersedia pada hari ini.",
     "notesLabel": "Catatan untuk penyedia",
     "notesPlaceholder": "Hal yang perlu diketahui sebelum janji temu Anda",
@@ -869,6 +870,7 @@
       "notes": "Catatan",
       "issues": {
         "missing": "Pilih layanan, tanggal, dan waktu.",
+        "serviceClosed": "Layanan ini tidak tersedia pada hari ini. Pilih tanggal lain.",
         "offGrid": "Ini bukan salah satu slot Anda untuk layanan ini pada hari ini. Pilih waktu dari daftar.",
         "past": "Waktu ini sudah lewat.",
         "taken": "Anda sudah memiliki pemesanan pada waktu ini.",
@@ -1350,7 +1352,39 @@
     "duplicateService": "Duplikat layanan",
     "duplicateTitle": "Duplikatkan layanan ini?",
     "duplicateBody": "Layanan baru akan dibuat dengan detail yang sama.",
-    "duplicate": "Duplikatkan"
+    "duplicate": "Duplikatkan",
+    "availability": {
+      "title": "Ketersediaan",
+      "help": "Pilih hari layanan ini dapat dipesan. Jamnya selalu mengikuti jam buka Anda sendiri.",
+      "modes": {
+        "always": "Selalu",
+        "recurring": "Berulang",
+        "dates": "Hari tertentu"
+      },
+      "recurrenceLabel": "Berulang setiap",
+      "recurrences": {
+        "weekdays": "Hari dalam seminggu",
+        "monthDays": "Tanggal dalam sebulan"
+      },
+      "closedDay": "Anda tutup pada hari ini. Ubah di halaman <link>Ketersediaan</link>.",
+      "monthDaysLabel": "Tanggal dalam sebulan",
+      "monthDaysPlaceholder": "Pilih tanggal, mis. 16",
+      "monthDaysNote": "Berulang setiap bulan. Tanggal yang tidak ada di suatu bulan, seperti 31 April, dilewati.",
+      "datesCalendar": "Pilih tanggal",
+      "datesSelected": "Tanggal terpilih",
+      "datesEmpty": "Belum ada tanggal yang dipilih. Klik hari di kalender untuk menambahkannya.",
+      "removeDate": "Hapus {date}",
+      "pickWeekday": "Pilih minimal satu hari.",
+      "pickMonthDay": "Pilih minimal satu tanggal dalam sebulan.",
+      "pickDate": "Pilih minimal satu tanggal.",
+      "withinHours": "Hanya bisa dipesan dalam jam buka Anda.",
+      "neverBookable": "Layanan ini tidak dapat dipesan dengan pengaturan ini: tidak ada hari terpilih yang berada dalam jam buka Anda.",
+      "summary": {
+        "weekdays": "Hari: {days}",
+        "monthDays": "Setiap bulan pada tanggal: {days}",
+        "dates": "{count, plural, other {# tanggal}}"
+      }
+    }
   },
   "Validation": {
     "required": "Harap isi {label}",
@@ -1399,6 +1433,7 @@
       "slotTaken": "Waktu itu baru saja dipesan. Silakan pilih waktu lain.",
       "bookingPaused": "Penyedia ini sedang tidak menerima pemesanan online. Hubungi langsung untuk memesan.",
       "bookingFull": "Penyedia ini tidak dapat menerima pemesanan online lagi bulan ini. Hubungi langsung untuk memesan.",
+      "outsideHours": "Layanan ini tidak tersedia pada jam tersebut. Silakan pilih jam lain.",
       "serviceLimit": "Batas layanan aktif sudah tercapai. Nonaktifkan satu layanan, tambahkan bundel layanan tambahan, atau tingkatkan paket Anda.",
       "featureLocked": "Fitur ini tidak termasuk dalam paket Anda. Tambahkan secara terpisah atau tingkatkan paket untuk menggunakannya.",
       "notConfigured": "Pembayaran online sedang tidak tersedia. Sebagai gantinya, ajukan paket ini dan kami akan mengaturnya untuk Anda.",

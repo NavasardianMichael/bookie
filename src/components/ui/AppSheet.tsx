@@ -24,7 +24,8 @@ export type AppSheetProps = PropsWithChildren<{
  * The desktop body is capped (`80dvh`) so a long form — booking confirm with
  * guest fields, payment details and notes — scrolls inside the sheet instead of
  * growing with the page. The drawer already has a `92dvh` size; its body
- * scrolls the same way.
+ * scrolls the same way. Both bodies use `app-scrollbar` (`globals.css` §8): a roomy
+ * track with a slim thumb, so the bar is easy to grab without reading as part of the form.
  */
 export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, pending = false, children }) => {
   const screens = Grid.useBreakpoint()
@@ -52,6 +53,7 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, p
         closable={closable}
         mask={{ closable: !pending }}
         keyboard={!pending}
+        classNames={{ body: 'app-scrollbar' }}
         styles={{
           body: { maxHeight: '80dvh', overflowY: 'auto' },
           header: { paddingInlineEnd: '2.5rem' },
@@ -74,6 +76,7 @@ export const AppSheet: FC<AppSheetProps> = ({ open, onClose, title, className, p
       closable={{ ...closable, placement: 'end' }}
       mask={{ closable: !pending }}
       keyboard={!pending}
+      classNames={{ body: 'app-scrollbar' }}
       styles={{ body: { overflowY: 'auto' } }}
       destroyOnHidden
     >

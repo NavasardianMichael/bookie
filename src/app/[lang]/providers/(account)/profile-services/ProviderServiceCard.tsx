@@ -2,6 +2,7 @@
 
 import { FC, useCallback, useMemo } from 'react'
 import {
+  CalendarOutlined,
   CheckCircleOutlined,
   CopyOutlined,
   DeleteOutlined,
@@ -11,9 +12,12 @@ import {
   TagsOutlined,
 } from '@ant-design/icons'
 import { Button, Dropdown, Switch, Tag } from 'antd'
+import dayjs from 'dayjs'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
+import { WEEK_DAYS_LIST } from '@constants/schedule'
+import { WEEKDAY_ORDER } from '@helpers/calendar'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
 import { resolveAssetUrl } from '@helpers/images'
@@ -64,6 +68,25 @@ export const ProviderServiceCard: FC<Props> = ({
   const resolvedImage = resolveAssetUrl(service.image)
   const hasPrice = typeof service.price === 'number'
   const toggleDisabled = !service.active && activationLocked
+
+  /** One line saying when the service runs, when that is narrower than "whenever you are open". */
+  const availabilitySummary = useMemo((): string | null => {
+    const { availability } = service
+    switch (availability?.mode) {
+      case 'weekdays':
+        return t('availability.summary.weekdays', {
+          days: availability.days
+            .map((day) => dayjs().day(WEEKDAY_ORDER[WEEK_DAYS_LIST.indexOf(day)]!).format('ddd'))
+            .join(', '),
+        })
+      case 'monthDays':
+        return t('availability.summary.monthDays', { days: availability.days.join(', ') })
+      case 'dates':
+        return t('availability.summary.dates', { count: availability.dates.length })
+      default:
+        return null
+    }
+  }, [service, t])
 
   const handleMenuClick = useCallback(
     ({ key }: { key: string }) => {
@@ -148,6 +171,13 @@ export const ProviderServiceCard: FC<Props> = ({
           <AppParagraph size='body-sm' className='m-0 line-clamp-2 italic'>
             {t('noDescription')}
           </AppParagraph>
+        )}
+
+        {availabilitySummary && (
+          <AppText size='caption' tone='muted' className='flex items-center gap-1.5'>
+            <CalendarOutlined aria-hidden />
+            <span className='line-clamp-1'>{availabilitySummary}</span>
+          </AppText>
         )}
       </div>
 

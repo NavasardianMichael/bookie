@@ -1,5 +1,5 @@
 import { AppRouteName } from '@interfaces/routes'
-import { ROUTES } from '@constants/routes'
+import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { absoluteUrl } from './url'
 
 /**
@@ -25,3 +25,21 @@ export const generateEntityPath = (routeName: AppRouteName, entityId: string): s
  */
 export const generateEntityUrl = (routeName: AppRouteName, entityId: string): string =>
   absoluteUrl(generateEntityPath(routeName, entityId))
+
+/** Anything that names a provider's public page: every provider payload carries both. */
+export type ProviderPageRef = { id: string; slug?: string | null }
+
+/** The `<key>` of `/p/<key>`: the provider's slug when they set one, otherwise their id. */
+export const providerPageKey = ({ id, slug }: ProviderPageRef): string => slug || id
+
+/**
+ * The public provider page, `/p/<slug ?? id>` — the one page route with no locale segment
+ * (`isLocaleFreePath`), so this path is the canonical URL as it stands. Every link to a
+ * provider's page is built here: one built from the id alone would point at a URL the page
+ * canonicalises away from once the provider has a slug.
+ */
+export const providerPagePath = (provider: ProviderPageRef): string =>
+  `${ROUTES[ROUTE_KEYS.providerPage]}/${encodeURIComponent(providerPageKey(provider))}`
+
+/** `providerPagePath` on the site origin — the page's canonical URL. */
+export const providerPageUrl = (provider: ProviderPageRef): string => absoluteUrl(providerPagePath(provider))

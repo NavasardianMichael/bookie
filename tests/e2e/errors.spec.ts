@@ -44,7 +44,7 @@ test('a failed busy-times read warns above the slots, and Retry recovers', async
     (route: Route) => (failBusy ? route.fulfill(envelopeError(503, 'Service unavailable')) : route.continue())
   )
 
-  await page.goto(`/en/providers/${providerId}`)
+  await page.goto(`/p/${providerId}?lang=en`)
   const warning = page.getByText('We could not check which times are already booked')
   await expect(warning).toBeVisible()
 
@@ -61,7 +61,7 @@ test('a busy-times 400 warns without offering a Retry that cannot work', async (
     (route: Route) => route.fulfill(envelopeError(400, 'from and to must be ISO timestamps'))
   )
 
-  await page.goto(`/en/providers/${providerId}`)
+  await page.goto(`/p/${providerId}?lang=en`)
   await expect(page.getByText('We could not check which times are already booked')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Try again' })).toHaveCount(0)
 })
@@ -111,7 +111,7 @@ test('a successful booking keeps its confirmation after the grid refreshes', asy
         : route.continue()
   )
 
-  await page.goto(`/en/providers/${providerId}`)
+  await page.goto(`/p/${providerId}?lang=en`)
   await page.locator('input[name="booking-service"]').first().check({ force: true })
   await page.locator('button[data-start]:not([disabled])').first().click()
   await page.getByRole('button', { name: 'Book now' }).click()

@@ -216,6 +216,7 @@
     "copyCardNumber": "Copier le numéro de carte",
     "dayPast": "Cette date est déjà passée.",
     "dayClosed": "Ce professionnel ne travaille pas ce jour-là.",
+    "dayServiceUnavailable": "Ce service n'est pas proposé ce jour-là.",
     "dayNoSlots": "Aucun créneau disponible ce jour-là.",
     "notesLabel": "Notes pour le professionnel",
     "notesPlaceholder": "Tout ce qu'il doit savoir avant votre rendez-vous",
@@ -869,6 +870,7 @@
       "notes": "Notes",
       "issues": {
         "missing": "Choisissez une prestation, une date et un horaire.",
+        "serviceClosed": "Ce service n'est pas proposé ce jour-là. Choisissez une autre date.",
         "offGrid": "Ce n’est pas l’un de vos créneaux pour cette prestation ce jour-là. Choisissez un horaire dans la liste.",
         "past": "Cet horaire est déjà passé.",
         "taken": "Vous avez déjà une réservation à cet horaire.",
@@ -1350,7 +1352,39 @@
     "duplicateService": "Dupliquer le service",
     "duplicateTitle": "Dupliquer ce service ?",
     "duplicateBody": "Un nouveau service sera créé avec les mêmes informations.",
-    "duplicate": "Dupliquer"
+    "duplicate": "Dupliquer",
+    "availability": {
+      "title": "Disponibilité",
+      "help": "Choisissez les jours où ce service peut être réservé. Les horaires suivent toujours vos propres heures d'ouverture.",
+      "modes": {
+        "always": "Toujours",
+        "recurring": "Récurrent",
+        "dates": "Jours précis"
+      },
+      "recurrenceLabel": "Se répète",
+      "recurrences": {
+        "weekdays": "Jours de la semaine",
+        "monthDays": "Jours du mois"
+      },
+      "closedDay": "Vous êtes fermé ce jour-là. Modifiez-le sur la page <link>Disponibilité</link>.",
+      "monthDaysLabel": "Jours du mois",
+      "monthDaysPlaceholder": "Choisissez des jours, ex. 16",
+      "monthDaysNote": "Se répète chaque mois. Un jour qu'un mois n'a pas, comme le 31 avril, est ignoré.",
+      "datesCalendar": "Choisir des dates",
+      "datesSelected": "Dates choisies",
+      "datesEmpty": "Aucune date choisie pour l'instant. Cliquez sur des jours du calendrier pour les ajouter.",
+      "removeDate": "Retirer {date}",
+      "pickWeekday": "Choisissez au moins un jour de la semaine.",
+      "pickMonthDay": "Choisissez au moins un jour du mois.",
+      "pickDate": "Choisissez au moins une date.",
+      "withinHours": "Réservable uniquement pendant vos heures d'ouverture.",
+      "neverBookable": "Ce service ne peut pas être réservé avec ces réglages : aucun des jours choisis ne tombe dans vos heures d'ouverture.",
+      "summary": {
+        "weekdays": "Jours : {days}",
+        "monthDays": "Chaque mois, les jours : {days}",
+        "dates": "{count, plural, one {# date} other {# dates}}"
+      }
+    }
   },
   "Validation": {
     "required": "Veuillez renseigner {label}",
@@ -1399,6 +1433,7 @@
       "slotTaken": "Cet horaire vient d’être réservé. Veuillez en choisir un autre.",
       "bookingPaused": "Ce professionnel n’accepte pas de réservations en ligne pour le moment. Prenez contact directement pour réserver.",
       "bookingFull": "Ce professionnel ne peut plus accepter de réservations en ligne ce mois-ci. Prenez contact directement pour réserver.",
+      "outsideHours": "Ce service n'est pas proposé à cette heure. Choisissez une autre heure.",
       "serviceLimit": "Vous avez atteint la limite de prestations actives. Désactivez une prestation, ajoutez un pack de prestations supplémentaires ou passez à une formule supérieure.",
       "featureLocked": "Cette fonctionnalité n’est pas incluse dans votre formule. Ajoutez-la en option ou passez à une formule supérieure pour l’utiliser.",
       "notConfigured": "Les paiements en ligne ne sont pas disponibles pour le moment. Demandez plutôt la formule et nous la mettrons en place pour vous.",

@@ -9,6 +9,7 @@ import {
   processProviderSeoResponse,
   processProviderServiceResponse,
   processProvidersListResponse,
+  processProvidersSitemapResponse,
   processSingleProviderResponse,
 } from './processors'
 import {
@@ -17,6 +18,7 @@ import {
   GetProviderBusyAPI,
   GetProviderProfileAPI,
   GetProvidersListAPI,
+  GetProvidersSitemapAPI,
   GetSingleProviderAPI,
   PatchProviderOrganizationAPI,
   PatchProviderSeoAPI,
@@ -62,6 +64,13 @@ export const getProviderBusyAPI: GetProviderBusyAPI['api'] = async ({ id, from, 
     `${ENDPOINTS.getProviderBusy}/${id}/busy?${queryString}`
   )
   return processProviderBusyResponse(data)
+}
+
+export const getProvidersSitemapAPI: GetProvidersSitemapAPI['api'] = async () => {
+  const { data } = await axiosInstance.get<APIResponse<GetProvidersSitemapAPI['response']>>(
+    ENDPOINTS.getProvidersSitemap
+  )
+  return processProvidersSitemapResponse(data)
 }
 
 export const getProviderProfileAPI: GetProviderProfileAPI['api'] = async () => {
@@ -123,13 +132,18 @@ const assertProviderId = (providerId: string): string => {
  * multer does no bracket parsing — it hands those over verbatim, so the API read every
  * field as `undefined`. And an unchanged `image` is a URL string the API has no use for:
  * it only ever takes an image as an upload, so sending one back would be noise.
+ * `availability` is the one nested field; see below.
  */
 const toServiceRequest = (service: ProviderServiceRequestPayload) => {
   const { image, ...fields } = service
   const isFile = typeof File !== 'undefined' && image instanceof File
+  // A multipart body carries strings only, and an object would be flattened into
+  // `availability[mode]` keys multer does not reassemble — so it travels as JSON text.
+  const multipartFields =
+    isFile && fields.availability ? { ...fields, availability: JSON.stringify(fields.availability) } : fields
 
   return {
-    body: isFile ? { ...fields, image } : fields,
+    body: isFile ? { ...multipartFields, image } : fields,
     config: isFile ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined,
   }
 }

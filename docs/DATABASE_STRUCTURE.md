@@ -10,7 +10,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **Category** | A provider's specialty (unique name). Attached to **providers only**, 0–3 each (`ProviderCategory`) — see [Categories](#categories). Predefined ones (the six seeded, translated in every locale) are permanent; ones providers add are deleted once no provider uses them |
 | **Organization** | Clinic / facility. Its categories are its listed providers', derived on read — none are stored. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
 | **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug` |
-| **Service** | Bookable offering. Title and duration are required; price, currency, description and image are optional — a service has **no category**. `active` hides a withdrawn service from consumers without deleting it |
+| **Service** | Bookable offering. Title and duration are required; price, currency, description and image are optional — a service has **no category**. `active` hides a withdrawn service from consumers without deleting it. `availability` (JSON, NULL = always) narrows the **days** it is offered on, never the hours — see [Which days a service is offered on](#which-days-a-service-is-offered-on) |
 | **Consumer** | Patient/client profile — `fullName` (see [Names](#names)), contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
 | **Appointment** | Booking with status enum (`pending` \| `scheduled` \| `confirmed` \| `cancelled` \| `completed` \| `no_show`; the first three all hold the slot), the overlap index `[providerId, startAt]`, `[providerId, createdAt]` for the monthly booking allowance, and `[status, startAt]` for the reminder job. `providerRemindedAt` / `bookerRemindedAt` stamp each side's reminder (claimed by compare-and-set; a reschedule clears both). `consumerId` is **nullable** — a guest booking carries `guest*` contact columns instead. `price`/`currency` are **snapshots** taken at booking time. `manageTokenHash` is the sha256 of a capability URL token (raw value returned once on create). A consumer's own `GET /appointments` also returns a reconstructable owner token that the same manage routes accept |
@@ -99,7 +99,8 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/identity/google/pending` | pending cookie — prefill for the completion form |
 | POST | `/identity/google/complete` | pending cookie — creates the account and signs in |
 | GET | `/providers?q=&categoryId=&available=&openToday=&favorites=&sort=&page=&perPage=` | public (`listed: true` only) — **paged**, see below. `favorites=true` is the caller's saved providers |
-| GET | `/providers/:idOrSlug` | public (owner may preview unlisted) — accepts a UUID **or** a vanity slug |
+| GET | `/providers/:key` | public (owner may preview unlisted) — `key` is the id, the current slug or a slug given up (`services/providerLookup.ts`) |
+| GET | `/providers/sitemap` | public — every listed provider's `{ id, slug, fullName, updatedAt (seoUpdatedAt), categories, services }`, for the sitemap and `/llms.txt` |
 | GET | `/providers/:id/busy?from=&to=` | public, same unlisted rule as `/:id` — booked intervals only (instants, no booker); window capped at 100 days. Replaced `/:id/availability`, see [Booking](#booking) |
 | GET/PUT/DELETE | `/provider-profile` | provider (`mode`: draft / publish / listing / live; DELETE removes the page — `409` / `4307` while a Paddle subscription is live, which must be cancelled first) |
 | GET | `/provider-profile/bookings?from=&to=&status=&serviceId=&q=&sort=&page=&perPage=` | provider — **paged**, appointments booked *with* them, see [Provider workspace](#provider-workspace) |
@@ -127,7 +128,7 @@ generic messages append the original error's message. The table is in `server/CL
 | POST/DELETE | `/telegram/link` | session — POST answers a one-time `t.me/<bot>?start=<token>` link (15 min); DELETE unlinks |
 | POST | `/telegram/webhook` | Telegram only — checked against `X-Telegram-Bot-Api-Secret-Token`; mounted ahead of `requireSameOrigin`. Handles `/start <token>` and `/stop` |
 | POST/PUT/DELETE | `/providers/:providerId/services/...` | provider (own services only). Creating an active service, or reactivating one, past the plan's `maxActiveServices` is `403` / `4101` |
-| GET | `/providers/:idOrSlug/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
+| GET | `/providers/:key/reviews?sort=&page=&perPage=` | public — **paged**, plus `summary` (average, count, histogram) and `viewer` (may this person review, do they own the page) |
 | POST | `/providers/:id/reviews` | session — body names the `appointmentId`; it must be the caller's, with this provider, past and not cancelled. The provider's own account is `403` even when that appointment exists |
 | PATCH/DELETE | `/reviews/:id` | author only |
 | POST | `/reviews/:id/reply` | provider — the reviewed provider only |
@@ -197,7 +198,7 @@ its card stays as it is. They are read in one `Service` query for the page
 (`services/exploreResults.ts#loadMatchedServices`) and picked by
 `services/providerRelevance.ts#pickMatchedService`, by **name only** — a service has no
 category, so a provider found through one of its categories names no matched service rather
-than one picked at random (`matchedServicesWhere`). The card links the service to `/providers/<id>?service=<serviceId>#booking-services`,
+than one picked at random (`matchedServicesWhere`). The card links the service to `/p/<slug ?? id>?service=<serviceId>#booking-services`,
 which opens the profile with it selected.
 
 | Param | Accepts | Default |
@@ -348,6 +349,31 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
   provider cannot reach another's service by guessing a uuid.
 - **A service with appointments cannot be deleted** — `409`, because
   `Appointment.serviceId` is a required FK with no `onDelete`.
+- **`availability`** is the one nested field: `{ mode: 'always' }`, `{ mode: 'weekdays',
+  days: ['monday', …] }`, `{ mode: 'monthDays', days: [1, 16] }` or `{ mode: 'dates',
+  dates: ['YYYY-MM-DD', …] }`. A JSON object in a JSON body, **JSON text** in a multipart one
+  (an object would flatten to `availability[mode]` keys multer does not reassemble). Absent
+  leaves the column alone; `''`, `null` or `always` store NULL. Validated and normalised by
+  `parseServiceAvailability` (`server/src/lib/service-availability.ts`) — `400` on an
+  unknown mode or weekday, a month day outside 1–31, an impossible date, an empty pick or
+  more than 366 dates; past dates are dropped on write. Every service response carries it,
+  NULL answered as `{ mode: 'always' }`.
+
+### Which days a service is offered on
+
+A service picks **days, never hours**. On a day its rule offers, it is bookable during the
+provider's own `weekSchedule` hours that day — the only time frame there is — so no rule
+can open a day or an hour the provider is closed. `always` is every day the provider is
+open; `weekdays` those weekdays; `monthDays` those days of every month (a day a month does
+not have, the 31st in April, is skipped — it does not fall back to the 30th); `dates` those
+calendar days on the provider's clock.
+
+The narrowing is computed **on every read** — `effectiveDayParts` in
+`src/helpers/serviceAvailability.ts` for the grid, its twin in
+`server/src/lib/service-availability.ts` for the write — rather than clamped once on save,
+so a provider who shortens their week shortens every service with it and no stored rule
+ever goes stale. The two are pinned by one case table in
+`tests/unit/server/serviceAvailability.spec.ts`.
 
 ### Provider publish model
 
@@ -467,24 +493,42 @@ Validation lives in `server/src/services/providerSeo.ts`:
 | Field | Rule |
 |---|---|
 | `seoTitle` | ≤ 60 code points. **Rejected, not truncated** — the field is counted live in the browser, so an over-length body is a non-browser caller, and a half-title reaches Google mid-word. |
-| `seoDescription` | ≤ 160 code points, same treatment. |
+| `seoDescription` | ≤ 300 code points (the generated description's length), same treatment. |
 | all text | Line breaks become a space (never deleted — that would join two words); other control, bidi and zero-width characters are removed; `<` and `>` are refused; NFC-normalised. |
 | `slug` | 3–40 chars, `a-z0-9` with single hyphens, **ASCII only**, not UUID-shaped, not reserved, `@unique`. |
 
 The slug's three refusals each close a different hole: **ASCII-only** stops a Cyrillic
 homograph rendering as another provider's link; **not UUID-shaped** stops a provider
-claiming another's canonical `/providers/<id>` address (a UUID is hex in hyphen-separated
+claiming another's `/p/<id>` address (a UUID is hex in hyphen-separated
 groups, so it passes the character rules); **reserved** stops a slug shadowing a route
 segment or one of the 16 locale prefixes. Uniqueness is settled by the index, not the
 validator — two requests can pass validation at the same instant — and the caught `P2002`
 becomes a `409`.
 
-`/p/<slug>` is a **307 redirect** to `/providers/<slug>`, served by a Route Handler so the
-`Location` header is real rather than a streamed client-side navigation. It makes no API
-call — `GET /providers/:idOrSlug` already accepts either form. The canonical stays the
-**id** URL either way, because `generateMetadata` builds it from the resolved entity rather
-than the route segment, so the two addresses never compete in an index. Temporary rather
-than permanent because a 308 is cached by the browser and would outlive a slug change.
+The page **is** `/p/<slug>` (or `/p/<id>` without one) — see `docs/routes/provider-page.md`.
+A slug given up is kept in **`ProviderSlugHistory`** (`slug` primary key, `providerId`,
+cascade), so `/p/<old>` keeps opening the page, whose canonical names the current slug. In
+`PATCH /provider-profile/seo`, one transaction records the old slug and deletes any history
+row for the slug being claimed — only a *current* slug blocks a claim, so a provider can take
+over a link another one abandoned.
+
+### The public page's change stamp
+
+`Provider.seoUpdatedAt` is when anything search engines see on the public page last changed —
+the sitemap's `lastmod` and the JSON-LD `dateModified`. `services/providerSeoStamp.ts`
+fingerprints every input (`seoFingerprint` in `providerSeoFingerprint.ts`, pure): the name,
+description, photo, address, map link, country, phone visibility, hours, zone, listing,
+availability, SEO overrides, slug, organization name, category names, active services (name,
+description, duration, price, currency, availability) and the rating. It writes
+`seoFingerprint` and `seoUpdatedAt = now` **only when the fingerprint changed**.
+
+It is called after every write that can change those inputs: `PUT /provider-profile` in
+`listing`, `publish` and live mode (never `draft`), `PATCH /provider-profile/seo` and
+`/organization`, `PUT /provider-profile/categories`, the three service writes,
+`PATCH /identity/phone` (country), and every rating recompute (review create, edit, delete,
+admin hide, account deletion). `updatedAt` is no substitute: it moves on billing webhooks,
+feed rotation and draft saves, and misses service and category edits. Best-effort: a failure
+is logged, and the next change corrects the stamp.
 
 ## Plans and entitlements
 
@@ -634,6 +678,16 @@ The split is now by responsibility rather than by layer: **the client owns stepp
 are the only shape that does not presuppose a step. `helpers/booking.ts#dropBusySlots`
 subtracts them, on **overlap** rather than equality — a 30-minute slot at 10:00 is
 unbookable against a 45-minute booking at 09:30.
+
+The grid steps only the windows the selected service is offered in
+([Which days a service is offered on](#which-days-a-service-is-offered-on)), and the server
+holds the same line: `POST /appointments`, a reschedule and the photo import's
+`POST /provider-profile/bookings/import` each refuse a booking that does not **fit** inside
+one of those windows on the provider's clock — `409`, code `BOOKING_ERROR.outsideHours`
+(`4203`). Fit, not grid alignment: the step is the client's, and checking it would refuse
+every booking made before a duration change. A provider with no `timeZone` is not checked,
+because their visitors' grids read the hours on each visitor's own clock
+(`docs/BACKLOG.md` 6b).
 
 The `409` is still the authority, because two people can submit in the same instant. Its
 message is `SLOT_TAKEN_MESSAGE`, declared in `server/src/lib/booking-errors.ts` and

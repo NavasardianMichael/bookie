@@ -30,6 +30,7 @@ import { buildMonthCells } from '@helpers/calendar'
 import { processError } from '@helpers/error'
 import { toPaymentMethods } from '@helpers/payment'
 import { generateFriendlyPhoneNumber } from '@helpers/phone'
+import { nextServiceDate } from '@helpers/serviceAvailability'
 import { dayKeyOf, fixedOffsetZone, wholeOffsetHours, zonedTimeToDate } from '@helpers/timeZone'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import type { BookingConfirmSubmission, BookingCreated } from './BookingConfirmSheet'
@@ -168,6 +169,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
 
   const service = selectedServiceId ? services.byId[selectedServiceId] : undefined
   const durationMinutes = service?.duration || DEFAULT_DURATION_MINUTES
+  const availability = service?.availability
   /**
    * The zone the provider's hours are written in. Every slot is stepped, counted and keyed
    * in it, so a visitor abroad books the provider's 09:00 rather than their own.
@@ -175,6 +177,18 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
    */
   const timeZone = details?.timeZone
   const timeFormat = details?.timeFormat
+
+  /**
+   * A service offered on a few dates opens the grid on the first of them rather than on a
+   * month it cannot be booked in. Adjusted while rendering, once per service: an effect
+   * writing it back would paint the empty month first.
+   */
+  const [monthForServiceId, setMonthForServiceId] = useState<string | null>(null)
+  if (service && monthForServiceId !== service.id) {
+    setMonthForServiceId(service.id)
+    const firstDate = nextServiceDate(service.availability, dayKeyOf(new Date(), timeZone))
+    if (firstDate) setMonth(dayjs(firstDate, DAY_KEY_FORMAT).startOf('month'))
+  }
   /** One flag for the time-zone list and the 12/24-hour switch. Missing means shown. */
   const showClockChoices = details?.showClockChoices !== false
   /**
@@ -199,6 +213,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     return dropBusySlots(
       getSlotsForDateRange({
         weekSchedule: details?.weekSchedule,
+        availability,
         start: cells[0].date.toDate(),
         end: cells[cells.length - 1].date.add(1, 'day').toDate(),
         durationMinutes,
@@ -206,7 +221,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
       }),
       busy
     )
-  }, [busy, details?.weekSchedule, durationMinutes, month, timeZone])
+  }, [availability, busy, details?.weekSchedule, durationMinutes, month, timeZone])
 
   const slotCountByDay = useMemo(() => {
     const counts = countSlotsByDay(gridSlots, timeZone)
@@ -295,11 +310,17 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     () =>
       selectedDate
         ? dropBusySlots(
-            getSlotsForDate({ weekSchedule: details?.weekSchedule, date: selectedDate, durationMinutes, timeZone }),
+            getSlotsForDate({
+              weekSchedule: details?.weekSchedule,
+              availability,
+              date: selectedDate,
+              durationMinutes,
+              timeZone,
+            }),
             busy
           )
         : [],
-    [busy, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
+    [availability, busy, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
   )
 
   /**
@@ -534,6 +555,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
           month={month}
           selectedDayKey={selectedDayKey}
           slotCountByDay={slotCountByDay}
+          availability={availability}
           weekSchedule={details?.weekSchedule}
           timeZone={timeZone}
           serviceName={service?.name}

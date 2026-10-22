@@ -53,3 +53,34 @@ const weekdayFormatter = (timeZone: string): Intl.DateTimeFormat => {
 export function weekdayInZone(instant: Date, timeZone: string): WeekdayName {
   return weekdayFormatter(timeZone).format(instant).toLowerCase() as WeekdayName
 }
+
+const wallClockFormatters = new Map<string, Intl.DateTimeFormat>()
+
+const wallClockFormatter = (timeZone: string): Intl.DateTimeFormat => {
+  let formatter = wallClockFormatters.get(timeZone)
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    wallClockFormatters.set(timeZone, formatter)
+  }
+  return formatter
+}
+
+/**
+ * The calendar day (`YYYY-MM-DD`) and minute of the day `instant` reads as on `timeZone`'s
+ * clock — what a schedule written in that zone has to be compared against.
+ */
+export function wallClockInZone(instant: Date, timeZone: string): { dayKey: string; minutes: number } {
+  const parts = wallClockFormatter(timeZone).formatToParts(instant)
+  const read = (type: Intl.DateTimeFormatPartTypes): string => parts.find((part) => part.type === type)?.value ?? '00'
+  // Some ICU builds still print midnight as 24 even under `h23`.
+  const hour = Number(read('hour')) % 24
+  return { dayKey: `${read('year')}-${read('month')}-${read('day')}`, minutes: hour * 60 + Number(read('minute')) }
+}

@@ -5,8 +5,7 @@ import { LoadingOutlined, SearchOutlined } from '@ant-design/icons'
 import { AutoComplete, Spin } from 'antd'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@i18n/navigation'
-import { ROUTE_KEYS } from '@constants/routes'
-import { generateEntityPath } from '@helpers/entities'
+import { providerPagePath } from '@helpers/entities'
 import { AppButton } from '@components/ui/AppButton'
 import { AppInput } from '@components/ui/AppInput'
 import { AppText } from '@components/ui/bare/AppText'
@@ -63,8 +62,10 @@ export const ProviderSearchField: FC<Props> = ({ params }) => {
   }
 
   const openProvider = (providerId: string) => {
+    // The option's value is the id; the suggestion carries the slug the page lives under.
+    const slug = suggestions.providers.find((provider) => provider.id === providerId)?.slug
     startTransition(() => {
-      router.push(generateEntityPath(ROUTE_KEYS.providers, providerId))
+      router.push(providerPagePath({ id: providerId, slug }))
     })
   }
 

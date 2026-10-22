@@ -3,8 +3,8 @@
 import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
-import { ROUTE_KEYS, ROUTES } from '@constants/routes'
-import { generateEntityPath } from '@helpers/entities'
+import { ROUTES } from '@constants/routes'
+import { providerPagePath } from '@helpers/entities'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { Surface } from '@components/ui/layout'
@@ -36,7 +36,7 @@ export const ProviderOnboardingDone: React.FC = () => {
         {t('onboardingDone')}
       </AppParagraph>
       <AppLink
-        href={profileId ? generateEntityPath(ROUTE_KEYS.providers, profileId) : ROUTES.providers}
+        href={profileId ? providerPagePath({ id: profileId }) : ROUTES.providers}
         variant='button'
         tone='primary'
         target='_blank'

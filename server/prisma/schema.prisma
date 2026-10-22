@@ -319,11 +319,19 @@ model Provider {
   /// Comma-joined leftover from when the SEO tab accepted keywords. No longer
   /// read or written; the public page composes `<meta name="keywords">` itself.
   seoKeywords            String?
-  /// Vanity URL segment: `/p/<slug>` redirects to the canonical profile URL.
-  /// ASCII-only and reserved-word checked (`services/providerSeo.ts`) — a Cyrillic
-  /// homograph would let one provider's slug impersonate another's, and an
-  /// unreserved slug could shadow a real route segment or a locale code.
+  /// The public page's address: `/p/<slug>`, or `/p/<id>` without one. ASCII-only and
+  /// reserved-word checked (`services/providerSeo.ts`) — a Cyrillic homograph would let
+  /// one provider's slug impersonate another's. A slug given up is kept in
+  /// `ProviderSlugHistory`, so links to it keep working.
   slug                   String?            @unique
+  /// When anything search engines see on the public page last changed — the sitemap's
+  /// `lastmod` and the page's `dateModified`. Moved only when `seoFingerprint` changes
+  /// (`services/providerSeoStamp.ts`); `updatedAt` is no substitute, since it moves on
+  /// billing and draft writes and misses service and category edits.
+  seoUpdatedAt           DateTime           @default(now())
+  /// sha256 of every input the public page's SEO is built from. See `seoUpdatedAt`.
+  seoFingerprint         String?
+  slugHistory            ProviderSlugHistory[]
 
   /// Denormalised review aggregates, rewritten by `services/reviews.ts#recomputeProviderRating`
   /// inside the transaction of every review write, hide and delete.
@@ -373,6 +381,19 @@ model Provider {
   @@index([listed, fullName])
   @@index([listed, ratingScore])
   @@index([paddleCustomerId])
+}
+
+/// A slug a provider used to have. `/p/<old-slug>` still opens their page, whose
+/// canonical names the current one, so a shared link or a printed QR survives a rename.
+/// Another provider claiming the slug takes it over: the row is deleted in the same
+/// transaction (`PATCH /provider-profile/seo`).
+model ProviderSlugHistory {
+  slug       String   @id
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([providerId])
 }
 
 /// One add-on a provider holds, from one source (docs/BILLING.md → *Add-ons*). Rows from
@@ -442,6 +463,9 @@ model Service {
   /// filtered out of every public read and refused at book time; the owner's own
   /// catalogue still lists them, and historical appointments keep pointing at them.
   active          Boolean       @default(true)
+  /// When the service can be booked, always inside the provider's own hours. `null` is
+  /// "whenever the provider is open". Shape and parser: `src/lib/service-availability.ts`.
+  availability    Json?
   appointments    Appointment[]
 
   /// Postgres does not index a foreign key by itself. Explore's "has a matching service"

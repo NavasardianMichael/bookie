@@ -1,8 +1,8 @@
-# Public provider page — `/providers/[providerId]` and `/p/[slug]`
+# Public provider page — `/p/[slug]`
 
 Design record for the public profile and its booking flow. The rules that apply to every
 route are in `src/app/CLAUDE.md`; read this before changing the page, the booking panels,
-or the vanity link.
+its URL, or what it tells search engines.
 
 ## Layout
 
@@ -13,14 +13,14 @@ and no icons, and no "Book an appointment" column heading — the service picker
 start of that flow. Share is an icon in the identity card's top-end corner rather than the
 prototype's full-width Share button.
 
-**The identity column is the segment layout, not the page.** `loading.tsx` wraps the
-page in Suspense, and Next streams the resolved page as `<div hidden>` until an inline
-script reveals it. A document preview and a crawler that does not run that script never
-see what is in there. So `[providerId]/layout.tsx` paints the card, the phone number as
-visible text, working hours, and the JSON-LD; `[providerId]/loading.tsx` skeletons only the
-booking column. The two ancestor loading files live in route groups that do not contain
-this page — `[lang]/(home)/` (home skeleton) and `providers/(explore)/` (Explore skeleton).
-The URLs are unchanged.
+**There is no `loading.tsx` on this page, on purpose.** A loading boundary streams the page
+behind a fallback: Next sends the resolved part as `<div hidden>` until an inline script
+reveals it, so a crawler or a preview that does not run scripts never sees the services or
+the reviews, and a missing provider's `notFound()` fires after the `200` is sent — a `200`
+with a noindex meta instead of a `404`. With no boundary here or above (the two loading files
+nearby live in route groups that do not contain this page — `[lang]/(home)/` and
+`providers/(explore)/`), the whole page renders before the first byte. `[slug]/layout.tsx`
+paints the identity column and the JSON-LD; the page renders the booking column and reviews.
 
 ## Picking is three stacked panels; confirming is a sheet
 
@@ -84,18 +84,62 @@ the page's only list of what they offer. A submit refused mid-visit with
    written zone name. See *Time zones* and *12- or 24-hour clock* in
    `docs/DATABASE_STRUCTURE.md`.
 
-## The vanity link `/p/[slug]`
+## One URL per provider: `/p/<key>`
 
-**It is a `route.ts`, not a `page.tsx`.** As a page it emitted a *soft* redirect: the
-root layout streams first, so by the time `redirect()` threw the response had begun and
-Next fell back to a client-side navigation — HTTP 200, an empty shell, no `Location`.
-Worthless to a crawler, which is the one audience a shareable link has.
+The page lives at **`/p/<slug ?? id>`** — the provider's custom slug when they set one, else
+their id. It is the **one page route without a locale segment**: the language rides in
+`?lang=`, so each provider has exactly one indexable URL rather than sixteen. `/providers`
+stays the Explore list.
 
-It takes **no database round-trip**: `GET /providers/:idOrSlug` accepts either form, so
-`/p/<slug>` is a pure rewrite to `/providers/<slug>`, and an unknown slug 404s through the
-detail page's own `notFound()`. **307, never 308** — a permanent redirect is cached by the
-browser and would outlive a slug change.
+- **`src/proxy.ts`** *rewrites* a bare `/p/<key>` to `/<locale>/p/<key>` — the address bar
+  keeps the canonical URL while the app renders under its `[lang]` root. The locale is
+  `?lang=` when it names one of ours, else the `NEXT_LOCALE` cookie the language switcher
+  writes, else `Accept-Language`. Crawlers send neither, so the indexed copy is English.
+- **A locale-prefixed `/<lang>/p/<key>`** (the old vanity links) and **`/<lang>/providers/<key>`**
+  (the old page, `providers/[providerId]/route.ts`) are **308s** to `/p/<key>?lang=<lang>`:
+  permanent, because the move is, which is what carries an indexed URL's standing over. Both
+  are real redirects — a proxy branch and a Route Handler — never a page calling
+  `redirect()`, which streams first and degrades to a client-side navigation with no
+  `Location`.
+- **Every link is built by `providerPagePath` / `providerPageUrl`** (`@helpers/entities`), so
+  every payload that links to a page carries `slug`. `AppLink` and `useRouter`
+  (`@i18n/navigation`) send `/p/...` through Next unprefixed (`isLocaleFreePath`); prefixed, it
+  would cost a 308. On this page the language switcher sets `?lang=` instead of a path segment.
+- **The canonical is always `/p/<current slug ?? id>`**, built from the resolved provider, never
+  the route segment — the page also answers to its id and to slugs the provider gave up — and
+  there is no hreflang, which would contradict it.
+- **Slugs given up keep working.** `ProviderSlugHistory` remembers them; `GET /providers/:key`
+  resolves id → current slug → remembered slug (`server/src/services/providerLookup.ts`), and
+  the page it opens names the current slug as canonical. A provider who claims a slug another
+  one abandoned takes it over: only a *current* slug blocks a claim.
 
-Two URLs reaching one page is not a duplicate: `generateMetadata` builds its canonical
-from the **resolved entity's id**, not the route segment, so `/providers/<slug>` and
-`/providers/<uuid>` both canonical to the id URL.
+## What the page tells search engines
+
+The `<title>` and meta description are the SEO tab's overrides when set, else composed from
+the profile by `@helpers/providerSeo` — the same helpers the SEO tab's preview uses:
+
+- **Title:** `Name | Categories | Organization | Country`. The country is there because
+  "<service> <country>" queries match on title words; the address is free text of any length,
+  so it goes in the description, the page body and the JSON-LD instead.
+- **Description:** `Book an appointment with Name | Categories | Services | Address, Country.`
+  in the reader's language, at most 300 characters, cut at a word. The intro's own closing mark
+  (`.`, `։`, `。`…) ends the line. The organization is left out (it is in the title).
+
+The SEO tab's boxes show what the page actually uses: the override, or else the generated
+value. **A box still holding the generated text saves as no override** (`toOverride`), so it
+keeps following the profile; only an edit becomes an override. The tab once saved the
+prefilled text as-is, which froze it — a later service or category change no longer reached
+the title — and providers who saved then still carry such an override until they edit or
+clear it. The manual description cap is 300, the generated one's; the generated title is not
+held to the 60-character cap, which applies to the provider's own text.
+
+The JSON-LD graph (`src/linkedDataSchema/providers.ts`) is a `ProfilePage` (`datePublished`,
+`dateModified`, `inLanguage`, breadcrumb) about a `ProfessionalService` (address,
+`areaServed` country, opening hours, offers, rating, `ReserveAction`) and a `Person`, all on
+the canonical URL. `next.config.ts` lists the AI crawlers in `htmlLimitedBots`, so they get the
+metadata in `<head>` rather than streamed into `<body>`; `robots.ts` names them, and
+`/llms.txt` lists every provider with their categories and services.
+
+**The sitemap lists every listed provider** at its canonical URL with `lastmod` =
+`Provider.seoUpdatedAt`, which the API moves only when something search engines see changed —
+see *The public page's change stamp* in `docs/DATABASE_STRUCTURE.md`.

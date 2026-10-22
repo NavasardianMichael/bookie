@@ -2,8 +2,8 @@ import { FC } from 'react'
 import { CategoryBadge } from '@app/[lang]/categories/components/CategoryBadge'
 import { getTranslations } from 'next-intl/server'
 import { ProviderListItem } from '@store/providers/list/types'
-import { ROUTES } from '@constants/routes'
 import { cn } from '@helpers/cn'
+import { providerPagePath } from '@helpers/entities'
 import { getProviderAvailabilityStatus, ProviderAvailabilityStatus } from '@helpers/providerAvailability'
 import { FavoriteButton } from '@components/favorites/FavoriteButton'
 import { RatingStars } from '@components/ui/bare/RatingStars'
@@ -41,7 +41,7 @@ export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLev
 
   return (
     <EntityCard
-      href={`${ROUTES.providers}/${data.id}`}
+      href={providerPagePath(data)}
       title={fullName}
       headingLevel={headingLevel}
       subtitle={basic.organization?.basic.name}
@@ -79,7 +79,7 @@ export const ProviderCard: FC<Props> = async ({ data, hideCategories, headingLev
       }
       footer={
         data.matchedService && (
-          <MatchedServiceLink providerId={data.id} service={data.matchedService} more={data.moreMatchingServices} />
+          <MatchedServiceLink provider={data} service={data.matchedService} more={data.moreMatchingServices} />
         )
       }
       cta={t('viewProfile')}

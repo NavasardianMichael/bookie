@@ -1,14 +1,15 @@
 import { FC } from 'react'
+import { buildServiceHref } from '@app/[lang]/p/[slug]/components/serviceParams'
 import { getTranslations } from 'next-intl/server'
 import { MatchedService } from '@store/providers/list/types'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
+import { ProviderPageRef } from '@helpers/entities'
 import { APP_LINK_META_CLASS, AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTime } from '@components/ui/bare/AppTime'
-import { buildServiceHref } from './[providerId]/components/serviceParams'
 
 type Props = {
-  providerId: string
+  provider: ProviderPageRef
   service: MatchedService
   /** Other services that matched too — the "+N more" link to the full list. */
   more?: number
@@ -20,13 +21,13 @@ type Props = {
  * the plain card. One service rather than every match keeps the grid's cards one height;
  * the rest are a count that opens the provider's own list.
  */
-export const MatchedServiceLink: FC<Props> = async ({ providerId, service, more }) => {
+export const MatchedServiceLink: FC<Props> = async ({ provider, service, more }) => {
   const t = await getTranslations('Explore')
 
   return (
     <div className='flex flex-col items-start gap-1.5'>
       <AppLink
-        href={buildServiceHref(providerId, service.id)}
+        href={buildServiceHref(provider, service.id)}
         variant='unstyled'
         className='border-brand-border bg-brand-50 hover:border-brand flex w-full flex-col gap-0.5 rounded-brand-sm border px-3 py-2 transition-colors'
       >
@@ -53,7 +54,7 @@ export const MatchedServiceLink: FC<Props> = async ({ providerId, service, more 
       </AppLink>
 
       {!!more && (
-        <AppLink href={buildServiceHref(providerId)} variant='plain' className={APP_LINK_META_CLASS}>
+        <AppLink href={buildServiceHref(provider)} variant='plain' className={APP_LINK_META_CLASS}>
           {t('moreMatchingServices', { count: more })}
         </AppLink>
       )}

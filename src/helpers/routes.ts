@@ -20,3 +20,12 @@ export const matchRouteName = (pathname: string): AppRouteName | undefined =>
   ROUTE_ENTRIES.find(([, route]) => matches(normalize(pathname), route))?.[0]
 
 export const isRouteActive = (pathname: string, route: string): boolean => matches(normalize(pathname), route)
+
+/**
+ * Header nav only. `isRouteActive` is a prefix match, and every provider page lives
+ * under `/providers`, so that match underlines Providers on a profile, a settings tab,
+ * or a public provider page. A nav destination is current only when this page is that
+ * destination.
+ */
+export const isExactRouteActive = (pathname: string, route: string): boolean =>
+  normalize(pathname) === normalize(route)

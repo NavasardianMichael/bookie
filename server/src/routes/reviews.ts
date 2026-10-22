@@ -9,8 +9,9 @@ import type { SessionPayload } from '../lib/session.js'
 import { mapReview, reviewListInclude } from '../mappers/entities.js'
 import { requireAuth, requireProvider } from '../middleware/auth.js'
 import { asyncHandler, HttpError } from '../middleware/error.js'
+import { resolveProviderId } from '../services/providerLookup.js'
 import { resolvePageWindow } from '../services/providerSearch.js'
-import { looksLikeProviderId } from '../services/providerSeo.js'
+import { refreshProviderSeoStamp } from '../services/providerSeoStamp.js'
 import {
   distributionFromCounts,
   parseReplyBody,
@@ -78,16 +79,18 @@ const viewerConsumerId = async (session: SessionPayload | undefined): Promise<st
 }
 
 /**
- * Resolves the `:id` segment the same way `GET /providers/:id` does — id **or** vanity
- * slug — so the reviews section works on `/p/<slug>` without a second route, and applies
- * the same visibility rule: an unlisted page 404s for everyone but its owner.
+ * Resolves the `:id` segment the same way `GET /providers/:id` does — id, current slug or a
+ * slug given up (`services/providerLookup.ts`) — and applies the same visibility rule: an
+ * unlisted page 404s for everyone but its owner.
  */
 const loadProviderForReviews = async (req: Request) => {
-  const segment = req.params.id ?? ''
-  const provider = await prisma.provider.findUnique({
-    where: looksLikeProviderId(segment) ? { id: segment } : { slug: segment.toLowerCase() },
-    select: { id: true, userId: true, listed: true, ratingAvg: true, ratingCount: true },
-  })
+  const providerId = await resolveProviderId(req.params.id ?? '')
+  const provider = providerId
+    ? await prisma.provider.findUnique({
+        where: { id: providerId },
+        select: { id: true, userId: true, listed: true, ratingAvg: true, ratingCount: true },
+      })
+    : null
   if (!provider) throw new HttpError(404, 'Provider not found', 404)
 
   const isOwner = req.session?.role === 'provider' && req.session.profileId === provider.id
@@ -284,6 +287,7 @@ providerReviewsRouter.post(
       await recomputeProviderRating(tx, provider.id)
       return created
     })
+    await refreshProviderSeoStamp(provider.id)
 
     return ok(res, mapReview(review, consumerId), 201)
   })
@@ -326,6 +330,7 @@ reviewsRouter.patch(
       if (existing.providerId) await recomputeProviderRating(tx, existing.providerId)
       return updated
     })
+    if (existing.providerId) await refreshProviderSeoStamp(existing.providerId)
 
     return ok(res, mapReview(review, consumerId))
   })
@@ -342,6 +347,7 @@ reviewsRouter.delete(
       await tx.review.delete({ where: { id: existing.id } })
       if (existing.providerId) await recomputeProviderRating(tx, existing.providerId)
     })
+    if (existing.providerId) await refreshProviderSeoStamp(existing.providerId)
 
     return ok(res, true)
   })

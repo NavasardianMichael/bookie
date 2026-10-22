@@ -92,6 +92,7 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
       weekSchedule,
       timeZone,
       durations: Object.fromEntries(activeServices.map((service) => [service.id, service.duration])),
+      availability: Object.fromEntries(activeServices.map((service) => [service.id, service.availability])),
     }),
     [activeServices, timeZone, weekSchedule]
   )
@@ -114,7 +115,12 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
 
   const timeDisplayFormat = getTimeDisplayFormat(resolveTimeFormat(timeFormat, locale))
   const today = calendarDayOf(now, timeZone)
-  const isDateDisabled = (date: Dayjs): boolean => date.isBefore(today, 'day') || !isOpenOnDate(weekSchedule, date)
+  // Per row: a date the row's service is not offered on is not one it can move to.
+  const isDateDisabledFor =
+    (serviceId: string | null | undefined) =>
+    (date: Dayjs): boolean =>
+      date.isBefore(today, 'day') ||
+      !isOpenOnDate(weekSchedule, date, serviceId ? schedule.availability?.[serviceId] : undefined)
 
   const toRequest = (row: DraftFormRow): ImportedBookingRequest | null => {
     const start = draftStart(toSlotRow(row), timeZone)
@@ -181,7 +187,7 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
                   timeOptions={draftTimeOptions({ rows: slotRows, index, schedule, busy, now })}
                   currentTime={rows[index]?.time}
                   serviceOptions={serviceOptions}
-                  isDateDisabled={isDateDisabled}
+                  isDateDisabled={isDateDisabledFor(rows[index]?.serviceId)}
                   timeDisplayFormat={timeDisplayFormat}
                   onRemove={() => remove(field.name)}
                   disabled={submitting}

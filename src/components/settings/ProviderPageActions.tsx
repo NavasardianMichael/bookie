@@ -2,12 +2,9 @@
 
 import { FC, useState } from 'react'
 import { App } from 'antd'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { putProviderProfileAPI } from '@api/providers/main'
-import { type Locale } from '@i18n/config'
-import { localePath } from '@i18n/pathname'
-import { ROUTES } from '@constants/routes'
-import { absoluteUrl } from '@helpers/url'
+import { providerPagePath, providerPageUrl } from '@helpers/entities'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -18,6 +15,8 @@ type ListingAction = 'publish' | 'unpublish'
 type Props = {
   listed: boolean
   profileId: string | null
+  /** The custom slug when set — the shared link is `/p/<slug ?? id>`. */
+  slug?: string
   /** Web Share sheet title. The shared URL is the public profile, not this settings page. */
   name: string
   disabled?: boolean
@@ -37,15 +36,14 @@ const heroIconStyles = { root: { color: 'var(--brand-surface)' } }
  * settings tab; they belong on the Profile hero because they act on the page itself,
  * not on a separate settings concern.
  */
-export const ProviderPageActions: FC<Props> = ({ listed, profileId, name, disabled, onListedChange }) => {
+export const ProviderPageActions: FC<Props> = ({ listed, profileId, slug, name, disabled, onListedChange }) => {
   const t = useTranslations('Settings')
   const tCommon = useTranslations('Common')
-  const locale = useLocale() as Locale
   const { message } = App.useApp()
   const [listingAction, setListingAction] = useState<ListingAction | null>(null)
 
-  const publicPath = profileId ? `${ROUTES.providers}/${profileId}` : null
-  const publicUrl = publicPath ? absoluteUrl(localePath(locale, publicPath)) : null
+  const publicPath = profileId ? providerPagePath({ id: profileId, slug }) : null
+  const publicUrl = profileId ? providerPageUrl({ id: profileId, slug }) : null
 
   // AppConfirmModal awaits this and keeps the dialog open on rejection.
   const onConfirmListing = async () => {

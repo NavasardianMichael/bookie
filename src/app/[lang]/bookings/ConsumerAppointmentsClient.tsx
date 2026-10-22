@@ -12,7 +12,7 @@ import {
   ConsumerAppointmentSort,
   filterAndSortConsumerAppointments,
 } from '@helpers/consumerAppointments'
-import { generateEntityPath } from '@helpers/entities'
+import { generateEntityPath, providerPagePath } from '@helpers/entities'
 import { collapseWhitespace } from '@helpers/search'
 import { AppAvatar } from '@components/ui/AppAvatar'
 import { AppButton } from '@components/ui/AppButton'
@@ -217,7 +217,7 @@ export const ConsumerAppointmentsClient = () => {
               // `#reviews` so the link lands on the section rather than the top of a
               // long profile. The write CTA there appears only if the API agrees.
               const reviewHref = isReviewable(item, loadedAt)
-                ? `${generateEntityPath(ROUTE_KEYS.providers, item.providerId)}#reviews`
+                ? `${providerPagePath({ id: item.providerId, slug: item.provider?.slug })}#reviews`
                 : undefined
 
               return (

@@ -143,7 +143,7 @@ export const antdTheme: ThemeConfig = {
       // fill. Painted white in globals.css next to the TimePicker selected-cell
       // override; there is no icon token, and setting Select.colorPrimary to white
       // would also bleach `activeBorderColor`.
-      optionActiveBg: BRAND[100],
+      optionActiveBg: NEUTRAL[100],
       // Selected+active uses this instead of optionSelectedBg; keep it primary
       // or the highlighted current option paints as a pale hover chip.
       controlItemBgActiveHover: BRAND[900],

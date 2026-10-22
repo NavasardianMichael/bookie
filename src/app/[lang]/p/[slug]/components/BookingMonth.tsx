@@ -5,7 +5,7 @@ import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
-import { WeekSchedule } from '@store/providers/profile/types'
+import { ServiceAvailability, WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { isOpenOnDate } from '@helpers/booking'
 import { buildMonthCells, buildWeekdayLabels } from '@helpers/calendar'
@@ -25,6 +25,8 @@ type Props = {
   /** Open slots per `DAY_KEY_FORMAT` key, so a day can show whether it is bookable at all. */
   slotCountByDay: Map<string, number>
   weekSchedule?: WeekSchedule
+  /** The selected service's days — a day the provider is open but the service is not says so. */
+  availability?: ServiceAvailability
   /**
    * The provider's IANA zone. "Today" — the highlighted cell, the Today button, the point the
    * grid will not page back past — is the provider's today, which near midnight is not the
@@ -58,6 +60,7 @@ export const BookingMonth: FC<Props> = ({
   selectedDayKey,
   slotCountByDay,
   weekSchedule,
+  availability,
   timeZone,
   serviceName,
   onSelectDay,
@@ -144,6 +147,7 @@ export const BookingMonth: FC<Props> = ({
             const count = slotCountByDay.get(key) ?? 0
             const isPast = date.isBefore(today, 'day')
             const isClosed = !isOpenOnDate(weekSchedule, date)
+            const isServiceOff = !isClosed && !isOpenOnDate(weekSchedule, date, availability)
             const isSelected = key === selectedDayKey
             const isToday = date.isSame(today, 'day')
             const disabled = isPast || !count
@@ -151,7 +155,9 @@ export const BookingMonth: FC<Props> = ({
               ? tBooking('dayPast')
               : isClosed
                 ? tBooking('dayClosed')
-                : !count
+                : isServiceOff
+                  ? tBooking('dayServiceUnavailable')
+                  : !count
                   ? tBooking('dayNoSlots')
                   : undefined
 

@@ -28,7 +28,7 @@ export type Entitlements = {
   maxBookingsPerMonth: number | null
   /** How far back the analytics tab may look, measured from now. */
   analyticsHistoryDays: number | null
-  /** May set or change the vanity `/p/<slug>`. Without it the page keeps its id URL. */
+  /** May set or change the custom `/p/<slug>`. Without it the page stays at `/p/<id>`. */
   customSlug: boolean
   /**
    * The provider's own notices also reach their linked Telegram. Email is never gated, and

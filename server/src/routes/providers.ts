@@ -17,6 +17,7 @@ import {
 import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
 import { asFullName } from '../lib/request.js'
+import { earliestOpenDayKey, parseServiceAvailability } from '../lib/service-availability.js'
 import { type TimeFormat, toTimeFormat } from '../lib/time-format.js'
 import { toTimeZone } from '../lib/time-zone.js'
 import { mintOwnerManageToken } from '../lib/token.js'
@@ -29,6 +30,7 @@ import {
   mapProviderSeo,
   mapService,
   mapSingleProvider,
+  mapSitemapProvider,
   providerBookingInclude,
   providerInclude,
   providerProfileInclude,
@@ -59,8 +61,10 @@ import {
   parseProviderBookingsQuery,
 } from '../services/providerBookings.js'
 import { providerCategoryIds, pruneUnusedCategories, setProviderCategories } from '../services/providerCategories.js'
-import { parseProvidersListQuery, resolvePageWindow } from '../services/providerSearch.js'
-import { looksLikeProviderId, parseProviderSeoBody } from '../services/providerSeo.js'
+import { resolveProviderId } from '../services/providerLookup.js'
+import { parseProvidersListQuery, PUBLIC_PROVIDER_WHERE, resolvePageWindow } from '../services/providerSearch.js'
+import { parseProviderSeoBody } from '../services/providerSeo.js'
+import { refreshProviderSeoStamp } from '../services/providerSeoStamp.js'
 import {
   countWithCorrection,
   loadConsumerBookingsVocabulary,
@@ -245,21 +249,42 @@ providersRouter.get(
 )
 
 /**
- * A provider by id **or** by vanity slug.
- *
- * One endpoint for both so `/p/<slug>` can resolve without a second route. The two
- * namespaces cannot collide: a slug is refused if it is UUID-shaped
- * (`services/providerSeo.ts`), so the segment's shape decides which column to read and
- * each lookup stays a single unique-index hit rather than an `OR` across two.
+ * Every listed provider, for the sitemap and `llms.txt` — the page key and the stamp that
+ * says when what search engines see last changed (`services/providerSeoStamp.ts`), plus the
+ * few words `llms.txt` lists beside each link. One narrow select, no relevance maths: this is
+ * not Explore. Mounted before `/:id`, which would otherwise read `sitemap` as a slug.
+ */
+providersRouter.get(
+  '/sitemap',
+  asyncHandler(async (_req, res) => {
+    const providers = await prisma.provider.findMany({
+      where: PUBLIC_PROVIDER_WHERE,
+      select: {
+        id: true,
+        slug: true,
+        fullName: true,
+        seoUpdatedAt: true,
+        categories: { select: { category: { select: { name: true } } } },
+        services: { where: { active: true }, select: { name: true }, orderBy: { name: 'asc' } },
+      },
+      orderBy: { seoUpdatedAt: 'desc' },
+    })
+    return ok(res, providers.map(mapSitemapProvider))
+  })
+)
+
+/**
+ * A provider by their public page key: id, current slug, or a slug they gave up
+ * (`services/providerLookup.ts`). The page names the current slug as its canonical, so
+ * every form a visitor arrives by consolidates onto one URL.
  */
 providersRouter.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    const segment = req.params.id ?? ''
-    const provider = await prisma.provider.findUnique({
-      where: looksLikeProviderId(segment) ? { id: segment } : { slug: segment.toLowerCase() },
-      include: providerInclude,
-    })
+    const providerId = await resolveProviderId(req.params.id ?? '')
+    const provider = providerId
+      ? await prisma.provider.findUnique({ where: { id: providerId }, include: providerInclude })
+      : null
     if (!provider) throw new HttpError(404, 'Provider not found', 404)
 
     // Unlisted providers 404 for everyone except the owner (Preview Profile).
@@ -358,6 +383,7 @@ providerProfileRouter.put(
         data: { listed: listedValue },
         include: providerProfileInclude,
       })
+      await refreshProviderSeoStamp(providerId)
       return ok(res, {
         ...mapProviderProfile(provider),
         listed: provider.listed,
@@ -441,6 +467,7 @@ providerProfileRouter.put(
         },
         include: providerProfileInclude,
       })
+      await refreshProviderSeoStamp(providerId)
       return ok(res, {
         ...mapProviderProfile(provider),
         listed: provider.listed,
@@ -518,6 +545,7 @@ providerProfileRouter.put(
       })
     }
 
+    await refreshProviderSeoStamp(providerId)
     const updated = await prisma.provider.findUnique({
       where: { id: providerId },
       include: providerProfileInclude,
@@ -761,7 +789,7 @@ const notifyBookingDecision = async (
       guestFullName: true,
       service: { select: { name: true } },
       consumer: { select: { fullName: true, user: { select: { email: true } } } },
-      provider: { select: { fullName: true, timeZone: true, timeFormat: true } },
+      provider: { select: { fullName: true, slug: true, timeZone: true, timeFormat: true } },
     },
   })
   if (!row) return
@@ -793,7 +821,7 @@ const notifyBookingDecision = async (
 
   await sendBookingRejectedEmail({
     ...shared,
-    bookingUrl: buildProviderPageUrl(config.corsOrigin, locale, row.providerId),
+    bookingUrl: buildProviderPageUrl(config.corsOrigin, locale, row.provider.slug ?? row.providerId),
   })
 }
 
@@ -932,21 +960,38 @@ providerProfileRouter.patch(
      * before slugs were paid — alive through every save of this tab. Resolving a slug
      * (`GET /providers/:idOrSlug`) never looks at the plan: a printed link must not break.
      */
+    const providerId = req.session!.profileId
+    let previousSlug: string | null = null
     if (data.slug !== undefined) {
       const current = await prisma.provider.findUnique({
-        where: { id: req.session!.profileId },
+        where: { id: providerId },
         select: { slug: true, ...ENTITLEMENT_SELECT },
       })
       if (!current) throw new HttpError(404, 'Provider profile not found', 404)
       assertSlugChange(current.slug, data.slug, getEntitlements(current, new Date()))
+      previousSlug = current.slug
     }
+    const slugChanged = data.slug !== undefined && data.slug !== previousSlug
 
     try {
-      const provider = await prisma.provider.update({
-        where: { id: req.session!.profileId },
-        data,
-        include: providerInclude,
+      /**
+       * A slug given up is remembered (`ProviderSlugHistory`), so `/p/<old>` keeps opening
+       * this page. A slug being claimed is forgotten by whoever held it before — only a
+       * *current* slug blocks a claim (the unique index, caught below), so a provider can
+       * take over a link another one abandoned.
+       */
+      const provider = await prisma.$transaction(async (tx) => {
+        if (slugChanged && data.slug) await tx.providerSlugHistory.deleteMany({ where: { slug: data.slug } })
+        if (slugChanged && previousSlug) {
+          await tx.providerSlugHistory.upsert({
+            where: { slug: previousSlug },
+            create: { slug: previousSlug, providerId },
+            update: { providerId },
+          })
+        }
+        return tx.provider.update({ where: { id: providerId }, data, include: providerInclude })
       })
+      await refreshProviderSeoStamp(providerId)
       return ok(res, mapProviderSeo(provider))
     } catch (error) {
       // Two providers can pass slug validation at the same instant; only the unique
@@ -997,6 +1042,7 @@ providerProfileRouter.patch(
         include: providerProfileInclude,
       })
     })
+    await refreshProviderSeoStamp(providerId)
 
     return ok(res, {
       ...mapProviderProfile(provider),
@@ -1031,6 +1077,7 @@ providerProfileRouter.put(
       await setProviderCategories(tx, providerId, choices)
       return tx.provider.findUniqueOrThrow({ where: { id: providerId }, include: providerProfileInclude })
     })
+    await refreshProviderSeoStamp(providerId)
 
     return ok(res, {
       ...mapProviderProfile(provider),
@@ -1121,6 +1168,23 @@ function assertPrice(price: number | null | undefined): void {
   }
 }
 
+/**
+ * `availability` off a service write — JSON-encoded in a multipart body, an object in a
+ * JSON one. `undefined` leaves the column alone; `Prisma.DbNull` is "always", stored as
+ * SQL NULL; anything else is a validated rule (`lib/service-availability.ts`).
+ */
+function readServiceAvailability(
+  body: Record<string, unknown>
+): Prisma.InputJsonValue | typeof Prisma.DbNull | undefined {
+  if (!hasField(body, 'availability')) return undefined
+  const parsed = parseServiceAvailability(
+    readJsonField(body.availability, 'availability'),
+    earliestOpenDayKey(new Date())
+  )
+  if ('error' in parsed) throw new HttpError(400, parsed.error, 400)
+  return parsed.value ?? Prisma.DbNull
+}
+
 /** Scoped by `providerId` so one provider can never address another's service. */
 async function findOwnService(
   providerId: string,
@@ -1171,6 +1235,7 @@ providersRouter.post(
     if (takesServiceSlot(false, active)) await assertRoomForActiveService(providerId)
 
     const imageUrl = uploadedImageUrl(req) ?? (await ownedServiceImageUrl(providerId, readText(body, 'imageUrl')))
+    const availability = readServiceAvailability(body)
 
     const service = await prisma.service.create({
       data: {
@@ -1182,9 +1247,11 @@ providersRouter.post(
         currency: readText(body, 'currency') ?? null,
         imageUrl: imageUrl ?? null,
         active,
+        availability: availability ?? Prisma.DbNull,
       },
     })
 
+    await refreshProviderSeoStamp(providerId)
     return ok(res, mapService(service), 201)
   })
 )
@@ -1214,6 +1281,7 @@ providersRouter.put(
     assertPrice(price)
 
     const imageUrl = uploadedImageUrl(req)
+    const availability = readServiceAvailability(body)
 
     // Each column is written only when the payload carried its field. `durationMinutes`
     // used to fall back to `Number(undefined ?? 30)`, so saving a service without
@@ -1228,9 +1296,11 @@ providersRouter.put(
         ...(hasField(body, 'currency') ? { currency: readText(body, 'currency') } : {}),
         ...(imageUrl ? { imageUrl } : {}),
         ...(active !== undefined ? { active } : {}),
+        ...(availability !== undefined ? { availability } : {}),
       },
     })
 
+    await refreshProviderSeoStamp(providerId)
     return ok(res, mapService(service))
   })
 )
@@ -1251,6 +1321,7 @@ providersRouter.delete(
     }
 
     await prisma.service.delete({ where: { id: serviceId } })
+    await refreshProviderSeoStamp(providerId)
     return ok(res, true)
   })
 )

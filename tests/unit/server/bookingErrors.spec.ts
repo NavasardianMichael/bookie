@@ -63,6 +63,12 @@ describe('the booking-closed codes', () => {
     expect(getBookingClosedReason({ code: BOOKING_ERROR.bookingPaused })).toBe('paused')
     expect(getBookingClosedReason({ code: BOOKING_ERROR.bookingFull })).toBe('full')
   })
+
+  // A time outside the service's days is fixed by picking another time, so it must not
+  // swap the calendar for the "contact them directly" notice.
+  it('do not include a refused time, which another pick fixes', () => {
+    expect(getBookingClosedReason({ code: BOOKING_ERROR.outsideHours })).toBeUndefined()
+  })
 })
 
 describe('the approvals link', () => {

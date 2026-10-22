@@ -78,8 +78,9 @@ export const ProviderDetails: FC<Props> = ({ initialState, initialServiceId }) =
           <Surface>
             {/* The picker stays when booking is closed: it is the page's only list of what
                 this provider offers, and that is still worth reading before phoning them. */}
+            {/* An h2: the service list is a main section of the page, under the h1 name. */}
             <div className='mb-5'>
-              <AppTitle level='h3' size='h3'>
+              <AppTitle level='h2' size='h3'>
                 {closedReason ? t('closed.servicesTitle') : t('chooseService')}
               </AppTitle>
               {!closedReason && (

@@ -3,9 +3,8 @@ import {
   parseServiceParam,
   SERVICE_PARAM,
   startingServiceId,
-} from '@app/[lang]/providers/[providerId]/components/serviceParams'
+} from '@app/[lang]/p/[slug]/components/serviceParams'
 import { describe, expect, it } from 'vitest'
-import { ROUTES } from '@constants/routes'
 
 const OFFERED = ['svc-1', 'svc-2']
 
@@ -45,16 +44,24 @@ describe('startingServiceId', () => {
 })
 
 describe('buildServiceHref', () => {
-  it('links to the service list, with the service chosen', () => {
-    expect(buildServiceHref('p1', 'svc-1')).toBe(`${ROUTES.providers}/p1?${SERVICE_PARAM}=svc-1#booking-services`)
+  it('links to the service list on the provider page, with the service chosen', () => {
+    expect(buildServiceHref({ id: 'p1' }, 'svc-1')).toBe(`/p/p1?${SERVICE_PARAM}=svc-1#booking-services`)
   })
 
   it('links to the list alone when no service is named', () => {
-    expect(buildServiceHref('p1')).toBe(`${ROUTES.providers}/p1#booking-services`)
+    expect(buildServiceHref({ id: 'p1' })).toBe('/p/p1#booking-services')
+  })
+
+  // The page's one canonical URL is the slug's, so a link built from the id would point at
+  // an address the page canonicalises away from.
+  it('uses the slug when the provider has one', () => {
+    expect(buildServiceHref({ id: 'p1', slug: 'acme-hair' }, 'svc-1')).toBe(
+      `/p/acme-hair?${SERVICE_PARAM}=svc-1#booking-services`
+    )
   })
 
   it('round-trips through the parser', () => {
-    const query = new URL(buildServiceHref('p1', 'svc-2'), 'https://bookie.test').searchParams
+    const query = new URL(buildServiceHref({ id: 'p1' }, 'svc-2'), 'https://bookie.test').searchParams
     expect(parseServiceParam({ [SERVICE_PARAM]: query.get(SERVICE_PARAM) ?? undefined }, OFFERED)).toBe('svc-2')
   })
 })

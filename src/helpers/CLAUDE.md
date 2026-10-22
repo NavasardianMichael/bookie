@@ -10,10 +10,12 @@ Everything here is pure and framework-free unless the last column says otherwise
 
 | Need | Use | From |
 |---|---|---|
-| Bookable slots for a date / range | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
+| Bookable slots for a date / range (pass the service's `availability` to keep to its days) | `getSlotsForDate`, `getSlotsForDateRange` | `booking.ts` |
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
 | Bookings list preset (`upcoming`, this week, next week, …) → `from`/`to` | `bookingPeriodRange` | `bookingPeriod.ts` |
-| Does the provider have hours on this date | `isOpenOnDate` | `booking.ts` |
+| Does the provider have hours on this date — and, given a service's `availability`, is that service offered on it | `isOpenOnDate` | `booking.ts` |
+| Which windows a service is bookable in on a day (the provider's hours on the days its rule offers) | `effectiveDayParts`, `isServiceDay` | `serviceAvailability.ts` — **twin** `server/src/lib/service-availability.ts` |
+| The provider's open weekdays · can a service rule ever be booked · its first upcoming date | `openWeekdays`, `canEverBeBooked`, `nextServiceDate` | `serviceAvailability.ts` |
 | Provider card status (available / fully blocked / closed) | `getProviderAvailabilityStatus` | `providerAvailability.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
 | A provider's wall-clock time on a day → the instant | `zonedTimeToDate` | `timeZone.ts` |
@@ -53,6 +55,9 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Is this the same name (case, accents, spacing, punctuation, word order)? / probably the same (a typo, one word more)? | `isSameName` / `isSimilarName` | `search.ts` |
 | Trim + collapse inner whitespace, as a typed name is stored | `collapseWhitespace` | `search.ts` |
 | Canonical URL of an entity's page | `generateEntityUrl` | `entities.ts` |
+| **A provider's public page** — `/p/<slug ?? id>`, path or absolute URL. Never build it from the id alone | `providerPagePath`, `providerPageUrl`, `providerPageKey` | `entities.ts` |
+| The provider page's auto title / description (no SEO override set) · cut text at a word | `composeProviderTitle`, `composeProviderDescription`, `trimAtWord` | `providerSeo.ts` |
+| The `/llms.txt` body | `buildLlmsTxt` | `llmsTxt.ts` |
 | Root-relative path of an entity's page (for `push`/`Link`) | `generateEntityPath` | `entities.ts` |
 | Country + national number → `{ code, number }` | `toPhoneNumber` | `registration.ts` |
 | Same, but blank → `undefined` | `toOptionalPhoneNumber` | `registration.ts` |
@@ -81,7 +86,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Copyable card/account number and notes a provider publishes | `toPaymentShare`, `hasPaymentShare`, `acceptsBankTransfer`, `needsPublicShareConfirm` | `payment.ts` |
 | ISO country code → name in the reader's language | `getCountryName` | `country.ts` |
 | Language tags → phone-field country | `guessPhoneCountry` | `country.ts` |
-| Pathname → route name (prefix match) | `matchRouteName`, `isRouteActive` | `routes.ts` |
+| Pathname → route name (prefix) · header nav current page (exact) | `matchRouteName`, `isRouteActive`, `isExactRouteActive` | `routes.ts` |
 | Is this URL the page already on screen (query and hash ignored) | `isSamePageUrl` | `unsavedChanges.ts` |
 | Which settings tree a path is in / where the workspace switch sends it | `workspaceOf`, `counterpartPath` | `workspace.ts` |
 | Where an account lands once it gains a role (sign-up, becoming a provider) | `newAccountLandingPath` | `workspace.ts` |
@@ -142,6 +147,11 @@ Everything here is pure and framework-free unless the last column says otherwise
   when `remotePatterns` matches; `next.config.ts` sets `dangerouslyAllowLocalIP`
   when the API host is loopback. Without that, every uploaded avatar 400s through
   `/_next/image` after Save draft.
+- **A service picks days, never hours** (`serviceAvailability.ts`). Every grid that steps a
+  service's slots passes its `availability` to `getSlotsForDate` / `getSlotsForDateRange` —
+  `BookingPanel`, the reschedule page and photo import do. Its server twin refuses the same
+  bookings (`4203`); a case table in `tests/unit/server/serviceAvailability.spec.ts` runs
+  against both.
 - **`search.ts` is the only way to match typed text.** A new search box or filter uses
   `matchesSearch` / `rankBySearch`, and "does this name already exist?" uses `isSameName`,
   never `toLowerCase().includes()` or `===` on lowercased strings — those miss "Café" for

@@ -25,7 +25,25 @@ export type SplitPathname = {
  * Lives here rather than in `metadata.ts` so JSON-LD builders and the sitemap can
  * use it without pulling in `next/root-params`, which is Server-Component-only.
  */
-export const localePath = (locale: Locale, path: string): string => (path === '/' ? `/${locale}` : `/${locale}${path}`)
+export const localePath = (locale: Locale, path: string): string => {
+  if (isLocaleFreePath(path)) return path
+  return path === '/' ? `/${locale}` : `/${locale}${path}`
+}
+
+/**
+ * The public provider page, `/p/<key>`, is the one page route without a locale prefix: its
+ * language is `?lang=`, the `NEXT_LOCALE` cookie or `Accept-Language`, resolved by the proxy,
+ * so each provider has exactly one indexable URL. `localePath` — and so `AppLink` and every
+ * absolute URL built on it — leaves it alone.
+ *
+ * Spelled as a literal rather than read from `ROUTES`: this module sits under the proxy and
+ * the sitemap and must stay import-light. `tests/unit/i18n/pathname.spec.ts` pins it to
+ * `ROUTES.providerPage`.
+ */
+export const PROVIDER_PAGE_PREFIX = '/p'
+
+export const isLocaleFreePath = (path: string): boolean =>
+  path === PROVIDER_PAGE_PREFIX || path.startsWith(`${PROVIDER_PAGE_PREFIX}/`)
 
 export const splitLocaleFromPathname = (pathname: string): SplitPathname => {
   const [, maybeLocale, ...rest] = pathname.split('/')

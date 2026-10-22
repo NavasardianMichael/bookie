@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
-import { isLocale, LOCALE_COOKIE } from '@i18n/config'
+import { isLocale, LANG_PARAM, type Locale, LOCALE_COOKIE } from '@i18n/config'
 import { matchAcceptLanguage } from '@i18n/matchAcceptLanguage'
-import { splitLocaleFromPathname } from '@i18n/pathname'
+import { isLocaleFreePath, splitLocaleFromPathname } from '@i18n/pathname'
 import { routing } from '@i18n/routing'
 import { SESSION_COOKIE } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
@@ -38,6 +38,10 @@ import { ROUTES } from '@constants/routes'
  *
  * 3. **Hand off to next-intl**, which validates the prefix and keeps its locale cookie in
  *    step with the URL.
+ *
+ * Before all three, the public provider page: `/p/<key>` is the one page route **without** a
+ * locale segment, so each provider has a single indexable URL (`docs/routes/provider-page.md`).
+ * See `providerPage` below.
  */
 const PROTECTED_PREFIXES = [
   ROUTES.providerServices,
@@ -101,8 +105,42 @@ const personalizedRedirect = (target: URL) => {
   return response
 }
 
+/**
+ * The public provider page.
+ *
+ * - **`/p/<key>`** is *rewritten*, not redirected, to `/<locale>/p/<key>`: the address bar
+ *   keeps the one canonical URL while the app renders under its `[lang]` root. The language
+ *   is `?lang=` when it names one of ours, else the cookie, else `Accept-Language`, and
+ *   `Content-Language` says which it picked. Crawlers send neither, so the indexed copy is the
+ *   default locale's. No `Vary` is set: Next replaces it on page responses, and the page is
+ *   served `no-cache, must-revalidate`, so a shared cache asks the origin every time anyway.
+ * - **`/<lang>/p/<key>`** — the old vanity links, or anything that prefixed the path — is a
+ *   **308** to the bare URL with `?lang=<lang>`: permanent, because the move is, and so a
+ *   search engine carries the old URL's standing over. It never loops: a rewrite's target
+ *   does not pass through the proxy again.
+ */
+const providerPage = (request: NextRequest, locale: Locale | undefined, pathname: string) => {
+  if (locale) {
+    const target = request.nextUrl.clone()
+    target.pathname = pathname
+    target.searchParams.set(LANG_PARAM, locale)
+    return NextResponse.redirect(target, 308)
+  }
+
+  const requested = request.nextUrl.searchParams.get(LANG_PARAM)
+  const resolved = isLocale(requested) ? requested : negotiateLocale(request)
+  const target = request.nextUrl.clone()
+  target.pathname = `/${resolved}${pathname}`
+
+  const response = NextResponse.rewrite(target)
+  response.headers.set('Content-Language', resolved)
+  return response
+}
+
 export function proxy(request: NextRequest) {
   const { locale, pathname } = splitLocaleFromPathname(request.nextUrl.pathname)
+
+  if (isLocaleFreePath(pathname)) return providerPage(request, locale, pathname)
 
   if (LOCALE_AGNOSTIC_METADATA.has(pathname)) {
     if (!locale) return NextResponse.next()

@@ -119,7 +119,7 @@ const GATES = [
         reason: 'Explore search box and its Search button — listed in src/styles/CLAUDE.md invariant 10.',
       },
       {
-        rel: 'src/app/[lang]/providers/[providerId]/components/BookingSlots.tsx',
+        rel: 'src/app/[lang]/p/[slug]/components/BookingSlots.tsx',
         contains: "size='large'",
         reason: 'Book now CTA — listed in src/styles/CLAUDE.md invariant 10.',
       },
@@ -162,6 +162,13 @@ const GATES = [
     root: 'src',
     exts: TS,
     pattern: /from 'next\/link'/,
+    allow: [
+      {
+        rel: 'src/components/ui/bare/AppLink.tsx',
+        contains: "from 'next/link'",
+        reason: 'The public provider page /p/<key> has no locale segment; AppLink links it unprefixed.',
+      },
+    ],
   },
   {
     name: "no raw `next/navigation`",
@@ -172,6 +179,13 @@ const GATES = [
     // `notFound` and `redirect` are fine in a Server Component that is not building an
     // internal href.
     excludeLine: /notFound/,
+    allow: [
+      {
+        rel: 'src/i18n/useRouter.ts',
+        contains: "from 'next/navigation'",
+        reason: 'The locale-aware router itself (client module); it routes /p/<key> through Next unprefixed.',
+      },
+    ],
   },
   {
     name: 'no default exports in components',
