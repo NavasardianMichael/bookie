@@ -93,7 +93,10 @@ export const AssistantPromptForm: FC<Props> = ({
             { max: ASSISTANT_PROMPT_MAX },
           ]}
           messageVariables={{ label: t('descriptionLabel') }}
-          // The counter hangs one line under the box. This keeps an error below it.
+          // The counter hangs one line under the box, and this theme's item margin is
+          // 0 — unlayered, so a utility margin loses. The line height reserves that
+          // line for the counter; the padding does the same once an error shows.
+          style={{ marginBottom: 'var(--ant-font-height)' }}
           className='[&_.ant-form-item-additional]:pt-6'
         >
           <AppTextArea
