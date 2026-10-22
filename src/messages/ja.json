@@ -752,6 +752,7 @@
       "title": "支払い",
       "subtitle": "ご利用中のプラン、有効な機能、Bookie への支払い履歴です。",
       "activePlan": "利用中のプラン",
+      "seePricing": "料金を見る",
       "activeFeature": "有効",
       "history": "支払い履歴",
       "emptyTitle": "支払いはまだありません",

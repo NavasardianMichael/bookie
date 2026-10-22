@@ -752,6 +752,7 @@
       "title": "Zahlungen",
       "subtitle": "Ihr Tarif, die aktivierten Funktionen und die Zahlungen, die Sie bereits an Bookie geleistet haben.",
       "activePlan": "Aktiver Tarif",
+      "seePricing": "Preise ansehen",
       "activeFeature": "Aktiv",
       "history": "Zahlungsverlauf",
       "emptyTitle": "Noch keine Zahlungen",

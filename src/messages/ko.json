@@ -752,6 +752,7 @@
       "title": "결제",
       "subtitle": "이용 중인 요금제, 켜 둔 기능, Bookie에 이미 낸 결제입니다.",
       "activePlan": "이용 중인 요금제",
+      "seePricing": "요금 보기",
       "activeFeature": "사용 중",
       "history": "결제 내역",
       "emptyTitle": "아직 결제가 없습니다",

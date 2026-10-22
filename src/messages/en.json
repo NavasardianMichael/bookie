@@ -752,6 +752,7 @@
       "title": "Payouts",
       "subtitle": "Your plan, the features you have turned on, and the payments you have made to Bookie.",
       "activePlan": "Active plan",
+      "seePricing": "See pricing",
       "activeFeature": "Active",
       "history": "Payment history",
       "emptyTitle": "No payments yet",

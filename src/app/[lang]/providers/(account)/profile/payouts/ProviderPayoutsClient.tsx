@@ -8,7 +8,9 @@ import { ProviderPayment } from '@api/billing/types'
 import { getProviderPlanAPI } from '@api/plans/main'
 import { ProviderPlanWithUsage } from '@interfaces/plans'
 import { ADDON_ORDER, ADDONS, PLANS } from '@constants/plans'
+import { ROUTES } from '@constants/routes'
 import { heldQuantity } from '@helpers/plans'
+import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { EmptyState } from '@components/ui/EmptyState'
@@ -139,6 +141,11 @@ export const ProviderPayoutsClient = () => {
             label={t('activePlan')}
             value={tPlans(`names.${plan.effectivePlan}`)}
             hint={planHint()}
+            action={
+              <AppLink href={ROUTES.pricing} className='text-body-sm font-semibold'>
+                {t('seePricing')}
+              </AppLink>
+            }
           />
           {features.map(({ addon, quantity }) => (
             <StatTile

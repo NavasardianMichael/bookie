@@ -76,7 +76,7 @@ off `headers()`. Do **not** call `setRequestLocale` — it is deprecated. A page
 | Advanced settings | `/providers/profile/advanced` | Time zone, 12/24-hour clock, visitor clock-choices switch. Drafted like Availability |
 | SEO | `/providers/profile/seo` | Title / description / slug, `PATCH /provider-profile/seo` — **saves live, no draft** |
 | Plan | `/providers/profile/plan` | Not a sidebar tab. Current plan, usage, upgrade/switch/cancel, add-ons — `docs/BILLING.md` |
-| Payouts | `/providers/profile/payouts` | Plan + add-on cards (`GET /provider-profile/plan`), settled charges (`GET /billing/payments`) |
+| Payouts | `/providers/profile/payouts` | Plan + add-on cards (`GET /provider-profile/plan`); the plan card links to `/pricing`. Settled charges (`GET /billing/payments`) |
 | Notifications | `/providers/profile/notifications` (and consumer side) | Event prefs, then `TelegramConnect` and (providers) `CalendarFeed` — each saves on its own button |
 
 No settings tab autosaves: Discard / Save, plus Save draft / Publish for providers. A

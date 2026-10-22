@@ -752,6 +752,7 @@
       "title": "Pembayaran",
       "subtitle": "Paket Anda, fitur yang aktif, dan pembayaran yang sudah Anda lakukan ke Bookie.",
       "activePlan": "Paket aktif",
+      "seePricing": "Lihat harga",
       "activeFeature": "Aktif",
       "history": "Riwayat pembayaran",
       "emptyTitle": "Belum ada pembayaran",

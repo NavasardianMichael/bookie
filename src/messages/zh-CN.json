@@ -752,6 +752,7 @@
       "title": "付款",
       "subtitle": "你的方案、已开通的功能，以及你已经付给 Bookie 的款项。",
       "activePlan": "当前方案",
+      "seePricing": "查看价格",
       "activeFeature": "已开通",
       "history": "付款记录",
       "emptyTitle": "还没有付款",

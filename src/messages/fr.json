@@ -752,6 +752,7 @@
       "title": "Paiements",
       "subtitle": "Votre formule, les options activées et les paiements déjà versés à Bookie.",
       "activePlan": "Formule active",
+      "seePricing": "Voir les tarifs",
       "activeFeature": "Active",
       "history": "Historique des paiements",
       "emptyTitle": "Aucun paiement pour le moment",

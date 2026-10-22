@@ -752,6 +752,7 @@
       "title": "Pagamenti",
       "subtitle": "Il tuo piano, le funzioni attivate e i pagamenti già fatti a Bookie.",
       "activePlan": "Piano attivo",
+      "seePricing": "Vedi i prezzi",
       "activeFeature": "Attiva",
       "history": "Cronologia dei pagamenti",
       "emptyTitle": "Nessun pagamento ancora",
