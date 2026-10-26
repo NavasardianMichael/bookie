@@ -32,6 +32,10 @@ re-copy it.
   production.
 - **`proxy_buffering off` on the web host is load-bearing**, not a tuning knob — Next
   streams RSC payloads, and buffering defeats every Suspense boundary.
+- **Every `:443` server sends HSTS, and every `location` with its own `add_header`
+  repeats it.** nginx drops all inherited `add_header`s from a block that declares one,
+  so `/_next/static/` and `/uploads/` would otherwise ship without it. Neither host has a
+  plain-HTTP API path: the API vhost has no `:80` server at all.
 - **`/_next/static/` and `/uploads/` are served from disk; `/_next/image` is not.** It is
   the optimizer and must reach Node.
 - **Two origins, deliberately.** The `bookie_session` cookie is set by the API with
