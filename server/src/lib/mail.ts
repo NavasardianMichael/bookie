@@ -13,7 +13,8 @@ import { config } from '../config.js'
  *
  * So an internal send cannot be aimed anywhere, and an external send must name an
  * address the caller already holds. Never reach for `internal` to mail a user, or
- * `external` to mail ourselves.
+ * `external` to mail ourselves. Replies to an external send reach the engine's owner,
+ * not us — so no mail may ask its reader to reply.
  *
  * **The key never leaves this module.** It is not returned, not put in an error, and
  * not logged — a failed send logs the status and the engine's own message, never the
@@ -23,6 +24,15 @@ import { config } from '../config.js'
 
 /** The engine rejects a request body that omits this; injected here so no caller can forget. */
 const appId = (): string => config.mail.appId
+
+/**
+ * Every external send goes out as `Bookie <bookie@eapps.site>` — the engine owns the
+ * domain; only the part before `@` is ours. Mailbox providers build reputation per sender,
+ * so these stay fixed: one sender for every kind of mail, never varied per call site.
+ * The engine accepts letters, digits and single `.` `_` `-` between them, max 64 chars —
+ * anything else answers `400` on every send.
+ */
+const EXTERNAL_SENDER = { fromName: 'Bookie', mailFromPrefix: 'bookie' } as const
 
 const MAIL_TIMEOUT_MS = 10_000
 
@@ -50,13 +60,16 @@ export type InternalMailPayload = {
   website?: string
 }
 
+/**
+ * No `replyTo`: the engine sends every reply to its owner's inbox and ignores the field.
+ * A reader who needs to reach someone gets a link in the body instead.
+ */
 export type ExternalMailPayload = {
   to: string
   subject: string
   /** One of `text` / `html` is required. Send both so text-only clients render.  */
   text?: string
   html?: string
-  replyTo?: string
 }
 
 export type MailResult =
@@ -129,7 +142,7 @@ export const sendInternalMail = (payload: InternalMailPayload): Promise<MailResu
 
 /** Mail a user at an address they already hold. */
 export const sendExternalMail = (payload: ExternalMailPayload): Promise<MailResult> =>
-  send('/mail/external/send', payload)
+  send('/mail/external/send', { ...EXTERNAL_SENDER, ...payload })
 
 /**
  * The engine sanitises HTML with DOMPurify, which strips scripts and handlers but does

@@ -26,7 +26,7 @@ must name an address the caller already holds and the user has proven.
 import { sendExternalMail, sendInternalMail } from '../lib/mail.js'
 
 await sendInternalMail({ subject, body, senderEmail, firstName: fullName, details })
-await sendExternalMail({ to, subject, text, html, replyTo })
+await sendExternalMail({ to, subject, text, html })
 ```
 
 Both resolve to a `MailResult` — `{ ok: true, messageId? }` or
@@ -53,11 +53,28 @@ website?  (honeypot; must be empty)
 ```
 to  subject          (all required)
 text / html          (at least one; send both so text-only clients render)
-replyTo?
 ```
+
+`mail.ts` also injects the sender on every external send — `fromName: 'Bookie'`,
+`mailFromPrefix: 'bookie'`, so the reader sees **`Bookie <bookie@eapps.site>`**. The engine
+owns the `eapps.site` domain; only the prefix is ours. Keep it fixed: mailbox providers build
+reputation per sender, so varying it per mail type hurts delivery. The engine sends internal
+mail as `"<firstName> via <appId>" <mail-engine@eapps.site>` and takes no sender fields there.
+
+**There is no `replyTo`.** The engine routes every reply to an external send to its owner's
+inbox and ignores the field. So no mail may ask its reader to reply — when they need to reach
+someone, put a link in the body (the provider page, `/bookings`, the contact form).
+Internal mail is different: `senderEmail` *is* the reply-to, so the admin can answer a
+contact message directly.
 
 Engine responses: `200 { success, message, messageId }`; `401` missing key, `403` invalid
 key, `400` validation (with an `errors` array), `429` rate limited, `500` engine fault.
+A `200` means the mail server accepted the message, not that it was delivered — a later
+bounce never reaches us. Request bodies are capped at 100 KB; `text` at 50,000 chars,
+`html` at 100,000, `subject` at 200.
+
+The engine's HTML allow-list keeps inline `style` attributes and drops `<style>` blocks, so
+any styling in a template goes inline.
 
 ## Five things to get right
 
