@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { isGoogleSignUp } from '@helpers/registration'
-import { AppLink } from '@components/ui/bare/AppLink'
+import { APP_LINK_AUX_CLASS, AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { PageShell, Surface } from '@components/ui/layout'
@@ -58,7 +58,7 @@ export default async function ProviderRegistration({ searchParams }: Props) {
 
         <AppParagraph size='body-sm' className='text-center'>
           {tPage('alreadyHaveAccount')}{' '}
-          <AppLink href={ROUTES.signIn} className='text-brand font-bold'>
+          <AppLink href={ROUTES.signIn} className={APP_LINK_AUX_CLASS}>
             {tNav('signIn')}
           </AppLink>
         </AppParagraph>

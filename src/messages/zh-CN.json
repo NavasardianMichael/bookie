@@ -119,7 +119,9 @@
       "noAccount": "第一次使用 Bookie？",
       "createAccount": "创建账户",
       "resendVerification": "重新发送验证链接",
-      "verificationResent": "已发送，请查收邮件。"
+      "verificationResent": "已发送，请查收邮件。",
+      "unverifiedTitle": "请先验证邮箱再登录",
+      "unverifiedBody": "我们已向 {email} 发送了确认链接。打开链接后，再回到这里登录。收件箱里没有？请查看垃圾邮件文件夹，或重新发送链接。"
     },
     "consumerRegistration": {
       "submit": "创建账户"
@@ -1287,11 +1289,13 @@
           "p4": "<b>Telegram</b>——发送通知，仅在您连接后使用。",
           "p5": "<b>Google</b>——为您完成登录，仅在您选择使用 Google 继续时使用。",
           "p6": "<b>Google Gemini</b> — 仅在服务提供者选择使用相关功能时，识别手写预约记录的照片，或服务提供者对其业务的描述。在 Gemini 的免费层级中，Google 可能会使用收到的内容改进其服务。我们不会保存照片或描述。",
-          "p7": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
+          "p7": "<b>Google Analytics</b>——统计访问量和页面使用情况，不用于广告，也不建立用户画像。在欧盟、欧洲经济区、英国和瑞士，仅在您同意后才会设置 Cookie。",
+          "p8": "<b>Sentry</b>——在您的浏览器出现故障时接收报告，包括错误、页面和浏览器类型，不包含您的 Cookie、表单内容或账户信息。",
+          "p9": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
         },
         "cookies": {
           "title": "Cookie",
-          "p1": "我们仅使用绝对必要的 Cookie：一个用于让您保持登录状态最长 7 天，若干短期 Cookie 用于保存进行中的 Google 登录，另一个用于记住您的语言。我们不使用任何广告或分析 Cookie。"
+          "p1": "绝对必要的 Cookie 用于让您保持登录状态最长 7 天、在几分钟内保存进行中的 Google 登录，以及记住您的语言。Google Analytics 的 Cookie 用于统计访问：在欧盟、欧洲经济区、英国和瑞士，仅在您接受后才会设置；在其他地区则默认启用。您可以随时通过每个页面底部的“Cookie 设置”更改选择。我们不使用广告 Cookie。"
         },
         "retention": {
           "title": "我们保存多久",
@@ -1720,5 +1724,13 @@
     "receivedBody": "谢谢！套餐更新可能需要几分钟。Paddle 已通过邮件向你发送收据。",
     "purchaseActiveTitle": "你的购买已生效",
     "purchaseActiveBody": "谢谢！你购买的所有内容现已可用。Paddle 已通过邮件向你发送收据。"
+  },
+  "Consent": {
+    "label": "Cookie 同意",
+    "text": "我们希望使用 Google Analytics 的 Cookie 来了解 Bookie 的使用情况，不用于广告，也不建立用户画像。在您作出选择之前，我们以不使用 Cookie 的方式统计访问。",
+    "privacy": "隐私政策",
+    "accept": "接受",
+    "decline": "拒绝",
+    "settings": "Cookie 设置"
   }
 }

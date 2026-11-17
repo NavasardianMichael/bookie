@@ -164,9 +164,14 @@ const GATES = [
     pattern: /from 'next\/link'/,
     allow: [
       {
-        rel: 'src/components/ui/bare/AppLink.tsx',
+        rel: 'src/components/ui/IntentPrefetchLink.tsx',
         contains: "from 'next/link'",
-        reason: 'The public provider page /p/<key> has no locale segment; AppLink links it unprefixed.',
+        reason: 'The public provider page /p/<key> has no locale segment; AppLink links it unprefixed through here.',
+      },
+      {
+        rel: 'src/components/ui/LinkPendingBar.tsx',
+        contains: "import { useLinkStatus } from 'next/link'",
+        reason: 'Only the hook — it builds no href. next-intl does not re-export it.',
       },
     ],
   },

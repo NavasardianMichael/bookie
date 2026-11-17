@@ -73,6 +73,7 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | "Add from photo" on `/bookings` (Google Gemini) | `server/src/services/bookingImport.ts` · `src/helpers/bookingImport.ts` · `src/components/bookingImport/` — see *Bookings a provider enters* in `docs/DATABASE_STRUCTURE.md` |
 | Telegram, the iCal feed / `.ics` | `server/src/routes/telegram.ts`, `calendar.ts` · `src/components/settings/TelegramConnect.tsx`, `CalendarFeed.tsx` |
 | Terms, Privacy, Refund Policy | `src/components/legal/LegalDocument.tsx` + `src/constants/legal.ts` · copy in `Legal.*` |
+| Google Analytics (page views, `trackEvent`, the cookie-consent banner), Sentry (browser errors only) | `src/constants/monitoring.ts` · `src/helpers/analytics.ts` · `src/helpers/consent.ts` + `src/components/analytics/` · `src/instrumentation-client.ts` · `src/helpers/reportError.ts` · `withSentryConfig` in `next.config.ts` — see `docs/DEPLOYMENT.md` |
 | JSON-LD structured data | `src/linkedDataSchema/` + `src/helpers/jsonLd.ts` |
 | The public provider page's URL (`/p/<slug ?? id>`, no locale segment), its SEO, the sitemap, `llms.txt` | `src/app/[lang]/p/[slug]/` · `src/proxy.ts` · `src/app/sitemap.ts` — see `docs/routes/provider-page.md` |
 | PWA (manifest, service worker, install icons) | `src/app/manifest.ts`, `src/app/sw.js/`, `src/helpers/pwa.ts` |

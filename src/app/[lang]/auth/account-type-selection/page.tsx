@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { GOOGLE_SIGN_UP_QUERY } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
 import { isGoogleSignUp } from '@helpers/registration'
-import { AppLink } from '@components/ui/bare/AppLink'
+import { APP_LINK_AUX_CLASS, AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
@@ -80,7 +80,7 @@ export default async function AccountTypeSelection({ searchParams }: Props) {
 
       <AppParagraph size='body-sm' className='text-center'>
         Already have an account?{' '}
-        <AppLink href={ROUTES.signIn} className='text-brand font-bold'>
+        <AppLink href={ROUTES.signIn} className={APP_LINK_AUX_CLASS}>
           Sign In
         </AppLink>
       </AppParagraph>

@@ -90,5 +90,4 @@ Pure logic where being wrong is expensive and invisible: `booking.ts`, `schedule
 `duration.ts`, `routes.ts`, `images.ts`, `url.ts`, `commons.ts`, `error.ts`, `jsonLd.ts`,
 the `linkedDataSchema/` builders, `pwa.ts` (the worker must stay network-only), `getHeaderConfig`, and every `api/*/processors.ts`.
 
-Not worth testing: `cn.ts` (tests `clsx` + `tailwind-merge`, not us), thin antd wrappers,
-`localStorage.ts` (constants only, no logic).
+Not worth testing: `cn.ts` (tests `clsx` + `tailwind-merge`, not us), thin antd wrappers.

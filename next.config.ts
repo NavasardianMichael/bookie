@@ -2,6 +2,15 @@ import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 import { ROUTES } from '@constants/routes'
 
+/**
+ * Not an `import`: Next transpiles this file with SWC using tsconfig `paths`, and the
+ * catch-all `@*` → `./src/*` rewrites every scoped package — `@sentry/nextjs/config` became
+ * `./src/sentry/nextjs/config` and the build could not load its config. SWC leaves a plain
+ * `require` alone, and `typeof import` keeps it typed.
+ */
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- see above
+const { withSentryConfig } = require('@sentry/nextjs/config') as typeof import('@sentry/nextjs/config')
+
 const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9004')
 const apiIsLoopback =
   apiUrl.hostname === 'localhost' || apiUrl.hostname === '127.0.0.1' || apiUrl.hostname === '::1'
@@ -69,4 +78,19 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withNextIntl(nextConfig)
+/**
+ * Sentry's build step — browser only: there is no `instrumentation.ts`, so neither this
+ * server nor the API reports. Source maps go up only when the build has `SENTRY_AUTH_TOKEN`
+ * (with `SENTRY_ORG` / `SENTRY_PROJECT`, which the plugin reads itself), and are then removed
+ * from the bundle.
+ *
+ * No `tunnelRoute`: in SDK 11.13 the tunnel is answered by the *server* SDK, which this
+ * app does not run, so the browser posts straight to sentry.io. An ad blocker that drops
+ * those requests drops the errors with them.
+ */
+export default withSentryConfig(withNextIntl(nextConfig), {
+  silent: !process.env.CI,
+  telemetry: false,
+  widenClientFileUpload: true,
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+})

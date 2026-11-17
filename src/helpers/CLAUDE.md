@@ -188,7 +188,9 @@ Everything here is pure and framework-free unless the last column says otherwise
 |---|---|
 | `commons.ts#sleep` | Timer |
 | `api.ts#getMockAsFakeAPI` | Unused one-line `Promise.resolve` |
-| `reportError.ts#reportError` | `console.error` — the one seam where a failure is *recorded*. Every deliberately silent catch goes through it, and a monitoring client belongs here and nowhere else |
+| `reportError.ts#reportError` | `console.error` + `Sentry.captureException` (tagged `context`) — the one seam where a failure is *recorded*. Every deliberately silent catch goes through it; call Sentry nowhere else. Sends from the browser only (no server `instrumentation.ts`) and only with `NEXT_PUBLIC_SENTRY_DSN` set |
+| `consent.ts` | GA Consent Mode: `asksForConsent(timeZone)` (the opt-in regions, `@constants/consent`), the banner's `useSyncExternalStore` source, `saveConsent` (localStorage + `gtag consent update`), and `consentDefaultsScript` — the inline twin of `asksForConsent`, pinned by `consent.spec.ts` |
+| `analytics.ts#trackEvent` | A GA4 event from the typed `AnalyticsEvent` list; a no-op without `NEXT_PUBLIC_GA_MEASUREMENT_ID`. Page views are automatic (`components/analytics/Analytics.tsx`) — do not track them by hand. No PII in params |
 | `unsavedChangesGuard.ts` | The leave-page dialog: `beforeunload`, link clicks, Back, and `router.push` / `replace`. Readers come from `useUnsavedChangesGuard` (`src/hooks/`). `isSamePageUrl` in `unsavedChanges.ts` is the pure half |
 
 ## Nearby, easily missed

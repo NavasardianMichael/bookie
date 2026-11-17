@@ -1,3 +1,4 @@
+import { mailSendsLeft } from '../lib/mail.js'
 import { mergeConsumerNotificationPrefs, mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
 import { sendAppointmentReminder } from '../services/bookingNotify.js'
@@ -24,6 +25,13 @@ import {
  * reminder goes out at most once even if a second process ever polls too, and a send that
  * fails after its claim is not retried: a late duplicate is worse than one missed reminder.
  *
+ * **The mail engine's budget is the real batch size.** It allows 10 requests a minute across
+ * everything this server sends, so a sweep stops — *before* claiming — once fewer than
+ * `MAIL_RESERVE` are left, and the unclaimed rest are due again in the next sweep. Claiming
+ * first would have the engine answer `429` and lose them for good. The reserve keeps
+ * request-path mail (verification links, booking confirmations) from queueing behind a
+ * burst of reminders.
+ *
  * Started by `index.ts`, never by `createApp`, so tests and scripts never start it.
  */
 
@@ -31,6 +39,8 @@ const SWEEP_INTERVAL_MS = 60 * 1000
 /** Bounds one sweep; the next one a minute later picks up whatever is left. */
 const SWEEP_BATCH = 200
 const MINUTE_MS = 60 * 1000
+/** Engine requests per window the sweep leaves for mail a person is waiting on. */
+const MAIL_RESERVE = 3
 
 const STAMP_FIELD: Record<ReminderSide, 'providerRemindedAt' | 'bookerRemindedAt'> = {
   provider: 'providerRemindedAt',
@@ -83,6 +93,11 @@ export const runReminderSweep = async (now: Date): Promise<number> => {
     for (const side of ['provider', 'booker'] as const) {
       const state = reminderState(row, side, preference[side], now)
       if (state === 'done' || state === 'later') continue
+      // Rows are in start order, so what this leaves is the latest-starting — and a
+      // reminder stays `due` until its booking starts, so it goes out late, not never.
+      // Telegram-only recipients wait too: which channels a side gets is decided inside
+      // the send, after the claim.
+      if (state === 'due' && mailSendsLeft() <= MAIL_RESERVE) return sent
       if (!(await claim(row.id, side, now))) continue
       // A side that will never be reminded is stamped without sending, so it stops
       // coming back in every sweep and crowding out the ones that are due.

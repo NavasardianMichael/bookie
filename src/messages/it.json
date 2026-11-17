@@ -119,7 +119,9 @@
       "noAccount": "Nuovo su Bookie?",
       "createAccount": "Crea un account",
       "resendVerification": "Invia di nuovo il link di verifica",
-      "verificationResent": "Inviato. Controlla la tua casella di posta."
+      "verificationResent": "Inviato. Controlla la tua casella di posta.",
+      "unverifiedTitle": "Conferma la tua email per accedere",
+      "unverifiedBody": "Abbiamo inviato un link di conferma a {email}. Aprilo, poi accedi qui. Non lo trovi nella posta in arrivo? Controlla la cartella spam o fatti inviare di nuovo il link."
     },
     "consumerRegistration": {
       "submit": "Crea account"
@@ -1287,11 +1289,13 @@
           "p4": "<b>Telegram</b> — recapita le notifiche, solo se lo colleghi.",
           "p5": "<b>Google</b> — gestisce il tuo accesso, solo se scegli di continuare con Google.",
           "p6": "<b>Google Gemini</b> — legge la foto di prenotazioni scritte a mano o la descrizione che un fornitore dà della sua attività, solo quando un fornitore sceglie di usare queste funzioni. Con il livello gratuito di Gemini, Google può usare ciò che riceve per migliorare i suoi servizi. Non conserviamo né la foto né la descrizione.",
-          "p7": "I dettagli di una prenotazione sono condivisi con il professionista presso cui viene effettuata, e i recapiti pubblici del professionista con il cliente: è proprio questo una prenotazione."
+          "p7": "<b>Google Analytics</b> — conta le visite e come vengono usate le pagine, senza pubblicità né profilazione. Nell’UE, nel SEE, nel Regno Unito e in Svizzera imposta cookie solo dopo il tuo consenso.",
+          "p8": "<b>Sentry</b> — riceve una segnalazione quando qualcosa non funziona nel tuo browser: l’errore, la pagina e il tipo di browser, senza i tuoi cookie, il contenuto dei moduli o i dati del tuo account.",
+          "p9": "I dettagli di una prenotazione sono condivisi con il professionista presso cui viene effettuata, e i recapiti pubblici del professionista con il cliente: è proprio questo una prenotazione."
         },
         "cookies": {
           "title": "Cookie",
-          "p1": "Usiamo solo cookie strettamente necessari: uno che mantiene attivo il tuo accesso fino a 7 giorni, alcuni di breve durata che conservano un accesso con Google in corso e uno che ricorda la tua lingua. Non usiamo cookie pubblicitari né di analisi."
+          "p1": "I cookie strettamente necessari mantengono attivo il tuo accesso fino a 7 giorni, conservano per pochi minuti un accesso con Google in corso e ricordano la tua lingua. I cookie di Google Analytics contano le visite: nell’UE, nel SEE, nel Regno Unito e in Svizzera li impostiamo solo se accetti, altrove sono attivi per impostazione predefinita. Puoi cambiare la tua scelta in qualsiasi momento da «Impostazioni cookie», in fondo a ogni pagina. Non usiamo cookie pubblicitari."
         },
         "retention": {
           "title": "Per quanto tempo li conserviamo",
@@ -1720,5 +1724,13 @@
     "receivedBody": "Grazie! L'aggiornamento del piano può richiedere qualche minuto. Paddle ti ha inviato una ricevuta via email.",
     "purchaseActiveTitle": "Il tuo acquisto è attivo",
     "purchaseActiveBody": "Grazie! Tutto ciò che hai acquistato è già disponibile. Paddle ti ha inviato una ricevuta via email."
+  },
+  "Consent": {
+    "label": "Consenso ai cookie",
+    "text": "Vorremmo usare i cookie di Google Analytics per capire come viene usato Bookie, senza pubblicità né profilazione. Finché non scegli, contiamo le visite senza cookie.",
+    "privacy": "Informativa sulla privacy",
+    "accept": "Accetta",
+    "decline": "Rifiuta",
+    "settings": "Impostazioni cookie"
   }
 }

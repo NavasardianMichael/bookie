@@ -1,3 +1,4 @@
+import { createMailBudget } from './mail-budget.js'
 import { config } from '../config.js'
 
 /**
@@ -35,6 +36,9 @@ const appId = (): string => config.mail.appId
 const EXTERNAL_SENDER = { fromName: 'Bookie', mailFromPrefix: 'bookie' } as const
 
 const MAIL_TIMEOUT_MS = 10_000
+
+/** The engine's rate-limit window, as its last response reported it (`lib/mail-budget.ts`). */
+const budget = createMailBudget()
 
 /**
  * Contact-form shape. Every field but `appId` is optional — the engine substitutes its
@@ -92,6 +96,14 @@ type MailEngineResponse = {
  */
 export const isMailConfigured = (): boolean => Boolean(config.mail.apiUrl && config.mail.apiKey)
 
+/**
+ * Requests left in the engine's current rate-limit window — shared by every send this
+ * process makes, on both endpoints. `Infinity` when unconfigured or before any response
+ * has reported it. Background senders check this before committing to a send; request
+ * paths just send, and a spent window answers them `429` without reaching the engine.
+ */
+export const mailSendsLeft = (): number => (isMailConfigured() ? budget.remaining(Date.now()) : Infinity)
+
 /** Joined by hand rather than `new URL(path, base)`, which would discard a base path. */
 const mailUrl = (path: string): string => `${config.mail.apiUrl}${path}`
 
@@ -104,6 +116,15 @@ const describeFailure = (status: number, parsed: MailEngineResponse | null): str
 const send = async (path: string, payload: object): Promise<MailResult> => {
   if (!isMailConfigured()) {
     return { ok: false, status: 0, message: 'Mail engine is not configured' }
+  }
+
+  // The engine has already said no until its window rolls over; asking again only spends
+  // a round trip on the same `429`.
+  const blockedFor = budget.blockedForSeconds(Date.now())
+  if (blockedFor !== null) {
+    const message = `Mail engine rate limit reached; resets in ${blockedFor}s`
+    console.error(`[mail] ${path} not sent: ${message}`)
+    return { ok: false, status: 429, message }
   }
 
   let response: Response
@@ -124,6 +145,7 @@ const send = async (path: string, payload: object): Promise<MailResult> => {
     return { ok: false, status: 0, message }
   }
 
+  budget.observe(response.headers, response.status, Date.now())
   const parsed = (await response.json().catch(() => null)) as MailEngineResponse | null
 
   if (!response.ok || parsed?.success === false) {
@@ -133,6 +155,9 @@ const send = async (path: string, payload: object): Promise<MailResult> => {
     return { ok: false, status: response.status, message }
   }
 
+  // A 200 is acceptance, not delivery: a later bounce never reaches us. The engine's owner
+  // traces a missing email by this id, so it is logged — the recipient is not.
+  console.info(`[mail] ${path} accepted ${parsed?.messageId ?? '(no messageId)'}`)
   return { ok: true, messageId: parsed?.messageId }
 }
 

@@ -19,6 +19,12 @@
 #   NEXT_PUBLIC_PADDLE_CLIENT_TOKEN   live client-side token (public by design)
 #   NEXT_PUBLIC_PADDLE_ENV            `production`, matching the API's PADDLE_SANDBOX
 #
+# OPTIONAL (Secrets or Variables) — monitoring; empty turns each one off:
+#   NEXT_PUBLIC_GA_MEASUREMENT_ID     Google Analytics 4, `G-XXXXXXXX`
+#   NEXT_PUBLIC_SENTRY_DSN            Sentry, browser errors only
+#   SENTRY_ORG, SENTRY_PROJECT        source-map upload, with SENTRY_AUTH_TOKEN
+#   SENTRY_AUTH_TOKEN                 Secret only — never a Variable
+#
 # The two NEXT_PUBLIC_* values are inlined into the browser bundle, so they are
 # public by construction. They may live as repository Secrets or Variables —
 # this workflow reads secrets.* first, then vars.*. Those are different stores:
@@ -142,6 +148,11 @@ jobs:
       NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || vars.NEXT_PUBLIC_SITE_URL }}
       NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || vars.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN }}
       NEXT_PUBLIC_PADDLE_ENV: ${{ secrets.NEXT_PUBLIC_PADDLE_ENV || vars.NEXT_PUBLIC_PADDLE_ENV }}
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID || vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+      NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN || vars.NEXT_PUBLIC_SENTRY_DSN }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG || vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT || vars.SENTRY_PROJECT }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5

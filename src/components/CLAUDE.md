@@ -26,8 +26,16 @@ that imports it fails at **build** time — the only reason `ui/icons.tsx` exist
 ui/bare/      antd-free BY CONTRACT — server-renderable. Never import antd here.
 ui/layout/    antd-free page structure. Same contract.
 ui/           antd wrappers — client islands (AppButton, AppInput, AppTextArea, AppFormItem,
-              AppSheet, AppConfirmModal, CopyableLinkValue, ErrorState, ErrorAlert)
+              AppSheet, AppConfirmModal, CopyableLinkValue, ErrorState, ErrorAlert) — plus
+              AppLink's two antd-free client halves, LinkPendingBar and IntentPrefetchLink
 ```
+
+**Navigation feedback lives in `AppLink`, so a call site never adds it.** Every router link
+renders a `LinkPendingBar` (`useLinkStatus` → a portalled top-of-window bar, shown only
+while a click waits on a route Next did not prefetch), and `/p/<key>` links go through
+`IntentPrefetchLink`, which full-prefetches on hover, focus or touch start. Do not add a
+per-link spinner, a second progress bar, or `prefetch={true}` on a list of cards — the why is
+*Navigation* in `src/app/CLAUDE.md`.
 
 **`ui/index.ts` re-exports only `./bare` and `./layout`, deliberately** — an antd wrapper
 there would pull antd's runtime into every route that merely wants an `AppTitle`. Import
@@ -50,6 +58,13 @@ Feature folders outside the tiers:
   reuse the tabs' fields rather than copying them: `settings/AvailabilityDayRow` (the
   Availability tab's day editor, bound under any `name` path), `settings/TimeFormatToggle`,
   and `ProviderServiceForm` with `withImage={false}`.
+- `analytics/` — the GA4 tag (`Analytics`, `@next/third-parties`) and Consent Mode:
+  `AnalyticsConsentDefaults` (inline script, top of `<body>`, before the tag),
+  `ConsentBanner` (in `App`, shown only where an opt-in is required — EU/EEA, UK,
+  Switzerland or an unknown zone; elsewhere analytics is on and nothing shows) and
+  `ConsentSettingsLink` (footer). Rules live in `@helpers/consent`; ✕ is not a yes. All
+  render nothing without `NEXT_PUBLIC_GA_MEASUREMENT_ID`. Events go through
+  `@helpers/analytics#trackEvent`.
 - `legal/LegalDocument` (antd-free), `brand/PoweredByBookie` (reads the plan-neutral
   `details.showPoweredBy`, never the plan), `settings/TelegramConnect` and
   `settings/CalendarFeed` (each saves on its own button, outside the tab's Save).
@@ -114,7 +129,7 @@ Every surface below goes through `classifyError` (`src/helpers/error.ts`) and
 | A panel has nothing to show because its load failed | **`ui/ErrorState`** | Full block (antd `Result`). Takes `error` for dev details. |
 | Inline — a load, a save, a partial failure | **`ui/ErrorAlert`** | Takes the raw `error`, never a string. `onRetry` shows Try again only when the kind is retryable; `tone='warning'` for a partial failure the screen works around. |
 | No inline home — a toggle, a delete, a background refresh | **`useErrorToast`** (`src/hooks/`) | antd `notification`; same copy, dev details and Retry. `key` collapses repeats. |
-| Deliberately not shown (decorative badge, prefill, SW registration) | **`reportError`** (`src/helpers/`) | The one seam a monitoring client would plug into. Silent must never mean invisible. |
+| Deliberately not shown (decorative badge, prefill, SW registration) | **`reportError`** (`src/helpers/`) | Logs and sends to Sentry (browser only) — the one seam monitoring plugs into. Silent must never mean invisible. |
 | Nobody handled it at all | `errors/UnhandledErrorListener` (mounted in `App.tsx`) | Toasts a failed API call or a stale build in production, everything in development. |
 
 Four rules that keep it honest:
@@ -188,6 +203,12 @@ popup trigger needs the same two lines. (`ProviderServiceCard` still reaches pas
 - Responsive variants are a **last resort**; prefer fluidity (`clamp()` type,
   `app-gutter-x`, `auto-fill/minmax` grids, `dvh`). The JS counterpart,
   `Grid.useBreakpoint()`, is used only in `AppSheet`.
+- **`AppLink` keeps its look inside antd.** antd's reset, scoped to every component root
+  (Form, Modal, Drawer, Collapse…), paints `a` with `text-decoration: none` and colorLink,
+  unlayered. The `inline` and `plain` variants carry `app-link-inline` / `app-link-plain`,
+  unlayered rules in `globals.css` that win back. Do not re-add the underline per call site.
+  Auth pages' secondary links (Forgot password, Create an account, Sign in) all take
+  `APP_LINK_AUX_CLASS`.
 - Spacing between form fields is the parent flex `gap` — `theme.ts` sets
   `Form.itemMarginBottom: 0`. No `mb-*!` classes.
 - **Do not pass `size='large'`** on antd controls, wrappers, or `Spin`. The remaining call

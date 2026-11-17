@@ -8,6 +8,7 @@ import { setDayjsLocale } from '@i18n/dayjs'
 import { type DirectoryPresence } from '@constants/header'
 import { installUnsavedChangesGuard } from '@helpers/unsavedChangesGuard'
 import { antdTheme } from '@styles/theme'
+import { ConsentBanner } from './analytics/ConsentBanner'
 import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { UnhandledErrorListener } from './errors/UnhandledErrorListener'
 import { Header } from './header/Header'
@@ -61,6 +62,7 @@ export const App: FC<AppProps> = ({ antdLocale, children, direction, directory, 
           </main>
           <Footer />
         </div>
+        <ConsentBanner />
         {process.env.NODE_ENV !== 'production' && <BreakpointInvariant />}
       </AntApp>
     </ConfigProvider>

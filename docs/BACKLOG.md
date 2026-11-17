@@ -209,6 +209,24 @@ next to the verification one. Not done here to keep a production fix narrow.
 No `KNOWN BUG:` test accompanies this one: the behaviour is currently *correct*, and a test
 asserting the two constants match is the fix rather than a record of a defect.
 
+### 13. Every proxy *rewrite* answers 500 in production — the public provider page included
+
+Found 2026-11-16 against `bookie.mnavasardian.com`: `GET /p/<key>` (document and RSC alike)
+and `GET /<lang>/opengraph-image` are **500**, with
+`x-middleware-rewrite: https://localhost:7004/en/p/<key>`. The proxy's redirects are fine,
+because their `Location` is relativized; only `NextResponse.rewrite` breaks.
+
+Likely cause, not yet reproduced: `resolve-routes.js` builds the request's `initUrl` from
+`X-Forwarded-Proto` plus the bind address, `https://127.0.0.1:7004` under
+`bookie-web.service`'s `HOSTNAME=127.0.0.1`, while `request.nextUrl` in the proxy says
+`localhost`. `getRelativeURL` therefore fails to relativize the target, Next treats it as an
+**external** rewrite, and proxies over TLS to a plain-HTTP port. To reproduce:
+`pnpm build`, run `.next/standalone/server.js` with `HOSTNAME=127.0.0.1 PORT=7004`, and
+`curl -H 'X-Forwarded-Proto: https' localhost:7004/p/<key>`. Candidate fixes are making the
+two hosts agree (bind address vs `nextUrl`) or building the target from the forwarded host.
+`next start` and `pnpm dev` do not show it. No `KNOWN BUG:` test: the unit suite runs
+neither a build nor the standalone server.
+
 ---
 
 ## Plans, billing and notifications — what was knowingly left open
@@ -255,9 +273,12 @@ are the edges they knowingly stop at:
 - **A failed reminder is not retried.** The job claims the send before making it, so a mail
   or Telegram outage at that minute loses the reminder. Deliberate (a late duplicate is
   worse), but a retry with the claim released on failure is possible.
-- **Reminders reach only what is in the next sweep batch.** 200 bookings per minute; a burst
-  beyond that is drained over the following minutes, so a 15-minute reminder could arrive
-  late on a very busy instance.
+- **Reminder throughput is the mail engine's budget: about 7 a minute.** The engine allows
+  10 requests a minute for the whole API and the sweep leaves 3 for request-path mail
+  (`docs/NOTIFICATIONS.md`), so a burst is drained over the following minutes and a
+  15-minute reminder can arrive late on a busy instance. Telegram-only recipients queue
+  behind it too. Raising the engine's limit for this app, or sending a side's Telegram
+  copy before checking the mail budget, would relieve it.
 - **Guest bookings can spend a free provider's allowance.** `POST /appointments` is public
   and rate-limited to 20/hour per address, so a hostile visitor could fill 50 in a few
   hours. A pending booking counts; declining it gives the place back.
@@ -279,10 +300,13 @@ are the edges they knowingly stop at:
 The error pipeline (`src/components/CLAUDE.md` → *Errors*, `server/CLAUDE.md` → *The response
 envelope*) covers every surface. These are the edges it deliberately stops at:
 
-- **No monitoring.** `src/helpers/reportError.ts` is `console.error`, so a failure a visitor
-  sees is recorded only in their own console, and the digest an error page shows can be
-  matched only against the API's stdout. A monitoring client plugs in there and nowhere
-  else; the choice of service is open.
+- **Monitoring is browser-only.** Sentry (`src/instrumentation-client.ts`, fed by
+  `reportError`) sees what fails in the visitor's browser. Next's own server — Server
+  Component renders, the proxy — and the Express API still log only to stdout, so the
+  digest an error page shows is matched there by hand. Server-side Sentry would be an
+  `src/instrumentation.ts` registering `Sentry.init` and `onRequestError`; left out by choice.
+  Without it there is also no ad-blocker tunnel — Sentry's is served by its server SDK — so
+  a visitor whose blocker drops sentry.io requests goes unreported.
 - **The envelope `code` means three things.** The HTTP status on most routes, `-1` on
   many 400s (`HttpError`'s default), and an `AUTH_ERROR` code on `/identity/*`. The client
   classifies by HTTP **status** and treats only the `AUTH_ERROR` range and the slot-taken

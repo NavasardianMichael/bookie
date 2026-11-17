@@ -14,7 +14,7 @@ export {
   type AppDescriptionListItem,
   type AppDescriptionListProps,
 } from './AppDescriptionList'
-export { APP_LINK_META_CLASS, AppLink, type AppLinkTone, type AppLinkVariant } from './AppLink'
+export { APP_LINK_AUX_CLASS, APP_LINK_META_CLASS, AppLink, type AppLinkTone, type AppLinkVariant } from './AppLink'
 export { AppParagraph } from './AppParagraph'
 export { AppText, type AppTextTag } from './AppText'
 export { AppTime } from './AppTime'

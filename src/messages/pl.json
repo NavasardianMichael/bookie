@@ -119,7 +119,9 @@
       "noAccount": "Pierwszy raz w Bookie?",
       "createAccount": "Utwórz konto",
       "resendVerification": "Wyślij link weryfikacyjny ponownie",
-      "verificationResent": "Wysłano. Sprawdź skrzynkę odbiorczą."
+      "verificationResent": "Wysłano. Sprawdź skrzynkę odbiorczą.",
+      "unverifiedTitle": "Potwierdź adres e-mail, aby się zalogować",
+      "unverifiedBody": "Wysłaliśmy link potwierdzający na adres {email}. Otwórz go, a potem zaloguj się tutaj. Nie ma go w skrzynce? Sprawdź folder spam lub wyślij link ponownie."
     },
     "consumerRegistration": {
       "submit": "Utwórz konto"
@@ -1287,11 +1289,13 @@
           "p4": "<b>Telegram</b> — dostarcza powiadomienia, tylko jeśli go połączysz.",
           "p5": "<b>Google</b> — obsługuje logowanie, tylko jeśli zdecydujesz się kontynuować przez Google.",
           "p6": "<b>Google Gemini</b> — odczytuje zdjęcie odręcznych rezerwacji lub opis działalności podany przez usługodawcę, tylko gdy usługodawca zdecyduje się skorzystać z tych funkcji. W bezpłatnym planie Gemini Google może wykorzystywać otrzymane dane do ulepszania swoich usług. Nie przechowujemy ani zdjęcia, ani opisu.",
-          "p7": "Szczegóły rezerwacji są udostępniane usługodawcy, u którego jej dokonano, a publiczne dane kontaktowe usługodawcy — klientowi. Na tym właśnie polega rezerwacja."
+          "p7": "<b>Google Analytics</b> — liczy wizyty i sposób korzystania ze stron, bez reklam i bez profilowania. W UE, EOG, Wielkiej Brytanii i Szwajcarii zapisuje pliki cookie dopiero po wyrażeniu przez Ciebie zgody.",
+          "p8": "<b>Sentry</b> — otrzymuje raport, gdy coś przestanie działać w Twojej przeglądarce: błąd, stronę i typ przeglądarki, bez Twoich plików cookie, treści formularzy i danych konta.",
+          "p9": "Szczegóły rezerwacji są udostępniane usługodawcy, u którego jej dokonano, a publiczne dane kontaktowe usługodawcy — klientowi. Na tym właśnie polega rezerwacja."
         },
         "cookies": {
           "title": "Pliki cookie",
-          "p1": "Używamy wyłącznie niezbędnych plików cookie: jednego, który utrzymuje sesję logowania do 7 dni, krótkotrwałych, które przechowują trwające logowanie przez Google, oraz jednego, który zapamiętuje Twój język. Nie używamy reklamowych ani analitycznych plików cookie."
+          "p1": "Niezbędne pliki cookie utrzymują sesję logowania do 7 dni, przez kilka minut przechowują trwające logowanie przez Google i zapamiętują Twój język. Pliki cookie Google Analytics liczą wizyty: w UE, EOG, Wielkiej Brytanii i Szwajcarii zapisujemy je tylko po Twojej zgodzie, a w pozostałych krajach są domyślnie włączone. Swój wybór możesz w każdej chwili zmienić za pomocą opcji „Ustawienia plików cookie” na dole każdej strony. Nie używamy reklamowych plików cookie."
         },
         "retention": {
           "title": "Jak długo je przechowujemy",
@@ -1720,5 +1724,13 @@
     "receivedBody": "Dziękujemy! Aktualizacja planu może potrwać kilka minut. Paddle wysłał Ci potwierdzenie płatności e-mailem.",
     "purchaseActiveTitle": "Zakup jest aktywny",
     "purchaseActiveBody": "Dziękujemy! Wszystko, co kupiono, jest już dostępne. Paddle wysłał potwierdzenie e-mailem."
+  },
+  "Consent": {
+    "label": "Zgoda na pliki cookie",
+    "text": "Chcielibyśmy używać plików cookie Google Analytics, aby zrozumieć, jak jest używany Bookie — bez reklam i bez profilowania. Dopóki nie wybierzesz, liczymy wizyty bez plików cookie.",
+    "privacy": "Polityka prywatności",
+    "accept": "Akceptuję",
+    "decline": "Odrzucam",
+    "settings": "Ustawienia plików cookie"
   }
 }

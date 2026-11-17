@@ -12,12 +12,12 @@ import { AUTH_ERROR_CODES, GOOGLE_ERROR_CODES, GoogleErrorCode } from '@constant
 import { ROUTES } from '@constants/routes'
 import { processError, UserFacingError } from '@helpers/error'
 import { AppButton } from '@components/ui/AppButton'
-import { AppLink } from '@components/ui/bare/AppLink'
+import { APP_LINK_AUX_CLASS, AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
-import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
 import { MailIcon } from '@components/ui/icons'
+import { UnverifiedEmailNotice } from './UnverifiedEmailNotice'
 import { GoogleButton } from '../components/GoogleButton'
 import { PasswordField } from '../components/PasswordField'
 import { RegistrationField } from '../components/RegistrationField'
@@ -29,8 +29,6 @@ type SignInFormValues = {
 
 const isGoogleErrorCode = (value?: string): value is GoogleErrorCode =>
   !!value && (GOOGLE_ERROR_CODES as readonly string[]).includes(value)
-
-const AUX_LINK_CLASS = 'text-body-sm font-semibold'
 
 type Props = {
   /**
@@ -44,10 +42,10 @@ type Props = {
 /**
  * Sign-in: email and password, or Google.
  *
- * Errors show **inline** rather than as a toast, because two of them are actionable — an
- * unverified account offers to resend its link, and every Google failure arrives as an
+ * Errors show **inline** rather than as a toast: every Google failure arrives as an
  * `?error=` code on the URL rather than as a rejected request, so there is no throw to
- * catch and nothing to attach a toast to.
+ * catch and nothing to attach a toast to. An unverified account is not an error at all —
+ * it gets `UnverifiedEmailNotice`, a step still to take, with the resend as its action.
  */
 export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
   const t = useTranslations('Auth')
@@ -89,10 +87,10 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
       unsaved.release()
       push(session.role === 'provider' ? ROUTES.providerProfile : ROUTES.home)
     } catch (err) {
-      // Code, not message: the client has to render a *button* for this one branch, and
-      // string-matching an error message is not a contract.
+      // Code, not message: this branch is not a failure to report but a step still to take,
+      // so it gets its own notice and button, and string-matching a message is no contract.
       if (processError(err).code === AUTH_ERROR_CODES.emailUnverified) setUnverifiedEmail(values.email)
-      setError(err)
+      else setError(err)
     }
   }
 
@@ -110,17 +108,6 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
   }
 
   const displayError = error !== null ? error : googleError
-
-  const resendAction =
-    error !== null && unverifiedEmail ? (
-      resent ? (
-        <AppText size='caption'>{t('signIn.verificationResent')}</AppText>
-      ) : (
-        <AppButton type='link' size='small' loading={isResending} onClick={handleResend}>
-          {t('signIn.resendVerification')}
-        </AppButton>
-      )
-    ) : undefined
 
   return (
     <>
@@ -146,9 +133,11 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
         layout='vertical'
         requiredMark={false}
         onFinish={handleFinish}
-        onValuesChange={() => {
+        onValuesChange={(changed: Partial<SignInFormValues>) => {
           unsaved.mark()
           setError(null)
+          // The notice names the address it is about; a different address voids it.
+          if ('email' in changed) setUnverifiedEmail(null)
         }}
         scrollToFirstError
         className='flex w-full flex-col gap-4'
@@ -173,10 +162,20 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
           disabled={isPending}
         />
 
-        {displayError !== null && <ErrorAlert error={displayError} action={resendAction} />}
+        {unverifiedEmail && (
+          <UnverifiedEmailNotice
+            email={unverifiedEmail}
+            isResending={isResending}
+            resent={resent}
+            onResend={handleResend}
+          />
+        )}
+
+        {/* A failed resend is a real failure, so it still arrives here, under the notice. */}
+        {displayError !== null && <ErrorAlert error={displayError} />}
 
         <div className='text-end'>
-          <AppLink href={ROUTES.forgotPassword} className={AUX_LINK_CLASS}>
+          <AppLink href={ROUTES.forgotPassword} className={APP_LINK_AUX_CLASS}>
             {t('signIn.forgotPassword')}
           </AppLink>
         </div>
@@ -190,7 +189,7 @@ export const SignInForm: FC<Props> = ({ googleErrorCode }) => {
         <AppParagraph size='body-sm' className='m-0'>
           {t('signIn.noAccount')}
         </AppParagraph>
-        <AppLink href={ROUTES.accountTypeSelection} className={AUX_LINK_CLASS}>
+        <AppLink href={ROUTES.accountTypeSelection} className={APP_LINK_AUX_CLASS}>
           {t('signIn.createAccount')}
         </AppLink>
       </div>

@@ -26,7 +26,8 @@ Modules worth knowing by name:
   `organizations.ts`, `profileAssistant.ts` (the assistant's prompt, schema, narrowing and
   service diff); `lib/paddle-signature.ts`, `assistant-errors.ts`, `ics.ts`, `telegram-updates.ts`,
   `notice-render.ts`, `return-path.ts`, `booking-errors.ts`, `error-response.ts`,
-  `service-availability.ts`; `services/providerSeoFingerprint.ts` (what moves a provider
+  `service-availability.ts`, `mail-budget.ts` (the engine's rate-limit window, read from its
+  response headers); `services/providerSeoFingerprint.ts` (what moves a provider
   page's sitemap `lastmod` — its I/O half is `providerSeoStamp.ts`).
   Their I/O halves (`billingSync`, `notify`, `bookingNotify`, `planUsage`, `exploreResults`)
   are not.
@@ -110,6 +111,8 @@ hostname (the web host, which covers the API subdomain).
 - **`internal` reaches us, `external` reaches a user.** Never swap them.
 - **Escape visitor-authored text before it reaches an HTML body** (`escapeHtml`).
 - **A public route that sends must rate-limit at our edge first** (`lib/rateLimit.ts`).
+- **A background sender checks `mailSendsLeft()` before it claims a send.** The engine's
+  10/minute is shared by every send on both endpoints; see the reminder job.
 - **Unconfigured is normal in dev, an outage in production**: log and succeed locally,
   `503` in production. `MailResult` never throws, so an ignored return value is a dropped
   email. A send that follows a committed write (booking mail, review report) logs and

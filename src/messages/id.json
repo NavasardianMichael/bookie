@@ -119,7 +119,9 @@
       "noAccount": "Baru di Bookie?",
       "createAccount": "Buat akun",
       "resendVerification": "Kirim ulang tautan verifikasi",
-      "verificationResent": "Terkirim. Periksa kotak masuk Anda."
+      "verificationResent": "Terkirim. Periksa kotak masuk Anda.",
+      "unverifiedTitle": "Konfirmasi email Anda untuk masuk",
+      "unverifiedBody": "Kami telah mengirim tautan konfirmasi ke {email}. Buka tautan tersebut, lalu masuk di sini. Tidak ada di kotak masuk? Periksa folder spam, atau minta tautan dikirim ulang."
     },
     "consumerRegistration": {
       "submit": "Buat akun"
@@ -1287,11 +1289,13 @@
           "p4": "<b>Telegram</b> — mengirimkan notifikasi, hanya jika Anda menghubungkannya.",
           "p5": "<b>Google</b> — menangani proses masuk Anda, hanya jika Anda memilih untuk melanjutkan dengan Google.",
           "p6": "<b>Google Gemini</b> — membaca foto catatan pemesanan tulisan tangan atau deskripsi bisnis dari penyedia, hanya ketika penyedia memilih menggunakan fitur tersebut. Di tingkat gratis Gemini, Google dapat menggunakan data yang diterimanya untuk meningkatkan layanannya. Kami tidak menyimpan foto maupun deskripsinya.",
-          "p7": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
+          "p7": "<b>Google Analytics</b> — menghitung kunjungan dan cara halaman digunakan, tanpa iklan dan tanpa pembuatan profil. Di UE, EEA, Inggris, dan Swiss, layanan ini hanya memasang cookie setelah Anda setuju.",
+          "p8": "<b>Sentry</b> — menerima laporan saat terjadi kegagalan di browser Anda: galatnya, halamannya, dan jenis browser Anda, tanpa cookie, isi formulir, atau data akun Anda.",
+          "p9": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
         },
         "cookies": {
           "title": "Cookie",
-          "p1": "Kami hanya menggunakan cookie yang benar-benar diperlukan: satu cookie yang membuat Anda tetap masuk hingga 7 hari, cookie berumur pendek yang menyimpan proses masuk Google yang sedang berlangsung, dan satu cookie yang mengingat bahasa Anda. Kami tidak menggunakan cookie iklan atau analitik."
+          "p1": "Cookie yang benar-benar diperlukan membuat Anda tetap masuk hingga 7 hari, menyimpan proses masuk Google yang sedang berlangsung selama beberapa menit, dan mengingat bahasa Anda. Cookie Google Analytics menghitung kunjungan: di UE, EEA, Inggris, dan Swiss kami hanya memasangnya jika Anda menerima, sedangkan di tempat lain cookie ini aktif secara bawaan. Anda dapat mengubah pilihan kapan saja melalui “Pengaturan cookie” di bagian bawah setiap halaman. Kami tidak menggunakan cookie iklan."
         },
         "retention": {
           "title": "Berapa lama kami menyimpannya",
@@ -1720,5 +1724,13 @@
     "receivedBody": "Terima kasih! Pembaruan paket Anda mungkin memerlukan beberapa menit. Paddle telah mengirimkan tanda terima ke email Anda.",
     "purchaseActiveTitle": "Pembelian Anda aktif",
     "purchaseActiveBody": "Terima kasih! Semua yang Anda beli sudah tersedia. Paddle telah mengirimkan tanda terima lewat email."
+  },
+  "Consent": {
+    "label": "Persetujuan cookie",
+    "text": "Kami ingin menggunakan cookie Google Analytics untuk memahami cara Bookie digunakan, tanpa iklan dan tanpa pembuatan profil. Sampai Anda memilih, kami menghitung kunjungan tanpa cookie.",
+    "privacy": "Kebijakan Privasi",
+    "accept": "Terima",
+    "decline": "Tolak",
+    "settings": "Pengaturan cookie"
   }
 }

@@ -158,6 +158,12 @@ the Paddle webhook is `https://api.<domain>/billing/webhook`, the Telegram one
 needs two optional repository Secrets or Variables, inlined at build time like the origins:
 `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` and `NEXT_PUBLIC_PADDLE_ENV` (`production` for live).
 
+**Analytics and error reporting are optional too**, and also inlined at build time:
+`NEXT_PUBLIC_GA_MEASUREMENT_ID` (Google Analytics 4) and `NEXT_PUBLIC_SENTRY_DSN` (Sentry,
+browser errors only, posted straight to sentry.io — no tunnel, since Sentry's is served by
+its server SDK, which this app does not run). Readable stack traces need `SENTRY_ORG`, `SENTRY_PROJECT` and a `SENTRY_AUTH_TOKEN`
+**Secret**; without them the build skips the source-map upload and still succeeds.
+
 For the Google credential, `server/.env.example` carries the full console walkthrough —
 which scopes to request, and what to put in **Authorized redirect URIs** (one entry per
 environment, pointing at the **API** host) and **Authorized JavaScript origins** (nothing:

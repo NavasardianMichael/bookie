@@ -84,6 +84,25 @@ No settings tab autosaves: Discard / Save, plus Save draft / Publish for provide
 control the plan does not allow is disabled with a link to the Plan tab; the API refuses
 the write regardless.
 
+## Navigation
+
+Because every route is `ƒ` (above), Next prefetches a link only **down to its nearest
+`loading.tsx`**, and a route with none not at all — the click then waits on the whole server
+render. (`next dev` prefetches nothing and compiles each route on first visit, so judge
+navigation speed on `pnpm build && pnpm start`, not in dev.) Three layers answer it:
+
+1. **`loading.tsx`** — a list or detail route gets one (*Conventions* below); its skeleton is
+   prefetched, so the click swaps to it at once.
+2. **`IntentPrefetchLink`** — `/p/<key>` cannot have a `loading.tsx`, so `AppLink` fetches the
+   full route when the visitor hovers, focuses or starts a tap. Never `prefetch={true}` on
+   every card: Explore would cost a server render per card in the viewport.
+3. **`LinkPendingBar`** — whatever is left still pending shows a top-of-window bar after
+   150ms. It is inside `AppLink`; a bare `router.push` gets none, so a button that navigates
+   shows its own `loading`.
+
+`staleTimes.dynamic` stays at its default (0): reusing a dynamic page for 30s would show a
+settings tab or `/bookings` from before the last save.
+
 ## Cross-cutting rules
 
 - **Any route whose whole job is to redirect is a Route Handler**, never a `page.tsx` — a
@@ -180,6 +199,7 @@ A crash in a **layout** goes one level up — in `[lang]/layout.tsx`, to `global
 | `not-found.tsx` (app root) | 404 for URLs matching **no route**. Above `[lang]/layout.tsx`: no stylesheet or `ConfigProvider`, inline styles, copy in `DEFAULT_LOCALE`, must not render its own `<html>`/`<body>`. |
 | `[lang]/not-found.tsx` | 404 for `notFound()` inside `[lang]`. Full chrome, translated, **antd-free** so the crawler gets real HTML. |
 | `icon.tsx`, `icon-maskable/route.tsx`, `apple-icon.tsx`, `opengraph-image.tsx` | satori cannot resolve CSS variables — import from `tokens.ts`. Extensionless paths the proxy must not locale-prefix. |
+| `favicon.ico` | The tab icon. Next lists it ahead of `icon.tsx`. The mark in `BRAND[900]` on a transparent ground — the filled tile in `icon.tsx` is for install icons only. Regenerate it when the mark changes. |
 | `manifest.ts` | `start_url`/shortcuts are `/<DEFAULT_LOCALE>…` (`/` is a 307); `id` stays `'/'`; no `orientation` lock. |
 | `sw.js/route.ts` | Network-only service worker (`src/helpers/pwa.ts`); registered in production only by `ServiceWorkerRegistrar`. |
 | `sitemap.ts`, `robots.ts` | Every indexable route × 16 locales with `alternates` — the only way most locale variants get crawled. |

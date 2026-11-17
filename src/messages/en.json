@@ -120,7 +120,9 @@
       "noAccount": "New to Bookie?",
       "createAccount": "Create an account",
       "resendVerification": "Resend the verification link",
-      "verificationResent": "Sent. Check your inbox."
+      "verificationResent": "Sent. Check your inbox.",
+      "unverifiedTitle": "Confirm your email to sign in",
+      "unverifiedBody": "We sent a confirmation link to {email}. Open it, then sign in here. Not in your inbox? Check your spam folder, or have the link sent again."
     },
     "consumerRegistration": {
       "submit": "Create account"
@@ -1287,11 +1289,13 @@
           "p4": "<b>Telegram</b> — delivers notifications, only if you connect it.",
           "p5": "<b>Google</b> — signs you in, only if you choose to continue with Google.",
           "p6": "<b>Google Gemini</b> — reads a photo of handwritten bookings, or a provider's description of their business, only when a provider chooses to use those features. On Gemini’s free tier, Google may use what it receives to improve its services. We do not store the photo or the description.",
-          "p7": "A booking's details are shared with the provider it is made with, and the provider's public contact details with the client — that is what a booking is."
+          "p7": "<b>Google Analytics</b> — counts visits and how pages are used, with no ads and no profiling. In the EU, EEA, UK and Switzerland it sets cookies only after you agree.",
+          "p8": "<b>Sentry</b> — receives a report when something breaks in your browser: the error, the page and your browser type, without your cookies, form contents or account details.",
+          "p9": "A booking's details are shared with the provider it is made with, and the provider's public contact details with the client — that is what a booking is."
         },
         "cookies": {
           "title": "Cookies",
-          "p1": "We use strictly necessary cookies only: one that keeps you signed in for up to 7 days, short-lived ones that hold a Google sign-in in progress, and one that remembers your language. We use no advertising or analytics cookies."
+          "p1": "Strictly necessary cookies keep you signed in for up to 7 days, hold a Google sign-in in progress for a few minutes, and remember your language. Google Analytics cookies count visits: in the EU, EEA, UK and Switzerland we set them only if you accept, and elsewhere they are on by default. You can change your choice at any time from “Cookie settings” at the bottom of every page. We use no advertising cookies."
         },
         "retention": {
           "title": "How long we keep it",
@@ -1720,5 +1724,13 @@
     "receivedBody": "Thank you! It can take a few minutes for your plan to update. Paddle has emailed you a receipt.",
     "purchaseActiveTitle": "Your purchase is active",
     "purchaseActiveBody": "Thank you! Everything you bought is available now. Paddle has emailed you a receipt."
+  },
+  "Consent": {
+    "label": "Cookie consent",
+    "text": "We’d like to use Google Analytics cookies to understand how Bookie is used — no ads, no profiling. Until you choose, we count visits without cookies.",
+    "privacy": "Privacy Policy",
+    "accept": "Accept",
+    "decline": "Decline",
+    "settings": "Cookie settings"
   }
 }

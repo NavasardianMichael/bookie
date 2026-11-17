@@ -8,6 +8,7 @@ import { useErrorToast } from '@hooks/useErrorToast'
 import { useRouter } from '@i18n/navigation'
 import { BILLING_ERROR_CODES, CHECKOUT_PLAN_QUERY } from '@constants/billing'
 import { ROUTES } from '@constants/routes'
+import { trackEvent } from '@helpers/analytics'
 import { processError } from '@helpers/error'
 
 /** Names a cart for a busy button: `basic`, `customSlug`, `basic+extraServices`. */
@@ -39,6 +40,7 @@ export const useStartCheckout = (): { startCheckout: (cart: CheckoutCart) => Pro
       setPending(checkoutKey(cart))
       try {
         const checkoutUrl = new URL(await postCheckoutAPI({ ...cart, locale }))
+        trackEvent('begin_checkout', { cart: checkoutKey(cart) })
         if (cart.plan) checkoutUrl.searchParams.set(CHECKOUT_PLAN_QUERY, cart.plan)
         window.location.assign(checkoutUrl.toString())
       } catch (error) {

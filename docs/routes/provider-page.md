@@ -22,6 +22,13 @@ nearby live in route groups that do not contain this page — `[lang]/(home)/` a
 `providers/(explore)/`), the whole page renders before the first byte. `[slug]/layout.tsx`
 paints the identity column and the JSON-LD; the page renders the booking column and reviews.
 
+The cost is on client navigation: with no boundary and a dynamic route, Next's default
+prefetch skips the page, so a click waited on the full render with nothing on screen. Two
+things recover it without a boundary (*Navigation* in `src/app/CLAUDE.md`): every `/p/` link
+is an `IntentPrefetchLink`, which full-prefetches on hover, focus or touch start — not on
+viewport entry, since an Explore page of cards would be a server render each — and the
+remaining wait shows `LinkPendingBar` across the top of the window.
+
 ## Picking is three stacked panels; confirming is a sheet
 
 `ProviderDetails` owns the one piece of state all three panels share — the chosen

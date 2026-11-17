@@ -55,6 +55,13 @@ is making a request.
   compare-and-set** on `providerRemindedAt` / `bookerRemindedAt`, then sends. A reminder
   therefore goes at most once, even with two pollers; one that fails after its claim is not
   retried — a late duplicate is worse than one missed reminder.
+- **The mail engine's budget paces the sweep, not `SWEEP_BATCH`.** The engine allows 10
+  requests a minute across everything the API sends, and reports what is left on every
+  response (`lib/mail-budget.ts`). Once `mailSendsLeft()` is down to `MAIL_RESERVE` (3) the
+  sweep stops *before* claiming, so the rest stay unclaimed and go in the next minute —
+  late rather than claimed into a `429` and lost. The reserve is for mail someone is
+  waiting on (verification links, booking confirmations). A Telegram-only side waits with
+  the rest: its channels are picked after the claim.
 - A booking made inside its own reminder window is never reminded, and neither is a side
   whose reminders are off. Both are stamped without a send, so the sweep only re-reads what
   is still to come — which also means turning reminders back on applies to bookings the job

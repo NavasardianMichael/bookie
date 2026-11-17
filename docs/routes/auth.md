@@ -49,6 +49,9 @@ hours cannot be booked), a consumer on Explore. Sign-in keeps its own destinatio
    `middleware/auth.ts` re-checks that on *every* authenticated request — so a form that
    navigates into the app after `register()` is a bug. `/verify-email` issues the session,
    and `VerifyEmailClient` then reads it (`getMe`) and opens `newAccountLandingPath(role)`.
+   Signing in before that answers 403 with code `4002`, which `SignInForm` turns into an
+   `info` notice with a resend button (`UnverifiedEmailNotice`) — **not** an `ErrorAlert`:
+   nothing failed, there is a step left. Branch on the code, never the message.
 2. **Every anti-enumeration response looks identical.** `register` and `forgot-password`
    answer `{ value: true }` for a taken address, a new one, and a failed send alike. Do not
    branch the UI on them.

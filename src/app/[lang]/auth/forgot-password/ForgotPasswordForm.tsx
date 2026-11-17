@@ -8,7 +8,7 @@ import { useFormItemRules } from '@hooks/useFormItemRules'
 import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { ROUTES } from '@constants/routes'
 import { AppButton } from '@components/ui/AppButton'
-import { AppLink } from '@components/ui/bare/AppLink'
+import { APP_LINK_AUX_CLASS, AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { ErrorAlert } from '@components/ui/ErrorAlert'
@@ -112,7 +112,7 @@ export const ForgotPasswordForm: FC = () => {
       </Form>
 
       <AppParagraph size='body-sm' className='m-0 text-center'>
-        <AppLink href={ROUTES.signIn} className='font-semibold'>
+        <AppLink href={ROUTES.signIn} className={APP_LINK_AUX_CLASS}>
           {t('backToSignIn')}
         </AppLink>
       </AppParagraph>

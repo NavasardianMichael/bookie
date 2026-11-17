@@ -134,6 +134,24 @@
   --color-scrollbar-thumb-hover: #a8a8a8;
 }
 
+/* The navigation bar (`ui/LinkPendingBar`) -> animate-nav-progress. Holds at zero
+   for 150ms so a fast answer never flashes it, races to ~70% within a second, then
+   crawls towards 90% and never finishes: the bar unmounts when the route commits,
+   so "done" is its disappearance. Under reduced motion the rule in §7 collapses
+   the duration, leaving a static bar after the same delay. */
+@theme {
+  --animate-nav-progress: nav-progress 12s cubic-bezier(0.05, 0.9, 0.1, 1) 150ms both;
+
+  @keyframes nav-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(0.9);
+    }
+  }
+}
+
 /* ───────────────────────────────────────────────────────────────────────────
    5. Content widths -> max-w-content / max-w-prose-content / max-w-form-content
    ─────────────────────────────────────────────────────────────────────────── */
@@ -232,6 +250,22 @@ a.app-link-plain:visited {
 }
 a.app-link-plain:hover {
   color: var(--brand-primary) !important;
+}
+
+/* The same trap for `AppLink variant='inline'` (`.app-link-inline`): antd's reset,
+   scoped to every component root, sets `a { text-decoration: none; color: colorLink }`,
+   so a link inside a Form (sign-in's "Forgot password") lost its underline while its
+   twin outside the form kept it. Longhands, so `underline-offset-2` still applies. */
+a.app-link-inline,
+a.app-link-inline:visited,
+a.app-link-inline:focus {
+  color: var(--color-brand) !important;
+  text-decoration-line: underline !important;
+  text-decoration-color: color-mix(in oklab, var(--color-brand) 40%, transparent) !important;
+}
+a.app-link-inline:hover,
+a.app-link-inline:active {
+  text-decoration-color: var(--color-brand) !important;
 }
 
 /* Copy control next to those links — antd `type='text'` also reads colorLink. */

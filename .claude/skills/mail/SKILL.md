@@ -70,8 +70,15 @@ contact message directly.
 Engine responses: `200 { success, message, messageId }`; `401` missing key, `403` invalid
 key, `400` validation (with an `errors` array), `429` rate limited, `500` engine fault.
 A `200` means the mail server accepted the message, not that it was delivered — a later
-bounce never reaches us. Request bodies are capped at 100 KB; `text` at 50,000 chars,
-`html` at 100,000, `subject` at 200.
+bounce never reaches us. `mail.ts` logs every accepted `messageId` (never the recipient):
+it is what the engine's owner needs to trace a missing email. Request bodies are capped at
+100 KB; `text` at 50,000 chars, `html` at 100,000, `subject` at 200.
+
+The engine's own advice per status, and what this app does instead where it differs: `400`
+— fix the payload, a retry fails again. `429` — wait for `RateLimit-Reset`; `mail.ts` records
+the window (`lib/mail-budget.ts`) and answers further sends `429` locally until it reopens.
+`500` — the engine suggests retrying with backoff (5 s, 30 s, 2 min); **we do not**, because a
+request-path send cannot hold a request for minutes and a reminder is at-most-once.
 
 The engine's HTML allow-list keeps inline `style` attributes and drops `<style>` blocks, so
 any styling in a template goes inline.
@@ -86,10 +93,12 @@ any styling in a template goes inline.
    only exception, and it is commented as such.
 
 2. **Rate limiting is shared.** The engine allows 10 requests/minute **per IP as it sees
-   them**, and it only ever sees this server — so every visitor shares one bucket with
-   transactional mail. Any publicly reachable route that sends must limit at our edge
-   first: `createRateLimiter` in `server/src/lib/rateLimit.ts` (in-memory, per-process;
-   move it to Redis before running more than one API instance).
+   them**, counted across **both** endpoints, and it only ever sees this server — so every
+   visitor shares one bucket with transactional mail. Any publicly reachable route that
+   sends must limit at our edge first: `createRateLimiter` in `server/src/lib/rateLimit.ts`
+   (in-memory, per-process; move it to Redis before running more than one API instance).
+   A **background** sender must also check `mailSendsLeft()` before it commits to a send
+   and leave headroom for request-path mail — `jobs/reminderJob.ts` is the worked example.
 
 3. **Unconfigured is normal in dev, an outage in production.** `.env.example` ships an
    empty `MAIL_API_KEY`, so `isMailConfigured()` is false locally. Mirror what the OTP and

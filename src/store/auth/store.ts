@@ -5,6 +5,7 @@ import { becomeProviderAPI, completeGoogleAPI, getMeAPI, loginAPI, logoutAPI, re
 import { appendSelectors } from '@store/appendSelectors'
 import { Session } from '@interfaces/auth'
 import { SIGN_ON_STEPS } from '@constants/auth'
+import { trackEvent } from '@helpers/analytics'
 import { classifyError, processError } from '@helpers/error'
 import { reportError } from '@helpers/reportError'
 import { errorMiddleware } from '@helpers/store'
@@ -59,6 +60,7 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             set({ isPending: true, error: null })
             try {
               await registerAPI(payload)
+              trackEvent('sign_up', { method: 'password' })
               // Deliberately no `signedOn` here: registration mails a link and returns
               // `true` whether or not the address was already taken.
               set({ step: SIGN_ON_STEPS.verifyEmail })
@@ -70,6 +72,7 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             set({ isPending: true, error: null })
             try {
               const session = await loginAPI(payload)
+              trackEvent('login', { method: 'password' })
               set(signedOn(session))
               return session
             } finally {
@@ -80,6 +83,8 @@ export const useAuthStoreBase = create<AuthState & AuthActions>()(
             set({ isPending: true, error: null })
             try {
               const session = await completeGoogleAPI(payload)
+              // Only a new Google account reaches this step; a returning one signs straight in.
+              trackEvent('sign_up', { method: 'google' })
               set(signedOn(session))
               return session
             } finally {

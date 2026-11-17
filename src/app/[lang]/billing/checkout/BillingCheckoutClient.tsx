@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from '@i18n/navigation'
 import { CHECKOUT_PLAN_QUERY, PADDLE_CLIENT_TOKEN, PADDLE_ENVIRONMENT } from '@constants/billing'
 import { ROUTES } from '@constants/routes'
+import { trackEvent } from '@helpers/analytics'
 import { reportError } from '@helpers/reportError'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -51,6 +52,7 @@ export const BillingCheckoutClient: FC<Props> = ({ transactionId, plan }) => {
     const onEvent = (event: PaddleEventData): void => {
       if (event.name === 'checkout.completed') {
         completedRef.current = true
+        trackEvent('purchase', plan ? { plan } : {})
         router.replace({ pathname: ROUTES.billingReturn, query: plan ? { [CHECKOUT_PLAN_QUERY]: plan } : {} })
       } else if (event.name === 'checkout.closed' && !completedRef.current) {
         router.replace(ROUTES.providerProfilePlan)

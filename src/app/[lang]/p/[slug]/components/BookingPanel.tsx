@@ -17,6 +17,7 @@ import { TimeFormat } from '@interfaces/schedule'
 import { USER_TYPES } from '@constants/auth'
 import { BUSY_WINDOW_PADDING_DAYS } from '@constants/booking'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { trackEvent } from '@helpers/analytics'
 import {
   countSlotsByDay,
   dropBusySlots,
@@ -471,6 +472,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
           guest: submission.guest,
           locale,
         })
+        trackEvent('booking_created', { guest: Boolean(submission.guest) })
         setRequestedStarts((prev) => [...prev, startAt])
         // The booking we just made is now one of the taken intervals. Re-asking rather
         // than splicing it in locally also picks up anything else that landed while the

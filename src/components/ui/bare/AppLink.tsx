@@ -1,8 +1,9 @@
 import { ComponentProps, FC, PropsWithChildren } from 'react'
-import NextLink from 'next/link'
 import { Link } from '@i18n/navigation'
 import { isLocaleFreePath } from '@i18n/pathname'
 import { cn } from '@helpers/cn'
+import { IntentPrefetchLink } from '@components/ui/IntentPrefetchLink'
+import { LinkPendingBar } from '@components/ui/LinkPendingBar'
 
 export type AppLinkVariant = 'inline' | 'plain' | 'unstyled' | 'button' | 'chip'
 export type AppLinkTone = 'primary' | 'default'
@@ -17,8 +18,14 @@ type Props = ComponentProps<typeof Link> & {
 /** Org / category / address on the public provider card, and the same links in the booking sheet. */
 export const APP_LINK_META_CLASS = 'text-brand-muted hover:text-brand font-medium'
 
+/** The auth pages' secondary actions — Forgot password, Create an account, Sign in, Back to sign in. */
+export const APP_LINK_AUX_CLASS = 'text-body-sm font-semibold'
+
 const VARIANTS: Record<AppLinkVariant, string> = {
-  inline: 'text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand',
+  // `app-link-inline` is unlayered in globals.css: inside any antd root (Form, Modal,
+  // Collapse…) antd's reset paints `a` with `text-decoration: none` and colorLink.
+  inline:
+    'app-link-inline text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand',
   // `app-link-plain` is unlayered in globals.css so antd Modal/Drawer `a { color }`
   // cannot keep these looking like `colorLink` (the booking-sheet bug).
   plain: 'app-link-plain transition-colors hover:underline [text-underline-offset:5px]',
@@ -53,7 +60,12 @@ const BUTTON_TONES: Record<AppLinkTone, string> = {
  *
  * The one exception is the public provider page, `/p/<key>`, which has no locale segment
  * (`isLocaleFreePath`): prefixed, it would cost a 308 back to the bare URL. It goes through
- * `next/link` unprefixed, and the proxy picks the language from the cookie.
+ * `next/link` unprefixed (`IntentPrefetchLink`, which also prefetches it on hover, focus or
+ * touch), and the proxy picks the language from the cookie.
+ *
+ * Every router link carries a `LinkPendingBar`, the top-of-window progress bar shown while a
+ * click waits on a route Next could not prefetch. It renders nothing in place, so it costs
+ * no layout in any variant.
  */
 export const AppLink: FC<PropsWithChildren<Props>> = ({
   href,
@@ -76,7 +88,7 @@ export const AppLink: FC<PropsWithChildren<Props>> = ({
 
   if (typeof href === 'string' && isLocaleFreePath(href)) {
     return (
-      <NextLink
+      <IntentPrefetchLink
         href={href}
         target={target}
         rel={safeRel}
@@ -87,7 +99,8 @@ export const AppLink: FC<PropsWithChildren<Props>> = ({
         {...props}
       >
         {children}
-      </NextLink>
+        <LinkPendingBar />
+      </IntentPrefetchLink>
     )
   }
 
@@ -111,6 +124,7 @@ export const AppLink: FC<PropsWithChildren<Props>> = ({
       {...props}
     >
       {children}
+      <LinkPendingBar />
     </Link>
   )
 }

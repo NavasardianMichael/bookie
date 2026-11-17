@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { isGoogleSignUp } from '@helpers/registration'
 import { BrandLockup } from '@components/brand/BrandLockup'
-import { AppLink } from '@components/ui/bare/AppLink'
+import { APP_LINK_AUX_CLASS, AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppTitle } from '@components/ui/bare/AppTitle'
 import { PageShell } from '@components/ui/layout'
@@ -52,7 +52,7 @@ export default async function ConsumerRegistration({ searchParams }: Props) {
 
           <AppParagraph size='body-sm' className='mt-8 text-center'>
             Already have an account?{' '}
-            <AppLink href={ROUTES.signIn} className='text-brand font-bold'>
+            <AppLink href={ROUTES.signIn} className={APP_LINK_AUX_CLASS}>
               Log in
             </AppLink>
           </AppParagraph>

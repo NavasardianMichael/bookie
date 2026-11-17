@@ -11,6 +11,8 @@ import { DIRECTORIES_PRESENT } from '@constants/header'
 import { cn } from '@helpers/cn'
 import { reportError } from '@helpers/reportError'
 import { getSiteUrl } from '@helpers/url'
+import { Analytics } from '@components/analytics/Analytics'
+import { AnalyticsConsentDefaults } from '@components/analytics/AnalyticsConsentDefaults'
 import { App } from '@components/App'
 import '@styles/globals.css'
 import { fontSans, getScriptFontClass } from '@styles/fonts'
@@ -130,6 +132,8 @@ export default async function RootLayout({ children, params }: Props) {
     // globals.css alias block and every `bg-brand`/`rounded-brand` utility read.
     <html lang={locale} dir={direction} className={cn(fontSans.variable, getScriptFontClass(locale), CSS_VAR_SCOPE)}>
       <body>
+        {/* Before the GA tag below: analytics cookies wait for consent where asked (helpers/consent.ts). */}
+        <AnalyticsConsentDefaults />
         <AntdRegistry>
           {/* Messages are picked up from the request config, so no `messages`
               prop: next-intl streams them to the client provider itself. */}
@@ -139,6 +143,7 @@ export default async function RootLayout({ children, params }: Props) {
             </App>
           </NextIntlClientProvider>
         </AntdRegistry>
+        <Analytics />
       </body>
     </html>
   )

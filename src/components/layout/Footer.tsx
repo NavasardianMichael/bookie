@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@store/auth/store'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTES } from '@constants/routes'
+import { ConsentSettingsLink } from '@components/analytics/ConsentSettingsLink'
 import { BrandLockup } from '@components/brand/BrandLockup'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -110,7 +111,10 @@ export const Footer: FC = () => {
           {/* The year is passed as a string on purpose: ICU would format a number
               argument per locale and render 2026 as "2,026". */}
           <p className='text-caption m-0'>{t('rights', { year: String(new Date().getFullYear()) })}</p>
-          <LanguageSwitcher />
+          <div className='flex flex-wrap items-center justify-center gap-x-6 gap-y-3'>
+            <ConsentSettingsLink className='text-caption text-brand-muted hover:text-brand transition-colors' />
+            <LanguageSwitcher />
+          </div>
         </div>
       </Container>
     </footer>
