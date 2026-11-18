@@ -23,6 +23,8 @@ export type PutProviderProfileRequestPayload = Partial<{
   weekSchedule: ProviderProfile['details']['weekSchedule']
   /** Drafted and published with `weekSchedule`; the API answers 400 for an overlap. */
   specialDates: SpecialDate[]
+  /** Drafted and published with `weekSchedule`: weekly, days of the month, or specific dates only. */
+  scheduleRule: ProviderScheduleRule
   /** IANA name; the API stores it canonical and answers 400 for one `Intl` does not know. */
   timeZone: NonNullable<ProviderProfile['details']['timeZone']>
   /** Drafted and published with `timeZone`; the API answers 400 for anything but `h12`/`h24`. */

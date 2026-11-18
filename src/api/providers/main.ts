@@ -96,6 +96,7 @@ export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params
           ...params,
           weekSchedule: params.weekSchedule ? JSON.stringify(params.weekSchedule) : undefined,
           specialDates: params.specialDates ? JSON.stringify(params.specialDates) : undefined,
+          scheduleRule: params.scheduleRule ? JSON.stringify(params.scheduleRule) : undefined,
           emailNotificationPrefs: params.emailNotificationPrefs
             ? JSON.stringify(params.emailNotificationPrefs)
             : undefined,

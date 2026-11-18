@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Określ standardowe godziny pracy dla każdego dnia tygodnia.",
-      "recurring": "Cykliczna dostępność",
-      "recurringBody": "Dni i godziny, które klienci mogą rezerwować. Do 5 przedziałów dziennie, jeśli robisz przerwy.",
+      "subtitle": "Kiedy klienci mogą u Ciebie rezerwować: co tydzień, w określone dni miesiąca lub w daty, które wybierzesz.",
       "hoursInZone": "Te godziny są w strefie {zone}. <link>Zmień w ustawieniach zaawansowanych</link>",
       "hoursNoZone": "Nie ustawiono strefy czasowej, więc odwiedzający odczytują te godziny na własnym zegarze. <link>Ustaw w ustawieniach zaawansowanych</link>",
       "pauseTitle": "Przyjmowanie rezerwacji",
@@ -530,6 +528,54 @@
       "unavailable": "Niedostępny",
       "addRange": "Dodaj godziny",
       "removeRange": "Usuń",
+      "schedule": {
+        "title": "Twoje godziny",
+        "body": "Wybierz, jak powtarzają się Twoje godziny — albo zaznacz dokładne daty, w które pracujesz.",
+        "patternLabel": "Jak powtarzają się Twoje godziny",
+        "patterns": {
+          "recurring": "Cyklicznie",
+          "dates": "Wybrane dni"
+        },
+        "recurrenceLabel": "Powtarza się",
+        "recurrences": {
+          "weekdays": "Dni tygodnia",
+          "monthDays": "Dni miesiąca"
+        },
+        "monthDays": "Dni miesiąca",
+        "monthDaysHelp": "Dni, w które pracujesz co miesiąc.",
+        "lastDay": "Ostatni dzień",
+        "pickMonthDay": "Wybierz co najmniej jeden dzień.",
+        "shortMonths": "W krótszych miesiącach użyj ostatniego dnia",
+        "shortMonthsHelp": "Na przykład 31. przesuwa się na 30 kwietnia. Wyłączone: te miesiące go pomijają.",
+        "monthHours": "Godziny w te dni",
+        "hoursRequired": "Dodaj godziny pracy w te dni."
+      },
+      "dates": {
+        "added": {
+          "title": "Dodane daty",
+          "body": "Dodatkowe dni lub inne godziny w określone daty. W te dni zastępują Twoje zwykłe godziny.",
+          "add": "Dodaj datę",
+          "empty": "Brak nadchodzących dodanych dat.",
+          "addTitle": "Dodaj datę",
+          "editTitle": "Edytuj dodaną datę"
+        },
+        "excluded": {
+          "title": "Wykluczone daty",
+          "body": "Dni wolne, święta lub kilka godzin nieobecności w określonym dniu.",
+          "add": "Wyklucz datę",
+          "empty": "Brak nadchodzących wykluczonych dat.",
+          "addTitle": "Wyklucz daty",
+          "editTitle": "Edytuj wykluczoną datę"
+        },
+        "openDates": {
+          "title": "Otwarte daty",
+          "body": "Jedyne dni, w które klienci mogą rezerwować, każdy z własnymi godzinami.",
+          "add": "Dodaj datę",
+          "empty": "Brak otwartych dat — klienci nie mogą rezerwować, dopóki nie dodasz jakiejś.",
+          "addTitle": "Dodaj otwartą datę",
+          "editTitle": "Edytuj otwartą datę"
+        }
+      },
       "days": {
         "monday": "Poniedziałek",
         "tuesday": "Wtorek",
@@ -540,24 +586,22 @@
         "sunday": "Niedziela"
       },
       "special": {
-        "title": "Dni specjalne",
-        "body": "Dni, które odbiegają od Twoich tygodniowych godzin — święto, urlop, dłuższy dzień. W te dni zastępują tydzień.",
-        "add": "Dodaj dzień specjalny",
-        "empty": "Brak nadchodzących dni specjalnych.",
         "edit": "Edytuj: {date}",
         "remove": "Usuń: {date}",
-        "addTitle": "Dodaj dzień specjalny",
-        "editTitle": "Edytuj dzień specjalny",
         "dates": "Daty",
         "datesRequired": "Wybierz daty.",
         "tooLong": "Jeden wpis obejmuje najwyżej {days} dni.",
         "overlap": "Te daty nakładają się na inny dzień specjalny. Zamiast tego edytuj tamten.",
-        "kindLabel": "Zamknięte czy otwarte",
-        "closed": "Zamknięte",
-        "hours": "Inne godziny",
         "note": "Informacja dla odwiedzających",
         "noteHint": "Opcjonalnie — wyświetlana na Twojej stronie obok dat.",
-        "notePlaceholder": "Na przykład: Święto"
+        "notePlaceholder": "Na przykład: Święto",
+        "spanLabel": "Cały dzień czy kilka godzin",
+        "allDay": "Cały dzień",
+        "someHours": "Kilka godzin",
+        "someHoursHelp": "W te daty masz zamknięte w tych godzinach.",
+        "openHoursHelp": "Twoje godziny w te daty. Zastępują Twoje zwykłe godziny.",
+        "hoursRequired": "Dodaj co najmniej jeden przedział czasu.",
+        "closedDuring": "Zamknięte: {hours}"
       },
       "impact": {
         "title": "Opublikować te godziny?",

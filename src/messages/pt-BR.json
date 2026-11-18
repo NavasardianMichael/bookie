@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Defina seu horário de trabalho padrão para cada dia da semana.",
-      "recurring": "Disponibilidade recorrente",
-      "recurringBody": "Dias e horários em que os clientes podem agendar. Adicione até 5 períodos em um dia se você fizer pausas.",
+      "subtitle": "Quando os clientes podem agendar com você: toda semana, em dias do mês ou nas datas que você escolher.",
       "hoursInZone": "Estes horários estão em {zone}. <link>Altere em Configurações avançadas</link>",
       "hoursNoZone": "Nenhum fuso horário definido, então os visitantes leem estes horários no próprio relógio. <link>Defina em Configurações avançadas</link>",
       "pauseTitle": "Aceitando agendamentos",
@@ -530,6 +528,54 @@
       "unavailable": "Indisponível",
       "addRange": "Adicionar horário",
       "removeRange": "Remover",
+      "schedule": {
+        "title": "Seus horários",
+        "body": "Escolha como seus horários se repetem — ou selecione as datas exatas em que você trabalha.",
+        "patternLabel": "Como seus horários se repetem",
+        "patterns": {
+          "recurring": "Recorrente",
+          "dates": "Dias específicos"
+        },
+        "recurrenceLabel": "Repete em",
+        "recurrences": {
+          "weekdays": "Dias da semana",
+          "monthDays": "Dias do mês"
+        },
+        "monthDays": "Dias do mês",
+        "monthDaysHelp": "Os dias em que você trabalha todo mês.",
+        "lastDay": "Último dia",
+        "pickMonthDay": "Escolha pelo menos um dia.",
+        "shortMonths": "Nos meses mais curtos, usar o último dia",
+        "shortMonthsHelp": "Por exemplo, o dia 31 passa para 30 de abril. Desativado: esses meses pulam esse dia.",
+        "monthHours": "Horários nesses dias",
+        "hoursRequired": "Adicione os horários em que você trabalha nesses dias."
+      },
+      "dates": {
+        "added": {
+          "title": "Datas adicionadas",
+          "body": "Dias extras ou horários diferentes em datas específicas. Nesses dias, eles substituem seus horários habituais.",
+          "add": "Adicionar data",
+          "empty": "Nenhuma data adicionada pela frente.",
+          "addTitle": "Adicionar uma data",
+          "editTitle": "Editar data adicionada"
+        },
+        "excluded": {
+          "title": "Datas excluídas",
+          "body": "Folgas, feriados ou algumas horas fora em uma data específica.",
+          "add": "Excluir data",
+          "empty": "Nenhuma data excluída pela frente.",
+          "addTitle": "Excluir datas",
+          "editTitle": "Editar data excluída"
+        },
+        "openDates": {
+          "title": "Datas abertas",
+          "body": "Os únicos dias em que os clientes podem agendar, cada um com seus próprios horários.",
+          "add": "Adicionar data",
+          "empty": "Nenhuma data aberta ainda — os clientes só podem agendar depois que você adicionar uma.",
+          "addTitle": "Adicionar uma data aberta",
+          "editTitle": "Editar data aberta"
+        }
+      },
       "days": {
         "monday": "Segunda-feira",
         "tuesday": "Terça-feira",
@@ -540,24 +586,22 @@
         "sunday": "Domingo"
       },
       "special": {
-        "title": "Datas especiais",
-        "body": "Dias que não seguem seus horários semanais: um feriado, férias, um dia mais longo. Nessas datas, eles substituem a semana.",
-        "add": "Adicionar data especial",
-        "empty": "Nenhuma data especial pela frente.",
         "edit": "Editar {date}",
         "remove": "Remover {date}",
-        "addTitle": "Adicionar uma data especial",
-        "editTitle": "Editar data especial",
         "dates": "Datas",
         "datesRequired": "Escolha as datas.",
         "tooLong": "Um registro cobre no máximo {days} dias.",
         "overlap": "Essas datas se sobrepõem a outra data especial. Edite aquela em vez disso.",
-        "kindLabel": "Fechado ou aberto",
-        "closed": "Fechado",
-        "hours": "Outro horário",
         "note": "Observação para visitantes",
         "noteHint": "Opcional — aparece na sua página ao lado das datas.",
-        "notePlaceholder": "Por exemplo: Feriado"
+        "notePlaceholder": "Por exemplo: Feriado",
+        "spanLabel": "O dia todo ou algumas horas",
+        "allDay": "O dia todo",
+        "someHours": "Algumas horas",
+        "someHoursHelp": "Você fica fechado nesses horários nessas datas.",
+        "openHoursHelp": "Seus horários nessas datas. Eles substituem seus horários habituais.",
+        "hoursRequired": "Adicione pelo menos um período.",
+        "closedDuring": "Fechado {hours}"
       },
       "impact": {
         "title": "Publicar estes horários?",

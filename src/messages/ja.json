@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "曜日ごとの通常営業時間を設定します。",
-      "recurring": "毎週の受付時間",
-      "recurringBody": "予約できる曜日と時間帯。休憩がある日は最大 5 つの時間帯を追加できます。",
+      "subtitle": "お客様が予約できる日時：毎週、毎月の特定の日、または指定した日付。",
       "hoursInZone": "この営業時間は {zone} です。<link>詳細設定で変更</link>",
       "hoursNoZone": "タイムゾーンが未設定のため、訪問者はこの営業時間を自分の時計で読みます。<link>詳細設定で設定</link>",
       "pauseTitle": "予約を受付中",
@@ -530,6 +528,54 @@
       "unavailable": "受付停止",
       "addRange": "時間帯を追加",
       "removeRange": "削除",
+      "schedule": {
+        "title": "受付時間",
+        "body": "受付時間の繰り返し方を選ぶか、営業する日付を指定してください。",
+        "patternLabel": "受付時間の繰り返し方",
+        "patterns": {
+          "recurring": "繰り返し",
+          "dates": "特定の日"
+        },
+        "recurrenceLabel": "繰り返し方法",
+        "recurrences": {
+          "weekdays": "曜日",
+          "monthDays": "毎月の日付"
+        },
+        "monthDays": "毎月の日付",
+        "monthDaysHelp": "毎月営業する日です。",
+        "lastDay": "末日",
+        "pickMonthDay": "日を1つ以上選んでください。",
+        "shortMonths": "短い月は末日に振り替える",
+        "shortMonthsHelp": "例：31日は4月30日に移動します。オフの場合、その月はスキップされます。",
+        "monthHours": "その日の受付時間",
+        "hoursRequired": "これらの日の受付時間を追加してください。"
+      },
+      "dates": {
+        "added": {
+          "title": "追加した日",
+          "body": "特定の日に営業日を追加したり、時間を変更したりします。その日は通常の受付時間より優先されます。",
+          "add": "日付を追加",
+          "empty": "今後の追加日はありません。",
+          "addTitle": "日付を追加",
+          "editTitle": "追加した日を編集"
+        },
+        "excluded": {
+          "title": "除外する日",
+          "body": "休日、祝日、または特定の日に数時間だけ不在にする場合。",
+          "add": "日付を除外",
+          "empty": "今後の除外日はありません。",
+          "addTitle": "日付を除外",
+          "editTitle": "除外日を編集"
+        },
+        "openDates": {
+          "title": "受付日",
+          "body": "お客様が予約できるのはこの日だけです。日ごとに時間を設定できます。",
+          "add": "日付を追加",
+          "empty": "受付日はまだありません。追加するまで予約は受け付けられません。",
+          "addTitle": "受付日を追加",
+          "editTitle": "受付日を編集"
+        }
+      },
       "days": {
         "monday": "月曜日",
         "tuesday": "火曜日",
@@ -540,24 +586,22 @@
         "sunday": "日曜日"
       },
       "special": {
-        "title": "特別な日程",
-        "body": "祝日、休暇、長めの営業日など、毎週の受付時間とは異なる日です。その日は毎週の設定より優先されます。",
-        "add": "特別な日程を追加",
-        "empty": "今後の特別な日程はありません。",
         "edit": "{date} を編集",
         "remove": "{date} を削除",
-        "addTitle": "特別な日程を追加",
-        "editTitle": "特別な日程を編集",
         "dates": "日付",
         "datesRequired": "日付を選んでください。",
         "tooLong": "1 件で設定できるのは最大 {days} 日です。",
         "overlap": "この日付は別の特別な日程と重なっています。そちらを編集してください。",
-        "kindLabel": "休業か営業か",
-        "closed": "休業",
-        "hours": "別の時間",
         "note": "訪問者へのメモ",
         "noteHint": "任意。ページ上で日付の横に表示されます。",
-        "notePlaceholder": "例：祝日"
+        "notePlaceholder": "例：祝日",
+        "spanLabel": "終日か一部の時間か",
+        "allDay": "終日",
+        "someHours": "一部の時間",
+        "someHoursHelp": "その日のこの時間帯は休業します。",
+        "openHoursHelp": "その日の受付時間です。通常の受付時間より優先されます。",
+        "hoursRequired": "時間帯を1つ以上追加してください。",
+        "closedDuring": "休業 {hours}"
       },
       "impact": {
         "title": "この受付時間を公開しますか？",

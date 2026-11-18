@@ -99,7 +99,14 @@ the session carries a single role, resolved provider-first at login.
   (`AssistantLauncher` in `App.tsx`). The provider layout only listens: after an apply it re-keys
   the open tab on `useAssistantPanelStore.revision`, so the tab reads its data again, and
   re-counts the Approvals badge. See [ai-assistant.md](ai-assistant.md).
-- **Availability holds weekly hours and special dates**, saved together as one draft. Publish
-  first checks what the new hours do to services and upcoming bookings (`ScheduleImpactModal`) —
-  nothing is cancelled. **Advanced settings** carries the visitor-assistant switch, which saves on
+- **Availability is a rule plus dates**, all saved together as one draft. **Your hours** picks the
+  rule (`ProviderScheduleRuleFields`): *Recurring* on weekdays (each with its own windows) or on
+  days of the month (1–31 and *Last day*, one set of hours, and a switch moving a day a short month
+  lacks to its last day), or *Specific days* — then **Open dates** are the only open days. Under a
+  recurring rule, **Added dates** (their own hours, replacing the usual ones) and **Excluded dates**
+  (all day, or some hours) sit below. All three date sections are one `specialDates` list
+  (open / closed entries) that never overlaps; the weekly rows stay in the form under every rule,
+  as `weekSchedule` stays in the database, so switching back loses nothing. Publish first checks
+  what the new hours do to services and upcoming bookings (`ScheduleImpactModal`) — nothing is
+  cancelled. **Advanced settings** carries the visitor-assistant switch, which saves on
   its own.

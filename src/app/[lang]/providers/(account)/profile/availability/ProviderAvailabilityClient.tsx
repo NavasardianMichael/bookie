@@ -5,7 +5,7 @@ import { Form, Switch } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
-import { ProviderProfile, ProviderService, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
+import { ProviderProfile, ProviderScheduleRule, ProviderService, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { useScheduleImpact } from '@hooks/useScheduleImpact'
 import { ScheduleDaysForm, ScheduleRangeForm, TimeFormat } from '@interfaces/schedule'
 import { ROUTES } from '@constants/routes'
@@ -14,7 +14,13 @@ import { dayFormsToWeekSchedule, defaultScheduleRange, weekScheduleToDayForms } 
 import { hasImpact, ScheduleImpact } from '@helpers/scheduleConflicts'
 import { resolveTimeFormat } from '@helpers/timeFormat'
 import { formatTimeZoneName } from '@helpers/timeZone'
-import { AvailabilityDayRow } from '@components/settings/AvailabilityDayRow'
+import {
+  formToScheduleRule,
+  ProviderScheduleRuleFields,
+  scheduleRuleFieldsToValidate,
+  type ScheduleRuleForm,
+  scheduleRuleToForm,
+} from '@components/settings/ProviderScheduleRuleFields'
 import { ScheduleImpactModal } from '@components/settings/ScheduleImpactModal'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { SpecialDatesEditor } from '@components/settings/SpecialDatesEditor'
@@ -28,10 +34,7 @@ import { ClockIcon } from '@components/ui/icons'
 import { PageHeader } from '@components/ui/layout/PageHeader'
 import { Surface } from '@components/ui/layout/Surface'
 
-type FormValues = {
-  available: boolean
-  days: ScheduleDaysForm
-}
+type FormValues = { available: boolean } & ScheduleRuleForm
 
 /**
  * The clock the hours are read on — edited on the Advanced settings tab, shown here only.
@@ -46,6 +49,7 @@ type HoursClock = {
 type Published = {
   weekSchedule: WeekSchedule
   specialDates: SpecialDate[]
+  rule?: ProviderScheduleRule
   services: ProviderService[]
 }
 
@@ -54,6 +58,7 @@ const scheduleToForm = (profile: ProviderProfile): FormValues => ({
   days: weekScheduleToDayForms(
     (profile.draft?.weekSchedule as WeekSchedule | undefined) ?? profile.details.weekSchedule
   ),
+  ...scheduleRuleToForm((profile.draft?.scheduleRule as ProviderScheduleRule | undefined) ?? profile.details.scheduleRule),
 })
 
 const profileToSpecialDates = (profile: ProviderProfile): SpecialDate[] =>
@@ -62,6 +67,7 @@ const profileToSpecialDates = (profile: ProviderProfile): SpecialDate[] =>
 const profileToPublished = (profile: ProviderProfile): Published => ({
   weekSchedule: profile.details.weekSchedule,
   specialDates: profile.details.specialDates ?? [],
+  rule: profile.details.scheduleRule,
   services: profile.services.allIds.map((id) => profile.services.byId[id]).filter(Boolean),
 })
 
@@ -104,6 +110,8 @@ export const ProviderAvailabilityClient = () => {
   const [loadError, setLoadError] = useState<unknown>(null)
   const [revision, setRevision] = useState(0)
 
+  const pattern = Form.useWatch('pattern', form) ?? saved?.pattern ?? 'recurring'
+
   // `loading` is derived from the request's identity, never set at the top of the effect.
   const request = useMemo(() => ({ revision }), [revision])
   const [fulfilled, setFulfilled] = useState<object | null>(null)
@@ -141,8 +149,21 @@ export const ProviderAvailabilityClient = () => {
     }
   }, [apply, request])
 
+  /** The rule as the form holds it, after checking the shown pattern's fields; `null` when they fail. */
+  const readRule = async (): Promise<ProviderScheduleRule | null> => {
+    const values = form.getFieldsValue(true) as FormValues
+    try {
+      await form.validateFields(scheduleRuleFieldsToValidate(values))
+    } catch {
+      return null
+    }
+    return formToScheduleRule(values)
+  }
+
   const persist = async (mode: 'draft' | 'publish') => {
-    const values = form.getFieldsValue(true)
+    const values = form.getFieldsValue(true) as FormValues
+    const scheduleRule = await readRule()
+    if (!scheduleRule) return
     setPendingAction(mode)
     setError(null)
     try {
@@ -150,6 +171,7 @@ export const ProviderAvailabilityClient = () => {
         mode: 'draft',
         weekSchedule: dayFormsToWeekSchedule(values.days),
         specialDates,
+        scheduleRule,
         available: values.available,
       })
       const data = mode === 'publish' ? await putProviderProfileAPI({ mode: 'publish' }) : await getProviderProfileAPI()
@@ -173,12 +195,14 @@ export const ProviderAvailabilityClient = () => {
    */
   const publish = async (): Promise<void> => {
     if (!published) return
+    const rule = await readRule()
+    if (!rule) return
     setPendingAction('publish')
     setError(null)
     try {
       const found = await checkImpact({
-        before: { weekSchedule: published.weekSchedule, specialDates: published.specialDates },
-        after: { weekSchedule: dayFormsToWeekSchedule(form.getFieldsValue(true).days), specialDates },
+        before: { weekSchedule: published.weekSchedule, specialDates: published.specialDates, rule: published.rule },
+        after: { weekSchedule: dayFormsToWeekSchedule(form.getFieldsValue(true).days), specialDates, rule },
         services: published.services,
         timeZone: clock?.timeZone,
       })
@@ -195,6 +219,18 @@ export const ProviderAvailabilityClient = () => {
     await persist('publish')
   }
 
+  /** What every dates section shares: the one list of special dates, and the clock it is read on. */
+  const datesProps = {
+    value: specialDates,
+    onChange: (next: SpecialDate[]) => {
+      setSpecialDates(next)
+      setDirty(true)
+    },
+    timeFormat: clock?.timeFormat ?? 'h24',
+    timeZone: clock?.timeZone,
+    disabled: pendingAction !== null,
+  } as const
+
   return (
     <div className='flex flex-col gap-6'>
       <PageHeader title={t('nav.availability')} subtitle={t('availability.subtitle')} />
@@ -204,9 +240,9 @@ export const ProviderAvailabilityClient = () => {
         <div className='flex flex-col gap-2'>
           <AppTitle level='h2' size='h3' className='flex items-center gap-2'>
             <ClockIcon className='text-brand h-5 w-5' />
-            {t('availability.recurring')}
+            {t('availability.schedule.title')}
           </AppTitle>
-          <AppParagraph size='body-sm'>{t('availability.recurringBody')}</AppParagraph>
+          <AppParagraph size='body-sm'>{t('availability.schedule.body')}</AppParagraph>
         </div>
 
         {loadError !== null ? (
@@ -249,26 +285,25 @@ export const ProviderAvailabilityClient = () => {
 
             <HoursClockNote timeZone={clock.timeZone} />
 
-            {WEEK_DAYS_LIST.map((day) => (
-              <AvailabilityDayRow key={day} day={day} name={['days']} timeFormat={clock.timeFormat} />
-            ))}
+            <ProviderScheduleRuleFields timeFormat={clock.timeFormat} />
+
+            {pattern === 'dates' && (
+              <SpecialDatesEditor section='openDates' nested {...datesProps} />
+            )}
           </Form>
         )}
       </Surface>
 
-      {loadError === null && saved && clock && (
-        <Surface>
-          <SpecialDatesEditor
-            value={specialDates}
-            onChange={(next) => {
-              setSpecialDates(next)
-              setDirty(true)
-            }}
-            timeFormat={clock.timeFormat}
-            timeZone={clock.timeZone}
-            disabled={pendingAction !== null}
-          />
-        </Surface>
+      {/* Under a recurring rule, single dates are added or excluded on top of it. */}
+      {loadError === null && saved && clock && pattern === 'recurring' && (
+        <>
+          <Surface>
+            <SpecialDatesEditor section='added' {...datesProps} />
+          </Surface>
+          <Surface>
+            <SpecialDatesEditor section='excluded' {...datesProps} />
+          </Surface>
+        </>
       )}
 
       {/* No Save over settings that never loaded: it would write the empty defaults. */}

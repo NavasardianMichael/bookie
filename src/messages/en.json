@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Define your standard working hours for each day of the week.",
-      "recurring": "Recurring Availability",
-      "recurringBody": "Open days and hours clients can book. Add up to 5 periods on a day if you take breaks.",
+      "subtitle": "When clients can book you: every week, on days of the month, or on dates you pick.",
       "hoursInZone": "These hours are in {zone}. <link>Change it in Advanced settings</link>",
       "hoursNoZone": "No time zone is set, so visitors read these hours on their own clock. <link>Set one in Advanced settings</link>",
       "pauseTitle": "Accepting bookings",
@@ -530,6 +528,54 @@
       "unavailable": "Unavailable",
       "addRange": "Add hours",
       "removeRange": "Remove",
+      "schedule": {
+        "title": "Your hours",
+        "body": "Choose how your hours repeat — or pick the exact dates you work.",
+        "patternLabel": "How your hours repeat",
+        "patterns": {
+          "recurring": "Recurring",
+          "dates": "Specific days"
+        },
+        "recurrenceLabel": "Repeats on",
+        "recurrences": {
+          "weekdays": "Weekdays",
+          "monthDays": "Days of the month"
+        },
+        "monthDays": "Days of the month",
+        "monthDaysHelp": "The days you work every month.",
+        "lastDay": "Last day",
+        "pickMonthDay": "Pick at least one day.",
+        "shortMonths": "In shorter months, use the last day",
+        "shortMonthsHelp": "For example, the 31st moves to 30 April. Off: those months skip it.",
+        "monthHours": "Hours on those days",
+        "hoursRequired": "Add the hours you work on these days."
+      },
+      "dates": {
+        "added": {
+          "title": "Added dates",
+          "body": "Extra days or different hours on particular dates. They replace your usual hours on those days.",
+          "add": "Add date",
+          "empty": "No added dates coming up.",
+          "addTitle": "Add a date",
+          "editTitle": "Edit added date"
+        },
+        "excluded": {
+          "title": "Excluded dates",
+          "body": "Days off, holidays, or a few hours away on a particular date.",
+          "add": "Exclude date",
+          "empty": "No excluded dates coming up.",
+          "addTitle": "Exclude dates",
+          "editTitle": "Edit excluded date"
+        },
+        "openDates": {
+          "title": "Open dates",
+          "body": "The only days clients can book, each with its own hours.",
+          "add": "Add date",
+          "empty": "No open dates yet — clients can't book until you add one.",
+          "addTitle": "Add an open date",
+          "editTitle": "Edit open date"
+        }
+      },
       "days": {
         "monday": "Monday",
         "tuesday": "Tuesday",
@@ -540,24 +586,22 @@
         "sunday": "Sunday"
       },
       "special": {
-        "title": "Special dates",
-        "body": "Days that don't follow your weekly hours — a holiday, a vacation, a long day. They override the week on those dates.",
-        "add": "Add special date",
-        "empty": "No special dates coming up.",
         "edit": "Edit {date}",
         "remove": "Remove {date}",
-        "addTitle": "Add a special date",
-        "editTitle": "Edit special date",
         "dates": "Dates",
         "datesRequired": "Pick the dates.",
         "tooLong": "One entry covers at most {days} days.",
         "overlap": "These dates overlap another special date. Edit that one instead.",
-        "kindLabel": "Closed or open",
-        "closed": "Closed",
-        "hours": "Other hours",
         "note": "Note for visitors",
         "noteHint": "Optional — shown on your page beside the dates.",
-        "notePlaceholder": "For example: Holiday"
+        "notePlaceholder": "For example: Holiday",
+        "spanLabel": "All day or some hours",
+        "allDay": "All day",
+        "someHours": "Some hours",
+        "someHoursHelp": "You're closed during these hours on those dates.",
+        "openHoursHelp": "Your hours on those dates. They replace your usual hours.",
+        "hoursRequired": "Add at least one time range.",
+        "closedDuring": "Closed {hours}"
       },
       "impact": {
         "title": "Publish these hours?",

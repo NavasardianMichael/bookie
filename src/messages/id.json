@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Tentukan jam kerja standar Anda untuk setiap hari dalam seminggu.",
-      "recurring": "Ketersediaan Berulang",
-      "recurringBody": "Hari dan jam yang bisa dipesan klien. Hingga 5 rentang per hari jika ada jeda.",
+      "subtitle": "Kapan klien bisa memesan Anda: setiap minggu, pada tanggal tertentu tiap bulan, atau pada tanggal yang Anda pilih.",
       "hoursInZone": "Jam ini mengikuti {zone}. <link>Ubah di Pengaturan lanjutan</link>",
       "hoursNoZone": "Zona waktu belum diatur, jadi pengunjung membaca jam ini dengan jam mereka sendiri. <link>Atur di Pengaturan lanjutan</link>",
       "pauseTitle": "Menerima pemesanan",
@@ -530,6 +528,54 @@
       "unavailable": "Tidak tersedia",
       "addRange": "Tambah jam",
       "removeRange": "Hapus",
+      "schedule": {
+        "title": "Jam Anda",
+        "body": "Pilih bagaimana jam Anda berulang — atau pilih tanggal persis saat Anda bekerja.",
+        "patternLabel": "Cara jam Anda berulang",
+        "patterns": {
+          "recurring": "Berulang",
+          "dates": "Hari tertentu"
+        },
+        "recurrenceLabel": "Berulang setiap",
+        "recurrences": {
+          "weekdays": "Hari dalam seminggu",
+          "monthDays": "Tanggal dalam sebulan"
+        },
+        "monthDays": "Tanggal dalam sebulan",
+        "monthDaysHelp": "Tanggal Anda bekerja setiap bulan.",
+        "lastDay": "Hari terakhir",
+        "pickMonthDay": "Pilih setidaknya satu tanggal.",
+        "shortMonths": "Di bulan yang lebih pendek, gunakan hari terakhir",
+        "shortMonthsHelp": "Misalnya, tanggal 31 dipindah ke 30 April. Nonaktif: bulan tersebut melewatinya.",
+        "monthHours": "Jam pada tanggal tersebut",
+        "hoursRequired": "Tambahkan jam kerja Anda pada tanggal ini."
+      },
+      "dates": {
+        "added": {
+          "title": "Tanggal tambahan",
+          "body": "Hari ekstra atau jam berbeda pada tanggal tertentu. Pada hari itu, jam ini menggantikan jam biasa Anda.",
+          "add": "Tambah tanggal",
+          "empty": "Tidak ada tanggal tambahan dalam waktu dekat.",
+          "addTitle": "Tambah tanggal",
+          "editTitle": "Edit tanggal tambahan"
+        },
+        "excluded": {
+          "title": "Tanggal dikecualikan",
+          "body": "Hari libur, liburan, atau beberapa jam tidak ada pada tanggal tertentu.",
+          "add": "Kecualikan tanggal",
+          "empty": "Tidak ada tanggal dikecualikan dalam waktu dekat.",
+          "addTitle": "Kecualikan tanggal",
+          "editTitle": "Edit tanggal dikecualikan"
+        },
+        "openDates": {
+          "title": "Tanggal buka",
+          "body": "Satu-satunya hari yang bisa dipesan klien, masing-masing dengan jamnya sendiri.",
+          "add": "Tambah tanggal",
+          "empty": "Belum ada tanggal buka — klien belum bisa memesan sampai Anda menambahkannya.",
+          "addTitle": "Tambah tanggal buka",
+          "editTitle": "Edit tanggal buka"
+        }
+      },
       "days": {
         "monday": "Senin",
         "tuesday": "Selasa",
@@ -540,24 +586,22 @@
         "sunday": "Minggu"
       },
       "special": {
-        "title": "Tanggal khusus",
-        "body": "Hari yang tidak mengikuti jam mingguan Anda — hari libur nasional, liburan, hari yang panjang. Pada tanggal itu, tanggal khusus menggantikan jadwal mingguan.",
-        "add": "Tambah tanggal khusus",
-        "empty": "Tidak ada tanggal khusus dalam waktu dekat.",
         "edit": "Edit {date}",
         "remove": "Hapus {date}",
-        "addTitle": "Tambah tanggal khusus",
-        "editTitle": "Edit tanggal khusus",
         "dates": "Tanggal",
         "datesRequired": "Pilih tanggalnya.",
         "tooLong": "Satu entri mencakup paling banyak {days} hari.",
         "overlap": "Tanggal ini tumpang tindih dengan tanggal khusus lain. Edit yang itu saja.",
-        "kindLabel": "Tutup atau buka",
-        "closed": "Tutup",
-        "hours": "Jam lain",
         "note": "Catatan untuk pengunjung",
         "noteHint": "Opsional — ditampilkan di halaman Anda di samping tanggal.",
-        "notePlaceholder": "Misalnya: Hari libur"
+        "notePlaceholder": "Misalnya: Hari libur",
+        "spanLabel": "Sepanjang hari atau beberapa jam",
+        "allDay": "Sepanjang hari",
+        "someHours": "Beberapa jam",
+        "someHoursHelp": "Anda tutup pada jam ini di tanggal tersebut.",
+        "openHoursHelp": "Jam Anda pada tanggal tersebut. Jam ini menggantikan jam biasa Anda.",
+        "hoursRequired": "Tambahkan setidaknya satu rentang waktu.",
+        "closedDuring": "Tutup {hours}"
       },
       "impact": {
         "title": "Publikasikan jam ini?",

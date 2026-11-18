@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "定义每周每天的常规工作时间。",
-      "recurring": "每周可预约时间",
-      "recurringBody": "客户可预约的日期和时段。若有休息，每天最多可添加 5 个时段。",
+      "subtitle": "客户何时可以预约您：每周、每月的指定日期，或您选定的日期。",
       "hoursInZone": "这些时间以 {zone} 为准。<link>在高级设置中更改</link>",
       "hoursNoZone": "尚未设置时区，访客会按自己的时钟查看这些时间。<link>在高级设置中设置</link>",
       "pauseTitle": "接受新预约",
@@ -530,6 +528,54 @@
       "unavailable": "不可预约",
       "addRange": "添加时段",
       "removeRange": "删除",
+      "schedule": {
+        "title": "营业时间",
+        "body": "选择营业时间的重复方式，或选定您工作的具体日期。",
+        "patternLabel": "营业时间的重复方式",
+        "patterns": {
+          "recurring": "重复",
+          "dates": "指定日期"
+        },
+        "recurrenceLabel": "重复方式",
+        "recurrences": {
+          "weekdays": "按星期",
+          "monthDays": "按每月日期"
+        },
+        "monthDays": "每月日期",
+        "monthDaysHelp": "您每月工作的日期。",
+        "lastDay": "最后一天",
+        "pickMonthDay": "请至少选择一天。",
+        "shortMonths": "较短的月份改用最后一天",
+        "shortMonthsHelp": "例如，31 日会移到 4 月 30 日。关闭时，这些月份会跳过该日。",
+        "monthHours": "这些日期的时间",
+        "hoursRequired": "请添加您在这些日期的工作时间。"
+      },
+      "dates": {
+        "added": {
+          "title": "新增日期",
+          "body": "在特定日期增加工作日或调整时间。这些日期将取代您的常规营业时间。",
+          "add": "添加日期",
+          "empty": "近期没有新增日期。",
+          "addTitle": "添加日期",
+          "editTitle": "编辑新增日期"
+        },
+        "excluded": {
+          "title": "排除日期",
+          "body": "休息日、节假日，或在某天离开几个小时。",
+          "add": "排除日期",
+          "empty": "近期没有排除日期。",
+          "addTitle": "排除日期",
+          "editTitle": "编辑排除日期"
+        },
+        "openDates": {
+          "title": "开放日期",
+          "body": "客户仅可在这些日期预约，每个日期都有各自的时间。",
+          "add": "添加日期",
+          "empty": "还没有开放日期——添加之前，客户无法预约。",
+          "addTitle": "添加开放日期",
+          "editTitle": "编辑开放日期"
+        }
+      },
       "days": {
         "monday": "周一",
         "tuesday": "周二",
@@ -540,24 +586,22 @@
         "sunday": "周日"
       },
       "special": {
-        "title": "特殊日期",
-        "body": "不按每周营业时间安排的日子——节假日、休假、加长营业日。在这些日期，它们会取代每周的安排。",
-        "add": "添加特殊日期",
-        "empty": "近期没有特殊日期。",
         "edit": "编辑 {date}",
         "remove": "删除 {date}",
-        "addTitle": "添加特殊日期",
-        "editTitle": "编辑特殊日期",
         "dates": "日期",
         "datesRequired": "请选择日期。",
         "tooLong": "每条最多涵盖 {days} 天。",
         "overlap": "这些日期与另一个特殊日期重叠。请改为编辑那一条。",
-        "kindLabel": "休息或营业",
-        "closed": "休息",
-        "hours": "其他时间",
         "note": "给访客的说明",
         "noteHint": "可选——显示在你页面上的日期旁边。",
-        "notePlaceholder": "例如：节假日"
+        "notePlaceholder": "例如：节假日",
+        "spanLabel": "全天或部分时段",
+        "allDay": "全天",
+        "someHours": "部分时段",
+        "someHoursHelp": "在这些日期的这些时段内您不营业。",
+        "openHoursHelp": "您在这些日期的营业时间，将取代常规营业时间。",
+        "hoursRequired": "请至少添加一个时段。",
+        "closedDuring": "休息 {hours}"
       },
       "impact": {
         "title": "发布这些营业时间？",

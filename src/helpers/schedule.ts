@@ -118,6 +118,24 @@ export const rangesToDaySchedule = (ranges: DaySchedulePart[]): DaySchedule => {
   return { availability: { start: first.start, end: last.end }, breaks }
 }
 
+/** Picker ranges → one day's stored hours, or `null` when no complete range is left. */
+export const rangeFormsToDaySchedule = (ranges: readonly ScheduleRangeForm[] | undefined): DaySchedule | null => {
+  const day = rangesToDaySchedule(
+    (ranges ?? [])
+      .filter((range) => range.start && range.end)
+      .map((range) => ({ start: range.start!.format(SCHEDULE_VALUE_FORMAT), end: range.end!.format(SCHEDULE_VALUE_FORMAT) }))
+  )
+  return day.availability.start ? day : null
+}
+
+/** One day's stored hours → picker ranges; a day without hours gets one default range ready. */
+export const daySchedulesToRangeForms = (day: DaySchedule | null | undefined): ScheduleRangeForm[] => {
+  const parts = day ? splitScheduleIntoParts(day) : []
+  return parts.length
+    ? parts.map((part) => ({ start: dayjs(part.start, SCHEDULE_VALUE_FORMAT), end: dayjs(part.end, SCHEDULE_VALUE_FORMAT) }))
+    : [defaultScheduleRange()]
+}
+
 /** The window a newly opened day, or a newly added range, starts with. */
 export const defaultScheduleRange = (): ScheduleRangeForm => ({
   start: dayjs('09:00', SCHEDULE_VALUE_FORMAT),

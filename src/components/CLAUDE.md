@@ -65,7 +65,11 @@ Feature folders outside the tiers:
   `details.visitorAssistant` (plan-neutral). The conversation lives in localStorage, per page,
   for 30 days after its last answer (`useVisitorAssistantChat`).
 - `settings/` schedule pieces: `TimeRangesField` (the one from–to editor — weekdays, special
-  dates, service hours), `AvailabilityDayRow`, `SpecialDatesEditor` + `SpecialDateSheet`,
+  dates, service hours; `requiredMessage` makes one complete range required),
+  `ProviderScheduleRuleFields` (the Availability tab's rule: Recurring → weekdays / days of the
+  month, or Specific days), `MonthDaysField` (1–31 and *Last day* as toggle chips),
+  `AvailabilityDayRow`, `SpecialDatesEditor` + `SpecialDateSheet` (one per section — *added*,
+  *excluded*, *openDates* — over the one `specialDates` list),
   `ScheduleImpactModal` (what a Publish, or an assistant Apply via `copy`, does to services and bookings), and
   `VisitorAssistantSetting` (saves on its own switch). `providerServiceForm/ServiceConflictSheet`
   is the choice when a service reaches outside the hours.

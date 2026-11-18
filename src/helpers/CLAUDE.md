@@ -43,7 +43,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Month-grid cells, Monday-first | `buildMonthCells` | `calendar.ts` |
 | Localised weekday column headers | `buildWeekdayLabels` | `calendar.ts` — **client-only** |
 | Availability minus breaks | `splitScheduleIntoParts` | `schedule.ts` |
-| Bookable windows → availability + breaks | `rangesToDaySchedule` | `schedule.ts` |
+| Bookable windows → availability + breaks · picker ranges ↔ one day's hours (`null` when none is complete) | `rangesToDaySchedule`, `rangeFormsToDaySchedule`, `daySchedulesToRangeForms` | `schedule.ts` |
 | Is the provider open at all this week? | `hasWeekScheduleHours` | `schedule.ts` |
 | A week ↔ the availability editor's open/ranges form (`ScheduleDaysForm`) · a new window's default | `weekScheduleToDayForms`, `dayFormsToWeekSchedule`, `defaultScheduleRange` | `schedule.ts` |
 | The provider's own windows on a day (the rule — weekly / days of the month / dates — then an open or closed special date) · the entry covering a day · does a days-of-the-month rule fall on a day | `providerDayParts`, `specialDateOn`, `matchesMonthDays`, `daysInMonth` | `serviceAvailability.ts` · **twin** `server/src/lib/service-availability.ts` |

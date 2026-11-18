@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Define tu horario habitual para cada día de la semana.",
-      "recurring": "Disponibilidad recurrente",
-      "recurringBody": "Días y horas en los que los clientes pueden reservar. Añade hasta 5 franjas por día si haces pausas.",
+      "subtitle": "Cuándo pueden reservar contigo: cada semana, ciertos días del mes o en las fechas que elijas.",
       "hoursInZone": "Este horario está en {zone}. <link>Cámbiala en Configuración avanzada</link>",
       "hoursNoZone": "No hay zona horaria, así que los visitantes leen este horario en su propio reloj. <link>Elige una en Configuración avanzada</link>",
       "pauseTitle": "Aceptando reservas",
@@ -530,6 +528,54 @@
       "unavailable": "No disponible",
       "addRange": "Añadir horario",
       "removeRange": "Quitar",
+      "schedule": {
+        "title": "Tu horario",
+        "body": "Elige cómo se repite tu horario o marca las fechas exactas en que trabajas.",
+        "patternLabel": "Cómo se repite tu horario",
+        "patterns": {
+          "recurring": "Recurrente",
+          "dates": "Días concretos"
+        },
+        "recurrenceLabel": "Se repite",
+        "recurrences": {
+          "weekdays": "Días de la semana",
+          "monthDays": "Días del mes"
+        },
+        "monthDays": "Días del mes",
+        "monthDaysHelp": "Los días que trabajas cada mes.",
+        "lastDay": "Último día",
+        "pickMonthDay": "Elige al menos un día.",
+        "shortMonths": "En los meses más cortos, usar el último día",
+        "shortMonthsHelp": "Por ejemplo, el 31 pasa al 30 de abril. Desactivado: ese día se omite en esos meses.",
+        "monthHours": "Horario esos días",
+        "hoursRequired": "Añade el horario en que trabajas estos días."
+      },
+      "dates": {
+        "added": {
+          "title": "Fechas añadidas",
+          "body": "Días extra u otro horario en fechas concretas. Esos días sustituyen tu horario habitual.",
+          "add": "Añadir fecha",
+          "empty": "No hay fechas añadidas próximas.",
+          "addTitle": "Añadir una fecha",
+          "editTitle": "Editar fecha añadida"
+        },
+        "excluded": {
+          "title": "Fechas excluidas",
+          "body": "Días libres, festivos o unas horas fuera en una fecha concreta.",
+          "add": "Excluir fecha",
+          "empty": "No hay fechas excluidas próximas.",
+          "addTitle": "Excluir fechas",
+          "editTitle": "Editar fecha excluida"
+        },
+        "openDates": {
+          "title": "Fechas abiertas",
+          "body": "Los únicos días en que los clientes pueden reservar, cada uno con su propio horario.",
+          "add": "Añadir fecha",
+          "empty": "Aún no hay fechas abiertas: los clientes no pueden reservar hasta que añadas una.",
+          "addTitle": "Añadir una fecha abierta",
+          "editTitle": "Editar fecha abierta"
+        }
+      },
       "days": {
         "monday": "Lunes",
         "tuesday": "Martes",
@@ -540,24 +586,22 @@
         "sunday": "Domingo"
       },
       "special": {
-        "title": "Fechas especiales",
-        "body": "Días que no siguen tu horario semanal: un festivo, unas vacaciones, una jornada larga. En esas fechas sustituyen a la semana.",
-        "add": "Añadir fecha especial",
-        "empty": "No hay fechas especiales próximas.",
         "edit": "Editar {date}",
         "remove": "Quitar {date}",
-        "addTitle": "Añadir una fecha especial",
-        "editTitle": "Editar fecha especial",
         "dates": "Fechas",
         "datesRequired": "Elige las fechas.",
         "tooLong": "Una entrada abarca como máximo {days} días.",
         "overlap": "Estas fechas se solapan con otra fecha especial. Edita esa en su lugar.",
-        "kindLabel": "Cerrado o abierto",
-        "closed": "Cerrado",
-        "hours": "Otro horario",
         "note": "Nota para los visitantes",
         "noteHint": "Opcional: se muestra en tu página junto a las fechas.",
-        "notePlaceholder": "Por ejemplo: Festivo"
+        "notePlaceholder": "Por ejemplo: Festivo",
+        "spanLabel": "Todo el día o algunas horas",
+        "allDay": "Todo el día",
+        "someHours": "Algunas horas",
+        "someHoursHelp": "En esas fechas cierras durante estas horas.",
+        "openHoursHelp": "Tu horario en esas fechas. Sustituye a tu horario habitual.",
+        "hoursRequired": "Añade al menos una franja horaria.",
+        "closedDuring": "Cerrado {hours}"
       },
       "impact": {
         "title": "¿Publicar este horario?",

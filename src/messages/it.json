@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Definisci il tuo orario di lavoro standard per ogni giorno della settimana.",
-      "recurring": "Disponibilità ricorrente",
-      "recurringBody": "Giorni e orari in cui i clienti possono prenotare. Aggiungi fino a 5 fasce al giorno se fai delle pause.",
+      "subtitle": "Quando i clienti possono prenotare: ogni settimana, in certi giorni del mese o nelle date che scegli.",
       "hoursInZone": "Questi orari sono in {zone}. <link>Cambialo nelle Impostazioni avanzate</link>",
       "hoursNoZone": "Nessun fuso orario impostato: i visitatori leggono questi orari sul proprio orologio. <link>Impostalo nelle Impostazioni avanzate</link>",
       "pauseTitle": "Accetti prenotazioni",
@@ -530,6 +528,54 @@
       "unavailable": "Non disponibile",
       "addRange": "Aggiungi orario",
       "removeRange": "Rimuovi",
+      "schedule": {
+        "title": "I tuoi orari",
+        "body": "Scegli come si ripetono i tuoi orari — oppure seleziona le date esatte in cui lavori.",
+        "patternLabel": "Come si ripetono i tuoi orari",
+        "patterns": {
+          "recurring": "Ricorrente",
+          "dates": "Giorni specifici"
+        },
+        "recurrenceLabel": "Si ripete",
+        "recurrences": {
+          "weekdays": "Giorni della settimana",
+          "monthDays": "Giorni del mese"
+        },
+        "monthDays": "Giorni del mese",
+        "monthDaysHelp": "I giorni in cui lavori ogni mese.",
+        "lastDay": "Ultimo giorno",
+        "pickMonthDay": "Scegli almeno un giorno.",
+        "shortMonths": "Nei mesi più corti, usa l’ultimo giorno",
+        "shortMonthsHelp": "Ad esempio, il 31 passa al 30 aprile. Disattivato: in quei mesi viene saltato.",
+        "monthHours": "Orari in quei giorni",
+        "hoursRequired": "Aggiungi gli orari in cui lavori in questi giorni."
+      },
+      "dates": {
+        "added": {
+          "title": "Date aggiunte",
+          "body": "Giorni in più o orari diversi in date particolari. In quei giorni sostituiscono i tuoi orari abituali.",
+          "add": "Aggiungi data",
+          "empty": "Nessuna data aggiunta in arrivo.",
+          "addTitle": "Aggiungi una data",
+          "editTitle": "Modifica data aggiunta"
+        },
+        "excluded": {
+          "title": "Date escluse",
+          "body": "Giorni liberi, festività o qualche ora di assenza in una data particolare.",
+          "add": "Escludi data",
+          "empty": "Nessuna data esclusa in arrivo.",
+          "addTitle": "Escludi date",
+          "editTitle": "Modifica data esclusa"
+        },
+        "openDates": {
+          "title": "Date di apertura",
+          "body": "Gli unici giorni in cui i clienti possono prenotare, ognuno con i suoi orari.",
+          "add": "Aggiungi data",
+          "empty": "Ancora nessuna data di apertura — i clienti non possono prenotare finché non ne aggiungi una.",
+          "addTitle": "Aggiungi una data di apertura",
+          "editTitle": "Modifica data di apertura"
+        }
+      },
       "days": {
         "monday": "Lunedì",
         "tuesday": "Martedì",
@@ -540,24 +586,22 @@
         "sunday": "Domenica"
       },
       "special": {
-        "title": "Date speciali",
-        "body": "Giorni che non seguono i tuoi orari settimanali: una festività, una vacanza, una giornata lunga. In quelle date sostituiscono la settimana.",
-        "add": "Aggiungi data speciale",
-        "empty": "Nessuna data speciale in arrivo.",
         "edit": "Modifica {date}",
         "remove": "Rimuovi {date}",
-        "addTitle": "Aggiungi una data speciale",
-        "editTitle": "Modifica data speciale",
         "dates": "Date",
         "datesRequired": "Scegli le date.",
         "tooLong": "Una voce copre al massimo {days} giorni.",
         "overlap": "Queste date si sovrappongono a un’altra data speciale. Modifica quella invece.",
-        "kindLabel": "Chiuso o aperto",
-        "closed": "Chiuso",
-        "hours": "Altri orari",
         "note": "Nota per i visitatori",
         "noteHint": "Facoltativa — mostrata sulla tua pagina accanto alle date.",
-        "notePlaceholder": "Per esempio: Festività"
+        "notePlaceholder": "Per esempio: Festività",
+        "spanLabel": "Tutto il giorno o alcune ore",
+        "allDay": "Tutto il giorno",
+        "someHours": "Alcune ore",
+        "someHoursHelp": "In quelle date sei chiuso in queste ore.",
+        "openHoursHelp": "I tuoi orari in quelle date. Sostituiscono i tuoi orari abituali.",
+        "hoursRequired": "Aggiungi almeno una fascia oraria.",
+        "closedDuring": "Chiuso {hours}"
       },
       "impact": {
         "title": "Pubblicare questi orari?",

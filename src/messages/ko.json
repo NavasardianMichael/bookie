@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "요일별 표준 근무 시간을 설정하세요.",
-      "recurring": "매주 반복 예약 가능 시간",
-      "recurringBody": "고객이 예약할 수 있는 요일과 시간대. 휴식이 있다면 하루 최대 5구간까지 추가할 수 있어요.",
+      "subtitle": "고객이 예약할 수 있는 때: 매주, 매월 특정 날짜, 또는 직접 고른 날짜.",
       "hoursInZone": "이 영업시간은 {zone} 기준이에요. <link>고급 설정에서 변경</link>",
       "hoursNoZone": "시간대가 설정되지 않아 방문자는 자신의 시계로 이 영업시간을 봐요. <link>고급 설정에서 설정</link>",
       "pauseTitle": "예약 접수 중",
@@ -530,6 +528,54 @@
       "unavailable": "예약 불가",
       "addRange": "시간 추가",
       "removeRange": "삭제",
+      "schedule": {
+        "title": "영업시간",
+        "body": "영업시간이 반복되는 방식을 고르거나, 일하는 날짜를 직접 선택하세요.",
+        "patternLabel": "영업시간 반복 방식",
+        "patterns": {
+          "recurring": "반복",
+          "dates": "특정 날짜"
+        },
+        "recurrenceLabel": "반복 기준",
+        "recurrences": {
+          "weekdays": "요일",
+          "monthDays": "매월 날짜"
+        },
+        "monthDays": "매월 날짜",
+        "monthDaysHelp": "매월 일하는 날짜예요.",
+        "lastDay": "말일",
+        "pickMonthDay": "하루 이상 선택하세요.",
+        "shortMonths": "짧은 달에는 말일로 옮기기",
+        "shortMonthsHelp": "예를 들어 31일은 4월 30일로 옮겨져요. 끄면 해당 달에는 건너뛰어요.",
+        "monthHours": "해당 날짜의 시간",
+        "hoursRequired": "이 날짜에 일하는 시간을 추가하세요."
+      },
+      "dates": {
+        "added": {
+          "title": "추가한 날짜",
+          "body": "특정 날짜에 일하는 날을 추가하거나 시간을 바꿔요. 해당 날짜에는 평소 영업시간 대신 적용돼요.",
+          "add": "날짜 추가",
+          "empty": "예정된 추가 날짜가 없어요.",
+          "addTitle": "날짜 추가",
+          "editTitle": "추가한 날짜 수정"
+        },
+        "excluded": {
+          "title": "제외한 날짜",
+          "body": "휴무일, 공휴일, 또는 특정 날짜에 몇 시간 자리를 비우는 경우예요.",
+          "add": "날짜 제외",
+          "empty": "예정된 제외 날짜가 없어요.",
+          "addTitle": "날짜 제외",
+          "editTitle": "제외한 날짜 수정"
+        },
+        "openDates": {
+          "title": "예약 가능 날짜",
+          "body": "고객이 예약할 수 있는 유일한 날이에요. 날짜마다 시간을 따로 정해요.",
+          "add": "날짜 추가",
+          "empty": "아직 예약 가능 날짜가 없어요. 날짜를 추가해야 고객이 예약할 수 있어요.",
+          "addTitle": "예약 가능 날짜 추가",
+          "editTitle": "예약 가능 날짜 수정"
+        }
+      },
       "days": {
         "monday": "월요일",
         "tuesday": "화요일",
@@ -540,24 +586,22 @@
         "sunday": "일요일"
       },
       "special": {
-        "title": "특별 일정",
-        "body": "공휴일, 휴가, 길게 일하는 날처럼 매주 영업시간과 다른 날이에요. 해당 날짜에는 매주 일정 대신 적용돼요.",
-        "add": "특별 일정 추가",
-        "empty": "예정된 특별 일정이 없어요.",
         "edit": "{date} 수정",
         "remove": "{date} 삭제",
-        "addTitle": "특별 일정 추가",
-        "editTitle": "특별 일정 수정",
         "dates": "날짜",
         "datesRequired": "날짜를 선택하세요.",
         "tooLong": "한 항목은 최대 {days}일까지 설정할 수 있어요.",
         "overlap": "이 날짜는 다른 특별 일정과 겹쳐요. 대신 그 일정을 수정하세요.",
-        "kindLabel": "휴무 또는 영업",
-        "closed": "휴무",
-        "hours": "다른 시간",
         "note": "방문자 안내 메모",
         "noteHint": "선택 사항 — 페이지에서 날짜 옆에 표시돼요.",
-        "notePlaceholder": "예: 공휴일"
+        "notePlaceholder": "예: 공휴일",
+        "spanLabel": "종일 또는 일부 시간",
+        "allDay": "종일",
+        "someHours": "일부 시간",
+        "someHoursHelp": "해당 날짜의 이 시간에는 휴무예요.",
+        "openHoursHelp": "해당 날짜의 영업시간이에요. 평소 영업시간 대신 적용돼요.",
+        "hoursRequired": "시간대를 하나 이상 추가하세요.",
+        "closedDuring": "휴무 {hours}"
       },
       "impact": {
         "title": "이 영업시간을 게시할까요?",

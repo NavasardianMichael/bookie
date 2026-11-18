@@ -4,23 +4,28 @@ import { FC, useState } from 'react'
 import { DatePicker, Form, Segmented } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
-import { SpecialDate } from '@store/providers/profile/types'
+import { ExceptionKind, SpecialDate } from '@store/providers/profile/types'
 import { ScheduleRangeForm, TimeFormat } from '@interfaces/schedule'
-import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT } from '@constants/schedule'
-import { defaultScheduleRange, rangesToDaySchedule, splitScheduleIntoParts } from '@helpers/schedule'
+import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { daySchedulesToRangeForms, rangeFormsToDaySchedule } from '@helpers/schedule'
 import { MAX_SPECIAL_DATE_SPAN_DAYS, overlappingSpecialDate, SPECIAL_DATE_NOTE_MAX } from '@helpers/specialDates'
 import { calendarDayOf } from '@helpers/timeZone'
 import { AppButton } from '@components/ui/AppButton'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppInput } from '@components/ui/AppInput'
 import { AppSheet } from '@components/ui/AppSheet'
+import { AppText } from '@components/ui/bare/AppText'
 import { TimeRangesField } from './TimeRangesField'
+
+/** Where a date entry lives on the Availability tab — and so what it means. */
+export type SpecialDateSection = 'added' | 'excluded' | 'openDates'
 
 type Props = {
   open: boolean
+  section: SpecialDateSection
   /** The entry being edited, or `undefined` to add one. */
   entry?: SpecialDate
-  /** Every entry, so an overlap is refused here rather than by the API. */
+  /** Every entry, of both kinds, so an overlap is refused here rather than by the API. */
   entries: readonly SpecialDate[]
   timeFormat: TimeFormat
   timeZone?: string
@@ -28,63 +33,59 @@ type Props = {
   onSave: (entry: SpecialDate) => void
 }
 
-type Kind = 'closed' | 'hours'
+/** An excluded date: the whole day, or only some hours of it. */
+type Span = 'allDay' | 'someHours'
 
 type FormValues = {
   range: [Dayjs, Dayjs]
-  kind: Kind
+  span: Span
   ranges: ScheduleRangeForm[]
   note?: string
 }
 
-const toForm = (entry: SpecialDate | undefined, today: Dayjs): FormValues => {
-  const parts = entry?.hours ? splitScheduleIntoParts(entry.hours) : []
-  return {
-    range: entry ? [dayjs(entry.from, DAY_KEY_FORMAT), dayjs(entry.to, DAY_KEY_FORMAT)] : [today, today],
-    kind: entry && entry.hours ? 'hours' : 'closed',
-    ranges: parts.length
-      ? parts.map((part) => ({ start: dayjs(part.start, SCHEDULE_VALUE_FORMAT), end: dayjs(part.end, SCHEDULE_VALUE_FORMAT) }))
-      : [defaultScheduleRange()],
-    note: entry?.note,
-  }
-}
+/** An excluded date closes; an added or open date opens. */
+export const kindOfSection = (section: SpecialDateSection): ExceptionKind => (section === 'excluded' ? 'closed' : 'open')
+
+const toForm = (entry: SpecialDate | undefined, today: Dayjs): FormValues => ({
+  range: entry ? [dayjs(entry.from, DAY_KEY_FORMAT), dayjs(entry.to, DAY_KEY_FORMAT)] : [today, today],
+  span: entry?.hours ? 'someHours' : 'allDay',
+  ranges: daySchedulesToRangeForms(entry?.hours),
+  note: entry?.note,
+})
 
 /**
- * Add or edit one special date: a day or a run of days, closed or on hours of its own, with an
- * optional note visitors see ("Holiday"). Writes into the Availability tab's state only — the
- * tab's Save draft / Publish is what stores it.
+ * Add or edit one date or run of dates, in the section it belongs to:
+ *
+ * - **added** / **open dates** — open on the hours given here, which replace the usual ones;
+ * - **excluded** — closed all day, or closed only during the hours given here.
+ *
+ * With an optional note visitors see ("Holiday"). Writes into the Availability tab's state only
+ * — the tab's Save draft / Publish is what stores it.
  */
-export const SpecialDateSheet: FC<Props> = ({ open, entry, entries, timeFormat, timeZone, onClose, onSave }) => {
+export const SpecialDateSheet: FC<Props> = ({ open, section, entry, entries, timeFormat, timeZone, onClose, onSave }) => {
   const t = useTranslations('Settings.availability')
   const tCommon = useTranslations('Common')
   const [form] = Form.useForm<FormValues>()
   const today = calendarDayOf(new Date(), timeZone)
   const [initialValues] = useState(() => toForm(entry, today))
-  const kind = Form.useWatch('kind', form) ?? initialValues.kind
+  const span = Form.useWatch('span', form) ?? initialValues.span
+  const kind = kindOfSection(section)
+  const withHours = kind === 'open' || span === 'someHours'
 
   const submit = (values: FormValues): void => {
     const [start, end] = values.range
-    const hours =
-      values.kind === 'hours'
-        ? rangesToDaySchedule(
-            values.ranges
-              .filter((range) => range.start && range.end)
-              .map((range) => ({ start: range.start!.format(SCHEDULE_VALUE_FORMAT), end: range.end!.format(SCHEDULE_VALUE_FORMAT) }))
-          )
-        : null
     const note = values.note?.trim()
-    const dayHours = hours && hours.availability.start ? hours : null
     onSave({
       from: start.format(DAY_KEY_FORMAT),
       to: end.format(DAY_KEY_FORMAT),
-      kind: dayHours ? 'open' : 'closed',
-      hours: dayHours,
+      kind,
+      hours: withHours ? rangeFormsToDaySchedule(values.ranges) : null,
       ...(note ? { note } : {}),
     })
   }
 
   return (
-    <AppSheet open={open} onClose={onClose} title={entry ? t('special.editTitle') : t('special.addTitle')}>
+    <AppSheet open={open} onClose={onClose} title={t(`dates.${section}.${entry ? 'editTitle' : 'addTitle'}`)}>
       <Form<FormValues> form={form} layout='vertical' initialValues={initialValues} onFinish={submit} className='flex flex-col gap-4'>
         <AppFormItem
           name='range'
@@ -108,24 +109,29 @@ export const SpecialDateSheet: FC<Props> = ({ open, entry, entries, timeFormat, 
             },
           ]}
         >
-          <DatePicker.RangePicker
-            className='w-full'
-            disabledDate={(date) => date.isBefore(today, 'day')}
-            allowClear={false}
-          />
+          <DatePicker.RangePicker className='w-full' disabledDate={(date) => date.isBefore(today, 'day')} allowClear={false} />
         </AppFormItem>
 
-        <AppFormItem name='kind' hasFeedback={false} className='m-0'>
-          <Segmented<Kind>
-            aria-label={t('special.kindLabel')}
-            options={[
-              { value: 'closed', label: t('special.closed') },
-              { value: 'hours', label: t('special.hours') },
-            ]}
-          />
-        </AppFormItem>
+        {kind === 'closed' && (
+          <AppFormItem name='span' hasFeedback={false} className='m-0'>
+            <Segmented<Span>
+              aria-label={t('special.spanLabel')}
+              options={[
+                { value: 'allDay', label: t('special.allDay') },
+                { value: 'someHours', label: t('special.someHours') },
+              ]}
+            />
+          </AppFormItem>
+        )}
 
-        {kind === 'hours' && <TimeRangesField name={['ranges']} timeFormat={timeFormat} />}
+        {withHours && (
+          <div className='flex flex-col gap-2'>
+            <AppText size='body-sm' tone='muted'>
+              {kind === 'open' ? t('special.openHoursHelp') : t('special.someHoursHelp')}
+            </AppText>
+            <TimeRangesField name={['ranges']} timeFormat={timeFormat} requiredMessage={t('special.hoursRequired')} />
+          </div>
+        )}
 
         <AppFormItem name='note' label={t('special.note')} extra={t('special.noteHint')}>
           <AppInput maxLength={SPECIAL_DATE_NOTE_MAX} placeholder={t('special.notePlaceholder')} />

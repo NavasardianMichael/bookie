@@ -508,9 +508,7 @@
       }
     },
     "availability": {
-      "subtitle": "Legen Sie Ihre üblichen Arbeitszeiten für jeden Wochentag fest.",
-      "recurring": "Wiederkehrende Verfügbarkeit",
-      "recurringBody": "Tage und Stunden, die Kunden buchen können. Bis zu 5 Zeiträume pro Tag, wenn Sie Pausen einlegen.",
+      "subtitle": "Wann Kunden bei Ihnen buchen können: jede Woche, an Tagen im Monat oder an Daten Ihrer Wahl.",
       "hoursInZone": "Diese Zeiten gelten in {zone}. <link>In den erweiterten Einstellungen ändern</link>",
       "hoursNoZone": "Es ist keine Zeitzone festgelegt, daher lesen Besucher diese Zeiten auf ihrer eigenen Uhr. <link>In den erweiterten Einstellungen festlegen</link>",
       "pauseTitle": "Buchungen annehmen",
@@ -530,6 +528,54 @@
       "unavailable": "Nicht verfügbar",
       "addRange": "Zeiten hinzufügen",
       "removeRange": "Entfernen",
+      "schedule": {
+        "title": "Ihre Zeiten",
+        "body": "Legen Sie fest, wie sich Ihre Zeiten wiederholen – oder wählen Sie genau die Tage, an denen Sie arbeiten.",
+        "patternLabel": "Wie sich Ihre Zeiten wiederholen",
+        "patterns": {
+          "recurring": "Wiederkehrend",
+          "dates": "Bestimmte Tage"
+        },
+        "recurrenceLabel": "Wiederholt sich",
+        "recurrences": {
+          "weekdays": "Wochentage",
+          "monthDays": "Tage im Monat"
+        },
+        "monthDays": "Tage im Monat",
+        "monthDaysHelp": "Die Tage, an denen Sie jeden Monat arbeiten.",
+        "lastDay": "Letzter Tag",
+        "pickMonthDay": "Wählen Sie mindestens einen Tag.",
+        "shortMonths": "In kürzeren Monaten den letzten Tag nehmen",
+        "shortMonthsHelp": "Zum Beispiel wird der 31. auf den 30. April verschoben. Aus: Diese Monate lassen ihn aus.",
+        "monthHours": "Zeiten an diesen Tagen",
+        "hoursRequired": "Fügen Sie die Zeiten hinzu, zu denen Sie an diesen Tagen arbeiten."
+      },
+      "dates": {
+        "added": {
+          "title": "Zusätzliche Tage",
+          "body": "Weitere Tage oder andere Zeiten an bestimmten Daten. Sie ersetzen an diesen Tagen Ihre üblichen Zeiten.",
+          "add": "Tag hinzufügen",
+          "empty": "Keine anstehenden zusätzlichen Tage.",
+          "addTitle": "Tag hinzufügen",
+          "editTitle": "Zusätzlichen Tag bearbeiten"
+        },
+        "excluded": {
+          "title": "Ausgeschlossene Tage",
+          "body": "Freie Tage, Feiertage oder ein paar Stunden Abwesenheit an einem bestimmten Tag.",
+          "add": "Tag ausschließen",
+          "empty": "Keine anstehenden ausgeschlossenen Tage.",
+          "addTitle": "Tage ausschließen",
+          "editTitle": "Ausgeschlossenen Tag bearbeiten"
+        },
+        "openDates": {
+          "title": "Öffnungstage",
+          "body": "Die einzigen Tage, an denen Kunden buchen können, jeweils mit eigenen Zeiten.",
+          "add": "Tag hinzufügen",
+          "empty": "Noch keine Öffnungstage – Kunden können erst buchen, wenn Sie einen hinzufügen.",
+          "addTitle": "Öffnungstag hinzufügen",
+          "editTitle": "Öffnungstag bearbeiten"
+        }
+      },
       "days": {
         "monday": "Montag",
         "tuesday": "Dienstag",
@@ -540,24 +586,22 @@
         "sunday": "Sonntag"
       },
       "special": {
-        "title": "Besondere Tage",
-        "body": "Tage, die von Ihren wöchentlichen Zeiten abweichen – ein Feiertag, ein Urlaub, ein langer Tag. An diesen Tagen ersetzen sie die Woche.",
-        "add": "Besonderen Tag hinzufügen",
-        "empty": "Keine anstehenden besonderen Tage.",
         "edit": "{date} bearbeiten",
         "remove": "{date} entfernen",
-        "addTitle": "Besonderen Tag hinzufügen",
-        "editTitle": "Besonderen Tag bearbeiten",
         "dates": "Tage",
         "datesRequired": "Wählen Sie die Tage aus.",
         "tooLong": "Ein Eintrag umfasst höchstens {days} Tage.",
         "overlap": "Diese Tage überschneiden sich mit einem anderen besonderen Tag. Bearbeiten Sie stattdessen diesen.",
-        "kindLabel": "Geschlossen oder geöffnet",
-        "closed": "Geschlossen",
-        "hours": "Andere Zeiten",
         "note": "Hinweis für Besucher",
         "noteHint": "Optional – wird auf Ihrer Seite neben den Tagen angezeigt.",
-        "notePlaceholder": "Zum Beispiel: Feiertag"
+        "notePlaceholder": "Zum Beispiel: Feiertag",
+        "spanLabel": "Ganztägig oder einige Stunden",
+        "allDay": "Ganztägig",
+        "someHours": "Einige Stunden",
+        "someHoursHelp": "An diesen Tagen haben Sie zu diesen Zeiten geschlossen.",
+        "openHoursHelp": "Ihre Zeiten an diesen Tagen. Sie ersetzen Ihre üblichen Zeiten.",
+        "hoursRequired": "Fügen Sie mindestens einen Zeitraum hinzu.",
+        "closedDuring": "Geschlossen {hours}"
       },
       "impact": {
         "title": "Diese Zeiten veröffentlichen?",
