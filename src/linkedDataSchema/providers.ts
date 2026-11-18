@@ -23,10 +23,10 @@ import { getOpeningHoursLDSchema } from './schedule'
  *
  * `priceCurrency` is required alongside `price`, so neither is emitted alone.
  */
-const getServiceOffer = (service: ProviderService): Offer => {
+const getServiceOffer = (service: ProviderService, locale: string): Offer => {
   const offer: Offer = {
     '@type': 'Offer',
-    name: `${service.name} (${formatDuration(service.duration)})`,
+    name: `${service.name} (${formatDuration(service.duration, locale)})`,
     description: service.description,
     itemOffered: {
       '@type': 'Service',
@@ -115,7 +115,10 @@ export const getProviderLDSchema = (provider: SingleProvider, context: ProviderL
   const image = resolveAbsoluteAssetUrl(basic.image)
   const serviceList = services.allIds.map((id) => services.byId[id!]).filter(Boolean)
   const categoryNames = context.categoryNames
-  const openingHours = getOpeningHoursLDSchema(details.weekSchedule)
+  // Weekly only: `openingHoursSpecification` cannot say "the 1st of each month", and under another
+  // rule `weekSchedule` is only kept for switching back.
+  const weekly = (details.scheduleRule?.mode ?? 'weekdays') === 'weekdays'
+  const openingHours = weekly ? getOpeningHoursLDSchema(details.weekSchedule) : []
   const rating = basic.rating
 
   const organization = basic.organization
@@ -132,7 +135,7 @@ export const getProviderLDSchema = (provider: SingleProvider, context: ProviderL
     ? {
         '@type': 'OfferCatalog',
         name: `Services by ${fullName}`,
-        itemListElement: serviceList.map(getServiceOffer),
+        itemListElement: serviceList.map((service) => getServiceOffer(service, context.locale)),
       }
     : undefined
 

@@ -9,6 +9,7 @@ import { type DirectoryPresence } from '@constants/header'
 import { installUnsavedChangesGuard } from '@helpers/unsavedChangesGuard'
 import { antdTheme } from '@styles/theme'
 import { ConsentBanner } from './analytics/ConsentBanner'
+import { AssistantLauncher } from './assistant/AssistantLauncher'
 import { BreakpointInvariant } from './dev/BreakpointInvariant'
 import { UnhandledErrorListener } from './errors/UnhandledErrorListener'
 import { Header } from './header/Header'
@@ -62,6 +63,8 @@ export const App: FC<AppProps> = ({ antdLocale, children, direction, directory, 
           </main>
           <Footer />
         </div>
+        {/* A signed-in provider's AI assistant, bottom end corner of every page. */}
+        <AssistantLauncher />
         <ConsentBanner />
         {process.env.NODE_ENV !== 'production' && <BreakpointInvariant />}
       </AntApp>

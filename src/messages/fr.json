@@ -32,7 +32,8 @@
     "pageNumber": "Page {page}",
     "previousMonth": "Mois précédent",
     "nextMonth": "Mois suivant",
-    "reload": "Recharger la page"
+    "reload": "Recharger la page",
+    "done": "Terminé"
   },
   "Nav": {
     "mainNavigation": "Navigation principale",
@@ -537,6 +538,37 @@
         "friday": "Vendredi",
         "saturday": "Samedi",
         "sunday": "Dimanche"
+      },
+      "special": {
+        "title": "Dates particulières",
+        "body": "Des jours qui ne suivent pas vos horaires habituels : un jour férié, des vacances, une longue journée. Ils remplacent la semaine à ces dates.",
+        "add": "Ajouter une date particulière",
+        "empty": "Aucune date particulière à venir.",
+        "edit": "Modifier : {date}",
+        "remove": "Supprimer : {date}",
+        "addTitle": "Ajouter une date particulière",
+        "editTitle": "Modifier la date particulière",
+        "dates": "Dates",
+        "datesRequired": "Choisissez les dates.",
+        "tooLong": "Une entrée couvre au maximum {days} jours.",
+        "overlap": "Ces dates chevauchent une autre date particulière. Modifiez plutôt celle-ci.",
+        "kindLabel": "Fermé ou ouvert",
+        "closed": "Fermé",
+        "hours": "Autres horaires",
+        "note": "Note pour les visiteurs",
+        "noteHint": "Facultatif — affiché sur votre page à côté des dates.",
+        "notePlaceholder": "Par exemple : Jour férié"
+      },
+      "impact": {
+        "title": "Publier ces horaires ?",
+        "body": "Certains éléments dépendent de vos horaires actuels. Rien n’est annulé ni modifié à votre place : vérifiez d’abord ce qui est concerné.",
+        "publishAnyway": "Publier quand même",
+        "keepEditing": "Continuer à modifier",
+        "unbookable": "Ces prestations ne pourraient plus du tout être réservées :",
+        "narrowed": "Ces prestations perdraient certains de leurs jours :",
+        "bookingsOutside": "{count, plural, one {# réservation à venir tomberait en dehors de vos horaires :} other {# réservations à venir tomberaient en dehors de vos horaires :}}",
+        "andMore": "{count, plural, one {et # autre} other {et # autres}}",
+        "bookingsKept": "Ces réservations restent telles quelles. Déplacez-les ou annulez-les depuis <link>Réservations</link> si nécessaire."
       }
     },
     "advanced": {
@@ -829,50 +861,11 @@
       "betterPlanBody": "La formule {plan} inclut ce que vous payez en options, pour moins cher chaque mois.",
       "addonsCancelNote": "Les options se renouvellent avec votre abonnement. L’annuler dans « Gérer la facturation » y met fin aussi."
     },
-    "assistant": {
-      "buttonLabel": "Configurer avec l’IA",
-      "tooltip": "Décrivez votre activité avec vos mots : l’IA prépare votre profil, vos prestations et vos horaires, que vous vérifiez.",
-      "title": "Configurez votre espace avec l’IA",
-      "intro": "Parlez-nous de votre activité avec vos mots, dans n’importe quelle langue : ce que vous proposez, prix et durées, vos horaires, les moyens de paiement. Nous préparons votre profil, vos prestations, vos horaires et vos réglages, et vous vérifiez chaque étape avant que quoi que ce soit ne soit enregistré.",
-      "descriptionLabel": "À propos de votre activité",
-      "descriptionPlaceholder": "Par exemple : je suis coiffeuse. Coupe femme, 60 min, 25 EUR ; coupe homme, 30 min, 15 EUR ; coloration, 2 heures, à partir de 60 EUR. Je travaille du mardi au samedi, de 10:00 à 19:00, pause déjeuner de 14:00 à 15:00. Espèces ou carte. Je veux confirmer chaque réservation moi-même.",
-      "descriptionRequired": "Décrivez d’abord votre activité.",
-      "adjustHint": "Déjà configuré ? Décrivez seulement ce qui change, par exemple « Je ne propose plus qu’une prestation, le lundi de 18:00 à 21:00 ».",
-      "dailyLimit": "{count, plural, one {Votre formule inclut # brouillon par jour.} other {Votre formule inclut # brouillons par jour.}}",
-      "generate": "Structurer avec l’IA",
-      "generating": "Lecture de votre description… Cela peut prendre jusqu’à une minute.",
-      "seePlans": "Voir les formules",
-      "summary": "Récapitulatif",
-      "stepOf": "Étape {current} sur {total}",
-      "changed": "Modifié",
-      "unchanged": "Aucun changement",
-      "back": "Retour",
-      "next": "Suivant",
-      "rewrite": "Modifier la description",
-      "statusNew": "Nouveau",
-      "statusChanged": "Modifié",
-      "statusKept": "Inchangé",
-      "statusRemoved": "Supprimé",
-      "editService": "Modifier la prestation",
-      "removeService": "Supprimer la prestation",
-      "restoreService": "Rétablir",
-      "addService": "Ajouter une prestation",
-      "noServices": "Aucune prestation pour l’instant. Ajoutez-en une, ou revenez en arrière pour décrire ce que vous proposez.",
-      "noPrice": "Pas de prix",
-      "removedTitle": "À supprimer",
-      "removedHint": "Les prestations qui ont déjà des réservations sont désactivées plutôt que supprimées.",
-      "serviceCap": "{max, plural, one {Votre formule permet # prestation active.} other {Votre formule permet # prestations actives.}} Supprimez-en pour continuer, ou passez à une formule supérieure.",
-      "payToKept": "Votre numéro de carte ou de compte n’est pas modifié ici. Modifiez-le dans l’onglet Paiements.",
-      "summaryChanged": "L’approbation met à jour :",
-      "summaryServices": "{created} nouvelles · {updated} modifiées · {removed} supprimées",
-      "summaryNone": "Rien ne diffère de votre espace actuel.",
-      "summaryBody": "Tout est enregistré et publié en une fois. Le référencement de votre page dans la recherche ne change pas.",
-      "summaryPhotos": "Les photos ne sont pas préparées. Ajoutez-les dans les onglets Profil et Prestations.",
-      "approve": "Approuver et appliquer",
-      "applied": "Votre espace a été mis à jour.",
-      "discardTitle": "Abandonner ce brouillon ?",
-      "discardBody": "Rien n’a encore été enregistré. Si vous fermez maintenant, le brouillon est perdu.",
-      "discard": "Abandonner"
+    "visitorAssistant": {
+      "title": "Assistant IA sur votre page",
+      "body": "Les visiteurs peuvent interroger un assistant IA sur vos prestations, vos prix, vos horaires et vos créneaux libres, directement sur votre page publique. Il répond à partir des informations de votre page et ne peut rien réserver ni modifier.",
+      "locked": "Inclus dans la formule Premium. <link>Voir les formules</link>",
+      "failed": "Le réglage de l’assistant n’a pas été enregistré"
     }
   },
   "Bookings": {
@@ -883,7 +876,7 @@
       "consumer": "Faites par moi"
     },
     "import": {
-      "button": "Ajouter depuis une photo",
+      "button": "Importer depuis une photo",
       "title": "Ajouter des réservations depuis une photo",
       "intro": "Photographiez vos réservations écrites à la main. Nous les lisons, et vous vérifiez chacune d’elles avant que quoi que ce soit ne soit enregistré.",
       "photoLabel": "Photo",
@@ -1191,7 +1184,13 @@
       "loadError": "Impossible de charger les avis. Veuillez réessayer."
     },
     "poweredBy": "Page de réservation créée avec Bookie",
-    "poweredByCta": "Créez la vôtre gratuitement"
+    "poweredByCta": "Créez la vôtre gratuitement",
+    "specialDates": "Dates particulières",
+    "monthlyDays": "Chaque mois, les jours {days}",
+    "lastDay": "le dernier jour",
+    "byDates": "Ouvert uniquement aux dates indiquées ci-dessous.",
+    "closedDuring": "Fermé",
+    "openDates": "Dates d’ouverture"
   },
   "Legal": {
     "termsMetaTitle": "Conditions d'utilisation",
@@ -1288,7 +1287,7 @@
           "p3": "<b>Notre service d’envoi d’e-mails</b> — envoie les e-mails liés au compte et aux réservations.",
           "p4": "<b>Telegram</b> — transmet les notifications, uniquement si vous le connectez.",
           "p5": "<b>Google</b> — vous connecte, uniquement si vous choisissez de continuer avec Google.",
-          "p6": "<b>Google Gemini</b> — lit la photo de réservations écrites à la main ou la description qu’un prestataire donne de son activité, uniquement lorsqu’un prestataire choisit d’utiliser ces fonctions. Avec l’offre gratuite de Gemini, Google peut utiliser ce qu’il reçoit pour améliorer ses services. Nous ne conservons ni la photo ni la description.",
+          "p6": "<b>Google Gemini</b> — lit la photo de réservations écrites à la main, les messages d’un prestataire à son assistant IA et les questions d’un visiteur à l’assistant IA d’une page, uniquement lorsque quelqu’un choisit d’utiliser ces fonctions. Avec l’offre gratuite de Gemini, Google peut utiliser ce qu’il reçoit pour améliorer ses services. Nous ne conservons ni les photos ni les questions des visiteurs ; la conversation d’un prestataire avec son assistant est conservée dans son compte jusqu’à ce qu’il l’efface.",
           "p7": "<b>Google Analytics</b> — mesure les visites et l’usage des pages, sans publicité ni profilage. Dans l’UE, l’EEE, au Royaume-Uni et en Suisse, il ne dépose de cookies qu’après votre accord.",
           "p8": "<b>Sentry</b> — reçoit un rapport quand quelque chose échoue dans votre navigateur : l’erreur, la page et le type de navigateur, sans vos cookies, le contenu des formulaires ni les données de votre compte.",
           "p9": "Les détails d’une réservation sont partagés avec le professionnel auprès duquel elle est effectuée, et les coordonnées publiques du professionnel avec le client — c’est le principe même d’une réservation."
@@ -1404,7 +1403,7 @@
     "duplicate": "Dupliquer",
     "availability": {
       "title": "Disponibilité",
-      "help": "Choisissez les jours où ce service peut être réservé. Les horaires suivent toujours vos propres heures d'ouverture.",
+      "help": "Choisissez les jours où cette prestation peut être réservée, et éventuellement ses propres horaires. Elle n’est jamais réservable en dehors de vos heures d’ouverture.",
       "modes": {
         "always": "Toujours",
         "recurring": "Récurrent",
@@ -1415,7 +1414,7 @@
         "weekdays": "Jours de la semaine",
         "monthDays": "Jours du mois"
       },
-      "closedDay": "Vous êtes fermé ce jour-là. Modifiez-le sur la page <link>Disponibilité</link>.",
+      "closedDay": "Vous êtes fermé ce jour-là : à l’enregistrement, on vous demandera s’il faut l’ouvrir. Les horaires se règlent sur la page <link>Disponibilité</link>.",
       "monthDaysLabel": "Jours du mois",
       "monthDaysPlaceholder": "Choisissez des jours, ex. 16",
       "monthDaysNote": "Se répète chaque mois. Un jour qu'un mois n'a pas, comme le 31 avril, est ignoré.",
@@ -1427,11 +1426,46 @@
       "pickMonthDay": "Choisissez au moins un jour du mois.",
       "pickDate": "Choisissez au moins une date.",
       "withinHours": "Réservable uniquement pendant vos heures d'ouverture.",
-      "neverBookable": "Ce service ne peut pas être réservé avec ces réglages : aucun des jours choisis ne tombe dans vos heures d'ouverture.",
+      "neverBookable": "Cette prestation ne peut pas être réservée avec ces réglages : aucun des jours et horaires choisis ne tombe pendant vos heures d’ouverture.",
       "summary": {
         "weekdays": "Jours : {days}",
         "monthDays": "Chaque mois, les jours : {days}",
         "dates": "{count, plural, one {# date} other {# dates}}"
+      },
+      "closedDateLabel": "{date}, vous êtes fermé",
+      "hoursTitle": "Seulement à certaines heures",
+      "hoursHelp": "Limitez cette prestation à une partie de votre journée, par exemple le matin uniquement."
+    },
+    "outsideHours": "{count, plural, one {Non réservable sur # de ses jours : en dehors de vos horaires} other {Non réservable sur # de ses jours : en dehors de vos horaires}}",
+    "conflict": {
+      "title": "Cette prestation dépasse vos horaires",
+      "body": "Ces jours-là, la prestation ne pourrait pas être réservée en l’état. Choisissez quoi faire : chaque option indique exactement ce qu’elle change.",
+      "failed": "Cela n’a pas abouti",
+      "weekly": {
+        "closed": "{count, plural, one {{day} : vous êtes fermé (# date dans les 3 prochains mois)} other {{day} : vous êtes fermé (# dates dans les 3 prochains mois)}}",
+        "hours": "{count, plural, one {{day} : ses horaires dépassent les vôtres (# date dans les 3 prochains mois)} other {{day} : ses horaires dépassent les vôtres (# dates dans les 3 prochains mois)}}"
+      },
+      "special": {
+        "closed": "{dates} : vous êtes fermé (date particulière)",
+        "hours": "{dates} : ses horaires dépassent les vôtres (date particulière)"
+      },
+      "widenTitle": "Élargir mes horaires",
+      "widenLine": "{day} : {before} → {after}",
+      "widenKeepsSpecial": "Publié aussitôt sur votre page. Les dates particulières restent telles que vous les avez définies.",
+      "widenLive": "Publié aussitôt sur votre page.",
+      "widenUnavailable": "Seules des dates particulières bloquent, et elles restent telles que vous les avez définies. Modifiez-les sur la page Disponibilité.",
+      "fitTitle": "Adapter la prestation à mes horaires",
+      "fitDays": "Proposée : {days}",
+      "fitDates": "{count, plural, one {# date retirée} other {# dates retirées}}",
+      "fitHours": "Horaires : {hours}",
+      "fitNothing": "Enregistrée telle quelle : ces jours-là ne sont simplement pas réservables.",
+      "fitUnavailable": "Il ne resterait rien à réserver. Élargissez vos horaires ou enregistrez tel quel.",
+      "keepTitle": "Enregistrer tel quel",
+      "keepBody": "Rien d’autre ne change. Ces jours-là ne peuvent simplement pas être réservés, et la fiche de la prestation continue de l’indiquer.",
+      "choose": {
+        "widen": "Élargir et enregistrer",
+        "fit": "Adapter et enregistrer",
+        "keep": "Enregistrer tel quel"
       }
     }
   },
@@ -1497,8 +1531,10 @@
       "changeUnavailable": "Votre abonnement ne peut pas être modifié pour le moment. Si un paiement a échoué, mettez à jour votre carte dans « Gérer la facturation » ; sinon, réessayez dans un moment.",
       "activeSubscription": "Cette page a encore un abonnement actif. Annulez-le dans « Gérer la facturation » avant de supprimer la page.",
       "assistantUnavailable": "L’assistant IA n’est pas disponible pour le moment.",
-      "assistantUnreadable": "Nous n’avons rien pu préparer à partir de cette description. Décrivez vos prestations, vos prix et vos horaires plus en détail.",
-      "profileAssistantLimit": "Vous avez déjà utilisé le brouillon IA du jour. Il sera de nouveau disponible demain, ou passez à une formule supérieure pour des brouillons illimités."
+      "assistantUnreadable": "L’assistant n’a pas pu répondre à cela. Essayez de le formuler autrement.",
+      "assistantLimit": "Vous avez utilisé les messages à l’assistant du jour. Ils reviennent demain, ou passez à une formule supérieure pour en avoir plus.",
+      "visitorAssistantOff": "Cette page n’a pas d’assistant pour le moment.",
+      "visitorAssistantBusy": "L’assistant a répondu à tout ce qu’il pouvait pour aujourd’hui. Veuillez contacter directement le prestataire."
     },
     "pages": {
       "provider": "Impossible de charger la page de ce professionnel. Veuillez réessayer.",
@@ -1586,12 +1622,13 @@
       "maxActiveServices": "Prestations actives",
       "maxBookingsPerMonth": "Réservations en ligne par mois",
       "photoImportsPerDay": "Imports photo par jour",
-      "profileAssistantRunsPerDay": "Brouillons IA par jour",
       "analyticsHistoryDays": "Historique des statistiques",
       "customSlug": "Lien personnalisé",
       "telegramNotifications": "Notifications Telegram",
       "calendarFeed": "Synchronisation d’agenda (iCal)",
-      "removeBranding": "Sans la mention Bookie sur votre page"
+      "removeBranding": "Sans la mention Bookie sur votre page",
+      "assistantMessagesPerDay": "Messages à l’assistant IA par jour",
+      "visitorAssistantMessagesPerDay": "Questions des visiteurs à l’assistant IA de votre page par jour"
     },
     "unlimited": "Illimité",
     "fullHistory": "Historique complet",
@@ -1732,5 +1769,146 @@
     "accept": "Accepter",
     "decline": "Refuser",
     "settings": "Paramètres des cookies"
+  },
+  "Assistant": {
+    "button": "Assistant IA",
+    "tooltip": "Posez une question sur votre espace, ou dites-lui quoi changer : horaires, jours de fermeture, prestations, réservations. Rien ne change tant que vous n’avez pas validé.",
+    "title": "Assistant IA",
+    "expand": "Agrandir",
+    "shrink": "Réduire",
+    "intro": "Dites-moi avec vos mots, dans n’importe quelle langue, ce qu’il faut changer : vos horaires, un jour de fermeture, une nouvelle prestation, une réservation. Je vous montre exactement ce qui changerait, et rien ne se passe tant que vous n’appuyez pas sur Appliquer. Vous pouvez aussi me poser des questions sur votre planning, ou m’envoyer une photo de votre agenda papier.",
+    "disclaimer": "Vérifiez chaque modification avant de l’appliquer.",
+    "usage": "{used} messages sur {limit} aujourd’hui",
+    "usageUnlimited": "Messages illimités avec votre formule",
+    "spent": "Vous avez utilisé les {limit} messages du jour. Ils reviennent demain (UTC), ou passez à une formule supérieure pour en avoir plus.",
+    "dropped": "{count, plural, one {Une modification n’a pas pu être proposée : elle mentionnait quelque chose qui n’existe pas ou un moment déjà passé.} other {# modifications n’ont pas pu être proposées : elles mentionnaient quelque chose qui n’existe pas ou un moment déjà passé.}}",
+    "applied": "C’est fait : vos modifications sont en ligne.",
+    "appliedPartly": "Certaines modifications ont été appliquées. Celles marquées ✕ ne l’ont pas été : réessayez ou ajustez-les vous-même.",
+    "applyFailed": "Rien n’a pu être modifié. Réessayez, ou faites-le vous-même sur la page des paramètres.",
+    "photoSent": "Photo de réservations",
+    "writing": "Rédaction…",
+    "examples": {
+      "closedTomorrow": "Je suis fermé demain, et après-demain je travaille jusqu’à 22:00",
+      "vacation": "Je suis en vacances du 20 au 27 décembre",
+      "newService": "Ajoute une taille de barbe de 45 minutes à 15 EUR, en semaine uniquement",
+      "pending": "Quelles réservations attendent ma validation ?"
+    },
+    "conversations": {
+      "list": "Vos conversations",
+      "new": "Nouvelle conversation",
+      "delete": "Supprimer la conversation",
+      "deleteTitle": "Supprimer cette conversation ?",
+      "deleteBody": "La conversation et ses messages sont supprimés. Les modifications déjà appliquées restent en place.",
+      "deleteConfirm": "Supprimer",
+      "empty": "Aucune conversation pour l’instant. Elles apparaîtront ici.",
+      "photo": "Photo de l’agenda"
+    },
+    "locked": {
+      "title": "L’assistant IA est inclus dans Standard et Premium",
+      "body": "Dites-lui quoi changer (horaires, jours de fermeture, prestations, réservations) et validez chaque modification dans la conversation. Changez de formule pour l’utiliser.",
+      "cta": "Voir les formules"
+    },
+    "unavailable": {
+      "title": "L’assistant n’est pas disponible pour le moment",
+      "body": "Veuillez réessayer plus tard. Tout le reste fonctionne normalement."
+    },
+    "composer": {
+      "photo": "Envoyer une photo de vos réservations",
+      "placeholder": "Dites-moi quoi changer, ou posez une question…",
+      "label": "Message à l’assistant",
+      "send": "Envoyer"
+    },
+    "proposal": {
+      "title": "Modifications à valider",
+      "status": {
+        "pending": "En attente de votre validation",
+        "applied": "Appliqué",
+        "partial": "Appliqué en partie",
+        "dismissed": "Ignoré"
+      },
+      "done": "Fait",
+      "failed": "Non modifié",
+      "adjust": "Ajuster moi-même",
+      "emailsClients": "Les clients concernés sont prévenus par e-mail de ces modifications de réservation.",
+      "apply": "Appliquer",
+      "dismiss": "Ignorer"
+    },
+    "impact": {
+      "title": "Appliquer ces modifications ?",
+      "confirm": "Appliquer quand même",
+      "cancel": "Pas maintenant"
+    },
+    "photo": {
+      "none": "Je n’ai trouvé aucune réservation sur cette photo. Essayez une photo plus nette, ou ajoutez une note sur ce qu’elle montre.",
+      "read": "{count, plural, one {J’ai lu # réservation sur votre photo} other {J’ai lu # réservations sur votre photo}}",
+      "added": "{count, plural, one {# réservation ajoutée.} other {# réservations ajoutées.}}",
+      "review": "Vérifier et ajouter"
+    },
+    "actions": {
+      "aClient": "un client",
+      "aService": "une prestation",
+      "monthDays": "les jours {days} de chaque mois",
+      "dates": "{count, plural, one {# date} other {# dates}}",
+      "everyOpenDay": "tous vos jours d’ouverture",
+      "on": "activé",
+      "off": "désactivé",
+      "weeklyDay": "Chaque semaine, {day} : {hours}",
+      "weeklyClosed": "Chaque semaine, {day} : fermé",
+      "specialHours": "{dates} : ouvert {hours}",
+      "specialClosed": "{dates} : fermé",
+      "specialClosedHours": "{dates} : fermé {hours}",
+      "specialRemove": "Retour à vos horaires habituels : {dates}",
+      "bookingResume": "Reprendre les réservations en ligne",
+      "bookingPause": "Suspendre les réservations en ligne",
+      "serviceCreate": "Nouvelle prestation « {name} », {duration}, {price}",
+      "noPrice": "sans prix",
+      "serviceWhen": "Réservable : {when}",
+      "serviceDeactivate": "Désactiver « {name} »",
+      "serviceActivate": "Activer « {name} »",
+      "serviceRename": "Renommer « {name} » en « {value} »",
+      "serviceDuration": "« {name} » dure {value}",
+      "servicePriceCleared": "« {name} » : sans prix",
+      "servicePrice": "« {name} » coûte {value}",
+      "serviceDescription": "Nouvelle description pour « {name} »",
+      "serviceAvailability": "« {name} » réservable : {when}",
+      "serviceUpdate": "Mettre à jour « {name} »",
+      "serviceDelete": "Supprimer « {name} »",
+      "profileName": "Votre nom sur la page : {value}",
+      "profileDescription": "Nouvelle description sur votre page",
+      "profileAddress": "Adresse : {value}",
+      "approval": "Valider vous-même chaque réservation : {state}",
+      "notifyNewBooking": "E-mails de nouvelle réservation : {state}",
+      "notifyChanges": "E-mails de modification de réservation : {state}",
+      "notifyReminders": "Rappels de rendez-vous : {state}",
+      "notifyReminderLead": "Rappels {lead} avant",
+      "timeZone": "Fuseau horaire : {zone} — tous les horaires publiés se décalent avec lui",
+      "clock12": "Afficher l’heure au format 12 heures",
+      "clock24": "Afficher l’heure au format 24 heures",
+      "seoTitle": "Titre pour la recherche : {value}",
+      "seoDescription": "Nouvelle description pour la recherche",
+      "seoSlug": "Lien de la page : /p/{value} — les liens déjà partagés ne fonctionneront plus",
+      "categories": "Catégories : {names}",
+      "listed": "Publier votre page",
+      "unlisted": "Retirer votre page de la recherche Bookie",
+      "approve": "Valider la réservation : {service}, {client}, {when}",
+      "decline": "Refuser la réservation : {service}, {client}, {when}",
+      "cancel": "Annuler la réservation : {service}, {client}, {when}",
+      "reschedule": "Déplacer la réservation {service} ({client}) du {when} au {to}",
+      "visitorAssistant": "Assistant sur votre page publique : {state}"
+    },
+    "visitor": {
+      "button": "Poser une question",
+      "title": "Questions sur {name}",
+      "intro": "Posez vos questions sur les prestations, les prix, les horaires ou les créneaux libres. Pour réserver, choisissez un horaire dans le calendrier de cette page.",
+      "placeholder": "Posez une question…",
+      "disclaimer": "Réponses générées par l’IA à partir des informations de cette page. Les créneaux libres peuvent être pris à tout moment.",
+      "clear": "Recommencer",
+      "examples": {
+        "services": "Quelles prestations proposez-vous ?",
+        "weekend": "Êtes-vous disponible le week-end ?",
+        "price": "Combien ça coûte ?",
+        "payment": "Comment puis-je payer ?"
+      }
+    }
   }
 }

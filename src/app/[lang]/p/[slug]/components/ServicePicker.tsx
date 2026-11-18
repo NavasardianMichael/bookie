@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, useCallback } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
@@ -29,6 +29,7 @@ type Props = {
  */
 export const ServicePicker: FC<Props> = ({ services, value, onChange }) => {
   const t = useTranslations('Booking')
+  const locale = useLocale()
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
     [onChange]
@@ -67,7 +68,7 @@ export const ServicePicker: FC<Props> = ({ services, value, onChange }) => {
 
                   <span className='flex flex-wrap items-center gap-x-2'>
                     <AppTime dateTime={toIsoDuration(service.duration)} className='text-caption'>
-                      {formatDuration(service.duration)}
+                      {formatDuration(service.duration, locale)}
                     </AppTime>
                     {service.price !== undefined && service.currency && (
                       <>

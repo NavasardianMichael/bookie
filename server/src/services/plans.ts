@@ -47,11 +47,18 @@ export type Entitlements = {
    */
   photoImportsPerDay: number | null
   /**
-   * Profile-assistant runs (a description turned into a drafted workspace) per UTC day, over
-   * the same window as photo imports. Metered for the same reason: each one spends the shared
-   * Gemini quota. Applying a draft is free; only generating one counts.
+   * Messages a provider may send their own AI assistant per UTC day (the chat in provider
+   * settings that proposes schedule, service, booking and profile changes). `0` is "not on
+   * this plan" — the feature is sold from Standard up. Metered because every message spends
+   * the deployment's one shared Gemini quota. Applying a proposal is free; only asking counts.
    */
-  profileAssistantRunsPerDay: number | null
+  assistantMessagesPerDay: number | null
+  /**
+   * Questions visitors may ask a provider's public-page assistant per UTC day, all visitors
+   * together. `0` is "not on this plan" — Premium only. A spent allowance is never named to a
+   * visitor (`ASSISTANT_ERROR.visitorAssistantBusy`), for the reason `bookingFull` is plan-neutral.
+   */
+  visitorAssistantMessagesPerDay: number | null
 }
 
 /**
@@ -74,7 +81,8 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     calendarFeed: false,
     removeBranding: false,
     photoImportsPerDay: 1,
-    profileAssistantRunsPerDay: 1,
+    assistantMessagesPerDay: 0,
+    visitorAssistantMessagesPerDay: 0,
   },
   basic: {
     maxActiveServices: 10,
@@ -82,7 +90,8 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     analyticsHistoryDays: 365,
     customSlug: true,
     photoImportsPerDay: null,
-    profileAssistantRunsPerDay: null,
+    assistantMessagesPerDay: 0,
+    visitorAssistantMessagesPerDay: 0,
     ...PAID_CONVENIENCE,
   },
   standard: {
@@ -91,7 +100,8 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     analyticsHistoryDays: null,
     customSlug: true,
     photoImportsPerDay: null,
-    profileAssistantRunsPerDay: null,
+    assistantMessagesPerDay: 40,
+    visitorAssistantMessagesPerDay: 0,
     ...PAID_CONVENIENCE,
   },
   premium: {
@@ -100,7 +110,8 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     analyticsHistoryDays: null,
     customSlug: true,
     photoImportsPerDay: null,
-    profileAssistantRunsPerDay: null,
+    assistantMessagesPerDay: 150,
+    visitorAssistantMessagesPerDay: 300,
     ...PAID_CONVENIENCE,
   },
 }
@@ -369,17 +380,25 @@ export const assertPhotoImport = (usedToday: number, entitlements: Entitlements)
 }
 
 /**
- * Refuses a profile-assistant run past today's allowance — `assertPhotoImport`'s twin, over the
- * same UTC day (`photoImportPeriod`).
+ * Refuses a provider-assistant message: `featureLocked` on a plan without the assistant, the
+ * assistant's own code once today's messages are spent — over the same UTC day as photo
+ * imports (`photoImportPeriod`).
  */
-export const assertProfileAssistantRun = (usedToday: number, entitlements: Entitlements): void => {
-  if (hasRoomFor(usedToday, entitlements.profileAssistantRunsPerDay)) return
+export const assertAssistantMessage = (usedToday: number, entitlements: Entitlements): void => {
+  if (entitlements.assistantMessagesPerDay === 0) {
+    throw new HttpError(403, 'The AI assistant is included from the Standard plan.', PLAN_ERROR.featureLocked)
+  }
+  if (hasRoomFor(usedToday, entitlements.assistantMessagesPerDay)) return
   throw new HttpError(
     403,
-    `Your plan includes ${entitlements.profileAssistantRunsPerDay} profile assistant run a day. It resets at midnight UTC.`,
-    PLAN_ERROR.profileAssistantLimit
+    `Your plan includes ${entitlements.assistantMessagesPerDay} assistant messages a day. It resets at midnight UTC.`,
+    PLAN_ERROR.assistantLimit
   )
 }
+
+/** Whether a provider's plan lets them switch the public-page assistant on at all. */
+export const allowsVisitorAssistant = (entitlements: Entitlements): boolean =>
+  entitlements.visitorAssistantMessagesPerDay !== 0
 
 /**
  * The bookings that spend a provider's monthly allowance: created this month and not

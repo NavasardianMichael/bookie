@@ -8,6 +8,7 @@ import { requireSameOrigin } from './middleware/csrf.js'
 import { errorHandler } from './middleware/error.js'
 import { adminRouter } from './routes/admin.js'
 import { appointmentsRouter } from './routes/appointments.js'
+import { assistantRouter } from './routes/assistant.js'
 import { billingRouter, paddleWebhookRouter } from './routes/billing.js'
 import { bookingImportRouter } from './routes/bookingImport.js'
 import { calendarRouter, providerCalendarRouter } from './routes/calendar.js'
@@ -19,10 +20,11 @@ import { favoritesRouter } from './routes/favorites.js'
 import { identityRouter } from './routes/identity.js'
 import { organizationsRouter } from './routes/organizations.js'
 import { plansRouter, providerPlanRouter } from './routes/plans.js'
-import { profileAssistantRouter } from './routes/profileAssistant.js'
 import { providerProfileRouter,providersRouter } from './routes/providers.js'
+import { providerScheduleRouter } from './routes/providerSchedule.js'
 import { providerReviewsRouter, reviewsRouter } from './routes/reviews.js'
 import { telegramRouter, telegramWebhookRouter } from './routes/telegram.js'
+import { visitorAssistantRouter } from './routes/visitorAssistant.js'
 
 export function createApp() {
   const app = express()
@@ -74,6 +76,7 @@ export function createApp() {
       billing: isPaddleConfigured(),
       telegram: isTelegramConfigured(),
       photoImport: isGeminiConfigured(),
+      assistant: isGeminiConfigured(),
     })
   })
 
@@ -84,18 +87,23 @@ export function createApp() {
   // in `routes/reviews.ts`. Express runs both in registration order; the paths do not
   // overlap, because `providersRouter` has no `/:id/reviews`.
   app.use('/providers', providerReviewsRouter)
+  // The public page's AI assistant, `POST /providers/:id/assistant` — the same arrangement.
+  app.use('/providers', visitorAssistantRouter)
   app.use('/reviews', reviewsRouter)
   app.use('/admin', adminRouter)
   // Before `providerProfileRouter`, on its exact prefix, so none of that router's
   // `/bookings/:id` patterns can ever claim `import`.
   app.use('/provider-profile/bookings/import', bookingImportRouter)
-  app.use('/provider-profile/assistant', profileAssistantRouter)
+  app.use('/provider-profile/assistant', assistantRouter)
   app.use('/provider-profile', providerProfileRouter)
   // Same arrangement as the reviews pair above: `GET /provider-profile/plan` lives in
   // `routes/plans.ts` with the rest of the plan surface, and no path overlaps.
   app.use('/provider-profile', providerPlanRouter)
   // The calendar-feed controls; `routes/calendar.ts` also serves the feed itself below.
   app.use('/provider-profile', providerCalendarRouter)
+  // `PATCH /schedule` and `PATCH /bookings/:id/reschedule` — live changes the provider just
+  // approved (the AI assistant, the service-conflict dialog). No path overlaps the others.
+  app.use('/provider-profile', providerScheduleRouter)
   app.use('/plans', plansRouter)
   app.use('/billing', billingRouter)
   app.use('/telegram', telegramRouter)

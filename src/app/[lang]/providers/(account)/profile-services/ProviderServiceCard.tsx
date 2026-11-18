@@ -10,17 +10,20 @@ import {
   MoreOutlined,
   PauseOutlined,
   TagsOutlined,
+  WarningOutlined,
 } from '@ant-design/icons'
 import { Button, Dropdown, Switch, Tag } from 'antd'
 import dayjs from 'dayjs'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { ProviderService } from '@store/providers/profile/types'
-import { WEEK_DAYS_LIST } from '@constants/schedule'
+import { TimeFormat } from '@interfaces/schedule'
+import { SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { WEEKDAY_ORDER } from '@helpers/calendar'
 import { cn } from '@helpers/cn'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
 import { resolveAssetUrl } from '@helpers/images'
+import { getTimeDisplayFormat } from '@helpers/timeFormat'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTime } from '@components/ui/bare/AppTime'
@@ -43,6 +46,10 @@ type Props = {
    * a provider makes room.
    */
   activationLocked?: boolean
+  /** Days in the next three months it is offered on but cannot be booked — outside the provider's hours. */
+  outsideHoursDays?: number
+  /** The provider's clock, for the service's own hours. */
+  timeFormat: TimeFormat
 }
 
 const MENU_KEYS = { edit: 'edit', duplicate: 'duplicate', toggle: 'toggle', delete: 'delete' } as const
@@ -63,8 +70,11 @@ export const ProviderServiceCard: FC<Props> = ({
   onDelete,
   onToggleActive,
   activationLocked = false,
+  outsideHoursDays = 0,
+  timeFormat,
 }) => {
   const t = useTranslations('Services')
+  const locale = useLocale()
   const resolvedImage = resolveAssetUrl(service.image)
   const hasPrice = typeof service.price === 'number'
   const toggleDisabled = !service.active && activationLocked
@@ -87,6 +97,15 @@ export const ProviderServiceCard: FC<Props> = ({
         return null
     }
   }, [service, t])
+
+  /** The service's own hours, when it keeps to some inside the provider's. */
+  const hoursSummary = useMemo((): string | null => {
+    const hours = service.availability?.hours
+    if (!hours?.length) return null
+    const display = getTimeDisplayFormat(timeFormat)
+    const time = (value: string): string => dayjs(value, SCHEDULE_VALUE_FORMAT).format(display)
+    return hours.map((part) => `${time(part.start)}–${time(part.end)}`).join(', ')
+  }, [service.availability, timeFormat])
 
   const handleMenuClick = useCallback(
     ({ key }: { key: string }) => {
@@ -173,10 +192,17 @@ export const ProviderServiceCard: FC<Props> = ({
           </AppParagraph>
         )}
 
-        {availabilitySummary && (
+        {(availabilitySummary || hoursSummary) && (
           <AppText size='caption' tone='muted' className='flex items-center gap-1.5'>
             <CalendarOutlined aria-hidden />
-            <span className='line-clamp-1'>{availabilitySummary}</span>
+            <span className='line-clamp-1'>{[availabilitySummary, hoursSummary].filter(Boolean).join(' · ')}</span>
+          </AppText>
+        )}
+
+        {service.active && outsideHoursDays > 0 && (
+          <AppText size='caption' tone='danger' className='flex items-center gap-1.5'>
+            <WarningOutlined aria-hidden />
+            <span>{t('outsideHours', { count: outsideHoursDays })}</span>
           </AppText>
         )}
       </div>
@@ -186,7 +212,7 @@ export const ProviderServiceCard: FC<Props> = ({
           <span className='text-brand-text flex items-center gap-1.5 font-semibold'>
             <ClockIcon aria-hidden className='h-4 w-4' />
             <AppTime dateTime={toIsoDuration(service.duration)} className='text-caption'>
-              {formatDuration(service.duration)}
+              {formatDuration(service.duration, locale)}
             </AppTime>
           </span>
 

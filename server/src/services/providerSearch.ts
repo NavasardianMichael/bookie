@@ -1,7 +1,8 @@
 import { Prisma } from '@prisma/client'
 import { seededCategoriesMatching } from '../lib/category-names.js'
 import type { TermSpellings } from '../lib/searchCorrection.js'
-import { SUPPORTED_TIME_ZONES, toTimeZone, weekdayInZone, type WeekdayName } from '../lib/time-zone.js'
+import { providerDayParts, specialDateOn, toScheduleRule, toSpecialDates } from '../lib/service-availability.js'
+import { SUPPORTED_TIME_ZONES, toTimeZone, wallClockInZone, weekdayInZone, type WeekdayName } from '../lib/time-zone.js'
 
 /**
  * The Explore list's query contract: what `GET /providers` accepts, and the Prisma
@@ -59,6 +60,9 @@ type RawQuery = Record<string, unknown>
 const asString = (raw: unknown): string => (typeof raw === 'string' ? raw : '')
 
 const asFlag = (raw: unknown): boolean => raw === true || raw === 'true' || raw === '1'
+
+/** Whether a list request asks for `openToday` — the route fetches overrides only then. */
+export const wantsOpenToday = (query: RawQuery): boolean => asFlag(query.openToday)
 
 const asSort = (raw: unknown): ProvidersListSort => PROVIDERS_LIST_SORTS.find((sort) => sort === raw) ?? 'recommended'
 
@@ -149,21 +153,33 @@ const WEEKDAYS_SUNDAY_FIRST = ['sunday', 'monday', 'tuesday', 'wednesday', 'thur
  */
 export const weekdayOf = (now: Date): (typeof WEEKDAYS_SUNDAY_FIRST)[number] => WEEKDAYS_SUNDAY_FIRST[now.getDay()]!
 
-/** Today's weekday for one provider: in their zone when they set one, the server's otherwise. */
-const providerWeekday = (now: Date, timeZone?: string | null): WeekdayName => {
-  const zone = toTimeZone(timeZone)
-  return zone ? weekdayInZone(now, zone) : weekdayOf(now)
-}
-
 /**
- * Same predicate as `openTodayWhere`: today's weekday has an `'HH:mm'` start.
- * Used by `mapBasicProvider` so the card's Closed state matches the filter.
+ * Whether the provider has hours today, on their own calendar. Used by `mapBasicProvider` for
+ * the card's Closed state. The provider's rule (weekly, days of the month, specific dates) and a
+ * special date covering today both count — closed for a holiday, or open on a day the week is not.
+ *
+ * The Explore filter agrees through `specialDateOverrides`: the rows SQL cannot judge (a special
+ * date today, or a rule other than weekly) are judged here, by this function, and handed to
+ * `openTodayWhere` as ids.
  */
-export function isOpenToday(weekSchedule: unknown, now: Date = new Date(), timeZone?: string | null): boolean {
-  if (!weekSchedule || typeof weekSchedule !== 'object' || Array.isArray(weekSchedule)) return false
-  const day = (weekSchedule as Record<string, { availability?: { start?: unknown } }>)[providerWeekday(now, timeZone)]
-  const start = day?.availability?.start
-  return typeof start === 'string' && start.includes(':')
+export function isOpenToday(
+  weekSchedule: unknown,
+  now: Date = new Date(),
+  timeZone?: string | null,
+  specialDates?: unknown,
+  scheduleRule?: unknown
+): boolean {
+  const zone = toTimeZone(timeZone)
+  // Without a zone, today is the server's own calendar day — the weekday `weekdayOf` has always used.
+  const dayKey = zone ? wallClockInZone(now, zone).dayKey : serverDayKey(now)
+  return (
+    providerDayParts({
+      weekSchedule,
+      specialDates: toSpecialDates(specialDates),
+      rule: toScheduleRule(scheduleRule),
+      dayKey,
+    }).length > 0
+  )
 }
 
 /**
@@ -186,29 +202,89 @@ const hasHoursOn = (weekday: WeekdayName): Prisma.ProviderWhereInput => ({
  * only because a stored zone is always a member of `SUPPORTED_TIME_ZONES` — `toTimeZone`
  * canonicalises on write. A provider with no zone keeps the server's weekday.
  */
-const openTodayWhere = (now: Date): Prisma.ProviderWhereInput => {
+const openTodayWhere = (now: Date, overrides: SpecialDateOverrides = NO_OVERRIDES): Prisma.ProviderWhereInput => {
   const zonesByWeekday = new Map<WeekdayName, string[]>()
   SUPPORTED_TIME_ZONES.forEach((zone) => {
     const weekday = weekdayInZone(now, zone)
     zonesByWeekday.set(weekday, [...(zonesByWeekday.get(weekday) ?? []), zone])
   })
 
+  const settled = [...overrides.open, ...overrides.closed]
+  // Only a weekly rule's hours live on `weekSchedule.<day>`; another rule keeps that column for
+  // switching back, so it must not answer. And a provider a special date settles today is
+  // answered by it alone, never by the weekly hours.
+  const byWeek = (branch: Prisma.ProviderWhereInput): Prisma.ProviderWhereInput => ({
+    ...branch,
+    scheduleRule: { path: ['mode'], equals: 'weekdays' },
+    ...(settled.length ? { id: { notIn: settled } } : {}),
+  })
+
   return {
     OR: [
-      { timeZone: null, ...hasHoursOn(weekdayOf(now)) },
-      ...[...zonesByWeekday].map(([weekday, zones]) => ({ timeZone: { in: zones }, ...hasHoursOn(weekday) })),
+      byWeek({ timeZone: null, ...hasHoursOn(weekdayOf(now)) }),
+      ...[...zonesByWeekday].map(([weekday, zones]) => byWeek({ timeZone: { in: zones }, ...hasHoursOn(weekday) })),
+      ...(overrides.open.length ? [{ id: { in: overrides.open } }] : []),
     ],
   }
 }
 
 /**
+ * The providers whose today SQL cannot judge, split by the answer: a special date on today, or a
+ * rule other than weekly (days of the month, specific dates). SQL cannot say which calendar day
+ * it is for each row, nor walk a list of date ranges per row through Prisma, so the filter takes
+ * these as ids: the I/O half (`exploreResults.ts#loadSpecialDateOverrides`) fetches every such
+ * row, and this judges each with `isOpenToday` — the card's own predicate, so the two cannot
+ * disagree.
+ */
+export type SpecialDateOverrides = { open: string[]; closed: string[] }
+
+const NO_OVERRIDES: SpecialDateOverrides = { open: [], closed: [] }
+
+export type SpecialDateRow = {
+  id: string
+  weekSchedule: unknown
+  timeZone: string | null
+  specialDates: unknown
+  scheduleRule?: unknown
+}
+
+/** The server's own calendar day — "today" for a provider with no zone, as in `isOpenToday`. */
+const serverDayKey = (now: Date): string =>
+  `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+
+/**
+ * The first and last calendar day it is anywhere a provider can be, right now — at most three
+ * consecutive days. `'YYYY-MM-DD'` compares as text, which is how the SQL reads it.
+ */
+export function todaySpan(now: Date): { from: string; to: string } {
+  const days = [serverDayKey(now), ...SUPPORTED_TIME_ZONES.map((zone) => wallClockInZone(now, zone).dayKey)].sort()
+  return { from: days[0]!, to: days[days.length - 1]! }
+}
+
+export function specialDateOverrides(rows: readonly SpecialDateRow[], now: Date): SpecialDateOverrides {
+  const overrides: SpecialDateOverrides = { open: [], closed: [] }
+  rows.forEach((row) => {
+    const zone = toTimeZone(row.timeZone)
+    const dayKey = zone ? wallClockInZone(now, zone).dayKey : serverDayKey(now)
+    const weekly = toScheduleRule(row.scheduleRule).mode === 'weekdays'
+    // Touching the span is not covering this provider's today — a weekly rule's hours still answer.
+    if (weekly && !specialDateOn(toSpecialDates(row.specialDates), dayKey)) return
+    const open = isOpenToday(row.weekSchedule, now, row.timeZone, row.specialDates, row.scheduleRule)
+    overrides[open ? 'open' : 'closed'].push(row.id)
+  })
+  return overrides
+}
+
+/**
  * `spellings` replaces the words of `q` with a set of spellings per word — the corrected
- * retry. `terms` in the result stays the words as typed.
+ * retry. `terms` in the result stays the words as typed. `overrides` is what special dates
+ * decide today (`specialDateOverrides`); without it `openToday` reads the weekly hours alone.
  */
 export function parseProvidersListQuery(
   query: RawQuery,
   now: Date = new Date(),
-  spellings?: readonly TermSpellings[]
+  spellings?: readonly TermSpellings[],
+  overrides?: SpecialDateOverrides
 ): ProvidersListQuery {
   const terms = toSearchTerms(query.q)
   const matched = spellings ? [...spellings] : terms.map((term) => [term])
@@ -223,7 +299,7 @@ export function parseProvidersListQuery(
       ...(matched.length ? { AND: matched.map(matchesTerm) } : {}),
       ...(categoryId ? { categories: { some: { categoryId } } } : {}),
       ...(asFlag(query.available) ? { available: true } : {}),
-      ...(asFlag(query.openToday) ? openTodayWhere(now) : {}),
+      ...(asFlag(query.openToday) ? openTodayWhere(now, overrides) : {}),
     },
     terms,
     matched,

@@ -21,7 +21,8 @@ const FEATURE_ROWS: (keyof Entitlements)[] = [
   'maxActiveServices',
   'maxBookingsPerMonth',
   'photoImportsPerDay',
-  'profileAssistantRunsPerDay',
+  'assistantMessagesPerDay',
+  'visitorAssistantMessagesPerDay',
   'analyticsHistoryDays',
   'customSlug',
   'telegramNotifications',
@@ -48,6 +49,8 @@ export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderActio
     if (typeof value === 'boolean') return value ? t('included') : t('notIncluded')
     if (value === null) return key === 'analyticsHistoryDays' ? t('fullHistory') : t('unlimited')
     if (key === 'analyticsHistoryDays') return t('days', { count: Number(value) })
+    // A limit of zero is a feature the plan does not have, not a count of nothing.
+    if (value === 0) return t('notIncluded')
     return format.number(Number(value))
   }
 

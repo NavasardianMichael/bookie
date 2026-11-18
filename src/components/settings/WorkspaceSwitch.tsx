@@ -1,6 +1,6 @@
 'use client'
 
-import { FC, ReactNode } from 'react'
+import { FC } from 'react'
 import { SwapOutlined } from '@ant-design/icons'
 import { useTranslations } from 'next-intl'
 import { counterpartPath, WorkspaceRole } from '@helpers/workspace'
@@ -12,8 +12,6 @@ type Props = {
   current: WorkspaceRole
   /** Locale-free pathname, so the counterpart table can match `ROUTES` entries directly. */
   pathname: string
-  /** Sits to the switch's right — the provider side's profile-assistant button. */
-  action?: ReactNode
 }
 
 /**
@@ -33,7 +31,7 @@ type Props = {
  * never booked anyone has no Consumer row, and offering to open a record that does not
  * exist would land on a 404 — `GET /identity/me` reports `profiles` for exactly this.
  */
-export const WorkspaceSwitch: FC<Props> = ({ current, pathname, action }) => {
+export const WorkspaceSwitch: FC<Props> = ({ current, pathname }) => {
   const t = useTranslations('Settings.workspace')
   const target: WorkspaceRole = current === 'provider' ? 'consumer' : 'provider'
 
@@ -48,20 +46,17 @@ export const WorkspaceSwitch: FC<Props> = ({ current, pathname, action }) => {
         </AppText>
       </div>
 
-      <div className='flex shrink-0 items-center gap-2'>
-        {/* A real link, not a button: the destination is a URL, so it prefetches, opens in
-            a new tab on middle-click, and needs no client handler to work. */}
-        <AppLink
-          href={counterpartPath(pathname, target)}
-          variant='button'
-          tone='primary'
-          className='h-auto min-h-8 shrink-0 whitespace-normal py-2 text-center'
-        >
-          <SwapOutlined aria-hidden />
-          {t(target === 'consumer' ? 'toConsumer' : 'toProvider')}
-        </AppLink>
-        {action}
-      </div>
+      {/* A real link, not a button: the destination is a URL, so it prefetches, opens in
+          a new tab on middle-click, and needs no client handler to work. */}
+      <AppLink
+        href={counterpartPath(pathname, target)}
+        variant='button'
+        tone='primary'
+        className='h-auto min-h-8 shrink-0 whitespace-normal py-2 text-center'
+      >
+        <SwapOutlined aria-hidden />
+        {t(target === 'consumer' ? 'toConsumer' : 'toProvider')}
+      </AppLink>
     </div>
   )
 }

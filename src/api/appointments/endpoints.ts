@@ -25,4 +25,6 @@ export const ENDPOINTS = {
    * nothing; this one is a state machine over `pending` that also emails the client.
    */
   patchBookingDecision: '/provider-profile/bookings',
+  /** The provider moves one of their bookings; `/:id/reschedule` is interpolated in `main.ts`. */
+  rescheduleProviderBooking: '/provider-profile/bookings',
 } as const

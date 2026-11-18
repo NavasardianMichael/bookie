@@ -32,7 +32,8 @@
     "pageNumber": "第 {page} 页",
     "previousMonth": "上个月",
     "nextMonth": "下个月",
-    "reload": "重新加载页面"
+    "reload": "重新加载页面",
+    "done": "完成"
   },
   "Nav": {
     "mainNavigation": "主导航",
@@ -537,6 +538,37 @@
         "friday": "周五",
         "saturday": "周六",
         "sunday": "周日"
+      },
+      "special": {
+        "title": "特殊日期",
+        "body": "不按每周营业时间安排的日子——节假日、休假、加长营业日。在这些日期，它们会取代每周的安排。",
+        "add": "添加特殊日期",
+        "empty": "近期没有特殊日期。",
+        "edit": "编辑 {date}",
+        "remove": "删除 {date}",
+        "addTitle": "添加特殊日期",
+        "editTitle": "编辑特殊日期",
+        "dates": "日期",
+        "datesRequired": "请选择日期。",
+        "tooLong": "每条最多涵盖 {days} 天。",
+        "overlap": "这些日期与另一个特殊日期重叠。请改为编辑那一条。",
+        "kindLabel": "休息或营业",
+        "closed": "休息",
+        "hours": "其他时间",
+        "note": "给访客的说明",
+        "noteHint": "可选——显示在你页面上的日期旁边。",
+        "notePlaceholder": "例如：节假日"
+      },
+      "impact": {
+        "title": "发布这些营业时间？",
+        "body": "有些内容依赖于你当前的营业时间。不会自动取消或更改任何内容——请先查看受影响的项目。",
+        "publishAnyway": "仍然发布",
+        "keepEditing": "继续编辑",
+        "unbookable": "以下服务将完全无法预约：",
+        "narrowed": "以下服务将失去部分可预约日：",
+        "bookingsOutside": "{count, plural, other {有 # 个即将到来的预约将落在你的营业时间之外：}}",
+        "andMore": "{count, plural, other {还有 # 个}}",
+        "bookingsKept": "这些预约保持不变。如有需要，可在<link>预约</link>中改期或取消。"
       }
     },
     "advanced": {
@@ -829,50 +861,11 @@
       "betterPlanBody": "{plan}套餐包含你以附加功能形式支付的内容，每月费用更低。",
       "addonsCancelNote": "附加功能随订阅一起续订。在“管理账单”中取消订阅后，附加功能也会结束。"
     },
-    "assistant": {
-      "buttonLabel": "用 AI 设置",
-      "tooltip": "用你自己的话描述你的业务，AI 会起草资料、服务和营业时间，供你审核。",
-      "title": "用 AI 设置你的工作区",
-      "intro": "用你自己的话、任何语言介绍你的业务：提供什么服务、价格和时长、营业时间、客户如何付款。我们会起草你的资料、服务、营业时间和设置，保存前你会逐步核对。",
-      "descriptionLabel": "关于你的业务",
-      "descriptionPlaceholder": "例如：我是发型师。女士剪发 60 分钟 25 EUR；男士剪发 30 分钟 15 EUR；染发 2 小时，60 EUR 起。周二至周六 10:00–19:00 营业，14:00–15:00 午休。现金或刷卡。我想亲自确认每一个预约。",
-      "descriptionRequired": "请先描述你的业务。",
-      "adjustHint": "已经设置好了？只描述要改的内容，例如“我现在只提供一项服务，每周一 18:00–21:00”。",
-      "dailyLimit": "{count, plural, other {你的套餐每天包含 # 次起草。}}",
-      "generate": "用 AI 整理",
-      "generating": "正在阅读你的描述… 最多可能需要一分钟。",
-      "seePlans": "查看套餐",
-      "summary": "总结",
-      "stepOf": "第 {current} 步，共 {total} 步",
-      "changed": "有改动",
-      "unchanged": "无改动",
-      "back": "上一步",
-      "next": "下一步",
-      "rewrite": "修改描述",
-      "statusNew": "新增",
-      "statusChanged": "已修改",
-      "statusKept": "未改动",
-      "statusRemoved": "已移除",
-      "editService": "编辑服务",
-      "removeService": "移除服务",
-      "restoreService": "恢复",
-      "addService": "添加服务",
-      "noServices": "还没有服务。请添加一项，或返回描述你提供的服务。",
-      "noPrice": "未定价",
-      "removedTitle": "将被移除",
-      "removedHint": "已有预约的服务会被停用，而不是删除。",
-      "serviceCap": "{max, plural, other {你的套餐最多允许 # 项启用中的服务。}}请移除一些后继续，或升级套餐。",
-      "payToKept": "卡号或账号不会在这里更改。请在“付款”标签页中编辑。",
-      "summaryChanged": "批准后将更新：",
-      "summaryServices": "新增 {created} 项 · 修改 {updated} 项 · 移除 {removed} 项",
-      "summaryNone": "与你当前的工作区没有任何不同。",
-      "summaryBody": "所有内容会一次性保存并发布。你的页面是否在搜索中显示不会改变。",
-      "summaryPhotos": "照片不会被起草。请在“资料”和“服务”标签页中添加。",
-      "approve": "批准并应用",
-      "applied": "你的工作区已更新。",
-      "discardTitle": "放弃这份草稿？",
-      "discardBody": "目前还没有保存任何内容。现在关闭将放弃草稿。",
-      "discard": "放弃"
+    "visitorAssistant": {
+      "title": "你页面上的 AI 助手",
+      "body": "访客可以直接在你的公开页面上向 AI 助手询问你的服务、价格、营业时间和空闲时段。它根据你页面上的信息回答，无法预约或更改任何内容。",
+      "locked": "包含在高级版套餐中。<link>查看套餐</link>",
+      "failed": "助手设置未保存"
     }
   },
   "Bookings": {
@@ -883,7 +876,7 @@
       "consumer": "我发起的预约"
     },
     "import": {
-      "button": "从照片添加",
+      "button": "从照片导入",
       "title": "从照片添加预约",
       "intro": "拍下你手写的预约记录。我们会识别内容，保存前你会逐条核对。",
       "photoLabel": "照片",
@@ -1191,7 +1184,13 @@
       "loadError": "无法加载评价，请重试。"
     },
     "poweredBy": "预约页面由 Bookie 提供",
-    "poweredByCta": "免费创建你的页面"
+    "poweredByCta": "免费创建你的页面",
+    "specialDates": "特殊日期",
+    "monthlyDays": "每月 {days} 日",
+    "lastDay": "最后一天",
+    "byDates": "仅在下方列出的日期营业。",
+    "closedDuring": "休息",
+    "openDates": "营业日期"
   },
   "Legal": {
     "termsMetaTitle": "服务条款",
@@ -1288,7 +1287,7 @@
           "p3": "<b>我们的邮件发送服务</b>——发送账户和预约相关邮件。",
           "p4": "<b>Telegram</b>——发送通知，仅在您连接后使用。",
           "p5": "<b>Google</b>——为您完成登录，仅在您选择使用 Google 继续时使用。",
-          "p6": "<b>Google Gemini</b> — 仅在服务提供者选择使用相关功能时，识别手写预约记录的照片，或服务提供者对其业务的描述。在 Gemini 的免费层级中，Google 可能会使用收到的内容改进其服务。我们不会保存照片或描述。",
+          "p6": "<b>Google Gemini</b> — 仅在有人选择使用相关功能时，读取手写预约记录的照片、服务提供者发给其 AI 助手的消息，以及访客向页面 AI 助手提出的问题。在 Gemini 的免费层级中，Google 可能会使用收到的内容改进其服务。我们不会保存照片或访客的问题；服务提供者与其助手的对话会保存在其账户中，直到其清空为止。",
           "p7": "<b>Google Analytics</b>——统计访问量和页面使用情况，不用于广告，也不建立用户画像。在欧盟、欧洲经济区、英国和瑞士，仅在您同意后才会设置 Cookie。",
           "p8": "<b>Sentry</b>——在您的浏览器出现故障时接收报告，包括错误、页面和浏览器类型，不包含您的 Cookie、表单内容或账户信息。",
           "p9": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
@@ -1404,7 +1403,7 @@
     "duplicate": "复制",
     "availability": {
       "title": "可预约时间",
-      "help": "选择此服务可预约的日期。时间始终以你自己的营业时间为准。",
+      "help": "选择此服务可预约的日期，也可以为它单独设置时间。它只能在你的营业时间内被预约。",
       "modes": {
         "always": "始终",
         "recurring": "重复",
@@ -1415,7 +1414,7 @@
         "weekdays": "按星期",
         "monthDays": "按每月日期"
       },
-      "closedDay": "你这天不营业。可在<link>可预约时间</link>页面中修改。",
+      "closedDay": "你这天不营业——保存时会询问是否开放这一天。营业时间在<link>可预约时间</link>页面中设置。",
       "monthDaysLabel": "每月日期",
       "monthDaysPlaceholder": "选择日期，例如 16",
       "monthDaysNote": "每月重复。某月没有的日期（如 4 月 31 日）会被跳过。",
@@ -1427,11 +1426,46 @@
       "pickMonthDay": "请至少选择每月中的一天。",
       "pickDate": "请至少选择一个日期。",
       "withinHours": "只能在你的营业时间内预约。",
-      "neverBookable": "按当前设置无法预约此服务：所选日期都不在你的营业时间内。",
+      "neverBookable": "按当前设置，此服务无法预约：所选的日期和时间都不在你的营业时间内。",
       "summary": {
         "weekdays": "每周：{days}",
         "monthDays": "每月：{days} 日",
         "dates": "{count, plural, other {# 个日期}}"
+      },
+      "closedDateLabel": "{date}，你不营业",
+      "hoursTitle": "仅限特定时间",
+      "hoursHelp": "将此服务限制在一天中的部分时间，例如仅上午。"
+    },
+    "outsideHours": "{count, plural, other {有 # 天不可预约——不在你的营业时间内}}",
+    "conflict": {
+      "title": "此服务超出了你的营业时间",
+      "body": "按当前设置，这些日子无法预约此服务。请选择处理方式——每个选项都会准确说明它改变了什么。",
+      "failed": "操作未成功",
+      "weekly": {
+        "closed": "{count, plural, other {{day}：你不营业（未来 3 个月内 # 天）}}",
+        "hours": "{count, plural, other {{day}：服务时间超出你的营业时间（未来 3 个月内 # 天）}}"
+      },
+      "special": {
+        "closed": "{dates}：你不营业（特殊日期）",
+        "hours": "{dates}：服务时间超出你的营业时间（特殊日期）"
+      },
+      "widenTitle": "延长我的营业时间",
+      "widenLine": "{day}：{before} → {after}",
+      "widenKeepsSpecial": "立即发布到你的页面。特殊日期保持你设置的样子。",
+      "widenLive": "立即发布到你的页面。",
+      "widenUnavailable": "只有特殊日期造成冲突，而它们会保持你设置的样子。请在可预约时间页面中修改。",
+      "fitTitle": "让服务适应我的营业时间",
+      "fitDays": "提供日：{days}",
+      "fitDates": "{count, plural, other {已移除 # 个日期}}",
+      "fitHours": "时间：{hours}",
+      "fitNothing": "按原样保存——这些日子只是无法预约。",
+      "fitUnavailable": "将没有可预约的时间。请延长营业时间或按原样保存。",
+      "keepTitle": "按原样保存",
+      "keepBody": "其他都不会改变。这些日子只是无法预约，服务卡片会继续提示这一点。",
+      "choose": {
+        "widen": "延长并保存",
+        "fit": "适应并保存",
+        "keep": "按原样保存"
       }
     }
   },
@@ -1497,8 +1531,10 @@
       "changeUnavailable": "目前无法更改你的订阅。如果付款失败，请在“管理账单”中更新银行卡；否则请稍后再试。",
       "activeSubscription": "此页面仍有有效订阅。删除页面前，请先在“管理账单”中取消订阅。",
       "assistantUnavailable": "AI 助手目前不可用。",
-      "assistantUnreadable": "无法根据这段描述起草任何内容。请更详细地描述你的服务、价格和营业时间。",
-      "profileAssistantLimit": "你今天的 AI 起草次数已用完。明天即可再次使用，或升级套餐享受不限次起草。"
+      "assistantUnreadable": "助手无法回答这个问题。请换一种说法试试。",
+      "assistantLimit": "你今天的助手消息已用完。明天恢复，或升级套餐获取更多。",
+      "visitorAssistantOff": "此页面目前没有助手。",
+      "visitorAssistantBusy": "助手今天能回答的已经全部回答完了。请直接联系服务提供者。"
     },
     "pages": {
       "provider": "无法加载该服务提供者的页面。请重试。",
@@ -1586,12 +1622,13 @@
       "maxActiveServices": "有效服务",
       "maxBookingsPerMonth": "每月在线预约",
       "photoImportsPerDay": "每日照片导入",
-      "profileAssistantRunsPerDay": "每日 AI 起草",
       "analyticsHistoryDays": "数据分析历史",
       "customSlug": "自定义链接",
       "telegramNotifications": "Telegram 通知",
       "calendarFeed": "日历同步（iCal）",
-      "removeBranding": "页面不显示 Bookie 标识"
+      "removeBranding": "页面不显示 Bookie 标识",
+      "assistantMessagesPerDay": "每日 AI 助手消息",
+      "visitorAssistantMessagesPerDay": "每日访客向你页面 AI 助手的提问"
     },
     "unlimited": "不限",
     "fullHistory": "全部历史",
@@ -1732,5 +1769,146 @@
     "accept": "接受",
     "decline": "拒绝",
     "settings": "Cookie 设置"
+  },
+  "Assistant": {
+    "button": "AI 助手",
+    "tooltip": "询问你的工作区，或告诉它要改什么——营业时间、休息日、服务、预约。在你批准之前，什么都不会改变。",
+    "title": "AI 助手",
+    "expand": "展开",
+    "shrink": "收起",
+    "intro": "用你自己的话、任何语言告诉我要改什么——营业时间、休息日、新服务、预约。我会准确展示将要发生的变化，在你点击“应用”之前什么都不会改变。你也可以问我关于日程的问题，或者发送纸质预约本的照片。",
+    "disclaimer": "应用前请检查每一项更改。",
+    "usage": "今日消息 {used}/{limit} 条",
+    "usageUnlimited": "你的套餐消息不限量",
+    "spent": "你今天的 {limit} 条消息已用完。明天（UTC）恢复，或升级套餐获取更多。",
+    "dropped": "{count, plural, other {有 # 项更改无法提供——其中提到了不存在的内容或已经过去的时间。}}",
+    "applied": "完成——你的更改已生效。",
+    "appliedPartly": "部分更改已应用。标有 ✕ 的未成功——请重试或自行调整。",
+    "applyFailed": "未能进行任何更改。请重试，或在设置页面中自行调整。",
+    "photoSent": "预约照片",
+    "writing": "正在输入…",
+    "examples": {
+      "closedTomorrow": "我明天不营业，后天营业到 22:00",
+      "vacation": "我 12 月 20 日到 27 日休假",
+      "newService": "添加一个 45 分钟的修胡子服务，15 EUR，仅限工作日",
+      "pending": "哪些预约在等我批准？"
+    },
+    "conversations": {
+      "list": "你的对话",
+      "new": "新对话",
+      "delete": "删除对话",
+      "deleteTitle": "删除此对话？",
+      "deleteBody": "此对话及其消息将被删除。已应用的更改保持不变。",
+      "deleteConfirm": "删除",
+      "empty": "还没有对话。你的对话会显示在这里。",
+      "photo": "日程本照片"
+    },
+    "locked": {
+      "title": "AI 助手适用于标准版和高级版",
+      "body": "告诉它要改什么——营业时间、休息日、服务、预约——并在对话中逐项批准。升级套餐即可使用。",
+      "cta": "查看套餐"
+    },
+    "unavailable": {
+      "title": "助手目前不可用",
+      "body": "请稍后再试。其他功能均可正常使用。"
+    },
+    "composer": {
+      "photo": "发送预约照片",
+      "placeholder": "告诉我要改什么，或者提个问题…",
+      "label": "发给助手的消息",
+      "send": "发送"
+    },
+    "proposal": {
+      "title": "待批准的更改",
+      "status": {
+        "pending": "等待你确认",
+        "applied": "已应用",
+        "partial": "部分应用",
+        "dismissed": "已忽略"
+      },
+      "done": "已完成",
+      "failed": "未更改",
+      "adjust": "我自己调整",
+      "emailsClients": "相关客户会收到关于这些预约更改的邮件。",
+      "apply": "应用",
+      "dismiss": "忽略"
+    },
+    "impact": {
+      "title": "应用这些更改？",
+      "confirm": "仍然应用",
+      "cancel": "暂不"
+    },
+    "photo": {
+      "none": "我在那张照片里没有找到任何预约。请换一张更清晰的照片，或补充说明照片内容。",
+      "read": "{count, plural, other {我从你的照片中识别出 # 个预约}}",
+      "added": "{count, plural, other {已添加 # 个预约。}}",
+      "review": "检查并添加"
+    },
+    "actions": {
+      "aClient": "某位客户",
+      "aService": "某项服务",
+      "monthDays": "每月 {days} 日",
+      "dates": "{count, plural, other {# 个日期}}",
+      "everyOpenDay": "每个营业日",
+      "on": "开启",
+      "off": "关闭",
+      "weeklyDay": "每{day}：{hours}",
+      "weeklyClosed": "每{day}：休息",
+      "specialHours": "{dates}：营业 {hours}",
+      "specialClosed": "{dates}：休息",
+      "specialClosedHours": "{dates}：{hours} 休息",
+      "specialRemove": "{dates}：恢复每周营业时间",
+      "bookingResume": "重新接受在线预约",
+      "bookingPause": "暂停在线预约",
+      "serviceCreate": "新服务“{name}”，{duration}，{price}",
+      "noPrice": "无价格",
+      "serviceWhen": "可预约：{when}",
+      "serviceDeactivate": "停用“{name}”",
+      "serviceActivate": "启用“{name}”",
+      "serviceRename": "将“{name}”重命名为“{value}”",
+      "serviceDuration": "“{name}”时长：{value}",
+      "servicePriceCleared": "“{name}”：无价格",
+      "servicePrice": "“{name}”价格：{value}",
+      "serviceDescription": "“{name}”的新描述",
+      "serviceAvailability": "“{name}”可预约：{when}",
+      "serviceUpdate": "更新“{name}”",
+      "serviceDelete": "删除“{name}”",
+      "profileName": "页面上显示的名字：{value}",
+      "profileDescription": "页面的新描述",
+      "profileAddress": "地址：{value}",
+      "approval": "亲自批准每个预约：{state}",
+      "notifyNewBooking": "新预约邮件：{state}",
+      "notifyChanges": "预约变更邮件：{state}",
+      "notifyReminders": "预约提醒：{state}",
+      "notifyReminderLead": "提前 {lead} 提醒",
+      "timeZone": "时区：{zone}——所有已发布的时间都会随之调整",
+      "clock12": "以 12 小时制显示时间",
+      "clock24": "以 24 小时制显示时间",
+      "seoTitle": "搜索标题：{value}",
+      "seoDescription": "新的搜索描述",
+      "seoSlug": "页面链接：/p/{value}——你已经分享的链接将失效",
+      "categories": "分类：{names}",
+      "listed": "发布你的页面",
+      "unlisted": "将你的页面从 Bookie 搜索中移除",
+      "approve": "批准预约：{client}，{service}，{when}",
+      "decline": "拒绝预约：{client}，{service}，{when}",
+      "cancel": "取消预约：{client}，{service}，{when}",
+      "reschedule": "改期预约（{client}，{service}）：{when} → {to}",
+      "visitorAssistant": "公开页面上的助手：{state}"
+    },
+    "visitor": {
+      "button": "提问",
+      "title": "咨询 {name}",
+      "intro": "可以询问服务、价格、营业时间或空闲时段。如需预约，请在本页的日历中选择时间。",
+      "placeholder": "提个问题…",
+      "disclaimer": "由 AI 根据本页信息回答。空闲时段随时可能被预约。",
+      "clear": "重新开始",
+      "examples": {
+        "services": "你们提供哪些服务？",
+        "weekend": "周末有空吗？",
+        "price": "多少钱？",
+        "payment": "怎么付款？"
+      }
+    }
   }
 }

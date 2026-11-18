@@ -14,7 +14,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Which weekday a date is (Monday-first) | `getWeekDay` | `booking.ts` |
 | Bookings list preset (`upcoming`, this week, next week, …) → `from`/`to` | `bookingPeriodRange` | `bookingPeriod.ts` |
 | Does the provider have hours on this date — and, given a service's `availability`, is that service offered on it | `isOpenOnDate` | `booking.ts` |
-| Which windows a service is bookable in on a day (the provider's hours on the days its rule offers) | `effectiveDayParts`, `isServiceDay` | `serviceAvailability.ts` — **twin** `server/src/lib/service-availability.ts` |
+| Which windows a service is bookable in on a day (its rule, per-weekday hours and exceptions, inside the provider's) · its hours by rule on a day | `effectiveDayParts`, `isServiceDay`, `serviceRuleHours` | `serviceAvailability.ts` · **twin** `server/src/lib/service-availability.ts` |
 | The provider's open weekdays · can a service rule ever be booked · its first upcoming date | `openWeekdays`, `canEverBeBooked`, `nextServiceDate` | `serviceAvailability.ts` |
 | Provider card status (available / fully blocked / closed) | `getProviderAvailabilityStatus` | `providerAvailability.ts` |
 | Slot counts per day, for badges | `countSlotsByDay` | `booking.ts` |
@@ -46,8 +46,14 @@ Everything here is pure and framework-free unless the last column says otherwise
 | Bookable windows → availability + breaks | `rangesToDaySchedule` | `schedule.ts` |
 | Is the provider open at all this week? | `hasWeekScheduleHours` | `schedule.ts` |
 | A week ↔ the availability editor's open/ranges form (`ScheduleDaysForm`) · a new window's default | `weekScheduleToDayForms`, `dayFormsToWeekSchedule`, `defaultScheduleRange` | `schedule.ts` |
-| Profile assistant: the workspace as a proposal · proposal ↔ review form · what differs (steps, service status, removed) · the service-cap growth rule | `proposalFromProfile`, `proposalToReviewValues`, `reviewValuesToProposal`, `changedSteps`, `serviceStatus`, `removedServices`, `exceedsServiceCap` | `profileAssistant.ts` |
-| Minutes → `"1 h 30 min"` | `formatDuration` | `duration.ts` |
+| The provider's own windows on a day (the rule — weekly / days of the month / dates — then an open or closed special date) · the entry covering a day · does a days-of-the-month rule fall on a day | `providerDayParts`, `specialDateOn`, `matchesMonthDays`, `daysInMonth` | `serviceAvailability.ts` · **twin** `server/src/lib/service-availability.ts` |
+| Overlap / merge / subtract lists of `'HH:mm'` windows · a day key moved by N days | `intersectParts`, `normaliseParts`, `subtractParts`, `addDaysToDayKey` | `serviceAvailability.ts` |
+| Where a service reaches outside the hours (grouped by weekday / special date) · widen the week for it · fit it to the hours · the usual open hours | `serviceConflicts`, `widenWeekForService`, `fitServiceToHours`, `usualDayHours`, `conflictDayCount` | `scheduleConflicts.ts` |
+| What publishing new hours does to services and upcoming bookings | `scheduleImpact`, `hasImpact` (I/O half: `useScheduleImpact` in `src/hooks/`) | `scheduleConflicts.ts` |
+| Special-date editor rules: upcoming, overlap, replace · a schedule change merged as the server stores it | `upcomingSpecialDates`, `overlappingSpecialDate`, `replaceSpecialDate`, `applySpecialDateChange` | `specialDates.ts` |
+| AI assistant: the page a change is made on by hand · a proposal's schedule changes as one write · the live hours after it (for the impact check) · apply results → status · does it email clients | `assistantActionRoute`, `toSchedulePatch`, `hoursAfterSchedulePatch`, `proposalStatusFrom`, `emailsClients` | `assistant.ts` |
+| Read a server-sent-event stream · a streamed failure as an `AxiosError` | `createSseParser`, `toStreamError` | `sse.ts` |
+| Minutes → `"1 hr 30 min"` in the reader's locale (CLDR units, no catalogue keys) | `formatDuration(minutes, locale)` | `duration.ts` |
 | Minutes → ISO `PT90M` (schema.org, `<time>`) | `toIsoDuration` | `duration.ts` |
 | Merge Tailwind classes | `cn` | `cn.ts` |
 | Localise a seeded category's English DB name | `translateCategoryName` | `categoryName.ts` |
@@ -150,11 +156,13 @@ Everything here is pure and framework-free unless the last column says otherwise
   when `remotePatterns` matches; `next.config.ts` sets `dangerouslyAllowLocalIP`
   when the API host is loopback. Without that, every uploaded avatar 400s through
   `/_next/image` after Save draft.
-- **A service picks days, never hours** (`serviceAvailability.ts`). Every grid that steps a
-  service's slots passes its `availability` to `getSlotsForDate` / `getSlotsForDateRange` —
-  `BookingPanel`, the reschedule page and photo import do. Its server twin refuses the same
-  bookings (`4203`); a case table in `tests/unit/server/serviceAvailability.spec.ts` runs
-  against both.
+- **A service narrows the provider's hours, never widens them** (`serviceAvailability.ts`): its
+  days, and its own `hours` if any, cut the provider's windows — a special date's when one covers
+  the day, the week's otherwise. Every grid that steps slots passes `specialDates` **and** the
+  service's `availability` to `getSlotsForDate` / `getSlotsForDateRange` / `isOpenOnDate` —
+  `BookingPanel`, `BookingMonth`, the reschedule page and photo import do. Its server twin
+  refuses the same bookings (`4203`); a case table in
+  `tests/unit/server/serviceAvailability.spec.ts` runs against both.
 - **`search.ts` is the only way to match typed text.** A new search box or filter uses
   `matchesSearch` / `rankBySearch`, and "does this name already exist?" uses `isSameName`,
   never `toLowerCase().includes()` or `===` on lowercased strings — those miss "Café" for

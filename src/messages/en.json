@@ -32,7 +32,8 @@
     "pageNumber": "Page {page}",
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
-    "reload": "Reload page"
+    "reload": "Reload page",
+    "done": "Done"
   },
   "Nav": {
     "mainNavigation": "Main navigation",
@@ -537,6 +538,37 @@
         "friday": "Friday",
         "saturday": "Saturday",
         "sunday": "Sunday"
+      },
+      "special": {
+        "title": "Special dates",
+        "body": "Days that don't follow your weekly hours — a holiday, a vacation, a long day. They override the week on those dates.",
+        "add": "Add special date",
+        "empty": "No special dates coming up.",
+        "edit": "Edit {date}",
+        "remove": "Remove {date}",
+        "addTitle": "Add a special date",
+        "editTitle": "Edit special date",
+        "dates": "Dates",
+        "datesRequired": "Pick the dates.",
+        "tooLong": "One entry covers at most {days} days.",
+        "overlap": "These dates overlap another special date. Edit that one instead.",
+        "kindLabel": "Closed or open",
+        "closed": "Closed",
+        "hours": "Other hours",
+        "note": "Note for visitors",
+        "noteHint": "Optional — shown on your page beside the dates.",
+        "notePlaceholder": "For example: Holiday"
+      },
+      "impact": {
+        "title": "Publish these hours?",
+        "body": "Some things depend on your current hours. Nothing is cancelled or changed for you — check what's affected first.",
+        "publishAnyway": "Publish anyway",
+        "keepEditing": "Keep editing",
+        "unbookable": "These services couldn't be booked at all:",
+        "narrowed": "These services would lose some of their days:",
+        "bookingsOutside": "{count, plural, one {# upcoming booking would fall outside your hours:} other {# upcoming bookings would fall outside your hours:}}",
+        "andMore": "{count, plural, one {and # more} other {and # more}}",
+        "bookingsKept": "These bookings stay as they are. Move or cancel them from <link>Bookings</link> if you need to."
       }
     },
     "advanced": {
@@ -829,50 +861,11 @@
       "betterPlanBody": "The {plan} plan includes what you pay for as add-ons, for less each month.",
       "addonsCancelNote": "Add-ons renew with your subscription. Cancelling it under Manage billing ends them too."
     },
-    "assistant": {
-      "buttonLabel": "Set up with AI",
-      "tooltip": "Describe your business in your own words — AI drafts your profile, services and hours for you to review.",
-      "title": "Set up your workspace with AI",
-      "intro": "Tell us about your business in your own words, in any language: what you offer, prices and how long each takes, when you work, how clients pay. We draft your profile, services, hours and settings, and you check every step before anything is saved.",
-      "descriptionLabel": "About your business",
-      "descriptionPlaceholder": "For example: I'm a hairdresser. Women's haircut, 60 min, 25 EUR; men's haircut, 30 min, 15 EUR; colouring, 2 hours, from 60 EUR. I work Tuesday to Saturday, 10:00–19:00, with a lunch break 14:00–15:00. Cash or card. I want to confirm every booking myself.",
-      "descriptionRequired": "Describe your business first.",
-      "adjustHint": "Already set up? Describe only what changes — for example, “I now offer only one service, on Mondays 18:00–21:00”.",
-      "dailyLimit": "{count, plural, one {Your plan includes # draft a day.} other {Your plan includes # drafts a day.}}",
-      "generate": "Structure with AI",
-      "generating": "Reading your description… This can take up to a minute.",
-      "seePlans": "See plans",
-      "summary": "Summary",
-      "stepOf": "Step {current} of {total}",
-      "changed": "Changed",
-      "unchanged": "No changes",
-      "back": "Back",
-      "next": "Next",
-      "rewrite": "Edit description",
-      "statusNew": "New",
-      "statusChanged": "Changed",
-      "statusKept": "Unchanged",
-      "statusRemoved": "Removed",
-      "editService": "Edit service",
-      "removeService": "Remove service",
-      "restoreService": "Restore",
-      "addService": "Add a service",
-      "noServices": "No services yet. Add one, or go back and describe what you offer.",
-      "noPrice": "No price",
-      "removedTitle": "To be removed",
-      "removedHint": "Services that already have bookings are switched off instead of deleted.",
-      "serviceCap": "{max, plural, one {Your plan allows # active service.} other {Your plan allows # active services.}} Remove some to continue, or upgrade your plan.",
-      "payToKept": "Your card or account number is not changed here. Edit it on the Payments tab.",
-      "summaryChanged": "Approving updates:",
-      "summaryServices": "{created} new · {updated} changed · {removed} removed",
-      "summaryNone": "Nothing here differs from your current workspace.",
-      "summaryBody": "Everything is saved and published at once. Whether your page is listed in search doesn't change.",
-      "summaryPhotos": "Photos aren't drafted. Add them on the Profile and Services tabs.",
-      "approve": "Approve and apply",
-      "applied": "Your workspace has been updated.",
-      "discardTitle": "Discard this draft?",
-      "discardBody": "Nothing has been saved yet. Closing now throws the draft away.",
-      "discard": "Discard"
+    "visitorAssistant": {
+      "title": "AI assistant on your page",
+      "body": "Visitors can ask an AI assistant about your services, prices, hours and free times, right on your public page. It answers from your page's details and can't book or change anything.",
+      "locked": "Included in the Premium plan. <link>See plans</link>",
+      "failed": "The assistant setting wasn't saved"
     }
   },
   "Bookings": {
@@ -883,7 +876,7 @@
       "consumer": "Booked by me"
     },
     "import": {
-      "button": "Add from photo",
+      "button": "Import from photo",
       "title": "Add bookings from a photo",
       "intro": "Photograph your handwritten bookings. We'll read them, and you check every one before anything is saved.",
       "photoLabel": "Photo",
@@ -1191,7 +1184,13 @@
       "loadError": "We could not load the reviews. Please try again."
     },
     "poweredBy": "Booking page by Bookie",
-    "poweredByCta": "Create yours free"
+    "poweredByCta": "Create yours free",
+    "specialDates": "Special dates",
+    "monthlyDays": "Each month on days {days}",
+    "lastDay": "the last day",
+    "byDates": "Open only on the dates listed below.",
+    "closedDuring": "Closed",
+    "openDates": "Open dates"
   },
   "Legal": {
     "termsMetaTitle": "Terms of Service",
@@ -1288,7 +1287,7 @@
           "p3": "<b>Our email delivery service</b> — sends account and booking emails.",
           "p4": "<b>Telegram</b> — delivers notifications, only if you connect it.",
           "p5": "<b>Google</b> — signs you in, only if you choose to continue with Google.",
-          "p6": "<b>Google Gemini</b> — reads a photo of handwritten bookings, or a provider's description of their business, only when a provider chooses to use those features. On Gemini’s free tier, Google may use what it receives to improve its services. We do not store the photo or the description.",
+          "p6": "<b>Google Gemini</b> — reads a photo of handwritten bookings, a provider's messages to their AI assistant, and a visitor's questions to a page's AI assistant, only when someone chooses to use those features. On Gemini’s free tier, Google may use what it receives to improve its services. We do not store photos or visitors' questions; a provider's conversation with their assistant is kept in their account until they clear it.",
           "p7": "<b>Google Analytics</b> — counts visits and how pages are used, with no ads and no profiling. In the EU, EEA, UK and Switzerland it sets cookies only after you agree.",
           "p8": "<b>Sentry</b> — receives a report when something breaks in your browser: the error, the page and your browser type, without your cookies, form contents or account details.",
           "p9": "A booking's details are shared with the provider it is made with, and the provider's public contact details with the client — that is what a booking is."
@@ -1404,7 +1403,7 @@
     "viewProfile": "View my profile",
     "availability": {
       "title": "Availability",
-      "help": "Choose the days this service can be booked. Times always follow your own opening hours.",
+      "help": "Choose the days this service can be booked, and optionally its own hours. It's only ever bookable within your opening hours.",
       "modes": {
         "always": "Always",
         "recurring": "Recurring",
@@ -1415,7 +1414,7 @@
         "weekdays": "Weekdays",
         "monthDays": "Days of the month"
       },
-      "closedDay": "You're closed on this day. Change it on the <link>Availability</link> page.",
+      "closedDay": "You're closed on this day — saving will ask whether to open it. Hours are set on the <link>Availability</link> page.",
       "monthDaysLabel": "Days of the month",
       "monthDaysPlaceholder": "Pick days, e.g. 16",
       "monthDaysNote": "Repeats every month. A day a month doesn't have, like the 31st in April, is skipped.",
@@ -1427,11 +1426,46 @@
       "pickMonthDay": "Pick at least one day of the month.",
       "pickDate": "Pick at least one date.",
       "withinHours": "Bookable only within your opening hours.",
-      "neverBookable": "This service can't be booked with these settings: none of the chosen days fall within your opening hours.",
+      "neverBookable": "This service can't be booked with these settings: none of the chosen days and hours fall within your opening hours.",
       "summary": {
         "weekdays": "Weekdays: {days}",
         "monthDays": "Monthly on days: {days}",
         "dates": "{count, plural, one {# date} other {# dates}}"
+      },
+      "closedDateLabel": "{date}, you're closed",
+      "hoursTitle": "Only at certain hours",
+      "hoursHelp": "Keep this service to part of your day, for example mornings only."
+    },
+    "outsideHours": "{count, plural, one {Not bookable on # of its days — outside your hours} other {Not bookable on # of its days — outside your hours}}",
+    "conflict": {
+      "title": "This service reaches outside your hours",
+      "body": "On these days the service couldn't be booked as it stands. Choose what to do — each option says exactly what it changes.",
+      "failed": "That didn't go through",
+      "weekly": {
+        "closed": "{count, plural, one {{day}: you're closed (# date in the next 3 months)} other {{day}: you're closed (# dates in the next 3 months)}}",
+        "hours": "{count, plural, one {{day}: its hours run past yours (# date in the next 3 months)} other {{day}: its hours run past yours (# dates in the next 3 months)}}"
+      },
+      "special": {
+        "closed": "{dates}: you're closed (special date)",
+        "hours": "{dates}: its hours run past yours (special date)"
+      },
+      "widenTitle": "Widen my hours",
+      "widenLine": "{day}: {before} → {after}",
+      "widenKeepsSpecial": "Published on your page at once. Special dates stay as you set them.",
+      "widenLive": "Published on your page at once.",
+      "widenUnavailable": "Only special dates are in the way, and those stay as you set them. Change them on the Availability page.",
+      "fitTitle": "Fit the service to my hours",
+      "fitDays": "Offered on {days}",
+      "fitDates": "{count, plural, one {# date removed} other {# dates removed}}",
+      "fitHours": "Hours: {hours}",
+      "fitNothing": "Saved as it is — those days just aren't bookable.",
+      "fitUnavailable": "Nothing would be left to book. Widen your hours or save as it is.",
+      "keepTitle": "Save as it is",
+      "keepBody": "Nothing else changes. Those days simply can't be booked, and the service card keeps saying so.",
+      "choose": {
+        "widen": "Widen and save",
+        "fit": "Fit and save",
+        "keep": "Save as it is"
       }
     }
   },
@@ -1497,8 +1531,10 @@
       "changeUnavailable": "Your subscription cannot be changed right now. If a payment failed, update your card under Manage billing; otherwise try again in a little while.",
       "activeSubscription": "This page still has an active subscription. Cancel it under Manage billing before deleting the page.",
       "assistantUnavailable": "The AI assistant isn't available right now.",
-      "assistantUnreadable": "We couldn't draft anything from that description. Try describing your services, prices and hours in more detail.",
-      "profileAssistantLimit": "You've used today's AI draft. It's back tomorrow, or upgrade your plan for unlimited drafts."
+      "assistantUnreadable": "The assistant couldn't answer that. Try saying it another way.",
+      "assistantLimit": "You've used today's assistant messages. They're back tomorrow, or upgrade your plan for more.",
+      "visitorAssistantOff": "This page doesn't have an assistant right now.",
+      "visitorAssistantBusy": "The assistant has answered all it can for today. Please contact the provider directly."
     },
     "pages": {
       "provider": "We could not load this provider's page. Please try again.",
@@ -1586,12 +1622,13 @@
       "maxActiveServices": "Active services",
       "maxBookingsPerMonth": "Online bookings a month",
       "photoImportsPerDay": "Photo imports a day",
-      "profileAssistantRunsPerDay": "AI workspace drafts a day",
       "analyticsHistoryDays": "Analytics history",
       "customSlug": "Custom page link",
       "telegramNotifications": "Telegram notifications",
       "calendarFeed": "Calendar sync (iCal)",
-      "removeBranding": "No Bookie branding on your page"
+      "removeBranding": "No Bookie branding on your page",
+      "assistantMessagesPerDay": "AI assistant messages a day",
+      "visitorAssistantMessagesPerDay": "Visitor questions to your page's AI assistant a day"
     },
     "unlimited": "Unlimited",
     "fullHistory": "Full history",
@@ -1732,5 +1769,146 @@
     "accept": "Accept",
     "decline": "Decline",
     "settings": "Cookie settings"
+  },
+  "Assistant": {
+    "button": "AI assistant",
+    "tooltip": "Ask about your workspace, or tell it what to change — hours, days off, services, bookings. Nothing changes until you approve it.",
+    "title": "AI assistant",
+    "expand": "Expand",
+    "shrink": "Shrink",
+    "intro": "Tell me what to change in your own words, in any language — your hours, a day off, a new service, a booking. I'll show you exactly what would change, and nothing happens until you press Apply. You can also ask me about your schedule, or send a photo of your paper diary.",
+    "disclaimer": "Check every change before you apply it.",
+    "usage": "{used} of {limit} messages today",
+    "usageUnlimited": "Unlimited messages on your plan",
+    "spent": "You've used today's {limit} messages. They're back tomorrow (UTC), or upgrade your plan for more.",
+    "dropped": "{count, plural, one {One change couldn't be offered — it named something that doesn't exist or a time that has passed.} other {# changes couldn't be offered — they named something that doesn't exist or a time that has passed.}}",
+    "applied": "Done — your changes are live.",
+    "appliedPartly": "Some changes went through. The ones marked ✕ didn't — try them again or adjust them yourself.",
+    "applyFailed": "Nothing could be changed. Try again, or adjust it yourself on the settings page.",
+    "photoSent": "Photo of bookings",
+    "writing": "Writing…",
+    "examples": {
+      "closedTomorrow": "I'm closed tomorrow, and the day after I work until 22:00",
+      "vacation": "I'm on vacation from 20 to 27 December",
+      "newService": "Add a 45-minute beard trim for 15 EUR, weekdays only",
+      "pending": "Which bookings are waiting for my approval?"
+    },
+    "conversations": {
+      "list": "Your chats",
+      "new": "New chat",
+      "delete": "Delete chat",
+      "deleteTitle": "Delete this chat?",
+      "deleteBody": "The chat and its messages are deleted. Changes you already applied stay as they are.",
+      "deleteConfirm": "Delete",
+      "empty": "No chats yet. Your conversations will appear here.",
+      "photo": "Diary photo"
+    },
+    "locked": {
+      "title": "The AI assistant is on Standard and Premium",
+      "body": "Tell it what to change — hours, days off, services, bookings — and approve each change in the chat. Upgrade to use it.",
+      "cta": "See plans"
+    },
+    "unavailable": {
+      "title": "The assistant isn't available right now",
+      "body": "Please try again later. Everything else works as usual."
+    },
+    "composer": {
+      "photo": "Send a photo of your bookings",
+      "placeholder": "Tell me what to change, or ask a question…",
+      "label": "Message to the assistant",
+      "send": "Send"
+    },
+    "proposal": {
+      "title": "Changes to approve",
+      "status": {
+        "pending": "Waiting for you",
+        "applied": "Applied",
+        "partial": "Partly applied",
+        "dismissed": "Dismissed"
+      },
+      "done": "Done",
+      "failed": "Not changed",
+      "adjust": "Adjust myself",
+      "emailsClients": "The clients concerned are emailed about these booking changes.",
+      "apply": "Apply",
+      "dismiss": "Dismiss"
+    },
+    "impact": {
+      "title": "Apply these changes?",
+      "confirm": "Apply anyway",
+      "cancel": "Not now"
+    },
+    "photo": {
+      "none": "I couldn't find any bookings in that photo. Try a sharper photo, or add a note about what it shows.",
+      "read": "{count, plural, one {I read # booking from your photo} other {I read # bookings from your photo}}",
+      "added": "{count, plural, one {# booking added.} other {# bookings added.}}",
+      "review": "Review and add"
+    },
+    "actions": {
+      "aClient": "a client",
+      "aService": "a service",
+      "monthDays": "days {days} of each month",
+      "dates": "{count, plural, one {# date} other {# dates}}",
+      "everyOpenDay": "every day you're open",
+      "on": "on",
+      "off": "off",
+      "weeklyDay": "Every {day}: {hours}",
+      "weeklyClosed": "Every {day}: closed",
+      "specialHours": "{dates}: open {hours}",
+      "specialClosed": "{dates}: closed",
+      "specialClosedHours": "{dates}: closed {hours}",
+      "specialRemove": "Back to your weekly hours on {dates}",
+      "bookingResume": "Start taking online bookings again",
+      "bookingPause": "Pause online bookings",
+      "serviceCreate": "New service “{name}”, {duration}, {price}",
+      "noPrice": "no price",
+      "serviceWhen": "Bookable: {when}",
+      "serviceDeactivate": "Turn off “{name}”",
+      "serviceActivate": "Turn on “{name}”",
+      "serviceRename": "Rename “{name}” to “{value}”",
+      "serviceDuration": "“{name}” takes {value}",
+      "servicePriceCleared": "“{name}”: no price",
+      "servicePrice": "“{name}” costs {value}",
+      "serviceDescription": "New description for “{name}”",
+      "serviceAvailability": "“{name}” bookable: {when}",
+      "serviceUpdate": "Update “{name}”",
+      "serviceDelete": "Delete “{name}”",
+      "profileName": "Your name on the page: {value}",
+      "profileDescription": "New description on your page",
+      "profileAddress": "Address: {value}",
+      "approval": "Approve every booking yourself: {state}",
+      "notifyNewBooking": "New booking emails: {state}",
+      "notifyChanges": "Booking change emails: {state}",
+      "notifyReminders": "Appointment reminders: {state}",
+      "notifyReminderLead": "Reminders {lead} before",
+      "timeZone": "Time zone: {zone} — every published hour moves with it",
+      "clock12": "Show times on a 12-hour clock",
+      "clock24": "Show times on a 24-hour clock",
+      "seoTitle": "Search title: {value}",
+      "seoDescription": "New search description",
+      "seoSlug": "Page link: /p/{value} — links you already shared stop working",
+      "categories": "Categories: {names}",
+      "listed": "Publish your page",
+      "unlisted": "Take your page off Bookie's search",
+      "approve": "Approve {client}'s {service}, {when}",
+      "decline": "Decline {client}'s {service}, {when}",
+      "cancel": "Cancel {client}'s {service}, {when}",
+      "reschedule": "Move {client}'s {service} from {when} to {to}",
+      "visitorAssistant": "Assistant on your public page: {state}"
+    },
+    "visitor": {
+      "button": "Ask a question",
+      "title": "Ask about {name}",
+      "intro": "Ask about services, prices, opening hours or free times. To book, pick a time in the calendar on this page.",
+      "placeholder": "Ask a question…",
+      "disclaimer": "Answered by AI from this page's details. Free times can be taken at any moment.",
+      "clear": "Start over",
+      "examples": {
+        "services": "What services do you offer?",
+        "weekend": "Are you free at the weekend?",
+        "price": "How much does it cost?",
+        "payment": "How can I pay?"
+      }
+    }
   }
 }

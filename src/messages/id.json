@@ -32,7 +32,8 @@
     "pageNumber": "Halaman {page}",
     "previousMonth": "Bulan sebelumnya",
     "nextMonth": "Bulan berikutnya",
-    "reload": "Muat ulang halaman"
+    "reload": "Muat ulang halaman",
+    "done": "Selesai"
   },
   "Nav": {
     "mainNavigation": "Navigasi utama",
@@ -537,6 +538,37 @@
         "friday": "Jumat",
         "saturday": "Sabtu",
         "sunday": "Minggu"
+      },
+      "special": {
+        "title": "Tanggal khusus",
+        "body": "Hari yang tidak mengikuti jam mingguan Anda — hari libur nasional, liburan, hari yang panjang. Pada tanggal itu, tanggal khusus menggantikan jadwal mingguan.",
+        "add": "Tambah tanggal khusus",
+        "empty": "Tidak ada tanggal khusus dalam waktu dekat.",
+        "edit": "Edit {date}",
+        "remove": "Hapus {date}",
+        "addTitle": "Tambah tanggal khusus",
+        "editTitle": "Edit tanggal khusus",
+        "dates": "Tanggal",
+        "datesRequired": "Pilih tanggalnya.",
+        "tooLong": "Satu entri mencakup paling banyak {days} hari.",
+        "overlap": "Tanggal ini tumpang tindih dengan tanggal khusus lain. Edit yang itu saja.",
+        "kindLabel": "Tutup atau buka",
+        "closed": "Tutup",
+        "hours": "Jam lain",
+        "note": "Catatan untuk pengunjung",
+        "noteHint": "Opsional — ditampilkan di halaman Anda di samping tanggal.",
+        "notePlaceholder": "Misalnya: Hari libur"
+      },
+      "impact": {
+        "title": "Publikasikan jam ini?",
+        "body": "Beberapa hal bergantung pada jam Anda saat ini. Tidak ada yang dibatalkan atau diubah secara otomatis — periksa dulu apa yang terdampak.",
+        "publishAnyway": "Tetap publikasikan",
+        "keepEditing": "Lanjutkan mengedit",
+        "unbookable": "Layanan ini sama sekali tidak bisa dipesan:",
+        "narrowed": "Layanan ini akan kehilangan sebagian harinya:",
+        "bookingsOutside": "{count, plural, other {# pemesanan mendatang akan berada di luar jam Anda:}}",
+        "andMore": "{count, plural, other {dan # lainnya}}",
+        "bookingsKept": "Pemesanan ini tetap seperti semula. Pindahkan atau batalkan dari <link>Pemesanan</link> jika perlu."
       }
     },
     "advanced": {
@@ -829,50 +861,11 @@
       "betterPlanBody": "Paket {plan} mencakup apa yang Anda bayar sebagai add-on, dengan biaya bulanan lebih rendah.",
       "addonsCancelNote": "Add-on diperpanjang bersama langganan Anda. Membatalkannya di Kelola penagihan juga mengakhirinya."
     },
-    "assistant": {
-      "buttonLabel": "Atur dengan AI",
-      "tooltip": "Jelaskan bisnis Anda dengan kata-kata sendiri — AI menyusun profil, layanan, dan jam kerja untuk Anda periksa.",
-      "title": "Atur ruang kerja Anda dengan AI",
-      "intro": "Ceritakan bisnis Anda dengan kata-kata sendiri, dalam bahasa apa pun: apa yang Anda tawarkan, harga dan durasi, kapan Anda bekerja, cara klien membayar. Kami menyusun profil, layanan, jam kerja, dan pengaturan, lalu Anda memeriksa setiap langkah sebelum apa pun disimpan.",
-      "descriptionLabel": "Tentang bisnis Anda",
-      "descriptionPlaceholder": "Contoh: Saya penata rambut. Potong rambut wanita, 60 menit, 25 EUR; potong rambut pria, 30 menit, 15 EUR; pewarnaan, 2 jam, mulai 60 EUR. Saya bekerja Selasa sampai Sabtu, 10:00–19:00, istirahat 14:00–15:00. Tunai atau kartu. Saya ingin mengonfirmasi setiap pemesanan sendiri.",
-      "descriptionRequired": "Jelaskan bisnis Anda terlebih dahulu.",
-      "adjustHint": "Sudah diatur? Jelaskan hanya yang berubah — misalnya, \"Sekarang saya hanya menawarkan satu layanan, setiap Senin 18:00–21:00\".",
-      "dailyLimit": "{count, plural, other {Paket Anda mencakup # draf per hari.}}",
-      "generate": "Susun dengan AI",
-      "generating": "Membaca deskripsi Anda… Ini bisa memakan waktu hingga satu menit.",
-      "seePlans": "Lihat paket",
-      "summary": "Ringkasan",
-      "stepOf": "Langkah {current} dari {total}",
-      "changed": "Diubah",
-      "unchanged": "Tidak ada perubahan",
-      "back": "Kembali",
-      "next": "Berikutnya",
-      "rewrite": "Ubah deskripsi",
-      "statusNew": "Baru",
-      "statusChanged": "Diubah",
-      "statusKept": "Tidak berubah",
-      "statusRemoved": "Dihapus",
-      "editService": "Ubah layanan",
-      "removeService": "Hapus layanan",
-      "restoreService": "Pulihkan",
-      "addService": "Tambah layanan",
-      "noServices": "Belum ada layanan. Tambahkan satu, atau kembali dan jelaskan apa yang Anda tawarkan.",
-      "noPrice": "Tanpa harga",
-      "removedTitle": "Akan dihapus",
-      "removedHint": "Layanan yang sudah memiliki pemesanan akan dinonaktifkan, bukan dihapus.",
-      "serviceCap": "{max, plural, other {Paket Anda mengizinkan # layanan aktif.}} Hapus beberapa untuk melanjutkan, atau tingkatkan paket Anda.",
-      "payToKept": "Nomor kartu atau rekening Anda tidak diubah di sini. Ubah di tab Pembayaran.",
-      "summaryChanged": "Menyetujui akan memperbarui:",
-      "summaryServices": "{created} baru · {updated} diubah · {removed} dihapus",
-      "summaryNone": "Tidak ada yang berbeda dari ruang kerja Anda saat ini.",
-      "summaryBody": "Semuanya disimpan dan dipublikasikan sekaligus. Tampil atau tidaknya halaman Anda di pencarian tidak berubah.",
-      "summaryPhotos": "Foto tidak disusun. Tambahkan di tab Profil dan Layanan.",
-      "approve": "Setujui dan terapkan",
-      "applied": "Ruang kerja Anda telah diperbarui.",
-      "discardTitle": "Buang draf ini?",
-      "discardBody": "Belum ada yang disimpan. Menutup sekarang akan membuang draf.",
-      "discard": "Buang"
+    "visitorAssistant": {
+      "title": "Asisten AI di halaman Anda",
+      "body": "Pengunjung dapat bertanya kepada asisten AI tentang layanan, harga, jam, dan waktu yang tersedia, langsung di halaman publik Anda. Asisten menjawab berdasarkan informasi di halaman Anda dan tidak dapat memesan atau mengubah apa pun.",
+      "locked": "Termasuk dalam paket Premium. <link>Lihat paket</link>",
+      "failed": "Pengaturan asisten tidak tersimpan"
     }
   },
   "Bookings": {
@@ -883,7 +876,7 @@
       "consumer": "Dipesan oleh saya"
     },
     "import": {
-      "button": "Tambah dari foto",
+      "button": "Impor dari foto",
       "title": "Tambahkan pemesanan dari foto",
       "intro": "Foto catatan pemesanan tulisan tangan Anda. Kami akan membacanya, dan Anda memeriksa setiap pemesanan sebelum apa pun disimpan.",
       "photoLabel": "Foto",
@@ -1191,7 +1184,13 @@
       "loadError": "Ulasan tidak dapat dimuat. Silakan coba lagi."
     },
     "poweredBy": "Halaman pemesanan oleh Bookie",
-    "poweredByCta": "Buat milik Anda gratis"
+    "poweredByCta": "Buat milik Anda gratis",
+    "specialDates": "Tanggal khusus",
+    "monthlyDays": "Setiap bulan pada tanggal {days}",
+    "lastDay": "hari terakhir",
+    "byDates": "Buka hanya pada tanggal di bawah ini.",
+    "closedDuring": "Tutup",
+    "openDates": "Tanggal buka"
   },
   "Legal": {
     "termsMetaTitle": "Ketentuan Layanan",
@@ -1288,7 +1287,7 @@
           "p3": "<b>Layanan pengiriman email kami</b> — mengirim email akun dan pemesanan.",
           "p4": "<b>Telegram</b> — mengirimkan notifikasi, hanya jika Anda menghubungkannya.",
           "p5": "<b>Google</b> — menangani proses masuk Anda, hanya jika Anda memilih untuk melanjutkan dengan Google.",
-          "p6": "<b>Google Gemini</b> — membaca foto catatan pemesanan tulisan tangan atau deskripsi bisnis dari penyedia, hanya ketika penyedia memilih menggunakan fitur tersebut. Di tingkat gratis Gemini, Google dapat menggunakan data yang diterimanya untuk meningkatkan layanannya. Kami tidak menyimpan foto maupun deskripsinya.",
+          "p6": "<b>Google Gemini</b> — membaca foto catatan pemesanan tulisan tangan, pesan penyedia kepada asisten AI-nya, dan pertanyaan pengunjung kepada asisten AI sebuah halaman, hanya ketika seseorang memilih menggunakan fitur tersebut. Di tingkat gratis Gemini, Google dapat menggunakan data yang diterimanya untuk meningkatkan layanannya. Kami tidak menyimpan foto maupun pertanyaan pengunjung; percakapan penyedia dengan asistennya disimpan di akunnya sampai ia menghapusnya.",
           "p7": "<b>Google Analytics</b> — menghitung kunjungan dan cara halaman digunakan, tanpa iklan dan tanpa pembuatan profil. Di UE, EEA, Inggris, dan Swiss, layanan ini hanya memasang cookie setelah Anda setuju.",
           "p8": "<b>Sentry</b> — menerima laporan saat terjadi kegagalan di browser Anda: galatnya, halamannya, dan jenis browser Anda, tanpa cookie, isi formulir, atau data akun Anda.",
           "p9": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
@@ -1404,7 +1403,7 @@
     "duplicate": "Duplikatkan",
     "availability": {
       "title": "Ketersediaan",
-      "help": "Pilih hari layanan ini dapat dipesan. Jamnya selalu mengikuti jam buka Anda sendiri.",
+      "help": "Pilih hari layanan ini bisa dipesan, dan jika perlu, jamnya sendiri. Layanan hanya bisa dipesan dalam jam buka Anda.",
       "modes": {
         "always": "Selalu",
         "recurring": "Berulang",
@@ -1415,7 +1414,7 @@
         "weekdays": "Hari dalam seminggu",
         "monthDays": "Tanggal dalam sebulan"
       },
-      "closedDay": "Anda tutup pada hari ini. Ubah di halaman <link>Ketersediaan</link>.",
+      "closedDay": "Anda tutup pada hari ini — saat menyimpan, kami akan bertanya apakah hari ini ingin dibuka. Jam diatur di halaman <link>Ketersediaan</link>.",
       "monthDaysLabel": "Tanggal dalam sebulan",
       "monthDaysPlaceholder": "Pilih tanggal, mis. 16",
       "monthDaysNote": "Berulang setiap bulan. Tanggal yang tidak ada di suatu bulan, seperti 31 April, dilewati.",
@@ -1427,11 +1426,46 @@
       "pickMonthDay": "Pilih minimal satu tanggal dalam sebulan.",
       "pickDate": "Pilih minimal satu tanggal.",
       "withinHours": "Hanya bisa dipesan dalam jam buka Anda.",
-      "neverBookable": "Layanan ini tidak dapat dipesan dengan pengaturan ini: tidak ada hari terpilih yang berada dalam jam buka Anda.",
+      "neverBookable": "Layanan ini tidak bisa dipesan dengan pengaturan ini: tidak ada hari dan jam yang dipilih yang berada dalam jam buka Anda.",
       "summary": {
         "weekdays": "Hari: {days}",
         "monthDays": "Setiap bulan pada tanggal: {days}",
         "dates": "{count, plural, other {# tanggal}}"
+      },
+      "closedDateLabel": "{date}, Anda tutup",
+      "hoursTitle": "Hanya pada jam tertentu",
+      "hoursHelp": "Batasi layanan ini pada sebagian hari Anda, misalnya hanya pagi hari."
+    },
+    "outsideHours": "{count, plural, other {Tidak bisa dipesan pada # harinya — di luar jam Anda}}",
+    "conflict": {
+      "title": "Layanan ini melewati jam Anda",
+      "body": "Pada hari-hari ini, layanan tidak bisa dipesan dengan pengaturan saat ini. Pilih tindakan — setiap opsi menjelaskan dengan tepat apa yang diubah.",
+      "failed": "Tidak berhasil",
+      "weekly": {
+        "closed": "{count, plural, other {{day}: Anda tutup (# tanggal dalam 3 bulan ke depan)}}",
+        "hours": "{count, plural, other {{day}: jam layanan melewati jam Anda (# tanggal dalam 3 bulan ke depan)}}"
+      },
+      "special": {
+        "closed": "{dates}: Anda tutup (tanggal khusus)",
+        "hours": "{dates}: jam layanan melewati jam Anda (tanggal khusus)"
+      },
+      "widenTitle": "Perluas jam saya",
+      "widenLine": "{day}: {before} → {after}",
+      "widenKeepsSpecial": "Langsung dipublikasikan di halaman Anda. Tanggal khusus tetap seperti yang Anda atur.",
+      "widenLive": "Langsung dipublikasikan di halaman Anda.",
+      "widenUnavailable": "Hanya tanggal khusus yang menghalangi, dan tanggal itu tetap seperti yang Anda atur. Ubah di halaman Ketersediaan.",
+      "fitTitle": "Sesuaikan layanan dengan jam saya",
+      "fitDays": "Tersedia pada {days}",
+      "fitDates": "{count, plural, other {# tanggal dihapus}}",
+      "fitHours": "Jam: {hours}",
+      "fitNothing": "Disimpan apa adanya — hari-hari itu memang tidak bisa dipesan.",
+      "fitUnavailable": "Tidak ada yang tersisa untuk dipesan. Perluas jam Anda atau simpan apa adanya.",
+      "keepTitle": "Simpan apa adanya",
+      "keepBody": "Tidak ada yang lain berubah. Hari-hari itu memang tidak bisa dipesan, dan kartu layanan akan terus menampilkan keterangannya.",
+      "choose": {
+        "widen": "Perluas dan simpan",
+        "fit": "Sesuaikan dan simpan",
+        "keep": "Simpan apa adanya"
       }
     }
   },
@@ -1497,8 +1531,10 @@
       "changeUnavailable": "Langganan Anda tidak bisa diubah saat ini. Jika pembayaran gagal, perbarui kartu Anda di Kelola penagihan; jika tidak, coba lagi sebentar lagi.",
       "activeSubscription": "Halaman ini masih memiliki langganan aktif. Batalkan di Kelola penagihan sebelum menghapus halaman.",
       "assistantUnavailable": "Asisten AI sedang tidak tersedia.",
-      "assistantUnreadable": "Kami tidak dapat menyusun apa pun dari deskripsi itu. Jelaskan layanan, harga, dan jam kerja Anda lebih rinci.",
-      "profileAssistantLimit": "Anda sudah menggunakan draf AI hari ini. Fitur ini tersedia lagi besok, atau tingkatkan paket untuk draf tanpa batas."
+      "assistantUnreadable": "Asisten tidak dapat menjawabnya. Coba sampaikan dengan cara lain.",
+      "assistantLimit": "Anda sudah menggunakan pesan asisten hari ini. Pesan tersedia lagi besok, atau tingkatkan paket untuk mendapatkan lebih banyak.",
+      "visitorAssistantOff": "Halaman ini sedang tidak memiliki asisten.",
+      "visitorAssistantBusy": "Asisten sudah menjawab semua yang bisa dijawabnya hari ini. Silakan hubungi penyedia secara langsung."
     },
     "pages": {
       "provider": "Kami tidak dapat memuat halaman penyedia ini. Silakan coba lagi.",
@@ -1586,12 +1622,13 @@
       "maxActiveServices": "Layanan aktif",
       "maxBookingsPerMonth": "Pemesanan online per bulan",
       "photoImportsPerDay": "Impor foto per hari",
-      "profileAssistantRunsPerDay": "Draf AI per hari",
       "analyticsHistoryDays": "Riwayat analitik",
       "customSlug": "Tautan khusus",
       "telegramNotifications": "Notifikasi Telegram",
       "calendarFeed": "Sinkronisasi kalender (iCal)",
-      "removeBranding": "Tanpa branding Bookie di halaman Anda"
+      "removeBranding": "Tanpa branding Bookie di halaman Anda",
+      "assistantMessagesPerDay": "Pesan asisten AI per hari",
+      "visitorAssistantMessagesPerDay": "Pertanyaan pengunjung ke asisten AI halaman Anda per hari"
     },
     "unlimited": "Tanpa batas",
     "fullHistory": "Seluruh riwayat",
@@ -1732,5 +1769,146 @@
     "accept": "Terima",
     "decline": "Tolak",
     "settings": "Pengaturan cookie"
+  },
+  "Assistant": {
+    "button": "Asisten AI",
+    "tooltip": "Tanyakan tentang ruang kerja Anda, atau beri tahu apa yang perlu diubah — jam kerja, hari libur, layanan, pemesanan. Tidak ada yang berubah sampai Anda menyetujuinya.",
+    "title": "Asisten AI",
+    "expand": "Perbesar",
+    "shrink": "Perkecil",
+    "intro": "Beri tahu saya apa yang perlu diubah dengan kata-kata Anda sendiri, dalam bahasa apa pun — jam kerja, hari libur, layanan baru, pemesanan. Saya akan menunjukkan dengan tepat apa yang akan berubah, dan tidak ada yang terjadi sampai Anda menekan Terapkan. Anda juga bisa bertanya tentang jadwal Anda, atau mengirim foto buku agenda kertas Anda.",
+    "disclaimer": "Periksa setiap perubahan sebelum menerapkannya.",
+    "usage": "{used} dari {limit} pesan hari ini",
+    "usageUnlimited": "Pesan tanpa batas di paket Anda",
+    "spent": "Anda sudah menggunakan {limit} pesan hari ini. Pesan tersedia lagi besok (UTC), atau tingkatkan paket untuk mendapatkan lebih banyak.",
+    "dropped": "{count, plural, other {# perubahan tidak dapat ditawarkan — perubahan itu menyebut sesuatu yang tidak ada atau waktu yang sudah lewat.}}",
+    "applied": "Selesai — perubahan Anda sudah aktif.",
+    "appliedPartly": "Sebagian perubahan berhasil. Yang ditandai ✕ tidak — coba lagi atau sesuaikan sendiri.",
+    "applyFailed": "Tidak ada yang bisa diubah. Coba lagi, atau sesuaikan sendiri di halaman pengaturan.",
+    "photoSent": "Foto pemesanan",
+    "writing": "Menulis…",
+    "examples": {
+      "closedTomorrow": "Besok saya tutup, dan lusa saya bekerja sampai 22:00",
+      "vacation": "Saya libur dari 20 sampai 27 Desember",
+      "newService": "Tambahkan rapikan jenggot 45 menit seharga 15 EUR, hanya hari kerja",
+      "pending": "Pemesanan mana yang menunggu persetujuan saya?"
+    },
+    "conversations": {
+      "list": "Obrolan Anda",
+      "new": "Obrolan baru",
+      "delete": "Hapus obrolan",
+      "deleteTitle": "Hapus obrolan ini?",
+      "deleteBody": "Obrolan dan pesannya akan dihapus. Perubahan yang sudah diterapkan tetap berlaku.",
+      "deleteConfirm": "Hapus",
+      "empty": "Belum ada obrolan. Percakapan Anda akan muncul di sini.",
+      "photo": "Foto buku agenda"
+    },
+    "locked": {
+      "title": "Asisten AI tersedia di paket Standar dan Premium",
+      "body": "Beri tahu apa yang perlu diubah — jam kerja, hari libur, layanan, pemesanan — lalu setujui setiap perubahan di obrolan. Tingkatkan paket untuk menggunakannya.",
+      "cta": "Lihat paket"
+    },
+    "unavailable": {
+      "title": "Asisten sedang tidak tersedia",
+      "body": "Silakan coba lagi nanti. Semua fitur lain berjalan seperti biasa."
+    },
+    "composer": {
+      "photo": "Kirim foto pemesanan Anda",
+      "placeholder": "Beri tahu apa yang perlu diubah, atau ajukan pertanyaan…",
+      "label": "Pesan untuk asisten",
+      "send": "Kirim"
+    },
+    "proposal": {
+      "title": "Perubahan untuk disetujui",
+      "status": {
+        "pending": "Menunggu Anda",
+        "applied": "Diterapkan",
+        "partial": "Diterapkan sebagian",
+        "dismissed": "Diabaikan"
+      },
+      "done": "Selesai",
+      "failed": "Tidak diubah",
+      "adjust": "Sesuaikan sendiri",
+      "emailsClients": "Klien yang terkait akan menerima email tentang perubahan pemesanan ini.",
+      "apply": "Terapkan",
+      "dismiss": "Abaikan"
+    },
+    "impact": {
+      "title": "Terapkan perubahan ini?",
+      "confirm": "Tetap terapkan",
+      "cancel": "Jangan sekarang"
+    },
+    "photo": {
+      "none": "Saya tidak menemukan pemesanan di foto itu. Coba foto yang lebih tajam, atau tambahkan catatan tentang isi foto tersebut.",
+      "read": "{count, plural, other {Saya membaca # pemesanan dari foto Anda}}",
+      "added": "{count, plural, other {# pemesanan ditambahkan.}}",
+      "review": "Periksa dan tambahkan"
+    },
+    "actions": {
+      "aClient": "seorang klien",
+      "aService": "sebuah layanan",
+      "monthDays": "tanggal {days} setiap bulan",
+      "dates": "{count, plural, other {# tanggal}}",
+      "everyOpenDay": "setiap hari Anda buka",
+      "on": "aktif",
+      "off": "nonaktif",
+      "weeklyDay": "Setiap {day}: {hours}",
+      "weeklyClosed": "Setiap {day}: tutup",
+      "specialHours": "{dates}: buka {hours}",
+      "specialClosed": "{dates}: tutup",
+      "specialClosedHours": "{dates}: tutup {hours}",
+      "specialRemove": "Kembali ke jam mingguan Anda pada {dates}",
+      "bookingResume": "Mulai menerima pemesanan online lagi",
+      "bookingPause": "Jeda pemesanan online",
+      "serviceCreate": "Layanan baru \"{name}\", {duration}, {price}",
+      "noPrice": "tanpa harga",
+      "serviceWhen": "Bisa dipesan: {when}",
+      "serviceDeactivate": "Nonaktifkan \"{name}\"",
+      "serviceActivate": "Aktifkan \"{name}\"",
+      "serviceRename": "Ganti nama \"{name}\" menjadi \"{value}\"",
+      "serviceDuration": "\"{name}\" berdurasi {value}",
+      "servicePriceCleared": "\"{name}\": tanpa harga",
+      "servicePrice": "\"{name}\" seharga {value}",
+      "serviceDescription": "Deskripsi baru untuk \"{name}\"",
+      "serviceAvailability": "\"{name}\" bisa dipesan: {when}",
+      "serviceUpdate": "Perbarui \"{name}\"",
+      "serviceDelete": "Hapus \"{name}\"",
+      "profileName": "Nama Anda di halaman: {value}",
+      "profileDescription": "Deskripsi baru di halaman Anda",
+      "profileAddress": "Alamat: {value}",
+      "approval": "Setujui sendiri setiap pemesanan: {state}",
+      "notifyNewBooking": "Email pemesanan baru: {state}",
+      "notifyChanges": "Email perubahan pemesanan: {state}",
+      "notifyReminders": "Pengingat janji temu: {state}",
+      "notifyReminderLead": "Pengingat {lead} sebelumnya",
+      "timeZone": "Zona waktu: {zone} — semua jam yang dipublikasikan ikut bergeser",
+      "clock12": "Tampilkan waktu dalam format 12 jam",
+      "clock24": "Tampilkan waktu dalam format 24 jam",
+      "seoTitle": "Judul pencarian: {value}",
+      "seoDescription": "Deskripsi pencarian baru",
+      "seoSlug": "Tautan halaman: /p/{value} — tautan yang sudah Anda bagikan tidak akan berfungsi lagi",
+      "categories": "Kategori: {names}",
+      "listed": "Publikasikan halaman Anda",
+      "unlisted": "Keluarkan halaman Anda dari pencarian Bookie",
+      "approve": "Setujui {service} untuk {client}, {when}",
+      "decline": "Tolak {service} untuk {client}, {when}",
+      "cancel": "Batalkan {service} untuk {client}, {when}",
+      "reschedule": "Pindahkan {service} untuk {client} dari {when} ke {to}",
+      "visitorAssistant": "Asisten di halaman publik Anda: {state}"
+    },
+    "visitor": {
+      "button": "Ajukan pertanyaan",
+      "title": "Tanya tentang {name}",
+      "intro": "Tanyakan tentang layanan, harga, jam buka, atau waktu yang tersedia. Untuk memesan, pilih waktu di kalender pada halaman ini.",
+      "placeholder": "Ajukan pertanyaan…",
+      "disclaimer": "Dijawab oleh AI berdasarkan informasi di halaman ini. Waktu yang tersedia bisa terisi kapan saja.",
+      "clear": "Mulai ulang",
+      "examples": {
+        "services": "Layanan apa saja yang Anda tawarkan?",
+        "weekend": "Apakah ada waktu kosong di akhir pekan?",
+        "price": "Berapa harganya?",
+        "payment": "Bagaimana cara membayarnya?"
+      }
+    }
   }
 }

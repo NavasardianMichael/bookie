@@ -30,7 +30,8 @@ type Props = {
 /**
  * The weekdays a service is offered on, in the Availability tab's day-card look — but with
  * no time pickers: on a ticked day the service runs during the provider's own hours, which
- * each card shows read-only. A day the provider is closed cannot be ticked.
+ * each card shows read-only. A day the provider is closed can still be ticked — it is marked
+ * closed, and saving asks whether to open it or leave it out (`ServiceConflictModal`).
  *
  * A control-contract field (`forms` skill): the wrapping `Form.Item` owns the value.
  */
@@ -63,7 +64,7 @@ export const ServiceWeekdaysField: FC<Props> = ({ weekSchedule, timeFormat, valu
     <div className='flex flex-col gap-3'>
       {WEEK_DAYS_LIST.map((day) => {
         const open = hasDayHours(weekSchedule, day)
-        const checked = open && value.includes(day)
+        const checked = value.includes(day)
 
         return (
           <div
@@ -73,7 +74,7 @@ export const ServiceWeekdaysField: FC<Props> = ({ weekSchedule, timeFormat, valu
               checked ? 'bg-surface-sunken' : 'border-dashed'
             )}
           >
-            <Checkbox checked={checked} disabled={!open} onChange={(event) => toggle(day, event.target.checked)}>
+            <Checkbox checked={checked} onChange={(event) => toggle(day, event.target.checked)}>
               <span className={cn('text-body-sm font-semibold', !checked && 'text-brand-muted')}>
                 {tSettings(`availability.days.${day}`)}
               </span>

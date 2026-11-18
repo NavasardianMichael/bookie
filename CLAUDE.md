@@ -54,12 +54,12 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | HTTP calls, endpoint URLs, response processors | `src/api/<domain>/` — 4 files, see `src/api/CLAUDE.md` |
 | Client state, entity types | `src/store/<domain>/<slice>/` — see `src/store/CLAUDE.md` |
 | Routes and pages | `src/app/` — see `src/app/CLAUDE.md` for the route map |
-| Why a feature is built the way it is (Explore, provider page, bookings, settings, auth, profile assistant) | `docs/routes/` — indexed at the top of `src/app/CLAUDE.md` |
+| Why a feature is built the way it is (Explore, provider page, bookings, settings, auth, AI assistants) | `docs/routes/` — indexed at the top of `src/app/CLAUDE.md` |
 | Reusable UI | `src/components/ui/` — see `src/components/CLAUDE.md` |
 | Colours, spacing, breakpoints, fonts | `src/styles/tokens.ts` — see `src/styles/CLAUDE.md` |
 | **Any utility — check before writing one** | `src/helpers/` — see `src/helpers/CLAUDE.md`, it indexes every export |
 | Matching typed search text, duplicate-name checks | `src/helpers/search.ts` (twin: `server/src/lib/search.ts`) · Explore's ranking `server/src/services/providerRelevance.ts`, empty-search retry `searchFallback.ts` |
-| Booking / schedule / slot logic | `src/helpers/booking.ts`, `src/helpers/schedule.ts` |
+| Booking / schedule / slot logic, special dates, service hours | `src/helpers/booking.ts`, `schedule.ts`, `serviceAvailability.ts` (twin `server/src/lib/service-availability.ts`) · where a service reaches outside the hours: `src/helpers/scheduleConflicts.ts` |
 | Showing an error (dev details vs production copy, Retry) | `src/helpers/error.ts` (classify) · `src/components/ui/ErrorAlert.tsx`, `ErrorState.tsx` · `src/hooks/useErrorToast.tsx` · `src/components/errors/` — see *Errors* in `src/components/CLAUDE.md` |
 | Error copy, all 16 locales | `Errors.kinds.*` (by failure kind), `Errors.codes.*` (by stable code), `Errors.pages.*` in `src/messages/` |
 | Ratings, reviews, the Explore ranking | `server/src/services/reviews.ts` (the Bayesian score + parsers) · `server/src/routes/reviews.ts` · `src/api/reviews/` |
@@ -69,8 +69,8 @@ Import order is enforced by `simple-import-sort` with an explicit group list in
 | Plans, add-ons, prices, limits, `/pricing`, the Plan tab | `docs/BILLING.md` · `server/src/services/plans.ts` (every rule) · `src/components/plans/` |
 | Paddle — checkout, webhook, switch, add-ons, portal | `docs/PADDLE_SETUP.md` · `server/src/routes/billing.ts` · `server/src/services/billing.ts` + `billingSync.ts` · `src/app/[lang]/billing/` |
 | Notifications — who gets which email / Telegram, the reminder job | `docs/NOTIFICATIONS.md` · `server/src/services/noticeRules.ts` · `server/src/jobs/reminderJob.ts` |
-| Profile assistant — the ⚡ settings button that drafts a provider's workspace from a description (Google Gemini) | `server/src/services/profileAssistant.ts` + `routes/profileAssistant.ts` · `src/components/profileAssistant/` · `src/helpers/profileAssistant.ts` — see `docs/routes/profile-assistant.md` |
-| "Add from photo" on `/bookings` (Google Gemini) | `server/src/services/bookingImport.ts` · `src/helpers/bookingImport.ts` · `src/components/bookingImport/` — see *Bookings a provider enters* in `docs/DATABASE_STRUCTURE.md` |
+| AI assistants — the provider's chat (proposes changes, applied only on Apply) and the public page's visitor chat (Google Gemini, streamed) | `server/src/services/assistant.ts` + `routes/assistant.ts` · `services/visitorAssistant.ts` + `routes/visitorAssistant.ts` · `server/src/lib/gemini.ts`, `sse.ts` · `src/components/assistant/`, `visitorAssistant/` · `src/hooks/useApplyAssistantProposal.ts` — see `docs/routes/ai-assistant.md` |
+| "Import from photo" on `/bookings` and in the assistant chat (Google Gemini) | `server/src/services/bookingImport.ts` · `src/helpers/bookingImport.ts` · `src/components/bookingImport/` — see *Bookings a provider enters* in `docs/DATABASE_STRUCTURE.md` |
 | Telegram, the iCal feed / `.ics` | `server/src/routes/telegram.ts`, `calendar.ts` · `src/components/settings/TelegramConnect.tsx`, `CalendarFeed.tsx` |
 | Terms, Privacy, Refund Policy | `src/components/legal/LegalDocument.tsx` + `src/constants/legal.ts` · copy in `Legal.*` |
 | Google Analytics (page views, `trackEvent`, the cookie-consent banner), Sentry (browser errors only) | `src/constants/monitoring.ts` · `src/helpers/analytics.ts` · `src/helpers/consent.ts` + `src/components/analytics/` · `src/instrumentation-client.ts` · `src/helpers/reportError.ts` · `withSentryConfig` in `next.config.ts` — see `docs/DEPLOYMENT.md` |

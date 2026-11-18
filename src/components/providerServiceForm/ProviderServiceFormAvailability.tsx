@@ -2,10 +2,10 @@
 
 import { FC, useId, useMemo } from 'react'
 import { InfoCircleOutlined, WarningOutlined } from '@ant-design/icons'
-import { Form, Segmented, Select } from 'antd'
+import { Form, Segmented, Select, Switch } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
-import { WeekSchedule } from '@store/providers/profile/types'
+import { ProviderScheduleRule, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { TimeFormat } from '@interfaces/schedule'
 import { ProviderServiceFormValues, ServiceAvailabilityMode, ServiceRecurrence } from '@interfaces/services'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
@@ -18,6 +18,7 @@ import {
 } from '@constants/serviceAvailability'
 import { canEverBeBooked } from '@helpers/serviceAvailability'
 import { calendarDayOf } from '@helpers/timeZone'
+import { TimeRangesField } from '@components/settings/TimeRangesField'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppText } from '@components/ui/bare/AppText'
 import { PROVIDER_SERVICE_FORM_POPUP_PROPS } from './constants'
@@ -26,8 +27,12 @@ import { ServiceDatesPicker } from './ServiceDatesPicker'
 import { ServiceWeekdaysField } from './ServiceWeekdaysField'
 
 type Props = {
-  /** The provider's published hours — the only time frame any mode can offer. */
+  /** The provider's published hours — the frame every mode is cut to. */
   weekSchedule?: WeekSchedule
+  /** The provider's dates that do not follow the rule. */
+  specialDates?: SpecialDate[]
+  /** The base of the provider's hours — weekly, days of the month, or specific dates. */
+  scheduleRule?: ProviderScheduleRule
   timeZone?: string
   timeFormat: TimeFormat
 }
@@ -43,20 +48,28 @@ const atLeastOne = (message: string): Rule => ({
 
 /**
  * When the service can be booked: always, on recurring weekdays or days of the month, or on
- * specific dates. Every mode picks **days only** — on a picked day the service is bookable
- * during the provider's own hours, so nothing here can reach outside them.
+ * specific dates — and, optionally, only at hours of its own. The provider's hours stay the
+ * frame: a service is only ever bookable where its days and hours meet them. A pick that
+ * reaches outside them is allowed here and raised on save (`ServiceConflictModal`).
  *
  * Binds nested paths under `availability` of `ProviderServiceForm`'s own `Form`; each mode's
  * field mounts only while that mode is picked, and the values of the others are kept, so
  * switching back and forth loses nothing.
  */
-export const ProviderServiceFormAvailability: FC<Props> = ({ weekSchedule, timeZone, timeFormat }) => {
+export const ProviderServiceFormAvailability: FC<Props> = ({
+  weekSchedule,
+  specialDates,
+  scheduleRule,
+  timeZone,
+  timeFormat,
+}) => {
   const t = useTranslations('Services.availability')
   const titleId = useId()
   const form = Form.useFormInstance<ProviderServiceFormValues>()
   const values = Form.useWatch('availability', { form, preserve: true })
   const mode = values?.mode ?? SERVICE_AVAILABILITY_MODES.always
   const recurrence = values?.recurrence ?? SERVICE_RECURRENCES.weekdays
+  const limitHours = values?.limitHours ?? false
 
   const modeOptions = useMemo(
     () => SERVICE_AVAILABILITY_MODES_LIST.map((value) => ({ value, label: t(`modes.${value}`) })),
@@ -73,7 +86,7 @@ export const ProviderServiceFormAvailability: FC<Props> = ({ weekSchedule, timeZ
   // An empty pick already has its field's own message; the warning is for a pick that
   // misses every open day.
   const picked = rule.mode === 'always' || (rule.mode === 'dates' ? rule.dates.length > 0 : rule.days.length > 0)
-  const neverBookable = picked && !canEverBeBooked(weekSchedule, rule, todayKey)
+  const neverBookable = picked && !canEverBeBooked(weekSchedule, rule, todayKey, specialDates, scheduleRule)
 
   return (
     <div role='group' aria-labelledby={titleId} className='flex min-w-0 flex-col gap-4'>
@@ -138,9 +151,29 @@ export const ProviderServiceFormAvailability: FC<Props> = ({ weekSchedule, timeZ
           hasFeedback={false}
           className='m-0'
         >
-          <ServiceDatesPicker weekSchedule={weekSchedule} timeZone={timeZone} />
+          <ServiceDatesPicker
+            weekSchedule={weekSchedule}
+            specialDates={specialDates}
+            scheduleRule={scheduleRule}
+            timeZone={timeZone}
+          />
         </AppFormItem>
       )}
+
+      <div className='border-brand-border flex flex-col gap-3 rounded-brand border p-4'>
+        <div className='flex items-center justify-between gap-4'>
+          <div className='flex flex-col'>
+            <AppText className='font-semibold'>{t('hoursTitle')}</AppText>
+            <AppText size='body-sm' tone='muted'>
+              {t('hoursHelp')}
+            </AppText>
+          </div>
+          <AppFormItem name={['availability', 'limitHours']} valuePropName='checked' hasFeedback={false} className='m-0'>
+            <Switch aria-label={t('hoursTitle')} />
+          </AppFormItem>
+        </div>
+        {limitHours && <TimeRangesField name={['availability', 'hours']} timeFormat={timeFormat} />}
+      </div>
 
       <AppText size='body-sm' tone={neverBookable ? 'danger' : 'muted'} className='flex items-start gap-2'>
         {neverBookable ? (

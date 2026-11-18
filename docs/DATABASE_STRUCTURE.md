@@ -9,7 +9,7 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **User** | Email identity (`citext`, unique) + argon2id `passwordHash` and/or `googleId`, `emailVerifiedAt`, `tokenVersion` for revocation, failed-login counters, pending email-verify and password-reset token hashes, the linked Telegram chat (`telegramChatId` unique, `telegramUsername`, `telegramLinkedAt`) and its one live Connect token (`telegramLinkTokenHash`, `telegramLinkExpiresAt` — see [docs/NOTIFICATIONS.md](NOTIFICATIONS.md)), optional 1:1 Consumer/Provider |
 | **Category** | A provider's specialty (unique name). Attached to **providers only**, 0–3 each (`ProviderCategory`) — see [Categories](#categories). Predefined ones (the six seeded, translated in every locale) are permanent; ones providers add are deleted once no provider uses them |
 | **Organization** | Clinic / facility. Its categories are its listed providers', derived on read — none are stored. Phone, address, website — **no email** (dropped 2026-09-28: nothing verified it or sent to it) |
-| **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug`, `assistantSeenAt` (null opens the profile assistant by itself — see [The profile assistant](#the-profile-assistant)) |
+| **Provider** | Professional profile, contact phone (NOT NULL, as on Consumer), `weekSchedule` JSON and the IANA `timeZone` it is written in (see [Time zones](#time-zones)), the 12/24-hour `timeFormat` its times print in (see [12- or 24-hour clock](#12--or-24-hour-clock)), `showClockChoices` (whether the public booking page offers a time-zone list and a 12/24-hour switch together; default true), `plan` + `planExpiresAt`, the two booking-allowance notice stamps and the Paddle billing columns (see [Plans and entitlements](#plans-and-entitlements)), `calendarFeedVersion` (revokes the private iCal feed URL), optional organization, `listed`/`draft` for publish flow, email prefs + payment info, `requiresBookingApproval` (bookings wait for a decision instead of confirming), `phoneVisible` (whether the contact phone appears on the public page; default true), SEO overrides + vanity `slug`, `scheduleRule` (the base of the hours: weekly, days of the month, or specific dates only) and `specialDates` (dates that do not follow it — see [Special dates](#special-dates)), `visitorAssistantEnabled` (the public page's AI assistant, honoured only while the plan allows it — see [The AI assistants](#the-ai-assistants)) |
 | **Service** | Bookable offering. Title and duration are required; price, currency, description and image are optional — a service has **no category**. `active` hides a withdrawn service from consumers without deleting it. `availability` (JSON, NULL = always) narrows the **days** it is offered on, never the hours — see [Which days a service is offered on](#which-days-a-service-is-offered-on) |
 | **Consumer** | Patient/client profile — `fullName` (see [Names](#names)), contact phone, email prefs + payment info. Identity email lives on `User`, not here |
 | **FavoriteProvider** | User ↔ Provider favourites — the heart on a provider card. Keyed on the **account**, not the Consumer profile, so a provider can favourite others without owning a Consumer row. Composite primary key `(userId, providerId)`; `createdAt` orders `/favorites`. Nobody may favourite their own page. See [Favourites](#favourites) |
@@ -17,7 +17,9 @@ PostgreSQL schema managed by Prisma in [`server/prisma/schema.prisma`](../server
 | **Review** | Rating 1–5 plus optional comment, for a provider and/or organization. Anchored to the `Appointment` that earned it (`appointmentId` is **unique** — one review per visit). `hiddenAt` is moderation; hidden rows count toward no aggregate and appear in no public read. `providerReply` is the provider's public answer |
 | **ProviderAddon** | An add-on a provider holds — a single feature or a capacity pack sold beside the plan — from one source: `paddle` (the webhook) or `admin` (`/admin/providers`). Composite primary key `(providerId, addon, source)`, its own `quantity` and `expiresAt`; cascades with the provider. See [Plans and entitlements](#plans-and-entitlements) |
 | **PhotoImport** | One photo of handwritten bookings Gemini read — `providerId` and `createdAt`, nothing about the photo. The meter behind `photoImportsPerDay`; see [Bookings a provider enters](#bookings-a-provider-enters--the-photo-import) |
-| **ProfileAssistantRun** | One workspace draft Gemini generated from a provider's description — `providerId` and `createdAt`, nothing they wrote. The meter behind `profileAssistantRunsPerDay`; see [The profile assistant](#the-profile-assistant) |
+| **AssistantConversation** | One of a provider's chats with their AI assistant — `title` (the first message, cut to 60 characters at a word; empty for a chat a diary photo started without a note, which the client names) and `updatedAt` (last activity, what the list sorts on; index `(providerId, updatedAt)`). The newest 50 per provider are kept; deleting one cascades to its messages. See [The AI assistants](#the-ai-assistants) |
+| **AssistantMessage** | One turn in an `AssistantConversation` (`conversationId`, cascade) — `role` (`user` / `model`), `text`, and on a model turn the `proposal` it made (`{ kind: 'changes', summary, actions }` or a photo read `{ kind: 'photoImport', drafts }`) with `proposalStatus` (`pending` / `applied` / `partial` / `dismissed`) and the per-action `outcome`. `providerId` is kept beside it for scoping. The last 200 per chat are kept. Visitor chats are never stored. See [The AI assistants](#the-ai-assistants) |
+| **AssistantUsage** | Messages spent per provider, per assistant (`kind`: `provider` / `visitor`), per UTC `day` — composite key `(providerId, kind, day)`, one `count`. The meter behind `assistantMessagesPerDay` and `visitorAssistantMessagesPerDay`, kept apart from the history so clearing the chat refills nothing |
 | **ReviewReport** | A provider's abuse report against a review on their own page. Persisted — unlike a contact message — because `/admin/reviews` is the reader that argument said did not exist |
 
 ### Names
@@ -110,10 +112,16 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/provider-profile/consumer-bookings/calendar?month=YYYY-MM&tz=` | provider — per-day counts for that client-side list |
 | GET | `/provider-profile/analytics?from=&to=&all=&tz=` | provider — aggregates over own bookings (upcoming included; `all=true` drops the lower bound). Clamped to the plan's `analyticsHistoryDays`, measured from now |
 | PATCH | `/provider-profile/bookings/:id/decision` | provider — `{ decision: 'approve' \| 'reject' }` on an own booking that is still `pending`; emails the client either way |
-| GET | `/provider-profile/assistant` | provider — `{ pending, available, runsPerDay, runsToday }`: whether the assistant opens by itself, whether Gemini is configured, today's allowance. See [The profile assistant](#the-profile-assistant) |
-| POST | `/provider-profile/assistant/generate` | provider — `{ description (≤ 2000), locale, tz }` → `{ proposal }`, the whole workspace drafted from it. Saves nothing |
-| POST | `/provider-profile/assistant/apply` | provider — the reviewed proposal; writes and publishes it all in one transaction → `true` |
-| POST | `/provider-profile/assistant/dismiss` | provider — stamps `assistantSeenAt`, so it stops opening by itself → `true` |
+| PATCH | `/provider-profile/bookings/:id/reschedule` | provider — `{ startAt, serviceId?, locale? }` on an own live booking; the client's reschedule rules (inside the hours, a free slot), then the client is emailed and Telegrammed |
+| PATCH | `/provider-profile/schedule` | provider — a schedule change applied **live**: `{ weekSchedule?: { <weekday>: day }, specialDates?: { set?, remove? }, scheduleRule?, available?, timeZone?, timeFormat? }`. Weekdays given replace those weekdays; a special date set trims any stored run it overlaps; `remove` drops every entry covering one of the dates. An unpublished draft gets the same change merged onto its copy. Answers the live schedule. See [Special dates](#special-dates) |
+| GET | `/provider-profile/assistant` | provider — `{ available, included, usage: { used, limit }, conversations: [{ id, title, createdAt, updatedAt }], visitor: { allowed, enabled } }`, chats newest activity first. Answers on every plan. See [The AI assistants](#the-ai-assistants) |
+| GET | `/provider-profile/assistant/conversations/:id` | provider — `{ conversation, messages }` (oldest first); `404` for a chat that is not the caller's |
+| POST | `/provider-profile/assistant/messages` | provider — `{ text (≤ 1000), conversationId? }` (none starts a new chat), answered as **server-sent events**: `start` (`{ message, conversation }`), `text` deltas, `done` (`{ message, dropped, usage, conversation }`) or `error`. A failed first message deletes the chat it started |
+| POST | `/provider-profile/assistant/photo` | provider — `{ note?, drafts, conversationId? }`: rows the photo import read, put into a chat (a new one without the id) as a turn to review. `201 { messages, conversation }` |
+| PATCH | `/provider-profile/assistant/messages/:id` | provider — `{ status: applied \| partial \| dismissed, outcome? }` for a pending proposal; a second report is `409` |
+| DELETE | `/provider-profile/assistant/conversations/:id` | provider — deletes one chat and its messages; today's usage is kept |
+| PUT | `/provider-profile/assistant/visitor` | provider — `{ enabled }`, the public page's assistant; switching it on needs `visitorAssistantMessagesPerDay` (`403` `4102`) |
+| POST | `/providers/:key/assistant` | public — `{ messages: [{ role, text }] }` (≤ 12 turns, ending on the visitor's ≤ 500-character question), answered as server-sent events. `404` `4503` for a page with no assistant, `429` `4504` when the page's questions for today are spent, `429` past 20 an hour per IP |
 | PATCH | `/provider-profile/seo` | provider — `seoTitle` / `seoDescription` / `slug`. Setting or changing the slug needs the plan's `customSlug` (`403` / `4102`); unchanged and cleared slugs always pass |
 | PATCH | `/provider-profile/organization` | provider — the settings Organization section, saved live: `{ organizationId }` links an existing one, `{ newOrganization }` creates one exactly as registration does (same-name backstop unless `allowSimilar`), `{ organizationId: null }` detaches. `404` for an unknown id, `400` for a body naming none of these. Answers the owner profile |
 | GET | `/provider-profile/plan` | provider — `{ plan, effectivePlan, planExpiresAt?, entitlements, addons: [{ addon, quantity, source, expiresAt? }], betterPlan, billing: { status, periodEndsAt?, cancelsAt?, manageable } \| null, usage: { activeServices, bookingsThisMonth, periodStart, periodEnd } }`. `entitlements` already include the live add-ons; `betterPlan` is a bigger plan that would cost less than the plan plus the paid add-ons, or `null` |
@@ -211,7 +219,7 @@ which opens the profile with it selected.
 | `q` | free text, split on whitespace into at most 5 terms | — |
 | `categoryId` | a `Category.id` | — |
 | `available` | `true` / `1` | off |
-| `openToday` | `true` / `1` — `weekSchedule` has hours on today's weekday, in the provider's zone | off |
+| `openToday` | `true` / `1` — open today on the provider's own calendar: a special date covering today decides, otherwise `weekSchedule`'s hours on today's weekday | off |
 | `favorites` | `true` / `1` — only providers this session has saved. No session matches nothing | off |
 | `sort` | `recommended` · `topRated` · `nameAsc` · `nameDesc` · `newest` | `recommended` |
 | `page` | 1-based | 1 |
@@ -273,6 +281,15 @@ load-bearing about it:
   always canonical (see [Time zones](#time-zones)). `mapBasicProvider` puts the same predicate on each row as
   `basic.openToday`, so the card can show Available / Closed / Fully blocked without
   a second schedule payload.
+- **A special date, or a rule other than weekly, overrides the weekday branches.** Every
+  weekday branch also requires `scheduleRule.mode = 'weekdays'` — another rule keeps
+  `weekSchedule` only for switching back. Prisma cannot reach into a list of date
+  ranges, so before the count the route runs one raw query (`exploreResults.ts#loadSpecialDateOverrides`)
+  for the listed rows with an entry touching any calendar day it is somewhere now (`todaySpan`,
+  at most three days) or a rule other than weekly, and judges each with `isOpenToday` itself
+  (`specialDateOverrides`). Those
+  ids leave every weekday branch (`id NOT IN`), and the open ones come back as a branch of their
+  own — so a holiday drops a provider and a one-off opening adds one, exactly as their card says.
 
 `Provider` carries three composite indexes for this, all prefixed by `listed` because
 every public query filters on it: `[listed, available, updatedAt]`, `[listed,
@@ -355,8 +372,9 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 - **A service with appointments cannot be deleted** — `409`, because
   `Appointment.serviceId` is a required FK with no `onDelete`.
 - **`availability`** is the one nested field: `{ mode: 'always' }`, `{ mode: 'weekdays',
-  days: ['monday', …] }`, `{ mode: 'monthDays', days: [1, 16] }` or `{ mode: 'dates',
-  dates: ['YYYY-MM-DD', …] }`. A JSON object in a JSON body, **JSON text** in a multipart one
+  days: ['monday', …], hoursByDay? }`, `{ mode: 'monthDays', days: [1, 16], lastDay?,
+  shortMonths? }` or `{ mode: 'dates', dates: ['YYYY-MM-DD', …] }`, each with optional `hours`
+  and `exceptions` (see *Which days a service is offered on*). A JSON object in a JSON body, **JSON text** in a multipart one
   (an object would flatten to `availability[mode]` keys multer does not reassemble). Absent
   leaves the column alone; `''`, `null` or `always` store NULL. Validated and normalised by
   `parseServiceAvailability` (`server/src/lib/service-availability.ts`) — `400` on an
@@ -366,12 +384,42 @@ provider whose genuine 5★ reviews have not yet outweighed the prior. See
 
 ### Which days a service is offered on
 
-A service picks **days, never hours**. On a day its rule offers, it is bookable during the
-provider's own `weekSchedule` hours that day — the only time frame there is — so no rule
-can open a day or an hour the provider is closed. `always` is every day the provider is
-open; `weekdays` those weekdays; `monthDays` those days of every month (a day a month does
-not have, the 31st in April, is skipped — it does not fall back to the 30th); `dates` those
-calendar days on the provider's clock.
+A service picks **days** and, optionally, **hours** — always inside the provider's own hours
+that day, never outside them: no rule can open a day or an hour the provider is closed.
+`always` is every day the provider is open; `weekdays` those weekdays; `monthDays` those days of
+every month, plus the month's last day with `lastDay: true`, and — with `shortMonths: 'last'` —
+a listed day a short month lacks moves to its last day (default `'skip'`: the 31st in April just
+passes); `dates` those calendar days on the provider's clock. Hours: `hours` (up to five
+windows) on every day it is offered, or per weekday with `hoursByDay` (weekdays rule only,
+winning over `hours`). `exceptions` (at most 100, past ones dropped on write, never overlapping)
+are `{ from, to, kind, hours?, note? }`: `open` offers that date at `hours` — or the provider's
+hours without any — even when the rule leaves it out; `closed` takes the date away, or only
+`hours`' ranges. `always` with hours is stored as an object, not NULL.
+
+The provider's own hours on a day (`providerDayParts`) come from `Provider.scheduleRule`:
+`{ mode: 'weekdays' }` reads `weekSchedule`; `{ mode: 'monthDays', days, lastDay?, shortMonths?,
+hours }` opens those days of the month at one set of hours; `{ mode: 'dates' }` opens no day by
+itself — only the open special dates. `weekSchedule` is kept under every rule, so switching back
+loses nothing. A **special date** on the day then decides (below). Where a service reaches outside
+them, the web warns before it is saved and on its card (`src/helpers/scheduleConflicts.ts`,
+[docs/routes/ai-assistant.md](routes/ai-assistant.md) → *Special dates and service hours*); the
+rules here only ever intersect.
+
+### Special dates
+
+`Provider.specialDates` is a JSON list of `{ from, to, kind, hours, note? }`: inclusive
+`YYYY-MM-DD` on the provider's calendar, `hours` a day as `weekSchedule` stores one, a note of at
+most 80 characters that visitors see. `kind: 'open'` (an *added date*) makes `hours` the day's
+hours — required — and, under the specific-dates rule, is how a day opens at all; `'closed'` (an
+*excluded date*) closes the whole day when `hours` is null, or only `hours`' ranges ("closed
+12:00–14:00"). An entry written before `kind` existed reads as closed without hours, open with.
+Entries never overlap (a write that would is `400`), a run covers at most 366 days, at most 366
+entries (a year of single dates, for the specific-dates rule); ones that ended are dropped on
+write and left out of the public payload. Parser: `parseSpecialDates` in
+`server/src/lib/service-availability.ts`. Drafted with `weekSchedule` (`Provider.draft.specialDates`)
+and published with it; `PATCH /provider-profile/schedule` changes it live. Read by the booking
+grid, the booking check (`isWithinBookableHours`), the card's *open today*, Explore's *open
+today* filter (see the `openToday` notes above) and the public hours list.
 
 The narrowing is computed **on every read** — `effectiveDayParts` in
 `src/helpers/serviceAvailability.ts` for the grid, its twin in
@@ -387,7 +435,7 @@ ever goes stale. The two are pinned by one case table in
 - **`available`** — pause new bookings; independent of listing. Enforced by
   `POST /appointments` (see [When online booking is closed](#when-online-booking-is-closed));
   it used to be read by Explore alone while bookings kept arriving.
-- **`draft`** — JSON overlay (`fullName`, `description`, `imageUrl`, `weekSchedule`, `timeZone`, `timeFormat`, `showClockChoices`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft. `clearImage: true` on that save sets `imageUrl` to null, and Publish then takes the portrait off the live page.
+- **`draft`** — JSON overlay (`fullName`, `description`, `imageUrl`, `weekSchedule`, `specialDates`, `scheduleRule`, `timeZone`, `timeFormat`, `showClockChoices`, `available`, `paymentInfo`). Save draft writes here; Publish copies onto live columns and clears draft. `clearImage: true` on that save sets `imageUrl` to null, and Publish then takes the portrait off the live page.
 - **`timeZone`** — the IANA zone `weekSchedule` is written in. Draftable, because it moves
   every published hour. See [Time zones](#time-zones).
 - **`timeFormat`** — `h12` / `h24` (Prisma enum `TimeFormat`), nullable. Draftable with
@@ -564,8 +612,8 @@ enforced:
 | `maxBookingsPerMonth` | `POST /appointments`, after the paused check and before the overlap check | `409`, code `4202` (see [When online booking is closed](#when-online-booking-is-closed)) |
 | `analyticsHistoryDays` | `GET /provider-profile/analytics` | clamped, not refused |
 | `photoImportsPerDay` | `POST /provider-profile/bookings/import/parse`, before the Gemini call | `403`, code `4103` |
-| `profileAssistantRunsPerDay` | `POST /provider-profile/assistant/generate`, before the Gemini call | `403`, code `4105` |
-| `maxActiveServices` (the profile assistant) | `POST /provider-profile/assistant/apply`, only when the apply *grows* the active count past the cap | `403`, code `4101` |
+| `assistantMessagesPerDay` | `POST /provider-profile/assistant/messages`, before the Gemini call — `0` is not on the plan | `403`, code `4102`; spent → `403`, code `4105` |
+| `visitorAssistantMessagesPerDay` | `PUT /provider-profile/assistant/visitor` (switching on), `POST /providers/:key/assistant` | `403` `4102` for the provider; a visitor gets `404` `4503` / `429` `4504`, never a plan |
 | `maxBookingsPerMonth` (a provider's own entries) | `POST /provider-profile/bookings/import`, for the whole batch | `403`, code `4104` (see [Bookings a provider enters](#bookings-a-provider-enters--the-photo-import)) |
 
 **On downgrade nothing is withdrawn.** Over-cap services stay live and editable — only
@@ -784,7 +832,7 @@ number so settings can still edit it.
 
 ### Bookings a provider enters — the photo import
 
-*Add from photo* on `/bookings` turns a photo of a provider's handwritten bookings into real
+*Import from photo* on `/bookings` (and the AI assistant's camera button) turns a photo of a provider's handwritten bookings into real
 ones, in two calls under `/provider-profile/bookings/import` (`routes/bookingImport.ts`,
 mounted before `providerProfileRouter`, `requireProvider`, provider id from the session):
 
@@ -822,47 +870,33 @@ client's rule, as on the public route: the review sheet offers only free slots o
 service's grid (`src/helpers/bookingImport.ts`) and keeps Submit disabled until every row sits
 on one.
 
-### The profile assistant
+### The AI assistants
 
-The magic button beside the workspace switch on every provider settings tab. A provider
-describes their business in their own words, in any language; Gemini drafts their whole
-workspace from it; they review it tab by tab and approve. Routes under
-`/provider-profile/assistant` (`routes/profileAssistant.ts`, mounted before
-`providerProfileRouter`, `requireProvider`, provider id from the session); rules in
-`services/profileAssistant.ts` (pure). Design notes:
-[docs/routes/profile-assistant.md](routes/profile-assistant.md).
+Two chats on Gemini, both streamed as server-sent events (`lib/sse.ts`). Design record:
+[docs/routes/ai-assistant.md](routes/ai-assistant.md).
 
-**`/generate`** sends the current workspace as JSON — profile, categories, **active**
-services with their ids, the week as bookable windows, clock, approval, payment methods and
-note, notifications, SEO — what the plan allows (service cap, `customSlug`), the predefined
-categories, and the description fenced in `<<< >>>`. The answer is the **whole desired
-state**, not a patch: a service it leaves out is removed, and a week it gives hours for closes
-every day it does not mention. Every field is narrowed to what its settings tab accepts —
-service availability through `parseServiceAvailability`, SEO through `parseProviderSeoBody`,
-the zone through `toTimeZone` — and an empty or unusable value keeps the current one. An id is
-an enum of the provider's own, and a repeated one becomes a new service. The pay-to number,
-phone, photos, Telegram and the calendar feed are never drafted. Refusals: no key → `503`
-`4501`; nothing usable came back → `422` `4502`; Google's `429` → `429` with its
-`Retry-After`; over `profileAssistantRunsPerDay` → `403` `4105`; more than 5 drafts an hour
-(every plan, in-memory) → `429`. A `ProfileAssistantRun` row is written first and deleted if
-no draft came of it, as photo import does.
+**The provider's assistant** (`routes/assistant.ts`, `/provider-profile/assistant`, mounted
+before `providerProfileRouter`, provider id from the session; rules in `services/assistant.ts`,
+pure). Each message spends one of today's `assistantMessagesPerDay` (an `AssistantUsage`
+conditional increment, given back when no answer came) and sends the model the last 20 turns
+**of that chat** (`AssistantConversation` — a provider has up to 50) plus the workspace as JSON
+in the system instruction — hours, special dates, services with ids,
+settings, plan limits, and pending plus the next 30 days' bookings (client **name** only). The
+model may call one function, `propose_changes`; its actions are narrowed (`narrowAction`) and
+**stored, never applied**: the browser applies an approved proposal through the ordinary routes
+and reports the outcome with `PATCH …/messages/:id`. Refusals before the stream: plan without
+the assistant → `403` `4102`; today's messages spent → `403` `4105`; no key → `503` `4501`;
+more than 30 messages in 10 minutes → `429`. During it: an `error` event (`4502` for an empty or
+blocked answer, `429` with `retryAfterSeconds` for Google's limit).
 
-**`/apply`** re-validates the reviewed proposal as strictly as each tab validates its own
-fields (`parseApplyBody`, including the new `parseWeekSchedule`), then writes it in **one
-transaction**: the provider's columns (name, description, week, zone, clock, approval,
-payment methods and note with the existing pay-to number kept, notifications, SEO, slug, and
-`assistantSeenAt`), the same keys dropped from `Provider.draft` so a stale draft cannot
-overwrite them on Publish, categories (`setProviderCategories`, a new name linked or created),
-and services. A service the proposal leaves out is **deleted when nothing ever booked it and
-switched off when something did** (`Appointment.serviceId` has no `onDelete`); an inactive
-one is left alone. `listed` and `available` are untouched. The plan's service cap refuses only
-growth (`403` `4101`), a slug change needs `customSlug` (`403` `4102`), and a taken slug is
-`409`. `refreshProviderSeoStamp` runs after.
-
-`assistantSeenAt` is null for a new account, so the settings layout opens the assistant by
-itself on their first visit; closing it (`/dismiss`) or applying stamps it.
-`20261025000000_profile_assistant` stamped every existing provider, so only accounts created
-since are greeted.
+**The visitor assistant** (`routes/visitorAssistant.ts`, `POST /providers/:key/assistant`,
+public; rules in `services/visitorAssistant.ts`). Only for a listed page whose provider switched
+it on and whose plan allows it. The model gets the page's public facts — services with days and
+hours, weekly hours, special dates for 60 days, free time for 14 days (hours minus busy instants,
+`getProviderBusyIntervals`), payment methods, contact, rating, whether booking is open — and no
+function. The browser sends the conversation; nothing is stored. A visitor is never told about
+a plan: off/unlisted/lapsed → `404` `4503`, the day's questions spent → `429` `4504` with
+`Retry-After` to UTC midnight.
 
 ## Time zones
 

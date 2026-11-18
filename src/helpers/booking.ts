@@ -1,11 +1,11 @@
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { DaySchedule, ServiceAvailability, WeekSchedule } from '@store/providers/profile/types'
+import { ProviderScheduleRule, ServiceAvailability, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { BookingClosedReason, OnlineBooking } from '@interfaces/booking'
 import { WeekDay } from '@interfaces/schedule'
 import { BOOKING_ERROR_CODES, ONLINE_BOOKING, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
-import { effectiveDayParts, isServiceDay } from './serviceAvailability'
+import { effectiveDayParts, providerDayParts } from './serviceAvailability'
 import { dayKeyOf, zonedTimeToDate } from './timeZone'
 
 dayjs.extend(customParseFormat)
@@ -18,30 +18,34 @@ const toMinutes = (time: string): number | undefined => {
   return parsed.isValid() ? parsed.hour() * 60 + parsed.minute() : undefined
 }
 
-const hasAvailability = (day?: DaySchedule) => !!day?.availability.start && !!day?.availability.end
-
 /**
- * Whether this calendar date falls on a weekday the provider has hours for — and, given a
- * service's `availability`, on a day that service is offered.
+ * Whether the provider has hours on this calendar date — by their rule (`details.scheduleRule`:
+ * weekly, days of the month, or specific dates) and any special date on it — and, given a
+ * service's `availability`, whether that service can be booked in them (its days, and its own
+ * hours inside the provider's).
  */
 export const isOpenOnDate = (
   weekSchedule: WeekSchedule | undefined,
   date: Date | Dayjs,
-  availability?: ServiceAvailability
+  availability?: ServiceAvailability,
+  specialDates?: readonly SpecialDate[],
+  rule?: ProviderScheduleRule
 ): boolean => {
-  if (!weekSchedule) return false
-  const day = dayjs(date)
-  if (!isServiceDay(availability, day.format(DAY_KEY_FORMAT))) return false
-  return hasAvailability(weekSchedule[getWeekDay(day)])
+  if (!weekSchedule && !specialDates?.length && !rule) return false
+  const dayKey = dayjs(date).format(DAY_KEY_FORMAT)
+  const parts = availability
+    ? effectiveDayParts({ weekSchedule, specialDates, rule, availability, dayKey })
+    : providerDayParts({ weekSchedule, specialDates, rule, dayKey })
+  return parts.length > 0
 }
 
 export type BookingSlot = { start: Date; end: Date }
 
 /**
  * Bookable slots for a single date: the provider's availability minus their
- * breaks, stepped by the service duration, with anything already in the past
- * dropped. Given the service's `availability`, a day it is not offered on has none
- * (`@helpers/serviceAvailability`); the hours are always the provider's.
+ * breaks (a special date's, when one covers the day), stepped by the service duration, with
+ * anything already in the past dropped. Given the service's `availability`, a day it is not
+ * offered on has none, and its own hours cut the provider's (`@helpers/serviceAvailability`).
  *
  * `date` names a **calendar day** — a month-grid cell, local midnight — and `timeZone` is
  * the provider's. The hours are read in that zone, so "09:00" is nine on the provider's
@@ -55,6 +59,8 @@ export type BookingSlot = { start: Date; end: Date }
  */
 export const getSlotsForDate = ({
   weekSchedule,
+  specialDates,
+  rule,
   availability,
   date,
   durationMinutes,
@@ -62,18 +68,22 @@ export const getSlotsForDate = ({
   timeZone,
 }: {
   weekSchedule?: WeekSchedule
-  /** The selected service's days. Absent is "whenever the provider is open". */
+  /** The provider's dates that do not follow the rule (`details.specialDates`). */
+  specialDates?: readonly SpecialDate[]
+  /** The base of the provider's hours (`details.scheduleRule`). Absent is weekly. */
+  rule?: ProviderScheduleRule
+  /** The selected service's days and hours. Absent is "whenever the provider is open". */
   availability?: ServiceAvailability
   date: Date
   durationMinutes: number
   now?: Date
   timeZone?: string
 }): BookingSlot[] => {
-  if (!weekSchedule || durationMinutes <= 0) return []
+  if ((!weekSchedule && !specialDates?.length && !rule) || durationMinutes <= 0) return []
 
   const day = dayjs(date)
   const dayKey = day.format(DAY_KEY_FORMAT)
-  const parts = effectiveDayParts({ weekSchedule, availability, dayKey })
+  const parts = effectiveDayParts({ weekSchedule, specialDates, rule, availability, dayKey })
   if (!parts.length) return []
 
   const durationMs = durationMinutes * 60_000
@@ -97,6 +107,8 @@ export const getSlotsForDate = ({
 /** Inclusive of `start`, exclusive of `end` — matches FullCalendar's visible range. */
 export const getSlotsForDateRange = ({
   weekSchedule,
+  specialDates,
+  rule,
   availability,
   start,
   end,
@@ -105,6 +117,8 @@ export const getSlotsForDateRange = ({
   timeZone,
 }: {
   weekSchedule?: WeekSchedule
+  specialDates?: readonly SpecialDate[]
+  rule?: ProviderScheduleRule
   availability?: ServiceAvailability
   start: Date
   end: Date
@@ -118,7 +132,18 @@ export const getSlotsForDateRange = ({
   const last = dayjs(end)
 
   while (cursor.isBefore(last)) {
-    slots.push(...getSlotsForDate({ weekSchedule, availability, date: cursor.toDate(), durationMinutes, now, timeZone }))
+    slots.push(
+      ...getSlotsForDate({
+        weekSchedule,
+        specialDates,
+        rule,
+        availability,
+        date: cursor.toDate(),
+        durationMinutes,
+        now,
+        timeZone,
+      })
+    )
     cursor = cursor.add(1, 'day')
   }
 

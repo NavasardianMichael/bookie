@@ -1,6 +1,7 @@
 'use client'
 
 import { FC } from 'react'
+import { useAssistantLauncherShown } from '@hooks/useAssistantLauncherShown'
 import { useUnsavedChangesGuard } from '@hooks/useUnsavedChangesGuard'
 import { cn } from '@helpers/cn'
 import { AppButton } from '@components/ui/AppButton'
@@ -45,12 +46,15 @@ export const SettingsActionBar: FC<SettingsActionBarProps> = ({
   className,
 }) => {
   const pending = pendingAction !== null
+  // The AI assistant's button floats in the same bottom end corner; the bar stops short of it.
+  const clearLauncher = useAssistantLauncherShown()
   useUnsavedChangesGuard(dirty)
 
   return (
     <div
       className={cn(
         'border-brand-border bg-surface/90 sticky bottom-6 z-40 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 shadow-lg backdrop-blur',
+        clearLauncher && 'me-16',
         className
       )}
     >

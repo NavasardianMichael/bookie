@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { ServiceAvailability, WeekSchedule } from '@store/providers/profile/types'
+import { ProviderScheduleRule, ServiceAvailability, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT } from '@constants/schedule'
 import { BookingSlot, BusyInterval, dropBusySlots, getSlotsForDate, isOpenOnDate } from './booking'
 import { inTimeZone, zonedTimeToDate } from './timeZone'
@@ -27,6 +27,10 @@ export type DraftSlotRow = {
 /** What the slot rules need of the provider: their hours, their zone, each service's length. */
 export type DraftSchedule = {
   weekSchedule?: WeekSchedule
+  /** The provider's dates that do not follow the rule. */
+  specialDates?: readonly SpecialDate[]
+  /** The base of the provider's hours (`details.scheduleRule`); absent is weekly. */
+  rule?: ProviderScheduleRule
   /** `Provider.timeZone`; absent reads the hours in the browser's zone, as the public grid does. */
   timeZone?: string
   /** Minutes per **active** service. A service missing here cannot be booked. */
@@ -115,7 +119,10 @@ export const checkDraftSlot = ({
   if (!row || !duration || !start || !day) return { issue: 'missing' }
 
   const availability = schedule.availability?.[row.serviceId!]
-  if (isOpenOnDate(schedule.weekSchedule, day) && !isOpenOnDate(schedule.weekSchedule, day, availability)) {
+  if (
+    isOpenOnDate(schedule.weekSchedule, day, undefined, schedule.specialDates, schedule.rule) &&
+    !isOpenOnDate(schedule.weekSchedule, day, availability, schedule.specialDates, schedule.rule)
+  ) {
     return { issue: 'serviceClosed' }
   }
 
@@ -123,6 +130,8 @@ export const checkDraftSlot = ({
   // real slot this morning reads as `past`, not as `offGrid`.
   const grid = getSlotsForDate({
     weekSchedule: schedule.weekSchedule,
+    specialDates: schedule.specialDates,
+    rule: schedule.rule,
     availability,
     date: day,
     durationMinutes: duration,
@@ -167,6 +176,8 @@ export const draftTimeOptions = ({
 
   const slots: BookingSlot[] = getSlotsForDate({
     weekSchedule: schedule.weekSchedule,
+    specialDates: schedule.specialDates,
+    rule: schedule.rule,
     availability: schedule.availability?.[row!.serviceId!],
     date: day,
     durationMinutes: duration,

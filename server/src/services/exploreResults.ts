@@ -1,6 +1,13 @@
 import type { Prisma } from '@prisma/client'
 import { matchedServicesByProvider, rankByRelevance, shouldRankByRelevance } from './providerRelevance.js'
-import { matchedServicesWhere, type ProvidersListQuery } from './providerSearch.js'
+import {
+  matchedServicesWhere,
+  type ProvidersListQuery,
+  type SpecialDateOverrides,
+  specialDateOverrides,
+  type SpecialDateRow,
+  todaySpan,
+} from './providerSearch.js'
 import { prisma } from '../lib/prisma.js'
 import type { TermSpellings } from '../lib/searchCorrection.js'
 import { providerListInclude } from '../mappers/entities.js'
@@ -78,4 +85,30 @@ export const loadMatchedServices = async (
     orderBy: { name: 'asc' },
   })
   return matchedServicesByProvider(services, matched)
+}
+
+/**
+ * The listed providers whose today SQL cannot judge, for `openToday`
+ * (`providerSearch.ts#specialDateOverrides`): a special date touching `todaySpan` (at most three
+ * days), or a rule other than weekly. Raw SQL because Prisma's JSON filters cannot compare inside
+ * an array of date ranges; without it the only option is every provider who ever stored a special
+ * date, a set that only grows. Parameterised through the tagged template.
+ */
+export const loadSpecialDateOverrides = async (now: Date): Promise<SpecialDateOverrides> => {
+  const { from, to } = todaySpan(now)
+  const rows = await prisma.$queryRaw<SpecialDateRow[]>`
+    SELECT "id", "weekSchedule", "timeZone", "specialDates", "scheduleRule"
+    FROM "Provider"
+    WHERE "listed" = true
+      AND (
+        COALESCE("scheduleRule"->>'mode', 'weekdays') <> 'weekdays'
+        OR EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(
+            CASE WHEN jsonb_typeof("specialDates") = 'array' THEN "specialDates" ELSE '[]'::jsonb END
+          ) AS entry
+          WHERE entry->>'from' <= ${to} AND entry->>'to' >= ${from}
+        )
+      )`
+  return specialDateOverrides(rows, now)
 }

@@ -3,7 +3,7 @@
 import React from 'react'
 import { Flex, Form, InputNumber } from 'antd'
 import { useTranslations } from 'next-intl'
-import { WeekSchedule } from '@store/providers/profile/types'
+import { ProviderScheduleRule, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { useFormItemRules } from '@hooks/useFormItemRules'
 import { useFormUnsavedGuard } from '@hooks/useUnsavedChangesGuard'
 import { TimeFormat } from '@interfaces/schedule'
@@ -25,12 +25,11 @@ type Props = {
   closeModal: () => void
   /** The provider's published hours, zone and clock — the frame the availability section works inside. */
   weekSchedule?: WeekSchedule
+  specialDates?: SpecialDate[]
+  scheduleRule?: ProviderScheduleRule
   timeZone?: string
   timeFormat: TimeFormat
-  /**
-   * Offer the photo field — on by default. The profile assistant's review turns it off: its
-   * apply is one JSON write, and a photo is added on the Services tab afterwards.
-   */
+  /** Offer the photo field — on by default. */
   withImage?: boolean
 }
 
@@ -45,6 +44,8 @@ export const ProviderServiceForm: React.FC<Props> = ({
   onSubmit,
   closeModal,
   weekSchedule,
+  specialDates,
+  scheduleRule,
   timeZone,
   timeFormat,
   withImage = true,
@@ -109,7 +110,13 @@ export const ProviderServiceForm: React.FC<Props> = ({
         </AppFormItem>
       )}
 
-      <ProviderServiceFormAvailability weekSchedule={weekSchedule} timeZone={timeZone} timeFormat={timeFormat} />
+      <ProviderServiceFormAvailability
+        weekSchedule={weekSchedule}
+        specialDates={specialDates}
+        scheduleRule={scheduleRule}
+        timeZone={timeZone}
+        timeFormat={timeFormat}
+      />
 
       <Flex justify='end' gap={8} className='mt-4'>
         <AppButton type='default' className='grow' onClick={closeModal}>

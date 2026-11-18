@@ -3,6 +3,7 @@
 import { FC, useMemo } from 'react'
 import { AutoComplete } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'
+import { useLocale } from 'next-intl'
 import { formatDuration } from '@helpers/duration'
 import { PROVIDER_SERVICE_FORM_POPUP_PROPS } from './constants'
 
@@ -16,16 +17,17 @@ type Props = {
   disabled?: boolean
 }
 
-const toOption = (minutes: number): DefaultOptionType => ({
+const toOption = (minutes: number, locale: string): DefaultOptionType => ({
   value: String(minutes),
-  label: formatDuration(minutes),
+  label: formatDuration(minutes, locale),
 })
 
 export const ProviderServiceFormDuration: FC<Props> = ({ value, onChange, disabled }) => {
+  const locale = useLocale()
   const options: DefaultOptionType[] = useMemo(() => {
     const withCurrent = value && value > 0 ? [value, ...DURATION_SUGGESTIONS_MINUTES] : DURATION_SUGGESTIONS_MINUTES
-    return [...new Set(withCurrent)].sort((a, b) => a - b).map(toOption)
-  }, [value])
+    return [...new Set(withCurrent)].sort((a, b) => a - b).map((minutes) => toOption(minutes, locale))
+  }, [locale, value])
 
   /**
    * Commits on every keystroke, not only on select — typing `45` and submitting without

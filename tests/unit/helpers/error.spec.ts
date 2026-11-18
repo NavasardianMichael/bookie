@@ -1,11 +1,11 @@
 import en from '@messages/en.json'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ASSISTANT_ERROR_CODES } from '@constants/assistant'
 import { AUTH_ERROR_CODES } from '@constants/auth'
 import { BILLING_ERROR_CODES } from '@constants/billing'
 import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { IMPORT_ERROR_CODES } from '@constants/bookingImport'
 import { PLAN_ERROR_CODES } from '@constants/plans'
-import { ASSISTANT_ERROR_CODES } from '@constants/profileAssistant'
 import {
   buildErrorDetails,
   classifyError,
@@ -225,7 +225,7 @@ describe('resolveErrorCopyKey', () => {
     expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
   })
 
-  it.each(Object.entries(ASSISTANT_ERROR_CODES))('names the catalogue copy for profile assistant code %s', (name, code) => {
+  it.each(Object.entries(ASSISTANT_ERROR_CODES))('names the catalogue copy for AI assistant code %s', (name, code) => {
     const classified = classifyError(axiosError({ status: 422, data: envelope(code, 'assistant') }))
     expect(resolveErrorCopyKey(classified)).toBe(`codes.${name}`)
   })

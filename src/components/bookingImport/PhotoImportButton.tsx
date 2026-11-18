@@ -29,7 +29,7 @@ export const PhotoImportButton: FC<Props> = ({ onImported }) => {
 
   return (
     <>
-      <AppButton icon={<CameraOutlined />} onClick={() => setOpen(true)}>
+      <AppButton color='primary' variant='outlined' icon={<CameraOutlined />} onClick={() => setOpen(true)}>
         {t('button')}
       </AppButton>
       <PhotoImportSheet open={open} onClose={() => setOpen(false)} onImported={handleImported} />

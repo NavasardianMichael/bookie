@@ -1,6 +1,13 @@
 import { Organization } from '@store/organizations/single/types'
 import { ProviderListItem, ProvidersListPagination, ProvidersListState } from '@store/providers/list/types'
-import { ProviderProfile, ProviderSeo, ProviderService } from '@store/providers/profile/types'
+import {
+  DaySchedule,
+  ProviderProfile,
+  ProviderScheduleRule,
+  ProviderSeo,
+  ProviderService,
+  SpecialDate,
+} from '@store/providers/profile/types'
 import { SingleProvider } from '@store/providers/single/types'
 import { Endpoint } from '@interfaces/api'
 import { CategoryChoicePayload, NewOrganizationPayload } from '@interfaces/auth'
@@ -14,6 +21,8 @@ export type PutProviderProfileRequestPayload = Partial<{
   locationURL: string
   organizationId: Organization['id']
   weekSchedule: ProviderProfile['details']['weekSchedule']
+  /** Drafted and published with `weekSchedule`; the API answers 400 for an overlap. */
+  specialDates: SpecialDate[]
   /** IANA name; the API stores it canonical and answers 400 for one `Intl` does not know. */
   timeZone: NonNullable<ProviderProfile['details']['timeZone']>
   /** Drafted and published with `timeZone`; the API answers 400 for anything but `h12`/`h24`. */
@@ -238,6 +247,38 @@ export type PatchProviderOrganizationAPI = Endpoint<{
  * The settings Categories field, applied live: the full list, which replaces the current
  * one — `[]` clears it. At most `MAX_PROVIDER_CATEGORIES`; the API answers 400 for more.
  */
+/**
+ * A schedule change the provider has just approved — some weekdays, some special dates, the
+ * pause switch, the clock — written **live** and merged into an unpublished Availability draft
+ * too. What the AI assistant and the service-conflict dialog send; the Availability tab still
+ * saves the whole schedule through `putProviderProfileAPI`.
+ */
+export type PatchProviderSchedulePayload = Partial<{
+  weekSchedule: Partial<ProviderProfile['details']['weekSchedule']>
+  /** `set` trims any stored run it overlaps; `remove` drops every entry covering one of the dates. */
+  specialDates: { set?: SpecialDate[]; remove?: string[] }
+  /** The base of the hours — weekly, days of the month, or specific dates only. */
+  scheduleRule: ProviderScheduleRule
+  available: boolean
+  timeZone: string
+  timeFormat: NonNullable<ProviderProfile['details']['timeFormat']>
+}>
+
+export type ProviderScheduleResponse = {
+  weekSchedule: Record<string, DaySchedule>
+  specialDates: SpecialDate[]
+  scheduleRule?: ProviderScheduleRule
+  available: boolean
+  timeZone?: string
+  timeFormat?: ProviderProfile['details']['timeFormat']
+}
+
+export type PatchProviderScheduleAPI = Endpoint<{
+  payload: PatchProviderSchedulePayload
+  response: ProviderScheduleResponse
+  processed: ProviderScheduleResponse
+}>
+
 export type PutProviderCategoriesAPI = Endpoint<{
   payload: { categories: CategoryChoicePayload[] }
   response: ProviderProfile

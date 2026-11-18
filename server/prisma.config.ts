@@ -4,11 +4,11 @@
 import { defineConfig } from 'prisma/config'
 
 // A config file opts the CLI out of loading the env file implicitly ("Prisma config
-// detected, skipping environment variable loading"), so — as in prisma/seed.ts — it has
-// to be loaded here or DATABASE_URL is undefined. Import order is set by simple-import-sort;
-// the side effect still runs before defineConfig is called, and the datasource URL is not
-// read until the schema engine resolves it.
-import 'dotenv/config'
+// detected, skipping environment variable loading"), so — as in prisma/seed.ts — the API's
+// own loader runs here (the mode's local file, then the shared one) or DATABASE_URL is
+// undefined. Import order is set by simple-import-sort; the side effect still runs before
+// defineConfig is called, and the datasource URL is not read until the schema engine resolves it.
+import './src/load-env.js'
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

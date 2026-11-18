@@ -6,6 +6,7 @@ import { ENDPOINTS } from './endpoints'
 import {
   processProviderBusyResponse,
   processProviderProfileResponse,
+  processProviderScheduleResponse,
   processProviderSeoResponse,
   processProviderServiceResponse,
   processProvidersListResponse,
@@ -21,6 +22,7 @@ import {
   GetProvidersSitemapAPI,
   GetSingleProviderAPI,
   PatchProviderOrganizationAPI,
+  PatchProviderScheduleAPI,
   PatchProviderSeoAPI,
   PostProviderServiceAPI,
   ProviderServiceRequestPayload,
@@ -93,6 +95,7 @@ export const putProviderProfileAPI: PutProviderProfileAPI['api'] = async (params
       ? {
           ...params,
           weekSchedule: params.weekSchedule ? JSON.stringify(params.weekSchedule) : undefined,
+          specialDates: params.specialDates ? JSON.stringify(params.specialDates) : undefined,
           emailNotificationPrefs: params.emailNotificationPrefs
             ? JSON.stringify(params.emailNotificationPrefs)
             : undefined,
@@ -204,6 +207,15 @@ export const patchProviderOrganizationAPI: PatchProviderOrganizationAPI['api'] =
     payload
   )
   return processProviderProfileResponse(data)
+}
+
+/** Plain JSON — nested objects, no `File`. */
+export const patchProviderScheduleAPI: PatchProviderScheduleAPI['api'] = async (payload) => {
+  const { data } = await axiosInstance.patch<APIResponse<PatchProviderScheduleAPI['response']>>(
+    ENDPOINTS.patchProviderSchedule,
+    payload
+  )
+  return processProviderScheduleResponse(data)
 }
 
 export const putProviderCategoriesAPI: PutProviderCategoriesAPI['api'] = async (payload) => {

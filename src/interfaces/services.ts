@@ -1,5 +1,5 @@
 import { ProviderService } from '@store/providers/profile/types'
-import { WeekDay } from '@interfaces/schedule'
+import { ScheduleRangeForm, WeekDay } from '@interfaces/schedule'
 import { SERVICE_AVAILABILITY_MODES, SERVICE_RECURRENCES } from '@constants/serviceAvailability'
 
 export type ServiceAvailabilityMode = (typeof SERVICE_AVAILABILITY_MODES)[keyof typeof SERVICE_AVAILABILITY_MODES]
@@ -17,6 +17,9 @@ export type ServiceAvailabilityFormValues = {
   monthDays: number[]
   /** `YYYY-MM-DD` on the provider's calendar. */
   dates: string[]
+  /** The service keeps to hours of its own, inside the provider's, on every day it is offered. */
+  limitHours: boolean
+  hours: ScheduleRangeForm[]
 }
 
 export type ProviderServiceFormValues = {

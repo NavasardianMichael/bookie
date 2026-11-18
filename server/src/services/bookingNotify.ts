@@ -191,6 +191,18 @@ export const notifyBookingRescheduledTelegram = (appointmentId: string, locale: 
   })
 
 /**
+ * The provider moved a booking themselves (the AI assistant's reschedule): the **client** is
+ * told, by email and Telegram, silenced by their `bookingChanges` (a guest has none and always
+ * hears). The provider made the change and is not told about it.
+ */
+export const notifyRescheduledByProvider = (appointmentId: string, locale: string): Promise<void> =>
+  safely('booking rescheduled by provider', async () => {
+    const parties = await loadParties(appointmentId)
+    if (!parties) return
+    await deliver(parties.booker, 'bookingChanges', rescheduledForBookerNotice(parties.facts, manageUrl(parties, locale)), 'reschedule')
+  })
+
+/**
  * Who of the two still wants a reschedule email, by their `bookingChanges`. Read here rather
  * than in the route so the preference has one reader.
  */

@@ -5,8 +5,8 @@ import { hashUrlToken, mintUrlToken } from '../src/lib/token.js'
 import { recomputeProviderRating } from '../src/services/reviews.js'
 
 // Run directly via tsx, so it does not go through src/config.ts and has to load
-// the env file itself — otherwise DATABASE_URL is undefined.
-import 'dotenv/config'
+// the env files itself — the same cascade as the API, or DATABASE_URL is undefined.
+import '../src/load-env.js'
 
 const prisma = new PrismaClient()
 

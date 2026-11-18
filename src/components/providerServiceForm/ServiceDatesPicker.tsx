@@ -5,7 +5,7 @@ import { CloseOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import dayjs, { Dayjs } from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useTranslations } from 'next-intl'
-import { WeekSchedule } from '@store/providers/profile/types'
+import { ProviderScheduleRule, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { MAX_SERVICE_DATES } from '@constants/serviceAvailability'
 import { isOpenOnDate } from '@helpers/booking'
@@ -18,8 +18,10 @@ import { AppText } from '@components/ui/bare/AppText'
 dayjs.extend(customParseFormat)
 
 type Props = {
-  /** The provider's published hours: a day they are closed cannot be picked. */
+  /** The provider's published hours: a day they are closed is marked, not refused. */
   weekSchedule?: WeekSchedule
+  specialDates?: SpecialDate[]
+  scheduleRule?: ProviderScheduleRule
   /** The provider's zone — "today", and so what counts as past, is theirs. */
   timeZone?: string
   /** Injected by the wrapping `Form.Item`. `YYYY-MM-DD` keys. */
@@ -32,13 +34,21 @@ type Props = {
  * day, and the picked days listed beneath, each with its own remove button.
  *
  * Shares `buildMonthCells` with `BookingMonth` and the bookings calendar — the maths, not the
- * markup (`src/helpers/calendar.ts`). Past days and days the provider is closed are disabled;
- * the hours on a picked day are the provider's. Dates already gone are dropped on the next
+ * markup (`src/helpers/calendar.ts`). Past days are disabled. A day the provider is closed is
+ * struck through but can still be picked — saving asks whether to open it or leave it out
+ * (`ServiceConflictModal`). The hours on a picked day are the provider's. Dates already gone are dropped on the next
  * change and are not listed.
  *
  * A control-contract field (`forms` skill): the wrapping `Form.Item` owns the value.
  */
-export const ServiceDatesPicker: FC<Props> = ({ weekSchedule, timeZone, value = [], onChange }) => {
+export const ServiceDatesPicker: FC<Props> = ({
+  weekSchedule,
+  specialDates,
+  scheduleRule,
+  timeZone,
+  value = [],
+  onChange,
+}) => {
   const t = useTranslations('Services.availability')
   const tCommon = useTranslations('Common')
   const today = calendarDayOf(new Date(), timeZone)
@@ -90,7 +100,8 @@ export const ServiceDatesPicker: FC<Props> = ({ weekSchedule, timeZone, value = 
 
           {cells.map(({ key, date, isOutside }) => {
             const isSelected = selected.has(key)
-            const disabled = date.isBefore(today, 'day') || !isOpenOnDate(weekSchedule, date) || (atLimit && !isSelected)
+            const disabled = date.isBefore(today, 'day') || (atLimit && !isSelected)
+            const closed = !disabled && !isOpenOnDate(weekSchedule, date, undefined, specialDates, scheduleRule)
 
             return (
               <button
@@ -98,7 +109,7 @@ export const ServiceDatesPicker: FC<Props> = ({ weekSchedule, timeZone, value = 
                 type='button'
                 disabled={disabled}
                 aria-pressed={isSelected}
-                aria-label={date.format('dddd, D MMMM YYYY')}
+                aria-label={closed ? t('closedDateLabel', { date: date.format('dddd, D MMMM YYYY') }) : date.format('dddd, D MMMM YYYY')}
                 onClick={() => toggle(key)}
                 className={cn(
                   'text-body-sm flex aspect-square items-center justify-center rounded-brand transition-colors',
@@ -109,6 +120,7 @@ export const ServiceDatesPicker: FC<Props> = ({ weekSchedule, timeZone, value = 
                       ? 'text-brand-300 cursor-not-allowed'
                       : 'text-brand-text hover:bg-brand-50 cursor-pointer font-medium',
                   isOutside && !isSelected && 'opacity-60',
+                  closed && 'line-through decoration-1',
                   key === todayKey && !isSelected && 'ring-brand-200 ring-1 ring-inset'
                 )}
               >

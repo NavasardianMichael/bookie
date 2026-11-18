@@ -1,19 +1,23 @@
 'use client'
 
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Form, Switch } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
-import { ProviderProfile, WeekSchedule } from '@store/providers/profile/types'
+import { ProviderProfile, ProviderService, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
+import { useScheduleImpact } from '@hooks/useScheduleImpact'
 import { ScheduleDaysForm, ScheduleRangeForm, TimeFormat } from '@interfaces/schedule'
 import { ROUTES } from '@constants/routes'
 import { WEEK_DAYS_LIST } from '@constants/schedule'
 import { dayFormsToWeekSchedule, defaultScheduleRange, weekScheduleToDayForms } from '@helpers/schedule'
+import { hasImpact, ScheduleImpact } from '@helpers/scheduleConflicts'
 import { resolveTimeFormat } from '@helpers/timeFormat'
 import { formatTimeZoneName } from '@helpers/timeZone'
 import { AvailabilityDayRow } from '@components/settings/AvailabilityDayRow'
+import { ScheduleImpactModal } from '@components/settings/ScheduleImpactModal'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
+import { SpecialDatesEditor } from '@components/settings/SpecialDatesEditor'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
@@ -38,11 +42,27 @@ type HoursClock = {
   timeFormat: TimeFormat
 }
 
+/** What is live now — what a publish is compared against before it replaces it. */
+type Published = {
+  weekSchedule: WeekSchedule
+  specialDates: SpecialDate[]
+  services: ProviderService[]
+}
+
 const scheduleToForm = (profile: ProviderProfile): FormValues => ({
   available: profile.draft?.available ?? profile.basic.available,
   days: weekScheduleToDayForms(
     (profile.draft?.weekSchedule as WeekSchedule | undefined) ?? profile.details.weekSchedule
   ),
+})
+
+const profileToSpecialDates = (profile: ProviderProfile): SpecialDate[] =>
+  (profile.draft?.specialDates as SpecialDate[] | undefined) ?? profile.details.specialDates ?? []
+
+const profileToPublished = (profile: ProviderProfile): Published => ({
+  weekSchedule: profile.details.weekSchedule,
+  specialDates: profile.details.specialDates ?? [],
+  services: profile.services.allIds.map((id) => profile.services.byId[id]).filter(Boolean),
 })
 
 const profileToClock = (profile: ProviderProfile, locale: string): HoursClock => ({
@@ -70,9 +90,14 @@ export const ProviderAvailabilityClient = () => {
   const tErrors = useTranslations('Errors')
   const locale = useLocale()
   const setAuthState = useAuthStore.use.setAuthState()
+  const checkImpact = useScheduleImpact()
   const [form] = Form.useForm<FormValues>()
   const [clock, setClock] = useState<HoursClock | null>(null)
   const [saved, setSaved] = useState<FormValues | null>(null)
+  const [specialDates, setSpecialDates] = useState<SpecialDate[]>([])
+  const [savedSpecialDates, setSavedSpecialDates] = useState<SpecialDate[]>([])
+  const [published, setPublished] = useState<Published | null>(null)
+  const [impact, setImpact] = useState<ScheduleImpact | null>(null)
   const [dirty, setDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
   const [error, setError] = useState<unknown>(null)
@@ -84,6 +109,17 @@ export const ProviderAvailabilityClient = () => {
   const [fulfilled, setFulfilled] = useState<object | null>(null)
   const loading = fulfilled !== request
 
+  const apply = useCallback(
+    (data: ProviderProfile): void => {
+      setSaved(scheduleToForm(data))
+      setSpecialDates(profileToSpecialDates(data))
+      setSavedSpecialDates(profileToSpecialDates(data))
+      setPublished(profileToPublished(data))
+      setClock(profileToClock(data, locale))
+    },
+    [locale]
+  )
+
   useEffect(() => {
     let cancelled = false
     void getProviderProfileAPI()
@@ -91,8 +127,7 @@ export const ProviderAvailabilityClient = () => {
         if (cancelled) return
         // Into `initialValues`, not `form.setFieldsValue`: the `<Form>` mounts only once
         // `saved` is set, so the instance is not connected to one yet.
-        setSaved(scheduleToForm(data))
-        setClock(profileToClock(data, locale))
+        apply(data)
         setLoadError(null)
       })
       .catch((err: unknown) => {
@@ -104,33 +139,60 @@ export const ProviderAvailabilityClient = () => {
     return () => {
       cancelled = true
     }
-  }, [locale, request])
+  }, [apply, request])
 
   const persist = async (mode: 'draft' | 'publish') => {
     const values = form.getFieldsValue(true)
     setPendingAction(mode)
     setError(null)
     try {
-      const weekSchedule = dayFormsToWeekSchedule(values.days)
       await putProviderProfileAPI({
         mode: 'draft',
-        weekSchedule,
+        weekSchedule: dayFormsToWeekSchedule(values.days),
+        specialDates,
         available: values.available,
       })
       const data = mode === 'publish' ? await putProviderProfileAPI({ mode: 'publish' }) : await getProviderProfileAPI()
       // Publish applies the whole draft, a clock drafted on Advanced settings included, and
       // the workspace prints times on the *published* clock.
       if (mode === 'publish') setAuthState({ timeFormat: data.details.timeFormat ?? null })
-      const next = scheduleToForm(data)
-      setSaved(next)
-      setClock(profileToClock(data, locale))
-      form.setFieldsValue(next)
+      apply(data)
+      form.setFieldsValue(scheduleToForm(data))
       setDirty(false)
     } catch (err) {
       setError(err)
     } finally {
       setPendingAction(null)
     }
+  }
+
+  /**
+   * Publish, after saying what it does to the services and bookings that depend on the live
+   * hours. Nothing is asked when nothing is affected; a booking read that fails is shown and
+   * publishes nothing, rather than publishing as if no booking were in the way.
+   */
+  const publish = async (): Promise<void> => {
+    if (!published) return
+    setPendingAction('publish')
+    setError(null)
+    try {
+      const found = await checkImpact({
+        before: { weekSchedule: published.weekSchedule, specialDates: published.specialDates },
+        after: { weekSchedule: dayFormsToWeekSchedule(form.getFieldsValue(true).days), specialDates },
+        services: published.services,
+        timeZone: clock?.timeZone,
+      })
+      if (hasImpact(found)) {
+        setPendingAction(null)
+        setImpact(found)
+        return
+      }
+    } catch (err) {
+      setError(err)
+      setPendingAction(null)
+      return
+    }
+    await persist('publish')
   }
 
   return (
@@ -194,6 +256,21 @@ export const ProviderAvailabilityClient = () => {
         )}
       </Surface>
 
+      {loadError === null && saved && clock && (
+        <Surface>
+          <SpecialDatesEditor
+            value={specialDates}
+            onChange={(next) => {
+              setSpecialDates(next)
+              setDirty(true)
+            }}
+            timeFormat={clock.timeFormat}
+            timeZone={clock.timeZone}
+            disabled={pendingAction !== null}
+          />
+        </Surface>
+      )}
+
       {/* No Save over settings that never loaded: it would write the empty defaults. */}
       {loadError === null && (
         <SettingsActionBar
@@ -202,15 +279,27 @@ export const ProviderAvailabilityClient = () => {
           onDiscard={() => {
             if (!saved) return
             form.setFieldsValue(saved)
+            setSpecialDates(savedSpecialDates)
             setDirty(false)
           }}
           onSaveDraft={() => void persist('draft')}
-          onPublish={() => void persist('publish')}
+          onPublish={() => void publish()}
           saveDraftLabel={t('actions.saveDraft')}
           publishLabel={t('actions.publish')}
           discardLabel={t('actions.discard')}
         />
       )}
+
+      <ScheduleImpactModal
+        impact={impact}
+        timeZone={clock?.timeZone}
+        timeFormat={clock?.timeFormat ?? 'h24'}
+        onCancel={() => setImpact(null)}
+        onConfirm={async () => {
+          setImpact(null)
+          await persist('publish')
+        }}
+      />
     </div>
   )
 }

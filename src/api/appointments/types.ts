@@ -196,6 +196,13 @@ export type PatchAppointmentStatusAPI = Endpoint<{
   processed: { id: string; status: BookingStatus }
 }>
 
+/** The provider moves one of their own bookings; the client is told by email and Telegram. */
+export type RescheduleProviderBookingAPI = Endpoint<{
+  payload: { id: string; startAt: string; serviceId?: string; locale: string }
+  response: { id: string; startAt: string; endAt: string }
+  processed: { id: string; startAt: string; endAt: string }
+}>
+
 export type BookingDecision = 'approve' | 'reject'
 
 /**

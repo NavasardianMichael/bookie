@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   patchProviderSeo: '/provider-profile/seo',
   patchProviderOrganization: '/provider-profile/organization',
   putProviderCategories: '/provider-profile/categories',
+  patchProviderSchedule: '/provider-profile/schedule',
   deleteProviderProfile: '/provider-profile',
   postProviderService: '/providers',
   putProviderService: '/providers',

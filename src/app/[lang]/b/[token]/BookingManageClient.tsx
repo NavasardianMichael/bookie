@@ -98,13 +98,15 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
     () =>
       getSlotsForDateRange({
         weekSchedule: details?.weekSchedule,
+        specialDates: details?.specialDates,
+        rule: details?.scheduleRule,
         availability,
         start: month.startOf('month').toDate(),
         end: month.endOf('month').add(1, 'day').startOf('day').toDate(),
         durationMinutes,
         timeZone,
       }),
-    [availability, details?.weekSchedule, durationMinutes, month, timeZone]
+    [availability, details?.scheduleRule, details?.specialDates, details?.weekSchedule, durationMinutes, month, timeZone]
   )
 
   const slotCountByDay = useMemo(() => countSlotsByDay(monthSlots, timeZone), [monthSlots, timeZone])
@@ -127,9 +129,17 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
   const daySlots = useMemo(
     () =>
       selectedDate
-        ? getSlotsForDate({ weekSchedule: details?.weekSchedule, availability, date: selectedDate, durationMinutes, timeZone })
+        ? getSlotsForDate({
+            weekSchedule: details?.weekSchedule,
+            specialDates: details?.specialDates,
+            rule: details?.scheduleRule,
+            availability,
+            date: selectedDate,
+            durationMinutes,
+            timeZone,
+          })
         : [],
-    [availability, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
+    [availability, details?.scheduleRule, details?.specialDates, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
   )
 
   const validSelectedStart = useMemo(
@@ -303,6 +313,8 @@ export const BookingManageClient: FC<Props> = ({ token, initial }) => {
             selectedDayKey={selectedDayKey}
             slotCountByDay={slotCountByDay}
             weekSchedule={details?.weekSchedule}
+            specialDates={details?.specialDates}
+            scheduleRule={details?.scheduleRule}
             availability={availability}
             timeZone={timeZone}
             serviceName={service?.name}

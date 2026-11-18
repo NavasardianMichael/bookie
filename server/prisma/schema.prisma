@@ -281,6 +281,21 @@ model Provider {
   organizationId         String?
   organization           Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   weekSchedule           Json               @default("{}")
+  /// The base of the provider's hours: `{ mode: 'weekdays' }` (the hours in `weekSchedule`),
+  /// `{ mode: 'monthDays', days, lastDay?, shortMonths?, hours }`, or `{ mode: 'dates' }` (only the
+  /// open `specialDates`). `weekSchedule` is kept under every rule, so switching back loses
+  /// nothing. Parser: `src/lib/service-availability.ts#parseScheduleRule`. Drafted with the hours.
+  scheduleRule           Json               @default("{\"mode\":\"weekdays\"}")
+  /// Dates that do not follow the rule. A list of `{ from, to, kind, hours, note? }`,
+  /// non-overlapping, on the provider's calendar: `kind: 'open'` sets the day's hours (an added
+  /// date); `'closed'` closes the day, or only `hours`' ranges when it has them. An entry from
+  /// before `kind` reads as closed without hours, open with. Shape and parser:
+  /// `src/lib/service-availability.ts`. Drafted with `weekSchedule`.
+  specialDates           Json               @default("[]")
+  /// The public page offers visitors an AI assistant that answers questions about this
+  /// provider. Only honoured while the plan allows it (`allowsVisitorAssistant`) — a lapsed
+  /// plan hides the button without clearing the switch, so an upgrade restores it.
+  visitorAssistantEnabled Boolean           @default(false)
   /// The IANA zone `weekSchedule` is written in (`Asia/Yerevan`). A schedule is wall-clock
   /// `'HH:mm'` with no zone of its own, so without this every visitor's browser read "09:00"
   /// in *its* zone and a booker abroad was offered hours the provider does not keep.
@@ -355,12 +370,6 @@ model Provider {
   /// which is the only way a new joiner is ever discovered. See `services/reviews.ts`.
   ratingScore            Float              @default(4)
 
-  /// When the provider first closed or applied the profile assistant. Null opens it by itself
-  /// on their next visit to settings — a new account's first look at an empty workspace.
-  /// Existing providers were backfilled by `20261025000000_profile_assistant`, so it never
-  /// ambushes them.
-  assistantSeenAt        DateTime?
-
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   categories             ProviderCategory[]
@@ -374,7 +383,9 @@ model Provider {
   /// like `plan` itself — never to gate a feature directly.
   addons                 ProviderAddon[]
   photoImports           PhotoImport[]
-  assistantRuns          ProfileAssistantRun[]
+  assistantConversations AssistantConversation[]
+  assistantMessages      AssistantMessage[]
+  assistantUsage         AssistantUsage[]
 
   /// Explore's three hot orderings, all prefixed by `listed` because every public
   /// query filters on it. `newest` and the search paths ride the `listed` prefix and
@@ -439,17 +450,79 @@ model PhotoImport {
   @@index([providerId, createdAt])
 }
 
-/// One profile-assistant draft Gemini generated (`POST /provider-profile/assistant/generate`).
-/// Counted against `Entitlements.profileAssistantRunsPerDay`, durable for the reason
-/// `PhotoImport` is. Nothing the provider wrote is kept — only that a draft was made, and when.
-model ProfileAssistantRun {
-  id         String   @id @default(uuid())
-  providerId String
-  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+enum AssistantRole {
+  user
+  model
+}
 
-  /// Today's count for one provider (`planUsage.ts#countAssistantRunsToday`).
-  @@index([providerId, createdAt])
+/// What became of a proposal the assistant made. Nothing is applied without the provider's
+/// click; the browser applies an approved proposal through the ordinary settings routes and
+/// reports the outcome here (`PATCH /provider-profile/assistant/messages/:id`).
+enum AssistantProposalStatus {
+  pending
+  applied
+  partial
+  dismissed
+}
+
+/// Which assistant spent a message: the provider's own, or the public page's for visitors.
+enum AssistantKind {
+  provider
+  visitor
+}
+
+/// One turn of a provider's chat with their AI assistant — the history the chat reopens on,
+/// and the turns the model is shown again. Visitor chats are never stored. Clearing the
+/// history deletes these rows; the daily allowance lives in `AssistantUsage`, so it does not
+/// come back with them.
+/// One of a provider's chats with their AI assistant. The list is newest-activity first; the
+/// newest 50 are kept (`services/assistant.ts#ASSISTANT_CONVERSATIONS_KEEP`).
+model AssistantConversation {
+  id         String             @id @default(uuid())
+  providerId String
+  provider   Provider           @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  /// The first message, shortened (`conversationTitle`); empty for a chat a diary photo started.
+  title      String
+  messages   AssistantMessage[]
+  createdAt  DateTime           @default(now())
+  /// Last activity — a message stored in it. What the list sorts on.
+  updatedAt  DateTime           @default(now())
+
+  @@index([providerId, updatedAt])
+}
+
+model AssistantMessage {
+  id             String                   @id @default(uuid())
+  providerId     String
+  provider       Provider                 @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation   AssistantConversation    @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           AssistantRole
+  text           String
+  /// A model turn's proposed changes (`{ kind: 'changes', summary, actions[] }`) or a photo
+  /// import's read rows (`{ kind: 'photoImport', … }`) — `services/assistant.ts`. Null for talk.
+  proposal       Json?
+  proposalStatus AssistantProposalStatus?
+  /// Per-action outcome once applied — what the model is told on the next turn.
+  outcome        Json?
+  createdAt      DateTime                 @default(now())
+
+  /// One chat, oldest first.
+  @@index([conversationId, createdAt])
+}
+
+/// Messages spent per provider, per assistant, per UTC day — the meter behind
+/// `assistantMessagesPerDay` and `visitorAssistantMessagesPerDay`. A counter row rather than
+/// a count of `AssistantMessage`, because clearing the chat must not refill the allowance and
+/// visitor turns are not stored at all. `day` is the UTC date.
+model AssistantUsage {
+  providerId String
+  provider   Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  kind       AssistantKind
+  day        DateTime      @db.Date
+  count      Int           @default(0)
+
+  @@id([providerId, kind, day])
 }
 
 model ProviderCategory {

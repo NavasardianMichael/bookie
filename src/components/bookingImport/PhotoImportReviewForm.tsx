@@ -77,7 +77,7 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<unknown>(null)
 
-  const { weekSchedule, timeZone, timeFormat } = profile.details
+  const { weekSchedule, specialDates, scheduleRule, timeZone, timeFormat } = profile.details
   const activeServices = useMemo(
     () => profile.services.allIds.map((id) => profile.services.byId[id]).filter((service) => service?.active),
     [profile.services]
@@ -90,11 +90,13 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
   const schedule: DraftSchedule = useMemo(
     () => ({
       weekSchedule,
+      specialDates,
+      rule: scheduleRule,
       timeZone,
       durations: Object.fromEntries(activeServices.map((service) => [service.id, service.duration])),
       availability: Object.fromEntries(activeServices.map((service) => [service.id, service.availability])),
     }),
-    [activeServices, timeZone, weekSchedule]
+    [activeServices, scheduleRule, specialDates, timeZone, weekSchedule]
   )
 
   // Read once: the form owns the rows from here on.
@@ -120,7 +122,13 @@ export const PhotoImportReviewForm: FC<Props> = ({ drafts, profile, onBack, onPe
     (serviceId: string | null | undefined) =>
     (date: Dayjs): boolean =>
       date.isBefore(today, 'day') ||
-      !isOpenOnDate(weekSchedule, date, serviceId ? schedule.availability?.[serviceId] : undefined)
+      !isOpenOnDate(
+        weekSchedule,
+        date,
+        serviceId ? schedule.availability?.[serviceId] : undefined,
+        specialDates,
+        scheduleRule
+      )
 
   const toRequest = (row: DraftFormRow): ImportedBookingRequest | null => {
     const start = draftStart(toSlotRow(row), timeZone)

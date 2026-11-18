@@ -20,8 +20,8 @@ profile's Appointments tab, whose old routes are 307 Route Handlers
 The page owns the one `PageHeader`; the panels render none. The switch shows only when
 `GET /identity/me` reports `profiles.consumer`.
 
-Beside the switch, on the provider side only, sits **Add from photo**
-(`@components/bookingImport/PhotoImportButton` — see *Bookings a provider enters* in
+Under the switch, on the provider side only, sits **Import from photo**, an outlined primary
+button (`@components/bookingImport/PhotoImportButton` — see *Bookings a provider enters* in
 `docs/DATABASE_STRUCTURE.md`). A finished import bumps `BookingsClient`'s `importRevision`,
 which `ProviderBookingsClient` adds into the same `revision` its own status writes bump, so
 the list and the calendar re-read without remounting.

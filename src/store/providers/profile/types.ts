@@ -57,6 +57,18 @@ export type ProviderProfile = {
     gallery: GalleryItem[]
     weekSchedule: WeekSchedule
     /**
+     * Dates that do not follow `weekSchedule` — closed, or open on hours of their own — still
+     * ahead. On the **public** payload: the booking grid and the hours list follow them.
+     * Optional so a payload from before the column parses; missing is none.
+     */
+    specialDates?: SpecialDate[]
+    /**
+     * The base of the hours: weekly (`weekSchedule`), days of the month at one set of hours, or
+     * specific dates only (the open `specialDates`). On the **public** payload, like
+     * `specialDates`. Optional so a payload from before the column parses; missing is weekly.
+     */
+    scheduleRule?: ProviderScheduleRule
+    /**
      * The IANA zone `weekSchedule` is written in (`Asia/Yerevan`). On the **public** payload:
      * the booking grid steps the hours into instants in this zone and labels its times with
      * it (`@helpers/timeZone`). Absent for a provider who never set one — read the hours in
@@ -107,6 +119,11 @@ export type ProviderProfile = {
      * treat a missing value as `false`, never adding branding a provider paid to remove.
      */
     showPoweredBy?: boolean
+    /**
+     * Whether the public page offers its AI assistant — switched on by the provider and allowed
+     * by their plan. Plan-neutral like `showPoweredBy`. Missing is off.
+     */
+    visitorAssistant?: boolean
   }
   services: Normalized<ProviderService>
   personal: ProviderPersonalValues
@@ -161,21 +178,74 @@ export type DaySchedule = {
 
 export type DaySchedulePart = { start: string; end: string }
 
+/** What a 29th–31st does in a month without one: skipped, or moved to the month's last day. */
+export type ShortMonths = 'skip' | 'last'
+
+/** Days of the month a rule recurs on: 1–31, plus the month's last day, whatever its number. */
+export type MonthDays = { days: number[]; lastDay?: boolean; shortMonths?: ShortMonths }
+
+/** `open` sets a date's hours (an added date); `closed` takes the day away, or only some ranges. */
+export type ExceptionKind = 'open' | 'closed'
+
 /**
- * Which days a service can be booked on. It picks **days, never hours**: on an offered day
- * the service runs during the provider's own hours (`weekSchedule`), which are the only
- * time frame there is. Effective windows: `@helpers/serviceAvailability`. Server twin and
- * validation: `server/src/lib/service-availability.ts`.
- *
- * - `weekdays` — every listed weekday.
- * - `monthDays` — every listed day of every month (1–31); a day a month lacks is skipped.
- * - `dates` — each listed `YYYY-MM-DD`, on the provider's calendar.
+ * The base of a provider's hours: the weekly hours (`weekSchedule`, kept under every rule so a
+ * switch back loses nothing), days of the month at one set of hours, or specific dates only —
+ * the open `specialDates`. Server twin: `server/src/lib/service-availability.ts`.
  */
-export type ServiceAvailability =
+export type ProviderScheduleRule =
+  | { mode: 'weekdays' }
+  | ({ mode: 'monthDays'; hours: DaySchedule } & MonthDays)
+  | { mode: 'dates' }
+
+/**
+ * A run of calendar days that does not follow the rule. `open`: `hours` are the day's hours.
+ * `closed`: closed all day when `hours` is null, otherwise closed only for those ranges.
+ * `from`/`to` are inclusive `YYYY-MM-DD` on the provider's calendar (a single day has
+ * `from === to`). Entries never overlap. Server twin and validation:
+ * `server/src/lib/service-availability.ts`.
+ */
+export type SpecialDate = {
+  from: string
+  to: string
+  kind: ExceptionKind
+  hours: DaySchedule | null
+  note?: string
+}
+
+/** A service's own date exception: `open` without `hours` is "on the provider's hours that day". */
+export type ServiceException = {
+  from: string
+  to: string
+  kind: ExceptionKind
+  hours?: DaySchedulePart[]
+  note?: string
+}
+
+/**
+ * When a service can be booked. It picks **days** and, optionally, **hours** — always inside
+ * the provider's own hours (`weekSchedule`, overridden by `specialDates`), never outside them:
+ * a service narrows the provider's frame and cannot widen it. Effective windows:
+ * `@helpers/serviceAvailability`; the warnings when a service reaches outside the provider's
+ * hours: `@helpers/scheduleConflicts`. Server twin and validation:
+ * `server/src/lib/service-availability.ts`.
+ *
+ * - `weekdays` — every listed weekday; `hoursByDay` may give each its own windows.
+ * - `monthDays` — every listed day of every month (1–31), the last day (`lastDay`), and a short
+ *   month's last day for a listed day it lacks when `shortMonths` is `'last'`.
+ * - `dates` — each listed `YYYY-MM-DD`, on the provider's calendar.
+ * - `hours` (any mode) — the windows it keeps to on those days; absent is the provider's hours.
+ * - `exceptions` — dates added (`open`) or taken away (`closed`, whole day or some ranges).
+ */
+export type ServiceAvailability = (
   | { mode: 'always' }
   | { mode: 'weekdays'; days: WeekDay[] }
-  | { mode: 'monthDays'; days: number[] }
+  | ({ mode: 'monthDays' } & MonthDays)
   | { mode: 'dates'; dates: string[] }
+) & {
+  hours?: DaySchedulePart[]
+  hoursByDay?: Partial<Record<WeekDay, DaySchedulePart[]>>
+  exceptions?: ServiceException[]
+}
 
 export type ProviderService = {
   id: string

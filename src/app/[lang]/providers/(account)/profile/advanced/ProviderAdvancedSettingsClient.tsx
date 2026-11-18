@@ -14,6 +14,7 @@ import { formatTimeZoneName, getRuntimeTimeZone, isSameWallClock } from '@helper
 import { ProviderProfileTimeZone } from '@components/settings/ProviderProfileTimeZone'
 import { SettingsActionBar, type SettingsPendingAction } from '@components/settings/SettingsActionBar'
 import { TimeFormatToggle } from '@components/settings/TimeFormatToggle'
+import { VisitorAssistantSetting } from '@components/settings/VisitorAssistantSetting'
 import { AppFormItem } from '@components/ui/AppFormItem'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
@@ -207,6 +208,9 @@ export const ProviderAdvancedSettingsClient = () => {
           </Form>
         )}
       </Surface>
+
+      {/* Saves on its own switch, outside the drafted settings above. */}
+      <VisitorAssistantSetting />
 
       {/* No Save over settings that never loaded: it would write the empty defaults. */}
       {loadError === null && (

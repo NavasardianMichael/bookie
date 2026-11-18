@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { buildServiceHref } from '@app/[lang]/p/[slug]/components/serviceParams'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { MatchedService } from '@store/providers/list/types'
 import { formatDuration, toIsoDuration } from '@helpers/duration'
 import { ProviderPageRef } from '@helpers/entities'
@@ -22,7 +22,7 @@ type Props = {
  * the rest are a count that opens the provider's own list.
  */
 export const MatchedServiceLink: FC<Props> = async ({ provider, service, more }) => {
-  const t = await getTranslations('Explore')
+  const [t, locale] = await Promise.all([getTranslations('Explore'), getLocale()])
 
   return (
     <div className='flex flex-col items-start gap-1.5'>
@@ -38,7 +38,7 @@ export const MatchedServiceLink: FC<Props> = async ({ provider, service, more })
         </AppText>
         <span className='flex flex-wrap items-center gap-x-2'>
           <AppTime dateTime={toIsoDuration(service.duration)} className='text-caption'>
-            {formatDuration(service.duration)}
+            {formatDuration(service.duration, locale)}
           </AppTime>
           {service.price !== undefined && service.currency && (
             <>

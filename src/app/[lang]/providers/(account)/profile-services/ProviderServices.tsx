@@ -6,12 +6,24 @@ import { Spin, Tabs } from 'antd'
 import dynamic from 'next/dynamic'
 import { useLocale, useTranslations } from 'next-intl'
 import { listAppointmentsAPI } from '@api/appointments/main'
+import { patchProviderScheduleAPI } from '@api/providers/main'
+import { ProviderServiceRequestPayload } from '@api/providers/types'
 import { useProviderProfileStore } from '@store/providers/profile/store'
+import { ServiceAvailability } from '@store/providers/profile/types'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES } from '@constants/services'
 import { hasRoomFor } from '@helpers/plans'
 import { reportError } from '@helpers/reportError'
+import {
+  conflictDayCount,
+  fitServiceToHours,
+  hasConflicts,
+  ServiceConflicts,
+  serviceConflicts,
+  WeekdayWidening,
+  widenWeekForService,
+} from '@helpers/scheduleConflicts'
 import { openWeekdays } from '@helpers/serviceAvailability'
 import { resolveTimeFormat } from '@helpers/timeFormat'
 import { calendarDayOf } from '@helpers/timeZone'
@@ -19,6 +31,7 @@ import {
   processProviderServiceFormToRequestPayload,
   toServiceAvailabilityFormValues,
 } from '@components/providerServiceForm/processors'
+import { ConflictChoice, ServiceConflictSheet } from '@components/providerServiceForm/ServiceConflictSheet'
 import { AppButton } from '@components/ui/AppButton'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppSheet } from '@components/ui/AppSheet'
@@ -53,6 +66,15 @@ type Filter = (typeof FILTERS)[keyof typeof FILTERS]
 
 const CLOSED_STATUSES = ['cancelled', 'completed', 'no_show']
 
+/** A save held back because the service reaches outside the provider's hours. */
+type PendingConflict = {
+  values: ProviderServiceFormValues
+  service: ProviderServiceRequestPayload
+  conflicts: ServiceConflicts
+  widening: WeekdayWidening[]
+  fitted: ServiceAvailability | null
+}
+
 export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
   const t = useTranslations('Services')
   const tErrors = useTranslations('Errors')
@@ -86,6 +108,7 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   const [upcomingCount, setUpcomingCount] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<unknown>(null)
+  const [pendingConflict, setPendingConflict] = useState<PendingConflict | null>(null)
 
   /**
    * The store slice this page reads had no loader wired to it, so the list stayed
@@ -122,6 +145,27 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
   }, [])
 
   const serviceList = useMemo(() => allIds.map((serviceId) => byId[serviceId]).filter(Boolean), [allIds, byId])
+
+  /** Per active service, the days it is offered on that the published hours leave out. */
+  const outsideHoursDays = useMemo(() => {
+    const todayKey = calendarDayOf(new Date(), details.timeZone).format(DAY_KEY_FORMAT)
+    return Object.fromEntries(
+      serviceList
+        .filter((service) => service.active)
+        .map((service) => [
+          service.id,
+          conflictDayCount(
+            serviceConflicts({
+              weekSchedule: details.weekSchedule,
+              specialDates: details.specialDates,
+              rule: details.scheduleRule,
+              availability: service.availability,
+              todayKey,
+            })
+          ),
+        ])
+    )
+  }, [details.scheduleRule, details.specialDates, details.timeZone, details.weekSchedule, serviceList])
   const activeCount = useMemo(() => serviceList.filter((service) => service.active).length, [serviceList])
 
   /**
@@ -171,26 +215,80 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
    * `values.id` is the only thing separating a create from an edit — it is set only
    * for a service that already exists, and that is what picks the endpoint.
    */
+  const saveService = useCallback(
+    async (values: ProviderServiceFormValues, service: ProviderServiceRequestPayload) => {
+      if (values.id) {
+        await putProviderService({ providerId, serviceId: values.id, service })
+      } else {
+        await postProviderService({ providerId, service })
+      }
+      closeEditServiceModal()
+    },
+    [closeEditServiceModal, postProviderService, providerId, putProviderService]
+  )
+
+  /**
+   * Saves — unless the service reaches outside the provider's published hours, in which case
+   * the conflict sheet asks first (widen the hours, fit the service, or save as it is). An
+   * inactive service is saved without asking: nobody can book it either way.
+   */
   const onSubmitService = useCallback(
     async (values: ProviderServiceFormValues) => {
       const service = processProviderServiceFormToRequestPayload(values)
+      const availability = service.availability ?? { mode: 'always' as const }
+      const active = values.id ? (byId[values.id]?.active ?? true) : true
+      const todayKey = calendarDayOf(new Date(), details.timeZone).format(DAY_KEY_FORMAT)
+      const hours = {
+        weekSchedule: details.weekSchedule,
+        specialDates: details.specialDates,
+        rule: details.scheduleRule,
+      }
+      const conflicts = active ? serviceConflicts({ ...hours, availability, todayKey }) : null
+
+      if (conflicts && hasConflicts(conflicts)) {
+        setPendingConflict({
+          values,
+          service,
+          conflicts,
+          widening: widenWeekForService(conflicts, details.weekSchedule, availability),
+          fitted: fitServiceToHours(conflicts, availability, hours, todayKey),
+        })
+        return
+      }
 
       setIsSubmitting(true)
       setFormError(null)
       try {
-        if (values.id) {
-          await putProviderService({ providerId, serviceId: values.id, service })
-        } else {
-          await postProviderService({ providerId, service })
-        }
-        closeEditServiceModal()
+        await saveService(values, service)
       } catch (error) {
         setFormError(error)
       } finally {
         setIsSubmitting(false)
       }
     },
-    [closeEditServiceModal, postProviderService, providerId, putProviderService]
+    [byId, details.scheduleRule, details.specialDates, details.timeZone, details.weekSchedule, saveService]
+  )
+
+  /** The conflict sheet's answer. A failure rejects, so the sheet stays open and says so. */
+  const onConflictChoice = useCallback(
+    async (choice: ConflictChoice) => {
+      if (!pendingConflict) return
+      const { values, service, widening, fitted } = pendingConflict
+      if (choice === 'widen') {
+        await patchProviderScheduleAPI({
+          weekSchedule: Object.fromEntries(widening.map((change) => [change.day, change.schedule])),
+        })
+        // The page reads the published hours from the profile; read them again.
+        await getProviderProfileData()
+        await saveService(values, service)
+      } else if (choice === 'fit' && fitted) {
+        await saveService(values, { ...service, availability: fitted })
+      } else {
+        await saveService(values, service)
+      }
+      setPendingConflict(null)
+    },
+    [getProviderProfileData, pendingConflict, saveService]
   )
 
   const openServiceForm = useCallback(
@@ -348,6 +446,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                   onDelete={onDeleteService}
                   onToggleActive={onToggleActive}
                   activationLocked={atServiceLimit}
+                  outsideHoursDays={outsideHoursDays[service.id] ?? 0}
+                  timeFormat={resolveTimeFormat(details.timeFormat, locale)}
                 />
               ))}
 
@@ -404,12 +504,27 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
               onSubmit={onSubmitService}
               closeModal={closeEditServiceModal}
               weekSchedule={details.weekSchedule}
+              specialDates={details.specialDates}
+              scheduleRule={details.scheduleRule}
               timeZone={details.timeZone}
               timeFormat={resolveTimeFormat(details.timeFormat, locale)}
             />
           </>
         ) : null}
       </AppSheet>
+
+      {pendingConflict && (
+        <ServiceConflictSheet
+          open
+          conflicts={pendingConflict.conflicts}
+          widening={pendingConflict.widening}
+          fitted={pendingConflict.fitted}
+          original={pendingConflict.service.availability ?? { mode: 'always' }}
+          timeFormat={resolveTimeFormat(details.timeFormat, locale)}
+          onChoose={onConflictChoice}
+          onCancel={() => setPendingConflict(null)}
+        />
+      )}
 
       <AppConfirmModal
         tone={nextActive ? 'default' : 'warning'}

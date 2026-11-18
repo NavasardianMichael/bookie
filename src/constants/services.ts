@@ -7,6 +7,8 @@ export const SERVICE_AVAILABILITY_FORM_INITIAL_VALUES: ServiceAvailabilityFormVa
   weekdays: [],
   monthDays: [],
   dates: [],
+  limitHours: false,
+  hours: [],
 }
 
 export const PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES: ProviderServiceFormValues = {

@@ -23,8 +23,6 @@ type Props = {
   subtitle?: string
   accountLabel?: string
   displayName?: string
-  /** A control above every tab, to the workspace switch's right — the profile assistant's button. */
-  headerAction?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -39,7 +37,6 @@ export const AccountSettingsLayout: FC<Props> = ({
   subtitle,
   accountLabel,
   displayName,
-  headerAction,
   children,
 }) => {
   const t = useTranslations('Settings')
@@ -136,14 +133,11 @@ export const AccountSettingsLayout: FC<Props> = ({
         activeHref={pathname}
         contentHeader={
           // Offered only when the account holds both profiles — otherwise the
-          // destination is a record that does not exist. The header action rides beside
-          // the switch, or stands alone in its place when there is no switch to show.
+          // destination is a record that does not exist.
           showSwitch && currentWorkspace ? (
-            <WorkspaceSwitch current={currentWorkspace} pathname={pathname} action={headerAction} />
+            <WorkspaceSwitch current={currentWorkspace} pathname={pathname} />
           ) : showBecomeProvider ? (
             <BecomeProviderPrompt />
-          ) : headerAction ? (
-            <div className='mb-6 flex justify-end'>{headerAction}</div>
           ) : undefined
         }
         footer={

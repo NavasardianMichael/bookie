@@ -50,14 +50,25 @@ Feature folders outside the tiers:
   HTML; `PlanPrice` / `AddonPrice` are the hydrating cells (`usePlanPrices`).
   `PlanUpgradeSheet` is the request form for what is not `purchasable`; otherwise buying is
   `useStartCheckout`. See `docs/BILLING.md`.
-- `bookingImport/` — *Add from photo* on `/bookings`; slot rules are `@helpers/bookingImport`.
-- `profileAssistant/` — the ⚡ button on provider settings and its sheet: a description, then
-  a review of every drafted tab and Approve (`docs/routes/profile-assistant.md`). The repo's
-  **only antd `Steps`** (`type='inline'`, the sheet is 40rem wide; v6 props: `orientation`,
-  `titlePlacement`, `content` — not `direction`, `labelPlacement`, `description`). Its steps
-  reuse the tabs' fields rather than copying them: `settings/AvailabilityDayRow` (the
-  Availability tab's day editor, bound under any `name` path), `settings/TimeFormatToggle`,
-  and `ProviderServiceForm` with `withImage={false}`.
+- `bookingImport/` — *Import from photo* on `/bookings`; slot rules are `@helpers/bookingImport`.
+  `PhotoImportSheet` also serves the assistant chat: `onRead` hands the read rows back instead of
+  reviewing them, `drafts` opens straight on the review.
+- `assistant/` — the provider's AI assistant: `AssistantLauncher` (the floating chat button in the
+  bottom end corner of every page, mounted once in `App.tsx`, signed-in providers only) and
+  `AssistantPanel` (the non-modal chat above it, full screen below `md`; `next/dynamic` on first
+  open), `AssistantConversationList` (the provider's chats — the expanded panel's side column, or
+  the list the corner panel switches to), `AssistantProposalCard` (every change in words from
+  `useAssistantActionLines`, **Adjust myself** links, Apply / Dismiss), `AssistantPhotoCard`,
+  `AssistantComposer`, and `AssistantMessageItem` (shared with the visitor chat; its turn prop is
+  `from`, not `role` — `jsx-a11y` reads `role` as ARIA). `docs/routes/ai-assistant.md`.
+- `visitorAssistant/` — **Ask a question** on the public page, shown when
+  `details.visitorAssistant` (plan-neutral). The conversation lives in localStorage, per page,
+  for 30 days after its last answer (`useVisitorAssistantChat`).
+- `settings/` schedule pieces: `TimeRangesField` (the one from–to editor — weekdays, special
+  dates, service hours), `AvailabilityDayRow`, `SpecialDatesEditor` + `SpecialDateSheet`,
+  `ScheduleImpactModal` (what a Publish, or an assistant Apply via `copy`, does to services and bookings), and
+  `VisitorAssistantSetting` (saves on its own switch). `providerServiceForm/ServiceConflictSheet`
+  is the choice when a service reaches outside the hours.
 - `analytics/` — the GA4 tag (`Analytics`, `@next/third-parties`) and Consent Mode:
   `AnalyticsConsentDefaults` (inline script, top of `<body>`, before the tag),
   `ConsentBanner` (in `App`, shown only where an opt-in is required — EU/EEA, UK,
@@ -101,11 +112,17 @@ Antd-free primitives worth knowing — reach for them, do not re-derive them:
 
 Gated by `pnpm gates`: `<Modal` belongs to the two wrappers and nowhere else.
 
+**One exception, and it is not a dialog in that sense: `assistant/AssistantPanel`.** A chat
+widget must leave the page usable behind it, which both wrappers forbid (mask, scroll lock, focus
+trap). It is a hand-built fixed `<section role="dialog" aria-modal="false">` — focus moves in on
+open and back to the launcher on close, Escape closes it from inside. Anything modal opened from
+it (photo import, the impact dialog, Delete chat) still goes through the wrappers.
+
 **Lazy-split an overlay only when it pulls a heavy module the page does not otherwise use
 and is rendered after the user asks** — `next/dynamic` still downloads a component mounted
 while closed. Confirm dialogs stay eager. Existing splits: `qrcode` (in `toQrDataUrl`),
 `antd-img-crop` (`LazyImgCrop`), the booking confirm sheet, the service form, the
-plan-request sheet, Paddle.js. Their fallback is antd
+plan-request sheet, Paddle.js, the assistant panel (mounted on first open, then kept). Their fallback is antd
 `Spin` at default size, centred (`LazyImgCrop` has none, on purpose); a route
 `loading.tsx` stays a pulse skeleton, because it renders on the server.
 

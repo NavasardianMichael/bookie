@@ -95,7 +95,11 @@ the session carries a single role, resolved provider-first at login.
 - **The layout guard asks whether the account holds *this* side**, not whether the
   session's role matches it. A payload without `profiles` falls back to the old, narrower
   rule.
-- **The provider side adds a header action**, the profile assistant's ⚡ button
-  (`headerAction`). It sits to the switch's right, or alone at the same spot when there is no
-  switch — a new provider has no Consumer row, so it must not depend on the switch. See
-  [profile-assistant.md](profile-assistant.md).
+- **The AI assistant is not part of the layout** — it floats in the page corner on every page
+  (`AssistantLauncher` in `App.tsx`). The provider layout only listens: after an apply it re-keys
+  the open tab on `useAssistantPanelStore.revision`, so the tab reads its data again, and
+  re-counts the Approvals badge. See [ai-assistant.md](ai-assistant.md).
+- **Availability holds weekly hours and special dates**, saved together as one draft. Publish
+  first checks what the new hours do to services and upcoming bookings (`ScheduleImpactModal`) —
+  nothing is cancelled. **Advanced settings** carries the visitor-assistant switch, which saves on
+  its own.

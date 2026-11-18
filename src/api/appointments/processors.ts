@@ -8,6 +8,7 @@ import {
   PatchAppointmentStatusAPI,
   PatchBookingDecisionAPI,
   PatchManagedAppointmentAPI,
+  RescheduleProviderBookingAPI,
 } from './types'
 
 export const processCreateAppointmentResponse: CreateAppointmentAPI['processor'] = (response) => response.value
@@ -36,6 +37,9 @@ export const processPatchAppointmentStatusResponse: PatchAppointmentStatusAPI['p
   response.value
 
 export const processPatchBookingDecisionResponse: PatchBookingDecisionAPI['processor'] = (response) => response.value
+
+export const processRescheduleProviderBookingResponse: RescheduleProviderBookingAPI['processor'] = (response) =>
+  response.value
 
 export const processManagedAppointmentResponse: GetManagedAppointmentAPI['processor'] = (response) => {
   const value = response.value

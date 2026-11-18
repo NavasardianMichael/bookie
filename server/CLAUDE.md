@@ -23,8 +23,10 @@ Modules worth knowing by name:
 - **Pure, reachable from `tests/unit/server/`:** `services/plans.ts` (catalogue, add-ons,
   prices, every limit rule), `billing.ts` (Paddle items → plan + add-ons, item builders),
   `noticeRules.ts`, `reminders.ts`, `providerRelevance.ts`, `categories.ts`,
-  `organizations.ts`, `profileAssistant.ts` (the assistant's prompt, schema, narrowing and
-  service diff); `lib/paddle-signature.ts`, `assistant-errors.ts`, `ics.ts`, `telegram-updates.ts`,
+  `organizations.ts`, `assistant.ts` (the provider assistant's prompt, `propose_changes`
+  function, narrowing and history replay), `visitorAssistant.ts` (free time, facts, turn
+  parsing), `scheduleWrites.ts` (a schedule change merged onto what is stored), `providerWrites.ts`
+  (`syncDraft`); `lib/paddle-signature.ts`, `assistant-errors.ts`, `ics.ts`, `telegram-updates.ts`,
   `notice-render.ts`, `return-path.ts`, `booking-errors.ts`, `error-response.ts`,
   `service-availability.ts`, `mail-budget.ts` (the engine's rate-limit window, read from its
   response headers); `services/providerSeoFingerprint.ts` (what moves a provider
@@ -71,15 +73,17 @@ answered and then throws goes to Express's default handler (`res.headersSent`).
 - `optionalAuth` runs globally; per-route protection comes from `middleware/auth.ts`.
 - Read `process.env` only in `src/config.ts`. Every module that reads it at module scope
   imports `./load-env.js` itself (`config.ts` and `lib/prisma.ts` do).
-- **The API reads `server/.env` and nothing else.** `load-env.ts` hands `dotenv.config` one
-  absolute path, so a `.development.local` / `.production.local` sibling is **never loaded
-  by the running process** — those are deploy-payload staging files read only by
-  `pnpm env:base64`. The web half *does* cascade, so identically named files behave
-  differently in the two packages: a credential edited in the server's `.development.local`
-  changes nothing (the symptom is e.g. the mail engine answering `403 Invalid API key`).
+- **The API's env files cascade by mode, as the web's do.** `load-env.ts` loads
+  `server/.env.<NODE_ENV>.local` (`development` when unset), then `server/.env`; the first
+  file to name a key wins, and a real environment variable beats both. So locally a key in
+  `.development.local` is enough, and `.production.local` (still what `pnpm env:base64
+  production` packs) is read by a process started with `NODE_ENV=production` — **including
+  one on your own machine**, which then talks to production's mail, Paddle and Gemini keys.
+  The deployed API is unaffected: systemd's `EnvironmentFile` sets every variable and the
+  release holds no env file.
 - **Prisma CLI config lives in `prisma.config.ts`**, which makes the CLI skip its implicit
-  env loading — so the file imports `dotenv/config` itself. Remove that import and
-  `prisma migrate deploy` runs with no `DATABASE_URL`.
+  env loading — so the file imports `./src/load-env.js` itself, as `prisma/seed.ts` does.
+  Remove that import and `prisma migrate deploy` runs with no `DATABASE_URL`.
 - Production runs `node dist/src/index.js` (tsc output), never `tsx`.
   `scripts/build-api-release.mjs` builds the standalone release; `app.ts` sets
   `trust proxy` to 1 for the single nginx hop. See `docs/DEPLOYMENT.md`.
@@ -227,10 +231,26 @@ fresh clone and the feature reports itself unavailable (`isPaddleConfigured()`,
 sign-in without credentials redirects back with `?error=google_unavailable`.
 
 A photo sent to Gemini is held **in memory only** (`multer.memoryStorage()` in
-`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves. The
-profile assistant's description is never stored either; only a `ProfileAssistantRun` row
-records that a draft was made. Both features map Gemini's failures through
-`lib/gemini-errors.ts#toGeminiHttpError`, each with its own words and codes.
+`routes/bookingImport.ts`) — never under `config.uploadDir`, which `/uploads` serves. A
+visitor's questions to a page's assistant are never stored; a provider's chat with theirs is
+(`AssistantMessage`, until they clear it). Every feature maps Gemini's failures through
+`lib/gemini-errors.ts` — `toGeminiHttpError` for a JSON answer, `describeGeminiFailure` for a
+stream that already sent its headers — each with its own words and codes.
+
+## Streamed answers keep the envelope
+
+The two AI assistants answer as server-sent events, written only by `lib/sse.ts`. Every refusal
+that can be known up front (validation, plan, allowance, rate limit) is **thrown before
+`openSse`**, so it is an ordinary `{ value, error }` envelope with its status. Once the stream is
+open the status is spent, so a failure is an `error` event carrying that same envelope plus
+`status` (`sendSseError`). The web turns either into an `AxiosError` (`src/helpers/sse.ts`).
+
+## The AI assistant proposes; it never writes
+
+`services/assistant.ts` narrows what the model proposes and the route **stores** it. No server
+code applies a proposal: the provider's browser does, on Apply, through the ordinary routes, then
+reports the outcome. Do not add a server-side "apply" — it would bypass every route's own
+validation, plan gate and client email. Design record: `docs/routes/ai-assistant.md`.
 
 ## Notifications
 

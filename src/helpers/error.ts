@@ -1,12 +1,12 @@
 import { AxiosError, isAxiosError } from 'axios'
 import { APIResponse, AppError } from '@interfaces/api'
+import { ASSISTANT_ERROR_CODES } from '@constants/assistant'
 import { AUTH_ERROR_CODES } from '@constants/auth'
 import { BILLING_ERROR_CODES } from '@constants/billing'
 import { BOOKING_ERROR_CODES, SLOT_TAKEN_MESSAGE } from '@constants/booking'
 import { IMPORT_ERROR_CODES } from '@constants/bookingImport'
 import { ErrorKind, RETRYABLE_ERROR_KINDS } from '@constants/errors'
 import { PLAN_ERROR_CODES } from '@constants/plans'
-import { ASSISTANT_ERROR_CODES } from '@constants/profileAssistant'
 
 const UNKNOWN_ERROR_MESSAGE = 'An unknown error occurred'
 

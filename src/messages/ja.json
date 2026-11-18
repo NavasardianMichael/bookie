@@ -32,7 +32,8 @@
     "pageNumber": "{page} ページ",
     "previousMonth": "前月",
     "nextMonth": "翌月",
-    "reload": "ページを再読み込み"
+    "reload": "ページを再読み込み",
+    "done": "完了"
   },
   "Nav": {
     "mainNavigation": "メインナビゲーション",
@@ -537,6 +538,37 @@
         "friday": "金曜日",
         "saturday": "土曜日",
         "sunday": "日曜日"
+      },
+      "special": {
+        "title": "特別な日程",
+        "body": "祝日、休暇、長めの営業日など、毎週の受付時間とは異なる日です。その日は毎週の設定より優先されます。",
+        "add": "特別な日程を追加",
+        "empty": "今後の特別な日程はありません。",
+        "edit": "{date} を編集",
+        "remove": "{date} を削除",
+        "addTitle": "特別な日程を追加",
+        "editTitle": "特別な日程を編集",
+        "dates": "日付",
+        "datesRequired": "日付を選んでください。",
+        "tooLong": "1 件で設定できるのは最大 {days} 日です。",
+        "overlap": "この日付は別の特別な日程と重なっています。そちらを編集してください。",
+        "kindLabel": "休業か営業か",
+        "closed": "休業",
+        "hours": "別の時間",
+        "note": "訪問者へのメモ",
+        "noteHint": "任意。ページ上で日付の横に表示されます。",
+        "notePlaceholder": "例：祝日"
+      },
+      "impact": {
+        "title": "この受付時間を公開しますか？",
+        "body": "現在の受付時間に依存しているものがあります。自動でキャンセルや変更はされません。まず影響を受けるものを確認してください。",
+        "publishAnyway": "このまま公開",
+        "keepEditing": "編集を続ける",
+        "unbookable": "次のサービスはまったく予約できなくなります：",
+        "narrowed": "次のサービスは一部の曜日・日付で予約できなくなります：",
+        "bookingsOutside": "{count, plural, other {今後の予約 # 件が受付時間外になります：}}",
+        "andMore": "{count, plural, other {ほか # 件}}",
+        "bookingsKept": "これらの予約はそのまま残ります。必要に応じて<link>予約</link>から移動またはキャンセルしてください。"
       }
     },
     "advanced": {
@@ -829,50 +861,11 @@
       "betterPlanBody": "{plan}プランには、アドオンとしてお支払いの内容が含まれ、月額も安くなります。",
       "addonsCancelNote": "アドオンはサブスクリプションと一緒に更新されます。「請求を管理」で解約するとアドオンも終了します。"
     },
-    "assistant": {
-      "buttonLabel": "AI で設定",
-      "tooltip": "ビジネスをご自身の言葉で説明すると、AI がプロフィール・サービス・営業時間の案を作成します。内容は確認してから保存できます。",
-      "title": "AI でワークスペースを設定",
-      "intro": "ご自身の言葉で、どの言語でも構いませんので、ビジネスについて教えてください。提供内容、料金と所要時間、営業日時、お支払い方法など。プロフィール、サービス、営業時間、設定の案を作成し、保存する前にすべてのステップをご確認いただけます。",
-      "descriptionLabel": "ビジネスについて",
-      "descriptionPlaceholder": "例：美容師です。女性カット 60 分 25 EUR、男性カット 30 分 15 EUR、カラー 2 時間 60 EUR から。火曜〜土曜の 10:00〜19:00、14:00〜15:00 は休憩。現金またはカード。予約はすべて自分で承認したいです。",
-      "descriptionRequired": "まずビジネスについて説明してください。",
-      "adjustHint": "すでに設定済みですか？変更点だけを書いてください。例：「今後は月曜 18:00〜21:00 のサービス 1 つだけにします」。",
-      "dailyLimit": "{count, plural, other {ご利用のプランでは 1 日 # 回まで案を作成できます。}}",
-      "generate": "AI で整理する",
-      "generating": "説明文を読み取っています… 最大 1 分ほどかかる場合があります。",
-      "seePlans": "プランを見る",
-      "summary": "まとめ",
-      "stepOf": "ステップ {current} / {total}",
-      "changed": "変更あり",
-      "unchanged": "変更なし",
-      "back": "戻る",
-      "next": "次へ",
-      "rewrite": "説明文を編集",
-      "statusNew": "新規",
-      "statusChanged": "変更",
-      "statusKept": "変更なし",
-      "statusRemoved": "削除",
-      "editService": "サービスを編集",
-      "removeService": "サービスを削除",
-      "restoreService": "元に戻す",
-      "addService": "サービスを追加",
-      "noServices": "サービスがまだありません。追加するか、戻って提供内容を説明してください。",
-      "noPrice": "料金なし",
-      "removedTitle": "削除予定",
-      "removedHint": "予約がすでにあるサービスは、削除ではなく無効になります。",
-      "serviceCap": "{max, plural, other {ご利用のプランで有効にできるサービスは # 件までです。}}続けるにはいくつか削除するか、プランをアップグレードしてください。",
-      "payToKept": "カード番号・口座番号はここでは変更されません。「支払い」タブで編集してください。",
-      "summaryChanged": "承認すると次の項目が更新されます：",
-      "summaryServices": "新規 {created} 件 · 変更 {updated} 件 · 削除 {removed} 件",
-      "summaryNone": "現在のワークスペースと異なる点はありません。",
-      "summaryBody": "すべてが一度に保存・公開されます。ページが検索に表示されるかどうかは変わりません。",
-      "summaryPhotos": "写真は作成されません。「プロフィール」と「サービス」タブで追加してください。",
-      "approve": "承認して適用",
-      "applied": "ワークスペースを更新しました。",
-      "discardTitle": "この案を破棄しますか？",
-      "discardBody": "まだ何も保存されていません。今閉じると案は破棄されます。",
-      "discard": "破棄"
+    "visitorAssistant": {
+      "title": "ページの AI アシスタント",
+      "body": "訪問者は公開ページ上で、AI アシスタントにサービス、料金、営業時間、空き時間について質問できます。アシスタントはページの情報をもとに回答し、予約や変更はできません。",
+      "locked": "プレミアムプランに含まれます。<link>プランを見る</link>",
+      "failed": "アシスタントの設定を保存できませんでした"
     }
   },
   "Bookings": {
@@ -883,7 +876,7 @@
       "consumer": "自分がした予約"
     },
     "import": {
-      "button": "写真から追加",
+      "button": "写真から取り込む",
       "title": "写真から予約を追加",
       "intro": "手書きの予約表を撮影してください。内容を読み取ったあと、保存する前にすべての予約をご自身で確認できます。",
       "photoLabel": "写真",
@@ -1191,7 +1184,13 @@
       "loadError": "レビューを読み込めませんでした。もう一度お試しください。"
     },
     "poweredBy": "Bookie で作成された予約ページ",
-    "poweredByCta": "無料で作成する"
+    "poweredByCta": "無料で作成する",
+    "specialDates": "特別な日程",
+    "monthlyDays": "毎月 {days} 日",
+    "lastDay": "月末",
+    "byDates": "下記の日付のみ営業しています。",
+    "closedDuring": "休業",
+    "openDates": "営業日"
   },
   "Legal": {
     "termsMetaTitle": "利用規約",
@@ -1288,7 +1287,7 @@
           "p3": "<b>当社のメール配信サービス</b> — アカウントと予約に関するメールを送信します。",
           "p4": "<b>Telegram</b> — 連携した場合にのみ、通知を配信します。",
           "p5": "<b>Google</b> — Google でログインすることを選択した場合にのみ、ログインを処理します。",
-          "p6": "<b>Google Gemini</b> — 事業者がその機能を使うことを選んだ場合に限り、手書きの予約表の写真、または事業者によるビジネスの説明文を読み取ります。Gemini の無料枠では、Google が受け取った内容をサービス改善に使う場合があります。写真も説明文も当社では保存しません。",
+          "p6": "<b>Google Gemini</b> — 誰かがその機能を使うことを選んだ場合に限り、手書きの予約表の写真、事業者が自分の AI アシスタントに送るメッセージ、訪問者がページの AI アシスタントに送る質問を読み取ります。Gemini の無料枠では、Google が受け取った内容をサービス改善に使う場合があります。写真や訪問者の質問は当社では保存しません。事業者とアシスタントの会話は、事業者が消去するまでそのアカウントに保存されます。",
           "p7": "<b>Google Analytics</b> — 訪問数とページの利用状況を計測します。広告やプロファイリングには使用しません。EU、EEA、英国、スイスでは、同意をいただいた後にのみ Cookie を設定します。",
           "p8": "<b>Sentry</b> — ブラウザで問題が発生したときに、エラー、ページ、ブラウザの種類を含むレポートを受け取ります。Cookie、フォームの内容、アカウント情報は含みません。",
           "p9": "予約の詳細はその予約先の提供者と共有され、提供者の公開連絡先はお客様と共有されます。それが予約というものです。"
@@ -1404,7 +1403,7 @@
     "duplicate": "複製",
     "availability": {
       "title": "予約可能日",
-      "help": "このサービスを予約できる日を選んでください。時間は常にあなたの営業時間に従います。",
+      "help": "このサービスを予約できる日を選び、必要に応じて専用の時間も設定します。予約できるのは常に営業時間内だけです。",
       "modes": {
         "always": "常に",
         "recurring": "繰り返し",
@@ -1415,7 +1414,7 @@
         "weekdays": "曜日",
         "monthDays": "毎月の日付"
       },
-      "closedDay": "この日は休業日です。<link>受付時間</link>ページで変更できます。",
+      "closedDay": "この日は休業日です。保存時に営業日にするか確認します。営業時間は<link>受付時間</link>ページで設定します。",
       "monthDaysLabel": "毎月の日付",
       "monthDaysPlaceholder": "日付を選択（例: 16）",
       "monthDaysNote": "毎月繰り返します。4月31日のように、その月にない日はスキップされます。",
@@ -1427,11 +1426,46 @@
       "pickMonthDay": "毎月の日付を1つ以上選んでください。",
       "pickDate": "日付を1つ以上選んでください。",
       "withinHours": "営業時間内のみ予約できます。",
-      "neverBookable": "この設定ではこのサービスを予約できません。選んだ日がどれも営業時間外です。",
+      "neverBookable": "この設定ではサービスを予約できません。選択した日と時間がいずれも営業時間内にありません。",
       "summary": {
         "weekdays": "曜日: {days}",
         "monthDays": "毎月: {days}日",
         "dates": "{count, plural, other {# 日}}"
+      },
+      "closedDateLabel": "{date}（休業日）",
+      "hoursTitle": "特定の時間のみ",
+      "hoursHelp": "午前のみなど、このサービスを1日の一部の時間に限定します。"
+    },
+    "outsideHours": "{count, plural, other {# 日分は受付時間外のため予約できません}}",
+    "conflict": {
+      "title": "このサービスは受付時間外にはみ出しています",
+      "body": "このままでは、次の日にこのサービスを予約できません。対応を選んでください。各オプションで何が変わるかを正確に示しています。",
+      "failed": "処理できませんでした",
+      "weekly": {
+        "closed": "{count, plural, other {{day}：休業日です（今後 3 か月で # 日）}}",
+        "hours": "{count, plural, other {{day}：サービスの時間が受付時間を超えています（今後 3 か月で # 日）}}"
+      },
+      "special": {
+        "closed": "{dates}：休業日です（特別な日程）",
+        "hours": "{dates}：サービスの時間が受付時間を超えています（特別な日程）"
+      },
+      "widenTitle": "受付時間を広げる",
+      "widenLine": "{day}：{before} → {after}",
+      "widenKeepsSpecial": "ページにすぐ公開されます。特別な日程は設定したまま変わりません。",
+      "widenLive": "ページにすぐ公開されます。",
+      "widenUnavailable": "妨げになっているのは特別な日程だけで、これは設定したまま変わりません。受付時間ページで変更してください。",
+      "fitTitle": "サービスを受付時間に合わせる",
+      "fitDays": "提供日：{days}",
+      "fitDates": "{count, plural, other {# 日を削除}}",
+      "fitHours": "時間：{hours}",
+      "fitNothing": "このまま保存します。該当する日は予約できないだけです。",
+      "fitUnavailable": "予約できる日時が残りません。受付時間を広げるか、このまま保存してください。",
+      "keepTitle": "このまま保存",
+      "keepBody": "ほかには何も変わりません。該当する日は予約できず、サービスカードにもその旨が表示され続けます。",
+      "choose": {
+        "widen": "広げて保存",
+        "fit": "合わせて保存",
+        "keep": "このまま保存"
       }
     }
   },
@@ -1497,8 +1531,10 @@
       "changeUnavailable": "現在サブスクリプションを変更できません。お支払いに失敗した場合は「請求を管理」からカードを更新してください。それ以外の場合は、しばらくしてからもう一度お試しください。",
       "activeSubscription": "このページには有効なサブスクリプションがあります。ページを削除する前に「請求を管理」から解約してください。",
       "assistantUnavailable": "現在 AI アシスタントはご利用いただけません。",
-      "assistantUnreadable": "この説明文からは案を作成できませんでした。サービス、料金、営業時間をもう少し詳しく説明してください。",
-      "profileAssistantLimit": "本日の AI による案の作成はすでに使用済みです。明日また利用できます。プランをアップグレードすると無制限に作成できます。"
+      "assistantUnreadable": "アシスタントがその内容に回答できませんでした。別の言い方でお試しください。",
+      "assistantLimit": "本日のアシスタントへのメッセージをすべて使用しました。明日また利用できます。プランをアップグレードすると、さらに多く使えます。",
+      "visitorAssistantOff": "このページには現在アシスタントがありません。",
+      "visitorAssistantBusy": "本日アシスタントが回答できる上限に達しました。事業者に直接お問い合わせください。"
     },
     "pages": {
       "provider": "この提供者のページを読み込めませんでした。もう一度お試しください。",
@@ -1586,12 +1622,13 @@
       "maxActiveServices": "有効なサービス",
       "maxBookingsPerMonth": "月間オンライン予約",
       "photoImportsPerDay": "1 日あたりの写真取り込み",
-      "profileAssistantRunsPerDay": "1 日あたりの AI 案作成",
       "analyticsHistoryDays": "分析データの期間",
       "customSlug": "カスタムリンク",
       "telegramNotifications": "Telegram 通知",
       "calendarFeed": "カレンダー同期（iCal）",
-      "removeBranding": "ページに Bookie のブランド表示なし"
+      "removeBranding": "ページに Bookie のブランド表示なし",
+      "assistantMessagesPerDay": "1 日あたりの AI アシスタントへのメッセージ",
+      "visitorAssistantMessagesPerDay": "1 日あたりのページの AI アシスタントへの訪問者の質問"
     },
     "unlimited": "無制限",
     "fullHistory": "全期間",
@@ -1732,5 +1769,146 @@
     "accept": "同意する",
     "decline": "拒否する",
     "settings": "Cookie 設定"
+  },
+  "Assistant": {
+    "button": "AI アシスタント",
+    "tooltip": "ワークスペースについて質問したり、営業時間・休業日・サービス・予約など変更したい内容を伝えたりできます。承認するまで何も変更されません。",
+    "title": "AI アシスタント",
+    "expand": "拡大",
+    "shrink": "縮小",
+    "intro": "変更したいことを、ご自身の言葉で、どの言語でも伝えてください。営業時間、休業日、新しいサービス、予約などです。何がどう変わるかを正確にお見せし、「適用」を押すまで何も変更されません。スケジュールについて質問したり、紙の予約帳の写真を送ったりすることもできます。",
+    "disclaimer": "適用する前に、すべての変更内容を確認してください。",
+    "usage": "本日のメッセージ {used} / {limit}",
+    "usageUnlimited": "ご利用のプランではメッセージは無制限です",
+    "spent": "本日のメッセージ {limit} 件をすべて使用しました。明日（UTC）また利用できます。プランをアップグレードすると、さらに多く使えます。",
+    "dropped": "{count, plural, other {# 件の変更は提案できませんでした。存在しないものや、すでに過ぎた時間が指定されていました。}}",
+    "applied": "完了しました。変更が反映されています。",
+    "appliedPartly": "一部の変更を適用しました。✕ の付いた変更は適用されていません。もう一度試すか、ご自身で調整してください。",
+    "applyFailed": "何も変更できませんでした。もう一度試すか、設定ページでご自身で調整してください。",
+    "photoSent": "予約の写真",
+    "writing": "入力中…",
+    "examples": {
+      "closedTomorrow": "明日は休みで、明後日は 22:00 まで営業します",
+      "vacation": "12月20日から27日まで休暇です",
+      "newService": "45 分のひげトリミングを 15 EUR で追加して。平日のみ",
+      "pending": "承認待ちの予約はどれ？"
+    },
+    "conversations": {
+      "list": "チャット一覧",
+      "new": "新しいチャット",
+      "delete": "チャットを削除",
+      "deleteTitle": "このチャットを削除しますか？",
+      "deleteBody": "チャットとそのメッセージが削除されます。すでに適用した変更はそのまま残ります。",
+      "deleteConfirm": "削除",
+      "empty": "まだチャットはありません。会話はここに表示されます。",
+      "photo": "手帳の写真"
+    },
+    "locked": {
+      "title": "AI アシスタントはスタンダードとプレミアムでご利用いただけます",
+      "body": "営業時間・休業日・サービス・予約など変更したい内容を伝え、チャットで変更を一つずつ承認できます。ご利用にはプランのアップグレードが必要です。",
+      "cta": "プランを見る"
+    },
+    "unavailable": {
+      "title": "現在アシスタントはご利用いただけません",
+      "body": "しばらくしてからもう一度お試しください。その他の機能は通常どおり使えます。"
+    },
+    "composer": {
+      "photo": "予約の写真を送る",
+      "placeholder": "変更したいことや質問を入力…",
+      "label": "アシスタントへのメッセージ",
+      "send": "送信"
+    },
+    "proposal": {
+      "title": "承認が必要な変更",
+      "status": {
+        "pending": "承認待ち",
+        "applied": "適用済み",
+        "partial": "一部適用",
+        "dismissed": "却下"
+      },
+      "done": "完了",
+      "failed": "未変更",
+      "adjust": "自分で調整する",
+      "emailsClients": "これらの予約変更は、該当するお客様にメールで通知されます。",
+      "apply": "適用",
+      "dismiss": "却下"
+    },
+    "impact": {
+      "title": "これらの変更を適用しますか？",
+      "confirm": "このまま適用",
+      "cancel": "今はしない"
+    },
+    "photo": {
+      "none": "その写真から予約が見つかりませんでした。より鮮明な写真を試すか、写っている内容のメモを添えてください。",
+      "read": "{count, plural, other {写真から # 件の予約を読み取りました}}",
+      "added": "{count, plural, other {# 件の予約を追加しました。}}",
+      "review": "確認して追加"
+    },
+    "actions": {
+      "aClient": "お客様",
+      "aService": "サービス",
+      "monthDays": "毎月 {days} 日",
+      "dates": "{count, plural, other {# 日}}",
+      "everyOpenDay": "すべての営業日",
+      "on": "オン",
+      "off": "オフ",
+      "weeklyDay": "毎週{day}：{hours}",
+      "weeklyClosed": "毎週{day}：休業",
+      "specialHours": "{dates}：{hours} 営業",
+      "specialClosed": "{dates}：休業",
+      "specialClosedHours": "{dates}：{hours} は休業",
+      "specialRemove": "{dates}：通常の毎週の受付時間に戻す",
+      "bookingResume": "オンライン予約の受付を再開",
+      "bookingPause": "オンライン予約の受付を一時停止",
+      "serviceCreate": "新しいサービス「{name}」、{duration}、{price}",
+      "noPrice": "料金なし",
+      "serviceWhen": "予約可能：{when}",
+      "serviceDeactivate": "「{name}」をオフにする",
+      "serviceActivate": "「{name}」をオンにする",
+      "serviceRename": "「{name}」の名前を「{value}」に変更",
+      "serviceDuration": "「{name}」の所要時間：{value}",
+      "servicePriceCleared": "「{name}」：料金なし",
+      "servicePrice": "「{name}」の料金：{value}",
+      "serviceDescription": "「{name}」の新しい説明",
+      "serviceAvailability": "「{name}」の予約可能日：{when}",
+      "serviceUpdate": "「{name}」を更新",
+      "serviceDelete": "「{name}」を削除",
+      "profileName": "ページに表示する名前：{value}",
+      "profileDescription": "ページの新しい説明",
+      "profileAddress": "住所：{value}",
+      "approval": "すべての予約を自分で承認：{state}",
+      "notifyNewBooking": "新規予約のメール：{state}",
+      "notifyChanges": "予約変更のメール：{state}",
+      "notifyReminders": "予約のリマインダー：{state}",
+      "notifyReminderLead": "リマインダーは {lead} 前",
+      "timeZone": "タイムゾーン：{zone}（公開中のすべての時間がこれに合わせて移動します）",
+      "clock12": "時刻を 12 時間制で表示",
+      "clock24": "時刻を 24 時間制で表示",
+      "seoTitle": "検索用タイトル：{value}",
+      "seoDescription": "新しい検索用説明文",
+      "seoSlug": "ページのリンク：/p/{value}（すでに共有したリンクは使えなくなります）",
+      "categories": "カテゴリ：{names}",
+      "listed": "ページを公開する",
+      "unlisted": "ページを Bookie の検索から外す",
+      "approve": "予約を承認：{client}、{service}、{when}",
+      "decline": "予約を辞退：{client}、{service}、{when}",
+      "cancel": "予約をキャンセル：{client}、{service}、{when}",
+      "reschedule": "予約を移動（{client}、{service}）：{when} → {to}",
+      "visitorAssistant": "公開ページのアシスタント：{state}"
+    },
+    "visitor": {
+      "button": "質問する",
+      "title": "{name} について質問",
+      "intro": "サービス、料金、営業時間、空き時間について質問できます。予約するには、このページのカレンダーから時間を選んでください。",
+      "placeholder": "質問を入力…",
+      "disclaimer": "このページの情報をもとに AI が回答します。空き時間はいつでも埋まる可能性があります。",
+      "clear": "最初からやり直す",
+      "examples": {
+        "services": "どんなサービスがありますか？",
+        "weekend": "週末は空いていますか？",
+        "price": "料金はいくらですか？",
+        "payment": "支払い方法は？"
+      }
+    }
   }
 }

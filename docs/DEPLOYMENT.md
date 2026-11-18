@@ -151,7 +151,7 @@ cannot drift from the ports and paths the systemd units use.
 
 **Payments and Telegram are optional at deploy time.** Without `PADDLE_*` every paid plan is
 requested through the contact form; without `TELEGRAM_*` notices go by email only; without
-`GEMINI_API_KEY` the *Add from photo* button on `/bookings` answers that it is unavailable. Turning
+`GEMINI_API_KEY` *Import from photo* on `/bookings` and both AI assistants answer that they are unavailable. Turning
 them on is [docs/PADDLE_SETUP.md](PADDLE_SETUP.md) and [docs/NOTIFICATIONS.md](NOTIFICATIONS.md):
 the Paddle webhook is `https://api.<domain>/billing/webhook`, the Telegram one
 `https://api.<domain>/telegram/webhook` (registered once with `setWebhook`). Paddle.js also

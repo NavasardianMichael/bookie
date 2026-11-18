@@ -6,6 +6,9 @@ import {
   parseProvidersListQuery,
   PUBLIC_PROVIDER_WHERE,
   resolvePageWindow,
+  specialDateOverrides,
+  todaySpan,
+  wantsOpenToday,
 } from '../../../server/src/services/providerSearch'
 
 /**
@@ -36,6 +39,8 @@ describe('parseProvidersListQuery', () => {
     expect(zonelessBranch(mondayNoonUtc)).toEqual({
       timeZone: null,
       weekSchedule: { path: ['monday', 'availability', 'start'], string_contains: ':' },
+      // Only a weekly rule's hours live on weekSchedule.
+      scheduleRule: { path: ['mode'], equals: 'weekdays' },
     })
     expect(zonelessBranch(sundayNoonUtc)).toMatchObject({ weekSchedule: { path: ['sunday', 'availability', 'start'] } })
     expect(parseProvidersListQuery({ openToday: true }, mondayNoonUtc).where.available).toBeUndefined()
@@ -183,5 +188,75 @@ describe('resolvePageWindow', () => {
 
   it('keeps an empty result set on page 1 rather than skip-past-end', () => {
     expect(resolvePageWindow(0, 4, 9)).toEqual({ page: 1, pageCount: 1, skip: 0 })
+  })
+})
+
+/**
+ * Explore's *open today* used to read the weekly hours alone, so a provider closed for a holiday
+ * still showed under it (with a Closed card). A special date covering today now decides.
+ */
+describe('openToday and special dates', () => {
+  const mondayNoonUtc = new Date('2026-09-07T12:00:00.000Z')
+  const weekdays = { monday: { availability: { start: '09:00', end: '17:00' }, breaks: [] } }
+  const closedToday = [{ from: '2026-09-07', to: '2026-09-07', hours: null }]
+  const openSunday = [{ from: '2026-09-06', to: '2026-09-06', hours: { availability: { start: '10:00', end: '14:00' }, breaks: [] } }]
+
+  it('spans every calendar day it is somewhere right now', () => {
+    const span = todaySpan(new Date('2026-09-07T22:00:00.000Z'))
+    expect(span.from <= '2026-09-07').toBe(true)
+    expect(span.to).toBe('2026-09-08')
+  })
+
+  it("judges each row on its own day with the card's predicate", () => {
+    const overrides = specialDateOverrides(
+      [
+        { id: 'holiday', weekSchedule: weekdays, timeZone: 'UTC', specialDates: closedToday },
+        { id: 'sunday-in-tokyo', weekSchedule: {}, timeZone: 'Asia/Tokyo', specialDates: openSunday },
+        // Its special date is yesterday in UTC: the weekly hours still answer.
+        { id: 'untouched', weekSchedule: weekdays, timeZone: 'UTC', specialDates: [{ ...openSunday[0]!, from: '2026-09-05', to: '2026-09-05' }] },
+      ],
+      new Date('2026-09-06T12:00:00.000Z')
+    )
+    expect(overrides).toEqual({ open: ['sunday-in-tokyo'], closed: [] })
+
+    expect(specialDateOverrides([{ id: 'holiday', weekSchedule: weekdays, timeZone: 'UTC', specialDates: closedToday }], mondayNoonUtc)).toEqual({
+      open: [],
+      closed: ['holiday'],
+    })
+  })
+
+  it('keeps settled rows out of the weekly branches and lets the open ones in', () => {
+    const where = parseProvidersListQuery({ openToday: 'true' }, mondayNoonUtc, undefined, { open: ['a'], closed: ['b'] })
+      .where
+    const branches = where.OR as Array<Record<string, unknown>>
+    expect(branches.at(-1)).toEqual({ id: { in: ['a'] } })
+    branches.slice(0, -1).forEach((branch) => expect(branch.id).toEqual({ notIn: ['a', 'b'] }))
+  })
+
+  it('leaves the filter as it was when no special date touches today', () => {
+    expect(parseProvidersListQuery({ openToday: true }, mondayNoonUtc, undefined, { open: [], closed: [] }).where).toEqual(
+      parseProvidersListQuery({ openToday: true }, mondayNoonUtc).where
+    )
+    expect(wantsOpenToday({ openToday: '1' })).toBe(true)
+    expect(wantsOpenToday({})).toBe(false)
+  })
+})
+
+describe('openToday and schedule rules', () => {
+  it('judges a provider on another rule by that rule, whatever their weekly hours say', () => {
+    const mondayNoonUtc = new Date('2026-09-07T12:00:00.000Z')
+    const weekdays = { monday: { availability: { start: '09:00', end: '17:00' }, breaks: [] } }
+    const firstOfMonth = { mode: 'monthDays', days: [1], hours: { availability: { start: '09:00', end: '17:00' }, breaks: [] } }
+    const seventh = { ...firstOfMonth, days: [7] }
+    expect(
+      specialDateOverrides(
+        [
+          { id: 'monthly-off', weekSchedule: weekdays, timeZone: 'UTC', specialDates: [], scheduleRule: firstOfMonth },
+          { id: 'monthly-on', weekSchedule: {}, timeZone: 'UTC', specialDates: [], scheduleRule: seventh },
+          { id: 'weekly', weekSchedule: weekdays, timeZone: 'UTC', specialDates: [], scheduleRule: { mode: 'weekdays' } },
+        ],
+        mondayNoonUtc
+      )
+    ).toEqual({ open: ['monthly-on'], closed: ['monthly-off'] })
   })
 })

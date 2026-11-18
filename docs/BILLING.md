@@ -25,7 +25,8 @@ Change them there and nowhere else — the web reads them from the API (`GET /pl
 | **Price** (USD, monthly) | $0 | $4.99 | $14.99 | $24.99 |
 | Active services | 3 | 10 | 30 | unlimited |
 | Online bookings a month | 50 | 300 | unlimited | unlimited |
-| Profile assistant drafts | `POST /provider-profile/assistant/generate` | Past `profileAssistantRunsPerDay` (Free: 1 per UTC day, paid: unlimited) → `403`, code `4105` (`PLAN_ERROR.profileAssistantLimit`). Counted in `ProfileAssistantRun` rows, the photo-import pattern. Applying a draft is free; its services still meet the cap, but only an apply that *grows* the active count past it is refused (`4101`) |
+| AI assistant messages a day | — | — | 40 | 150 |
+| Visitor questions to the page's AI assistant a day | — | — | — | 300 |
 | Analytics history | 30 days | 365 days | full | full |
 | Custom `/p/<slug>` link | — | ✓ | ✓ | ✓ |
 | Telegram notifications (the provider's own) | — | ✓ | ✓ | ✓ |
@@ -119,6 +120,8 @@ How they combine:
 | Custom link | `PATCH /provider-profile/seo` | Setting or changing the slug without `customSlug` → `403`, code `4102`. Unchanged and cleared slugs always pass. The SEO tab makes the field read-only |
 | Online bookings | `POST /appointments` | At the cap → `409`, code `4202` (`BOOKING_ERROR.bookingFull`). See *The soft cap* |
 | Bookings a provider enters | `POST /provider-profile/bookings/import` | A batch that would pass the monthly cap → `403`, code `4104` (`PLAN_ERROR.bookingLimit`) — a plan answer, because the provider is the reader; the visitor-facing `4202` must never name a plan |
+| AI assistant | `POST /provider-profile/assistant/messages` | `assistantMessagesPerDay` `0` (Free, Basic) → `403`, code `4102` (`featureLocked`); spent for the UTC day → `403`, code `4105` (`PLAN_ERROR.assistantLimit`). Counted in `AssistantUsage`, spent before the Gemini call and given back if it fails. Applying a proposal is free — and each change still meets its own route's limits |
+| Visitor assistant | `PUT /provider-profile/assistant/visitor`, `POST /providers/:key/assistant` | Switching it on below Premium → `403` `4102`. A visitor never hears about the plan: a lapsed plan hides the button (`details.visitorAssistant`) and answers `404` `4503`; the page's 300 a day spent → `429` `4504`, "contact the provider" |
 | Photo imports | `POST /provider-profile/bookings/import/parse` | Past `photoImportsPerDay` (Free: 1 per UTC day, paid: unlimited) → `403`, code `4103` (`PLAN_ERROR.photoImportLimit`). Counted in `PhotoImport` rows, spent before the Gemini call and given back if it fails. Metered because every read spends the deployment's one shared Gemini quota |
 | Analytics history | `GET /provider-profile/analytics` | Clamped to `now − historyDays`; the previous-period delta is skipped if it would reach behind that. The tab disables the longer presets |
 | Telegram | `services/bookingNotify.ts` | A provider's own notices skip Telegram without `telegramNotifications`; email is unaffected. The Notifications tab says so. A *client's* Telegram is never gated |

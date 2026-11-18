@@ -12,6 +12,7 @@ import {
   processPatchManagedAppointmentResponse,
   processProviderBookingsCalendarResponse,
   processProviderBookingsResponse,
+  processRescheduleProviderBookingResponse,
 } from './processors'
 import {
   CreateAppointmentAPI,
@@ -24,6 +25,7 @@ import {
   PatchAppointmentStatusAPI,
   PatchBookingDecisionAPI,
   PatchManagedAppointmentAPI,
+  RescheduleProviderBookingAPI,
 } from './types'
 
 /**
@@ -116,6 +118,14 @@ export const patchBookingDecisionAPI: PatchBookingDecisionAPI['api'] = async ({ 
     { decision, locale }
   )
   return processPatchBookingDecisionResponse(data)
+}
+
+export const rescheduleProviderBookingAPI: RescheduleProviderBookingAPI['api'] = async ({ id, ...body }) => {
+  const { data } = await axiosInstance.patch<APIResponse<RescheduleProviderBookingAPI['response']>>(
+    `${ENDPOINTS.rescheduleProviderBooking}/${id}/reschedule`,
+    body
+  )
+  return processRescheduleProviderBookingResponse(data)
 }
 
 /** Dedupes generateMetadata + page fetches within a single request. */

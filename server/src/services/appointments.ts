@@ -6,7 +6,7 @@ import { BOOKING_ERROR, SLOT_TAKEN_MESSAGE } from '../lib/booking-errors.js'
 import { toPaymentMethods } from '../lib/payment.js'
 import { PLAN_ERROR } from '../lib/plan-errors.js'
 import { prisma } from '../lib/prisma.js'
-import { isWithinBookableHours, toServiceAvailability } from '../lib/service-availability.js'
+import { isWithinBookableHours, toScheduleRule, toServiceAvailability, toSpecialDates } from '../lib/service-availability.js'
 import { hashUrlToken, mintUrlToken } from '../lib/token.js'
 import { HttpError } from '../middleware/error.js'
 
@@ -34,7 +34,12 @@ const OUTSIDE_HOURS_MESSAGE = 'This service is not offered at that time'
  * never offers such a time; this is what makes the public route agree with it.
  */
 function assertBookableHours(input: {
-  provider: { weekSchedule: Prisma.JsonValue; timeZone: string | null } | null
+  provider: {
+    weekSchedule: Prisma.JsonValue
+    specialDates: Prisma.JsonValue
+    scheduleRule: Prisma.JsonValue
+    timeZone: string | null
+  } | null
   service: { availability: Prisma.JsonValue }
   startAt: Date
   endAt: Date
@@ -42,6 +47,8 @@ function assertBookableHours(input: {
   if (!input.provider) return
   const fits = isWithinBookableHours({
     weekSchedule: input.provider.weekSchedule,
+    specialDates: toSpecialDates(input.provider.specialDates),
+    rule: toScheduleRule(input.provider.scheduleRule),
     availability: toServiceAvailability(input.service.availability),
     timeZone: input.provider.timeZone,
     startAt: input.startAt,
@@ -260,7 +267,15 @@ async function findOverlappingAppointment(
 export async function createProviderAppointments(providerId: string, rows: readonly ImportRow[], now: Date) {
   const provider = await prisma.provider.findUnique({
     where: { id: providerId },
-    select: { id: true, organizationId: true, weekSchedule: true, timeZone: true, ...ENTITLEMENT_SELECT },
+    select: {
+      id: true,
+      organizationId: true,
+      weekSchedule: true,
+      specialDates: true,
+      scheduleRule: true,
+      timeZone: true,
+      ...ENTITLEMENT_SELECT,
+    },
   })
   if (!provider) throw new HttpError(404, 'Provider not found', 404)
 
@@ -349,7 +364,7 @@ export async function rescheduleAppointment(input: {
   const endAt = addMinutes(input.startAt, service.durationMinutes)
   const provider = await prisma.provider.findUnique({
     where: { id: appointment.providerId },
-    select: { weekSchedule: true, timeZone: true },
+    select: { weekSchedule: true, specialDates: true, scheduleRule: true, timeZone: true },
   })
   assertBookableHours({ provider, service, startAt: input.startAt, endAt })
 

@@ -9,6 +9,7 @@ import {
   GetProvidersListAPI,
   GetProvidersSitemapAPI,
   GetSingleProviderAPI,
+  PatchProviderScheduleAPI,
   PatchProviderSeoAPI,
   PutProviderServiceAPI,
 } from './types'
@@ -101,3 +102,8 @@ export const processProvidersSitemapResponse: GetProvidersSitemapAPI['processor'
 
 /** `?? {}` so a provider who has never opened the SEO tab reads as "no overrides set". */
 export const processProviderSeoResponse: PatchProviderSeoAPI['processor'] = (response) => response.value ?? {}
+
+export const processProviderScheduleResponse: PatchProviderScheduleAPI['processor'] = (response) => ({
+  ...response.value,
+  specialDates: response.value?.specialDates ?? [],
+})

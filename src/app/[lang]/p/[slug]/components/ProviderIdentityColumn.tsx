@@ -20,8 +20,11 @@ import { AppTitle } from '@components/ui/bare/AppTitle'
 import { ContactActions } from '@components/ui/ContactActions'
 import { UserIcon } from '@components/ui/icons'
 import { Surface } from '@components/ui/layout'
+import { VisitorAssistantButton } from '@components/visitorAssistant/VisitorAssistantButton'
 import { ProviderBookNowButton } from './ProviderBookNowButton'
 import { ProviderShareButton } from './ProviderShareButton'
+import { RuleHoursSummary } from './RuleHoursSummary'
+import { SpecialHoursList } from './SpecialHoursList'
 import { WorkingHours } from './WorkingHours'
 
 type Props = {
@@ -39,6 +42,7 @@ type Props = {
  */
 export const ProviderIdentityColumn = async ({ provider }: Props) => {
   const { basic, details } = provider
+  const rule = details.scheduleRule ?? { mode: 'weekdays' as const }
   const organization = basic.organization
   const categories = basic.categories
   const fullName = basic.fullName
@@ -85,6 +89,9 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
             {basic.description}
           </AppParagraph>
         )}
+
+        {/* Plan-neutral: on only while the provider switched it on and their plan allows it. */}
+        {details.visitorAssistant && <VisitorAssistantButton providerId={provider.id} providerName={fullName} />}
 
         {showFacts && (
           <div className='mt-6 flex flex-col gap-1'>
@@ -193,16 +200,27 @@ export const ProviderIdentityColumn = async ({ provider }: Props) => {
         )}
       </Surface>
 
-      {hasWeekScheduleHours(details.weekSchedule) && (
+      {(rule.mode !== 'weekdays' || hasWeekScheduleHours(details.weekSchedule) || !!details.specialDates?.length) && (
         <Surface>
           <AppTitle level='h2' size='h3' className='mb-3'>
             {tProvider('workingHours')}
           </AppTitle>
-          <WorkingHours
-            weekSchedule={details.weekSchedule}
+          {/* The weekly list only under the weekly rule: another rule keeps `weekSchedule` for switching back. */}
+          {rule.mode === 'weekdays' ? (
+            <WorkingHours
+              weekSchedule={details.weekSchedule}
+              timeZone={details.timeZone}
+              timeFormat={details.timeFormat}
+              followVisitorClock={details.showClockChoices !== false}
+            />
+          ) : (
+            <RuleHoursSummary rule={rule} timeFormat={details.timeFormat} />
+          )}
+          <SpecialHoursList
+            specialDates={details.specialDates}
             timeZone={details.timeZone}
             timeFormat={details.timeFormat}
-            followVisitorClock={details.showClockChoices !== false}
+            heading={rule.mode === 'dates' ? tProvider('openDates') : undefined}
           />
         </Surface>
       )}

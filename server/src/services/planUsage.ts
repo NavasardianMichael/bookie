@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client'
+import type { AssistantKind, Prisma } from '@prisma/client'
 import {
   bookingPeriod,
   bookingsThisMonthWhere,
@@ -57,19 +57,49 @@ export const releasePhotoImport = async (id: string): Promise<void> => {
   await prisma.photoImport.deleteMany({ where: { id } })
 }
 
-/** Profile-assistant drafts generated today (UTC). Rides `ProfileAssistantRun_providerId_createdAt_idx`. */
-export const countAssistantRunsToday = (providerId: string, now: Date): Promise<number> => {
-  const { start, end } = photoImportPeriod(now)
-  return prisma.profileAssistantRun.count({ where: { providerId, createdAt: { gte: start, lt: end } } })
+/** The `AssistantUsage` row key for one provider, assistant and UTC day. */
+const usageKey = (providerId: string, kind: AssistantKind, now: Date) => ({
+  providerId,
+  kind,
+  day: photoImportPeriod(now).start,
+})
+
+/** Messages one assistant has spent today (UTC). */
+export const countAssistantMessagesToday = async (providerId: string, kind: AssistantKind, now: Date): Promise<number> => {
+  const row = await prisma.assistantUsage.findUnique({ where: { providerId_kind_day: usageKey(providerId, kind, now) } })
+  return row?.count ?? 0
 }
 
-/** Spends one of today's runs before the model call — `recordPhotoImport`'s reasoning. */
-export const recordAssistantRun = async (providerId: string): Promise<string> =>
-  (await prisma.profileAssistantRun.create({ data: { providerId }, select: { id: true } })).id
+/**
+ * Spends one of today's messages **before** the model call, if any are left — a conditional
+ * increment, so two messages sent together cannot both pass a count that saw neither (the
+ * `where` is the lock, as for the allowance stamps). `limit` `null` is unlimited. Answers
+ * whether a message was spent; `false` means the allowance is gone.
+ */
+export const spendAssistantMessage = async (
+  providerId: string,
+  kind: AssistantKind,
+  limit: number | null,
+  now: Date
+): Promise<boolean> => {
+  const key = usageKey(providerId, kind, now)
+  await prisma.assistantUsage.upsert({ where: { providerId_kind_day: key }, create: key, update: {} })
+  const { count } = await prisma.assistantUsage.updateMany({
+    where: { ...key, ...(limit === null ? {} : { count: { lt: limit } }) },
+    data: { count: { increment: 1 } },
+  })
+  return count === 1
+}
 
-/** Gives a run back when no draft came of it — `releasePhotoImport`'s reasoning. */
-export const releaseAssistantRun = async (id: string): Promise<void> => {
-  await prisma.profileAssistantRun.deleteMany({ where: { id } })
+/**
+ * Gives a spent message back when no answer came of it — a timeout, Google's own rate limit,
+ * an outage — `releasePhotoImport`'s reasoning. Never below zero.
+ */
+export const releaseAssistantMessage = async (providerId: string, kind: AssistantKind, now: Date): Promise<void> => {
+  await prisma.assistantUsage.updateMany({
+    where: { ...usageKey(providerId, kind, now), count: { gt: 0 } },
+    data: { count: { decrement: 1 } },
+  })
 }
 
 /**

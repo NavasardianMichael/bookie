@@ -3,6 +3,7 @@
 import { FC, useEffect, useState } from 'react'
 import { Segmented } from 'antd'
 import { useTranslations } from 'next-intl'
+import { useAssistantPanelStore } from '@store/assistant/panel/store'
 import { useAuthStore } from '@store/auth/store'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
@@ -44,6 +45,8 @@ export const BookingsClient: FC = () => {
   const [side, setSide] = useState<BookingsSide>('provider')
   /** Bumped by a photo import, so the list and calendar re-read without losing their filters. */
   const [importRevision, setImportRevision] = useState(0)
+  /** Bumped by the AI assistant after it applies something — a booking it approved or moved. */
+  const assistantRevision = useAssistantPanelStore.use.revision()
 
   /**
    * `src/proxy.ts` has already bounced a visitor with no cookie. This catches the cookie
@@ -84,11 +87,9 @@ export const BookingsClient: FC = () => {
         subtitle={subtitle}
         actions={
           isProvider ? (
-            <div className='flex flex-wrap items-center gap-2'>
-              {/* Bookings *with* this provider only: an import writes to their own calendar. */}
-              {providerSide === 'provider' && (
-                <PhotoImportButton onImported={() => setImportRevision((current) => current + 1)} />
-              )}
+            // The import sits under the view switch: it acts on the provider view only, so it
+            // reads as part of that view rather than a peer of the switch.
+            <div className='flex flex-col items-start gap-2 sm:items-end'>
               {canSwitch && (
                 <Segmented<BookingsSide>
                   aria-label={t('viewLabel')}
@@ -100,6 +101,10 @@ export const BookingsClient: FC = () => {
                   ]}
                 />
               )}
+              {/* Bookings *with* this provider only: an import writes to their own calendar. */}
+              {providerSide === 'provider' && (
+                <PhotoImportButton onImported={() => setImportRevision((current) => current + 1)} />
+              )}
             </div>
           ) : undefined
         }
@@ -108,7 +113,7 @@ export const BookingsClient: FC = () => {
       {isProvider ? (
         // Keyed so a switch starts the other view fresh: its service filter lists a
         // different catalogue, and a day picked on one calendar means nothing on the other.
-        <ProviderBookingsClient key={providerSide} side={providerSide} importRevision={importRevision} />
+        <ProviderBookingsClient key={providerSide} side={providerSide} importRevision={importRevision + assistantRevision} />
       ) : (
         <ConsumerAppointmentsClient />
       )}

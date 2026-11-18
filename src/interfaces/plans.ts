@@ -28,8 +28,10 @@ export type Entitlements = {
   removeBranding: boolean
   /** Photos of handwritten bookings read per UTC day ("Add from photo" on `/bookings`). */
   photoImportsPerDay: number | null
-  /** Profile-assistant drafts generated per UTC day (the magic button in provider settings). */
-  profileAssistantRunsPerDay: number | null
+  /** Messages to the provider's own AI assistant per UTC day. `0` is "not on this plan". */
+  assistantMessagesPerDay: number | null
+  /** Visitor questions to the public-page assistant per UTC day, all visitors together. `0` is "not on this plan". */
+  visitorAssistantMessagesPerDay: number | null
 }
 
 /** The USD display price of a plan, in cents, billed monthly. Free is `0`. */

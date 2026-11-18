@@ -5,7 +5,7 @@ import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 import { Dayjs } from 'dayjs'
 import { useTranslations } from 'next-intl'
-import { ServiceAvailability, WeekSchedule } from '@store/providers/profile/types'
+import { ProviderScheduleRule, ServiceAvailability, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
 import { DAY_KEY_FORMAT } from '@constants/schedule'
 import { isOpenOnDate } from '@helpers/booking'
 import { buildMonthCells, buildWeekdayLabels } from '@helpers/calendar'
@@ -25,6 +25,10 @@ type Props = {
   /** Open slots per `DAY_KEY_FORMAT` key, so a day can show whether it is bookable at all. */
   slotCountByDay: Map<string, number>
   weekSchedule?: WeekSchedule
+  /** The provider's dates that do not follow the rule (closed, or other hours). */
+  specialDates?: SpecialDate[]
+  /** The base of the provider's hours — weekly, days of the month, or specific dates. */
+  scheduleRule?: ProviderScheduleRule
   /** The selected service's days — a day the provider is open but the service is not says so. */
   availability?: ServiceAvailability
   /**
@@ -60,6 +64,8 @@ export const BookingMonth: FC<Props> = ({
   selectedDayKey,
   slotCountByDay,
   weekSchedule,
+  specialDates,
+  scheduleRule,
   availability,
   timeZone,
   serviceName,
@@ -146,8 +152,8 @@ export const BookingMonth: FC<Props> = ({
           {cells.map(({ key, date, isOutside }) => {
             const count = slotCountByDay.get(key) ?? 0
             const isPast = date.isBefore(today, 'day')
-            const isClosed = !isOpenOnDate(weekSchedule, date)
-            const isServiceOff = !isClosed && !isOpenOnDate(weekSchedule, date, availability)
+            const isClosed = !isOpenOnDate(weekSchedule, date, undefined, specialDates, scheduleRule)
+            const isServiceOff = !isClosed && !isOpenOnDate(weekSchedule, date, availability, specialDates, scheduleRule)
             const isSelected = key === selectedDayKey
             const isToday = date.isSame(today, 'day')
             const disabled = isPast || !count

@@ -45,6 +45,10 @@ export type ProviderDraft = {
   description?: string | null
   imageUrl?: string | null
   weekSchedule?: unknown
+  /** Drafted with `weekSchedule`: the dates that do not follow it (`SpecialDate[]`). */
+  specialDates?: unknown
+  /** Drafted with `weekSchedule`: which base the hours follow (`ProviderScheduleRule`). */
+  scheduleRule?: unknown
   /** Drafted with `weekSchedule` — it decides what instant each of those hours is. */
   timeZone?: string
   /** Drafted with `timeZone`, beside which it is edited. */

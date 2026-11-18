@@ -9,12 +9,14 @@
  * `tests/unit/server/planErrors.spec.ts` imports it beside the web constant it has to equal.
  *
  * - `serviceLimit` — one more active service than the plan allows (create, or reactivate).
- * - `featureLocked` — a feature the plan does not include (today: changing the vanity slug).
+ * - `featureLocked` — a feature the plan does not include (changing the vanity slug, the AI
+ *   assistant on Free and Basic, the public-page assistant below Premium).
  * - `photoImportLimit` — today's photo imports are spent (`Entitlements.photoImportsPerDay`).
  *   Its own code rather than `featureLocked`, because the feature *is* included: the
  *   client says when it comes back as well as what an upgrade would change.
- * - `profileAssistantLimit` — today's profile-assistant runs are spent
- *   (`Entitlements.profileAssistantRunsPerDay`). Its own code for the reason `photoImportLimit` has one.
+ * - `assistantLimit` — today's provider-assistant messages are spent
+ *   (`Entitlements.assistantMessagesPerDay`). Its own code for the reason `photoImportLimit` has one.
+ *   4105 was the retired profile assistant's daily draft limit; the meaning moved with the feature.
  * - `bookingLimit` — bookings the provider enters themselves would pass the monthly
  *   allowance. The provider-side twin of `BOOKING_ERROR.bookingFull`, which is worded for a
  *   visitor and must not mention a plan.
@@ -28,5 +30,5 @@ export const PLAN_ERROR = {
   featureLocked: 4102,
   photoImportLimit: 4103,
   bookingLimit: 4104,
-  profileAssistantLimit: 4105,
+  assistantLimit: 4105,
 } as const

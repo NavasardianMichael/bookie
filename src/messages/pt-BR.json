@@ -32,7 +32,8 @@
     "pageNumber": "Página {page}",
     "previousMonth": "Mês anterior",
     "nextMonth": "Próximo mês",
-    "reload": "Recarregar página"
+    "reload": "Recarregar página",
+    "done": "Concluído"
   },
   "Nav": {
     "mainNavigation": "Navegação principal",
@@ -537,6 +538,37 @@
         "friday": "Sexta-feira",
         "saturday": "Sábado",
         "sunday": "Domingo"
+      },
+      "special": {
+        "title": "Datas especiais",
+        "body": "Dias que não seguem seus horários semanais: um feriado, férias, um dia mais longo. Nessas datas, eles substituem a semana.",
+        "add": "Adicionar data especial",
+        "empty": "Nenhuma data especial pela frente.",
+        "edit": "Editar {date}",
+        "remove": "Remover {date}",
+        "addTitle": "Adicionar uma data especial",
+        "editTitle": "Editar data especial",
+        "dates": "Datas",
+        "datesRequired": "Escolha as datas.",
+        "tooLong": "Um registro cobre no máximo {days} dias.",
+        "overlap": "Essas datas se sobrepõem a outra data especial. Edite aquela em vez disso.",
+        "kindLabel": "Fechado ou aberto",
+        "closed": "Fechado",
+        "hours": "Outro horário",
+        "note": "Observação para visitantes",
+        "noteHint": "Opcional — aparece na sua página ao lado das datas.",
+        "notePlaceholder": "Por exemplo: Feriado"
+      },
+      "impact": {
+        "title": "Publicar estes horários?",
+        "body": "Algumas coisas dependem dos seus horários atuais. Nada é cancelado nem alterado automaticamente — confira primeiro o que é afetado.",
+        "publishAnyway": "Publicar mesmo assim",
+        "keepEditing": "Continuar editando",
+        "unbookable": "Estes serviços não poderiam mais ser agendados:",
+        "narrowed": "Estes serviços perderiam alguns dos seus dias:",
+        "bookingsOutside": "{count, plural, one {# agendamento futuro ficaria fora dos seus horários:} other {# agendamentos futuros ficariam fora dos seus horários:}}",
+        "andMore": "{count, plural, one {e mais #} other {e mais #}}",
+        "bookingsKept": "Esses agendamentos continuam como estão. Mova ou cancele-os em <link>Agendamentos</link>, se precisar."
       }
     },
     "advanced": {
@@ -829,50 +861,11 @@
       "betterPlanBody": "O plano {plan} inclui o que você paga como complementos, por menos a cada mês.",
       "addonsCancelNote": "Os complementos renovam com a sua assinatura. Cancelá-la em Gerenciar cobrança encerra os complementos também."
     },
-    "assistant": {
-      "buttonLabel": "Configurar com IA",
-      "tooltip": "Descreva seu negócio com suas palavras: a IA prepara seu perfil, serviços e horários para você revisar.",
-      "title": "Configure seu espaço com IA",
-      "intro": "Conte sobre seu negócio com suas palavras, em qualquer idioma: o que você oferece, preços e duração, quando você trabalha, como os clientes pagam. Preparamos seu perfil, serviços, horários e configurações, e você confere cada etapa antes de qualquer coisa ser salva.",
-      "descriptionLabel": "Sobre seu negócio",
-      "descriptionPlaceholder": "Por exemplo: sou cabeleireira. Corte feminino, 60 min, 25 EUR; corte masculino, 30 min, 15 EUR; coloração, 2 horas, a partir de 60 EUR. Trabalho de terça a sábado, das 10:00 às 19:00, com intervalo das 14:00 às 15:00. Dinheiro ou cartão. Quero confirmar cada agendamento eu mesma.",
-      "descriptionRequired": "Descreva seu negócio primeiro.",
-      "adjustHint": "Já configurou? Descreva só o que muda, por exemplo: “Agora ofereço só um serviço, às segundas, das 18:00 às 21:00”.",
-      "dailyLimit": "{count, plural, one {Seu plano inclui # rascunho por dia.} other {Seu plano inclui # rascunhos por dia.}}",
-      "generate": "Estruturar com IA",
-      "generating": "Lendo sua descrição… Isso pode levar até um minuto.",
-      "seePlans": "Ver planos",
-      "summary": "Resumo",
-      "stepOf": "Etapa {current} de {total}",
-      "changed": "Alterado",
-      "unchanged": "Sem alterações",
-      "back": "Voltar",
-      "next": "Próximo",
-      "rewrite": "Editar descrição",
-      "statusNew": "Novo",
-      "statusChanged": "Alterado",
-      "statusKept": "Sem alteração",
-      "statusRemoved": "Removido",
-      "editService": "Editar serviço",
-      "removeService": "Remover serviço",
-      "restoreService": "Restaurar",
-      "addService": "Adicionar um serviço",
-      "noServices": "Ainda não há serviços. Adicione um ou volte e descreva o que você oferece.",
-      "noPrice": "Sem preço",
-      "removedTitle": "Serão removidos",
-      "removedHint": "Serviços que já têm agendamentos são desativados em vez de excluídos.",
-      "serviceCap": "{max, plural, one {Seu plano permite # serviço ativo.} other {Seu plano permite # serviços ativos.}} Remova alguns para continuar ou faça upgrade do plano.",
-      "payToKept": "O número do cartão ou da conta não é alterado aqui. Edite-o na aba Pagamentos.",
-      "summaryChanged": "Ao aprovar, será atualizado:",
-      "summaryServices": "{created} novos · {updated} alterados · {removed} removidos",
-      "summaryNone": "Nada é diferente do seu espaço atual.",
-      "summaryBody": "Tudo é salvo e publicado de uma vez. Não muda se a sua página aparece nas buscas.",
-      "summaryPhotos": "As fotos não são preparadas. Adicione-as nas abas Perfil e Serviços.",
-      "approve": "Aprovar e aplicar",
-      "applied": "Seu espaço foi atualizado.",
-      "discardTitle": "Descartar este rascunho?",
-      "discardBody": "Nada foi salvo ainda. Se fechar agora, o rascunho será perdido.",
-      "discard": "Descartar"
+    "visitorAssistant": {
+      "title": "Assistente de IA na sua página",
+      "body": "Os visitantes podem perguntar a um assistente de IA sobre seus serviços, preços, horários e horários livres, direto na sua página pública. Ele responde com base nas informações da sua página e não pode agendar nem alterar nada.",
+      "locked": "Incluído no plano Premium. <link>Ver planos</link>",
+      "failed": "A configuração do assistente não foi salva"
     }
   },
   "Bookings": {
@@ -883,7 +876,7 @@
       "consumer": "Feitos por mim"
     },
     "import": {
-      "button": "Adicionar por foto",
+      "button": "Importar de foto",
       "title": "Adicionar agendamentos por foto",
       "intro": "Fotografe seus agendamentos escritos à mão. Nós os lemos, e você confere cada um antes de qualquer coisa ser salva.",
       "photoLabel": "Foto",
@@ -1191,7 +1184,13 @@
       "loadError": "Não foi possível carregar as avaliações. Tente novamente."
     },
     "poweredBy": "Página de agendamento criada com o Bookie",
-    "poweredByCta": "Crie a sua grátis"
+    "poweredByCta": "Crie a sua grátis",
+    "specialDates": "Datas especiais",
+    "monthlyDays": "Todo mês, nos dias {days}",
+    "lastDay": "o último dia",
+    "byDates": "Aberto apenas nas datas listadas abaixo.",
+    "closedDuring": "Fechado",
+    "openDates": "Datas abertas"
   },
   "Legal": {
     "termsMetaTitle": "Termos de serviço",
@@ -1288,7 +1287,7 @@
           "p3": "<b>Nosso serviço de envio de e-mails</b> — envia os e-mails da conta e dos agendamentos.",
           "p4": "<b>Telegram</b> — entrega notificações, apenas se você o conectar.",
           "p5": "<b>Google</b> — faz seu login, apenas se você escolher continuar com o Google.",
-          "p6": "<b>Google Gemini</b> — lê a foto de agendamentos escritos à mão ou a descrição que um prestador faz do seu negócio, apenas quando um prestador escolhe usar esses recursos. No nível gratuito do Gemini, o Google pode usar o que recebe para melhorar seus serviços. Não armazenamos a foto nem a descrição.",
+          "p6": "<b>Google Gemini</b> — lê a foto de agendamentos escritos à mão, as mensagens de um prestador para o seu assistente de IA e as perguntas de um visitante ao assistente de IA de uma página, apenas quando alguém escolhe usar esses recursos. No nível gratuito do Gemini, o Google pode usar o que recebe para melhorar seus serviços. Não armazenamos fotos nem perguntas de visitantes; a conversa de um prestador com o seu assistente fica guardada na conta dele até que ele a apague.",
           "p7": "<b>Google Analytics</b> — conta as visitas e como as páginas são usadas, sem anúncios nem criação de perfis. Na UE, no EEE, no Reino Unido e na Suíça, só grava cookies depois que você concorda.",
           "p8": "<b>Sentry</b> — recebe um relatório quando algo falha no seu navegador: o erro, a página e o tipo de navegador, sem seus cookies, o conteúdo de formulários ou os dados da sua conta.",
           "p9": "Os detalhes de um agendamento são compartilhados com o profissional com quem ele é feito, e os dados de contato públicos do profissional, com o cliente — é isso que um agendamento é."
@@ -1404,7 +1403,7 @@
     "duplicate": "Duplicar",
     "availability": {
       "title": "Disponibilidade",
-      "help": "Escolha os dias em que este serviço pode ser agendado. Os horários sempre seguem o seu horário de atendimento.",
+      "help": "Escolha os dias em que este serviço pode ser agendado e, se quiser, o horário dele. Ele só pode ser agendado dentro do seu horário de atendimento.",
       "modes": {
         "always": "Sempre",
         "recurring": "Recorrente",
@@ -1415,7 +1414,7 @@
         "weekdays": "Dias da semana",
         "monthDays": "Dias do mês"
       },
-      "closedDay": "Você não atende neste dia. Altere isso na página <link>Disponibilidade</link>.",
+      "closedDay": "Você não atende neste dia — ao salvar, vamos perguntar se você quer abri-lo. Os horários são definidos na página <link>Disponibilidade</link>.",
       "monthDaysLabel": "Dias do mês",
       "monthDaysPlaceholder": "Escolha dias, ex.: 16",
       "monthDaysNote": "Repete todo mês. Se o mês não tiver esse dia, como o dia 31 em abril, ele é pulado.",
@@ -1427,11 +1426,46 @@
       "pickMonthDay": "Escolha pelo menos um dia do mês.",
       "pickDate": "Escolha pelo menos uma data.",
       "withinHours": "Agendável apenas dentro do seu horário de atendimento.",
-      "neverBookable": "Este serviço não pode ser agendado com essas configurações: nenhum dos dias escolhidos está dentro do seu horário.",
+      "neverBookable": "Este serviço não pode ser agendado com essas configurações: nenhum dos dias e horários escolhidos fica dentro do seu horário de atendimento.",
       "summary": {
         "weekdays": "Dias: {days}",
         "monthDays": "Todo mês, nos dias: {days}",
         "dates": "{count, plural, one {# data} other {# datas}}"
+      },
+      "closedDateLabel": "{date}, você não atende",
+      "hoursTitle": "Só em certos horários",
+      "hoursHelp": "Limite este serviço a uma parte do seu dia, por exemplo só pela manhã."
+    },
+    "outsideHours": "{count, plural, one {Não agendável em # dos seus dias — fora do seu horário} other {Não agendável em # dos seus dias — fora do seu horário}}",
+    "conflict": {
+      "title": "Este serviço passa do seu horário",
+      "body": "Nesses dias o serviço não poderia ser agendado como está. Escolha o que fazer — cada opção diz exatamente o que muda.",
+      "failed": "Não deu certo",
+      "weekly": {
+        "closed": "{count, plural, one {{day}: você não atende (# data nos próximos 3 meses)} other {{day}: você não atende (# datas nos próximos 3 meses)}}",
+        "hours": "{count, plural, one {{day}: o horário dele passa do seu (# data nos próximos 3 meses)} other {{day}: o horário dele passa do seu (# datas nos próximos 3 meses)}}"
+      },
+      "special": {
+        "closed": "{dates}: você não atende (data especial)",
+        "hours": "{dates}: o horário dele passa do seu (data especial)"
+      },
+      "widenTitle": "Ampliar meu horário",
+      "widenLine": "{day}: {before} → {after}",
+      "widenKeepsSpecial": "Publicado na sua página na hora. As datas especiais continuam como você definiu.",
+      "widenLive": "Publicado na sua página na hora.",
+      "widenUnavailable": "Só as datas especiais atrapalham, e elas continuam como você definiu. Altere-as na página Disponibilidade.",
+      "fitTitle": "Ajustar o serviço ao meu horário",
+      "fitDays": "Oferecido: {days}",
+      "fitDates": "{count, plural, one {# data removida} other {# datas removidas}}",
+      "fitHours": "Horário: {hours}",
+      "fitNothing": "Salvo como está — esses dias simplesmente não ficam disponíveis para agendamento.",
+      "fitUnavailable": "Não sobraria nada para agendar. Amplie seu horário ou salve como está.",
+      "keepTitle": "Salvar como está",
+      "keepBody": "Nada mais muda. Esses dias simplesmente não podem ser agendados, e o cartão do serviço continua avisando isso.",
+      "choose": {
+        "widen": "Ampliar e salvar",
+        "fit": "Ajustar e salvar",
+        "keep": "Salvar como está"
       }
     }
   },
@@ -1497,8 +1531,10 @@
       "changeUnavailable": "Não é possível alterar sua assinatura agora. Se um pagamento falhou, atualize o cartão em Gerenciar cobrança; caso contrário, tente de novo daqui a pouco.",
       "activeSubscription": "Esta página ainda tem uma assinatura ativa. Cancele em Gerenciar cobrança antes de excluir a página.",
       "assistantUnavailable": "O assistente de IA não está disponível no momento.",
-      "assistantUnreadable": "Não conseguimos preparar nada a partir dessa descrição. Descreva seus serviços, preços e horários com mais detalhes.",
-      "profileAssistantLimit": "Você já usou o rascunho com IA de hoje. Ele volta amanhã, ou faça upgrade do plano para ter rascunhos ilimitados."
+      "assistantUnreadable": "O assistente não conseguiu responder a isso. Tente dizer de outro jeito.",
+      "assistantLimit": "Você já usou as mensagens do assistente de hoje. Elas voltam amanhã, ou faça upgrade do plano para ter mais.",
+      "visitorAssistantOff": "Esta página não tem assistente no momento.",
+      "visitorAssistantBusy": "O assistente já respondeu tudo o que podia hoje. Entre em contato diretamente com o prestador."
     },
     "pages": {
       "provider": "Não conseguimos carregar a página deste profissional. Tente novamente.",
@@ -1586,12 +1622,13 @@
       "maxActiveServices": "Serviços ativos",
       "maxBookingsPerMonth": "Reservas on-line por mês",
       "photoImportsPerDay": "Importações de fotos por dia",
-      "profileAssistantRunsPerDay": "Rascunhos com IA por dia",
       "analyticsHistoryDays": "Histórico de análises",
       "customSlug": "Link personalizado",
       "telegramNotifications": "Notificações no Telegram",
       "calendarFeed": "Sincronização de agenda (iCal)",
-      "removeBranding": "Sem a marca Bookie na sua página"
+      "removeBranding": "Sem a marca Bookie na sua página",
+      "assistantMessagesPerDay": "Mensagens ao assistente de IA por dia",
+      "visitorAssistantMessagesPerDay": "Perguntas de visitantes ao assistente de IA da sua página por dia"
     },
     "unlimited": "Ilimitado",
     "fullHistory": "Histórico completo",
@@ -1732,5 +1769,146 @@
     "accept": "Aceitar",
     "decline": "Recusar",
     "settings": "Configurações de cookies"
+  },
+  "Assistant": {
+    "button": "Assistente de IA",
+    "tooltip": "Pergunte sobre seu espaço ou diga o que mudar: horários, folgas, serviços, agendamentos. Nada muda até você aprovar.",
+    "title": "Assistente de IA",
+    "expand": "Expandir",
+    "shrink": "Reduzir",
+    "intro": "Diga o que mudar com suas palavras, em qualquer idioma: seus horários, uma folga, um serviço novo, um agendamento. Vou mostrar exatamente o que mudaria, e nada acontece até você tocar em Aplicar. Você também pode me perguntar sobre sua agenda ou enviar uma foto da sua agenda de papel.",
+    "disclaimer": "Confira cada alteração antes de aplicá-la.",
+    "usage": "{used} de {limit} mensagens hoje",
+    "usageUnlimited": "Mensagens ilimitadas no seu plano",
+    "spent": "Você já usou as {limit} mensagens de hoje. Elas voltam amanhã (UTC), ou faça upgrade do plano para ter mais.",
+    "dropped": "{count, plural, one {Uma alteração não pôde ser oferecida: ela citava algo que não existe ou um horário que já passou.} other {# alterações não puderam ser oferecidas: elas citavam algo que não existe ou um horário que já passou.}}",
+    "applied": "Pronto: suas alterações já estão no ar.",
+    "appliedPartly": "Algumas alterações foram aplicadas. As marcadas com ✕ não: tente de novo ou ajuste você mesmo.",
+    "applyFailed": "Nada pôde ser alterado. Tente de novo ou ajuste você mesmo na página de configurações.",
+    "photoSent": "Foto de agendamentos",
+    "writing": "Escrevendo…",
+    "examples": {
+      "closedTomorrow": "Amanhã não vou atender, e depois de amanhã trabalho até as 22:00",
+      "vacation": "Estou de férias de 20 a 27 de dezembro",
+      "newService": "Adicione um acabamento de barba de 45 minutos por 15 EUR, só em dias úteis",
+      "pending": "Quais agendamentos estão aguardando minha aprovação?"
+    },
+    "conversations": {
+      "list": "Suas conversas",
+      "new": "Nova conversa",
+      "delete": "Excluir conversa",
+      "deleteTitle": "Excluir esta conversa?",
+      "deleteBody": "A conversa e as mensagens dela serão excluídas. As alterações já aplicadas continuam valendo.",
+      "deleteConfirm": "Excluir",
+      "empty": "Nenhuma conversa ainda. Suas conversas aparecerão aqui.",
+      "photo": "Foto da agenda"
+    },
+    "locked": {
+      "title": "O assistente de IA está nos planos Padrão e Premium",
+      "body": "Diga o que mudar (horários, folgas, serviços, agendamentos) e aprove cada alteração na conversa. Faça upgrade para usar.",
+      "cta": "Ver planos"
+    },
+    "unavailable": {
+      "title": "O assistente não está disponível no momento",
+      "body": "Tente novamente mais tarde. Todo o resto funciona normalmente."
+    },
+    "composer": {
+      "photo": "Enviar uma foto dos seus agendamentos",
+      "placeholder": "Diga o que mudar ou faça uma pergunta…",
+      "label": "Mensagem para o assistente",
+      "send": "Enviar"
+    },
+    "proposal": {
+      "title": "Alterações para aprovar",
+      "status": {
+        "pending": "Aguardando você",
+        "applied": "Aplicado",
+        "partial": "Aplicado em parte",
+        "dismissed": "Descartado"
+      },
+      "done": "Feito",
+      "failed": "Não alterado",
+      "adjust": "Ajustar eu mesmo",
+      "emailsClients": "Os clientes afetados recebem um e-mail sobre essas alterações nos agendamentos.",
+      "apply": "Aplicar",
+      "dismiss": "Descartar"
+    },
+    "impact": {
+      "title": "Aplicar estas alterações?",
+      "confirm": "Aplicar mesmo assim",
+      "cancel": "Agora não"
+    },
+    "photo": {
+      "none": "Não encontrei nenhum agendamento nessa foto. Tente uma foto mais nítida ou adicione uma observação sobre o que ela mostra.",
+      "read": "{count, plural, one {Li # agendamento da sua foto} other {Li # agendamentos da sua foto}}",
+      "added": "{count, plural, one {# agendamento adicionado.} other {# agendamentos adicionados.}}",
+      "review": "Revisar e adicionar"
+    },
+    "actions": {
+      "aClient": "um cliente",
+      "aService": "um serviço",
+      "monthDays": "nos dias {days} de cada mês",
+      "dates": "{count, plural, one {# data} other {# datas}}",
+      "everyOpenDay": "todos os dias em que você atende",
+      "on": "ativado",
+      "off": "desativado",
+      "weeklyDay": "Toda semana, {day}: {hours}",
+      "weeklyClosed": "Toda semana, {day}: fechado",
+      "specialHours": "{dates}: aberto {hours}",
+      "specialClosed": "{dates}: fechado",
+      "specialClosedHours": "{dates}: fechado {hours}",
+      "specialRemove": "Voltar aos seus horários semanais: {dates}",
+      "bookingResume": "Voltar a aceitar agendamentos online",
+      "bookingPause": "Pausar agendamentos online",
+      "serviceCreate": "Novo serviço “{name}”, {duration}, {price}",
+      "noPrice": "sem preço",
+      "serviceWhen": "Agendável: {when}",
+      "serviceDeactivate": "Desativar “{name}”",
+      "serviceActivate": "Ativar “{name}”",
+      "serviceRename": "Renomear “{name}” para “{value}”",
+      "serviceDuration": "“{name}” dura {value}",
+      "servicePriceCleared": "“{name}”: sem preço",
+      "servicePrice": "“{name}” custa {value}",
+      "serviceDescription": "Nova descrição para “{name}”",
+      "serviceAvailability": "“{name}” agendável: {when}",
+      "serviceUpdate": "Atualizar “{name}”",
+      "serviceDelete": "Excluir “{name}”",
+      "profileName": "Seu nome na página: {value}",
+      "profileDescription": "Nova descrição na sua página",
+      "profileAddress": "Endereço: {value}",
+      "approval": "Aprovar cada agendamento você mesmo: {state}",
+      "notifyNewBooking": "E-mails de novos agendamentos: {state}",
+      "notifyChanges": "E-mails de alterações em agendamentos: {state}",
+      "notifyReminders": "Lembretes de atendimento: {state}",
+      "notifyReminderLead": "Lembretes {lead} antes",
+      "timeZone": "Fuso horário: {zone} — todos os horários publicados mudam junto",
+      "clock12": "Mostrar horários no formato de 12 horas",
+      "clock24": "Mostrar horários no formato de 24 horas",
+      "seoTitle": "Título nas buscas: {value}",
+      "seoDescription": "Nova descrição nas buscas",
+      "seoSlug": "Link da página: /p/{value} — links que você já compartilhou deixam de funcionar",
+      "categories": "Categorias: {names}",
+      "listed": "Publicar sua página",
+      "unlisted": "Tirar sua página da busca do Bookie",
+      "approve": "Aprovar agendamento: {service}, {client}, {when}",
+      "decline": "Recusar agendamento: {service}, {client}, {when}",
+      "cancel": "Cancelar agendamento: {service}, {client}, {when}",
+      "reschedule": "Mover o agendamento {service} ({client}) de {when} para {to}",
+      "visitorAssistant": "Assistente na sua página pública: {state}"
+    },
+    "visitor": {
+      "button": "Fazer uma pergunta",
+      "title": "Pergunte sobre {name}",
+      "intro": "Pergunte sobre serviços, preços, horário de atendimento ou horários livres. Para agendar, escolha um horário no calendário desta página.",
+      "placeholder": "Faça uma pergunta…",
+      "disclaimer": "Respostas da IA com base nas informações desta página. Horários livres podem ser ocupados a qualquer momento.",
+      "clear": "Recomeçar",
+      "examples": {
+        "services": "Quais serviços vocês oferecem?",
+        "weekend": "Vocês têm horário no fim de semana?",
+        "price": "Quanto custa?",
+        "payment": "Como posso pagar?"
+      }
+    }
   }
 }

@@ -17,6 +17,13 @@ type Props = {
   open: boolean
   onClose: () => void
   onImported: (count: number) => void
+  /**
+   * The AI assistant's camera button: hand the read back (`note`, `drafts`) instead of
+   * reviewing it here — the chat shows it as a turn and reviews it from there.
+   */
+  onRead?: (note: string | undefined, drafts: BookingDraft[]) => void
+  /** The AI assistant's photo turn: review these drafts, skipping the photo pick. */
+  drafts?: BookingDraft[]
 }
 
 /**
@@ -27,7 +34,7 @@ type Props = {
  * `destroyOnHidden`, so the flow below unmounts on close and the next open starts from an
  * empty pick — and the profile is read only once the sheet is opened.
  */
-export const PhotoImportSheet: FC<Props> = ({ open, onClose, onImported }) => {
+export const PhotoImportSheet: FC<Props> = ({ open, onClose, onImported, onRead, drafts }) => {
   const t = useTranslations('Bookings.import')
   const [pending, setPending] = useState(false)
   // The sheet stays mounted while closed; a read that outlived it must not lock the next open.
@@ -35,7 +42,7 @@ export const PhotoImportSheet: FC<Props> = ({ open, onClose, onImported }) => {
 
   return (
     <AppSheet open={open} onClose={onClose} title={t('title')} pending={pending}>
-      <PhotoImportFlow onPendingChange={setPending} onImported={onImported} />
+      <PhotoImportFlow onPendingChange={setPending} onImported={onImported} onRead={onRead} initialDrafts={drafts} />
     </AppSheet>
   )
 }
@@ -43,15 +50,17 @@ export const PhotoImportSheet: FC<Props> = ({ open, onClose, onImported }) => {
 type FlowProps = {
   onPendingChange: (pending: boolean) => void
   onImported: (count: number) => void
+  onRead?: Props['onRead']
+  initialDrafts?: BookingDraft[]
 }
 
-const PhotoImportFlow: FC<FlowProps> = ({ onPendingChange, onImported }) => {
+const PhotoImportFlow: FC<FlowProps> = ({ onPendingChange, onImported, onRead, initialDrafts }) => {
   const t = useTranslations('Bookings.import')
   const [profile, setProfile] = useState<ProviderProfile | null>(null)
   const [profileError, setProfileError] = useState<unknown>(null)
   const [profileAttempt, setProfileAttempt] = useState(0)
   const [pick, setPick] = useState<PhotoPickValues>({})
-  const [drafts, setDrafts] = useState<BookingDraft[] | null>(null)
+  const [drafts, setDrafts] = useState<BookingDraft[] | null>(initialDrafts ?? null)
 
   // Read alongside the photo pick, so the review rarely waits on it.
   useEffect(() => {
@@ -77,6 +86,10 @@ const PhotoImportFlow: FC<FlowProps> = ({ onPendingChange, onImported }) => {
         dailyLimit={profile?.personal.entitlements?.photoImportsPerDay ?? null}
         onPendingChange={onPendingChange}
         onRead={(values, read) => {
+          if (onRead) {
+            onRead(values.note?.trim() || undefined, read)
+            return
+          }
           setPick(values)
           setDrafts(read)
         }}

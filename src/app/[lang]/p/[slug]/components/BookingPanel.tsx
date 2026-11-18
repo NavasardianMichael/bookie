@@ -214,6 +214,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
     return dropBusySlots(
       getSlotsForDateRange({
         weekSchedule: details?.weekSchedule,
+        specialDates: details?.specialDates,
+        rule: details?.scheduleRule,
         availability,
         start: cells[0].date.toDate(),
         end: cells[cells.length - 1].date.add(1, 'day').toDate(),
@@ -222,7 +224,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
       }),
       busy
     )
-  }, [availability, busy, details?.weekSchedule, durationMinutes, month, timeZone])
+  }, [availability, busy, details?.scheduleRule, details?.specialDates, details?.weekSchedule, durationMinutes, month, timeZone])
 
   const slotCountByDay = useMemo(() => {
     const counts = countSlotsByDay(gridSlots, timeZone)
@@ -313,6 +315,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
         ? dropBusySlots(
             getSlotsForDate({
               weekSchedule: details?.weekSchedule,
+              specialDates: details?.specialDates,
+              rule: details?.scheduleRule,
               availability,
               date: selectedDate,
               durationMinutes,
@@ -321,7 +325,7 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
             busy
           )
         : [],
-    [availability, busy, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
+    [availability, busy, details?.scheduleRule, details?.specialDates, details?.weekSchedule, durationMinutes, selectedDate, timeZone]
   )
 
   /**
@@ -559,6 +563,8 @@ export const BookingPanel: FC<Props> = ({ selectedServiceId, onBookingClosed }) 
           slotCountByDay={slotCountByDay}
           availability={availability}
           weekSchedule={details?.weekSchedule}
+          specialDates={details?.specialDates}
+          scheduleRule={details?.scheduleRule}
           timeZone={timeZone}
           serviceName={service?.name}
           onSelectDay={handleSelectDay}

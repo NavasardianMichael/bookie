@@ -17,7 +17,13 @@ import {
 import { mergeProviderNotificationPrefs } from '../lib/notification-prefs.js'
 import { prisma } from '../lib/prisma.js'
 import { asFullName } from '../lib/request.js'
-import { earliestOpenDayKey, parseServiceAvailability } from '../lib/service-availability.js'
+import {
+  earliestOpenDayKey,
+  parseScheduleRule,
+  parseServiceAvailability,
+  parseSpecialDates,
+  toScheduleRule,
+} from '../lib/service-availability.js'
 import { type TimeFormat, toTimeFormat } from '../lib/time-format.js'
 import { toTimeZone } from '../lib/time-zone.js'
 import { mintOwnerManageToken } from '../lib/token.js'
@@ -41,7 +47,7 @@ import { getProviderBusyIntervals } from '../services/appointments.js'
 import { hasLiveSubscription } from '../services/billing.js'
 import { notifyBookingDecisionTelegram } from '../services/bookingNotify.js'
 import { MAX_PROVIDER_CATEGORIES, parseCategoryChoices } from '../services/categories.js'
-import { loadExplorePage, loadMatchedServices } from '../services/exploreResults.js'
+import { loadExplorePage, loadMatchedServices, loadSpecialDateOverrides } from '../services/exploreResults.js'
 import { resolveOrganizationId } from '../services/organizationLink.js'
 import { parseOrganizationLinkBody } from '../services/organizations.js'
 import {
@@ -62,10 +68,15 @@ import {
 } from '../services/providerBookings.js'
 import { providerCategoryIds, pruneUnusedCategories, setProviderCategories } from '../services/providerCategories.js'
 import { resolveProviderId } from '../services/providerLookup.js'
-import { parseProvidersListQuery, PUBLIC_PROVIDER_WHERE, resolvePageWindow } from '../services/providerSearch.js'
+import {
+  parseProvidersListQuery,
+  PUBLIC_PROVIDER_WHERE,
+  resolvePageWindow,
+  wantsOpenToday,
+} from '../services/providerSearch.js'
 import { parseProviderSeoBody } from '../services/providerSeo.js'
 import { refreshProviderSeoStamp } from '../services/providerSeoStamp.js'
-import { recordSlugChange } from '../services/providerWrites.js'
+import { type ProviderDraft, recordSlugChange, syncDraft } from '../services/providerWrites.js'
 import {
   countWithCorrection,
   loadConsumerBookingsVocabulary,
@@ -122,24 +133,27 @@ const readTimeFormatField = (value: unknown): TimeFormat | undefined => {
 }
 
 /**
- * The unpublished-edits overlay. **Deliberately has no `email` key**, and `patch` below is
- * built by explicit per-field assignments rather than by spreading the request body — so an
- * `email` sent to this route cannot reach the draft JSON and reappear at publish time.
- * Do not add one: identity email changes belong to `/identity/change-email/*`.
+ * `scheduleRule` off a profile write: absent leaves the column alone; anything else is validated
+ * (`parseScheduleRule`) — a malformed rule is a 400.
  */
-type ProviderDraft = {
-  fullName?: string
-  description?: string | null
-  imageUrl?: string | null
-  weekSchedule?: unknown
-  /** Drafted with `weekSchedule`: it decides what instant every one of those hours is. */
-  timeZone?: string
-  /** Drafted with `timeZone`, beside which it is edited; it changes what the public page prints. */
-  timeFormat?: TimeFormat
-  /** Drafted with `timeFormat`. One flag for the visitor's time-zone list and 12/24-hour switch. */
-  showClockChoices?: boolean
-  available?: boolean
-  paymentInfo?: unknown
+const readScheduleRuleField = (value: unknown) => {
+  const raw = readJsonField(value, 'scheduleRule')
+  if (raw === undefined) return undefined
+  const parsed = parseScheduleRule(raw)
+  if ('error' in parsed) throw new HttpError(400, parsed.error, 400)
+  return parsed.value
+}
+
+/**
+ * `specialDates` off a profile write: absent leaves the column alone; anything else is
+ * validated (`parseSpecialDates`) — an overlap or a malformed day is a 400, never a silent drop.
+ */
+const readSpecialDatesField = (value: unknown, now: Date) => {
+  const raw = readJsonField(value, 'specialDates')
+  if (raw === undefined) return undefined
+  const parsed = parseSpecialDates(raw, earliestOpenDayKey(now))
+  if ('error' in parsed) throw new HttpError(400, parsed.error, 400)
+  return parsed.value
 }
 
 export const providersRouter = Router()
@@ -175,9 +189,11 @@ providersRouter.get(
   '/',
   asyncHandler(async (req, res) => {
     const favoriteIds = await exploreFavoriteIds(req)
+    const now = new Date()
+    const overrides = wantsOpenToday(req.query) ? await loadSpecialDateOverrides(now) : undefined
     const { query, total } = await countWithCorrection(
       (spellings) => {
-        const parsed = parseProvidersListQuery(req.query, undefined, spellings)
+        const parsed = parseProvidersListQuery(req.query, now, spellings, overrides)
         // `[]` is a real answer — no session, or nothing saved — and must not fall through
         // to the unfiltered list. An empty `in` matches no rows.
         if (favoriteIds !== undefined) parsed.where = { ...parsed.where, id: { in: favoriteIds } }
@@ -398,6 +414,8 @@ providerProfileRouter.put(
 
       const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule ?? req.body?.weekSchedule
       const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
+      const specialDates = readSpecialDatesField(body.specialDates ?? req.body?.specialDates, new Date())
+      const scheduleRule = readScheduleRuleField(body.scheduleRule ?? req.body?.scheduleRule)
       const timeZone = readTimeZoneField(body.timeZone ?? req.body?.timeZone)
       const timeFormat = readTimeFormatField(body.timeFormat ?? req.body?.timeFormat)
       const showClockChoicesRaw = body.showClockChoices ?? req.body?.showClockChoices
@@ -425,6 +443,8 @@ providerProfileRouter.put(
       if (imageUrl) patch.imageUrl = imageUrl
       else if (readClearImage(req.body)) patch.imageUrl = null
       if (weekSchedule) patch.weekSchedule = weekSchedule
+      if (specialDates) patch.specialDates = specialDates
+      if (scheduleRule) patch.scheduleRule = scheduleRule
       if (timeZone) patch.timeZone = timeZone
       if (timeFormat) patch.timeFormat = timeFormat
       if (showClockChoices !== undefined) patch.showClockChoices = showClockChoices
@@ -452,6 +472,12 @@ providerProfileRouter.put(
           description: patch.description === undefined ? existing.description : patch.description,
           imageUrl: patch.imageUrl === undefined ? existing.imageUrl : patch.imageUrl,
           weekSchedule: (patch.weekSchedule as object | undefined) ?? existing.weekSchedule ?? undefined,
+          specialDates: (patch.specialDates as Prisma.InputJsonValue | undefined) ?? existing.specialDates ?? undefined,
+          // Re-checked like the zone below: a hand-edited draft must not publish an unreadable rule.
+          scheduleRule:
+            patch.scheduleRule === undefined
+              ? undefined
+              : (toScheduleRule(patch.scheduleRule) as unknown as Prisma.InputJsonValue),
           // Re-checked rather than trusted: a draft written before this field existed, or
           // edited by hand, must not publish a zone `Intl` cannot read.
           timeZone: toTimeZone(patch.timeZone) ?? existing.timeZone,
@@ -479,6 +505,8 @@ providerProfileRouter.put(
     // Direct live update: the settings that are not drafted
     const weekScheduleRaw = body.weekSchedule ?? body.WeekSchedule
     const weekSchedule = readJsonField(weekScheduleRaw, 'weekSchedule')
+    const specialDates = readSpecialDatesField(body.specialDates ?? req.body?.specialDates, new Date())
+    const scheduleRule = readScheduleRuleField(body.scheduleRule ?? req.body?.scheduleRule)
     // Onboarding writes the first schedule live, and the zone it is written in with it.
     const timeZone = readTimeZoneField(body.timeZone ?? req.body?.timeZone)
     const emailNotificationPrefs =
@@ -512,17 +540,35 @@ providerProfileRouter.put(
         ? undefined
         : availableRaw === true || availableRaw === 'true' || availableRaw === '1'
 
+    const liveFullName = asFullName(body.fullName)
+    const liveDescription = body.description ?? body.Description
+    const existingDraft = (await prisma.provider.findUnique({ where: { id: providerId }, select: { draft: true } }))?.draft
+    // A live write of a field the draft also holds would be undone by the next Publish; the
+    // draft follows it instead (`syncDraft`).
+    const draft = syncDraft(existingDraft, {
+      fullName: liveFullName,
+      description: liveDescription,
+      weekSchedule: weekSchedule ?? undefined,
+      specialDates,
+      scheduleRule,
+      timeZone,
+      available: available ?? undefined,
+      paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
+    })
+
     await prisma.provider.update({
       where: { id: providerId },
       data: {
         // Absent or blank leaves the name as it is: a name is never cleared.
-        fullName: asFullName(body.fullName),
-        description: body.description ?? body.Description,
+        fullName: liveFullName,
+        description: liveDescription,
         // Identity email is never written here — only `/identity/change-email/send` +
         // `/confirm` may change `User.email` (current password + verified click).
         address: body.address ?? body.Address,
         locationUrl: body.locationURL ?? body.LocationURL,
         weekSchedule: weekSchedule ?? undefined,
+        specialDates: specialDates ?? undefined,
+        scheduleRule: scheduleRule === undefined ? undefined : (scheduleRule as unknown as Prisma.InputJsonValue),
         timeZone,
         imageUrl: imageUrl ?? undefined,
         available: available ?? undefined,
@@ -533,6 +579,7 @@ providerProfileRouter.put(
         requiresBookingApproval,
         phoneVisible,
         paymentInfo: paymentInfo === undefined ? undefined : paymentInfo,
+        ...(draft === undefined ? {} : { draft: draft === null ? Prisma.DbNull : (draft as Prisma.InputJsonValue) }),
       },
     })
 

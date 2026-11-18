@@ -248,8 +248,8 @@ are the edges they knowingly stop at:
   with it, or a notice can fire twice across the two month starts.
 - **The photo-import day is the UTC day.** `photoImportPeriod` has the allowance month's
   caveat: a Free provider east of Greenwich gets their next photo a few hours into their own
-  day. Same fix — bound it in `Provider.timeZone`. The profile assistant's daily draft counts
-  over the same window and moves with it.
+  day. Same fix — bound it in `Provider.timeZone`. The AI assistants' daily messages
+  (`AssistantUsage.day`) count over the same window and move with it.
 - **Explore cannot show "full".** The card's availability pill reads `available` only; a
   full provider still looks Available until the page opens. Showing it needs a count per
   card per page render.
@@ -564,14 +564,14 @@ the JSON-LD `addressLocality`, and let Explore filter by place.
   pattern — change it only if the store/server split above happens.
 - **`PUT /provider-profile` does not validate `weekSchedule`.** It parses the JSON and stores
   whatever arrives, so a hand-made request can save `start > end` or a break outside the day,
-  which every reader then treats as a closed day. `services/profileAssistant.ts#parseWeekSchedule`
-  is the validator the assistant's apply uses; routing the PUT's draft, publish and live modes
-  through it is the fix. Not reachable from `pnpm test` today (route wiring), so there is no
-  `KNOWN BUG:` test — `parseWeekSchedule`'s own cases are in `profileAssistant.spec.ts`.
-- **The profile assistant's draft is not checked against existing bookings.** An apply that
-  closes a day or removes a booked service leaves the upcoming bookings on it in place, as the
-  Availability and Services tabs do; the review does not warn about them. A count of live
-  bookings outside the drafted hours on the Summary step would.
+  which every reader then treats as a closed day. `lib/service-availability.ts#parseWeekSchedule`
+  is the validator `PATCH /provider-profile/schedule` uses; routing the PUT's draft, publish and
+  live modes through it is the fix. (`specialDates` on the same route *is* validated.) Not
+  reachable from `pnpm test` today (route wiring), so there is no `KNOWN BUG:` test —
+  `parseWeekSchedule`'s cases are in `scheduleWrites.spec.ts`.
+- **The assistants' brakes are in-process** (`lib/rateLimit.ts`): 30 provider messages per 10
+  minutes, 20 visitor questions an hour per IP. A second API instance needs a shared store — the
+  same caveat as the booking limiter (#2). The daily allowances are durable (`AssistantUsage`).
 
 ---
 

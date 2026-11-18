@@ -1,10 +1,21 @@
 import type { Prisma } from '@prisma/client'
-import type { BillingStatus, Category, Organization, Provider, Review, ReviewReport, Service } from '@prisma/client'
-import { toServiceAvailability } from '../lib/service-availability.js'
+import type {
+  AssistantConversation,
+  AssistantMessage,
+  BillingStatus,
+  Category,
+  Organization,
+  Provider,
+  Review,
+  ReviewReport,
+  Service,
+} from '@prisma/client'
+import { earliestOpenDayKey, parseSpecialDates, toScheduleRule, toServiceAvailability } from '../lib/service-availability.js'
 import { uniqueCategories } from '../services/categories.js'
 import {
   ADDON_GRANT_SELECT,
   type AddonGrant,
+  allowsVisitorAssistant,
   effectivePlan,
   type EntitlementFields,
   getEntitlements,
@@ -122,7 +133,13 @@ export function mapBasicProvider(provider: ProviderWithRelations) {
        * state cannot disagree with a list that was filtered on hours today —
        * and "today" is the provider's, in their own zone.
        */
-      openToday: isOpenToday(provider.weekSchedule, new Date(), provider.timeZone),
+      openToday: isOpenToday(
+        provider.weekSchedule,
+        new Date(),
+        provider.timeZone,
+        provider.specialDates,
+        provider.scheduleRule
+      ),
       /**
        * On `basic` rather than `details` so the Explore card gets it: `BasicProvider` is
        * `Pick<ProviderProfile, 'id' | 'basic'>`, so anything here reaches the card for
@@ -174,6 +191,12 @@ export function mapProviderListItem(
  * Changing it still goes only through `/identity/change-email` (password + verified link);
  * `PUT /provider-profile` must never write it.
  */
+/** A stored `specialDates` column, without the entries that have already ended everywhere. */
+const upcomingSpecialDates = (stored: unknown) => {
+  const parsed = parseSpecialDates(stored, earliestOpenDayKey(new Date()))
+  return 'value' in parsed ? parsed.value : []
+}
+
 export function mapProviderDetails(
   provider: ProviderWithRelations & {
     paymentInfo?: unknown
@@ -200,6 +223,17 @@ export function mapProviderDetails(
     email: provider.user?.email,
     gallery: provider.gallery?.map((g) => ({ name: g.name, url: g.url })) ?? [],
     weekSchedule,
+    /**
+     * Dates that do not follow `weekSchedule` — closed, or open on their own hours. **Public on
+     * purpose**: the booking grid and the hours list follow them. Only entries still ahead
+     * somewhere on Earth; a past one means nothing to a visitor.
+     */
+    specialDates: upcomingSpecialDates(provider.specialDates),
+    /**
+     * The base of the hours: weekly (`weekSchedule`), days of the month, or specific dates only.
+     * **Public on purpose**, for the same reason as `specialDates`.
+     */
+    scheduleRule: toScheduleRule(provider.scheduleRule),
     /**
      * The zone `weekSchedule` is written in. **Public on purpose**: the booking grid steps
      * the hours into instants in this zone and labels its times with it. Absent when the
@@ -259,6 +293,11 @@ export function mapSingleProvider(provider: EntitledProvider, options: { booking
      * never told about a plan (`server/CLAUDE.md`).
      */
     showPoweredBy: !getEntitlements(provider, new Date()).removeBranding,
+    /**
+     * Whether the page offers its AI assistant: switched on by the provider and allowed by the
+     * plan. Plan-neutral like `showPoweredBy` — a lapsed plan just hides the button.
+     */
+    visitorAssistant: provider.visitorAssistantEnabled && allowsVisitorAssistant(getEntitlements(provider, new Date())),
   }
 
   const services = provider.services ?? []
@@ -781,5 +820,32 @@ export function mapReviewReport(report: ReviewReport & { review: ReviewWithAutho
       providerId: report.review.providerId ?? undefined,
       providerName: report.review.provider?.fullName,
     },
+  }
+}
+
+/**
+ * One turn of a provider's assistant chat. `proposal` is the stored JSON as written by
+ * `routes/assistant.ts` — already narrowed there (`services/assistant.ts#parseProposal`,
+ * `bookingImport.ts#parseImportResponse`), so it is passed through, never re-shaped here.
+ */
+export function mapAssistantMessage(message: AssistantMessage) {
+  return {
+    id: message.id,
+    role: message.role,
+    text: message.text,
+    proposal: message.proposal ?? null,
+    proposalStatus: message.proposalStatus ?? null,
+    outcome: message.outcome ?? null,
+    createdAt: message.createdAt.toISOString(),
+  }
+}
+
+/** One of a provider's assistant chats, as the chat list shows it. An empty `title` is a diary photo's. */
+export function mapAssistantConversation(conversation: AssistantConversation) {
+  return {
+    id: conversation.id,
+    title: conversation.title,
+    createdAt: conversation.createdAt.toISOString(),
+    updatedAt: conversation.updatedAt.toISOString(),
   }
 }
