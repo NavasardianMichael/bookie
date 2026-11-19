@@ -1,8 +1,9 @@
 'use client'
 
-import { CSSProperties, FC, useEffect, useRef, useState } from 'react'
+import { CSSProperties, FC } from 'react'
 import { Select } from 'antd'
 import { useTranslations } from 'next-intl'
+import { useHoverOpenSelect } from '@hooks/useHoverOpenSelect'
 import { useRouter } from '@i18n/navigation'
 import { USER_TYPES } from '@constants/auth'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
@@ -12,9 +13,6 @@ import { AppText } from '@components/ui/bare/AppText'
 
 /** Same chevron colour as the header language picker. */
 const HEADER_CHEVRON: CSSProperties = { color: 'var(--brand-text-muted)' }
-
-/** Long enough to cross the gap between the control and its portaled popup. */
-const CLOSE_DELAY_MS = 150
 
 /** Sidebar label under `Settings.nav`, in the same order as that sidebar. */
 type NavLabel =
@@ -69,21 +67,7 @@ export const AccountMenu: FC<Props> = ({ name, image, showName, role, isActive }
   const t = useTranslations('Nav')
   const tNav = useTranslations('Settings.nav')
   const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const cancelClose = () => {
-    if (closeTimer.current === null) return
-    clearTimeout(closeTimer.current)
-    closeTimer.current = null
-  }
-
-  const scheduleClose = () => {
-    cancelClose()
-    closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS)
-  }
-
-  useEffect(() => () => cancelClose(), [])
+  const { open, close, selectRef, wrapperProps, onOpenChange } = useHoverOpenSelect()
 
   const entries = role === USER_TYPES.provider ? PROVIDER_SETTINGS_NAV : CONSUMER_SETTINGS_NAV
   const destinations: Destination[] = entries.map(({ route }) => ({
@@ -100,27 +84,18 @@ export const AccountMenu: FC<Props> = ({ name, image, showName, role, isActive }
   return (
     // Popup is portaled into this box, so the pointer can move onto the list. The Select
     // itself owns click and keyboard; this only keeps the hover open across that move.
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div
-      onMouseEnter={() => {
-        cancelClose()
-        setOpen(true)
-      }}
-      onMouseLeave={scheduleClose}
-    >
+    <div {...wrapperProps}>
       <Select<string>
+        ref={selectRef}
         aria-label={t('accountSettings')}
         open={open}
         value={active}
         options={destinations.map(({ value, label }) => ({ value, label }))}
-        onOpenChange={(next) => {
-          if (next) cancelClose()
-          setOpen(next)
-        }}
+        onOpenChange={onOpenChange}
         onChange={(next) => {
           const href = destinations.find((item) => item.value === next)?.href
           if (href) router.push(href)
-          setOpen(false)
+          close()
         }}
         variant='borderless'
         popupMatchSelectWidth={false}

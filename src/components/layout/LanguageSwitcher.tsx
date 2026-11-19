@@ -1,9 +1,10 @@
 'use client'
 
-import { CSSProperties, FC, useEffect, useRef, useState, useTransition } from 'react'
+import { CSSProperties, FC, useTransition } from 'react'
 import { GlobalOutlined } from '@ant-design/icons'
 import { Select } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
+import { useHoverOpenSelect } from '@hooks/useHoverOpenSelect'
 import { setLocale } from '@i18n/actions'
 import { LANG_PARAM, type Locale, LOCALE_LABELS, LOCALES } from '@i18n/config'
 import { usePathname, useRouter } from '@i18n/navigation'
@@ -11,9 +12,6 @@ import { isLocaleFreePath } from '@i18n/pathname'
 import { hasUnsavedChanges } from '@helpers/unsavedChangesGuard'
 
 const OPTIONS = LOCALES.map((locale) => ({ value: locale, label: LOCALE_LABELS[locale] }))
-
-/** Long enough to cross the gap between the control and its portaled popup. */
-const CLOSE_DELAY_MS = 150
 
 /**
  * The header nav's visible colour. `a.app-link-plain` sets `--brand-text-muted` unlayered,
@@ -42,8 +40,8 @@ const HEADER_TEXT: CSSProperties = { color: 'var(--brand-text-muted)', fontWeigh
  * `useTransition` keeps the old text on screen during the round trip instead of
  * flashing a spinner over the whole shell.
  *
- * Hover opens the list, the same way the header account menu does. Click and
- * keyboard still open it. The popup stays on `document.body`: the footer and
+ * Hover opens the list, the same way the header account menu does (`useHoverOpenSelect`).
+ * Click and keyboard still open it. The popup stays on `document.body`: the footer and
  * the mobile drawer would clip a list portaled into the control.
  */
 type Props = {
@@ -58,53 +56,7 @@ export const LanguageSwitcher: FC<Props> = ({ className = 'min-w-44', variant = 
   const router = useRouter()
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
-  const [open, setOpen] = useState(false)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // A phone tap fires mouseenter and then click. Opening on that enter lets the
-  // click toggle the list shut, so a tap would never stick.
-  const fineHover = useRef(false)
-  // The click that lands as the pointer arrives would toggle the list shut.
-  // Swallow that one. A later click on the control still toggles it.
-  const suppressClose = useRef(false)
-
-  const cancelClose = () => {
-    if (closeTimer.current === null) return
-    clearTimeout(closeTimer.current)
-    closeTimer.current = null
-  }
-
-  const scheduleClose = () => {
-    cancelClose()
-    closeTimer.current = setTimeout(() => {
-      suppressClose.current = false
-      setOpen(false)
-    }, CLOSE_DELAY_MS)
-  }
-
-  useEffect(() => {
-    const query = window.matchMedia('(hover: hover) and (pointer: fine)')
-    const sync = () => {
-      fineHover.current = query.matches
-    }
-    sync()
-    query.addEventListener('change', sync)
-    return () => {
-      query.removeEventListener('change', sync)
-      cancelClose()
-    }
-  }, [])
-
-  const openFromHover = () => {
-    if (!fineHover.current) return
-    cancelClose()
-    suppressClose.current = true
-    setOpen(true)
-  }
-
-  const closeFromHover = () => {
-    if (!fineHover.current) return
-    scheduleClose()
-  }
+  const { open, close, selectRef, wrapperProps, popupProps, onOpenChange } = useHoverOpenSelect()
 
   /**
    * The public provider page, `/p/<key>`, has no locale segment to swap: its language is the
@@ -122,8 +74,7 @@ export const LanguageSwitcher: FC<Props> = ({ className = 'min-w-44', variant = 
   }
 
   const handleChange = (next: Locale) => {
-    setOpen(false)
-    suppressClose.current = false
+    close()
     // The dialog only appears for a navigation that is still inside the click.
     // Waiting on the cookie first would let the gesture expire and the page
     // would change without asking. The URL already names the language.
@@ -141,33 +92,16 @@ export const LanguageSwitcher: FC<Props> = ({ className = 'min-w-44', variant = 
   return (
     // The Select owns click and keyboard. This only keeps the hover open across
     // the move onto the list, which is portaled out of this box.
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div
-      className='w-fit max-w-full'
-      onMouseEnter={openFromHover}
-      onMouseLeave={closeFromHover}
-      onClickCapture={(event) => {
-        if (!suppressClose.current) return
-        suppressClose.current = false
-        event.stopPropagation()
-      }}
-    >
+    <div className='w-fit max-w-full' {...wrapperProps}>
       <Select<Locale>
+        ref={selectRef}
         aria-label={t('switcherAriaLabel')}
         open={open}
         value={locale}
         options={OPTIONS}
         onChange={handleChange}
-        onOpenChange={(next) => {
-          if (next) cancelClose()
-          setOpen(next)
-        }}
-        popupRender={(menu) => (
-          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-          <div onMouseEnter={openFromHover} onMouseLeave={closeFromHover}>
-            {menu}
-          </div>
-        )}
+        onOpenChange={onOpenChange}
+        popupRender={(menu) => <div {...popupProps}>{menu}</div>}
         loading={isPending}
         variant={variant}
         popupMatchSelectWidth={false}
