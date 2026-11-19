@@ -41,6 +41,7 @@ export const AssistantLauncher: FC = () => {
   const tCommon = useTranslations('Common')
   const shown = useAssistantLauncherShown()
   const open = useAssistantPanelStore.use.open()
+  const expanded = useAssistantPanelStore.use.expanded()
   const setPanelState = useAssistantPanelStore.use.setAssistantPanelState()
   const markApplied = useAssistantPanelStore.use.markApplied()
   const getMe = useAuthStore.use.getMe()
@@ -84,7 +85,8 @@ export const AssistantLauncher: FC = () => {
         className={cn(
           // Above the home indicator on a notched phone: the safe area moves the button, not its icon.
           'bg-brand hover:bg-brand-hover fixed end-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 flex size-14 cursor-pointer items-center justify-center rounded-full border-0 text-2xl text-white shadow-xl transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2',
-          open && 'max-md:hidden'
+          // The open chat covers the button on a phone, and the expanded one on a desktop.
+          open && (expanded ? 'hidden' : 'max-md:hidden')
         )}
       >
         {open ? <CloseOutlined aria-hidden /> : <MessageOutlined aria-hidden />}

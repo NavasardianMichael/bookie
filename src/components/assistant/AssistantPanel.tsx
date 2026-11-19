@@ -13,6 +13,7 @@ import {
 import { App, Spin } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
 import { AssistantAction, AssistantMessage } from '@api/assistant/types'
+import { useAssistantPanelStore } from '@store/assistant/panel/store'
 import { useAuthStore } from '@store/auth/store'
 import { useApplyAssistantProposal } from '@hooks/useApplyAssistantProposal'
 import { useAssistantChat } from '@hooks/useAssistantChat'
@@ -87,8 +88,9 @@ export const AssistantPanel: FC<Props> = ({ id, open, onClose, onApplied }) => {
   const [listOpen, setListOpen] = useState(false)
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
-  /** Desktop only: most of the page instead of the corner, for a long thread or a big proposal. */
-  const [expanded, setExpanded] = useState(false)
+  /** Desktop only: along the bottom of the page instead of the corner, for a long thread or a big proposal. */
+  const expanded = useAssistantPanelStore.use.expanded()
+  const setPanelState = useAssistantPanelStore.use.setAssistantPanelState()
   const panelRef = useRef<HTMLElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -274,11 +276,12 @@ export const AssistantPanel: FC<Props> = ({ id, open, onClose, onApplied }) => {
         hidden={!open}
         className={cn(
           'bg-surface fixed inset-0 z-50 flex flex-col outline-none app-safe-b',
-          'md:border-brand-border md:inset-auto md:inset-e-4 md:bottom-24 md:rounded-brand md:border md:shadow-xl',
-          // Expanded: between the header and the launcher, edge to edge but for the gutters.
+          'md:border-brand-border md:inset-auto md:inset-e-4 md:rounded-brand md:border md:shadow-xl',
+          // Expanded: docked along the bottom, edge to edge but for the gutters, clear of the
+          // site header. The launcher hides meanwhile — this covers its spot.
           expanded
-            ? 'md:inset-s-4 md:top-20'
-            : 'md:h-[min(42rem,calc(100dvh-11rem))] md:w-[min(26rem,calc(100vw-2rem))]',
+            ? 'md:inset-s-4 md:bottom-4 md:h-[min(56rem,calc(100dvh-6rem))]'
+            : 'md:bottom-24 md:h-[min(42rem,calc(100dvh-11rem))] md:w-[min(26rem,calc(100vw-2rem))]',
           !open && 'hidden'
         )}
       >
@@ -347,7 +350,7 @@ export const AssistantPanel: FC<Props> = ({ id, open, onClose, onApplied }) => {
             aria-pressed={expanded}
             title={t(expanded ? 'shrink' : 'expand')}
             onClick={() => {
-              setExpanded((current) => !current)
+              setPanelState({ expanded: !expanded })
               setListOpen(false)
             }}
           />

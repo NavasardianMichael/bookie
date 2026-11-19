@@ -8,6 +8,11 @@
  */
 export type AssistantPanelState = {
   open: boolean
+  /**
+   * Desktop only: the panel docked along the bottom of the page instead of the corner. Shared
+   * because the launcher hides while it is — the expanded panel covers its spot.
+   */
+  expanded: boolean
   /** Bumped after each apply — a page keyed or effected on it re-reads what was just written. */
   revision: number
 }

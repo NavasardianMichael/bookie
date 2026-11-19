@@ -6,6 +6,7 @@ import { AssistantPanelActions, AssistantPanelState } from './types'
 
 const initialState: AssistantPanelState = {
   open: false,
+  expanded: false,
   revision: 0,
 }
 
