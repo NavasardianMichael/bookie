@@ -48,6 +48,8 @@ type Props = {
   activationLocked?: boolean
   /** Days in the next three months it is offered on but cannot be booked — outside the provider's hours. */
   outsideHoursDays?: number
+  /** Opens the widen / fit choice for the days outside the hours; absent when neither would change anything. */
+  onFixHours?: (serviceId: string) => void
   /** The provider's clock, for the service's own hours. */
   timeFormat: TimeFormat
 }
@@ -74,6 +76,7 @@ export const ProviderServiceCard: FC<Props> = ({
   onToggleActive,
   activationLocked = false,
   outsideHoursDays = 0,
+  onFixHours,
   timeFormat,
 }) => {
   const t = useTranslations('Services')
@@ -211,6 +214,16 @@ export const ProviderServiceCard: FC<Props> = ({
           <AppText size='caption' tone='danger' className='flex items-center gap-1.5'>
             <WarningOutlined aria-hidden />
             <span>{t('outsideHours', { count: outsideHoursDays })}</span>
+            {onFixHours && (
+              <button
+                type='button'
+                onClick={() => onFixHours(service.id)}
+                aria-label={t('outsideHoursFixFor', { name: service.name })}
+                className='text-brand hover:text-brand-hover cursor-pointer border-0 bg-transparent p-0 font-semibold underline underline-offset-2'
+              >
+                {t('outsideHoursFix')}
+              </button>
+            )}
           </AppText>
         )}
       </div>

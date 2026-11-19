@@ -195,20 +195,20 @@ that can say it, so the schedule grew two things in the same change:
 
   An inactive service is saved without asking. The pickers let a closed day be chosen (struck
   through, marked closed) precisely so this choice can be offered.
-- **The service card** keeps saying "Not bookable on N of its days — outside your hours".
+- **The service card** keeps saying "Not bookable on N of its days — outside your hours", with a
+  **Fix** link that opens the same sheet for the service as saved — *Widen my hours* or *Fit the
+  service*, no *Save as it is* (`canKeep`). The link shows only when one of them would change
+  something; a conflict only a special date causes has neither, so the card just says so. (Fix
+  replaced an *Also fit these services* checkbox on Publish: fitting from the dialog changed
+  services as a side effect of publishing hours, for nothing a client could book.)
 - **Publishing the Availability tab** checks what it does first (`scheduleImpact`): every change
   being approved (each weekday's hours before → after, a change of rule, each special date
   added / changed / removed — `hoursChanges`), services that could be booked and no longer can,
   services that lose times — and exactly which ("Wednesday, every week · 12:00–17:00", a date —
   `serviceLosses`) — and upcoming bookings (next 90 days, every page of them) left outside the
   hours. Nothing is cancelled; *Publish anyway* or *Keep editing*, with a link to `/bookings`.
-  Where services lose times, the dialog also offers **Also fit these services to the new hours**
-  (off by default): each one's rule is fitted as *Fit the service* would (`impact.fits` — only
-  those the fit changes) and saved after the hours go live. What clients can book is the same
-  either way; the services just stop asking for days the provider will not have, so their cards
-  stop warning — and they do not come back by themselves if those days reopen. A service whose
-  save fails is named in a toast; the hours stay published. The assistant's Apply does not offer
-  it.
+  Publishing does not change any service: a service left asking for days the provider no longer
+  has keeps them, so it comes back by itself if those days reopen.
 - **Applying an assistant proposal** that changes hours or special dates runs the same check
   first (`useAssistantScheduleImpact`: the live hours, `hoursAfterSchedulePatch`, then
   `scheduleImpact`) and shows the same dialog as *Apply anyway* / *Not now*. Nothing is asked

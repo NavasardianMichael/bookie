@@ -17,6 +17,7 @@ import { hasRoomFor } from '@helpers/plans'
 import { reportError } from '@helpers/reportError'
 import {
   conflictDayCount,
+  fitChanges,
   fitServiceToHours,
   hasConflicts,
   ServiceConflicts,
@@ -66,13 +67,21 @@ type Filter = (typeof FILTERS)[keyof typeof FILTERS]
 
 const CLOSED_STATUSES = ['cancelled', 'completed', 'no_show']
 
-/** A save held back because the service reaches outside the provider's hours. */
-type PendingConflict = {
-  values: ProviderServiceFormValues
-  service: ProviderServiceRequestPayload
+/** What the conflict sheet offers for one rule: the days in the way, and each way out. */
+type ConflictOptions = {
   conflicts: ServiceConflicts
   widening: WeekdayWidening[]
   fitted: ServiceAvailability | null
+}
+
+/**
+ * The conflict sheet's subject: a form save held back because the service reaches outside the
+ * provider's hours (`save`), or a saved service whose card's Fix link was pressed (`serviceId`).
+ */
+type PendingConflict = ConflictOptions & {
+  availability: ServiceAvailability
+  save?: { values: ProviderServiceFormValues; service: ProviderServiceRequestPayload }
+  serviceId?: string
 }
 
 export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PROFILE_SERVICE_FORM_INITIAL_VALUES }) => {
@@ -146,26 +155,40 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
 
   const serviceList = useMemo(() => allIds.map((serviceId) => byId[serviceId]).filter(Boolean), [allIds, byId])
 
-  /** Per active service, the days it is offered on that the published hours leave out. */
-  const outsideHoursDays = useMemo(() => {
-    const todayKey = calendarDayOf(new Date(), details.timeZone).format(DAY_KEY_FORMAT)
-    return Object.fromEntries(
-      serviceList
-        .filter((service) => service.active)
-        .map((service) => [
-          service.id,
-          conflictDayCount(
-            serviceConflicts({
-              weekSchedule: details.weekSchedule,
-              specialDates: details.specialDates,
-              rule: details.scheduleRule,
-              availability: service.availability,
-              todayKey,
-            })
-          ),
-        ])
-    )
-  }, [details.scheduleRule, details.specialDates, details.timeZone, details.weekSchedule, serviceList])
+  /** The days a rule asks for outside the published hours, and what widening or fitting would do. */
+  const conflictOptions = useCallback(
+    (availability: ServiceAvailability): ConflictOptions => {
+      const todayKey = calendarDayOf(new Date(), details.timeZone).format(DAY_KEY_FORMAT)
+      const hours = { weekSchedule: details.weekSchedule, specialDates: details.specialDates, rule: details.scheduleRule }
+      const conflicts = serviceConflicts({ ...hours, availability, todayKey })
+      if (!hasConflicts(conflicts)) return { conflicts, widening: [], fitted: null }
+      return {
+        conflicts,
+        widening: widenWeekForService(conflicts, details.weekSchedule, availability, details.scheduleRule),
+        fitted: fitServiceToHours(availability, hours, todayKey),
+      }
+    },
+    [details.scheduleRule, details.specialDates, details.timeZone, details.weekSchedule]
+  )
+
+  /**
+   * Per active service, the days it is offered on that the published hours leave out, and
+   * whether its card's Fix link can do anything — widen the week or change the service. A
+   * conflict only a special date causes has neither: the card just says so.
+   */
+  const outsideHours = useMemo(
+    () =>
+      Object.fromEntries(
+        serviceList
+          .filter((service) => service.active)
+          .map((service) => {
+            const options = conflictOptions(service.availability)
+            const fixable = options.widening.length > 0 || fitChanges(service.availability, options.fitted)
+            return [service.id, { days: conflictDayCount(options.conflicts), fixable }]
+          })
+      ),
+    [conflictOptions, serviceList]
+  )
   const activeCount = useMemo(() => serviceList.filter((service) => service.active).length, [serviceList])
 
   /**
@@ -237,22 +260,10 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
       const service = processProviderServiceFormToRequestPayload(values)
       const availability = service.availability ?? { mode: 'always' as const }
       const active = values.id ? (byId[values.id]?.active ?? true) : true
-      const todayKey = calendarDayOf(new Date(), details.timeZone).format(DAY_KEY_FORMAT)
-      const hours = {
-        weekSchedule: details.weekSchedule,
-        specialDates: details.specialDates,
-        rule: details.scheduleRule,
-      }
-      const conflicts = active ? serviceConflicts({ ...hours, availability, todayKey }) : null
+      const options = active ? conflictOptions(availability) : null
 
-      if (conflicts && hasConflicts(conflicts)) {
-        setPendingConflict({
-          values,
-          service,
-          conflicts,
-          widening: widenWeekForService(conflicts, details.weekSchedule, availability, details.scheduleRule),
-          fitted: fitServiceToHours(availability, hours, todayKey),
-        })
+      if (options && hasConflicts(options.conflicts)) {
+        setPendingConflict({ ...options, availability, save: { values, service } })
         return
       }
 
@@ -266,29 +277,39 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
         setIsSubmitting(false)
       }
     },
-    [byId, details.scheduleRule, details.specialDates, details.timeZone, details.weekSchedule, saveService]
+    [byId, conflictOptions, saveService]
+  )
+
+  /** A card's Fix link: the same choice as a held-back save, for the service as it is saved. */
+  const onFixServiceHours = useCallback(
+    (serviceId: string) => {
+      const availability = byId[serviceId]?.availability ?? { mode: 'always' as const }
+      setPendingConflict({ ...conflictOptions(availability), availability, serviceId })
+    },
+    [byId, conflictOptions]
   )
 
   /** The conflict sheet's answer. A failure rejects, so the sheet stays open and says so. */
   const onConflictChoice = useCallback(
     async (choice: ConflictChoice) => {
       if (!pendingConflict) return
-      const { values, service, widening, fitted } = pendingConflict
+      const { save, serviceId, widening, fitted } = pendingConflict
       if (choice === 'widen') {
         await patchProviderScheduleAPI({
           weekSchedule: Object.fromEntries(widening.map((change) => [change.day, change.schedule])),
         })
         // The page reads the published hours from the profile; read them again.
         await getProviderProfileData()
-        await saveService(values, service)
+        if (save) await saveService(save.values, save.service)
       } else if (choice === 'fit' && fitted) {
-        await saveService(values, { ...service, availability: fitted })
-      } else {
-        await saveService(values, service)
+        if (save) await saveService(save.values, { ...save.service, availability: fitted })
+        else if (serviceId) await putProviderService({ providerId, serviceId, service: { availability: fitted } })
+      } else if (save) {
+        await saveService(save.values, save.service)
       }
       setPendingConflict(null)
     },
-    [getProviderProfileData, pendingConflict, saveService]
+    [getProviderProfileData, pendingConflict, providerId, putProviderService, saveService]
   )
 
   const openServiceForm = useCallback(
@@ -446,7 +467,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
                   onDelete={onDeleteService}
                   onToggleActive={onToggleActive}
                   activationLocked={atServiceLimit}
-                  outsideHoursDays={outsideHoursDays[service.id] ?? 0}
+                  outsideHoursDays={outsideHours[service.id]?.days ?? 0}
+                  onFixHours={outsideHours[service.id]?.fixable ? onFixServiceHours : undefined}
                   timeFormat={resolveTimeFormat(details.timeFormat, locale)}
                 />
               ))}
@@ -519,7 +541,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           conflicts={pendingConflict.conflicts}
           widening={pendingConflict.widening}
           fitted={pendingConflict.fitted}
-          original={pendingConflict.service.availability ?? { mode: 'always' }}
+          original={pendingConflict.availability}
+          canKeep={Boolean(pendingConflict.save)}
           timeFormat={resolveTimeFormat(details.timeFormat, locale)}
           onChoose={onConflictChoice}
           onCancel={() => setPendingConflict(null)}

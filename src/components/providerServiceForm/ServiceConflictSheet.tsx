@@ -30,6 +30,11 @@ type Props = {
   fitted: ServiceAvailability | null
   original: ServiceAvailability
   timeFormat: TimeFormat
+  /**
+   * Offer *Save as it is* — on by default. Off when the sheet fixes a service already saved (the
+   * card's Fix link): leaving it as it is is just closing the sheet.
+   */
+  canKeep?: boolean
   /** Awaited; a rejection is toasted and the sheet stays open. */
   onChoose: (choice: ConflictChoice) => Promise<void>
   onCancel: () => void
@@ -46,7 +51,7 @@ type Props = {
  * - **Fit the service** — what it asks for that the provider never gives is taken out of the
  *   service (days, hours, added dates), and nothing it can be booked for (`fitServiceToHours`).
  * - **Save as it is** — nothing else changes; those days simply cannot be booked, and the
- *   service card keeps saying so.
+ *   service card keeps saying so. Left out (`canKeep`) when the card's Fix link opened the sheet.
  */
 export const ServiceConflictSheet: FC<Props> = ({
   open,
@@ -55,6 +60,7 @@ export const ServiceConflictSheet: FC<Props> = ({
   fitted,
   original,
   timeFormat,
+  canKeep = true,
   onChoose,
   onCancel,
 }) => {
@@ -199,7 +205,7 @@ export const ServiceConflictSheet: FC<Props> = ({
 
         {option('fit', <CompressOutlined />, t('fitTitle'), fittedSummary(), fitted ? undefined : t('fitUnavailable'))}
 
-        {option('keep', <SaveOutlined />, t('keepTitle'), t('keepBody'))}
+        {canKeep && option('keep', <SaveOutlined />, t('keepTitle'), t('keepBody'))}
       </div>
     </AppSheet>
   )

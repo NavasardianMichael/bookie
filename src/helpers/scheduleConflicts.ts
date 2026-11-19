@@ -39,8 +39,8 @@ import {
  *   the service to them (`fitServiceToHours`), or save as is.
  * - **Hours published against the services and bookings** (`scheduleImpact`): services that
  *   lose days or can no longer be booked at all, and upcoming bookings left outside the hours.
- *   Nothing is cancelled; the provider is told before they publish, and may fit the services
- *   that lose days to the new hours in the same step.
+ *   Nothing is cancelled; the provider is told before they publish. A service left asking for
+ *   days the provider no longer has is fixed later, from its card (`ServiceConflictSheet`).
  *
  * Pure: every "today" is passed in as a `YYYY-MM-DD` on the provider's calendar.
  */
@@ -351,9 +351,6 @@ export const fitChanges = (before: ServiceAvailability, fitted: ServiceAvailabil
 /** A booking as the impact check reads it: its instant, and whose it is for the list. */
 export type ImpactBooking = { id: string; start: string; end: string; serviceName: string; clientName: string }
 
-/** A service the new hours narrow, fitted to them — what *fit these services* would save. */
-export type ImpactFit = { id: string; name: string; availability: ServiceAvailability }
-
 export type ScheduleImpact = {
   /** Every change the new hours make — what the provider is approving. */
   changes: HoursChange[]
@@ -361,18 +358,15 @@ export type ScheduleImpact = {
   unbookable: string[]
   /** Services that keep some days but lose others — and exactly which times. */
   narrowed: { name: string; losses: ServiceLoss[] }[]
-  /** The narrowed services whose own rule can be fitted to the new hours without losing anything. */
-  fits: ImpactFit[]
   /** Upcoming bookings that sat inside the hours and would not. */
   bookingsOutside: ImpactBooking[]
 }
 
-type ImpactService = { id: string; name: string; active: boolean; availability: ServiceAvailability }
+type ImpactService = { name: string; active: boolean; availability: ServiceAvailability }
 
 /**
  * What publishing `after` in place of `before` does: every change it makes (`hoursChanges`),
- * services that lose days (or every day) and exactly which times (`serviceLosses`) — with each
- * one's rule fitted to the new hours where that changes it (`fitServiceToHours`) — and upcoming
+ * services that lose days (or every day) and exactly which times (`serviceLosses`), and upcoming
  * bookings that fall outside the new hours. `dayAndMinutes` reads an instant on the provider's
  * clock (`@helpers/timeZone`), injected to keep this pure. Inactive services are not counted —
  * nobody can book them either way.
@@ -394,7 +388,6 @@ export const scheduleImpact = ({
 }): ScheduleImpact => {
   const unbookable: string[] = []
   const narrowed: ScheduleImpact['narrowed'] = []
-  const fits: ImpactFit[] = []
   for (const service of services.filter((s) => s.active)) {
     const wasBookable = canEverBeBooked(
       before.weekSchedule,
@@ -414,8 +407,6 @@ export const scheduleImpact = ({
         name: service.name,
         losses: serviceLosses({ before, after, availability: service.availability, todayKey, horizonDays: CONFLICT_HORIZON_DAYS }),
       })
-      const fitted = fitServiceToHours(service.availability, after, todayKey)
-      if (fitted && fitChanges(service.availability, fitted)) fits.push({ id: service.id, name: service.name, availability: fitted })
     }
   }
 
@@ -428,7 +419,7 @@ export const scheduleImpact = ({
   }
   const bookingsOutside = bookings.filter((booking) => fitsHours(before, booking) && !fitsHours(after, booking))
 
-  return { changes: hoursChanges(before, after, todayKey), unbookable, narrowed, fits, bookingsOutside }
+  return { changes: hoursChanges(before, after, todayKey), unbookable, narrowed, bookingsOutside }
 }
 
 export const hasImpact = (impact: ScheduleImpact): boolean =>

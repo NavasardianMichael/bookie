@@ -639,10 +639,7 @@
         "narrowed": "これらのサービスは次の時間を失います:",
         "bookingsOutside": "{count, plural, other {今後の予約 # 件が受付時間外になります：}}",
         "andMore": "{count, plural, other {ほか # 件}}",
-        "bookingsKept": "これらの予約はそのまま残ります。必要に応じて<link>予約</link>から移動またはキャンセルしてください。",
-        "narrowFit": "これらのサービスも新しい営業時間に合わせる：{services}",
-        "narrowFitHelp": "曜日と時間が営業時間内に絞られ、警告が出なくなります。お客様が予約できる内容は変わりません。",
-        "narrowFailed": "営業時間は公開されましたが、次のサービスは変更されませんでした：{services}"
+        "bookingsKept": "これらの予約はそのまま残ります。必要に応じて<link>予約</link>から移動またはキャンセルしてください。"
       }
     },
     "advanced": {
@@ -1550,7 +1547,9 @@
       "widenAddedDates": "妨げになっているのは、このサービスに追加した日付だけです。それらの日付は「予約可能時間」ページで開けてください。",
       "fitMonthDays": "提供日：{days}日",
       "fitAdded": "追加した日付を営業時間に合わせました"
-    }
+    },
+    "outsideHoursFix": "修正",
+    "outsideHoursFixFor": "「{name}」が営業時間外になっている日を修正"
   },
   "Validation": {
     "required": "{label}を入力してください",

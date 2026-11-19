@@ -1,7 +1,6 @@
 'use client'
 
 import { FC, ReactNode } from 'react'
-import { Checkbox } from 'antd'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useTranslations } from 'next-intl'
@@ -31,11 +30,6 @@ type Props = {
   onCancel: () => void
   /** The question and its buttons, where the change is not a Publish (the assistant's Apply). */
   copy?: { title: string; confirm: string; cancel: string }
-  /**
-   * Offer to fit the services the new hours narrow (`impact.fits`) in the same step. The caller
-   * owns the choice and saves the fitted services after the hours go live.
-   */
-  narrow?: { checked: boolean; onChange: (checked: boolean) => void }
 }
 
 /** Lines of one list named in full before it folds into "and N more". */
@@ -61,13 +55,10 @@ const Section: FC<{ title: string; children: ReactNode }> = ({ title, children }
  *   exactly which (`serviceLosses`: "Wednesday, every week · 12:00–17:00", a date, all day);
  * - upcoming bookings left outside the hours.
  *
- * With `narrow`, the provider may also fit those services to the new hours — what can be booked
- * stays the same, the services just stop asking for days the provider will not have.
- *
  * Nothing is cancelled or changed — the provider decides whether to go ahead, and reaches each
  * booking from `/bookings` if they want to move it.
  */
-export const ScheduleImpactModal: FC<Props> = ({ impact, timeZone, timeFormat, onConfirm, onCancel, copy, narrow }) => {
+export const ScheduleImpactModal: FC<Props> = ({ impact, timeZone, timeFormat, onConfirm, onCancel, copy }) => {
   const t = useTranslations('Settings.availability.impact')
   const tAvailability = useTranslations('Settings.availability')
   const tCommon = useTranslations('Common')
@@ -185,16 +176,6 @@ export const ScheduleImpactModal: FC<Props> = ({ impact, timeZone, timeFormat, o
                   </div>
                 ))}
               </div>
-              {narrow && impact.fits.length > 0 && (
-                <div className='bg-surface-sunken rounded-brand mt-3 flex flex-col gap-1 p-3'>
-                  <Checkbox checked={narrow.checked} onChange={(event) => narrow.onChange(event.target.checked)}>
-                    {t('narrowFit', { services: impact.fits.map((fit) => fit.name).join(', ') })}
-                  </Checkbox>
-                  <AppText size='body-sm' tone='muted' className='block ps-6'>
-                    {t('narrowFitHelp')}
-                  </AppText>
-                </div>
-              )}
             </Section>
           )}
           {impact.bookingsOutside.length > 0 && (

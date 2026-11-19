@@ -71,11 +71,12 @@ Feature folders outside the tiers:
   `AvailabilityDayRow`, `SpecialDatesEditor` + `SpecialDateSheet` (one per section — *added*,
   *excluded*, *openDates* — over the one `specialDates` list),
   `ScheduleImpactModal` (the exact change a Publish, or an assistant Apply via `copy`, makes, and what it
-  does to services and bookings; `narrow` adds *Also fit these services*), `scheduleText.ts` (a date span and a day's windows as both print them), and
+  does to services and bookings), `scheduleText.ts` (a date span and a day's windows as both print them), and
   `VisitorAssistantSetting` (saves on its own switch). `providerServiceForm/ServiceExceptionsField`
   reuses `SpecialDatesEditor` (sections `serviceAdded` / `serviceExcluded`) for a service's own
   dates, converting its exceptions to and from the editor's shape. `providerServiceForm/ServiceConflictSheet`
-  is the choice when a service reaches outside the hours.
+  is the choice when a service reaches outside the hours — on save, or from the card's Fix link
+  (`canKeep={false}`).
 - `analytics/` — the GA4 tag (`Analytics`, `@next/third-parties`) and Consent Mode:
   `AnalyticsConsentDefaults` (inline script, top of `<body>`, before the tag),
   `ConsentBanner` (in `App`, shown only where an opt-in is required — EU/EEA, UK,

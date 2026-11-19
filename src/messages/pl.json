@@ -639,10 +639,7 @@
         "narrowed": "Te usługi stracą następujące terminy:",
         "bookingsOutside": "{count, plural, one {# nadchodząca rezerwacja wypadłaby poza Twoje godziny:} few {# nadchodzące rezerwacje wypadłyby poza Twoje godziny:} many {# nadchodzących rezerwacji wypadłoby poza Twoje godziny:} other {# nadchodzącej rezerwacji wypadłoby poza Twoje godziny:}}",
         "andMore": "{count, plural, one {i jeszcze #} few {i jeszcze #} many {i jeszcze #} other {i jeszcze #}}",
-        "bookingsKept": "Te rezerwacje pozostają bez zmian. W razie potrzeby przenieś je lub anuluj w sekcji <link>Rezerwacje</link>.",
-        "narrowFit": "Dopasuj też te usługi do nowych godzin: {services}",
-        "narrowFitHelp": "Ich dni i godziny zostaną przycięte do czasu, gdy jesteś otwarty, więc ostrzeżenie zniknie. To, co klienci mogą zarezerwować, się nie zmieni.",
-        "narrowFailed": "Twoje godziny są opublikowane, ale tych usług nie zmieniono: {services}"
+        "bookingsKept": "Te rezerwacje pozostają bez zmian. W razie potrzeby przenieś je lub anuluj w sekcji <link>Rezerwacje</link>."
       }
     },
     "advanced": {
@@ -1550,7 +1547,9 @@
       "widenAddedDates": "Przeszkadzają tylko daty dodane dla tej usługi. Otwórz te daty na stronie Dostępność.",
       "fitMonthDays": "Dostępna w dni: {days}",
       "fitAdded": "Dodane daty dopasowane do Twoich godzin"
-    }
+    },
+    "outsideHoursFix": "Napraw",
+    "outsideHoursFixFor": "Napraw dni, w które „{name}” wykracza poza Twoje godziny"
   },
   "Validation": {
     "required": "Wypełnij {label}",

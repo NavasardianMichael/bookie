@@ -262,9 +262,9 @@ describe('scheduleImpact', () => {
       before: { weekSchedule },
       after: { weekSchedule: makeWeekSchedule({ monday: day('09:00', '12:00') }) },
       services: [
-        { id: 'w', name: 'Wednesdays', active: true, availability: { mode: 'weekdays', days: ['wednesday'] } },
-        { id: 'o', name: 'Off', active: false, availability: { mode: 'weekdays', days: ['wednesday'] } },
-        { id: 'a', name: 'Any day', active: true, availability: { mode: 'always' } },
+        { name: 'Wednesdays', active: true, availability: { mode: 'weekdays', days: ['wednesday'] } },
+        { name: 'Off', active: false, availability: { mode: 'weekdays', days: ['wednesday'] } },
+        { name: 'Any day', active: true, availability: { mode: 'always' } },
       ],
       bookings: [
         { id: 'late', start: '2026-03-09T14:00:00Z', end: '2026-03-09T15:00:00Z', serviceName: 'Cut', clientName: 'Mia' },
@@ -274,20 +274,19 @@ describe('scheduleImpact', () => {
       dayAndMinutes,
     })
     expect(impact.unbookable).toEqual(['Wednesdays'])
-    expect(impact.fits).toEqual([])
     expect(impact.bookingsOutside.map((booking) => booking.id)).toEqual(['late'])
   })
 
-  it('offers each narrowed service fitted to the new hours', () => {
+  it('names a service that keeps some days as narrowed', () => {
     const impact = scheduleImpact({
       before: { weekSchedule },
       after: { weekSchedule: makeWeekSchedule({ monday: day('09:00', '17:00') }) },
-      services: [{ id: 'mw', name: 'Mon & Wed', active: true, availability: { mode: 'weekdays', days: ['monday', 'wednesday'] } }],
+      services: [{ name: 'Mon & Wed', active: true, availability: { mode: 'weekdays', days: ['monday', 'wednesday'] } }],
       bookings: [],
       todayKey: TODAY,
       dayAndMinutes,
     })
     expect(impact.narrowed.map((service) => service.name)).toEqual(['Mon & Wed'])
-    expect(impact.fits).toEqual([{ id: 'mw', name: 'Mon & Wed', availability: { mode: 'weekdays', days: ['monday'] } }])
+    expect(impact.unbookable).toEqual([])
   })
 })
