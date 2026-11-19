@@ -574,6 +574,22 @@
           "empty": "受付日はまだありません。追加するまで予約は受け付けられません。",
           "addTitle": "受付日を追加",
           "editTitle": "受付日を編集"
+        },
+        "serviceAdded": {
+          "title": "追加した日",
+          "body": "追加の日、または特定の日に別の時間帯でこのサービスを提供します。",
+          "add": "日付を追加",
+          "empty": "今後の追加日はありません。",
+          "addTitle": "日付を追加",
+          "editTitle": "追加した日を編集"
+        },
+        "serviceExcluded": {
+          "title": "除外する日",
+          "body": "このサービスを提供しない日付、または提供しない時間帯。",
+          "add": "日付を除外",
+          "empty": "今後の除外日はありません。",
+          "addTitle": "日付を除外",
+          "editTitle": "除外日を編集"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "その日のこの時間帯は休業します。",
         "openHoursHelp": "その日の受付時間です。通常の受付時間より優先されます。",
         "hoursRequired": "時間帯を1つ以上追加してください。",
-        "closedDuring": "休業 {hours}"
+        "closedDuring": "休業 {hours}",
+        "usualHours": "その日の営業時間",
+        "serviceOpenHoursHelp": "その日付のサービス時間（営業時間内）。",
+        "serviceClosedHoursHelp": "その日付のこの時間帯はサービスを提供しません。",
+        "notOffered": "提供なし",
+        "notOfferedDuring": "{hours} は提供なし"
       },
       "impact": {
         "title": "この受付時間を公開しますか？",
         "body": "現在の受付時間に依存しているものがあります。自動でキャンセルや変更はされません。まず影響を受けるものを確認してください。",
         "publishAnyway": "このまま公開",
         "keepEditing": "編集を続ける",
+        "changes": "変更内容:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "追加 — {date}: {what}",
+        "removed": "削除 — {date}: {what}",
+        "weekly": "毎週{day}",
+        "weeklyFrom": "{date}から毎週{day}",
         "unbookable": "次のサービスはまったく予約できなくなります：",
-        "narrowed": "次のサービスは一部の曜日・日付で予約できなくなります：",
+        "narrowed": "これらのサービスは次の時間を失います:",
         "bookingsOutside": "{count, plural, other {今後の予約 # 件が受付時間外になります：}}",
         "andMore": "{count, plural, other {ほか # 件}}",
         "bookingsKept": "これらの予約はそのまま残ります。必要に応じて<link>予約</link>から移動またはキャンセルしてください。"
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "この日は休業日です。保存時に営業日にするか確認します。営業時間は<link>受付時間</link>ページで設定します。",
       "monthDaysLabel": "毎月の日付",
-      "monthDaysPlaceholder": "日付を選択（例: 16）",
-      "monthDaysNote": "毎月繰り返します。4月31日のように、その月にない日はスキップされます。",
       "datesCalendar": "日付を選択",
       "datesSelected": "選択した日付",
       "datesEmpty": "まだ日付が選ばれていません。カレンダーの日をクリックして追加してください。",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}（休業日）",
       "hoursTitle": "特定の時間のみ",
-      "hoursHelp": "午前のみなど、このサービスを1日の一部の時間に限定します。"
+      "hoursHelp": "午前のみなど、このサービスを1日の一部の時間に限定します。",
+      "hoursSplitLabel": "毎日同じ時間か、曜日ごとか",
+      "hoursSame": "毎日同じ",
+      "hoursPerDay": "曜日ごとに設定"
     },
     "outsideHours": "{count, plural, other {# 日分は受付時間外のため予約できません}}",
     "conflict": {

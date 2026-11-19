@@ -30,26 +30,40 @@ The services page and the Analytics and SEO tabs gate on `personal.entitlements`
 owner profile they already load — no extra request. Each control the plan does not allow
 is disabled with a line linking to the Plan tab; the API refuses the same write regardless.
 
-## Services: which days each one is offered on
+## Services: when each one is offered
 
-The service form ends with an **Availability** section: *Always*, *Recurring* (Weekdays or
-Days of the month) or *Specific days*. Available on every plan. The rule itself is in
-`docs/DATABASE_STRUCTURE.md` → *Which days a service is offered on*; the decisions behind it:
+The service form ends with an **Availability** section, the same vocabulary as the
+Availability tab: *Always*, *Recurring* (Weekdays, or Days of the month — the 1–31 chips, a
+*Last day* chip, and whether a short month moves a missing day to its last day or skips it) or
+*Specific days*. Then *Only at certain hours* — one set, or under Weekdays **each ticked day
+its own** (`hoursByDay`) — and the service's own **Added dates** and **Excluded dates**
+(`availability.exceptions`, the Availability tab's dates editor reused through
+`ServiceExceptionsField`): an added date is offered on the provider's hours that day or only
+some of them; an excluded one not at all, or not during some hours. Under *Specific days*, an
+added date with hours is how one date gets hours of its own. Available on every plan. The rule
+itself is in `docs/DATABASE_STRUCTURE.md` → *Which days a service is offered on*; the decisions
+behind it:
 
-- **Days only, no time pickers.** The provider's Availability tab is the one time frame. A
-  second set of hours per service would be a second schedule to keep inside the first, and
-  every mismatch between them a day that looks open and is not. The Weekdays cards borrow
-  the Availability tab's look and show that day's hours read-only; a day the provider is
-  closed cannot be ticked, and Specific days disables closed and past days in its calendar.
+- **A service narrows the provider's hours, never widens them.** Its days, hours and dates are
+  always cut to the provider's own, so the Availability tab stays the one outer frame. The
+  Weekdays cards show each day's provider hours read-only; a day the provider is closed can
+  still be ticked (and a closed date picked) — saving then asks whether to open it, fit the
+  service, or save as it is (`ServiceConflictSheet`, *Special dates and service hours* in
+  `docs/routes/ai-assistant.md`).
 - **Narrowed on read, not clamped on save.** Changing the provider's hours later changes
   every service at once, with no stored rule left pointing at hours that no longer exist.
-  The form warns when a pick can never be booked (every chosen weekday or date closed) but
-  still saves it, since it fixes itself when the provider opens those days.
-- **A missing month day is skipped**, not moved to the month's last day: "every 31st" that
-  quietly became "April 30th" would book a day the provider never chose.
+  The form warns when a pick can never be booked but still saves it, since it fixes itself
+  when the provider opens those days.
+- **A missing month day is skipped unless the provider says otherwise**: "every 31st" that
+  quietly became "April 30th" would book a day the provider never chose, so moving it is the
+  *In shorter months, use the last day* switch, off by default.
 - **The form keeps every mode's pick** while it is open, so trying Weekdays and going back
   to Always loses nothing; only the active mode is sent. Switching an *Always* service to
-  Weekdays starts with the provider's open weekdays ticked.
+  Weekdays starts with the provider's open weekdays ticked, and every day's own hours start
+  from the shared set.
+- **An edit is an update.** antd's `onFinish` carries registered fields only and the service id
+  is none, so `ProviderServiceForm` puts the id it was opened with back on the submit; without
+  it every edit was a create and duplicated the service.
 - **Photo import is held to it too.** A row on a day its service is not offered on is
   flagged (`serviceClosed`) and cannot be saved until it is moved, and the API refuses it
   (`4203`) like a visitor's booking.
@@ -108,5 +122,8 @@ the session carries a single role, resolved provider-first at login.
   (open / closed entries) that never overlaps; the weekly rows stay in the form under every rule,
   as `weekSchedule` stays in the database, so switching back loses nothing. Publish first checks
   what the new hours do to services and upcoming bookings (`ScheduleImpactModal`) — nothing is
-  cancelled. **Advanced settings** carries the visitor-assistant switch, which saves on
+  cancelled. The dialog names the exact change being approved, not a summary: each weekday's
+  hours before → after, a change of rule, each special date added / changed / removed
+  (`hoursChanges`), and for every service that loses times, which ones — "Wednesday, every week ·
+  12:00–17:00", or a date (`serviceLosses`). The assistant's Apply opens the same dialog. **Advanced settings** carries the visitor-assistant switch, which saves on
   its own.

@@ -574,6 +574,22 @@
           "empty": "No open dates yet — clients can't book until you add one.",
           "addTitle": "Add an open date",
           "editTitle": "Edit open date"
+        },
+        "serviceAdded": {
+          "title": "Added dates",
+          "body": "Offer this service on extra days, or at other hours on a date.",
+          "add": "Add date",
+          "empty": "No added dates coming up.",
+          "addTitle": "Add a date",
+          "editTitle": "Edit added date"
+        },
+        "serviceExcluded": {
+          "title": "Excluded dates",
+          "body": "Dates this service isn't offered, or hours it's not on.",
+          "add": "Exclude date",
+          "empty": "No excluded dates coming up.",
+          "addTitle": "Exclude dates",
+          "editTitle": "Edit excluded date"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "You're closed during these hours on those dates.",
         "openHoursHelp": "Your hours on those dates. They replace your usual hours.",
         "hoursRequired": "Add at least one time range.",
-        "closedDuring": "Closed {hours}"
+        "closedDuring": "Closed {hours}",
+        "usualHours": "Your hours that day",
+        "serviceOpenHoursHelp": "The service's hours on those dates — within your own.",
+        "serviceClosedHoursHelp": "The service isn't offered during these hours on those dates.",
+        "notOffered": "Not offered",
+        "notOfferedDuring": "Not offered {hours}"
       },
       "impact": {
         "title": "Publish these hours?",
         "body": "Some things depend on your current hours. Nothing is cancelled or changed for you — check what's affected first.",
         "publishAnyway": "Publish anyway",
         "keepEditing": "Keep editing",
+        "changes": "What changes:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "Added — {date}: {what}",
+        "removed": "Removed — {date}: {what}",
+        "weekly": "{day}, every week",
+        "weeklyFrom": "{day}, every week from {date}",
         "unbookable": "These services couldn't be booked at all:",
-        "narrowed": "These services would lose some of their days:",
+        "narrowed": "These services would lose these times:",
         "bookingsOutside": "{count, plural, one {# upcoming booking would fall outside your hours:} other {# upcoming bookings would fall outside your hours:}}",
         "andMore": "{count, plural, one {and # more} other {and # more}}",
         "bookingsKept": "These bookings stay as they are. Move or cancel them from <link>Bookings</link> if you need to."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "You're closed on this day — saving will ask whether to open it. Hours are set on the <link>Availability</link> page.",
       "monthDaysLabel": "Days of the month",
-      "monthDaysPlaceholder": "Pick days, e.g. 16",
-      "monthDaysNote": "Repeats every month. A day a month doesn't have, like the 31st in April, is skipped.",
       "datesCalendar": "Pick dates",
       "datesSelected": "Selected dates",
       "datesEmpty": "No dates picked yet. Click days in the calendar to add them.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, you're closed",
       "hoursTitle": "Only at certain hours",
-      "hoursHelp": "Keep this service to part of your day, for example mornings only."
+      "hoursHelp": "Keep this service to part of your day, for example mornings only.",
+      "hoursSplitLabel": "Same hours every day, or by day",
+      "hoursSame": "Same every day",
+      "hoursPerDay": "Different by day"
     },
     "outsideHours": "{count, plural, one {Not bookable on # of its days — outside your hours} other {Not bookable on # of its days — outside your hours}}",
     "conflict": {

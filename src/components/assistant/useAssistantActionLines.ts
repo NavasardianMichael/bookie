@@ -24,6 +24,7 @@ export type ActionLine = { text: string; warn?: boolean }
 export const useAssistantActionLines = (timeFormat: TimeFormat): ((action: AssistantAction) => ActionLine[]) => {
   const t = useTranslations('Assistant.actions')
   const tDays = useTranslations('Settings.availability.days')
+  const tSchedule = useTranslations('Settings.availability.schedule')
   const locale = useLocale()
   const display = getTimeDisplayFormat(timeFormat)
 
@@ -43,7 +44,9 @@ export const useAssistantActionLines = (timeFormat: TimeFormat): ((action: Assis
           availability.mode === 'weekdays'
             ? availability.days.map((d) => tDays(d)).join(', ')
             : availability.mode === 'monthDays'
-              ? t('monthDays', { days: availability.days.join(', ') })
+              ? t('monthDays', {
+                  days: [...availability.days.map(String), ...(availability.lastDay ? [tSchedule('lastDay')] : [])].join(', '),
+                })
               : availability.mode === 'dates'
                 ? t('dates', { count: availability.dates.length })
                 : t('everyOpenDay')
@@ -169,6 +172,6 @@ export const useAssistantActionLines = (timeFormat: TimeFormat): ((action: Assis
           return []
       }
     },
-    [display, locale, t, tDays]
+    [display, locale, t, tDays, tSchedule]
   )
 }

@@ -43,9 +43,10 @@ service hours — is *Special dates and service hours* below.
 list or the public page as easily as from Availability. The panel is **non-modal** — the page
 behind stays usable, so a provider can read their hours while asking to change them — and fills
 the screen below `md`, where its header closes it and the button steps aside. On desktop its
-header's **Expand** grows it to most of the page (between the site header and the button, the
-conversation held to a readable column) for a long thread or a big proposal; **Shrink** puts it
-back in the corner. It is loaded on the
+header's **Expand** docks it along the bottom of the page, edge to edge but for the gutters and
+up to the site header (the conversation held to a readable column), for a long thread or a big
+proposal — the button hides meanwhile, since the panel covers its spot, so `expanded` lives in the
+panel store beside `open`; **Shrink** puts it back in the corner. It is loaded on the
 first open (`next/dynamic`) and stays mounted afterwards, hidden, so a reply still streaming and a
 half-typed message survive closing it. Escape closes it while focus is inside; focus returns to
 the button.
@@ -169,8 +170,10 @@ that can say it, so the schedule grew two things in the same change:
   hours of its own, with an optional note visitors see. They win over the weekly hours, never
   overlap, and are drafted with the week on the Availability tab. The public page lists the next
   30 days' under the hours.
-- **Service hours** (`availability.hours`): a service may keep to part of the day on every day it
-  is offered. It still **narrows only** — bookable where its days and hours meet the provider's.
+- **Service hours** (`availability.hours`, or per weekday `hoursByDay`) and **service dates**
+  (`availability.exceptions`, added or excluded, whole day or some hours): a service may keep to
+  part of the day, or its own dates. It still **narrows only** — bookable where its days and
+  hours meet the provider's.
 
 **Where they meet, the provider is told — never surprised.**
 
@@ -182,10 +185,12 @@ that can say it, so the schedule grew two things in the same change:
   *Save as it is*. An inactive service is saved without asking. The pickers let a closed day be
   chosen (struck through, marked closed) precisely so this choice can be offered.
 - **The service card** keeps saying "Not bookable on N of its days — outside your hours".
-- **Publishing the Availability tab** checks what it does first (`scheduleImpact`): services that
-  could be booked and no longer can, services that lose days, and upcoming bookings (next 90
-  days, every page of them) left outside the hours. Nothing is cancelled; *Publish anyway* or
-  *Keep editing*, with a link to `/bookings`.
+- **Publishing the Availability tab** checks what it does first (`scheduleImpact`): every change
+  being approved (each weekday's hours before → after, a change of rule, each special date
+  added / changed / removed — `hoursChanges`), services that could be booked and no longer can,
+  services that lose times — and exactly which ("Wednesday, every week · 12:00–17:00", a date —
+  `serviceLosses`) — and upcoming bookings (next 90 days, every page of them) left outside the
+  hours. Nothing is cancelled; *Publish anyway* or *Keep editing*, with a link to `/bookings`.
 - **Applying an assistant proposal** that changes hours or special dates runs the same check
   first (`useAssistantScheduleImpact`: the live hours, `hoursAfterSchedulePatch`, then
   `scheduleImpact`) and shows the same dialog as *Apply anyway* / *Not now*. Nothing is asked

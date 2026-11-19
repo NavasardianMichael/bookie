@@ -1,4 +1,4 @@
-import { ProviderService } from '@store/providers/profile/types'
+import { ProviderService, ServiceException } from '@store/providers/profile/types'
 import { ScheduleRangeForm, WeekDay } from '@interfaces/schedule'
 import { SERVICE_AVAILABILITY_MODES, SERVICE_RECURRENCES } from '@constants/serviceAvailability'
 
@@ -14,12 +14,20 @@ export type ServiceAvailabilityFormValues = {
   mode: ServiceAvailabilityMode
   recurrence: ServiceRecurrence
   weekdays: WeekDay[]
-  monthDays: number[]
+  /** Days 1–31 and the month's last day (`MonthDaysField`'s value). */
+  monthDays: { days: number[]; lastDay?: boolean }
+  /** A short month moves a listed day it lacks to its last day, rather than skipping it. */
+  shortLast: boolean
   /** `YYYY-MM-DD` on the provider's calendar. */
   dates: string[]
   /** The service keeps to hours of its own, inside the provider's, on every day it is offered. */
   limitHours: boolean
+  /** Weekdays only: each ticked weekday on its own hours (`hoursByDay`) instead of one set. */
+  perDayHours: boolean
   hours: ScheduleRangeForm[]
+  hoursByDay: Record<WeekDay, ScheduleRangeForm[]>
+  /** Dates added or excluded on top of the rule, upcoming only. */
+  exceptions: ServiceException[]
 }
 
 export type ProviderServiceFormValues = {

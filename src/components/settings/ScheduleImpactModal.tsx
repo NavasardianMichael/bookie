@@ -1,15 +1,25 @@
 'use client'
 
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useTranslations } from 'next-intl'
+import { DaySchedulePart, ProviderScheduleRule, SpecialDate } from '@store/providers/profile/types'
 import { TimeFormat } from '@interfaces/schedule'
 import { ROUTES } from '@constants/routes'
+import { DAY_KEY_FORMAT } from '@constants/schedule'
+import { splitScheduleIntoParts } from '@helpers/schedule'
+import { HoursChange, ServiceLoss } from '@helpers/scheduleChanges'
 import { ScheduleImpact } from '@helpers/scheduleConflicts'
+import { addDaysToDayKey } from '@helpers/serviceAvailability'
 import { getTimeDisplayFormat } from '@helpers/timeFormat'
-import { inTimeZone } from '@helpers/timeZone'
+import { dayKeyOf, inTimeZone } from '@helpers/timeZone'
 import { AppConfirmModal } from '@components/ui/AppConfirmModal'
 import { AppLink } from '@components/ui/bare/AppLink'
 import { AppText } from '@components/ui/bare/AppText'
+import { formatDateSpan, formatParts } from './scheduleText'
+
+dayjs.extend(customParseFormat)
 
 type Props = {
   impact: ScheduleImpact | null
@@ -22,20 +32,115 @@ type Props = {
   copy?: { title: string; confirm: string; cancel: string }
 }
 
-/** Bookings named in full before the list folds into "and N more". */
-const SHOWN_BOOKINGS = 5
+/** Lines of one list named in full before it folds into "and N more". */
+const SHOWN_LINES = 6
+
+/** One titled section of the dialog. */
+const Section: FC<{ title: string; children: ReactNode }> = ({ title, children }) => (
+  <div>
+    <AppText size='body-sm' className='block font-semibold'>
+      {title}
+    </AppText>
+    {children}
+  </div>
+)
 
 /**
- * What publishing these hours (or applying an assistant's proposal) does to what already depends on them: services that lose days or
- * can no longer be booked at all, and upcoming bookings left outside the hours. Nothing is
- * cancelled or changed — the provider decides whether to publish, and reaches each booking from
- * `/bookings` if they want to move it.
+ * What publishing these hours (or applying an assistant's proposal) changes, and what already
+ * depends on them — so the provider approves the exact change, not a summary of it:
+ *
+ * - every change: how the hours repeat, each weekday's hours before → after, each special date
+ *   added, changed or removed (`hoursChanges`);
+ * - services that can no longer be booked at all, and those that lose some times — each with
+ *   exactly which (`serviceLosses`: "Wednesday, every week · 12:00–17:00", a date, all day);
+ * - upcoming bookings left outside the hours.
+ *
+ * Nothing is cancelled or changed — the provider decides whether to go ahead, and reaches each
+ * booking from `/bookings` if they want to move it.
  */
 export const ScheduleImpactModal: FC<Props> = ({ impact, timeZone, timeFormat, onConfirm, onCancel, copy }) => {
   const t = useTranslations('Settings.availability.impact')
+  const tAvailability = useTranslations('Settings.availability')
+  const tCommon = useTranslations('Common')
   const format = getTimeDisplayFormat(timeFormat)
-  const shown = impact?.bookingsOutside.slice(0, SHOWN_BOOKINGS) ?? []
-  const more = (impact?.bookingsOutside.length ?? 0) - shown.length
+  const todayKey = dayKeyOf(new Date(), timeZone)
+
+  const hours = (parts: readonly DaySchedulePart[]): string => (parts.length ? formatParts(parts, format) : tCommon('closed'))
+
+  const ruleText = (rule: ProviderScheduleRule): string => {
+    if (rule.mode === 'dates') return tAvailability('schedule.patterns.dates')
+    if (rule.mode === 'weekdays') return tAvailability('schedule.recurrences.weekdays')
+    const days = [...rule.days.map(String), ...(rule.lastDay ? [tAvailability('schedule.lastDay')] : [])].join(', ')
+    return `${tAvailability('schedule.recurrences.monthDays')} (${days}) · ${hours(splitScheduleIntoParts(rule.hours))}`
+  }
+
+  const entryText = (entry: SpecialDate): string => {
+    const parts = entry.hours ? splitScheduleIntoParts(entry.hours) : []
+    const what =
+      entry.kind === 'open'
+        ? hours(parts)
+        : parts.length
+          ? tAvailability('special.closedDuring', { hours: formatParts(parts, format) })
+          : tCommon('closed')
+    return entry.note ? `${what} · ${entry.note}` : what
+  }
+
+  const changeText = (change: HoursChange): string => {
+    switch (change.kind) {
+      case 'rule':
+        return t('fromTo', {
+          label: tAvailability('schedule.patternLabel'),
+          before: ruleText(change.before),
+          after: ruleText(change.after),
+        })
+      case 'weekday':
+        return t('fromTo', {
+          label: tAvailability(`days.${change.day}`),
+          before: hours(change.before),
+          after: hours(change.after),
+        })
+      case 'specialAdded':
+        return t('added', { date: formatDateSpan(change.entry.from, change.entry.to), what: entryText(change.entry) })
+      case 'specialRemoved':
+        return t('removed', { date: formatDateSpan(change.entry.from, change.entry.to), what: entryText(change.entry) })
+      case 'specialChanged':
+        return t('fromTo', {
+          label: formatDateSpan(change.after.from, change.after.to),
+          before: entryText(change.before),
+          after: entryText(change.after),
+        })
+    }
+  }
+
+  const lossText = (loss: ServiceLoss): string => {
+    const what = loss.parts ? formatParts(loss.parts, format) : tAvailability('special.allDay')
+    if (loss.kind === 'date') return `${dayjs(loss.dayKey, DAY_KEY_FORMAT).format('ddd, D MMM')} · ${what}`
+    const day = tAvailability(`days.${loss.day}`)
+    // From this week on reads as plain "every week"; a later start names its first date.
+    const when =
+      loss.from < addDaysToDayKey(todayKey, 7)
+        ? t('weekly', { day })
+        : t('weeklyFrom', { day, date: dayjs(loss.from, DAY_KEY_FORMAT).format('D MMM') })
+    return `${when} · ${what}`
+  }
+
+  /** A bulleted list, folded after `SHOWN_LINES`. */
+  const lines = (items: string[]): ReactNode => (
+    <>
+      <ul className='m-0 list-disc ps-5'>
+        {items.slice(0, SHOWN_LINES).map((item, index) => (
+          <li key={index}>
+            <AppText size='body-sm'>{item}</AppText>
+          </li>
+        ))}
+      </ul>
+      {items.length > SHOWN_LINES && (
+        <AppText size='body-sm' tone='muted'>
+          {t('andMore', { count: items.length - SHOWN_LINES })}
+        </AppText>
+      )}
+    </>
+  )
 
   return (
     <AppConfirmModal
@@ -49,51 +154,42 @@ export const ScheduleImpactModal: FC<Props> = ({ impact, timeZone, timeFormat, o
       onCancel={onCancel}
     >
       {impact && (
-        <div className='mt-3 flex flex-col gap-3'>
+        // A long change (a new rule, many dates) scrolls here rather than pushing the buttons away.
+        <div className='mt-3 flex max-h-[60dvh] flex-col gap-3 overflow-y-auto'>
+          {impact.changes.length > 0 && <Section title={t('changes')}>{lines(impact.changes.map(changeText))}</Section>}
           {impact.unbookable.length > 0 && (
-            <div>
-              <AppText size='body-sm' className='block font-semibold'>
-                {t('unbookable')}
-              </AppText>
+            <Section title={t('unbookable')}>
               <AppText size='body-sm' tone='muted' className='block'>
                 {impact.unbookable.join(', ')}
               </AppText>
-            </div>
+            </Section>
           )}
           {impact.narrowed.length > 0 && (
-            <div>
-              <AppText size='body-sm' className='block font-semibold'>
-                {t('narrowed')}
-              </AppText>
-              <AppText size='body-sm' tone='muted' className='block'>
-                {impact.narrowed.join(', ')}
-              </AppText>
-            </div>
+            <Section title={t('narrowed')}>
+              <div className='flex flex-col gap-2'>
+                {impact.narrowed.map((service) => (
+                  <div key={service.name}>
+                    <AppText size='body-sm' className='block font-medium'>
+                      {service.name}
+                    </AppText>
+                    {lines(service.losses.map(lossText))}
+                  </div>
+                ))}
+              </div>
+            </Section>
           )}
           {impact.bookingsOutside.length > 0 && (
-            <div>
-              <AppText size='body-sm' className='block font-semibold'>
-                {t('bookingsOutside', { count: impact.bookingsOutside.length })}
-              </AppText>
-              <ul className='m-0 list-disc ps-5'>
-                {shown.map((booking) => (
-                  <li key={booking.id}>
-                    <AppText size='body-sm'>
-                      {inTimeZone(booking.start, timeZone).format(`ddd D MMM, ${format}`)} · {booking.serviceName} ·{' '}
-                      {booking.clientName}
-                    </AppText>
-                  </li>
-                ))}
-              </ul>
-              {more > 0 && (
-                <AppText size='body-sm' tone='muted'>
-                  {t('andMore', { count: more })}
-                </AppText>
+            <Section title={t('bookingsOutside', { count: impact.bookingsOutside.length })}>
+              {lines(
+                impact.bookingsOutside.map(
+                  (booking) =>
+                    `${inTimeZone(booking.start, timeZone).format(`ddd D MMM, ${format}`)} · ${booking.serviceName} · ${booking.clientName}`
+                )
               )}
               <AppText size='body-sm' tone='muted' className='mt-1 block'>
                 {t.rich('bookingsKept', { link: (chunks) => <AppLink href={ROUTES.bookings}>{chunks}</AppLink> })}
               </AppText>
-            </div>
+            </Section>
           )}
         </div>
       )}

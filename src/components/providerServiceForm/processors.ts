@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 import { ClearableField, ProviderServiceRequestPayload } from '@api/providers/types'
-import { ServiceAvailability } from '@store/providers/profile/types'
-import { WeekDay } from '@interfaces/schedule'
+import { DaySchedulePart, ServiceAvailability } from '@store/providers/profile/types'
+import { ScheduleRangeForm, WeekDay } from '@interfaces/schedule'
 import { ProviderServiceFormValues, ServiceAvailabilityFormValues } from '@interfaces/services'
-import { SCHEDULE_VALUE_FORMAT } from '@constants/schedule'
+import { SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { SERVICE_AVAILABILITY_MODES, SERVICE_RECURRENCES } from '@constants/serviceAvailability'
 import { SERVICE_AVAILABILITY_FORM_INITIAL_VALUES } from '@constants/services'
 import { defaultScheduleRange } from '@helpers/schedule'
@@ -18,10 +18,25 @@ import { defaultScheduleRange } from '@helpers/schedule'
  */
 const orCleared = <T>(value: T | null | undefined): ClearableField<T> => (value === null || value === undefined ? '' : value)
 
+const toRangeForms = (parts: readonly DaySchedulePart[]): ScheduleRangeForm[] =>
+  parts.map((part) => ({ start: dayjs(part.start, SCHEDULE_VALUE_FORMAT), end: dayjs(part.end, SCHEDULE_VALUE_FORMAT) }))
+
+/** Complete, forward ranges as the API stores them; `undefined` when none is. */
+const toParts = (ranges: readonly ScheduleRangeForm[] | undefined): DaySchedulePart[] | undefined => {
+  const parts = (ranges ?? [])
+    .filter((range) => range.start && range.end)
+    .map((range) => ({ start: range.start!.format(SCHEDULE_VALUE_FORMAT), end: range.end!.format(SCHEDULE_VALUE_FORMAT) }))
+    .filter((range) => range.start < range.end)
+  return parts.length ? parts : undefined
+}
+
 /**
  * A stored rule as the form's section holds it. Weekdays a rule never named start as the
  * provider's open ones, so switching an "always" service to Weekdays begins from the same
  * days and the provider unticks what they do not want. Dates already gone are dropped.
+ *
+ * Every hours field holds a window even while unused — the shared set, and each weekday's
+ * (its own, else the shared set) — so switching one on shows hours to edit.
  */
 export const toServiceAvailabilityFormValues = (
   availability: ServiceAvailability | undefined,
@@ -29,14 +44,18 @@ export const toServiceAvailabilityFormValues = (
   todayKey: string
 ): ServiceAvailabilityFormValues => {
   const own = availability?.hours ?? []
-  const base = {
+  const byDay = availability?.mode === 'weekdays' ? (availability.hoursByDay ?? {}) : {}
+  const shared = own.length ? toRangeForms(own) : [defaultScheduleRange()]
+  const base: ServiceAvailabilityFormValues = {
     ...SERVICE_AVAILABILITY_FORM_INITIAL_VALUES,
     weekdays: openWeekdays,
-    limitHours: own.length > 0,
-    // A switched-off section still holds one window, so switching it on shows hours to edit.
-    hours: own.length
-      ? own.map((part) => ({ start: dayjs(part.start, SCHEDULE_VALUE_FORMAT), end: dayjs(part.end, SCHEDULE_VALUE_FORMAT) }))
-      : [defaultScheduleRange()],
+    limitHours: own.length > 0 || Object.keys(byDay).length > 0,
+    perDayHours: Object.keys(byDay).length > 0,
+    hours: shared,
+    hoursByDay: Object.fromEntries(
+      WEEK_DAYS_LIST.map((day) => [day, byDay[day]?.length ? toRangeForms(byDay[day]!) : shared])
+    ) as Record<WeekDay, ScheduleRangeForm[]>,
+    exceptions: (availability?.exceptions ?? []).filter((entry) => entry.to >= todayKey),
   }
   switch (availability?.mode) {
     case 'weekdays':
@@ -51,7 +70,8 @@ export const toServiceAvailabilityFormValues = (
         ...base,
         mode: SERVICE_AVAILABILITY_MODES.recurring,
         recurrence: SERVICE_RECURRENCES.monthDays,
-        monthDays: availability.days,
+        monthDays: { days: availability.days, ...(availability.lastDay ? { lastDay: true } : {}) },
+        shortLast: availability.shortMonths === 'last',
       }
     case 'dates':
       return {
@@ -64,14 +84,26 @@ export const toServiceAvailabilityFormValues = (
   }
 }
 
-/** The section's own hours as the API stores them, or none when the switch is off. */
-const toServiceHours = (values: Partial<ServiceAvailabilityFormValues> | undefined): ServiceAvailability['hours'] => {
-  if (!values?.limitHours) return undefined
-  const hours = (values.hours ?? [])
-    .filter((range) => range.start && range.end)
-    .map((range) => ({ start: range.start!.format(SCHEDULE_VALUE_FORMAT), end: range.end!.format(SCHEDULE_VALUE_FORMAT) }))
-    .filter((range) => range.start < range.end)
-  return hours.length ? hours : undefined
+/**
+ * The section's own hours as the API stores them: none while the switch is off; each ticked
+ * weekday's own under a weekday rule split by day; otherwise the one shared set.
+ */
+const toServiceHours = (
+  values: Partial<ServiceAvailabilityFormValues> | undefined,
+  days: ServiceAvailability
+): Pick<ServiceAvailability, 'hours' | 'hoursByDay'> => {
+  if (!values?.limitHours) return {}
+  if (days.mode === 'weekdays' && values.perDayHours) {
+    const hoursByDay = Object.fromEntries(
+      days.days.flatMap((day) => {
+        const parts = toParts(values.hoursByDay?.[day])
+        return parts ? [[day, parts]] : []
+      })
+    )
+    return Object.keys(hoursByDay).length ? { hoursByDay } : {}
+  }
+  const hours = toParts(values.hours)
+  return hours ? { hours } : {}
 }
 
 /** The days a service is offered on, without its hours. Fields of an unmounted mode may be absent. */
@@ -79,15 +111,21 @@ const toServiceDays = (values: Partial<ServiceAvailabilityFormValues> | undefine
   if (values?.mode === SERVICE_AVAILABILITY_MODES.dates) return { mode: 'dates', dates: [...(values.dates ?? [])].sort() }
   if (values?.mode !== SERVICE_AVAILABILITY_MODES.recurring) return { mode: 'always' }
   if (values.recurrence === SERVICE_RECURRENCES.monthDays) {
-    return { mode: 'monthDays', days: [...(values.monthDays ?? [])].sort((a, b) => a - b) }
+    return {
+      mode: 'monthDays',
+      days: [...(values.monthDays?.days ?? [])].sort((a, b) => a - b),
+      ...(values.monthDays?.lastDay ? { lastDay: true } : {}),
+      ...(values.shortLast ? { shortMonths: 'last' as const } : {}),
+    }
   }
   return { mode: 'weekdays', days: values.weekdays ?? [] }
 }
 
-/** The section's active choice as the API stores it. */
+/** The section's active choice as the API stores it, with its hours and its added and excluded dates. */
 export const toServiceAvailability = (values: Partial<ServiceAvailabilityFormValues> | undefined): ServiceAvailability => {
-  const hours = toServiceHours(values)
-  return hours ? { ...toServiceDays(values), hours } : toServiceDays(values)
+  const days = toServiceDays(values)
+  const exceptions = values?.exceptions ?? []
+  return { ...days, ...toServiceHours(values, days), ...(exceptions.length ? { exceptions } : {}) }
 }
 
 export const processProviderServiceFormToRequestPayload = (

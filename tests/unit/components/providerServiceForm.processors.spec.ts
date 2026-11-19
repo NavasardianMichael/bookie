@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { describe, expect, it } from 'vitest'
 import { ProviderServiceFormValues } from '@interfaces/services'
 import { SERVICE_AVAILABILITY_FORM_INITIAL_VALUES } from '@constants/services'
@@ -6,6 +8,10 @@ import {
   toServiceAvailability,
   toServiceAvailabilityFormValues,
 } from '@components/providerServiceForm/processors'
+
+dayjs.extend(customParseFormat)
+
+const range = (start: string, end: string) => ({ start: dayjs(start, 'HH:mm'), end: dayjs(end, 'HH:mm') })
 
 const FILLED: ProviderServiceFormValues = {
   id: 's-1',
@@ -101,7 +107,7 @@ describe('toServiceAvailability', () => {
   const ALL = {
     ...SERVICE_AVAILABILITY_FORM_INITIAL_VALUES,
     weekdays: ['monday' as const],
-    monthDays: [16, 1],
+    monthDays: { days: [16, 1] },
     dates: ['2026-11-20', '2026-11-03'],
   }
 
@@ -130,6 +136,46 @@ describe('toServiceAvailability', () => {
     })
   })
 
+  it('sends the last day and the short-month choice of a month-days pick', () => {
+    expect(
+      toServiceAvailability({
+        ...ALL,
+        mode: 'recurring',
+        recurrence: 'monthDays',
+        monthDays: { days: [31], lastDay: true },
+        shortLast: true,
+      })
+    ).toEqual({ mode: 'monthDays', days: [31], lastDay: true, shortMonths: 'last' })
+  })
+
+  it('sends each ticked weekday its own hours when split by day, and never an unticked one', () => {
+    const hoursByDay = {
+      ...SERVICE_AVAILABILITY_FORM_INITIAL_VALUES.hoursByDay,
+      monday: [range('09:00', '12:00')],
+      tuesday: [range('14:00', '18:00')],
+    }
+    expect(
+      toServiceAvailability({ ...ALL, mode: 'recurring', recurrence: 'weekdays', limitHours: true, perDayHours: true, hoursByDay })
+    ).toEqual({ mode: 'weekdays', days: ['monday'], hoursByDay: { monday: [{ start: '09:00', end: '12:00' }] } })
+  })
+
+  it('sends one set of hours when not split by day, even under weekdays', () => {
+    expect(
+      toServiceAvailability({
+        ...ALL,
+        mode: 'recurring',
+        recurrence: 'weekdays',
+        limitHours: true,
+        hours: [range('10:00', '16:00')],
+      })
+    ).toEqual({ mode: 'weekdays', days: ['monday'], hours: [{ start: '10:00', end: '16:00' }] })
+  })
+
+  it('sends the added and excluded dates with any mode', () => {
+    const exceptions = [{ from: '2026-11-25', to: '2026-11-25', kind: 'closed' as const }]
+    expect(toServiceAvailability({ ...ALL, mode: 'always', exceptions })).toEqual({ mode: 'always', exceptions })
+  })
+
   // A mode's field mounts only while it is picked, so the others can be absent from `onFinish`.
   it('tolerates the fields of the other modes being absent', () => {
     expect(toServiceAvailability({ mode: 'recurring' })).toEqual({ mode: 'weekdays', days: [] })
@@ -152,13 +198,33 @@ describe('toServiceAvailabilityFormValues', () => {
     expect(toServiceAvailabilityFormValues({ mode: 'monthDays', days: [16] }, OPEN, '2026-10-22')).toMatchObject({
       mode: 'recurring',
       recurrence: 'monthDays',
-      monthDays: [16],
+      monthDays: { days: [16] },
     })
     expect(toServiceAvailabilityFormValues({ mode: 'weekdays', days: ['friday'] }, OPEN, '2026-10-22')).toMatchObject({
       mode: 'recurring',
       recurrence: 'weekdays',
       weekdays: ['friday'],
     })
+  })
+
+  it('reads per-weekday hours back as split, and fills every other weekday from the shared set', () => {
+    const values = toServiceAvailabilityFormValues(
+      { mode: 'weekdays', days: ['monday'], hoursByDay: { monday: [{ start: '09:00', end: '12:00' }] } },
+      OPEN,
+      '2026-10-22'
+    )
+    expect(values.limitHours).toBe(true)
+    expect(values.perDayHours).toBe(true)
+    expect(values.hoursByDay.monday.map((r) => [r.start?.format('HH:mm'), r.end?.format('HH:mm')])).toEqual([['09:00', '12:00']])
+    expect(values.hoursByDay.friday).toHaveLength(1)
+  })
+
+  it('keeps only upcoming added and excluded dates', () => {
+    const exceptions = [
+      { from: '2026-10-01', to: '2026-10-02', kind: 'closed' as const },
+      { from: '2026-10-20', to: '2026-10-23', kind: 'closed' as const },
+    ]
+    expect(toServiceAvailabilityFormValues({ mode: 'always', exceptions }, OPEN, '2026-10-22').exceptions).toEqual([exceptions[1]])
   })
 
   it('drops dates already gone', () => {

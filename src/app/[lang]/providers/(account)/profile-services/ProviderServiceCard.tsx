@@ -16,8 +16,8 @@ import { Button, Dropdown, Switch, Tag } from 'antd'
 import dayjs from 'dayjs'
 import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
-import { ProviderService } from '@store/providers/profile/types'
-import { TimeFormat } from '@interfaces/schedule'
+import { DaySchedulePart, ProviderService } from '@store/providers/profile/types'
+import { TimeFormat, WeekDay } from '@interfaces/schedule'
 import { SCHEDULE_VALUE_FORMAT, WEEK_DAYS_LIST } from '@constants/schedule'
 import { WEEKDAY_ORDER } from '@helpers/calendar'
 import { cn } from '@helpers/cn'
@@ -54,6 +54,9 @@ type Props = {
 
 const MENU_KEYS = { edit: 'edit', duplicate: 'duplicate', toggle: 'toggle', delete: 'delete' } as const
 
+/** `Mon`, in the active dayjs locale. */
+const shortWeekday = (day: WeekDay): string => dayjs().day(WEEKDAY_ORDER[WEEK_DAYS_LIST.indexOf(day)]!).format('ddd')
+
 /**
  * One service, as `manage_services` draws it: icon tile and an overflow menu on
  * the top row, name and clamped description in the body, then a ruled footer
@@ -74,6 +77,7 @@ export const ProviderServiceCard: FC<Props> = ({
   timeFormat,
 }) => {
   const t = useTranslations('Services')
+  const tSchedule = useTranslations('Settings.availability.schedule')
   const locale = useLocale()
   const resolvedImage = resolveAssetUrl(service.image)
   const hasPrice = typeof service.price === 'number'
@@ -85,26 +89,30 @@ export const ProviderServiceCard: FC<Props> = ({
     switch (availability?.mode) {
       case 'weekdays':
         return t('availability.summary.weekdays', {
-          days: availability.days
-            .map((day) => dayjs().day(WEEKDAY_ORDER[WEEK_DAYS_LIST.indexOf(day)]!).format('ddd'))
-            .join(', '),
+          days: availability.days.map(shortWeekday).join(', '),
         })
       case 'monthDays':
-        return t('availability.summary.monthDays', { days: availability.days.join(', ') })
+        return t('availability.summary.monthDays', {
+          days: [...availability.days.map(String), ...(availability.lastDay ? [tSchedule('lastDay')] : [])].join(', '),
+        })
       case 'dates':
         return t('availability.summary.dates', { count: availability.dates.length })
       default:
         return null
     }
-  }, [service, t])
+  }, [service, t, tSchedule])
 
-  /** The service's own hours, when it keeps to some inside the provider's. */
+  /** The service's own hours, when it keeps to some inside the provider's — one set, or each weekday's. */
   const hoursSummary = useMemo((): string | null => {
-    const hours = service.availability?.hours
-    if (!hours?.length) return null
     const display = getTimeDisplayFormat(timeFormat)
     const time = (value: string): string => dayjs(value, SCHEDULE_VALUE_FORMAT).format(display)
-    return hours.map((part) => `${time(part.start)}–${time(part.end)}`).join(', ')
+    const ranges = (parts: DaySchedulePart[]): string => parts.map((part) => `${time(part.start)}–${time(part.end)}`).join(', ')
+    const byDay = service.availability?.mode === 'weekdays' ? service.availability.hoursByDay : undefined
+    if (byDay && Object.keys(byDay).length) {
+      return WEEK_DAYS_LIST.flatMap((day) => (byDay[day]?.length ? [`${shortWeekday(day)} ${ranges(byDay[day]!)}`] : [])).join(' · ')
+    }
+    const hours = service.availability?.hours
+    return hours?.length ? ranges(hours) : null
   }, [service.availability, timeFormat])
 
   const handleMenuClick = useCallback(

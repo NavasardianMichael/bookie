@@ -98,6 +98,24 @@ describe('fitServiceToHours', () => {
   })
 })
 
+describe('fitServiceToHours keeps what it does not cut', () => {
+  it('carries the kept weekdays\' own hours and the added / excluded dates along', () => {
+    const availability = {
+      mode: 'weekdays' as const,
+      days: ['monday' as const, 'tuesday' as const],
+      hoursByDay: { monday: [{ start: '10:00', end: '12:00' }], tuesday: [{ start: '10:00', end: '12:00' }] },
+      exceptions: [{ from: '2026-03-16', to: '2026-03-16', kind: 'closed' as const }],
+    }
+    const conflicts = serviceConflicts({ weekSchedule, availability, todayKey: TODAY })
+    expect(fitServiceToHours(conflicts, availability, { weekSchedule }, TODAY)).toEqual({
+      mode: 'weekdays',
+      days: ['monday'],
+      hoursByDay: { monday: [{ start: '10:00', end: '12:00' }] },
+      exceptions: availability.exceptions,
+    })
+  })
+})
+
 describe('scheduleImpact', () => {
   const dayAndMinutes = (iso: string) => {
     const date = new Date(iso)

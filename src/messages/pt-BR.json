@@ -574,6 +574,22 @@
           "empty": "Nenhuma data aberta ainda — os clientes só podem agendar depois que você adicionar uma.",
           "addTitle": "Adicionar uma data aberta",
           "editTitle": "Editar data aberta"
+        },
+        "serviceAdded": {
+          "title": "Datas adicionadas",
+          "body": "Ofereça este serviço em dias extras, ou em outro horário em uma data.",
+          "add": "Adicionar data",
+          "empty": "Nenhuma data adicionada pela frente.",
+          "addTitle": "Adicionar uma data",
+          "editTitle": "Editar data adicionada"
+        },
+        "serviceExcluded": {
+          "title": "Datas excluídas",
+          "body": "Datas em que este serviço não é oferecido, ou horários em que ele não está.",
+          "add": "Excluir data",
+          "empty": "Nenhuma data excluída pela frente.",
+          "addTitle": "Excluir datas",
+          "editTitle": "Editar data excluída"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "Você fica fechado nesses horários nessas datas.",
         "openHoursHelp": "Seus horários nessas datas. Eles substituem seus horários habituais.",
         "hoursRequired": "Adicione pelo menos um período.",
-        "closedDuring": "Fechado {hours}"
+        "closedDuring": "Fechado {hours}",
+        "usualHours": "Seu horário nesse dia",
+        "serviceOpenHoursHelp": "O horário do serviço nessas datas, dentro do seu.",
+        "serviceClosedHoursHelp": "O serviço não é oferecido nesses horários nessas datas.",
+        "notOffered": "Indisponível",
+        "notOfferedDuring": "Indisponível {hours}"
       },
       "impact": {
         "title": "Publicar estes horários?",
         "body": "Algumas coisas dependem dos seus horários atuais. Nada é cancelado nem alterado automaticamente — confira primeiro o que é afetado.",
         "publishAnyway": "Publicar mesmo assim",
         "keepEditing": "Continuar editando",
+        "changes": "O que muda:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "Adicionado — {date}: {what}",
+        "removed": "Removido — {date}: {what}",
+        "weekly": "{day}, toda semana",
+        "weeklyFrom": "{day}, toda semana a partir de {date}",
         "unbookable": "Estes serviços não poderiam mais ser agendados:",
-        "narrowed": "Estes serviços perderiam alguns dos seus dias:",
+        "narrowed": "Estes serviços perderiam estes horários:",
         "bookingsOutside": "{count, plural, one {# agendamento futuro ficaria fora dos seus horários:} other {# agendamentos futuros ficariam fora dos seus horários:}}",
         "andMore": "{count, plural, one {e mais #} other {e mais #}}",
         "bookingsKept": "Esses agendamentos continuam como estão. Mova ou cancele-os em <link>Agendamentos</link>, se precisar."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "Você não atende neste dia — ao salvar, vamos perguntar se você quer abri-lo. Os horários são definidos na página <link>Disponibilidade</link>.",
       "monthDaysLabel": "Dias do mês",
-      "monthDaysPlaceholder": "Escolha dias, ex.: 16",
-      "monthDaysNote": "Repete todo mês. Se o mês não tiver esse dia, como o dia 31 em abril, ele é pulado.",
       "datesCalendar": "Escolher datas",
       "datesSelected": "Datas selecionadas",
       "datesEmpty": "Nenhuma data escolhida ainda. Clique nos dias do calendário para adicioná-las.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, você não atende",
       "hoursTitle": "Só em certos horários",
-      "hoursHelp": "Limite este serviço a uma parte do seu dia, por exemplo só pela manhã."
+      "hoursHelp": "Limite este serviço a uma parte do seu dia, por exemplo só pela manhã.",
+      "hoursSplitLabel": "Mesmo horário todo dia, ou por dia",
+      "hoursSame": "Igual todo dia",
+      "hoursPerDay": "Diferente por dia"
     },
     "outsideHours": "{count, plural, one {Não agendável em # dos seus dias — fora do seu horário} other {Não agendável em # dos seus dias — fora do seu horário}}",
     "conflict": {

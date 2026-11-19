@@ -2,12 +2,10 @@
 
 import { FC, useState } from 'react'
 import { CalendarOutlined, CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
-import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useTranslations } from 'next-intl'
 import { SpecialDate } from '@store/providers/profile/types'
 import { TimeFormat } from '@interfaces/schedule'
-import { DAY_KEY_FORMAT, SCHEDULE_VALUE_FORMAT } from '@constants/schedule'
+import { MAX_SERVICE_EXCEPTIONS } from '@constants/serviceAvailability'
 import { splitScheduleIntoParts } from '@helpers/schedule'
 import { MAX_SPECIAL_DATES, replaceSpecialDate, upcomingSpecialDates } from '@helpers/specialDates'
 import { getTimeDisplayFormat } from '@helpers/timeFormat'
@@ -16,9 +14,8 @@ import { AppButton } from '@components/ui/AppButton'
 import { AppParagraph } from '@components/ui/bare/AppParagraph'
 import { AppText } from '@components/ui/bare/AppText'
 import { AppTitle } from '@components/ui/bare/AppTitle'
-import { kindOfSection, SpecialDateSection, SpecialDateSheet } from './SpecialDateSheet'
-
-dayjs.extend(customParseFormat)
+import { formatDateSpan, formatParts } from './scheduleText'
+import { isServiceSection, kindOfSection, SpecialDateSection, SpecialDateSheet } from './SpecialDateSheet'
 
 type Props = {
   section: SpecialDateSection
@@ -42,6 +39,10 @@ type Props = {
  * All three are `Provider.specialDates` (open or closed entries), one list that never overlaps,
  * so each section edits its own entries and hands back the whole list. Held in the tab's state
  * and stored with its Save draft / Publish, like the weekly hours.
+ *
+ * The service form reuses it for a service's own added and excluded dates (`serviceAdded`,
+ * `serviceExcluded`) through `ServiceExceptionsField`, which converts its exceptions to and from
+ * this shape.
  */
 export const SpecialDatesEditor: FC<Props> = ({
   section,
@@ -60,23 +61,18 @@ export const SpecialDatesEditor: FC<Props> = ({
   const kind = kindOfSection(section)
   const entries = upcoming.filter((entry) => entry.kind === kind)
   const displayFormat = getTimeDisplayFormat(timeFormat)
+  const max = isServiceSection(section) ? MAX_SERVICE_EXCEPTIONS : MAX_SPECIAL_DATES
 
-  const label = (entry: SpecialDate): string => {
-    const from = dayjs(entry.from, DAY_KEY_FORMAT)
-    if (entry.from === entry.to) return from.format('ddd, D MMM YYYY')
-    return `${from.format('D MMM')} – ${dayjs(entry.to, DAY_KEY_FORMAT).format('D MMM YYYY')}`
-  }
+  const label = (entry: SpecialDate): string => formatDateSpan(entry.from, entry.to)
   const ranges = (entry: SpecialDate): string =>
-    entry.hours
-      ? splitScheduleIntoParts(entry.hours)
-          .map(
-            (part) =>
-              `${dayjs(part.start, SCHEDULE_VALUE_FORMAT).format(displayFormat)}–${dayjs(part.end, SCHEDULE_VALUE_FORMAT).format(displayFormat)}`
-          )
-          .join(', ')
-      : ''
+    entry.hours ? formatParts(splitScheduleIntoParts(entry.hours), displayFormat) : ''
   const describe = (entry: SpecialDate): string => {
-    if (entry.kind === 'open') return ranges(entry)
+    // A service's added date without hours of its own runs on the provider's that day.
+    if (entry.kind === 'open') return entry.hours ? ranges(entry) : t('special.usualHours')
+    // A service is "not offered" where the provider would be "closed".
+    if (isServiceSection(section)) {
+      return entry.hours ? t('special.notOfferedDuring', { hours: ranges(entry) }) : t('special.notOffered')
+    }
     return entry.hours ? t('special.closedDuring', { hours: ranges(entry) }) : tCommon('closed')
   }
 
@@ -92,7 +88,7 @@ export const SpecialDatesEditor: FC<Props> = ({
         </div>
         <AppButton
           icon={<PlusOutlined />}
-          disabled={disabled || upcoming.length >= MAX_SPECIAL_DATES}
+          disabled={disabled || upcoming.length >= max}
           onClick={() => setEditing({})}
         >
           {t(`dates.${section}.add`)}

@@ -574,6 +574,22 @@
           "empty": "아직 예약 가능 날짜가 없어요. 날짜를 추가해야 고객이 예약할 수 있어요.",
           "addTitle": "예약 가능 날짜 추가",
           "editTitle": "예약 가능 날짜 수정"
+        },
+        "serviceAdded": {
+          "title": "추가한 날짜",
+          "body": "추가 날짜에 이 서비스를 제공하거나, 특정 날짜에 다른 시간으로 제공합니다.",
+          "add": "날짜 추가",
+          "empty": "예정된 추가 날짜가 없어요.",
+          "addTitle": "날짜 추가",
+          "editTitle": "추가한 날짜 수정"
+        },
+        "serviceExcluded": {
+          "title": "제외한 날짜",
+          "body": "이 서비스를 제공하지 않는 날짜나 시간입니다.",
+          "add": "날짜 제외",
+          "empty": "예정된 제외 날짜가 없어요.",
+          "addTitle": "날짜 제외",
+          "editTitle": "제외한 날짜 수정"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "해당 날짜의 이 시간에는 휴무예요.",
         "openHoursHelp": "해당 날짜의 영업시간이에요. 평소 영업시간 대신 적용돼요.",
         "hoursRequired": "시간대를 하나 이상 추가하세요.",
-        "closedDuring": "휴무 {hours}"
+        "closedDuring": "휴무 {hours}",
+        "usualHours": "그날의 영업시간",
+        "serviceOpenHoursHelp": "해당 날짜의 서비스 시간 — 영업시간 안에서.",
+        "serviceClosedHoursHelp": "해당 날짜의 이 시간에는 서비스를 제공하지 않습니다.",
+        "notOffered": "제공 안 함",
+        "notOfferedDuring": "{hours} 제공 안 함"
       },
       "impact": {
         "title": "이 영업시간을 게시할까요?",
         "body": "현재 영업시간에 영향을 받는 항목이 있어요. 자동으로 취소되거나 변경되는 것은 없어요. 먼저 영향을 받는 항목을 확인하세요.",
         "publishAnyway": "그래도 게시",
         "keepEditing": "계속 수정",
+        "changes": "변경 사항:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "추가됨 — {date}: {what}",
+        "removed": "삭제됨 — {date}: {what}",
+        "weekly": "매주 {day}",
+        "weeklyFrom": "{date}부터 매주 {day}",
         "unbookable": "다음 서비스는 전혀 예약할 수 없게 돼요:",
-        "narrowed": "다음 서비스는 일부 요일·날짜에 예약할 수 없게 돼요:",
+        "narrowed": "이 서비스들은 다음 시간을 잃게 됩니다:",
         "bookingsOutside": "{count, plural, other {예정된 예약 #개가 영업시간을 벗어나게 돼요:}}",
         "andMore": "{count, plural, other {외 #개}}",
         "bookingsKept": "이 예약들은 그대로 유지돼요. 필요하면 <link>예약</link>에서 옮기거나 취소하세요."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "이날은 휴무예요. 저장할 때 이날을 영업일로 바꿀지 물어볼게요. 영업시간은 <link>예약 가능 시간</link> 페이지에서 정해요.",
       "monthDaysLabel": "매월 날짜",
-      "monthDaysPlaceholder": "날짜 선택 (예: 16)",
-      "monthDaysNote": "매월 반복돼요. 4월 31일처럼 그달에 없는 날은 건너뛰어요.",
       "datesCalendar": "날짜 선택",
       "datesSelected": "선택한 날짜",
       "datesEmpty": "아직 선택한 날짜가 없어요. 달력에서 날짜를 눌러 추가하세요.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, 휴무",
       "hoursTitle": "특정 시간에만",
-      "hoursHelp": "오전에만처럼 이 서비스를 하루 중 일부 시간으로 제한하세요."
+      "hoursHelp": "오전에만처럼 이 서비스를 하루 중 일부 시간으로 제한하세요.",
+      "hoursSplitLabel": "매일 같은 시간 또는 요일별",
+      "hoursSame": "매일 동일",
+      "hoursPerDay": "요일별로 다르게"
     },
     "outsideHours": "{count, plural, other {#일은 영업시간 밖이라 예약할 수 없어요}}",
     "conflict": {

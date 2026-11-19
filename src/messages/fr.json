@@ -574,6 +574,22 @@
           "empty": "Aucune date d'ouverture pour l'instant — les clients ne peuvent pas réserver tant que vous n'en ajoutez pas.",
           "addTitle": "Ajouter une date d'ouverture",
           "editTitle": "Modifier la date d'ouverture"
+        },
+        "serviceAdded": {
+          "title": "Dates ajoutées",
+          "body": "Proposez ce service des jours supplémentaires, ou à d'autres horaires à une date.",
+          "add": "Ajouter une date",
+          "empty": "Aucune date ajoutée à venir.",
+          "addTitle": "Ajouter une date",
+          "editTitle": "Modifier la date ajoutée"
+        },
+        "serviceExcluded": {
+          "title": "Dates exclues",
+          "body": "Les dates où ce service n'est pas proposé, ou les horaires où il ne l'est pas.",
+          "add": "Exclure une date",
+          "empty": "Aucune date exclue à venir.",
+          "addTitle": "Exclure des dates",
+          "editTitle": "Modifier la date exclue"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "Vous êtes fermé pendant ces heures à ces dates.",
         "openHoursHelp": "Vos horaires à ces dates. Ils remplacent vos horaires habituels.",
         "hoursRequired": "Ajoutez au moins une plage horaire.",
-        "closedDuring": "Fermé {hours}"
+        "closedDuring": "Fermé {hours}",
+        "usualHours": "Vos horaires ce jour-là",
+        "serviceOpenHoursHelp": "Les horaires du service à ces dates — dans les vôtres.",
+        "serviceClosedHoursHelp": "Le service n'est pas proposé pendant ces horaires à ces dates.",
+        "notOffered": "Non proposé",
+        "notOfferedDuring": "Non proposé {hours}"
       },
       "impact": {
         "title": "Publier ces horaires ?",
         "body": "Certains éléments dépendent de vos horaires actuels. Rien n’est annulé ni modifié à votre place : vérifiez d’abord ce qui est concerné.",
         "publishAnyway": "Publier quand même",
         "keepEditing": "Continuer à modifier",
+        "changes": "Ce qui change :",
+        "fromTo": "{label} : {before} → {after}",
+        "added": "Ajouté — {date} : {what}",
+        "removed": "Supprimé — {date} : {what}",
+        "weekly": "{day}, chaque semaine",
+        "weeklyFrom": "{day}, chaque semaine à partir du {date}",
         "unbookable": "Ces prestations ne pourraient plus du tout être réservées :",
-        "narrowed": "Ces prestations perdraient certains de leurs jours :",
+        "narrowed": "Ces services perdraient ces créneaux :",
         "bookingsOutside": "{count, plural, one {# réservation à venir tomberait en dehors de vos horaires :} other {# réservations à venir tomberaient en dehors de vos horaires :}}",
         "andMore": "{count, plural, one {et # autre} other {et # autres}}",
         "bookingsKept": "Ces réservations restent telles quelles. Déplacez-les ou annulez-les depuis <link>Réservations</link> si nécessaire."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "Vous êtes fermé ce jour-là : à l’enregistrement, on vous demandera s’il faut l’ouvrir. Les horaires se règlent sur la page <link>Disponibilité</link>.",
       "monthDaysLabel": "Jours du mois",
-      "monthDaysPlaceholder": "Choisissez des jours, ex. 16",
-      "monthDaysNote": "Se répète chaque mois. Un jour qu'un mois n'a pas, comme le 31 avril, est ignoré.",
       "datesCalendar": "Choisir des dates",
       "datesSelected": "Dates choisies",
       "datesEmpty": "Aucune date choisie pour l'instant. Cliquez sur des jours du calendrier pour les ajouter.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, vous êtes fermé",
       "hoursTitle": "Seulement à certaines heures",
-      "hoursHelp": "Limitez cette prestation à une partie de votre journée, par exemple le matin uniquement."
+      "hoursHelp": "Limitez cette prestation à une partie de votre journée, par exemple le matin uniquement.",
+      "hoursSplitLabel": "Mêmes horaires chaque jour, ou par jour",
+      "hoursSame": "Identiques chaque jour",
+      "hoursPerDay": "Différents selon le jour"
     },
     "outsideHours": "{count, plural, one {Non réservable sur # de ses jours : en dehors de vos horaires} other {Non réservable sur # de ses jours : en dehors de vos horaires}}",
     "conflict": {

@@ -1,7 +1,6 @@
 import {
   DaySchedule,
   DaySchedulePart,
-  ProviderScheduleRule,
   ServiceAvailability,
   SpecialDate,
   WeekSchedule,
@@ -9,6 +8,7 @@ import {
 import { WeekDay } from '@interfaces/schedule'
 import { WEEK_DAYS_LIST } from '@constants/schedule'
 import { rangesToDaySchedule, splitScheduleIntoParts } from './schedule'
+import { HoursChange, hoursChanges, ScheduleHours, ServiceLoss, serviceLosses } from './scheduleChanges'
 import {
   addDaysToDayKey,
   canEverBeBooked,
@@ -53,7 +53,7 @@ export type SpecialConflict = { entry: SpecialDate; reason: ConflictReason; date
 
 export type ServiceConflicts = { weekly: WeeklyConflict[]; special: SpecialConflict[] }
 
-type Hours = { weekSchedule?: WeekSchedule; specialDates?: readonly SpecialDate[]; rule?: ProviderScheduleRule }
+type Hours = ScheduleHours
 
 const minutesOf = (time: string): number => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5))
 
@@ -195,18 +195,21 @@ export const fitServiceToHours = (
   }
   const withHours = <T extends ServiceAvailability>(rule: T): T => (own ? { ...rule, hours: own } : { ...rule, hours: undefined })
 
+  // Spread from the rule, so its per-weekday hours and added / excluded dates come along.
   let fitted: ServiceAvailability
   switch (availability.mode) {
     case 'weekdays': {
       const days = availability.days.filter((day) => !closedWeekdays.has(day))
       if (!days.length) return null
-      fitted = withHours({ mode: 'weekdays', days })
+      const byDay = Object.fromEntries(Object.entries(availability.hoursByDay ?? {}).filter(([day]) => days.includes(day as WeekDay)))
+      fitted = withHours({ ...availability, days, hoursByDay: Object.keys(byDay).length ? byDay : undefined })
+      if (!fitted.hoursByDay) delete fitted.hoursByDay
       break
     }
     case 'dates': {
       const dates = availability.dates.filter((date) => !closedDates.has(date))
       if (!dates.length) return null
-      fitted = withHours({ mode: 'dates', dates })
+      fitted = withHours({ ...availability, dates })
       break
     }
     default:
@@ -220,10 +223,12 @@ export const fitServiceToHours = (
 export type ImpactBooking = { id: string; start: string; end: string; serviceName: string; clientName: string }
 
 export type ScheduleImpact = {
+  /** Every change the new hours make — what the provider is approving. */
+  changes: HoursChange[]
   /** Services that could be booked before and cannot be at all after. */
   unbookable: string[]
-  /** Services that keep some days but lose others. */
-  narrowed: string[]
+  /** Services that keep some days but lose others — and exactly which times. */
+  narrowed: { name: string; losses: ServiceLoss[] }[]
   /** Upcoming bookings that sat inside the hours and would not. */
   bookingsOutside: ImpactBooking[]
 }
@@ -231,8 +236,9 @@ export type ScheduleImpact = {
 type ImpactService = { name: string; active: boolean; availability: ServiceAvailability }
 
 /**
- * What publishing `after` in place of `before` does: services that lose days (or every day),
- * and upcoming bookings that fall outside the new hours. `dayAndMinutes` reads an instant on the
+ * What publishing `after` in place of `before` does: every change it makes (`hoursChanges`),
+ * services that lose days (or every day) and exactly which times (`serviceLosses`), and upcoming
+ * bookings that fall outside the new hours. `dayAndMinutes` reads an instant on the
  * provider's clock (`@helpers/timeZone`), injected to keep this pure. Inactive services are not
  * counted — nobody can book them either way.
  */
@@ -252,7 +258,7 @@ export const scheduleImpact = ({
   dayAndMinutes: (iso: string) => { dayKey: string; minutes: number }
 }): ScheduleImpact => {
   const unbookable: string[] = []
-  const narrowed: string[] = []
+  const narrowed: ScheduleImpact['narrowed'] = []
   for (const service of services.filter((s) => s.active)) {
     const wasBookable = canEverBeBooked(
       before.weekSchedule,
@@ -268,7 +274,10 @@ export const scheduleImpact = ({
     }
     const rule = { availability: service.availability, todayKey }
     if (conflictDayCount(serviceConflicts({ ...after, ...rule })) > conflictDayCount(serviceConflicts({ ...before, ...rule }))) {
-      narrowed.push(service.name)
+      narrowed.push({
+        name: service.name,
+        losses: serviceLosses({ before, after, availability: service.availability, todayKey, horizonDays: CONFLICT_HORIZON_DAYS }),
+      })
     }
   }
 
@@ -281,7 +290,7 @@ export const scheduleImpact = ({
   }
   const bookingsOutside = bookings.filter((booking) => fits(before, booking) && !fits(after, booking))
 
-  return { unbookable, narrowed, bookingsOutside }
+  return { changes: hoursChanges(before, after, todayKey), unbookable, narrowed, bookingsOutside }
 }
 
 export const hasImpact = (impact: ScheduleImpact): boolean =>

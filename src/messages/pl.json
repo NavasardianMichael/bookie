@@ -574,6 +574,22 @@
           "empty": "Brak otwartych dat — klienci nie mogą rezerwować, dopóki nie dodasz jakiejś.",
           "addTitle": "Dodaj otwartą datę",
           "editTitle": "Edytuj otwartą datę"
+        },
+        "serviceAdded": {
+          "title": "Dodane daty",
+          "body": "Oferuj tę usługę w dodatkowe dni lub w innych godzinach w danym dniu.",
+          "add": "Dodaj datę",
+          "empty": "Brak nadchodzących dodanych dat.",
+          "addTitle": "Dodaj datę",
+          "editTitle": "Edytuj dodaną datę"
+        },
+        "serviceExcluded": {
+          "title": "Wykluczone daty",
+          "body": "Daty, w które usługa nie jest dostępna, lub godziny, w których jej nie ma.",
+          "add": "Wyklucz datę",
+          "empty": "Brak nadchodzących wykluczonych dat.",
+          "addTitle": "Wyklucz daty",
+          "editTitle": "Edytuj wykluczoną datę"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "W te daty masz zamknięte w tych godzinach.",
         "openHoursHelp": "Twoje godziny w te daty. Zastępują Twoje zwykłe godziny.",
         "hoursRequired": "Dodaj co najmniej jeden przedział czasu.",
-        "closedDuring": "Zamknięte: {hours}"
+        "closedDuring": "Zamknięte: {hours}",
+        "usualHours": "Twoje godziny tego dnia",
+        "serviceOpenHoursHelp": "Godziny usługi w te dni — w ramach Twoich.",
+        "serviceClosedHoursHelp": "W te dni usługa nie jest dostępna w podanych godzinach.",
+        "notOffered": "Niedostępna",
+        "notOfferedDuring": "Niedostępna {hours}"
       },
       "impact": {
         "title": "Opublikować te godziny?",
         "body": "Niektóre rzeczy zależą od Twoich obecnych godzin. Nic nie zostanie automatycznie anulowane ani zmienione — najpierw sprawdź, czego to dotyczy.",
         "publishAnyway": "Opublikuj mimo to",
         "keepEditing": "Edytuj dalej",
+        "changes": "Co się zmieni:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "Dodano — {date}: {what}",
+        "removed": "Usunięto — {date}: {what}",
+        "weekly": "{day}, co tydzień",
+        "weeklyFrom": "{day}, co tydzień od {date}",
         "unbookable": "Tych usług w ogóle nie dałoby się zarezerwować:",
-        "narrowed": "Te usługi straciłyby część swoich dni:",
+        "narrowed": "Te usługi stracą następujące terminy:",
         "bookingsOutside": "{count, plural, one {# nadchodząca rezerwacja wypadłaby poza Twoje godziny:} few {# nadchodzące rezerwacje wypadłyby poza Twoje godziny:} many {# nadchodzących rezerwacji wypadłoby poza Twoje godziny:} other {# nadchodzącej rezerwacji wypadłoby poza Twoje godziny:}}",
         "andMore": "{count, plural, one {i jeszcze #} few {i jeszcze #} many {i jeszcze #} other {i jeszcze #}}",
         "bookingsKept": "Te rezerwacje pozostają bez zmian. W razie potrzeby przenieś je lub anuluj w sekcji <link>Rezerwacje</link>."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "W tym dniu nie pracujesz — przy zapisie zapytamy, czy go otworzyć. Godziny ustawiasz na stronie <link>Dostępność</link>.",
       "monthDaysLabel": "Dni miesiąca",
-      "monthDaysPlaceholder": "Wybierz dni, np. 16",
-      "monthDaysNote": "Powtarza się co miesiąc. Dzień, którego miesiąc nie ma, np. 31 kwietnia, jest pomijany.",
       "datesCalendar": "Wybierz daty",
       "datesSelected": "Wybrane daty",
       "datesEmpty": "Nie wybrano jeszcze dat. Kliknij dni w kalendarzu, aby je dodać.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, nie pracujesz",
       "hoursTitle": "Tylko w określonych godzinach",
-      "hoursHelp": "Ogranicz tę usługę do części dnia, na przykład tylko do rana."
+      "hoursHelp": "Ogranicz tę usługę do części dnia, na przykład tylko do rana.",
+      "hoursSplitLabel": "Te same godziny codziennie lub według dnia",
+      "hoursSame": "Codziennie tak samo",
+      "hoursPerDay": "Według dnia"
     },
     "outsideHours": "{count, plural, one {Niedostępna do rezerwacji w # ze swoich dni — poza Twoimi godzinami} few {Niedostępna do rezerwacji w # ze swoich dni — poza Twoimi godzinami} many {Niedostępna do rezerwacji w # ze swoich dni — poza Twoimi godzinami} other {Niedostępna do rezerwacji w # ze swoich dni — poza Twoimi godzinami}}",
     "conflict": {

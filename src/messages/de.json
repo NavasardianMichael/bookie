@@ -574,6 +574,22 @@
           "empty": "Noch keine Öffnungstage – Kunden können erst buchen, wenn Sie einen hinzufügen.",
           "addTitle": "Öffnungstag hinzufügen",
           "editTitle": "Öffnungstag bearbeiten"
+        },
+        "serviceAdded": {
+          "title": "Zusätzliche Tage",
+          "body": "Biete diese Leistung an zusätzlichen Tagen an oder an einem Datum zu anderen Zeiten.",
+          "add": "Tag hinzufügen",
+          "empty": "Keine anstehenden zusätzlichen Tage.",
+          "addTitle": "Tag hinzufügen",
+          "editTitle": "Zusätzlichen Tag bearbeiten"
+        },
+        "serviceExcluded": {
+          "title": "Ausgeschlossene Tage",
+          "body": "Daten, an denen diese Leistung nicht angeboten wird, oder Zeiten, in denen sie entfällt.",
+          "add": "Tag ausschließen",
+          "empty": "Keine anstehenden ausgeschlossenen Tage.",
+          "addTitle": "Tage ausschließen",
+          "editTitle": "Ausgeschlossenen Tag bearbeiten"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "An diesen Tagen haben Sie zu diesen Zeiten geschlossen.",
         "openHoursHelp": "Ihre Zeiten an diesen Tagen. Sie ersetzen Ihre üblichen Zeiten.",
         "hoursRequired": "Fügen Sie mindestens einen Zeitraum hinzu.",
-        "closedDuring": "Geschlossen {hours}"
+        "closedDuring": "Geschlossen {hours}",
+        "usualHours": "Deine Zeiten an diesem Tag",
+        "serviceOpenHoursHelp": "Die Zeiten der Leistung an diesen Daten — innerhalb deiner eigenen.",
+        "serviceClosedHoursHelp": "An diesen Daten wird die Leistung zu diesen Zeiten nicht angeboten.",
+        "notOffered": "Nicht angeboten",
+        "notOfferedDuring": "Nicht angeboten {hours}"
       },
       "impact": {
         "title": "Diese Zeiten veröffentlichen?",
         "body": "Manches hängt von Ihren aktuellen Zeiten ab. Nichts wird für Sie storniert oder geändert – prüfen Sie zuerst, was betroffen ist.",
         "publishAnyway": "Trotzdem veröffentlichen",
         "keepEditing": "Weiter bearbeiten",
+        "changes": "Was sich ändert:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "Hinzugefügt — {date}: {what}",
+        "removed": "Entfernt — {date}: {what}",
+        "weekly": "{day}, jede Woche",
+        "weeklyFrom": "{day}, jede Woche ab {date}",
         "unbookable": "Diese Leistungen wären gar nicht mehr buchbar:",
-        "narrowed": "Diese Leistungen würden einige ihrer Tage verlieren:",
+        "narrowed": "Diese Leistungen verlieren folgende Zeiten:",
         "bookingsOutside": "{count, plural, one {# anstehende Buchung läge außerhalb Ihrer Zeiten:} other {# anstehende Buchungen lägen außerhalb Ihrer Zeiten:}}",
         "andMore": "{count, plural, one {und # weitere} other {und # weitere}}",
         "bookingsKept": "Diese Buchungen bleiben bestehen. Verschieben oder stornieren Sie sie bei Bedarf unter <link>Buchungen</link>."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "An diesem Tag haben Sie geschlossen – beim Speichern werden Sie gefragt, ob Sie ihn öffnen möchten. Die Zeiten legen Sie auf der Seite <link>Verfügbarkeit</link> fest.",
       "monthDaysLabel": "Tage im Monat",
-      "monthDaysPlaceholder": "Tage wählen, z. B. 16",
-      "monthDaysNote": "Wiederholt sich jeden Monat. Ein Tag, den ein Monat nicht hat, etwa der 31. April, wird übersprungen.",
       "datesCalendar": "Daten wählen",
       "datesSelected": "Gewählte Daten",
       "datesEmpty": "Noch keine Daten gewählt. Klicken Sie auf Tage im Kalender, um sie hinzuzufügen.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, geschlossen",
       "hoursTitle": "Nur zu bestimmten Zeiten",
-      "hoursHelp": "Beschränken Sie diese Leistung auf einen Teil Ihres Tages, zum Beispiel nur vormittags."
+      "hoursHelp": "Beschränken Sie diese Leistung auf einen Teil Ihres Tages, zum Beispiel nur vormittags.",
+      "hoursSplitLabel": "Jeden Tag gleiche Zeiten oder pro Tag",
+      "hoursSame": "Jeden Tag gleich",
+      "hoursPerDay": "Pro Tag verschieden"
     },
     "outsideHours": "{count, plural, one {An # ihrer Tage nicht buchbar – außerhalb Ihrer Zeiten} other {An # ihrer Tage nicht buchbar – außerhalb Ihrer Zeiten}}",
     "conflict": {

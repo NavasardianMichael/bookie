@@ -574,6 +574,22 @@
           "empty": "还没有开放日期——添加之前，客户无法预约。",
           "addTitle": "添加开放日期",
           "editTitle": "编辑开放日期"
+        },
+        "serviceAdded": {
+          "title": "新增日期",
+          "body": "在额外的日期提供此服务，或在某个日期使用不同的时间。",
+          "add": "添加日期",
+          "empty": "近期没有新增日期。",
+          "addTitle": "添加日期",
+          "editTitle": "编辑新增日期"
+        },
+        "serviceExcluded": {
+          "title": "排除日期",
+          "body": "不提供此服务的日期，或不提供的时段。",
+          "add": "排除日期",
+          "empty": "近期没有排除日期。",
+          "addTitle": "排除日期",
+          "editTitle": "编辑排除日期"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "在这些日期的这些时段内您不营业。",
         "openHoursHelp": "您在这些日期的营业时间，将取代常规营业时间。",
         "hoursRequired": "请至少添加一个时段。",
-        "closedDuring": "休息 {hours}"
+        "closedDuring": "休息 {hours}",
+        "usualHours": "您当天的营业时间",
+        "serviceOpenHoursHelp": "这些日期的服务时间——在您的营业时间之内。",
+        "serviceClosedHoursHelp": "这些日期的这些时段不提供此服务。",
+        "notOffered": "不提供",
+        "notOfferedDuring": "{hours} 不提供"
       },
       "impact": {
         "title": "发布这些营业时间？",
         "body": "有些内容依赖于你当前的营业时间。不会自动取消或更改任何内容——请先查看受影响的项目。",
         "publishAnyway": "仍然发布",
         "keepEditing": "继续编辑",
+        "changes": "变更内容：",
+        "fromTo": "{label}：{before} → {after}",
+        "added": "已添加 — {date}：{what}",
+        "removed": "已移除 — {date}：{what}",
+        "weekly": "每周{day}",
+        "weeklyFrom": "自{date}起每周{day}",
         "unbookable": "以下服务将完全无法预约：",
-        "narrowed": "以下服务将失去部分可预约日：",
+        "narrowed": "这些服务将失去以下时间：",
         "bookingsOutside": "{count, plural, other {有 # 个即将到来的预约将落在你的营业时间之外：}}",
         "andMore": "{count, plural, other {还有 # 个}}",
         "bookingsKept": "这些预约保持不变。如有需要，可在<link>预约</link>中改期或取消。"
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "你这天不营业——保存时会询问是否开放这一天。营业时间在<link>可预约时间</link>页面中设置。",
       "monthDaysLabel": "每月日期",
-      "monthDaysPlaceholder": "选择日期，例如 16",
-      "monthDaysNote": "每月重复。某月没有的日期（如 4 月 31 日）会被跳过。",
       "datesCalendar": "选择日期",
       "datesSelected": "已选日期",
       "datesEmpty": "尚未选择日期。点击日历中的日期即可添加。",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}，你不营业",
       "hoursTitle": "仅限特定时间",
-      "hoursHelp": "将此服务限制在一天中的部分时间，例如仅上午。"
+      "hoursHelp": "将此服务限制在一天中的部分时间，例如仅上午。",
+      "hoursSplitLabel": "每天相同时间还是按天设置",
+      "hoursSame": "每天相同",
+      "hoursPerDay": "按天不同"
     },
     "outsideHours": "{count, plural, other {有 # 天不可预约——不在你的营业时间内}}",
     "conflict": {

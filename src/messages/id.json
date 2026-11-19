@@ -574,6 +574,22 @@
           "empty": "Belum ada tanggal buka — klien belum bisa memesan sampai Anda menambahkannya.",
           "addTitle": "Tambah tanggal buka",
           "editTitle": "Edit tanggal buka"
+        },
+        "serviceAdded": {
+          "title": "Tanggal tambahan",
+          "body": "Tawarkan layanan ini di hari tambahan, atau di jam lain pada suatu tanggal.",
+          "add": "Tambah tanggal",
+          "empty": "Tidak ada tanggal tambahan dalam waktu dekat.",
+          "addTitle": "Tambah tanggal",
+          "editTitle": "Edit tanggal tambahan"
+        },
+        "serviceExcluded": {
+          "title": "Tanggal dikecualikan",
+          "body": "Tanggal saat layanan ini tidak tersedia, atau jam saat tidak tersedia.",
+          "add": "Kecualikan tanggal",
+          "empty": "Tidak ada tanggal dikecualikan dalam waktu dekat.",
+          "addTitle": "Kecualikan tanggal",
+          "editTitle": "Edit tanggal dikecualikan"
         }
       },
       "days": {
@@ -601,15 +617,26 @@
         "someHoursHelp": "Anda tutup pada jam ini di tanggal tersebut.",
         "openHoursHelp": "Jam Anda pada tanggal tersebut. Jam ini menggantikan jam biasa Anda.",
         "hoursRequired": "Tambahkan setidaknya satu rentang waktu.",
-        "closedDuring": "Tutup {hours}"
+        "closedDuring": "Tutup {hours}",
+        "usualHours": "Jam Anda hari itu",
+        "serviceOpenHoursHelp": "Jam layanan pada tanggal tersebut — dalam jam Anda.",
+        "serviceClosedHoursHelp": "Layanan tidak tersedia pada jam ini di tanggal tersebut.",
+        "notOffered": "Tidak tersedia",
+        "notOfferedDuring": "Tidak tersedia {hours}"
       },
       "impact": {
         "title": "Publikasikan jam ini?",
         "body": "Beberapa hal bergantung pada jam Anda saat ini. Tidak ada yang dibatalkan atau diubah secara otomatis — periksa dulu apa yang terdampak.",
         "publishAnyway": "Tetap publikasikan",
         "keepEditing": "Lanjutkan mengedit",
+        "changes": "Yang berubah:",
+        "fromTo": "{label}: {before} → {after}",
+        "added": "Ditambahkan — {date}: {what}",
+        "removed": "Dihapus — {date}: {what}",
+        "weekly": "{day}, setiap minggu",
+        "weeklyFrom": "{day}, setiap minggu mulai {date}",
         "unbookable": "Layanan ini sama sekali tidak bisa dipesan:",
-        "narrowed": "Layanan ini akan kehilangan sebagian harinya:",
+        "narrowed": "Layanan ini akan kehilangan waktu berikut:",
         "bookingsOutside": "{count, plural, other {# pemesanan mendatang akan berada di luar jam Anda:}}",
         "andMore": "{count, plural, other {dan # lainnya}}",
         "bookingsKept": "Pemesanan ini tetap seperti semula. Pindahkan atau batalkan dari <link>Pemesanan</link> jika perlu."
@@ -1460,8 +1487,6 @@
       },
       "closedDay": "Anda tutup pada hari ini — saat menyimpan, kami akan bertanya apakah hari ini ingin dibuka. Jam diatur di halaman <link>Ketersediaan</link>.",
       "monthDaysLabel": "Tanggal dalam sebulan",
-      "monthDaysPlaceholder": "Pilih tanggal, mis. 16",
-      "monthDaysNote": "Berulang setiap bulan. Tanggal yang tidak ada di suatu bulan, seperti 31 April, dilewati.",
       "datesCalendar": "Pilih tanggal",
       "datesSelected": "Tanggal terpilih",
       "datesEmpty": "Belum ada tanggal yang dipilih. Klik hari di kalender untuk menambahkannya.",
@@ -1478,7 +1503,10 @@
       },
       "closedDateLabel": "{date}, Anda tutup",
       "hoursTitle": "Hanya pada jam tertentu",
-      "hoursHelp": "Batasi layanan ini pada sebagian hari Anda, misalnya hanya pagi hari."
+      "hoursHelp": "Batasi layanan ini pada sebagian hari Anda, misalnya hanya pagi hari.",
+      "hoursSplitLabel": "Jam yang sama setiap hari, atau per hari",
+      "hoursSame": "Sama setiap hari",
+      "hoursPerDay": "Berbeda per hari"
     },
     "outsideHours": "{count, plural, other {Tidak bisa dipesan pada # harinya — di luar jam Anda}}",
     "conflict": {
