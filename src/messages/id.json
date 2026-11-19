@@ -639,7 +639,10 @@
         "narrowed": "Layanan ini akan kehilangan waktu berikut:",
         "bookingsOutside": "{count, plural, other {# pemesanan mendatang akan berada di luar jam Anda:}}",
         "andMore": "{count, plural, other {dan # lainnya}}",
-        "bookingsKept": "Pemesanan ini tetap seperti semula. Pindahkan atau batalkan dari <link>Pemesanan</link> jika perlu."
+        "bookingsKept": "Pemesanan ini tetap seperti semula. Pindahkan atau batalkan dari <link>Pemesanan</link> jika perlu.",
+        "narrowFit": "Sesuaikan juga layanan ini dengan jam baru: {services}",
+        "narrowFitHelp": "Hari dan jamnya dipangkas ke saat Anda buka, sehingga tidak lagi menampilkan peringatan. Yang bisa dipesan klien tetap sama.",
+        "narrowFailed": "Jam Anda sudah dipublikasikan, tetapi layanan ini tidak diubah: {services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "Perluas dan simpan",
         "fit": "Sesuaikan dan simpan",
         "keep": "Simpan apa adanya"
-      }
+      },
+      "added": {
+        "closed": "{dates}: Anda tutup (tanggal yang ditambahkan untuk layanan)",
+        "hours": "{dates}: jam layanan melewati jam Anda (tanggal yang ditambahkan untuk layanan)"
+      },
+      "widenOtherRule": "Jam Anda mengikuti tanggal dalam bulan atau hari tertentu, bukan minggu. Buka hari-hari itu di halaman Ketersediaan.",
+      "widenAddedDates": "Hanya tanggal yang ditambahkan untuk layanan ini yang menghalangi. Buka tanggal-tanggal itu di halaman Ketersediaan.",
+      "fitMonthDays": "Tersedia pada tanggal {days}",
+      "fitAdded": "Tanggal tambahan disesuaikan dengan jam Anda"
     }
   },
   "Validation": {

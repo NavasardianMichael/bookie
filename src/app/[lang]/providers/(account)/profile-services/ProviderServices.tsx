@@ -250,8 +250,8 @@ export const ProviderServices: React.FC<Props> = ({ initialValues = PROVIDER_PRO
           values,
           service,
           conflicts,
-          widening: widenWeekForService(conflicts, details.weekSchedule, availability),
-          fitted: fitServiceToHours(conflicts, availability, hours, todayKey),
+          widening: widenWeekForService(conflicts, details.weekSchedule, availability, details.scheduleRule),
+          fitted: fitServiceToHours(availability, hours, todayKey),
         })
         return
       }

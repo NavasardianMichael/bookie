@@ -41,8 +41,10 @@ type Props = {
  * it is made:
  *
  * - **Widen my hours** — the weekly days the service needs are opened or stretched, published at
- *   once. Special dates are never touched: a holiday stays a holiday.
- * - **Fit the service** — the days and hours it cannot have are taken out of the service.
+ *   once. Special dates and the service's added dates are never touched: a holiday stays a
+ *   holiday. Not offered when the provider's hours follow days of the month or specific days.
+ * - **Fit the service** — what it asks for that the provider never gives is taken out of the
+ *   service (days, hours, added dates), and nothing it can be booked for (`fitServiceToHours`).
  * - **Save as it is** — nothing else changes; those days simply cannot be booked, and the
  *   service card keeps saying so.
  */
@@ -58,6 +60,7 @@ export const ServiceConflictSheet: FC<Props> = ({
 }) => {
   const t = useTranslations('Services.conflict')
   const tDays = useTranslations('Settings.availability.days')
+  const tSchedule = useTranslations('Settings.availability.schedule')
   const tCommon = useTranslations('Common')
   const toast = useErrorToast()
   const [pending, setPending] = useState<ConflictChoice | null>(null)
@@ -67,6 +70,8 @@ export const ServiceConflictSheet: FC<Props> = ({
   const parts = (list: DaySchedulePart[]): string =>
     list.length ? list.map((part) => `${time(part.start)}–${time(part.end)}`).join(', ') : tCommon('closed')
   const day = (dayKey: string): string => dayjs(dayKey, DAY_KEY_FORMAT).format('ddd D MMM')
+  const span = (entry: { from: string; to: string }): string =>
+    entry.from === entry.to ? day(entry.from) : `${day(entry.from)} – ${day(entry.to)}`
 
   const choose = async (choice: ConflictChoice): Promise<void> => {
     setPending(choice)
@@ -79,19 +84,37 @@ export const ServiceConflictSheet: FC<Props> = ({
     }
   }
 
+  const same = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
+
+  /** Each thing the fit changes, in the words the service form uses. */
   const fittedSummary = (): string | null => {
     if (!fitted) return null
     const lines: string[] = []
     if (fitted.mode === 'weekdays' && original.mode === 'weekdays' && fitted.days.length !== original.days.length) {
       lines.push(t('fitDays', { days: fitted.days.map((d) => tDays(d)).join(', ') }))
     }
+    if (fitted.mode === 'monthDays' && original.mode === 'monthDays' && !same([fitted.days, fitted.lastDay], [original.days, original.lastDay])) {
+      const days = [...fitted.days.map(String), ...(fitted.lastDay ? [tSchedule('lastDay')] : [])]
+      lines.push(t('fitMonthDays', { days: days.join(', ') }))
+    }
     if (fitted.mode === 'dates' && original.mode === 'dates' && fitted.dates.length !== original.dates.length) {
       lines.push(t('fitDates', { count: original.dates.length - fitted.dates.length }))
     }
-    if (fitted.hours && JSON.stringify(fitted.hours) !== JSON.stringify(original.hours)) {
+    if (fitted.hours && !same(fitted.hours, original.hours)) {
       lines.push(t('fitHours', { hours: parts(fitted.hours) }))
     }
+    if (fitted.hoursByDay && !same(fitted.hoursByDay, original.hoursByDay)) {
+      const byDay = Object.entries(fitted.hoursByDay).map(([d, list]) => `${tDays(d)} ${parts(list ?? [])}`)
+      lines.push(t('fitHours', { hours: byDay.join('; ') }))
+    }
+    if (!same(fitted.exceptions, original.exceptions)) lines.push(t('fitAdded'))
     return lines.length ? lines.join(' · ') : t('fitNothing')
+  }
+
+  /** Why widening is not offered: the hours do not follow the week, or only dates are in the way. */
+  const widenUnavailable = (): string => {
+    if (conflicts.weekly.length) return t('widenOtherRule')
+    return conflicts.special.length ? t('widenUnavailable') : t('widenAddedDates')
   }
 
   const option = (
@@ -146,14 +169,15 @@ export const ServiceConflictSheet: FC<Props> = ({
             <li key={`${conflict.entry.from}-${conflict.reason}`} className='flex items-start gap-2'>
               <ClockCircleOutlined aria-hidden className='text-brand-warning mt-1' />
               <AppText size='body-sm'>
-                {t(`special.${conflict.reason}`, {
-                  dates:
-                    conflict.entry.from === conflict.entry.to
-                      ? day(conflict.entry.from)
-                      : `${day(conflict.entry.from)} – ${day(conflict.entry.to)}`,
-                })}
+                {t(`special.${conflict.reason}`, { dates: span(conflict.entry) })}
                 {conflict.entry.note ? ` (${conflict.entry.note})` : ''}
               </AppText>
+            </li>
+          ))}
+          {conflicts.added.map((conflict) => (
+            <li key={`added-${conflict.entry.from}-${conflict.reason}`} className='flex items-start gap-2'>
+              <ClockCircleOutlined aria-hidden className='text-brand-warning mt-1' />
+              <AppText size='body-sm'>{t(`added.${conflict.reason}`, { dates: span(conflict.entry) })}</AppText>
             </li>
           ))}
         </ul>
@@ -168,9 +192,9 @@ export const ServiceConflictSheet: FC<Props> = ({
                 {t('widenLine', { day: tDays(change.day), before: parts(change.before), after: parts(change.after) })}
               </span>
             ))}
-            <span>{conflicts.special.length ? t('widenKeepsSpecial') : t('widenLive')}</span>
+            <span>{conflicts.special.length || conflicts.added.length ? t('widenKeepsSpecial') : t('widenLive')}</span>
           </span>,
-          widening.length ? undefined : t('widenUnavailable')
+          widening.length ? undefined : widenUnavailable()
         )}
 
         {option('fit', <CompressOutlined />, t('fitTitle'), fittedSummary(), fitted ? undefined : t('fitUnavailable'))}

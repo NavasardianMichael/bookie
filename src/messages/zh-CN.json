@@ -639,7 +639,10 @@
         "narrowed": "这些服务将失去以下时间：",
         "bookingsOutside": "{count, plural, other {有 # 个即将到来的预约将落在你的营业时间之外：}}",
         "andMore": "{count, plural, other {还有 # 个}}",
-        "bookingsKept": "这些预约保持不变。如有需要，可在<link>预约</link>中改期或取消。"
+        "bookingsKept": "这些预约保持不变。如有需要，可在<link>预约</link>中改期或取消。",
+        "narrowFit": "同时将这些服务调整到新的营业时间：{services}",
+        "narrowFitHelp": "它们的日期和时间会缩减到您的营业时间内，不再显示警告。客户可预约的时间不变。",
+        "narrowFailed": "您的营业时间已发布，但以下服务未更改：{services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "延长并保存",
         "fit": "适应并保存",
         "keep": "按原样保存"
-      }
+      },
+      "added": {
+        "closed": "{dates}：您不营业（为该服务添加的日期）",
+        "hours": "{dates}：服务时间超出您的营业时间（为该服务添加的日期）"
+      },
+      "widenOtherRule": "您的营业时间按每月日期或特定日期设置，而不是按周。请在“可预约时间”页面开放这些日子。",
+      "widenAddedDates": "只有为该服务添加的日期有冲突。请在“可预约时间”页面开放这些日期。",
+      "fitMonthDays": "在 {days} 日提供",
+      "fitAdded": "已将添加的日期调整到您的营业时间内"
     }
   },
   "Validation": {

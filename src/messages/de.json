@@ -639,7 +639,10 @@
         "narrowed": "Diese Leistungen verlieren folgende Zeiten:",
         "bookingsOutside": "{count, plural, one {# anstehende Buchung läge außerhalb Ihrer Zeiten:} other {# anstehende Buchungen lägen außerhalb Ihrer Zeiten:}}",
         "andMore": "{count, plural, one {und # weitere} other {und # weitere}}",
-        "bookingsKept": "Diese Buchungen bleiben bestehen. Verschieben oder stornieren Sie sie bei Bedarf unter <link>Buchungen</link>."
+        "bookingsKept": "Diese Buchungen bleiben bestehen. Verschieben oder stornieren Sie sie bei Bedarf unter <link>Buchungen</link>.",
+        "narrowFit": "Diese Leistungen auch an die neuen Zeiten anpassen: {services}",
+        "narrowFitHelp": "Ihre Tage und Zeiten werden auf deine Öffnungszeiten gekürzt, damit sie keine Warnung mehr zeigen. Was Kunden buchen können, bleibt gleich.",
+        "narrowFailed": "Deine Zeiten sind veröffentlicht, aber diese Leistungen wurden nicht geändert: {services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "Erweitern und speichern",
         "fit": "Anpassen und speichern",
         "keep": "Unverändert speichern"
-      }
+      },
+      "added": {
+        "closed": "{dates}: Du hast geschlossen (ein Datum, das du hinzugefügt hast)",
+        "hours": "{dates}: Die Zeiten der Leistung gehen über deine hinaus (ein Datum, das du hinzugefügt hast)"
+      },
+      "widenOtherRule": "Deine Zeiten richten sich nach Tagen im Monat oder bestimmten Tagen, nicht nach der Woche. Öffne diese Tage auf der Seite Verfügbarkeit.",
+      "widenAddedDates": "Nur Daten, die du für diese Leistung hinzugefügt hast, stehen im Weg. Öffne diese Daten auf der Seite Verfügbarkeit.",
+      "fitMonthDays": "Angeboten an den Tagen {days}",
+      "fitAdded": "Hinzugefügte Daten an deine Zeiten angepasst"
     }
   },
   "Validation": {

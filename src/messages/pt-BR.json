@@ -639,7 +639,10 @@
         "narrowed": "Estes serviços perderiam estes horários:",
         "bookingsOutside": "{count, plural, one {# agendamento futuro ficaria fora dos seus horários:} other {# agendamentos futuros ficariam fora dos seus horários:}}",
         "andMore": "{count, plural, one {e mais #} other {e mais #}}",
-        "bookingsKept": "Esses agendamentos continuam como estão. Mova ou cancele-os em <link>Agendamentos</link>, se precisar."
+        "bookingsKept": "Esses agendamentos continuam como estão. Mova ou cancele-os em <link>Agendamentos</link>, se precisar.",
+        "narrowFit": "Ajustar também estes serviços ao novo horário: {services}",
+        "narrowFitHelp": "Os dias e horários deles são cortados para quando você estiver aberto, e o aviso some. O que os clientes podem agendar continua igual.",
+        "narrowFailed": "Seu horário foi publicado, mas estes serviços não foram alterados: {services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "Ampliar e salvar",
         "fit": "Ajustar e salvar",
         "keep": "Salvar como está"
-      }
+      },
+      "added": {
+        "closed": "{dates}: você está fechado (uma data adicionada para o serviço)",
+        "hours": "{dates}: o horário dele passa do seu (uma data adicionada para o serviço)"
+      },
+      "widenOtherRule": "Seu horário segue dias do mês ou dias específicos, não a semana. Abra esses dias na página Disponibilidade.",
+      "widenAddedDates": "Só atrapalham datas adicionadas para este serviço. Abra essas datas na página Disponibilidade.",
+      "fitMonthDays": "Oferecido nos dias {days}",
+      "fitAdded": "Datas adicionadas ajustadas ao seu horário"
     }
   },
   "Validation": {

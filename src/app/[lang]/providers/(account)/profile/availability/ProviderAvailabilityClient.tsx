@@ -3,15 +3,16 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Form, Switch } from 'antd'
 import { useLocale, useTranslations } from 'next-intl'
-import { getProviderProfileAPI, putProviderProfileAPI } from '@api/providers/main'
+import { getProviderProfileAPI, putProviderProfileAPI, putProviderServiceAPI } from '@api/providers/main'
 import { useAuthStore } from '@store/auth/store'
 import { ProviderProfile, ProviderScheduleRule, ProviderService, SpecialDate, WeekSchedule } from '@store/providers/profile/types'
+import { useErrorToast } from '@hooks/useErrorToast'
 import { useScheduleImpact } from '@hooks/useScheduleImpact'
 import { ScheduleDaysForm, ScheduleRangeForm, TimeFormat } from '@interfaces/schedule'
 import { ROUTES } from '@constants/routes'
 import { WEEK_DAYS_LIST } from '@constants/schedule'
 import { dayFormsToWeekSchedule, defaultScheduleRange, weekScheduleToDayForms } from '@helpers/schedule'
-import { hasImpact, ScheduleImpact } from '@helpers/scheduleConflicts'
+import { hasImpact, ImpactFit, ScheduleImpact } from '@helpers/scheduleConflicts'
 import { resolveTimeFormat } from '@helpers/timeFormat'
 import { formatTimeZoneName } from '@helpers/timeZone'
 import {
@@ -47,6 +48,7 @@ type HoursClock = {
 
 /** What is live now — what a publish is compared against before it replaces it. */
 type Published = {
+  providerId: string
   weekSchedule: WeekSchedule
   specialDates: SpecialDate[]
   rule?: ProviderScheduleRule
@@ -65,6 +67,7 @@ const profileToSpecialDates = (profile: ProviderProfile): SpecialDate[] =>
   (profile.draft?.specialDates as SpecialDate[] | undefined) ?? profile.details.specialDates ?? []
 
 const profileToPublished = (profile: ProviderProfile): Published => ({
+  providerId: profile.id,
   weekSchedule: profile.details.weekSchedule,
   specialDates: profile.details.specialDates ?? [],
   rule: profile.details.scheduleRule,
@@ -97,6 +100,7 @@ export const ProviderAvailabilityClient = () => {
   const locale = useLocale()
   const setAuthState = useAuthStore.use.setAuthState()
   const checkImpact = useScheduleImpact()
+  const toast = useErrorToast()
   const [form] = Form.useForm<FormValues>()
   const [clock, setClock] = useState<HoursClock | null>(null)
   const [saved, setSaved] = useState<FormValues | null>(null)
@@ -104,6 +108,7 @@ export const ProviderAvailabilityClient = () => {
   const [savedSpecialDates, setSavedSpecialDates] = useState<SpecialDate[]>([])
   const [published, setPublished] = useState<Published | null>(null)
   const [impact, setImpact] = useState<ScheduleImpact | null>(null)
+  const [narrowServices, setNarrowServices] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<SettingsPendingAction | null>(null)
   const [error, setError] = useState<unknown>(null)
@@ -160,10 +165,11 @@ export const ProviderAvailabilityClient = () => {
     return formToScheduleRule(values)
   }
 
-  const persist = async (mode: 'draft' | 'publish') => {
+  /** Saves the draft, or publishes it; `true` once it went through. */
+  const persist = async (mode: 'draft' | 'publish'): Promise<boolean> => {
     const values = form.getFieldsValue(true) as FormValues
     const scheduleRule = await readRule()
-    if (!scheduleRule) return
+    if (!scheduleRule) return false
     setPendingAction(mode)
     setError(null)
     try {
@@ -181,10 +187,33 @@ export const ProviderAvailabilityClient = () => {
       apply(data)
       form.setFieldsValue(scheduleToForm(data))
       setDirty(false)
+      return true
     } catch (err) {
       setError(err)
+      return false
     } finally {
       setPendingAction(null)
+    }
+  }
+
+  /**
+   * Fits the services the new hours narrowed, once the hours are live. Each is saved on its own;
+   * one that fails is named in a toast and the rest still go through — the hours are published
+   * either way, so this never reopens the dialog.
+   */
+  const fitServices = async (fits: ImpactFit[], providerId: string): Promise<void> => {
+    const results = await Promise.allSettled(
+      fits.map((fit) => putProviderServiceAPI({ providerId, serviceId: fit.id, service: { availability: fit.availability } }))
+    )
+    const saved = results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
+    setPublished((current) =>
+      current && { ...current, services: current.services.map((service) => saved.find((s) => s.id === service.id) ?? service) }
+    )
+    const failed = results.flatMap((result, index) => (result.status === 'rejected' ? [{ fit: fits[index]!, reason: result.reason as unknown }] : []))
+    if (failed.length) {
+      toast(failed[0]!.reason, {
+        title: t('availability.impact.narrowFailed', { services: failed.map(({ fit }) => fit.name).join(', ') }),
+      })
     }
   }
 
@@ -208,6 +237,7 @@ export const ProviderAvailabilityClient = () => {
       })
       if (hasImpact(found)) {
         setPendingAction(null)
+        setNarrowServices(false)
         setImpact(found)
         return
       }
@@ -329,10 +359,13 @@ export const ProviderAvailabilityClient = () => {
         impact={impact}
         timeZone={clock?.timeZone}
         timeFormat={clock?.timeFormat ?? 'h24'}
+        narrow={{ checked: narrowServices, onChange: setNarrowServices }}
         onCancel={() => setImpact(null)}
         onConfirm={async () => {
+          const fits = narrowServices ? (impact?.fits ?? []) : []
+          const providerId = published?.providerId
           setImpact(null)
-          await persist('publish')
+          if ((await persist('publish')) && fits.length && providerId) await fitServices(fits, providerId)
         }}
       />
     </div>

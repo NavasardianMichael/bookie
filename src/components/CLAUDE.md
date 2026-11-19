@@ -71,7 +71,7 @@ Feature folders outside the tiers:
   `AvailabilityDayRow`, `SpecialDatesEditor` + `SpecialDateSheet` (one per section — *added*,
   *excluded*, *openDates* — over the one `specialDates` list),
   `ScheduleImpactModal` (the exact change a Publish, or an assistant Apply via `copy`, makes, and what it
-  does to services and bookings), `scheduleText.ts` (a date span and a day's windows as both print them), and
+  does to services and bookings; `narrow` adds *Also fit these services*), `scheduleText.ts` (a date span and a day's windows as both print them), and
   `VisitorAssistantSetting` (saves on its own switch). `providerServiceForm/ServiceExceptionsField`
   reuses `SpecialDatesEditor` (sections `serviceAdded` / `serviceExcluded`) for a service's own
   dates, converting its exceptions to and from the editor's shape. `providerServiceForm/ServiceConflictSheet`

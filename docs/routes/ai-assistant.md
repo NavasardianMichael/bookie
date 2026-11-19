@@ -177,13 +177,24 @@ that can say it, so the schedule grew two things in the same change:
 
 **Where they meet, the provider is told — never surprised.**
 
-- **Saving a service** that reaches outside the published hours (a closed day it is offered on,
-  hours past the provider's) opens `ServiceConflictSheet` with three choices, each previewing
-  exactly what it changes: *Widen my hours* (opens or stretches those weekdays, published at
-  once; special dates are never touched — a holiday stays a holiday), *Fit the service* (drops
-  the days and hours it cannot have; `null`, so not offered, when nothing would be left), or
-  *Save as it is*. An inactive service is saved without asking. The pickers let a closed day be
-  chosen (struck through, marked closed) precisely so this choice can be offered.
+- **Saving a service** that reaches outside the published hours (a closed day it is offered on
+  by its rule — weekday, day of the month or date — or as one of its own added dates; hours,
+  shared or that weekday's, past the provider's) opens `ServiceConflictSheet` with three
+  choices, each previewing exactly what it changes:
+  - *Widen my hours* opens or stretches those weekdays, published at once. Special dates and the
+    service's added dates are never touched — a holiday stays a holiday — and it is not offered
+    when the provider's hours follow days of the month or specific days, since the week does not
+    decide their days then.
+  - *Fit the service* takes out what the service asks for and the provider never gives —
+    weekdays or month days closed every time, closed dates, added dates on a closed day, hours
+    no day of theirs has — **and nothing it can be booked for**: it looks a year ahead, so a day
+    open only some weeks (a special open date) stays. One set of hours the provider keeps
+    differently by weekday becomes per-day hours. `null`, so not offered, when nothing would be
+    left.
+  - *Save as it is*.
+
+  An inactive service is saved without asking. The pickers let a closed day be chosen (struck
+  through, marked closed) precisely so this choice can be offered.
 - **The service card** keeps saying "Not bookable on N of its days — outside your hours".
 - **Publishing the Availability tab** checks what it does first (`scheduleImpact`): every change
   being approved (each weekday's hours before → after, a change of rule, each special date
@@ -191,6 +202,13 @@ that can say it, so the schedule grew two things in the same change:
   services that lose times — and exactly which ("Wednesday, every week · 12:00–17:00", a date —
   `serviceLosses`) — and upcoming bookings (next 90 days, every page of them) left outside the
   hours. Nothing is cancelled; *Publish anyway* or *Keep editing*, with a link to `/bookings`.
+  Where services lose times, the dialog also offers **Also fit these services to the new hours**
+  (off by default): each one's rule is fitted as *Fit the service* would (`impact.fits` — only
+  those the fit changes) and saved after the hours go live. What clients can book is the same
+  either way; the services just stop asking for days the provider will not have, so their cards
+  stop warning — and they do not come back by themselves if those days reopen. A service whose
+  save fails is named in a toast; the hours stay published. The assistant's Apply does not offer
+  it.
 - **Applying an assistant proposal** that changes hours or special dates runs the same check
   first (`useAssistantScheduleImpact`: the live hours, `hoursAfterSchedulePatch`, then
   `scheduleImpact`) and shows the same dialog as *Apply anyway* / *Not now*. Nothing is asked

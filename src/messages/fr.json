@@ -639,7 +639,10 @@
         "narrowed": "Ces services perdraient ces créneaux :",
         "bookingsOutside": "{count, plural, one {# réservation à venir tomberait en dehors de vos horaires :} other {# réservations à venir tomberaient en dehors de vos horaires :}}",
         "andMore": "{count, plural, one {et # autre} other {et # autres}}",
-        "bookingsKept": "Ces réservations restent telles quelles. Déplacez-les ou annulez-les depuis <link>Réservations</link> si nécessaire."
+        "bookingsKept": "Ces réservations restent telles quelles. Déplacez-les ou annulez-les depuis <link>Réservations</link> si nécessaire.",
+        "narrowFit": "Adapter aussi ces services aux nouveaux horaires : {services}",
+        "narrowFitHelp": "Leurs jours et horaires sont réduits à vos heures d'ouverture, et l'avertissement disparaît. Ce que les clients peuvent réserver ne change pas.",
+        "narrowFailed": "Vos horaires sont publiés, mais ces services n'ont pas été modifiés : {services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "Élargir et enregistrer",
         "fit": "Adapter et enregistrer",
         "keep": "Enregistrer tel quel"
-      }
+      },
+      "added": {
+        "closed": "{dates} : vous êtes fermé (une date ajoutée pour ce service)",
+        "hours": "{dates} : ses horaires dépassent les vôtres (une date ajoutée pour ce service)"
+      },
+      "widenOtherRule": "Vos horaires suivent des jours du mois ou des jours précis, pas la semaine. Ouvrez ces jours sur la page Disponibilités.",
+      "widenAddedDates": "Seules des dates ajoutées pour ce service posent problème. Ouvrez ces dates sur la page Disponibilités.",
+      "fitMonthDays": "Proposé les jours {days}",
+      "fitAdded": "Dates ajoutées adaptées à vos horaires"
     }
   },
   "Validation": {

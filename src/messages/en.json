@@ -639,7 +639,10 @@
         "narrowed": "These services would lose these times:",
         "bookingsOutside": "{count, plural, one {# upcoming booking would fall outside your hours:} other {# upcoming bookings would fall outside your hours:}}",
         "andMore": "{count, plural, one {and # more} other {and # more}}",
-        "bookingsKept": "These bookings stay as they are. Move or cancel them from <link>Bookings</link> if you need to."
+        "bookingsKept": "These bookings stay as they are. Move or cancel them from <link>Bookings</link> if you need to.",
+        "narrowFit": "Also fit these services to the new hours: {services}",
+        "narrowFitHelp": "Their days and hours are cut to when you'll be open, so they stop showing a warning. What clients can book stays the same.",
+        "narrowFailed": "Your hours are published, but these services weren't changed: {services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "Widen and save",
         "fit": "Fit and save",
         "keep": "Save as it is"
-      }
+      },
+      "added": {
+        "closed": "{dates}: you're closed (a date you added)",
+        "hours": "{dates}: its hours run past yours (a date you added)"
+      },
+      "widenOtherRule": "Your hours follow days of the month or specific days, not the week. Open those days on the Availability page.",
+      "widenAddedDates": "Only dates you added for this service are in the way. Open those dates on the Availability page.",
+      "fitMonthDays": "Offered on days {days}",
+      "fitAdded": "Added dates fitted to your hours"
     }
   },
   "Validation": {

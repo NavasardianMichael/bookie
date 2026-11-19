@@ -639,7 +639,10 @@
         "narrowed": "이 서비스들은 다음 시간을 잃게 됩니다:",
         "bookingsOutside": "{count, plural, other {예정된 예약 #개가 영업시간을 벗어나게 돼요:}}",
         "andMore": "{count, plural, other {외 #개}}",
-        "bookingsKept": "이 예약들은 그대로 유지돼요. 필요하면 <link>예약</link>에서 옮기거나 취소하세요."
+        "bookingsKept": "이 예약들은 그대로 유지돼요. 필요하면 <link>예약</link>에서 옮기거나 취소하세요.",
+        "narrowFit": "이 서비스들도 새 영업시간에 맞추기: {services}",
+        "narrowFitHelp": "요일과 시간이 영업시간으로 줄어들어 더 이상 경고가 표시되지 않습니다. 고객이 예약할 수 있는 시간은 그대로입니다.",
+        "narrowFailed": "영업시간은 게시되었지만 다음 서비스는 변경되지 않았습니다: {services}"
       }
     },
     "advanced": {
@@ -1538,7 +1541,15 @@
         "widen": "늘리고 저장",
         "fit": "맞추고 저장",
         "keep": "그대로 저장"
-      }
+      },
+      "added": {
+        "closed": "{dates}: 휴무입니다 (서비스에 추가한 날짜)",
+        "hours": "{dates}: 서비스 시간이 영업시간을 넘습니다 (서비스에 추가한 날짜)"
+      },
+      "widenOtherRule": "영업시간이 주 단위가 아니라 매월 날짜나 특정 날짜를 따릅니다. 해당 날짜는 예약 가능 시간 페이지에서 여세요.",
+      "widenAddedDates": "이 서비스에 추가한 날짜만 문제입니다. 해당 날짜는 예약 가능 시간 페이지에서 여세요.",
+      "fitMonthDays": "제공일: {days}일",
+      "fitAdded": "추가한 날짜를 영업시간에 맞췄습니다"
     }
   },
   "Validation": {
