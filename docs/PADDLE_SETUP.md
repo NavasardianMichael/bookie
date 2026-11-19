@@ -18,7 +18,7 @@ webhook secrets and approved domains. Do the sandbox end to end first.
 | `PADDLE_WEBHOOK_SECRET` | same | The notification destination's signing secret. Comma-separated during a rotation |
 | `PADDLE_SANDBOX` | same | `true` → `sandbox-api.paddle.com`; anything else → live |
 | `PADDLE_PRICE_ID_BASIC` / `_STANDARD` / `_PREMIUM` | same | One monthly price per paid plan (`pri_…`). A plan without one is not sold through Paddle |
-| `PADDLE_PRICE_ID_ADDON_CUSTOM_SLUG` / `_TELEGRAM` / `_CALENDAR_FEED` / `_REMOVE_BRANDING` / `_EXTRA_SERVICES` / `_EXTRA_BOOKINGS` | same | One monthly price per add-on (docs/BILLING.md → *Add-ons*). An add-on without one falls back to the request form |
+| `PADDLE_PRICE_ID_ADDON_CUSTOM_SLUG` / `_TELEGRAM` / `_CALENDAR_FEED` / `_REMOVE_BRANDING` / `_EXTRA_SERVICES` / `_EXTRA_BOOKINGS` / `_ASSISTANT_MESSAGES` | same | One monthly price per add-on (docs/BILLING.md → *Add-ons*). An add-on without one falls back to the request form |
 | `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | root `.env.local` / repo Secret or Variable | Client-side token for Paddle.js — public by design |
 | `NEXT_PUBLIC_PADDLE_ENV` | same | `sandbox` or `production`. Must agree with `PADDLE_SANDBOX` |
 
@@ -44,7 +44,7 @@ nonsense:
 | Standard | USD 14.99 | `PADDLE_PRICE_ID_STANDARD` |
 | Premium | USD 24.99 | `PADDLE_PRICE_ID_PREMIUM` |
 
-A second product, e.g. *Bookie add-ons*, with six prices, also **recurring, every 1 month**
+A second product, e.g. *Bookie add-ons*, with seven prices, also **recurring, every 1 month**
 (every item of a subscription must share the billing period):
 
 | Add-on | Price | Quantity | Env var |
@@ -55,6 +55,7 @@ A second product, e.g. *Bookie add-ons*, with six prices, also **recurring, ever
 | No Bookie branding | USD 2.99 | min 1, max 1 | `PADDLE_PRICE_ID_ADDON_REMOVE_BRANDING` |
 | Extra services (+5 per pack) | USD 1.99 | min 1, max 10 | `PADDLE_PRICE_ID_ADDON_EXTRA_SERVICES` |
 | Extra bookings (+100 per pack) | USD 1.99 | min 1, max 10 | `PADDLE_PRICE_ID_ADDON_EXTRA_BOOKINGS` |
+| AI assistant messages (+5 a day per pack) | USD 2.99 | min 1, max 6 | `PADDLE_PRICE_ID_ADDON_ASSISTANT_MESSAGES` |
 
 The quantity maximums must match `maxQuantity` in `ADDON_CATALOGUE`. Paddle's default is
 100; the webhook clamps to the catalogue anyway, but a buyer would be charged for packs that
@@ -65,7 +66,9 @@ which is what `/pricing` shows until Paddle's localized preview loads. Add per-c
 overrides in Paddle if you want round local prices; the pricing page picks them up through
 `/pricing-preview`.
 
-**Changes are charged now, prorated, with one exception Paddle forces:** it refuses an
+**Changes are charged now, prorated** — except a move to a cheaper plan, which waits for the
+period end and is applied unbilled (docs/BILLING.md → *Moving down*) — **with one exception
+Paddle forces:** it refuses an
 immediate charge under USD 0.70, so a small add-on bought late in a period (or a switch in
 its last day or two) is retried with the prorated amount added to the next renewal instead
 (`lib/paddle.ts#updateSubscriptionItems`). Each immediate charge is its own transaction, and
@@ -156,7 +159,10 @@ ngrok http 9004   # API — the webhook destination
    the database: `plan = basic`, `billingStatus = active`, `planExpiresAt` = period end + 3
    days, `paddleCustomerId` and `paddleSubscriptionId` set.
 4. **Switch** to Premium from the Plan tab: the subscription changes in Paddle, the webhook
-   moves `plan`, the tab shows Premium.
+   moves `plan`, the tab shows Premium. **Switch** back to Basic: nothing changes in Paddle,
+   the tab shows *Moving to Basic on …* and `scheduledPlan = basic`. To see it apply without
+   waiting a month, set `scheduledPlanAt` to within three hours and wait for the job's next
+   run (≤ 5 minutes): the items change unbilled and the webhook lands Basic.
 5. **Manage billing → cancel**: the tab shows *Cancelled — ends on …*; `planExpiresAt` equals
    `billingCancelsAt`.
 6. **Developer Tools → Simulations**: send `subscription.past_due` (plan kept, expiry = period

@@ -7,9 +7,11 @@ import {
   processBillingPortalResponse,
   processChangePlanResponse,
   processCheckoutResponse,
+  processDeleteScheduledPlanResponse,
   processPlanPricesResponse,
 } from './processors'
 import {
+  DeleteScheduledPlanAPI,
   GetBillingPaymentsAPI,
   GetPlanPricesAPI,
   PostAddonAPI,
@@ -31,6 +33,13 @@ export const postCheckoutAPI: PostCheckoutAPI['api'] = async (payload) => {
 export const postChangePlanAPI: PostChangePlanAPI['api'] = async (payload) => {
   const { data } = await axiosInstance.post<APIResponse<PostChangePlanAPI['response']>>(ENDPOINTS.postChangePlan, payload)
   return processChangePlanResponse(data)
+}
+
+export const deleteScheduledPlanAPI: DeleteScheduledPlanAPI['api'] = async () => {
+  const { data } = await axiosInstance.delete<APIResponse<DeleteScheduledPlanAPI['response']>>(
+    ENDPOINTS.deleteScheduledPlan
+  )
+  return processDeleteScheduledPlanResponse(data)
 }
 
 export const postAddonAPI: PostAddonAPI['api'] = async (payload) => {

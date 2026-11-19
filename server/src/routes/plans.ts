@@ -115,6 +115,8 @@ providerPlanRouter.get(
         billingStatus: true,
         billingPeriodEndsAt: true,
         billingCancelsAt: true,
+        scheduledPlan: true,
+        scheduledPlanAt: true,
       },
     })
     if (!provider) throw new HttpError(404, 'Provider profile not found', 404)

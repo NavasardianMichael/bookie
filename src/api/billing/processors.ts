@@ -1,5 +1,6 @@
 import { ADDON_ORDER } from '@constants/plans'
 import {
+  DeleteScheduledPlanAPI,
   GetBillingPaymentsAPI,
   GetPlanPricesAPI,
   LocalizedPlanPrices,
@@ -24,7 +25,9 @@ export const processPlanPricesResponse: GetPlanPricesAPI['processor'] = (respons
 
 export const processCheckoutResponse: PostCheckoutAPI['processor'] = (response) => response.value.checkoutUrl
 
-export const processChangePlanResponse: PostChangePlanAPI['processor'] = (response) => response.value
+export const processChangePlanResponse: PostChangePlanAPI['processor'] = (response) => response.value?.scheduledAt ?? null
+
+export const processDeleteScheduledPlanResponse: DeleteScheduledPlanAPI['processor'] = (response) => response.value
 
 export const processAddonResponse: PostAddonAPI['processor'] = (response) => response.value
 

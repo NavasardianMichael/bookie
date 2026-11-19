@@ -187,15 +187,24 @@ const CHARGE_FLOOR_CODE = 'subscription_update_transaction_balance_less_than_cha
  * `withdrawCancel` sends `scheduled_change: null`, withdrawing a pending cancellation —
  * buying something is the opposite of leaving. A removal leaves a cancellation in place. The
  * webhook, not this call, writes the result.
+ *
+ * `unbilled` is the scheduled move to a cheaper plan, made in a period's last hours
+ * (`jobs/scheduledSwitchJob.ts`): `do_not_bill`, so nothing is charged or credited and the
+ * renewal bills the new items.
  */
 export const updateSubscriptionItems = async (
   subscriptionId: string,
-  input: { items: readonly PaddleLine[]; withdrawCancel: boolean }
+  input: { items: readonly PaddleLine[]; withdrawCancel: boolean; unbilled?: boolean }
 ): Promise<void> => {
   const path = `/subscriptions/${encodeURIComponent(subscriptionId)}`
   const body = {
     items: toPaddleItems(input.items),
     ...(input.withdrawCancel ? { scheduled_change: null } : {}),
+  }
+
+  if (input.unbilled) {
+    await request('PATCH', path, 'update items', { ...body, proration_billing_mode: 'do_not_bill' })
+    return
   }
 
   try {
@@ -205,6 +214,26 @@ export const updateSubscriptionItems = async (
     console.info(`[paddle] update items: below the immediate-charge floor, retrying billed at renewal`)
     await request('PATCH', path, 'update items', { ...body, proration_billing_mode: 'prorated_next_billing_period' })
   }
+}
+
+/**
+ * Withdraw a pending cancellation and change nothing else — scheduling a move to a cheaper
+ * plan is choosing to stay, the way buying something is.
+ */
+export const withdrawScheduledCancel = async (subscriptionId: string): Promise<void> => {
+  await request('PATCH', `/subscriptions/${encodeURIComponent(subscriptionId)}`, 'withdraw cancel', {
+    scheduled_change: null,
+  })
+}
+
+/**
+ * Cancel at the end of the current period — a scheduled move to Free that finds no add-on left
+ * to keep the subscription going, which is exactly what the billing portal's own cancel does.
+ */
+export const cancelAtPeriodEnd = async (subscriptionId: string): Promise<void> => {
+  await request('POST', `/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`, 'cancel', {
+    effective_from: 'next_billing_period',
+  })
 }
 
 /**

@@ -3,8 +3,8 @@ import { type Response, Router } from 'express'
 import { config, isPaddleConfigured } from '../config.js'
 import { fail, ok } from '../lib/api-response.js'
 import { BILLING_ERROR } from '../lib/billing-errors.js'
+import { billingLock } from '../lib/billing-lock.js'
 import { resolveBookingLocale } from '../lib/booking-mail.js'
-import { createKeyedLock } from '../lib/keyed-lock.js'
 import {
   createCheckoutTransaction,
   createPortalSession,
@@ -13,6 +13,7 @@ import {
   PaddleError,
   previewPrices,
   updateSubscriptionItems,
+  withdrawScheduledCancel,
 } from '../lib/paddle.js'
 import { verifyPaddleSignature } from '../lib/paddle-signature.js'
 import { prisma } from '../lib/prisma.js'
@@ -27,6 +28,7 @@ import {
   hasLiveSubscription,
   includedAddons,
   isChangeUnavailableCode,
+  isPlanDowngrade,
   itemsForAddon,
   itemsForPlan,
   parseCart,
@@ -62,7 +64,8 @@ import {
  *    `planExpiresAt` and the `paddle` add-on rows. The web's return page polls
  *    `GET /provider-profile/plan` until a subscription is live.
  * 3. Afterwards: `POST /billing/change-plan` and `POST /billing/addon` change the items,
- *    charged now, prorated; `POST /billing/portal` opens Paddle's customer portal to cancel,
+ *    charged now, prorated — except a move to a cheaper plan, which is held until the paid
+ *    period ends (`scheduledPlan`, applied by `jobs/scheduledSwitchJob.ts`); `POST /billing/portal` opens Paddle's customer portal to cancel,
  *    change the card or download invoices. `GET /billing/payments` lists the charges that
  *    already settled — it only reads Paddle, and writes nothing.
  *
@@ -118,6 +121,8 @@ const BILLING_SELECT = {
   paddleCustomerId: true,
   paddleSubscriptionId: true,
   billingStatus: true,
+  billingPeriodEndsAt: true,
+  billingCancelsAt: true,
 } as const
 
 const loadBilling = async (providerId: string) => {
@@ -139,9 +144,6 @@ const liveLines = async (subscriptionId: string): Promise<SubscriptionLine[]> =>
   const raw = await getSubscriptionItems(subscriptionId).catch(upstream)
   return parseSubscriptionItems(raw).map(({ priceId, quantity }) => ({ priceId, quantity }))
 }
-
-/** One provider's billing changes, one at a time — see the header. */
-const billingLock = createKeyedLock()
 
 /**
  * Sixty a minute per address. Public, and each call is a Paddle request — Paddle rate-limits
@@ -282,15 +284,23 @@ billingRouter.post(
 )
 
 /**
- * Move a live subscription to another plan, charged now, prorated (`lib/paddle.ts`).
+ * Move a live subscription to another plan (docs/BILLING.md → *Moving down*).
  *
- * The add-ons the new plan includes are dropped with it, so nobody pays twice; every other
- * add-on stays. `free` removes the plan item and keeps the add-ons — with none left that is a
- * cancellation, which belongs in the billing portal (`lastItem`). Moving to a paid plan
- * withdraws a pending cancellation.
+ * - **Up** — now, charged prorated (`lib/paddle.ts`).
+ * - **Down** — held until the paid period ends: stored as `scheduledPlan` at
+ *   `billingPeriodEndsAt`, and nothing is sent to Paddle except, when a cancellation is
+ *   pending, its withdrawal — choosing a plan is choosing to stay. `jobs/scheduledSwitchJob.ts`
+ *   changes the items in the period's last hours. A period end we do not know (or one already
+ *   past) falls back to switching now.
+ * - **The plan already held** — clears a scheduled move; nothing changes in Paddle.
  *
- * 202: Paddle has accepted the change, and the webhook — not this route — writes the result,
- * so there is one writer of billing state.
+ * Either way a switch is checked against Paddle's items first: the add-ons the new plan
+ * includes go with it, so nobody pays twice, and `free` with no add-on left would be a
+ * cancellation, which belongs in the billing portal (`lastItem`). The current plan is read
+ * from those items too, not from our webhook-fed copy.
+ *
+ * 202 with `{ scheduledAt }` — the instant a held move takes over, or null. For a switch made
+ * now, the webhook, not this route, writes the result: one writer of billing state.
  */
 billingRouter.post(
   '/change-plan',
@@ -305,18 +315,58 @@ billingRouter.post(
 
     assertWriteAllowed(res, `provider:${provider.id}`)
 
-    const dropped = await billingLock(provider.id, async () => {
-      const result = itemsForPlan(await liveLines(subscriptionId), plan, catalogue())
+    const now = new Date()
+    const outcome = await billingLock(provider.id, async () => {
+      const lines = await liveLines(subscriptionId)
+      const held = planOfLines(lines, catalogue())
+      const result = itemsForPlan(lines, plan, catalogue())
       if (!result.items.length) throw lastItem()
-      await updateSubscriptionItems(subscriptionId, { items: result.items, withdrawCancel: isPaidPlan(plan) }).catch(upstream)
-      return result.dropped
+
+      const endsAt = provider.billingPeriodEndsAt
+      const schedule = isPlanDowngrade(held, plan) && endsAt !== null && endsAt > now
+      if (schedule || plan === held) {
+        if (provider.billingCancelsAt && (schedule || isPaidPlan(plan))) {
+          await withdrawScheduledCancel(subscriptionId).catch(upstream)
+        }
+      } else {
+        await updateSubscriptionItems(subscriptionId, { items: result.items, withdrawCancel: isPaidPlan(plan) }).catch(
+          upstream
+        )
+      }
+
+      const scheduledAt = schedule ? endsAt : null
+      await prisma.provider.update({
+        where: { id: provider.id },
+        data: { scheduledPlan: scheduledAt ? plan : null, scheduledPlanAt: scheduledAt },
+      })
+      return { dropped: result.dropped, scheduledAt }
     })
 
+    const { dropped, scheduledAt } = outcome
     console.info(
-      `[billing] provider ${provider.id} asked to switch ${provider.plan} -> ${plan}${ 
-        dropped.length ? `, dropping ${dropped.join(', ')}` : ''}`
+      `[billing] provider ${provider.id} asked to switch ${provider.plan} -> ${plan}${
+        scheduledAt ? ` at ${scheduledAt.toISOString()}` : ''
+      }${dropped.length ? `, dropping ${dropped.join(', ')}` : ''}`
     )
-    return ok(res, true, 202)
+    return ok(res, { scheduledAt: scheduledAt?.toISOString() ?? null }, 202)
+  })
+)
+
+/**
+ * Keep the current plan: forget a scheduled move to a cheaper one. Ours alone — nothing was
+ * sent to Paddle when it was scheduled — so this writes no billing state and is idempotent.
+ * Under the billing lock, so it waits for a job run already applying the move; that one has
+ * reached Paddle, and the webhook will show the cheaper plan.
+ */
+billingRouter.delete(
+  '/scheduled-plan',
+  requireProvider,
+  asyncHandler(async (req, res) => {
+    const providerId = req.session!.profileId
+    await billingLock(providerId, () =>
+      prisma.provider.update({ where: { id: providerId }, data: { scheduledPlan: null, scheduledPlanAt: null } })
+    )
+    return ok(res, true)
   })
 )
 

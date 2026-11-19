@@ -113,6 +113,7 @@ Everything here is pure and framework-free unless the last column says otherwise
 | A plan's last day ↔ its expiry instant (UTC midnight after it) | `toPlanExpiryISO`, `toPlanLastDay`, `toPlanLastDayValue` | `plans.ts` |
 | Usage against a plan limit (`null` = unlimited) | `usagePercent`, `hasRoomFor` | `plans.ts` |
 | How many of an add-on a provider holds; whether a billing change (plan, add-on, checkout) has landed | `heldQuantity`, `BillingTarget`, `isBillingTargetReached` | `plans.ts` |
+| A plan name from a query string, narrowed (`?switch=` on the Plan tab) | `toPlan` | `plans.ts` |
 | Check a password against the shared policy | `checkPasswordPolicy` | `password.ts` |
 
 ## Things to know before using them

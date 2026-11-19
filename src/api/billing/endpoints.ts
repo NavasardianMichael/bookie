@@ -3,8 +3,13 @@ export const ENDPOINTS = {
   getPrices: '/billing/prices',
   /** Starts a subscription for a plan, add-ons, or both: answers Paddle's checkout URL. */
   postCheckout: '/billing/checkout',
-  /** Moves a live subscription to another plan, prorated, dropping the add-ons it includes. */
+  /**
+   * Moves a live subscription to another plan, dropping the add-ons it includes: up now,
+   * prorated; down at the end of the paid period.
+   */
   postChangePlan: '/billing/change-plan',
+  /** Forgets a scheduled move to a cheaper plan. */
+  deleteScheduledPlan: '/billing/scheduled-plan',
   /** Sets how many of one add-on a live subscription holds, prorated; 0 removes it. */
   postAddon: '/billing/addon',
   /** A fresh link into Paddle's customer portal. */

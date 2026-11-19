@@ -928,7 +928,14 @@
       "switchToFreeBody": "I tuoi componenti aggiuntivi restano. La parte non usata del piano viene accreditata sul prossimo pagamento.",
       "betterPlanTitle": "{plan} ti costerebbe meno",
       "betterPlanBody": "Il piano {plan} include ciò che paghi come componenti aggiuntivi, a meno ogni mese.",
-      "addonsCancelNote": "I componenti aggiuntivi si rinnovano con il tuo abbonamento. Annullarlo da Gestisci fatturazione termina anche loro."
+      "addonsCancelNote": "I componenti aggiuntivi si rinnovano con il tuo abbonamento. Annullarlo da Gestisci fatturazione termina anche loro.",
+      "switchScheduledBody": "Mantieni il piano {plan} fino al {date}, poi passi a {next}. Non viene addebitato nulla ora: il prossimo pagamento sarà al prezzo di {next}.",
+      "switchToFreeScheduledBody": "Mantieni il piano {plan} fino al {date}. Poi il piano viene tolto dall'abbonamento e i componenti aggiuntivi restano. Non viene addebitato nulla ora.",
+      "scheduledTitle": "Passaggio a {plan} il {date}",
+      "scheduledBody": "Mantieni il piano {plan} e tutto ciò che include fino ad allora.",
+      "keepPlan": "Mantieni {plan}",
+      "keepPlanFailed": "Non è stato possibile mantenere il piano attuale",
+      "scheduled": "Programmato"
     },
     "visitorAssistant": {
       "title": "Assistente IA sulla tua pagina",
@@ -955,7 +962,7 @@
       "photoAlt": "La foto che hai scelto",
       "noteLabel": "Nota per la lettura",
       "notePlaceholder": "Es. «sono tutte per venerdì» o «M = manicure»",
-      "privacy": "Le foto vengono lette da Google Gemini e non vengono conservate da Bookie. Con il livello gratuito di Google, ciò che viene inviato può essere usato per migliorare i servizi di Google.",
+      "privacy": "Le foto vengono lette da Google Gemini e non vengono conservate da Bookie. Google non le usa per migliorare i suoi servizi.",
       "dailyLimit": "{count, plural, one {Il tuo piano include # foto al giorno.} other {Il tuo piano include # foto al giorno.}}",
       "read": "Leggi la foto",
       "reading": "Lettura delle prenotazioni in corso…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "Piani e pagamenti",
-          "p1": "Prenotare è sempre gratis per i clienti. I professionisti possono usare Bookie gratuitamente o sottoscrivere un piano a pagamento, addebitato mensilmente fino all'annullamento, ai prezzi indicati nella nostra <pricing>pagina dei prezzi</pricing>. Potrebbero essere applicate imposte a seconda del luogo in cui ti trovi. Puoi cambiare o annullare il tuo piano in qualsiasi momento dalle impostazioni del Piano; l'annullamento ha effetto alla fine del mese che hai già pagato. Per i rimborsi, consulta la nostra <refund>Politica di rimborso</refund>.",
+          "p1": "Prenotare è sempre gratis per i clienti. I professionisti possono usare Bookie gratuitamente o sottoscrivere un piano a pagamento, addebitato mensilmente fino all'annullamento, ai prezzi indicati nella nostra <pricing>pagina dei prezzi</pricing>. Potrebbero essere applicate imposte a seconda del luogo in cui ti trovi. Puoi cambiare o annullare il tuo piano in qualsiasi momento dalle impostazioni del Piano; l'annullamento, o il passaggio a un piano più economico, ha effetto alla fine del mese che hai già pagato. Per i rimborsi, consulta la nostra <refund>Politica di rimborso</refund>.",
           "p2": "Il nostro processo di ordinazione è gestito dal nostro rivenditore online Paddle.com. Paddle.com è il Merchant of Record per tutti i nostri ordini. Paddle gestisce tutte le richieste di assistenza clienti e si occupa dei resi."
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>Il nostro servizio di invio email</b> — invia le email relative all'account e alle prenotazioni.",
           "p4": "<b>Telegram</b> — recapita le notifiche, solo se lo colleghi.",
           "p5": "<b>Google</b> — gestisce il tuo accesso, solo se scegli di continuare con Google.",
-          "p6": "<b>Google Gemini</b> — legge la foto di prenotazioni scritte a mano, i messaggi di un fornitore al suo assistente IA e le domande di un visitatore all’assistente IA di una pagina, solo quando qualcuno sceglie di usare queste funzioni. Con il livello gratuito di Gemini, Google può usare ciò che riceve per migliorare i suoi servizi. Non conserviamo le foto né le domande dei visitatori; la conversazione di un fornitore con il suo assistente resta nel suo account finché non la cancella.",
+          "p6": "<b>Google Gemini</b> — legge la foto di prenotazioni scritte a mano, i messaggi di un fornitore al suo assistente IA e le domande di un visitatore all’assistente IA di una pagina, solo quando qualcuno sceglie di usare queste funzioni. Google non usa ciò che riceve per migliorare i suoi servizi. Non conserviamo le foto né le domande dei visitatori; la conversazione di un fornitore con il suo assistente resta nel suo account finché non la cancella.",
           "p7": "<b>Google Analytics</b> — conta le visite e come vengono usate le pagine, senza pubblicità né profilazione. Nell’UE, nel SEE, nel Regno Unito e in Svizzera imposta cookie solo dopo il tuo consenso.",
           "p8": "<b>Sentry</b> — riceve una segnalazione quando qualcosa non funziona nel tuo browser: l’errore, la pagina e il tipo di browser, senza i tuoi cookie, il contenuto dei moduli o i dati del tuo account.",
           "p9": "I dettagli di una prenotazione sono condivisi con il professionista presso cui viene effettuata, e i recapiti pubblici del professionista con il cliente: è proprio questo una prenotazione."
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "Cambio di piano",
-          "p1": "Il cambio di piano è calcolato pro rata: passando a un piano superiore viene addebitata la differenza per il resto del mese, mentre passando a un piano inferiore la differenza viene accreditata sui pagamenti successivi."
+          "p1": "Il passaggio a un piano superiore è calcolato pro rata: la differenza per il resto del mese viene addebitata subito. Il passaggio a un piano inferiore ha effetto alla fine del mese che hai già pagato, quindi non c'è nulla da accreditare."
         },
         "request": {
           "title": "Come richiedere un rimborso",
@@ -1602,7 +1609,7 @@
       "notConfigured": "I pagamenti online non sono disponibili al momento. Richiedi invece il piano e lo attiveremo noi per te.",
       "alreadySubscribed": "Hai già un abbonamento. Modificalo dalle impostazioni del Piano.",
       "noSubscription": "Non c'è alcun abbonamento attivo da modificare.",
-      "photoImportLimit": "Hai già usato l’importazione da foto di oggi. Sarà di nuovo disponibile domani, oppure passa a un piano superiore per importazioni illimitate.",
+      "photoImportLimit": "Hai usato le importazioni da foto di oggi. Tornano domani, oppure passa a un piano superiore per averne di più.",
       "bookingLimit": "Con queste prenotazioni supereresti il limite mensile del tuo piano. Rimuovine alcune o passa a un piano superiore.",
       "photoImportUnavailable": "L’aggiunta di prenotazioni da foto non è disponibile al momento.",
       "photoUnreadable": "Non siamo riusciti a leggere questa foto. Provane una più nitida e ben illuminata.",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "Servizi attivi",
       "maxBookingsPerMonth": "Prenotazioni online al mese",
-      "photoImportsPerDay": "Importazioni da foto al giorno",
+      "photoImportsPerDay": "Importa prenotazioni da una foto",
       "analyticsHistoryDays": "Storico delle statistiche",
       "customSlug": "Link personalizzato",
       "telegramNotifications": "Notifiche Telegram",
       "calendarFeed": "Sincronizzazione del calendario (iCal)",
       "removeBranding": "Nessun marchio Bookie sulla tua pagina",
-      "assistantMessagesPerDay": "Messaggi all’assistente IA al giorno",
-      "visitorAssistantMessagesPerDay": "Domande dei visitatori all’assistente IA della tua pagina al giorno"
+      "assistantMessagesPerDay": "Il tuo assistente IA",
+      "visitorAssistantMessagesPerDay": "Assistente IA per i tuoi clienti"
+    },
+    "aiBadge": "IA",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, one {# foto al giorno} other {# foto al giorno}}",
+      "assistantMessagesPerDay": "{count, plural, one {# messaggio al giorno} other {# messaggi al giorno}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, one {# domanda al giorno} other {# domande al giorno}}"
     },
     "unlimited": "Illimitato",
     "fullHistory": "Storico completo",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "Prenotazioni extra",
         "description": "{count} prenotazioni online in più al mese per pacchetto."
+      },
+      "assistantMessages": {
+        "name": "Messaggi all’assistente IA",
+        "description": "{count} messaggi in più al giorno al tuo assistente IA, per pacchetto. Se il tuo piano non include l’assistente, il primo pacchetto lo attiva."
       }
     },
     "perPackPerMonth": "per pacchetto / mese",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "Prezzi per i professionisti",
-    "metaDescription": "I piani di Bookie per i professionisti: inizia gratis o passa a un piano superiore per avere più servizi, prenotazioni illimitate, notifiche Telegram e sincronizzazione del calendario. Per i clienti prenotare è sempre gratis.",
+    "metaDescription": "I piani di Bookie per i professionisti: inizia gratis o passa a un piano superiore per avere più servizi, prenotazioni illimitate, notifiche Telegram, sincronizzazione del calendario e assistenti IA. Per i clienti prenotare è sempre gratis.",
     "title": "Prezzi",
-    "subtitle": "Inizia gratis e passa a un piano superiore quando l'agenda si riempie. I clienti non pagano mai per prenotare.",
+    "subtitle": "Inizia gratis e passa a un piano superiore quando l'agenda si riempie. I piani superiori aggiungono gli assistenti IA. I clienti non pagano mai per prenotare.",
     "startFree": "Inizia gratis",
     "requestPlan": "Richiedi questo piano",
     "manualNote": "Per ora i piani a pagamento vengono attivati dal nostro team. Invia una richiesta e ti risponderemo via email per attivarlo.",
@@ -1767,6 +1784,13 @@
     "usdNote": "I prezzi sono in dollari statunitensi. Le imposte, ove applicabili, vengono aggiunte al momento del pagamento.",
     "includedTitle": "Incluso in ogni piano",
     "includedSubtitle": "Già incluso nel piano Gratuito: i piani a pagamento aggiungono più capacità e altre comodità.",
+    "aiTitle": "Funzioni IA",
+    "aiSubtitle": "Basate su Google Gemini. Ogni piano include una quota giornaliera, rinnovata ogni giorno a mezzanotte (UTC).",
+    "ai": {
+      "photoImportsPerDay": "Fotografa la tua agenda cartacea e leggiamo le prenotazioni che contiene. Controlli ognuna prima che venga salvato qualcosa.",
+      "assistantMessagesPerDay": "Digli con parole tue cosa cambiare: orari, giorni di chiusura, servizi, prenotazioni. Ti mostra esattamente cosa cambierebbe, e non succede nulla finché non premi Applica.",
+      "visitorAssistantMessagesPerDay": "I visitatori chiedono dei tuoi servizi, prezzi, orari e disponibilità direttamente sulla tua pagina. Risponde con i dati della tua pagina e non può prenotare né modificare nulla. Attivalo nelle impostazioni; le domande giornaliere sono condivise tra tutti i visitatori."
+    },
     "included": {
       "publicPage": "La tua pagina di prenotazione",
       "onlineBooking": "Prenotazioni online 24 ore su 24",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "Cosa succede alla mia pagina se passo a un piano inferiore?",
-        "a": "Non viene tolto nulla di ciò che vedono i tuoi clienti. I servizi oltre il nuovo limite restano online e modificabili: semplicemente non puoi aggiungerne altri finché non rientri nel limite. Un cambio di piano non annulla mai le prenotazioni."
+        "a": "Mantieni il piano attuale fino alla fine del mese già pagato. Non viene tolto nulla di ciò che vedono i tuoi clienti. I servizi oltre il nuovo limite restano online e modificabili: semplicemente non puoi aggiungerne altri finché non rientri nel limite. Un cambio di piano non annulla mai le prenotazioni."
       },
       "switching": {
         "q": "Posso cambiare piano in seguito?",
-        "a": "Sì, in qualsiasi momento dalle impostazioni del Piano. Il cambio si applica subito e la differenza per il resto del mese viene addebitata o accreditata automaticamente."
+        "a": "Sì, in qualsiasi momento dalle impostazioni del Piano. Il passaggio a un piano superiore si applica subito e la differenza per il resto del mese viene addebitata automaticamente. Il passaggio a un piano inferiore ha effetto alla fine del mese già pagato, e fino ad allora puoi cambiare idea."
       },
       "paymentProcessor": {
         "q": "Chi gestisce il pagamento?",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "Posso acquistare una sola funzione senza un piano?",
         "a": "Sì. Ogni funzione e ogni pacchetto di capacità si acquistano singolarmente, ogni mese, su qualsiasi piano, anche Gratuito. I componenti aggiuntivi si rinnovano con il tuo abbonamento e, se passi a un piano che ne include uno, viene rimosso automaticamente: non paghi mai due volte."
+      },
+      "ai": {
+        "q": "Come si usano le funzioni IA?",
+        "a": "Ogni piano include una quota giornaliera per ciascuna funzione IA, rinnovata a mezzanotte (UTC). Contano solo le richieste: applicare una modifica proposta dal tuo assistente è gratis, e nulla cambia finché non la applichi. Quando l'assistente per i tuoi clienti ha risposto a tutte le domande del giorno, ai visitatori viene chiesto di contattarti direttamente. Le funzioni IA usano Google Gemini; la nostra <privacy>Informativa sulla privacy</privacy> spiega cosa riceve."
       }
     },
     "addonsTitle": "Componenti aggiuntivi",
     "addonsSubtitle": "Ti serve solo una cosa? Aggiungila a qualsiasi piano, anche Gratuito. Ogni componente aggiuntivo si paga mensilmente.",
     "addonsBundleNote": "I piani li raggruppano a meno: {plan} include tutte le funzioni qui sopra, con più servizi e prenotazioni.",
     "addAddon": "Aggiungi",
-    "requestAddon": "Richiedi"
+    "requestAddon": "Richiedi",
+    "switchToPlan": "Passa a {plan}"
   },
   "Billing": {
     "checkoutTitle": "Pagamento",
@@ -1883,8 +1912,8 @@
       "photo": "Foto dell’agenda"
     },
     "locked": {
-      "title": "L’assistente IA è incluso in Standard e Premium",
-      "body": "Digli cosa cambiare (orari, giorni di chiusura, servizi, prenotazioni) e approva ogni modifica nella chat. Passa a un piano superiore per usarlo.",
+      "title": "Sblocca l’assistente IA",
+      "body": "Digli cosa cambiare (orari, giorni di chiusura, servizi, prenotazioni) e approva ogni modifica nella chat. È incluso in Standard e Premium, oppure come componente aggiuntivo con qualsiasi piano.",
       "cta": "Vedi i piani"
     },
     "unavailable": {

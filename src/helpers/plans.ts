@@ -1,7 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs'
 import { Addon, AddonSource, Plan, ProviderAddon, ProviderPlanWithUsage } from '@interfaces/plans'
 import { BILLING_STATUSES } from '@constants/billing'
-import { ADDON_SOURCES } from '@constants/plans'
+import { ADDON_SOURCES, PLAN_ORDER } from '@constants/plans'
 
 /**
  * A plan's expiry is an instant — the first moment it no longer applies — but people think
@@ -69,3 +69,7 @@ export const isBillingTargetReached = (target: BillingTarget, current: ProviderP
   if (target.kind === 'addon') return heldQuantity(current.addons, target.addon, ADDON_SOURCES.paddle) === target.quantity
   return current.billing !== null && current.billing.status !== BILLING_STATUSES.canceled
 }
+
+/** A plan name from outside the type system — a query string — narrowed, or null. */
+export const toPlan = (value: unknown): Plan | null =>
+  typeof value === 'string' && (PLAN_ORDER as readonly string[]).includes(value) ? (value as Plan) : null

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   processAddonResponse,
   processBillingPortalResponse,
+  processChangePlanResponse,
   processCheckoutResponse,
   processPlanPricesResponse,
 } from '@api/billing/processors'
@@ -21,6 +22,7 @@ const NONE: LocalizedPlanPrices = {
   removeBranding: null,
   extraServices: null,
   extraBookings: null,
+  assistantMessages: null,
 }
 
 describe('processPlanPricesResponse', () => {
@@ -40,6 +42,18 @@ describe('processCheckoutResponse', () => {
   it('answers the checkout URL itself', () => {
     const url = 'https://bookie.example/en/billing/checkout?_ptxn=txn_1'
     expect(processCheckoutResponse(envelope({ checkoutUrl: url }))).toBe(url)
+  })
+})
+
+describe('processChangePlanResponse', () => {
+  it('answers when a held move to a cheaper plan takes over', () => {
+    expect(processChangePlanResponse(envelope({ scheduledAt: '2026-12-03T10:00:00.000Z' }))).toBe(
+      '2026-12-03T10:00:00.000Z'
+    )
+  })
+
+  it('answers null for a switch made now', () => {
+    expect(processChangePlanResponse(envelope({ scheduledAt: null }))).toBeNull()
   })
 })
 

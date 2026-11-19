@@ -35,6 +35,7 @@ enum Addon {
   removeBranding
   extraServices
   extraBookings
+  assistantMessages
 }
 
 /// Who granted an add-on row. The Paddle webhook replaces only `paddle` rows and an admin
@@ -275,6 +276,13 @@ model Provider {
   /// `occurred_at` of the last webhook event applied. Paddle may deliver out of order, so
   /// an older event than this is ignored rather than allowed to roll the state back.
   billingEventAt         DateTime?
+  /// A move to a cheaper plan, held until the paid period ends (docs/BILLING.md → *Moving
+  /// down*). Written by `POST /billing/change-plan` and cleared by an upgrade, by
+  /// `DELETE /billing/scheduled-plan`, or by `jobs/scheduledSwitchJob.ts` once Paddle has the
+  /// change. Our intent, not billing state: `plan` still changes only through the webhook.
+  scheduledPlan          Plan?
+  /// When `scheduledPlan` takes over — the period end it was scheduled against.
+  scheduledPlanAt        DateTime?
   /// Bumped to revoke the private calendar feed URL, whose token is an HMAC of this
   /// (`lib/token.ts#mintCalendarFeedToken`) — nothing secret is stored.
   calendarFeedVersion    Int                @default(0)
@@ -426,7 +434,7 @@ model ProviderAddon {
   provider   Provider    @relation(fields: [providerId], references: [id], onDelete: Cascade)
   addon      Addon
   source     AddonSource
-  /// 1 for a feature; how many packs for `extraServices` / `extraBookings`.
+  /// 1 for a feature; how many packs for `extraServices` / `extraBookings` / `assistantMessages`.
   quantity   Int         @default(1)
   expiresAt  DateTime?
   createdAt  DateTime    @default(now())

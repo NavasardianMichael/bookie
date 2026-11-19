@@ -26,6 +26,7 @@ export const PricingFaq: FC = () => {
             <AppParagraph size='body-sm' className='m-0 mt-2'>
               {t.rich(`faq.${key}.a`, {
                 refund: (chunks) => <AppLink href={ROUTES.refundPolicy}>{chunks}</AppLink>,
+                privacy: (chunks) => <AppLink href={ROUTES.privacy}>{chunks}</AppLink>,
               })}
             </AppParagraph>
           </details>

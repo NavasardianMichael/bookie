@@ -42,12 +42,13 @@ every email the API sends — neither profile stores a language yet (`docs/BACKL
 
 ## The reminder job
 
-`server/src/jobs/reminderJob.ts` is **the API's one background job**. Everything else is
-computed on read — plan expiry still is — but a reminder has to happen at a time when nobody
-is making a request.
+`server/src/jobs/reminderJob.ts` is one of **the API's two background jobs** (the other applies
+scheduled plan switches — `docs/BILLING.md` → *Moving down*). Everything else is computed on
+read — plan expiry still is — but a reminder has to happen at a time when nobody is making a
+request.
 
 - Started by `index.ts`, never by `createApp`, so tests and scripts never poll.
-  `REMINDERS_ENABLED=false` turns it off.
+  `REMINDERS_ENABLED=false` turns it off, and the switch job with it.
 - Every minute it reads `scheduled`/`confirmed` bookings starting within the next 24 hours
   (the longest lead time anyone can pick) that have a side not yet reminded
   (`@@index([status, startAt])`).

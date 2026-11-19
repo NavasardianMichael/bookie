@@ -25,19 +25,28 @@ Change them there and nowhere else — the web reads them from the API (`GET /pl
 | **Price** (USD, monthly) | $0 | $4.99 | $14.99 | $24.99 |
 | Active services | 3 | 10 | 30 | unlimited |
 | Online bookings a month | 50 | 300 | unlimited | unlimited |
-| AI assistant messages a day | — | — | 40 | 150 |
-| Visitor questions to the page's AI assistant a day | — | — | — | 300 |
 | Analytics history | 30 days | 365 days | full | full |
 | Custom `/p/<slug>` link | — | ✓ | ✓ | ✓ |
 | Telegram notifications (the provider's own) | — | ✓ | ✓ | ✓ |
 | Calendar sync (private iCal feed) | — | ✓ | ✓ | ✓ |
 | No "Booking page by Bookie" line | — | ✓ | ✓ | ✓ |
+| **AI** — bookings read from a photo a day | 1 | 1 | 5 | 10 |
+| **AI** — messages to the provider's own assistant a day | — | — | 5 | 30 |
+| **AI** — visitor questions to the page's assistant a day, all visitors together | — | — | — | 20 |
 
 **Every plan, Free included,** gets every email — new booking, changes, cancellations, and
 appointment reminders for the provider and their clients — plus an add-to-calendar file for
 clients, booking approvals, reviews and analytics. Paid plans sell capacity and convenience,
 never the basics. `/pricing` lists the shared half (`PRICING_INCLUDED` in
 `src/constants/pricing.ts`), which may only claim what ships.
+
+**The AI rows are every Gemini-backed allowance** (`AI_ENTITLEMENTS` in
+`src/constants/plans.ts`). The comparison table lists them last under an *AI* badge, with the
+unit in the cell ("5 messages a day"), and `/pricing` explains each one beside every plan's
+allowance (`PricingAiFeatures`, read from `GET /plans`). They are metered because every call
+spends the deployment's one shared, billed Gemini quota, so they are sold by the day. One add-on
+sells more of one of them — `assistantMessages`, daily messages to the provider's own assistant
+(*Add-ons*); photo reads and the visitor assistant are plan-only. The copy, like `PRICING_INCLUDED`, may only claim what ships.
 
 `null` means unlimited. Every limit and feature must be non-decreasing from Free to Premium,
 and every price strictly increasing — `tests/unit/server/plans.spec.ts` fails otherwise.
@@ -64,6 +73,7 @@ included**. The plans stay the bundles. `ADDON_CATALOGUE` and `ADDON_PRICES` in
 | `removeBranding` | no "Booking page by Bookie" line | $2.99 | 1 |
 | `extraServices` | +5 active services per pack | $1.99 | 10 |
 | `extraBookings` | +100 online bookings a month per pack | $1.99 | 10 |
+| `assistantMessages` | +5 AI assistant messages a day per pack — on Free and Basic (0 a day) the first pack turns the assistant on | $2.99 | 6 |
 
 The prices are placeholders, set so one or two add-ons cost less than Basic and a third
 does not. Below about $2, Paddle's per-transaction fee (5% + 50¢) takes a third or more of a
@@ -75,6 +85,11 @@ lone add-on — a $1 add-on would net about 45¢. Two rules hold the catalogue t
 - **Every plan costs less than the add-ons it would take to rebuild it from Free.** Rebuilding
   Basic costs $18.91 against its $4.99. Standard and Premium have unlimited bookings, which
   no number of packs reaches.
+
+`assistantMessages` is the one pack whose limit is `0` below Standard, so its first unit is
+what makes the assistant available there — the routes read `assistantMessagesPerDay` from
+`getEntitlements`, so nothing else changes. It is priced above the other packs because every
+message is a billed Gemini call (the price is a placeholder, like the rest).
 
 How they combine:
 
@@ -120,9 +135,9 @@ How they combine:
 | Custom link | `PATCH /provider-profile/seo` | Setting or changing the slug without `customSlug` → `403`, code `4102`. Unchanged and cleared slugs always pass. The SEO tab makes the field read-only |
 | Online bookings | `POST /appointments` | At the cap → `409`, code `4202` (`BOOKING_ERROR.bookingFull`). See *The soft cap* |
 | Bookings a provider enters | `POST /provider-profile/bookings/import` | A batch that would pass the monthly cap → `403`, code `4104` (`PLAN_ERROR.bookingLimit`) — a plan answer, because the provider is the reader; the visitor-facing `4202` must never name a plan |
-| AI assistant | `POST /provider-profile/assistant/messages` | `assistantMessagesPerDay` `0` (Free, Basic) → `403`, code `4102` (`featureLocked`); spent for the UTC day → `403`, code `4105` (`PLAN_ERROR.assistantLimit`). Counted in `AssistantUsage`, spent before the Gemini call and given back if it fails. Applying a proposal is free — and each change still meets its own route's limits |
-| Visitor assistant | `PUT /provider-profile/assistant/visitor`, `POST /providers/:key/assistant` | Switching it on below Premium → `403` `4102`. A visitor never hears about the plan: a lapsed plan hides the button (`details.visitorAssistant`) and answers `404` `4503`; the page's 300 a day spent → `429` `4504`, "contact the provider" |
-| Photo imports | `POST /provider-profile/bookings/import/parse` | Past `photoImportsPerDay` (Free: 1 per UTC day, paid: unlimited) → `403`, code `4103` (`PLAN_ERROR.photoImportLimit`). Counted in `PhotoImport` rows, spent before the Gemini call and given back if it fails. Metered because every read spends the deployment's one shared Gemini quota |
+| AI assistant | `POST /provider-profile/assistant/messages` | `assistantMessagesPerDay` `0` (Free, Basic without an `assistantMessages` pack) → `403`, code `4102` (`featureLocked`); spent for the UTC day → `403`, code `4105` (`PLAN_ERROR.assistantLimit`). Counted in `AssistantUsage`, spent before the Gemini call and given back if it fails. Applying a proposal is free — and each change still meets its own route's limits |
+| Visitor assistant | `PUT /provider-profile/assistant/visitor`, `POST /providers/:key/assistant` | Switching it on below Premium → `403` `4102`. A visitor never hears about the plan: a lapsed plan hides the button (`details.visitorAssistant`) and answers `404` `4503`; the page's 20 a day spent → `429` `4504`, "contact the provider" |
+| Photo imports | `POST /provider-profile/bookings/import/parse` | Past `photoImportsPerDay` (per UTC day: Free and Basic 1, Standard 5, Premium 10) → `403`, code `4103` (`PLAN_ERROR.photoImportLimit`). Counted in `PhotoImport` rows, spent before the Gemini call and given back if it fails. Metered because every read spends the deployment's one shared, billed Gemini quota |
 | Analytics history | `GET /provider-profile/analytics` | Clamped to `now − historyDays`; the previous-period delta is skipped if it would reach behind that. The tab disables the longer presets |
 | Telegram | `services/bookingNotify.ts` | A provider's own notices skip Telegram without `telegramNotifications`; email is unaffected. The Notifications tab says so. A *client's* Telegram is never gated |
 | Calendar feed | `GET /provider-profile/calendar-feed`, `GET /calendar/:id/:token.ics` | Without `calendarFeed`: the settings route → `403`, `4102`; the feed itself → `404`, so a lapsed plan's subscribed calendar simply stops updating |
@@ -201,11 +216,13 @@ a pack carrying its count as the item's quantity. One renewal date, one invoice,
 Afterwards, from the Plan tab — every change **reads the subscription's items from Paddle**
 (`GET /subscriptions/{id}`) and writes the whole list back, because Paddle removes whatever a
 `PATCH` leaves out and our copy lags by one webhook. A per-provider in-process lock
-(`lib/keyed-lock.ts`) keeps two quick clicks from undoing each other:
+(`lib/billing-lock.ts`, shared with the scheduled-switch job) keeps two quick clicks — or a
+click and the job — from undoing each other:
 
 - **Switch** — `POST /billing/change-plan` replaces the plan item and drops the add-ons the
   new plan includes. `free` removes the plan item and keeps the add-ons; with none left that
   is a cancellation (`4305 lastItem`). Moving to a paid plan withdraws a pending cancellation.
+  **Up is now; down waits for the paid period's end** — *Moving down* below.
 - **Add-on** — `POST /billing/addon { addon, quantity }` sets one add-on's quantity; 0
   removes it. Buying withdraws a pending cancellation; removing leaves it in place. Without a
   subscription it answers `4303` and the web checks out instead.
@@ -220,6 +237,36 @@ Afterwards, from the Plan tab — every change **reads the subscription's items 
 - **Manage billing** — `POST /billing/portal` opens Paddle's customer portal: cancel, change
   the card, download invoices. The link carries a temporary token and is created per click.
   Cancelling there ends the plan and every add-on together.
+
+### Moving down
+
+A move to a cheaper plan — Free included — **takes effect when the period the provider paid for
+ends**, not now with a credit: they keep what they paid for, and can change their mind until
+then. Paddle cannot schedule an item change (only a cancel or a pause), so we hold it:
+
+1. **`POST /billing/change-plan`** to a cheaper plan checks the switch against Paddle's items
+   (`lastItem` still applies; the current plan is read from them, not from our copy) and stores
+   `Provider.scheduledPlan` at `billingPeriodEndsAt`. It answers `{ scheduledAt }`. Nothing is
+   sent to Paddle — except, with a cancellation pending, its withdrawal: choosing a plan is
+   choosing to stay. A period end we do not know, or one already past, falls back to now.
+2. **`jobs/scheduledSwitchJob.ts`** (every 5 minutes, beside the reminder job) applies it in the
+   period's last **three hours** (`SCHEDULED_SWITCH_LEAD_MS`) — Paddle refuses an item change
+   within 30 minutes of a renewal — with `do_not_bill`, so the renewal charges the cheaper plan.
+   Under the billing lock it re-reads the row and clears it by compare-and-set on the values it
+   applied. `services/billing.ts#scheduledSwitchStep` decides (pure, tested): **wait** before
+   the window or while past due / paused; **apply** inside it; **applyLate** (prorated, the
+   rest of the period credited) if the period end passed without it; **drop** once the
+   subscription has ended. Free with every add-on removed meanwhile becomes a cancel at period
+   end. A Paddle failure leaves the row for the next run.
+3. **The webhook still lands the plan** — `scheduledPlan` is our intent, not billing state, and
+   `getEntitlements` never reads it. A pending cancellation wins: the job does not withdraw it.
+4. **Undo** — `DELETE /billing/scheduled-plan` (*Keep Standard* on the Plan tab) forgets it; an
+   upgrade, or picking the plan already held, clears it too; a new downgrade replaces it.
+
+The Plan tab shows it as *Moving to Basic on …* with *Keep Standard*, the confirm says nothing
+is charged now, and the scheduled plan's column reads *Scheduled*. `/pricing` links a
+subscriber's cheaper columns to the Plan tab's confirm (`?switch=<plan>`); without a
+subscription they stay disabled — there is nothing to switch.
 
 When Paddle is **not configured** (no key, or no price for a plan or add-on — every fresh
 clone), `GET /plans` and `GET /plans/addons` report it `purchasable: false` and the web falls

@@ -41,9 +41,9 @@ export type Entitlements = {
   removeBranding: boolean
   /**
    * Photos of handwritten bookings read per UTC day (`photoImportPeriod`). Metered because
-   * every read spends the deployment's one shared Gemini quota, not because the feature is a
-   * paid one: Free gets a taste, paid plans are bounded only by the per-provider throttle in
-   * `routes/bookingImport.ts`.
+   * every read spends the deployment's one shared Gemini quota: Free and Basic get one a day,
+   * Standard and Premium a few more. The per-provider throttle in `routes/bookingImport.ts`
+   * sits behind it on every plan.
    */
   photoImportsPerDay: number | null
   /**
@@ -89,7 +89,7 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     maxBookingsPerMonth: 300,
     analyticsHistoryDays: 365,
     customSlug: true,
-    photoImportsPerDay: null,
+    photoImportsPerDay: 1,
     assistantMessagesPerDay: 0,
     visitorAssistantMessagesPerDay: 0,
     ...PAID_CONVENIENCE,
@@ -99,8 +99,8 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     maxBookingsPerMonth: null,
     analyticsHistoryDays: null,
     customSlug: true,
-    photoImportsPerDay: null,
-    assistantMessagesPerDay: 40,
+    photoImportsPerDay: 5,
+    assistantMessagesPerDay: 5,
     visitorAssistantMessagesPerDay: 0,
     ...PAID_CONVENIENCE,
   },
@@ -109,9 +109,9 @@ export const PLAN_CATALOGUE: Readonly<Record<Plan, Entitlements>> = {
     maxBookingsPerMonth: null,
     analyticsHistoryDays: null,
     customSlug: true,
-    photoImportsPerDay: null,
-    assistantMessagesPerDay: 150,
-    visitorAssistantMessagesPerDay: 300,
+    photoImportsPerDay: 10,
+    assistantMessagesPerDay: 30,
+    visitorAssistantMessagesPerDay: 20,
     ...PAID_CONVENIENCE,
   },
 }
@@ -165,12 +165,13 @@ export const ADDON_ORDER = [
   'removeBranding',
   'extraServices',
   'extraBookings',
+  'assistantMessages',
 ] as const satisfies readonly Addon[]
 
 /** The on/off entitlements an add-on can sell. */
 export type FeatureKey = 'customSlug' | 'telegramNotifications' | 'calendarFeed' | 'removeBranding'
 /** The limits a pack can raise. */
-export type CapacityKey = 'maxActiveServices' | 'maxBookingsPerMonth'
+export type CapacityKey = 'maxActiveServices' | 'maxBookingsPerMonth' | 'assistantMessagesPerDay'
 
 export type AddonSpec =
   | { kind: 'feature'; grants: FeatureKey }
@@ -183,6 +184,9 @@ export const ADDON_CATALOGUE: Readonly<Record<Addon, AddonSpec>> = {
   removeBranding: { kind: 'feature', grants: 'removeBranding' },
   extraServices: { kind: 'capacity', limit: 'maxActiveServices', step: 5, maxQuantity: 10 },
   extraBookings: { kind: 'capacity', limit: 'maxBookingsPerMonth', step: 100, maxQuantity: 10 },
+  // The AI add-on. On Free and Basic (0 a day) the first pack is what turns the assistant on;
+  // six packs match Premium's own allowance.
+  assistantMessages: { kind: 'capacity', limit: 'assistantMessagesPerDay', step: 5, maxQuantity: 6 },
 }
 
 /**
@@ -198,6 +202,7 @@ export const ADDON_PRICES: Readonly<Record<Addon, PlanPrice>> = {
   removeBranding: { amountCents: 299, currency: 'USD', interval: 'month' },
   extraServices: { amountCents: 199, currency: 'USD', interval: 'month' },
   extraBookings: { amountCents: 199, currency: 'USD', interval: 'month' },
+  assistantMessages: { amountCents: 299, currency: 'USD', interval: 'month' },
 }
 
 export const isAddon = (value: unknown): value is Addon => ADDON_ORDER.includes(value as Addon)

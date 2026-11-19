@@ -928,7 +928,14 @@
       "switchToFreeBody": "Vos options restent. La partie non utilisée de votre formule est créditée sur votre prochain paiement.",
       "betterPlanTitle": "{plan} vous coûterait moins cher",
       "betterPlanBody": "La formule {plan} inclut ce que vous payez en options, pour moins cher chaque mois.",
-      "addonsCancelNote": "Les options se renouvellent avec votre abonnement. L’annuler dans « Gérer la facturation » y met fin aussi."
+      "addonsCancelNote": "Les options se renouvellent avec votre abonnement. L’annuler dans « Gérer la facturation » y met fin aussi.",
+      "switchScheduledBody": "Vous gardez la formule {plan} jusqu’au {date}, puis passez à {next}. Rien n’est facturé maintenant : votre prochain paiement sera au prix de {next}.",
+      "switchToFreeScheduledBody": "Vous gardez la formule {plan} jusqu’au {date}. Ensuite, la formule est retirée de votre abonnement et vos options restent. Rien n’est facturé maintenant.",
+      "scheduledTitle": "Passage à {plan} le {date}",
+      "scheduledBody": "Vous gardez la formule {plan} et tout ce qu’elle inclut d’ici là.",
+      "keepPlan": "Garder {plan}",
+      "keepPlanFailed": "Impossible de garder votre formule actuelle",
+      "scheduled": "Programmé"
     },
     "visitorAssistant": {
       "title": "Assistant IA sur votre page",
@@ -955,7 +962,7 @@
       "photoAlt": "La photo que vous avez choisie",
       "noteLabel": "Note pour la lecture",
       "notePlaceholder": "Ex. : « tout est pour vendredi » ou « M = manucure »",
-      "privacy": "Les photos sont lues par Google Gemini et ne sont pas conservées par Bookie. Avec l’offre gratuite de Google, les données envoyées peuvent servir à améliorer les services de Google.",
+      "privacy": "Les photos sont lues par Google Gemini et ne sont pas conservées par Bookie. Google ne les utilise pas pour améliorer ses services.",
       "dailyLimit": "{count, plural, one {Votre formule inclut # photo par jour.} other {Votre formule inclut # photos par jour.}}",
       "read": "Lire la photo",
       "reading": "Lecture de vos réservations…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "Formules et paiements",
-          "p1": "La réservation est toujours gratuite pour les clients. Les professionnels peuvent utiliser Bookie gratuitement ou souscrire une formule payante, facturée chaque mois jusqu’à sa résiliation, aux prix indiqués sur notre <pricing>page des tarifs</pricing>. Des taxes peuvent s’appliquer selon l’endroit où vous vous trouvez. Vous pouvez changer de formule ou la résilier à tout moment depuis l’onglet Formule de vos paramètres ; une résiliation prend effet à la fin du mois payé. Pour les remboursements, consultez notre <refund>politique de remboursement</refund>.",
+          "p1": "La réservation est toujours gratuite pour les clients. Les professionnels peuvent utiliser Bookie gratuitement ou souscrire une formule payante, facturée chaque mois jusqu’à sa résiliation, aux prix indiqués sur notre <pricing>page des tarifs</pricing>. Des taxes peuvent s’appliquer selon l’endroit où vous vous trouvez. Vous pouvez changer de formule ou la résilier à tout moment depuis l’onglet Formule de vos paramètres ; une résiliation, ou un passage à une formule moins chère, prend effet à la fin du mois payé. Pour les remboursements, consultez notre <refund>politique de remboursement</refund>.",
           "p2": "Notre processus de commande est assuré par notre revendeur en ligne Paddle.com. Paddle.com est le marchand officiel (Merchant of Record) pour toutes nos commandes. Paddle traite toutes les demandes adressées au service client et gère les retours."
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>Notre service d’envoi d’e-mails</b> — envoie les e-mails liés au compte et aux réservations.",
           "p4": "<b>Telegram</b> — transmet les notifications, uniquement si vous le connectez.",
           "p5": "<b>Google</b> — vous connecte, uniquement si vous choisissez de continuer avec Google.",
-          "p6": "<b>Google Gemini</b> — lit la photo de réservations écrites à la main, les messages d’un prestataire à son assistant IA et les questions d’un visiteur à l’assistant IA d’une page, uniquement lorsque quelqu’un choisit d’utiliser ces fonctions. Avec l’offre gratuite de Gemini, Google peut utiliser ce qu’il reçoit pour améliorer ses services. Nous ne conservons ni les photos ni les questions des visiteurs ; la conversation d’un prestataire avec son assistant est conservée dans son compte jusqu’à ce qu’il l’efface.",
+          "p6": "<b>Google Gemini</b> — lit la photo de réservations écrites à la main, les messages d’un prestataire à son assistant IA et les questions d’un visiteur à l’assistant IA d’une page, uniquement lorsque quelqu’un choisit d’utiliser ces fonctions. Google n’utilise pas ce qu’il reçoit pour améliorer ses services. Nous ne conservons ni les photos ni les questions des visiteurs ; la conversation d’un prestataire avec son assistant est conservée dans son compte jusqu’à ce qu’il l’efface.",
           "p7": "<b>Google Analytics</b> — mesure les visites et l’usage des pages, sans publicité ni profilage. Dans l’UE, l’EEE, au Royaume-Uni et en Suisse, il ne dépose de cookies qu’après votre accord.",
           "p8": "<b>Sentry</b> — reçoit un rapport quand quelque chose échoue dans votre navigateur : l’erreur, la page et le type de navigateur, sans vos cookies, le contenu des formulaires ni les données de votre compte.",
           "p9": "Les détails d’une réservation sont partagés avec le professionnel auprès duquel elle est effectuée, et les coordonnées publiques du professionnel avec le client — c’est le principe même d’une réservation."
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "Changement de formule",
-          "p1": "Les changements de formule sont calculés au prorata : passer à une formule supérieure entraîne la facturation de la différence pour le reste du mois, et passer à une formule inférieure crédite cette différence sur vos prochains paiements."
+          "p1": "Passer à une formule supérieure est calculé au prorata : la différence pour le reste du mois est facturée immédiatement. Passer à une formule inférieure prend effet à la fin du mois payé, il n’y a donc rien à créditer."
         },
         "request": {
           "title": "Comment demander un remboursement",
@@ -1602,7 +1609,7 @@
       "notConfigured": "Les paiements en ligne ne sont pas disponibles pour le moment. Demandez plutôt la formule et nous la mettrons en place pour vous.",
       "alreadySubscribed": "Vous avez déjà un abonnement. Modifiez-le depuis l’onglet Formule de vos paramètres.",
       "noSubscription": "Aucun abonnement actif à modifier.",
-      "photoImportLimit": "Vous avez déjà utilisé l’import photo du jour. Il sera de nouveau disponible demain, ou passez à une formule supérieure pour des imports illimités.",
+      "photoImportLimit": "Vous avez utilisé les imports par photo du jour. Ils reviennent demain, ou passez à une formule supérieure pour en avoir plus.",
       "bookingLimit": "Ces réservations vous feraient dépasser la limite mensuelle de votre formule. Retirez-en quelques-unes ou passez à une formule supérieure.",
       "photoImportUnavailable": "L’ajout de réservations depuis une photo n’est pas disponible pour le moment.",
       "photoUnreadable": "Nous n’avons pas pu lire cette photo. Essayez-en une plus nette et bien éclairée.",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "Prestations actives",
       "maxBookingsPerMonth": "Réservations en ligne par mois",
-      "photoImportsPerDay": "Imports photo par jour",
+      "photoImportsPerDay": "Importer des réservations depuis une photo",
       "analyticsHistoryDays": "Historique des statistiques",
       "customSlug": "Lien personnalisé",
       "telegramNotifications": "Notifications Telegram",
       "calendarFeed": "Synchronisation d’agenda (iCal)",
       "removeBranding": "Sans la mention Bookie sur votre page",
-      "assistantMessagesPerDay": "Messages à l’assistant IA par jour",
-      "visitorAssistantMessagesPerDay": "Questions des visiteurs à l’assistant IA de votre page par jour"
+      "assistantMessagesPerDay": "Votre assistant IA",
+      "visitorAssistantMessagesPerDay": "Assistant IA pour vos clients"
+    },
+    "aiBadge": "IA",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, one {# photo par jour} other {# photos par jour}}",
+      "assistantMessagesPerDay": "{count, plural, one {# message par jour} other {# messages par jour}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, one {# question par jour} other {# questions par jour}}"
     },
     "unlimited": "Illimité",
     "fullHistory": "Historique complet",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "Réservations supplémentaires",
         "description": "{count} réservations en ligne de plus par mois et par pack."
+      },
+      "assistantMessages": {
+        "name": "Messages à l’assistant IA",
+        "description": "{count} messages de plus par jour à votre assistant IA, par pack. Si votre formule n’inclut pas l’assistant, le premier pack l’active."
       }
     },
     "perPackPerMonth": "par pack / mois",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "Tarifs pour les professionnels",
-    "metaDescription": "Les formules Bookie pour les professionnels : commencez gratuitement, ou passez à une formule supérieure pour plus de prestations, des réservations illimitées, les notifications Telegram et la synchronisation d’agenda. La réservation reste toujours gratuite pour les clients.",
+    "metaDescription": "Les formules Bookie pour les professionnels : commencez gratuitement, ou passez à une formule supérieure pour plus de prestations, des réservations illimitées, les notifications Telegram, la synchronisation d’agenda et des assistants IA. La réservation reste toujours gratuite pour les clients.",
     "title": "Tarifs",
-    "subtitle": "Commencez gratuitement et passez à la formule supérieure quand votre agenda se remplit. Les clients ne paient jamais pour réserver.",
+    "subtitle": "Commencez gratuitement et passez à la formule supérieure quand votre agenda se remplit. Les formules supérieures ajoutent des assistants IA. Les clients ne paient jamais pour réserver.",
     "startFree": "Commencer gratuitement",
     "requestPlan": "Demander cette formule",
     "manualNote": "Pour l’instant, les formules payantes sont mises en place par notre équipe. Envoyez une demande et nous vous répondrons par e-mail pour l’activer.",
@@ -1767,6 +1784,13 @@
     "usdNote": "Les prix sont en dollars américains. Les taxes applicables sont ajoutées lors du paiement.",
     "includedTitle": "Inclus dans toutes les formules",
     "includedSubtitle": "Inclus dès la formule gratuite — les formules payantes ajoutent capacité et confort en plus.",
+    "aiTitle": "Fonctionnalités IA",
+    "aiSubtitle": "Propulsées par Google Gemini. Chaque formule inclut un quota quotidien, renouvelé chaque jour à minuit (UTC).",
+    "ai": {
+      "photoImportsPerDay": "Photographiez votre agenda papier et nous lisons les réservations qu’il contient. Vous vérifiez chacune avant que quoi que ce soit ne soit enregistré.",
+      "assistantMessagesPerDay": "Dites-lui avec vos mots ce qu’il faut changer : horaires, jours de fermeture, prestations, réservations. Il montre exactement ce qui changerait, et rien ne se passe tant que vous n’appuyez pas sur Appliquer.",
+      "visitorAssistantMessagesPerDay": "Les visiteurs posent leurs questions sur vos prestations, vos tarifs, vos horaires et vos créneaux libres directement sur votre page. Il répond à partir des informations de votre page et ne peut ni réserver ni rien modifier. Activez-le dans vos paramètres ; les questions du jour sont partagées entre tous les visiteurs."
+    },
     "included": {
       "publicPage": "Votre propre page de réservation",
       "onlineBooking": "Réservation en ligne 24 h/24",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "Qu’arrive-t-il à ma page si je passe à une formule inférieure ?",
-        "a": "Rien de ce que voient vos clients ne disparaît. Les prestations au-delà de la nouvelle limite restent en ligne et modifiables — vous ne pouvez simplement pas en ajouter tant que vous n’êtes pas repassé sous la limite. Un changement de formule n’annule jamais de réservation."
+        "a": "Vous gardez votre formule actuelle jusqu’à la fin du mois payé. Rien de ce que voient vos clients ne disparaît. Les prestations au-delà de la nouvelle limite restent en ligne et modifiables — vous ne pouvez simplement pas en ajouter tant que vous n’êtes pas repassé sous la limite. Un changement de formule n’annule jamais de réservation."
       },
       "switching": {
         "q": "Puis-je changer de formule plus tard ?",
-        "a": "Oui, à tout moment depuis l’onglet Formule de vos paramètres. Le changement s’applique immédiatement, et la différence pour le reste du mois est facturée ou créditée automatiquement."
+        "a": "Oui, à tout moment depuis l’onglet Formule de vos paramètres. Passer à une formule supérieure s’applique immédiatement, et la différence pour le reste du mois est facturée automatiquement. Passer à une formule inférieure prend effet à la fin du mois payé, et vous pouvez changer d’avis d’ici là."
       },
       "paymentProcessor": {
         "q": "Qui gère le paiement ?",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "Puis-je acheter une seule fonctionnalité sans formule ?",
         "a": "Oui. Chaque fonctionnalité et chaque pack de capacité sont vendus séparément, au mois, en plus de n’importe quelle formule — Gratuit compris. Les options se renouvellent avec votre abonnement, et passer à une formule qui en inclut une la retire automatiquement : vous ne payez jamais deux fois."
+      },
+      "ai": {
+        "q": "Comment marchent les fonctionnalités IA ?",
+        "a": "Chaque formule inclut un quota quotidien pour chaque fonctionnalité IA, renouvelé à minuit (UTC). Seules les demandes comptent : appliquer une modification proposée par votre assistant est gratuit, et rien ne change tant que vous ne l’appliquez pas. Quand l’assistant pour vos clients a répondu à toutes ses questions du jour, les visiteurs sont invités à vous contacter directement. Les fonctionnalités IA reposent sur Google Gemini ; notre <privacy>politique de confidentialité</privacy> explique ce qu’il reçoit."
       }
     },
     "addonsTitle": "Options",
     "addonsSubtitle": "Besoin d’une seule chose ? Ajoutez-la à n’importe quelle formule, Gratuit compris. Chaque option est facturée au mois.",
     "addonsBundleNote": "Les formules les regroupent pour moins cher : {plan} inclut toutes les fonctionnalités ci-dessus, avec plus de prestations et de réservations.",
     "addAddon": "Ajouter",
-    "requestAddon": "Demander"
+    "requestAddon": "Demander",
+    "switchToPlan": "Passer à {plan}"
   },
   "Billing": {
     "checkoutTitle": "Paiement",
@@ -1883,8 +1912,8 @@
       "photo": "Photo de l’agenda"
     },
     "locked": {
-      "title": "L’assistant IA est inclus dans Standard et Premium",
-      "body": "Dites-lui quoi changer (horaires, jours de fermeture, prestations, réservations) et validez chaque modification dans la conversation. Changez de formule pour l’utiliser.",
+      "title": "Débloquez l’assistant IA",
+      "body": "Dites-lui quoi changer (horaires, jours de fermeture, prestations, réservations) et validez chaque modification dans la conversation. Il est inclus dans Standard et Premium, ou disponible en option avec toute formule.",
       "cta": "Voir les formules"
     },
     "unavailable": {

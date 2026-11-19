@@ -928,7 +928,14 @@
       "switchToFreeBody": "你的附加功能会保留。套餐未使用的部分将抵扣你的下次付款。",
       "betterPlanTitle": "{plan}更划算",
       "betterPlanBody": "{plan}套餐包含你以附加功能形式支付的内容，每月费用更低。",
-      "addonsCancelNote": "附加功能随订阅一起续订。在“管理账单”中取消订阅后，附加功能也会结束。"
+      "addonsCancelNote": "附加功能随订阅一起续订。在“管理账单”中取消订阅后，附加功能也会结束。",
+      "switchScheduledBody": "在 {date} 之前你仍使用{plan}，之后切换到{next}。现在不扣费——下次付款将按{next}的价格收取。",
+      "switchToFreeScheduledBody": "在 {date} 之前你仍使用{plan}。之后套餐将从你的订阅中移除，附加功能会保留。现在不扣费。",
+      "scheduledTitle": "将于 {date} 切换到{plan}",
+      "scheduledBody": "在此之前，你仍可使用{plan}及其全部功能。",
+      "keepPlan": "保留{plan}",
+      "keepPlanFailed": "无法保留你当前的套餐",
+      "scheduled": "已安排"
     },
     "visitorAssistant": {
       "title": "你页面上的 AI 助手",
@@ -955,7 +962,7 @@
       "photoAlt": "你选择的照片",
       "noteLabel": "识别说明",
       "notePlaceholder": "例如：“这些都是周五的”或“M = 美甲”",
-      "privacy": "照片由 Google Gemini 识别，Bookie 不会保存。在 Google 的免费层级下，发送的内容可能会被用于改进 Google 的服务。",
+      "privacy": "照片由 Google Gemini 识别，Bookie 不会保存。Google 不会将其用于改进自身服务。",
       "dailyLimit": "{count, plural, other {你的套餐每天包含 # 张照片。}}",
       "read": "识别照片",
       "reading": "正在识别你的预约…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "套餐与付款",
-          "p1": "客户预约始终免费。服务提供者可以免费使用 Bookie，也可以按照我们<pricing>价格页面</pricing>上的价格订阅付费套餐，付费套餐按月计费，直至取消。根据您所在的地区，可能需要缴纳税费。您可以随时在套餐设置中切换或取消套餐；取消将在已付费月份结束时生效。有关退款，请参阅我们的<refund>退款政策</refund>。",
+          "p1": "客户预约始终免费。服务提供者可以免费使用 Bookie，也可以按照我们<pricing>价格页面</pricing>上的价格订阅付费套餐，付费套餐按月计费，直至取消。根据您所在的地区，可能需要缴纳税费。您可以随时在套餐设置中切换或取消套餐；取消或降级到更便宜的套餐，将在已付费月份结束时生效。有关退款，请参阅我们的<refund>退款政策</refund>。",
           "p2": "我们的订购流程由我们的在线经销商 Paddle.com 执行。Paddle.com 是我们所有订单的记录商户（Merchant of Record）。Paddle 负责处理所有客户服务咨询及退货事宜。"
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>我们的邮件发送服务</b>——发送账户和预约相关邮件。",
           "p4": "<b>Telegram</b>——发送通知，仅在您连接后使用。",
           "p5": "<b>Google</b>——为您完成登录，仅在您选择使用 Google 继续时使用。",
-          "p6": "<b>Google Gemini</b> — 仅在有人选择使用相关功能时，读取手写预约记录的照片、服务提供者发给其 AI 助手的消息，以及访客向页面 AI 助手提出的问题。在 Gemini 的免费层级中，Google 可能会使用收到的内容改进其服务。我们不会保存照片或访客的问题；服务提供者与其助手的对话会保存在其账户中，直到其清空为止。",
+          "p6": "<b>Google Gemini</b> — 仅在有人选择使用相关功能时，读取手写预约记录的照片、服务提供者发给其 AI 助手的消息，以及访客向页面 AI 助手提出的问题。Google 不会使用收到的内容改进其服务。我们不会保存照片或访客的问题；服务提供者与其助手的对话会保存在其账户中，直到其清空为止。",
           "p7": "<b>Google Analytics</b>——统计访问量和页面使用情况，不用于广告，也不建立用户画像。在欧盟、欧洲经济区、英国和瑞士，仅在您同意后才会设置 Cookie。",
           "p8": "<b>Sentry</b>——在您的浏览器出现故障时接收报告，包括错误、页面和浏览器类型，不包含您的 Cookie、表单内容或账户信息。",
           "p9": "预约详情会与该预约的服务提供者共享，服务提供者的公开联系方式也会与客户共享——这正是预约的本质。"
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "切换套餐",
-          "p1": "切换套餐按比例计费：升级时按本月剩余时间补扣差额，降级时差额将抵扣您之后的付款。"
+          "p1": "升级按比例计费：本月剩余时间的差额会立即补扣。降级在已付费月份结束时生效，因此无需抵扣。"
         },
         "request": {
           "title": "如何申请退款",
@@ -1602,7 +1609,7 @@
       "notConfigured": "在线支付暂不可用。请改为申请该套餐，我们会为你开通。",
       "alreadySubscribed": "你已有订阅。请在套餐设置中更改。",
       "noSubscription": "没有可更改的有效订阅。",
-      "photoImportLimit": "你今天的照片导入次数已用完。明天即可再次使用，或升级套餐享受不限次导入。",
+      "photoImportLimit": "你今天的照片导入次数已用完。明天恢复，或升级套餐获取更多。",
       "bookingLimit": "添加这些预约将超出你套餐的每月上限。请删除部分预约，或升级套餐。",
       "photoImportUnavailable": "从照片添加预约功能暂不可用。",
       "photoUnreadable": "无法识别这张照片。请尝试一张更清晰、光线充足的照片。",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "有效服务",
       "maxBookingsPerMonth": "每月在线预约",
-      "photoImportsPerDay": "每日照片导入",
+      "photoImportsPerDay": "从照片导入预约",
       "analyticsHistoryDays": "数据分析历史",
       "customSlug": "自定义链接",
       "telegramNotifications": "Telegram 通知",
       "calendarFeed": "日历同步（iCal）",
       "removeBranding": "页面不显示 Bookie 标识",
-      "assistantMessagesPerDay": "每日 AI 助手消息",
-      "visitorAssistantMessagesPerDay": "每日访客向你页面 AI 助手的提问"
+      "assistantMessagesPerDay": "你的 AI 助手",
+      "visitorAssistantMessagesPerDay": "面向客户的 AI 助手"
+    },
+    "aiBadge": "AI",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, other {每天 # 张照片}}",
+      "assistantMessagesPerDay": "{count, plural, other {每天 # 条消息}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, other {每天 # 个问题}}"
     },
     "unlimited": "不限",
     "fullHistory": "全部历史",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "额外预约",
         "description": "每份每月增加 {count} 个在线预约。"
+      },
+      "assistantMessages": {
+        "name": "AI 助手消息",
+        "description": "每份每天向你的 AI 助手多发 {count} 条消息。如果你的套餐不含助手，第一份就会开通它。"
       }
     },
     "perPackPerMonth": "每份 / 月",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "服务提供者价格",
-    "metaDescription": "Bookie 为服务提供者准备的套餐：免费开始，或升级以获得更多服务、不限次数的预约、Telegram 通知和日历同步。客户预约始终免费。",
+    "metaDescription": "Bookie 为服务提供者准备的套餐：免费开始，或升级以获得更多服务、不限次数的预约、Telegram 通知、日历同步和 AI 助手。客户预约始终免费。",
     "title": "价格",
-    "subtitle": "免费开始，日程排满时再升级。客户预约从不付费。",
+    "subtitle": "免费开始，日程排满时再升级。更高套餐包含 AI 助手。客户预约从不付费。",
     "startFree": "免费开始",
     "requestPlan": "申请此套餐",
     "manualNote": "目前付费套餐由我们的团队手动开通。提交申请后，我们会通过邮件回复并为你开通。",
@@ -1767,6 +1784,13 @@
     "usdNote": "价格以美元显示。适用时，税费将在结账时另行加收。",
     "includedTitle": "所有套餐均包含",
     "includedSubtitle": "免费版即包含以下功能——付费套餐在此基础上提供更多额度和便利。",
+    "aiTitle": "AI 功能",
+    "aiSubtitle": "由 Google Gemini 提供支持。每个套餐都包含每日额度，每天 UTC 午夜重置。",
+    "ai": {
+      "photoImportsPerDay": "拍下你的纸质预约本，我们会读出其中的预约。保存之前，你会逐条核对。",
+      "assistantMessagesPerDay": "用你自己的话告诉它要改什么——营业时间、休息日、服务、预约。它会准确展示将发生的变化，在你点击“应用”之前不会做任何改动。",
+      "visitorAssistantMessagesPerDay": "访客可直接在你的页面上询问服务、价格、营业时间和空闲时段。它根据你页面上的信息回答，无法预约或更改任何内容。在设置中开启；每日问题额度由所有访客共享。"
+    },
     "included": {
       "publicPage": "专属预约页面",
       "onlineBooking": "全天候在线预约",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "如果我换成更低的套餐，我的页面会怎样？",
-        "a": "客户能看到的内容都不会被移除。超出新上限的服务仍保持上线且可编辑——只是在数量降到上限以内之前，你无法再添加新服务。更换套餐绝不会取消任何预约。"
+        "a": "在已付费月份结束前，你仍保留当前套餐。客户能看到的内容都不会被移除。超出新上限的服务仍保持上线且可编辑——只是在数量降到上限以内之前，你无法再添加新服务。更换套餐绝不会取消任何预约。"
       },
       "switching": {
         "q": "以后可以更换套餐吗？",
-        "a": "可以，随时在套餐设置中更换。更改立即生效，本月剩余时间的差额将自动补扣或计入抵扣。"
+        "a": "可以，随时在套餐设置中更换。升级立即生效，本月剩余时间的差额将自动补扣。降级在已付费月份结束时生效，在此之前你可以随时改变主意。"
       },
       "paymentProcessor": {
         "q": "由谁处理付款？",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "可以不买套餐，只买一项功能吗？",
         "a": "可以。每项功能和每份容量包都可以单独按月购买，叠加在任何套餐上，包括免费版。附加功能随订阅一起续订；换到已包含某项附加功能的套餐时，它会被自动移除，所以你绝不会重复付费。"
+      },
+      "ai": {
+        "q": "AI 功能如何使用？",
+        "a": "每个套餐为每项 AI 功能提供每日额度，于 UTC 午夜重置。只有提问才计数——应用助手提议的更改是免费的，而且在你应用之前什么都不会改变。面向客户的 AI 助手用完当天额度后，访客会被提示直接联系你。AI 功能由 Google Gemini 提供；我们的<privacy>隐私政策</privacy>说明了它会收到哪些内容。"
       }
     },
     "addonsTitle": "附加功能",
     "addonsSubtitle": "只需要一项？可以添加到任何套餐，包括免费版。每项附加功能按月计费。",
     "addonsBundleNote": "套餐打包更划算：{plan}包含以上全部功能，以及更多服务和预约。",
     "addAddon": "添加",
-    "requestAddon": "申请"
+    "requestAddon": "申请",
+    "switchToPlan": "切换到{plan}"
   },
   "Billing": {
     "checkoutTitle": "结账",
@@ -1883,8 +1912,8 @@
       "photo": "日程本照片"
     },
     "locked": {
-      "title": "AI 助手适用于标准版和高级版",
-      "body": "告诉它要改什么——营业时间、休息日、服务、预约——并在对话中逐项批准。升级套餐即可使用。",
+      "title": "开通 AI 助手",
+      "body": "告诉它要改什么——营业时间、休息日、服务、预约——并在对话中逐项批准。标准版和高级版已包含，任何套餐也可作为附加功能购买。",
       "cta": "查看套餐"
     },
     "unavailable": {

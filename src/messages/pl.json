@@ -928,7 +928,14 @@
       "switchToFreeBody": "Twoje dodatki zostają. Niewykorzystana część planu zostanie zaliczona na poczet kolejnej płatności.",
       "betterPlanTitle": "{plan} wyjdzie Cię taniej",
       "betterPlanBody": "Plan {plan} zawiera to, za co płacisz w dodatkach, a co miesiąc kosztuje mniej.",
-      "addonsCancelNote": "Dodatki odnawiają się razem z subskrypcją. Anulowanie jej w Zarządzaj płatnościami kończy także je."
+      "addonsCancelNote": "Dodatki odnawiają się razem z subskrypcją. Anulowanie jej w Zarządzaj płatnościami kończy także je.",
+      "switchScheduledBody": "Plan {plan} zostaje do {date}, potem przechodzisz na {next}. Teraz nic nie jest pobierane — kolejna płatność będzie według ceny planu {next}.",
+      "switchToFreeScheduledBody": "Plan {plan} zostaje do {date}. Potem plan zostanie usunięty z subskrypcji, a dodatki zostaną. Teraz nic nie jest pobierane.",
+      "scheduledTitle": "Przejście na {plan}: {date}",
+      "scheduledBody": "Do tego czasu zostaje Ci plan {plan} ze wszystkim, co obejmuje.",
+      "keepPlan": "Zachowaj plan {plan}",
+      "keepPlanFailed": "Nie udało się zachować obecnego planu",
+      "scheduled": "Zaplanowano"
     },
     "visitorAssistant": {
       "title": "Asystent AI na Twojej stronie",
@@ -955,7 +962,7 @@
       "photoAlt": "Wybrane zdjęcie",
       "noteLabel": "Wskazówka do odczytu",
       "notePlaceholder": "Np. „wszystkie na piątek” albo „M = manicure”",
-      "privacy": "Zdjęcia odczytuje Google Gemini, a Bookie ich nie przechowuje. W bezpłatnym planie Google przesłane dane mogą być wykorzystywane do ulepszania usług Google.",
+      "privacy": "Zdjęcia odczytuje Google Gemini, a Bookie ich nie przechowuje. Google nie wykorzystuje ich do ulepszania swoich usług.",
       "dailyLimit": "{count, plural, one {Twój plan obejmuje # zdjęcie dziennie.} few {Twój plan obejmuje # zdjęcia dziennie.} many {Twój plan obejmuje # zdjęć dziennie.} other {Twój plan obejmuje # zdjęcia dziennie.}}",
       "read": "Odczytaj zdjęcie",
       "reading": "Odczytujemy Twoje rezerwacje…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "Plany i płatności",
-          "p1": "Rezerwacja jest zawsze bezpłatna dla klientów. Usługodawcy mogą korzystać z Bookie za darmo lub wykupić subskrypcję płatnego planu, rozliczaną co miesiąc aż do anulowania, według cen podanych na naszej <pricing>stronie z cennikiem</pricing>. W zależności od Twojej lokalizacji mogą obowiązywać podatki. Możesz zmienić lub anulować plan w dowolnym momencie w ustawieniach planu; anulowanie wchodzi w życie z końcem opłaconego miesiąca. Informacje o zwrotach znajdziesz w naszej <refund>Polityce zwrotów</refund>.",
+          "p1": "Rezerwacja jest zawsze bezpłatna dla klientów. Usługodawcy mogą korzystać z Bookie za darmo lub wykupić subskrypcję płatnego planu, rozliczaną co miesiąc aż do anulowania, według cen podanych na naszej <pricing>stronie z cennikiem</pricing>. W zależności od Twojej lokalizacji mogą obowiązywać podatki. Możesz zmienić lub anulować plan w dowolnym momencie w ustawieniach planu; anulowanie lub przejście na tańszy plan wchodzi w życie z końcem opłaconego miesiąca. Informacje o zwrotach znajdziesz w naszej <refund>Polityce zwrotów</refund>.",
           "p2": "Proces zamówienia prowadzi nasz internetowy odsprzedawca Paddle.com. Paddle.com jest Merchant of Record (sprzedawcą) w odniesieniu do wszystkich naszych zamówień. Paddle odpowiada na wszystkie zapytania z zakresu obsługi klienta i obsługuje zwroty."
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>Nasz dostawca wysyłki e-maili</b> — wysyła e-maile dotyczące konta i rezerwacji.",
           "p4": "<b>Telegram</b> — dostarcza powiadomienia, tylko jeśli go połączysz.",
           "p5": "<b>Google</b> — obsługuje logowanie, tylko jeśli zdecydujesz się kontynuować przez Google.",
-          "p6": "<b>Google Gemini</b> — odczytuje zdjęcie odręcznych rezerwacji, wiadomości usługodawcy do jego asystenta AI oraz pytania odwiedzających do asystenta AI strony, tylko gdy ktoś zdecyduje się skorzystać z tych funkcji. W bezpłatnym planie Gemini Google może wykorzystywać otrzymane dane do ulepszania swoich usług. Nie przechowujemy zdjęć ani pytań odwiedzających; rozmowa usługodawcy z asystentem jest przechowywana na jego koncie, dopóki jej nie wyczyści.",
+          "p6": "<b>Google Gemini</b> — odczytuje zdjęcie odręcznych rezerwacji, wiadomości usługodawcy do jego asystenta AI oraz pytania odwiedzających do asystenta AI strony, tylko gdy ktoś zdecyduje się skorzystać z tych funkcji. Google nie wykorzystuje otrzymanych danych do ulepszania swoich usług. Nie przechowujemy zdjęć ani pytań odwiedzających; rozmowa usługodawcy z asystentem jest przechowywana na jego koncie, dopóki jej nie wyczyści.",
           "p7": "<b>Google Analytics</b> — liczy wizyty i sposób korzystania ze stron, bez reklam i bez profilowania. W UE, EOG, Wielkiej Brytanii i Szwajcarii zapisuje pliki cookie dopiero po wyrażeniu przez Ciebie zgody.",
           "p8": "<b>Sentry</b> — otrzymuje raport, gdy coś przestanie działać w Twojej przeglądarce: błąd, stronę i typ przeglądarki, bez Twoich plików cookie, treści formularzy i danych konta.",
           "p9": "Szczegóły rezerwacji są udostępniane usługodawcy, u którego jej dokonano, a publiczne dane kontaktowe usługodawcy — klientowi. Na tym właśnie polega rezerwacja."
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "Zmiana planu",
-          "p1": "Zmiana planu jest rozliczana proporcjonalnie: przejście na wyższy plan oznacza dopłatę różnicy za resztę miesiąca, a przejście na niższy — zaliczenie różnicy na poczet kolejnych płatności."
+          "p1": "Przejście na wyższy plan jest rozliczane proporcjonalnie: różnica za resztę miesiąca jest pobierana od razu. Przejście na niższy plan wchodzi w życie z końcem opłaconego miesiąca, więc nie ma czego zaliczać."
         },
         "request": {
           "title": "Jak poprosić o zwrot",
@@ -1602,7 +1609,7 @@
       "notConfigured": "Płatności online są w tej chwili niedostępne. Zamiast tego poproś o plan, a my go dla Ciebie włączymy.",
       "alreadySubscribed": "Masz już subskrypcję. Zmień ją w ustawieniach planu.",
       "noSubscription": "Nie ma aktywnej subskrypcji do zmiany.",
-      "photoImportLimit": "Dzisiejszy import ze zdjęcia został już wykorzystany. Będzie znów dostępny jutro — możesz też przejść na wyższy plan, aby importować bez limitu.",
+      "photoImportLimit": "Dzisiejsze importy ze zdjęć zostały wykorzystane. Będą znów dostępne jutro — możesz też przejść na wyższy plan, aby mieć ich więcej.",
       "bookingLimit": "Te rezerwacje przekroczyłyby miesięczny limit Twojego planu. Usuń część z nich lub przejdź na wyższy plan.",
       "photoImportUnavailable": "Dodawanie rezerwacji ze zdjęcia jest w tej chwili niedostępne.",
       "photoUnreadable": "Nie udało się odczytać tego zdjęcia. Spróbuj ostrzejszego, dobrze oświetlonego.",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "Aktywne usługi",
       "maxBookingsPerMonth": "Rezerwacje online miesięcznie",
-      "photoImportsPerDay": "Importy ze zdjęć dziennie",
+      "photoImportsPerDay": "Import rezerwacji ze zdjęcia",
       "analyticsHistoryDays": "Historia statystyk",
       "customSlug": "Własny link",
       "telegramNotifications": "Powiadomienia w Telegramie",
       "calendarFeed": "Synchronizacja kalendarza (iCal)",
       "removeBranding": "Brak oznaczeń Bookie na Twojej stronie",
-      "assistantMessagesPerDay": "Wiadomości do asystenta AI dziennie",
-      "visitorAssistantMessagesPerDay": "Pytania odwiedzających do asystenta AI Twojej strony dziennie"
+      "assistantMessagesPerDay": "Twój asystent AI",
+      "visitorAssistantMessagesPerDay": "Asystent AI dla Twoich klientów"
+    },
+    "aiBadge": "AI",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, one {# zdjęcie dziennie} few {# zdjęcia dziennie} many {# zdjęć dziennie} other {# zdjęcia dziennie}}",
+      "assistantMessagesPerDay": "{count, plural, one {# wiadomość dziennie} few {# wiadomości dziennie} many {# wiadomości dziennie} other {# wiadomości dziennie}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, one {# pytanie dziennie} few {# pytania dziennie} many {# pytań dziennie} other {# pytania dziennie}}"
     },
     "unlimited": "Bez limitu",
     "fullHistory": "Cała historia",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "Dodatkowe rezerwacje",
         "description": "{count} rezerwacji online więcej miesięcznie w każdym pakiecie."
+      },
+      "assistantMessages": {
+        "name": "Wiadomości do asystenta AI",
+        "description": "{count} wiadomości więcej dziennie do Twojego asystenta AI w każdym pakiecie. Jeśli Twój plan nie obejmuje asystenta, pierwszy pakiet go włącza."
       }
     },
     "perPackPerMonth": "za pakiet / mies.",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "Cennik dla usługodawców",
-    "metaDescription": "Plany Bookie dla usługodawców: zacznij za darmo lub przejdź na wyższy plan, aby mieć więcej usług, nielimitowane rezerwacje, powiadomienia w Telegramie i synchronizację kalendarza. Rezerwacja jest zawsze bezpłatna dla klientów.",
+    "metaDescription": "Plany Bookie dla usługodawców: zacznij za darmo lub przejdź na wyższy plan, aby mieć więcej usług, nielimitowane rezerwacje, powiadomienia w Telegramie, synchronizację kalendarza i asystentów AI. Rezerwacja jest zawsze bezpłatna dla klientów.",
     "title": "Cennik",
-    "subtitle": "Zacznij za darmo i przejdź na wyższy plan, gdy kalendarz się zapełni. Klienci nigdy nie płacą za rezerwację.",
+    "subtitle": "Zacznij za darmo i przejdź na wyższy plan, gdy kalendarz się zapełni. Wyższe plany dodają asystentów AI. Klienci nigdy nie płacą za rezerwację.",
     "startFree": "Zacznij za darmo",
     "requestPlan": "Poproś o ten plan",
     "manualNote": "Na razie płatne plany włącza nasz zespół. Wyślij prośbę, a odpowiemy e-mailem, aby go aktywować.",
@@ -1767,6 +1784,13 @@
     "usdNote": "Ceny są podane w dolarach amerykańskich. Podatek, jeśli ma zastosowanie, jest doliczany przy płatności.",
     "includedTitle": "W każdym planie",
     "includedSubtitle": "Wszystko to masz już w planie Darmowym — płatne plany dodają większe limity i udogodnienia.",
+    "aiTitle": "Funkcje AI",
+    "aiSubtitle": "Działają w oparciu o Google Gemini. Każdy plan ma dzienny limit, który odnawia się codziennie o północy (UTC).",
+    "ai": {
+      "photoImportsPerDay": "Zrób zdjęcie papierowego kalendarza, a my odczytamy zapisane w nim rezerwacje. Sprawdzasz każdą, zanim cokolwiek zostanie zapisane.",
+      "assistantMessagesPerDay": "Powiedz własnymi słowami, co zmienić — godziny, dni wolne, usługi, rezerwacje. Asystent pokaże dokładnie, co się zmieni, i nic się nie stanie, dopóki nie klikniesz Zastosuj.",
+      "visitorAssistantMessagesPerDay": "Odwiedzający pytają o Twoje usługi, ceny, godziny i wolne terminy bezpośrednio na Twojej stronie. Asystent odpowiada na podstawie danych z Twojej strony i nie może niczego zarezerwować ani zmienić. Włącz go w ustawieniach; dzienny limit pytań jest wspólny dla wszystkich odwiedzających."
+    },
     "included": {
       "publicPage": "Własna strona rezerwacji",
       "onlineBooking": "Rezerwacje online przez całą dobę",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "Co stanie się z moją stroną, jeśli przejdę na niższy plan?",
-        "a": "Nic, co widzą Twoi klienci, nie zniknie. Usługi ponad nowy limit pozostają widoczne i można je edytować — po prostu nie możesz dodawać kolejnych, dopóki nie zejdziesz poniżej limitu. Zmiana planu nigdy nie anuluje rezerwacji."
+        "a": "Obecny plan zostaje u Ciebie do końca opłaconego miesiąca. Nic, co widzą Twoi klienci, nie zniknie. Usługi ponad nowy limit pozostają widoczne i można je edytować — po prostu nie możesz dodawać kolejnych, dopóki nie zejdziesz poniżej limitu. Zmiana planu nigdy nie anuluje rezerwacji."
       },
       "switching": {
         "q": "Czy mogę później zmienić plan?",
-        "a": "Tak, w dowolnym momencie w ustawieniach planu. Zmiana działa od razu, a różnica za resztę miesiąca jest automatycznie dopłacana lub zaliczana na poczet kolejnych płatności."
+        "a": "Tak, w dowolnym momencie w ustawieniach planu. Przejście na wyższy plan działa od razu, a różnica za resztę miesiąca jest pobierana automatycznie. Przejście na niższy plan wchodzi w życie z końcem opłaconego miesiąca i do tego czasu możesz zmienić zdanie."
       },
       "paymentProcessor": {
         "q": "Kto obsługuje płatności?",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "Czy mogę kupić jedną funkcję bez planu?",
         "a": "Tak. Każda funkcja i każdy pakiet pojemności są sprzedawane osobno, co miesiąc, do dowolnego planu — także Darmowego. Dodatki odnawiają się razem z subskrypcją, a przejście na plan, który zawiera dany dodatek, automatycznie go usuwa, więc nigdy nie płacisz dwa razy."
+      },
+      "ai": {
+        "q": "Jak działają funkcje AI?",
+        "a": "Każdy plan ma dzienny limit dla każdej funkcji AI, odnawiany o północy (UTC). Liczą się tylko zapytania — zastosowanie zmiany zaproponowanej przez asystenta jest bezpłatne, a nic się nie zmieni, dopóki jej nie zastosujesz. Gdy asystent AI dla Twoich klientów odpowie na wszystkie pytania danego dnia, odwiedzający zostaną poproszeni o bezpośredni kontakt z Tobą. Funkcje AI działają w oparciu o Google Gemini; co otrzymuje, wyjaśnia nasza <privacy>Polityka prywatności</privacy>."
       }
     },
     "addonsTitle": "Dodatki",
     "addonsSubtitle": "Potrzebujesz tylko jednej rzeczy? Dodaj ją do dowolnego planu, także Darmowego. Każdy dodatek jest rozliczany co miesiąc.",
     "addonsBundleNote": "Plany łączą je taniej — {plan} zawiera wszystkie funkcje powyżej, a do tego więcej usług i rezerwacji.",
     "addAddon": "Dodaj",
-    "requestAddon": "Poproś"
+    "requestAddon": "Poproś",
+    "switchToPlan": "Przejdź na {plan}"
   },
   "Billing": {
     "checkoutTitle": "Płatność",
@@ -1883,8 +1912,8 @@
       "photo": "Zdjęcie terminarza"
     },
     "locked": {
-      "title": "Asystent AI jest dostępny w planach Standard i Premium",
-      "body": "Powiedz mu, co zmienić — godziny, dni wolne, usługi, rezerwacje — i zatwierdzaj każdą zmianę w czacie. Zmień plan, aby z niego korzystać.",
+      "title": "Odblokuj asystenta AI",
+      "body": "Powiedz mu, co zmienić — godziny, dni wolne, usługi, rezerwacje — i zatwierdzaj każdą zmianę w czacie. Jest w planach Standard i Premium albo jako dodatek do dowolnego planu.",
       "cta": "Zobacz plany"
     },
     "unavailable": {

@@ -5,6 +5,7 @@ import type {
   BillingStatus,
   Category,
   Organization,
+  Plan,
   Provider,
   Review,
   ReviewReport,
@@ -431,12 +432,17 @@ export function mapProviderBilling(provider: {
   billingStatus: BillingStatus | null
   billingPeriodEndsAt: Date | null
   billingCancelsAt: Date | null
+  scheduledPlan: Plan | null
+  scheduledPlanAt: Date | null
 }) {
   if (!provider.billingStatus) return null
   return {
     status: provider.billingStatus,
     periodEndsAt: provider.billingPeriodEndsAt?.toISOString(),
     cancelsAt: provider.billingCancelsAt?.toISOString(),
+    ...(provider.scheduledPlan && provider.scheduledPlanAt
+      ? { scheduledPlan: provider.scheduledPlan, scheduledPlanAt: provider.scheduledPlanAt.toISOString() }
+      : {}),
     manageable: Boolean(provider.paddleCustomerId),
   }
 }

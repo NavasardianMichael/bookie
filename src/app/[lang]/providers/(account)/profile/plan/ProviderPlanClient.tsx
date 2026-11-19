@@ -1,10 +1,10 @@
 'use client'
 
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { FC, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Progress, Spin } from 'antd'
 import dynamic from 'next/dynamic'
 import { useFormatter, useTranslations } from 'next-intl'
-import { postAddonAPI, postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
+import { deleteScheduledPlanAPI, postAddonAPI, postBillingPortalAPI, postChangePlanAPI } from '@api/billing/main'
 import { getAddonsAPI, getPlansAPI, getProviderPlanAPI } from '@api/plans/main'
 import { useAwaitPlan } from '@hooks/useAwaitPlan'
 import { useErrorToast } from '@hooks/useErrorToast'
@@ -48,6 +48,11 @@ type PendingChange = { target: BillingTarget; attempt: number }
 /** An add-on change waiting for its confirm: from the quantity paid for now to `quantity`. */
 type AddonChange = { addon: AddonCatalogueEntry; quantity: number; from: number }
 
+type Props = {
+  /** `?switch=<plan>` — `/pricing` handing over a click on a cheaper plan; opens its confirm once. */
+  switchRequest: Plan | null
+}
+
 /**
  * The provider's plan and add-ons: what they hold, what they have used this month, every plan
  * side by side and every add-on, each with a way to change it.
@@ -63,11 +68,13 @@ type AddonChange = { addon: AddonCatalogueEntry; quantity: number; from: number 
  *   (`useStartCheckout`).
  * - **Subscribed** — a plan switch or an add-on change goes to the subscription after a
  *   confirm, charged now and prorated; the page then waits for the webhook (`useAwaitPlan`).
- *   A switch drops the add-ons the new plan includes, and the confirm names them. Free keeps
- *   the add-ons; with none, leaving is a cancellation in Paddle's billing portal.
+ *   **A move to a cheaper plan waits for the paid period's end** (docs/BILLING.md → *Moving
+ *   down*): the API answers when, the page re-reads, and a notice offers to keep the current
+ *   plan. A switch drops the add-ons the new plan includes, and the confirm names them. Free
+ *   keeps the add-ons; with none, leaving is a cancellation in Paddle's billing portal.
  * - **Not purchasable** — Request sends the contact form, granted by hand.
  */
-export const ProviderPlanClient = () => {
+export const ProviderPlanClient: FC<Props> = ({ switchRequest }) => {
   const t = useTranslations('Settings.plan')
   const tPlans = useTranslations('Plans')
   const tErrors = useTranslations('Errors')
@@ -86,6 +93,9 @@ export const ProviderPlanClient = () => {
   const [addonChange, setAddonChange] = useState<AddonChange | null>(null)
   const [pending, setPending] = useState<PendingChange | null>(null)
   const [portalPending, setPortalPending] = useState(false)
+  const [keeping, setKeeping] = useState(false)
+  // `switchRequest` opens its confirm on the first load only, not after every re-read.
+  const switchRequestUsed = useRef(false)
 
   // `loading` is derived from the request's identity, never set at the top of the effect.
   const request = useMemo(() => ({ revision }), [revision])
@@ -102,6 +112,11 @@ export const ProviderPlanClient = () => {
         setCatalogue(plans)
         setAddonCatalogue(addons)
         setError(null)
+        if (!switchRequestUsed.current) {
+          switchRequestUsed.current = true
+          const live = plan.billing !== null && plan.billing.status !== BILLING_STATUSES.canceled
+          if (live && switchRequest && switchRequest !== plan.plan) setSwitchTo(switchRequest)
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(err)
@@ -113,7 +128,7 @@ export const ProviderPlanClient = () => {
     return () => {
       cancelled = true
     }
-  }, [request])
+  }, [request, switchRequest])
 
   // After a change, the plan read by the wait replaces the one loaded before it.
   const awaited = useAwaitPlan(pending?.target ?? null, pending?.attempt)
@@ -162,6 +177,8 @@ export const ProviderPlanClient = () => {
 
   const subscribed = billing !== null && billing.status !== BILLING_STATUSES.canceled
   const pastDue = billing?.status === BILLING_STATUSES.pastDue
+  const scheduledPlan = subscribed ? billing.scheduledPlan : undefined
+  const scheduledPlanAt = subscribed ? billing.scheduledPlanAt : undefined
   const purchasable = new Map(catalogue.map(({ id, purchasable }) => [id, purchasable]))
   const sellsAny = catalogue.some(({ purchasable }) => purchasable) || addonCatalogue.some(({ purchasable }) => purchasable)
   const waitingForChange = pending !== null && awaited.status === 'waiting'
@@ -192,11 +209,30 @@ export const ProviderPlanClient = () => {
     setRequested(next)
   }
 
+  // A re-read after a write of ours (a held move, or keeping the plan) — not the webhook's to land.
+  const reload = (): void => {
+    setPending(null)
+    setRevision((value) => value + 1)
+  }
+
   const confirmSwitch = async (): Promise<void> => {
     if (!switchTo) return
-    await postChangePlanAPI({ plan: switchTo })
-    awaitChange({ kind: 'plan', plan: switchTo })
+    const scheduledAt = await postChangePlanAPI({ plan: switchTo })
     setSwitchTo(null)
+    if (scheduledAt) reload()
+    else awaitChange({ kind: 'plan', plan: switchTo })
+  }
+
+  const keepPlan = async (): Promise<void> => {
+    setKeeping(true)
+    try {
+      await deleteScheduledPlanAPI()
+      reload()
+    } catch (err) {
+      showError(err, { title: t('keepPlanFailed'), key: 'keep-plan' })
+    } finally {
+      setKeeping(false)
+    }
   }
 
   const changeAddon = (addon: AddonCatalogueEntry, quantity: number): void => {
@@ -234,6 +270,7 @@ export const ProviderPlanClient = () => {
   const action = (plan: Plan): ReactNode => {
     if (!isPaid(plan)) {
       if (!subscribed || current.plan === PLANS.free) return null
+      if (plan === scheduledPlan) return <AppButton disabled>{t('scheduled')}</AppButton>
       // With add-ons, Free keeps them; without, leaving is a cancellation, which Paddle's portal owns.
       if (paidFor.length > 0) {
         return (
@@ -259,6 +296,9 @@ export const ProviderPlanClient = () => {
 
     if (subscribed) {
       if (plan === current.plan) return null
+      if (plan === scheduledPlan) {
+        return <AppButton disabled>{t('scheduled')}</AppButton>
+      }
       return (
         <AppButton
           type={isAbove(plan, current.plan) ? 'primary' : 'default'}
@@ -304,12 +344,30 @@ export const ProviderPlanClient = () => {
     return target.kind === 'addon' ? t('addonPendingTitle') : t('switchPendingTitle')
   }
 
+  // Mirrors the API: a move down waits for the period end it knows. (The API also switches now
+  // when that end is already past — a stale read this copy does not try to second-guess.)
+  const waitsForPeriodEnd = (plan: Plan): string | null => {
+    const endsAt = billing?.periodEndsAt
+    return !isAbove(plan, current.plan) && endsAt ? endsAt : null
+  }
+
+  const switchBody = (plan: Plan): string => {
+    const endsAt = waitsForPeriodEnd(plan)
+    if (endsAt) {
+      const values = { plan: tPlans(`names.${current.plan}`), date: formatInstant(endsAt) }
+      return plan === PLANS.free
+        ? t('switchToFreeScheduledBody', values)
+        : t('switchScheduledBody', { ...values, next: tPlans(`names.${plan}`) })
+    }
+    return plan === PLANS.free ? t('switchToFreeBody') : t('switchBody')
+  }
+
   const switchDescription = (): ReactNode => {
     if (!switchTo) return null
     const dropped = droppedBy(switchTo)
     return (
       <span className='flex flex-col gap-2'>
-        <span>{switchTo === PLANS.free ? t('switchToFreeBody') : t('switchBody')}</span>
+        <span>{switchBody(switchTo)}</span>
         {dropped.length > 0 && (
           <span>
             {t('switchDrops', {
@@ -381,6 +439,20 @@ export const ProviderPlanClient = () => {
           showIcon
           title={t('paymentFailedTitle')}
           description={t('paymentFailedBody', { plan: tPlans(`names.${current.plan}`) })}
+        />
+      )}
+
+      {scheduledPlan && scheduledPlanAt && (
+        <Alert
+          type='info'
+          showIcon
+          title={t('scheduledTitle', { plan: tPlans(`names.${scheduledPlan}`), date: formatInstant(scheduledPlanAt) })}
+          description={t('scheduledBody', { plan: tPlans(`names.${current.plan}`) })}
+          action={
+            <AppButton loading={keeping} onClick={() => void keepPlan()}>
+              {t('keepPlan', { plan: tPlans(`names.${current.plan}`) })}
+            </AppButton>
+          }
         />
       )}
 

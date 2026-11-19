@@ -156,6 +156,7 @@ export const config = {
         removeBranding: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_REMOVE_BRANDING),
         extraServices: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_EXTRA_SERVICES),
         extraBookings: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_EXTRA_BOOKINGS),
+        assistantMessages: priceIdList(process.env.PADDLE_PRICE_ID_ADDON_ASSISTANT_MESSAGES),
       },
     } satisfies PaddleCatalogue,
   },
@@ -177,8 +178,9 @@ export const config = {
    * `lib/gemini.ts`, exactly as `mail.apiKey` is by `lib/mail.ts`, and is never logged.
    *
    * Empty disables the import rather than throwing — the button answers 503 and everything
-   * else works. A free-tier key is enough; its content may be used by Google to improve its
-   * products, which the upload step and the Privacy Policy say. `model` is overridable so a
+   * else works. Production's key is on a **billed** project, so Google does not use what it is
+   * sent to improve its products — the upload step and the Privacy Policy say so, and a free-tier
+   * key (fine for local development) would make both untrue. `model` is overridable so a
    * retired model is an env change, not a deploy.
    */
   gemini: {
@@ -186,9 +188,10 @@ export const config = {
     model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
   },
   /**
-   * The appointment-reminder job (`jobs/reminderJob.ts`). On by default; `REMINDERS_ENABLED=false`
-   * turns it off for a second API process, should one ever run — the sends are claimed by
-   * compare-and-set, so two would not double-send, but there is no reason to poll twice.
+   * The background jobs — appointment reminders (`jobs/reminderJob.ts`) and scheduled plan
+   * switches (`jobs/scheduledSwitchJob.ts`). On by default; `REMINDERS_ENABLED=false` turns
+   * both off for a second API process, should one ever run — each claims its work by
+   * compare-and-set, so two would not double-act, but there is no reason to poll twice.
    */
   remindersEnabled: process.env.REMINDERS_ENABLED !== 'false',
 }

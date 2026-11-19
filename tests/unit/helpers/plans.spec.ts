@@ -5,6 +5,7 @@ import {
   hasRoomFor,
   heldQuantity,
   isBillingTargetReached,
+  toPlan,
   toPlanExpiryISO,
   toPlanLastDay,
   toPlanLastDayValue,
@@ -94,5 +95,18 @@ describe('isBillingTargetReached', () => {
       false
     )
     expect(isBillingTargetReached({ kind: 'subscribed' }, current({ billing: { status: 'active', manageable: true } }))).toBe(true)
+  })
+})
+
+describe('toPlan', () => {
+  it('narrows a known plan name', () => {
+    expect(toPlan('basic')).toBe('basic')
+    expect(toPlan('free')).toBe('free')
+  })
+
+  it('answers null for anything else a query string can hold', () => {
+    expect(toPlan('gold')).toBeNull()
+    expect(toPlan(['basic'])).toBeNull()
+    expect(toPlan(undefined)).toBeNull()
   })
 })

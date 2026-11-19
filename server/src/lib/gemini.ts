@@ -12,9 +12,10 @@ import { config } from '../config.js'
  * because they are stateless — nothing about a provider's clients is stored on Google's side
  * between calls; the chat history is ours and is sent again each turn.
  *
- * Built for the **free tier**: one request per photo or message and no retries here. A free key's
- * per-minute quota is small and shared by every provider, so a retry loop would spend it for
- * everyone; a `429` goes back to the caller with Google's suggested wait instead.
+ * One request per photo or message and no retries here. The key is on a **billed** project
+ * (since 2026-11-19), but its per-minute quota is still one pool shared by every provider and
+ * every call is paid for, so a retry loop would spend both for everyone; a `429` goes back to
+ * the caller with Google's suggested wait instead.
  */
 
 /** A photo read takes a few seconds; a slow one is still worth waiting for, a hung one is not. */

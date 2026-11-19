@@ -21,7 +21,7 @@ import { Surface } from '@components/ui/layout/Surface'
 import { StatTile } from '@components/ui/StatTile'
 
 /** Capacity packs show how many are on; a feature is simply on. */
-const PACKS = new Set<string>([ADDONS.extraServices, ADDONS.extraBookings])
+const PACKS = new Set<string>([ADDONS.extraServices, ADDONS.extraBookings, ADDONS.assistantMessages])
 
 /**
  * What this provider pays Bookie: the plan and features they hold, in the same stat

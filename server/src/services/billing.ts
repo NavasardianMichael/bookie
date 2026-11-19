@@ -503,3 +503,39 @@ export const isChangeUnavailableCode = (code: string | undefined): boolean =>
         code === 'subscription_update_when_past_due' ||
         code.startsWith('subscription_immediate_charge'))
   )
+
+/**
+ * How long before a period ends `jobs/scheduledSwitchJob.ts` applies a move to a cheaper plan.
+ * Paddle refuses an item change within 30 minutes of a renewal, and the job runs every few
+ * minutes, so three hours leaves it dozens of tries — while the provider keeps what they paid
+ * for until a few hours before the period they paid for ends.
+ */
+export const SCHEDULED_SWITCH_LEAD_MS = 3 * 60 * 60 * 1000
+
+/** A move to a cheaper plan — the kind that waits for the period end (docs/BILLING.md → *Moving down*). */
+export const isPlanDowngrade = (from: Plan, to: Plan): boolean => PLAN_ORDER.indexOf(to) < PLAN_ORDER.indexOf(from)
+
+/**
+ * What the job does with one scheduled switch now:
+ *
+ * - `drop` — there is no subscription left to change (cancelled, or never there).
+ * - `wait` — not yet inside the lead window, or the subscription is past due or paused, which
+ *   Paddle refuses to change; dunning or a resume settles that one way or the other.
+ * - `apply` — inside the window: the items change **unbilled**, so nothing is credited for
+ *   the few hours left, and the renewal charges the cheaper plan.
+ * - `applyLate` — the period end has passed without it (the API was down, or Paddle kept
+ *   refusing): the renewal already charged the old plan, so the change is **prorated** and
+ *   the rest of that period is credited.
+ */
+export type ScheduledSwitchStep = 'drop' | 'wait' | 'apply' | 'applyLate'
+
+export const scheduledSwitchStep = (
+  state: Pick<ProviderBillingState, 'paddleSubscriptionId' | 'billingStatus'>,
+  at: Date,
+  now: Date
+): ScheduledSwitchStep => {
+  if (!hasLiveSubscription(state)) return 'drop'
+  if (state.billingStatus === 'past_due' || state.billingStatus === 'paused') return 'wait'
+  if (now.getTime() < at.getTime() - SCHEDULED_SWITCH_LEAD_MS) return 'wait'
+  return now < at ? 'apply' : 'applyLate'
+}

@@ -928,7 +928,14 @@
       "switchToFreeBody": "Add-on Anda tetap ada. Bagian paket yang belum terpakai dikreditkan ke pembayaran berikutnya.",
       "betterPlanTitle": "{plan} akan lebih hemat untuk Anda",
       "betterPlanBody": "Paket {plan} mencakup apa yang Anda bayar sebagai add-on, dengan biaya bulanan lebih rendah.",
-      "addonsCancelNote": "Add-on diperpanjang bersama langganan Anda. Membatalkannya di Kelola penagihan juga mengakhirinya."
+      "addonsCancelNote": "Add-on diperpanjang bersama langganan Anda. Membatalkannya di Kelola penagihan juga mengakhirinya.",
+      "switchScheduledBody": "Anda tetap memakai paket {plan} sampai {date}, lalu pindah ke {next}. Tidak ada tagihan sekarang — pembayaran berikutnya sesuai harga {next}.",
+      "switchToFreeScheduledBody": "Anda tetap memakai paket {plan} sampai {date}. Setelah itu paket dilepas dari langganan Anda dan add-on Anda tetap ada. Tidak ada tagihan sekarang.",
+      "scheduledTitle": "Pindah ke {plan} pada {date}",
+      "scheduledBody": "Anda tetap memakai paket {plan} beserta semua fiturnya sampai saat itu.",
+      "keepPlan": "Tetap di {plan}",
+      "keepPlanFailed": "Kami tidak dapat mempertahankan paket Anda saat ini",
+      "scheduled": "Terjadwal"
     },
     "visitorAssistant": {
       "title": "Asisten AI di halaman Anda",
@@ -955,7 +962,7 @@
       "photoAlt": "Foto yang Anda pilih",
       "noteLabel": "Catatan untuk pembacaan",
       "notePlaceholder": "Mis. “semuanya untuk hari Jumat” atau “M = manikur”",
-      "privacy": "Foto dibaca oleh Google Gemini dan tidak disimpan oleh Bookie. Pada tingkat gratis Google, data yang dikirim dapat digunakan untuk meningkatkan layanan Google.",
+      "privacy": "Foto dibaca oleh Google Gemini dan tidak disimpan oleh Bookie. Google tidak menggunakannya untuk meningkatkan layanannya.",
       "dailyLimit": "{count, plural, other {Paket Anda mencakup # foto per hari.}}",
       "read": "Baca foto",
       "reading": "Membaca pemesanan Anda…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "Paket dan pembayaran",
-          "p1": "Pemesanan selalu gratis bagi klien. Penyedia dapat menggunakan Bookie secara gratis atau berlangganan paket berbayar, yang ditagih bulanan hingga dibatalkan, dengan harga yang tercantum di <pricing>halaman harga</pricing> kami. Pajak dapat berlaku tergantung lokasi Anda. Anda dapat mengganti atau membatalkan paket kapan saja dari pengaturan Paket Anda; pembatalan berlaku pada akhir bulan yang telah Anda bayar. Untuk pengembalian dana, lihat <refund>Kebijakan Pengembalian Dana</refund> kami.",
+          "p1": "Pemesanan selalu gratis bagi klien. Penyedia dapat menggunakan Bookie secara gratis atau berlangganan paket berbayar, yang ditagih bulanan hingga dibatalkan, dengan harga yang tercantum di <pricing>halaman harga</pricing> kami. Pajak dapat berlaku tergantung lokasi Anda. Anda dapat mengganti atau membatalkan paket kapan saja dari pengaturan Paket Anda; pembatalan, atau peralihan ke paket yang lebih murah, berlaku pada akhir bulan yang telah Anda bayar. Untuk pengembalian dana, lihat <refund>Kebijakan Pengembalian Dana</refund> kami.",
           "p2": "Proses pesanan kami dilakukan oleh reseller online kami, Paddle.com. Paddle.com adalah Merchant of Record untuk semua pesanan kami. Paddle menangani semua pertanyaan layanan pelanggan dan menangani pengembalian."
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>Layanan pengiriman email kami</b> — mengirim email akun dan pemesanan.",
           "p4": "<b>Telegram</b> — mengirimkan notifikasi, hanya jika Anda menghubungkannya.",
           "p5": "<b>Google</b> — menangani proses masuk Anda, hanya jika Anda memilih untuk melanjutkan dengan Google.",
-          "p6": "<b>Google Gemini</b> — membaca foto catatan pemesanan tulisan tangan, pesan penyedia kepada asisten AI-nya, dan pertanyaan pengunjung kepada asisten AI sebuah halaman, hanya ketika seseorang memilih menggunakan fitur tersebut. Di tingkat gratis Gemini, Google dapat menggunakan data yang diterimanya untuk meningkatkan layanannya. Kami tidak menyimpan foto maupun pertanyaan pengunjung; percakapan penyedia dengan asistennya disimpan di akunnya sampai ia menghapusnya.",
+          "p6": "<b>Google Gemini</b> — membaca foto catatan pemesanan tulisan tangan, pesan penyedia kepada asisten AI-nya, dan pertanyaan pengunjung kepada asisten AI sebuah halaman, hanya ketika seseorang memilih menggunakan fitur tersebut. Google tidak menggunakan data yang diterimanya untuk meningkatkan layanannya. Kami tidak menyimpan foto maupun pertanyaan pengunjung; percakapan penyedia dengan asistennya disimpan di akunnya sampai ia menghapusnya.",
           "p7": "<b>Google Analytics</b> — menghitung kunjungan dan cara halaman digunakan, tanpa iklan dan tanpa pembuatan profil. Di UE, EEA, Inggris, dan Swiss, layanan ini hanya memasang cookie setelah Anda setuju.",
           "p8": "<b>Sentry</b> — menerima laporan saat terjadi kegagalan di browser Anda: galatnya, halamannya, dan jenis browser Anda, tanpa cookie, isi formulir, atau data akun Anda.",
           "p9": "Detail pemesanan dibagikan kepada penyedia tempat pemesanan itu dibuat, dan detail kontak publik penyedia kepada klien — memang itulah hakikat sebuah pemesanan."
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "Mengganti paket",
-          "p1": "Penggantian paket dihitung secara prorata: beralih ke paket yang lebih tinggi menagih selisih untuk sisa bulan tersebut, dan beralih ke paket yang lebih rendah mengkreditkan selisihnya ke pembayaran Anda berikutnya."
+          "p1": "Beralih ke paket yang lebih tinggi dihitung secara prorata: selisih untuk sisa bulan tersebut langsung ditagihkan. Beralih ke paket yang lebih rendah berlaku pada akhir bulan yang telah Anda bayar, sehingga tidak ada yang perlu dikreditkan."
         },
         "request": {
           "title": "Cara mengajukan pengembalian dana",
@@ -1602,7 +1609,7 @@
       "notConfigured": "Pembayaran online sedang tidak tersedia. Sebagai gantinya, ajukan paket ini dan kami akan mengaturnya untuk Anda.",
       "alreadySubscribed": "Anda sudah memiliki langganan. Ubah dari pengaturan Paket Anda.",
       "noSubscription": "Tidak ada langganan aktif yang dapat diubah.",
-      "photoImportLimit": "Anda sudah menggunakan impor foto hari ini. Fitur ini tersedia lagi besok, atau tingkatkan paket untuk impor tanpa batas.",
+      "photoImportLimit": "Anda sudah menggunakan impor foto hari ini. Impor tersedia lagi besok, atau tingkatkan paket untuk mendapatkan lebih banyak.",
       "bookingLimit": "Pemesanan ini akan melampaui batas bulanan paket Anda. Hapus sebagian, atau tingkatkan paket.",
       "photoImportUnavailable": "Menambahkan pemesanan dari foto sedang tidak tersedia.",
       "photoUnreadable": "Kami tidak dapat membaca foto ini. Coba foto yang lebih tajam dan terang.",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "Layanan aktif",
       "maxBookingsPerMonth": "Pemesanan online per bulan",
-      "photoImportsPerDay": "Impor foto per hari",
+      "photoImportsPerDay": "Impor pemesanan dari foto",
       "analyticsHistoryDays": "Riwayat analitik",
       "customSlug": "Tautan khusus",
       "telegramNotifications": "Notifikasi Telegram",
       "calendarFeed": "Sinkronisasi kalender (iCal)",
       "removeBranding": "Tanpa branding Bookie di halaman Anda",
-      "assistantMessagesPerDay": "Pesan asisten AI per hari",
-      "visitorAssistantMessagesPerDay": "Pertanyaan pengunjung ke asisten AI halaman Anda per hari"
+      "assistantMessagesPerDay": "Asisten AI Anda",
+      "visitorAssistantMessagesPerDay": "Asisten AI untuk klien Anda"
+    },
+    "aiBadge": "AI",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, other {# foto per hari}}",
+      "assistantMessagesPerDay": "{count, plural, other {# pesan per hari}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, other {# pertanyaan per hari}}"
     },
     "unlimited": "Tanpa batas",
     "fullHistory": "Seluruh riwayat",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "Pemesanan tambahan",
         "description": "{count} pemesanan online tambahan per bulan per bundel."
+      },
+      "assistantMessages": {
+        "name": "Pesan asisten AI",
+        "description": "{count} pesan tambahan per hari ke asisten AI Anda, per bundel. Jika paket Anda tidak mencakup asisten, bundel pertama akan mengaktifkannya."
       }
     },
     "perPackPerMonth": "per bundel / bulan",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "Harga untuk penyedia",
-    "metaDescription": "Paket Bookie untuk penyedia layanan: mulai gratis, atau tingkatkan untuk lebih banyak layanan, pemesanan tanpa batas, notifikasi Telegram, dan sinkronisasi kalender. Pemesanan selalu gratis bagi klien.",
+    "metaDescription": "Paket Bookie untuk penyedia layanan: mulai gratis, atau tingkatkan untuk lebih banyak layanan, pemesanan tanpa batas, notifikasi Telegram, sinkronisasi kalender, dan asisten AI. Pemesanan selalu gratis bagi klien.",
     "title": "Harga",
-    "subtitle": "Mulai gratis dan tingkatkan saat jadwal Anda mulai penuh. Klien tidak pernah membayar untuk memesan.",
+    "subtitle": "Mulai gratis dan tingkatkan saat jadwal Anda mulai penuh. Paket yang lebih tinggi menambahkan asisten AI. Klien tidak pernah membayar untuk memesan.",
     "startFree": "Mulai gratis",
     "requestPlan": "Ajukan paket ini",
     "manualNote": "Untuk saat ini, paket berbayar diatur oleh tim kami. Kirim permintaan dan kami akan membalas lewat email untuk mengaktifkannya.",
@@ -1767,6 +1784,13 @@
     "usdNote": "Harga dalam dolar AS. Pajak ditambahkan saat pembayaran jika berlaku.",
     "includedTitle": "Termasuk di setiap paket",
     "includedSubtitle": "Sudah termasuk di paket Gratis — paket berbayar menambahkan kapasitas dan kemudahan di atasnya.",
+    "aiTitle": "Fitur AI",
+    "aiSubtitle": "Didukung oleh Google Gemini. Setiap paket mencakup kuota harian yang diperbarui setiap hari pukul 00.00 UTC.",
+    "ai": {
+      "photoImportsPerDay": "Foto buku catatan kertas Anda, lalu kami membaca pemesanan di dalamnya. Anda memeriksa setiap pemesanan sebelum apa pun disimpan.",
+      "assistantMessagesPerDay": "Sampaikan dengan kata-kata Anda sendiri apa yang perlu diubah — jam kerja, hari libur, layanan, pemesanan. Asisten menunjukkan dengan tepat apa yang akan berubah, dan tidak ada yang terjadi sampai Anda menekan Terapkan.",
+      "visitorAssistantMessagesPerDay": "Pengunjung bertanya tentang layanan, harga, jam kerja, dan waktu kosong Anda langsung di halaman Anda. Asisten menjawab dari detail halaman Anda dan tidak dapat memesan atau mengubah apa pun. Aktifkan di pengaturan; kuota pertanyaan harian dibagi untuk semua pengunjung."
+    },
     "included": {
       "publicPage": "Halaman pemesanan Anda sendiri",
       "onlineBooking": "Pemesanan online 24 jam",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "Apa yang terjadi pada halaman saya jika saya beralih ke paket yang lebih kecil?",
-        "a": "Tidak ada yang terlihat oleh klien Anda yang dihilangkan. Layanan di atas batas baru tetap tayang dan dapat diedit — Anda hanya tidak dapat menambah layanan lagi sampai jumlahnya di bawah batas. Pemesanan tidak pernah dibatalkan karena perubahan paket."
+        "a": "Anda tetap memakai paket saat ini sampai akhir bulan yang telah Anda bayar. Tidak ada yang terlihat oleh klien Anda yang dihilangkan. Layanan di atas batas baru tetap tayang dan dapat diedit — Anda hanya tidak dapat menambah layanan lagi sampai jumlahnya di bawah batas. Pemesanan tidak pernah dibatalkan karena perubahan paket."
       },
       "switching": {
         "q": "Bisakah saya mengganti paket nanti?",
-        "a": "Ya, kapan saja dari pengaturan Paket Anda. Perubahan langsung berlaku, dan selisih untuk sisa bulan tersebut ditagihkan atau dikreditkan secara otomatis."
+        "a": "Ya, kapan saja dari pengaturan Paket Anda. Beralih ke paket yang lebih tinggi langsung berlaku, dan selisih untuk sisa bulan tersebut ditagihkan otomatis. Beralih ke paket yang lebih rendah berlaku saat bulan yang telah Anda bayar berakhir, dan Anda bisa berubah pikiran sampai saat itu."
       },
       "paymentProcessor": {
         "q": "Siapa yang menangani pembayaran?",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "Bisakah saya membeli satu fitur tanpa paket?",
         "a": "Bisa. Setiap fitur dan bundel kapasitas dijual terpisah, bulanan, di atas paket apa pun — termasuk Gratis. Add-on diperpanjang bersama langganan Anda, dan saat pindah ke paket yang sudah mencakupnya, add-on itu dihapus otomatis sehingga Anda tidak pernah membayar dua kali."
+      },
+      "ai": {
+        "q": "Bagaimana cara kerja fitur AI?",
+        "a": "Setiap paket mencakup kuota harian untuk setiap fitur AI, yang diperbarui pukul 00.00 UTC. Hanya pertanyaan yang dihitung — menerapkan perubahan yang diusulkan asisten Anda gratis, dan tidak ada yang berubah sampai Anda menerapkannya. Saat asisten untuk klien Anda sudah menjawab semua pertanyaan hari itu, pengunjung diminta menghubungi Anda langsung. Fitur AI menggunakan Google Gemini; <privacy>Kebijakan Privasi</privacy> kami menjelaskan apa yang diterimanya."
       }
     },
     "addonsTitle": "Add-on",
     "addonsSubtitle": "Hanya butuh satu hal? Tambahkan ke paket apa pun, termasuk Gratis. Setiap add-on ditagih bulanan.",
     "addonsBundleNote": "Paket menggabungkannya dengan harga lebih murah — {plan} mencakup semua fitur di atas, plus lebih banyak layanan dan pemesanan.",
     "addAddon": "Tambah",
-    "requestAddon": "Minta"
+    "requestAddon": "Minta",
+    "switchToPlan": "Pindah ke {plan}"
   },
   "Billing": {
     "checkoutTitle": "Pembayaran",
@@ -1883,8 +1912,8 @@
       "photo": "Foto buku agenda"
     },
     "locked": {
-      "title": "Asisten AI tersedia di paket Standar dan Premium",
-      "body": "Beri tahu apa yang perlu diubah — jam kerja, hari libur, layanan, pemesanan — lalu setujui setiap perubahan di obrolan. Tingkatkan paket untuk menggunakannya.",
+      "title": "Buka asisten AI",
+      "body": "Beri tahu apa yang perlu diubah — jam kerja, hari libur, layanan, pemesanan — lalu setujui setiap perubahan di obrolan. Tersedia di paket Standar dan Premium, atau sebagai add-on di paket apa pun.",
       "cta": "Lihat paket"
     },
     "unavailable": {

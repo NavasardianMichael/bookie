@@ -11,7 +11,8 @@ import {
 } from '../services/reminders.js'
 
 /**
- * The appointment-reminder sender — **the API's one background job** (docs/NOTIFICATIONS.md).
+ * The appointment-reminder sender — one of **the API's two background jobs** (docs/NOTIFICATIONS.md);
+ * the other is `scheduledSwitchJob.ts`.
  *
  * Everything else here is computed on read, and plan expiry still is: a reminder is the one
  * thing that has to *happen* at a time nobody is making a request. It runs inside the API

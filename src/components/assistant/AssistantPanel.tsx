@@ -66,7 +66,8 @@ const EXAMPLES = ['closedTomorrow', 'vacation', 'newService', 'pending'] as cons
  * when expanded) switches, **New chat** starts an empty one that its first message stores, and
  * the bin deletes the open one.
  *
- * Standard plan and up (`assistantMessagesPerDay`); below it the panel says what unlocks it.
+ * Standard plan and up, or the `assistantMessages` add-on (`assistantMessagesPerDay`); without
+ * either the panel says what unlocks it.
  */
 export const AssistantPanel: FC<Props> = ({ id, open, onClose, onApplied }) => {
   const t = useTranslations('Assistant')

@@ -95,6 +95,10 @@ export type ProviderBilling = {
   periodEndsAt?: string
   /** ISO instant: set while a cancellation is scheduled; the plan runs until then. */
   cancelsAt?: string
+  /** A move to a cheaper plan, held until `scheduledPlanAt` (the paid period's end); both or neither. */
+  scheduledPlan?: Plan
+  /** ISO instant: when `scheduledPlan` takes over. */
+  scheduledPlanAt?: string
   manageable: boolean
 }
 

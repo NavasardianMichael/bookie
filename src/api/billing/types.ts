@@ -26,6 +26,16 @@ export type PostCheckoutAPI = Endpoint<{
 export type PostChangePlanAPI = Endpoint<{
   /** `free` removes the plan and keeps the add-ons; with none left it is refused (`lastItem`). */
   payload: { plan: Plan }
+  /**
+   * `scheduledAt`: when a move to a cheaper plan takes over (the paid period's end), or null
+   * for a switch made now, which the webhook lands.
+   */
+  response: { scheduledAt: string | null }
+  processed: string | null
+}>
+
+export type DeleteScheduledPlanAPI = Endpoint<{
+  payload: void
   response: boolean
   processed: boolean
 }>

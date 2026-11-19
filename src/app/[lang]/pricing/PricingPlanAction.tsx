@@ -8,7 +8,7 @@ import { useAuthStore } from '@store/auth/store'
 import { useStartCheckout } from '@hooks/useStartCheckout'
 import { Plan } from '@interfaces/plans'
 import { USER_TYPES } from '@constants/auth'
-import { PLAN_ORDER, PLANS } from '@constants/plans'
+import { PLAN_ORDER, PLAN_SWITCH_QUERY, PLANS } from '@constants/plans'
 import { ROUTES } from '@constants/routes'
 import { AppButton } from '@components/ui/AppButton'
 import { AppLink } from '@components/ui/bare/AppLink'
@@ -29,6 +29,8 @@ type Props = {
   plan: Plan
   /** The signed-in provider's effective plan. Absent for a guest, a client, or a failed read. */
   currentPlan?: Plan
+  /** The provider has a live Paddle subscription — the only way a cheaper plan can be switched to. */
+  subscribed: boolean
   /** Whether this deployment sells the plan through Paddle (`GET /plans`). */
   purchasable: boolean
 }
@@ -44,12 +46,16 @@ type Props = {
  * - **A plan this deployment cannot sell** (no Paddle key or price) keeps the contact-form
  *   request it had before checkout existed, assigned by hand from `/admin/providers`.
  *
- * Their column and every cheaper one are disabled. A provider whose plan could not be read
- * still waits on the auth store, and sees the guest link until `getMe()` lands.
+ * Their own column is disabled. A cheaper paid one hands a subscriber to the Plan tab's switch
+ * confirm (`?switch=`) — switching lives there, and a move down waits for the paid period's
+ * end; Free goes to the Plan tab plainly, where leaving is Switch or the billing portal's
+ * cancel. Without a subscription a cheaper column is disabled: there is nothing to switch.
+ * A provider whose plan could not be read still waits on the auth store, and sees the guest
+ * link until `getMe()` lands.
  */
 const rank = (plan: Plan): number => PLAN_ORDER.indexOf(plan)
 
-export const PricingPlanAction: FC<Props> = ({ plan, currentPlan, purchasable }) => {
+export const PricingPlanAction: FC<Props> = ({ plan, currentPlan, subscribed, purchasable }) => {
   const t = useTranslations('Pricing')
   const tPlans = useTranslations('Plans')
   const isSignedOn = useAuthStore.use.isSignedOn()
@@ -67,6 +73,16 @@ export const PricingPlanAction: FC<Props> = ({ plan, currentPlan, purchasable })
     return (
       <AppLink href={ROUTES.providerRegistration} variant='button' tone={plan === PLANS.free ? 'default' : 'primary'}>
         {plan === PLANS.free ? t('startFree') : t('getStarted')}
+      </AppLink>
+    )
+  }
+
+  if (heldOrBelow && plan !== currentPlan && subscribed) {
+    const href =
+      plan === PLANS.free ? ROUTES.providerProfilePlan : `${ROUTES.providerProfilePlan}?${PLAN_SWITCH_QUERY}=${plan}`
+    return (
+      <AppLink href={href} variant='button' tone='default'>
+        {t('switchToPlan', { plan: tPlans(`names.${plan}`) })}
       </AppLink>
     )
   }

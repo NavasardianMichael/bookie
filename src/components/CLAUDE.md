@@ -46,7 +46,7 @@ Feature folders outside the tiers:
 - `errors/` — error *wiring*: `RouteErrorFallback` (body of every `error.tsx`),
   `UnhandledErrorListener`, `RefreshButton`. See *Errors* below.
 - `plans/` — shared by `/pricing` and the Plan tab. `PlanComparisonTable`, `AddonCatalogue`,
-  `PricingIncluded`, `PricingFaq` are antd-free so `/pricing` renders everything into the
+  `PricingAiFeatures`, `PricingIncluded`, `PricingFaq`, `AiBadge` are antd-free so `/pricing` renders everything into the
   HTML; `PlanPrice` / `AddonPrice` are the hydrating cells (`usePlanPrices`).
   `PlanUpgradeSheet` is the request form for what is not `purchasable`; otherwise buying is
   `useStartCheckout`. See `docs/BILLING.md`.

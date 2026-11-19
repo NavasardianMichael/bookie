@@ -56,7 +56,7 @@ off `headers()`. Do **not** call `setRequestLocale` — it is deprecated. A page
 | `/bookings` | Every appointment on the account, either side. Signed-in header destination, `noindex`, proxy-guarded |
 | `/favorites` | Providers saved with the heart. Server Component grid, `noindex`, proxy-guarded |
 | `/contact` | Contact form, `POST /contact` (below) |
-| `/pricing` | Plan comparison + add-ons over `GET /plans`, `/plans/addons`, server-rendered; a signed-in provider's plan, every cheaper one and every add-on it includes render disabled. Paddle islands. Indexed — `docs/BILLING.md` |
+| `/pricing` | Plan comparison + add-ons over `GET /plans`, `/plans/addons`, server-rendered; a signed-in provider's plan and every add-on it includes render disabled; a cheaper plan links a subscriber to the Plan tab's switch confirm (`?switch=`), and is disabled without a subscription. Paddle islands. Indexed — `docs/BILLING.md` |
 | `/terms`, `/privacy`, `/refund-policy` | One `LegalDocument` each over `Legal.<doc>.sections.*`; required by Paddle's review |
 | `/billing/checkout` | Where Paddle sends a checkout (`?_ptxn=`); **public**, `noindex` |
 | `/billing/return` | Waits (`useAwaitPlan`) until a subscription is live. Proxy-guarded, `noindex` |

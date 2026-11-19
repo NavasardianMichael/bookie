@@ -198,7 +198,17 @@ describe('the daily photo allowance', () => {
     )
   })
 
-  it('does not meter a paid plan', () => {
-    expect(() => assertPhotoImport(500, PLAN_CATALOGUE.basic)).not.toThrow()
+  it('meters every plan, by its own daily allowance', () => {
+    expect(() => assertPhotoImport(1, PLAN_CATALOGUE.basic)).toThrow(
+      expect.objectContaining({ code: PLAN_ERROR.photoImportLimit })
+    )
+    expect(() => assertPhotoImport(4, PLAN_CATALOGUE.standard)).not.toThrow()
+    expect(() => assertPhotoImport(5, PLAN_CATALOGUE.standard)).toThrow(
+      expect.objectContaining({ code: PLAN_ERROR.photoImportLimit })
+    )
+    expect(() => assertPhotoImport(9, PLAN_CATALOGUE.premium)).not.toThrow()
+    expect(() => assertPhotoImport(10, PLAN_CATALOGUE.premium)).toThrow(
+      expect.objectContaining({ code: PLAN_ERROR.photoImportLimit })
+    )
   })
 })

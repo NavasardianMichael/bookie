@@ -9,6 +9,7 @@ import {
   hasLiveSubscription,
   includedAddons,
   isChangeUnavailableCode,
+  isPlanDowngrade,
   itemForPriceId,
   itemsForAddon,
   itemsForPlan,
@@ -19,6 +20,8 @@ import {
   PAST_DUE_GRACE_DAYS,
   planOfLines,
   RENEWAL_GRACE_DAYS,
+  SCHEDULED_SWITCH_LEAD_MS,
+  scheduledSwitchStep,
   shouldApplyEvent,
   type SubscriptionEvent,
   subscriptionToSnapshot,
@@ -35,6 +38,7 @@ const CATALOGUE: PaddleCatalogue = {
     removeBranding: ['pri_branding'],
     extraServices: ['pri_services'],
     extraBookings: [],
+    assistantMessages: [],
   },
 }
 const NOW = new Date('2026-10-04T12:00:00.000Z')
@@ -501,5 +505,48 @@ describe('createKeyedLock', () => {
 
     await expect(lock('p3', () => Promise.reject(new Error('boom')))).rejects.toThrow('boom')
     await expect(lock('p3', async () => 'after')).resolves.toBe('after')
+  })
+})
+
+describe('isPlanDowngrade', () => {
+  it('is a move to a cheaper plan, Free included', () => {
+    expect(isPlanDowngrade('standard', 'basic')).toBe(true)
+    expect(isPlanDowngrade('premium', 'free')).toBe(true)
+  })
+
+  it('is not a move up, nor staying put', () => {
+    expect(isPlanDowngrade('basic', 'standard')).toBe(false)
+    expect(isPlanDowngrade('free', 'premium')).toBe(false)
+    expect(isPlanDowngrade('standard', 'standard')).toBe(false)
+  })
+})
+
+describe('scheduledSwitchStep', () => {
+  const AT = new Date('2026-12-03T10:00:00.000Z')
+  const live = { paddleSubscriptionId: 'sub_1', billingStatus: 'active' as const }
+  const before = (ms: number): Date => new Date(AT.getTime() - ms)
+
+  it('waits until the lead window opens', () => {
+    expect(scheduledSwitchStep(live, AT, before(SCHEDULED_SWITCH_LEAD_MS + 1))).toBe('wait')
+  })
+
+  it('applies unbilled inside the window, up to the period end itself', () => {
+    expect(scheduledSwitchStep(live, AT, before(SCHEDULED_SWITCH_LEAD_MS))).toBe('apply')
+    expect(scheduledSwitchStep(live, AT, before(1))).toBe('apply')
+  })
+
+  it('applies prorated once the period end has passed — the renewal already charged the old plan', () => {
+    expect(scheduledSwitchStep(live, AT, AT)).toBe('applyLate')
+    expect(scheduledSwitchStep(live, AT, new Date(AT.getTime() + 24 * 60 * 60 * 1000))).toBe('applyLate')
+  })
+
+  it('waits out a past-due or paused subscription, which Paddle will not change', () => {
+    expect(scheduledSwitchStep({ ...live, billingStatus: 'past_due' }, AT, before(1))).toBe('wait')
+    expect(scheduledSwitchStep({ ...live, billingStatus: 'paused' }, AT, AT)).toBe('wait')
+  })
+
+  it('drops a switch whose subscription has ended', () => {
+    expect(scheduledSwitchStep({ ...live, billingStatus: 'canceled' }, AT, before(1))).toBe('drop')
+    expect(scheduledSwitchStep({ paddleSubscriptionId: null, billingStatus: null }, AT, AT)).toBe('drop')
   })
 })

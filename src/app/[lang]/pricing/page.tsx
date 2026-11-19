@@ -6,12 +6,14 @@ import { getAddonsAPI, getPlansAPI, getProviderPlanAPI } from '@api/plans/main'
 import { Plan } from '@interfaces/plans'
 import { localizedAlternates } from '@i18n/metadata'
 import { SESSION_COOKIE, USER_TYPES } from '@constants/auth'
+import { BILLING_STATUSES } from '@constants/billing'
 import { PLANS } from '@constants/plans'
 import { ROUTE_KEYS, ROUTES } from '@constants/routes'
 import { classifyError } from '@helpers/error'
 import { reportError } from '@helpers/reportError'
 import { AddonCatalogue } from '@components/plans/AddonCatalogue'
 import { PlanComparisonTable } from '@components/plans/PlanComparisonTable'
+import { PricingAiFeatures } from '@components/plans/PricingAiFeatures'
 import { PricingCurrencyNote } from '@components/plans/PricingCurrencyNote'
 import { PricingFaq } from '@components/plans/PricingFaq'
 import { PricingIncluded } from '@components/plans/PricingIncluded'
@@ -38,36 +40,42 @@ export async function generateMetadata(): Promise<Metadata> {
  * The plans and their prices, for providers deciding whether to join or upgrade.
  *
  * A Server Component over `GET /plans` and `GET /plans/addons`, so the table — every limit
- * and the USD price of every plan — and every add-on sold on its own are in the HTML a
- * crawler reads, and so are what every plan includes and the billing FAQ. Only the per-column actions and the price cells hydrate: the actions to start
+ * and the USD price of every plan — what each AI feature does, and every add-on sold on its
+ * own are in the HTML a crawler reads, and so are what every plan includes and the billing FAQ. Only the per-column actions and the price cells hydrate: the actions to start
  * a Paddle checkout, the prices to swap in the visitor's local currency. Nothing here knows a
  * limit or a price (docs/BILLING.md).
  *
  * A signed-in provider's effective plan is read with the session cookie and passed into the
- * table, so their column is marked and that plan and every cheaper one cannot be chosen.
+ * table, so their column is marked and that plan cannot be chosen. A cheaper one links a
+ * subscriber to the Plan tab's switch confirm, which owns switching (and a move down waits
+ * for the paid period's end); without a subscription it stays disabled.
  * An add-on that plan already includes gets the same disabled button. A guest, a client,
  * or a failed plan read leaves the columns and the add-on buttons unmarked — the page still renders.
  *
  * Clients never pay, and the page says so — the footer hides this link from consumer
  * sessions, but a client can still land here from a search.
  */
-const loadCurrentPlan = async (): Promise<Plan | undefined> => {
+type CurrentPlan = { plan?: Plan; subscribed: boolean }
+
+const loadCurrentPlan = async (): Promise<CurrentPlan> => {
+  const none: CurrentPlan = { subscribed: false }
   const cookieStore = await cookies()
-  if (!cookieStore.has(SESSION_COOKIE)) return undefined
+  if (!cookieStore.has(SESSION_COOKIE)) return none
   const cookie = cookieStore.toString()
 
   try {
     const session = await getMeAPI({ cookie })
-    if (session.role !== USER_TYPES.provider) return undefined
-    return (await getProviderPlanAPI({ cookie })).effectivePlan
+    if (session.role !== USER_TYPES.provider) return none
+    const { effectivePlan, billing } = await getProviderPlanAPI({ cookie })
+    return { plan: effectivePlan, subscribed: billing !== null && billing.status !== BILLING_STATUSES.canceled }
   } catch (error) {
     if (classifyError(error).kind !== 'unauthorized') reportError(error, 'pricing:plan')
-    return undefined
+    return none
   }
 }
 
 export default async function Pricing() {
-  const [t, tPlans, plans, addons, currentPlan] = await Promise.all([
+  const [t, tPlans, plans, addons, { plan: currentPlan, subscribed }] = await Promise.all([
     getTranslations('Pricing'),
     getTranslations('Plans'),
     getPlansAPI(),
@@ -88,7 +96,12 @@ export default async function Pricing() {
             currentPlan={currentPlan}
             caption={t('title')}
             renderAction={(plan) => (
-              <PricingPlanAction plan={plan} currentPlan={currentPlan} purchasable={purchasable.get(plan) ?? false} />
+              <PricingPlanAction
+                plan={plan}
+                currentPlan={currentPlan}
+                subscribed={subscribed}
+                purchasable={purchasable.get(plan) ?? false}
+              />
             )}
           />
         </Surface>
@@ -104,6 +117,8 @@ export default async function Pricing() {
           )}
         </div>
       </div>
+
+      <PricingAiFeatures plans={plans} />
 
       {addons.length > 0 && (
         <Section title={t('addonsTitle')} description={t('addonsSubtitle')}>

@@ -130,9 +130,10 @@ generic messages append the original error's message. The table is in `server/CL
 | GET | `/provider-profile/calendar-feed` | provider — `{ url }` of the private iCal feed; needs the plan's `calendarFeed` (`403` / `4102`) |
 | POST | `/provider-profile/calendar-feed/rotate` | provider — bumps `calendarFeedVersion`, revoking the old URL; answers the new `{ url }` |
 | GET | `/calendar/:providerId/:token.ics` | public capability URL — `text/calendar` of live bookings, −30 d to +365 d. `404` for a bad token or a plan without `calendarFeed` |
-| GET | `/billing/prices` | public, rate-limited — Paddle's localized monthly total per paid plan and per add-on (a pack priced for one) for the caller's IP, `{ basic, standard, premium, customSlug, …, extraBookings }`, `null` where unknown |
+| GET | `/billing/prices` | public, rate-limited — Paddle's localized monthly total per paid plan and per add-on (a pack priced for one) for the caller's IP, `{ basic, standard, premium, customSlug, …, assistantMessages }`, `null` where unknown |
 | POST | `/billing/checkout` | provider — `{ plan?, addons?: [{ addon, quantity }], locale }`, at least one item → `201 { checkoutUrl }` (a Paddle transaction). `409` / `4302` while a subscription is live; `409` / `4304` for an add-on the plan includes; `503` / `4301` when something is not sold |
-| POST | `/billing/change-plan` | provider — `{ plan }` (`free` allowed while add-ons remain) → `202`; prorated now, the add-ons the new plan includes are dropped, the webhook applies it. `409` / `4303` without a live subscription, `4305` if nothing would be left, `4306` when Paddle will not change it right now |
+| POST | `/billing/change-plan` | provider — `{ plan }` (`free` allowed while add-ons remain) → `202` `{ scheduledAt }`; up: prorated now, the webhook applies it; down: held in `scheduledPlan` until the period end (`scheduledAt`), applied by `jobs/scheduledSwitchJob.ts`; the plan already held clears a held move. The add-ons the new plan includes are dropped. `409` / `4303` without a live subscription, `4305` if nothing would be left, `4306` when Paddle will not change it right now |
+| DELETE | `/billing/scheduled-plan` | provider — forgets a held move to a cheaper plan (*Keep* on the Plan tab); idempotent, nothing is sent to Paddle → `true` |
 | POST | `/billing/addon` | provider — `{ addon, quantity }` (0 removes) → `202`; prorated now. `409` / `4303` without a live subscription (check out instead), `4304` included in the plan, `4305` if nothing would be left, `4306` not right now |
 | POST | `/billing/portal` | provider — `{ url }` into Paddle's customer portal (temporary; never cache) |
 | GET | `/billing/payments` | provider — settled Paddle charges for this provider's customer, newest first, at most 50: `[{ id, paidAt, status: 'paid' \| 'billed', currency, total, plan?, addons: [{ addon, quantity }] }]`. `total` is major units. `[]` when they never checked out or Paddle is unconfigured. `502` when Paddle does not answer |
@@ -596,8 +597,9 @@ Only providers are billed. The strategy, the catalogue and the roadmap are in
 | `Provider.billingStatus` | Enum `BillingStatus` (`active` \| `trialing` \| `past_due` \| `paused` \| `canceled`) — Paddle's status, for display |
 | `Provider.billingPeriodEndsAt` / `billingCancelsAt` | The renewal date, and a scheduled cancellation's date — the Plan tab's "Renews on" / "Ends on" |
 | `Provider.billingEventAt` | `occurred_at` of the last webhook event applied; an older one is ignored |
+| `Provider.scheduledPlan`, `scheduledPlanAt` | A move to a cheaper plan held until the paid period ends (`docs/BILLING.md` → *Moving down*). Written by `POST /billing/change-plan`, cleared by an upgrade, `DELETE /billing/scheduled-plan` or the switch job once Paddle has it. Never read by `getEntitlements` |
 | `Provider.bookingCapWarnedAt` / `bookingCapReachedAt` | The 80% and 100% allowance emails. "Sent this month" = stamp ≥ the UTC month's start; claimed by compare-and-set. Cleared when a write changes the effective booking allowance — a plan or a pack of bookings |
-| `ProviderAddon` | One add-on held, per source: enum `Addon` (`customSlug` \| `telegramNotifications` \| `calendarFeed` \| `removeBranding` \| `extraServices` \| `extraBookings`), enum `AddonSource` (`paddle` \| `admin`), `quantity` (1 for a feature, the pack count otherwise), `expiresAt` (null = no end; applied on read like `planExpiresAt`). The webhook replaces the `paddle` rows with every snapshot, all with the subscription's lapse; the admin route replaces the `admin` rows. Rows from both merge |
+| `ProviderAddon` | One add-on held, per source: enum `Addon` (`customSlug` \| `telegramNotifications` \| `calendarFeed` \| `removeBranding` \| `extraServices` \| `extraBookings` \| `assistantMessages`), enum `AddonSource` (`paddle` \| `admin`), `quantity` (1 for a feature, the pack count otherwise), `expiresAt` (null = no end; applied on read like `planExpiresAt`). The webhook replaces the `paddle` rows with every snapshot, all with the subscription's lapse; the admin route replaces the `admin` rows. Rows from both merge |
 | `Appointment @@index([providerId, createdAt])` | The monthly allowance counts by creation time |
 
 Every limit is read through `getEntitlements` in `server/src/services/plans.ts` — never
@@ -850,8 +852,8 @@ phone of 5–15 digits, an id of theirs — anything else becomes `null` for the
 ask about. Refusals: no key → `503` `4401`; a read the model refused or left empty → `422`
 `4402`; Google's own `429` → `429` with its `Retry-After`; over `photoImportsPerDay` → `403`
 `4103`; more than 10 reads an hour per provider (every plan, in-memory) → `429`. Each read
-writes a `PhotoImport` row first and deletes it if the call fails, so a free provider's one
-photo a day is spent only by a photo that was read.
+writes a `PhotoImport` row first and deletes it if the call fails, so a day's allowance
+(1 on Free and Basic) is spent only by a photo that was read.
 
 **`/`** is `createProviderAppointments`, all or nothing in one transaction. It applies a
 *provider's* rules, not a visitor's:

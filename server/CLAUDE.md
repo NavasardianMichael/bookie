@@ -9,7 +9,7 @@ server/
   prisma/            schema.prisma, seed.ts
   src/
     app.ts           the only place routers are mounted
-    index.ts         starts the server and the one background job (jobs/reminderJob)
+    index.ts         starts the server and the two background jobs (jobs/)
     config.ts        the only reader of process.env (with load-env.ts)
     routes/          one router per resource
     services/        domain logic; the pure halves are unit-tested
@@ -202,7 +202,10 @@ snapshot every `subscription.*` event carries. Out-of-order and repeated events 
 by compare-and-set on `billingEventAt` in one transaction — no events table.
 
 A change reads the items **from Paddle**, never from our copy, and `PATCH`es the whole list
-back (Paddle removes what is left out) inside `billingLock`. The item builders keep an
+back (Paddle removes what is left out) inside `billingLock` (`lib/billing-lock.ts`, shared with
+the switch job). **A move to a cheaper plan is held** in `Provider.scheduledPlan` — our intent,
+which `getEntitlements` never reads — and applied unbilled in the period's last hours by
+`jobs/scheduledSwitchJob.ts`; the webhook still writes the resulting `plan`. The item builders keep an
 existing item's own price id and pass unknown items through. Full state table:
 `docs/BILLING.md`.
 
@@ -259,8 +262,10 @@ validation, plan gate and client email. Design record: `docs/routes/ai-assistant
 plan's `telegramNotifications`; a client's never depends on a plan. **Every notice is
 best-effort** — the booking is committed. No SMS. See `docs/NOTIFICATIONS.md`.
 
-**The reminder job is the API's one background job** (`jobs/reminderJob.ts`), started by
-`index.ts`, never by `createApp`. Everything else is computed on read. It claims each send
+**The API has two background jobs**, both started by `index.ts` (never by `createApp`) under
+`REMINDERS_ENABLED`: the reminder job (`jobs/reminderJob.ts`) and the scheduled plan switch
+(`jobs/scheduledSwitchJob.ts`, docs/BILLING.md → *Moving down*). Everything else is computed
+on read. The reminder job claims each send
 by compare-and-set on `Appointment.providerRemindedAt` / `bookerRemindedAt`, so it is
 at-most-once. **Code that moves a booking to a new time must clear both stamps**, as
 `rescheduleAppointment` does.

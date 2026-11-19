@@ -928,7 +928,14 @@
       "switchToFreeBody": "Ihre Add-ons bleiben. Der ungenutzte Teil Ihres Tarifs wird Ihrer nächsten Zahlung gutgeschrieben.",
       "betterPlanTitle": "{plan} wäre günstiger für Sie",
       "betterPlanBody": "Der Tarif {plan} enthält, wofür Sie als Add-ons zahlen – für weniger pro Monat.",
-      "addonsCancelNote": "Add-ons verlängern sich mit Ihrem Abonnement. Wenn Sie es unter „Abrechnung verwalten“ kündigen, enden sie ebenfalls."
+      "addonsCancelNote": "Add-ons verlängern sich mit Ihrem Abonnement. Wenn Sie es unter „Abrechnung verwalten“ kündigen, enden sie ebenfalls.",
+      "switchScheduledBody": "Sie behalten den Tarif {plan} bis zum {date} und wechseln dann zu {next}. Jetzt wird nichts berechnet – Ihre nächste Zahlung erfolgt zum Preis von {next}.",
+      "switchToFreeScheduledBody": "Sie behalten den Tarif {plan} bis zum {date}. Danach wird der Tarif aus Ihrem Abonnement entfernt, Ihre Add-ons bleiben. Jetzt wird nichts berechnet.",
+      "scheduledTitle": "Wechsel zu {plan} am {date}",
+      "scheduledBody": "Bis dahin behalten Sie den Tarif {plan} mit allem, was dazugehört.",
+      "keepPlan": "{plan} behalten",
+      "keepPlanFailed": "Ihr aktueller Tarif konnte nicht beibehalten werden",
+      "scheduled": "Geplant"
     },
     "visitorAssistant": {
       "title": "KI-Assistent auf Ihrer Seite",
@@ -955,7 +962,7 @@
       "photoAlt": "Das ausgewählte Foto",
       "noteLabel": "Hinweis zum Auslesen",
       "notePlaceholder": "Z. B. „alle sind für Freitag“ oder „M = Maniküre“",
-      "privacy": "Fotos werden von Google Gemini ausgelesen und nicht von Bookie gespeichert. Im kostenlosen Kontingent von Google können die übermittelten Daten zur Verbesserung der Google-Dienste verwendet werden.",
+      "privacy": "Fotos werden von Google Gemini ausgelesen und nicht von Bookie gespeichert. Google verwendet sie nicht zur Verbesserung seiner Dienste.",
       "dailyLimit": "{count, plural, one {Ihr Tarif umfasst # Foto pro Tag.} other {Ihr Tarif umfasst # Fotos pro Tag.}}",
       "read": "Foto auslesen",
       "reading": "Ihre Buchungen werden ausgelesen…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "Tarife und Zahlungen",
-          "p1": "Buchen ist für Kunden immer kostenlos. Anbieter können Bookie kostenlos nutzen oder einen kostenpflichtigen Tarif abonnieren, der bis zur Kündigung monatlich abgerechnet wird, zu den Preisen auf unserer <pricing>Preisseite</pricing>. Je nach Ihrem Standort können Steuern anfallen. Sie können Ihren Tarif jederzeit in Ihren Tarifeinstellungen wechseln oder kündigen; eine Kündigung wird zum Ende des bezahlten Monats wirksam. Informationen zu Rückerstattungen finden Sie in unserer <refund>Rückerstattungsrichtlinie</refund>.",
+          "p1": "Buchen ist für Kunden immer kostenlos. Anbieter können Bookie kostenlos nutzen oder einen kostenpflichtigen Tarif abonnieren, der bis zur Kündigung monatlich abgerechnet wird, zu den Preisen auf unserer <pricing>Preisseite</pricing>. Je nach Ihrem Standort können Steuern anfallen. Sie können Ihren Tarif jederzeit in Ihren Tarifeinstellungen wechseln oder kündigen; eine Kündigung oder ein Wechsel in einen günstigeren Tarif wird zum Ende des bezahlten Monats wirksam. Informationen zu Rückerstattungen finden Sie in unserer <refund>Rückerstattungsrichtlinie</refund>.",
           "p2": "Unser Bestellprozess wird von unserem Online-Wiederverkäufer Paddle.com durchgeführt. Paddle.com ist der Merchant of Record für alle unsere Bestellungen. Paddle bearbeitet alle Kundenserviceanfragen und wickelt Rückgaben ab."
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>Unser E-Mail-Versanddienst</b> – versendet Konto- und Buchungs-E-Mails.",
           "p4": "<b>Telegram</b> – stellt Benachrichtigungen zu, nur wenn Sie es verbinden.",
           "p5": "<b>Google</b> – meldet Sie an, nur wenn Sie „Mit Google fortfahren“ wählen.",
-          "p6": "<b>Google Gemini</b> – liest das Foto handschriftlicher Buchungen, die Nachrichten eines Anbieters an seinen KI-Assistenten und die Fragen von Besuchern an den KI-Assistenten einer Seite, nur wenn jemand diese Funktionen nutzt. Im kostenlosen Kontingent von Gemini kann Google die empfangenen Daten zur Verbesserung seiner Dienste verwenden. Wir speichern weder Fotos noch Fragen von Besuchern; die Unterhaltung eines Anbieters mit seinem Assistenten bleibt in seinem Konto gespeichert, bis er sie löscht.",
+          "p6": "<b>Google Gemini</b> – liest das Foto handschriftlicher Buchungen, die Nachrichten eines Anbieters an seinen KI-Assistenten und die Fragen von Besuchern an den KI-Assistenten einer Seite, nur wenn jemand diese Funktionen nutzt. Google verwendet die empfangenen Daten nicht zur Verbesserung seiner Dienste. Wir speichern weder Fotos noch Fragen von Besuchern; die Unterhaltung eines Anbieters mit seinem Assistenten bleibt in seinem Konto gespeichert, bis er sie löscht.",
           "p7": "<b>Google Analytics</b> – zählt Besuche und wie Seiten genutzt werden, ohne Werbung und ohne Profiling. In der EU, im EWR, im Vereinigten Königreich und in der Schweiz setzt es Cookies erst nach Ihrer Zustimmung.",
           "p8": "<b>Sentry</b> – erhält einen Bericht, wenn in Ihrem Browser etwas fehlschlägt: den Fehler, die Seite und Ihren Browsertyp, ohne Ihre Cookies, Formularinhalte oder Kontodaten.",
           "p9": "Die Details einer Buchung werden mit dem Anbieter geteilt, bei dem sie vorgenommen wird, und die öffentlichen Kontaktdaten des Anbieters mit dem Kunden – genau darin besteht eine Buchung."
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "Tarifwechsel",
-          "p1": "Tarifwechsel werden anteilig berechnet: Beim Wechsel in einen höheren Tarif wird die Differenz für den Rest des Monats berechnet, beim Wechsel in einen niedrigeren Tarif wird sie Ihnen auf Ihre nächsten Zahlungen gutgeschrieben."
+          "p1": "Der Wechsel in einen höheren Tarif wird anteilig berechnet: Die Differenz für den Rest des Monats wird sofort berechnet. Ein Wechsel in einen niedrigeren Tarif wird zum Ende des bezahlten Monats wirksam, daher gibt es nichts gutzuschreiben."
         },
         "request": {
           "title": "So beantragen Sie eine Rückerstattung",
@@ -1602,7 +1609,7 @@
       "notConfigured": "Online-Zahlungen sind derzeit nicht verfügbar. Fragen Sie den Tarif stattdessen an, und wir richten ihn für Sie ein.",
       "alreadySubscribed": "Sie haben bereits ein Abonnement. Ändern Sie es in Ihren Tarifeinstellungen.",
       "noSubscription": "Es gibt kein aktives Abonnement, das geändert werden kann.",
-      "photoImportLimit": "Sie haben den heutigen Foto-Import bereits genutzt. Morgen steht er wieder zur Verfügung, oder wechseln Sie in einen höheren Tarif für unbegrenzte Importe.",
+      "photoImportLimit": "Sie haben die heutigen Foto-Importe aufgebraucht. Morgen stehen sie wieder zur Verfügung – oder wechseln Sie für mehr in einen höheren Tarif.",
       "bookingLimit": "Mit diesen Buchungen würden Sie das monatliche Limit Ihres Tarifs überschreiten. Entfernen Sie einige oder wechseln Sie in einen höheren Tarif.",
       "photoImportUnavailable": "Das Hinzufügen von Buchungen aus einem Foto ist derzeit nicht verfügbar.",
       "photoUnreadable": "Wir konnten dieses Foto nicht lesen. Versuchen Sie ein schärferes, gut beleuchtetes.",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "Aktive Leistungen",
       "maxBookingsPerMonth": "Online-Buchungen pro Monat",
-      "photoImportsPerDay": "Foto-Importe pro Tag",
+      "photoImportsPerDay": "Buchungen aus einem Foto importieren",
       "analyticsHistoryDays": "Statistik-Verlauf",
       "customSlug": "Eigener Seitenlink",
       "telegramNotifications": "Telegram-Benachrichtigungen",
       "calendarFeed": "Kalender-Synchronisierung (iCal)",
       "removeBranding": "Kein Bookie-Branding auf Ihrer Seite",
-      "assistantMessagesPerDay": "KI-Assistent-Nachrichten pro Tag",
-      "visitorAssistantMessagesPerDay": "Besucherfragen an den KI-Assistenten Ihrer Seite pro Tag"
+      "assistantMessagesPerDay": "Ihr KI-Assistent",
+      "visitorAssistantMessagesPerDay": "KI-Assistent für Ihre Kunden"
+    },
+    "aiBadge": "KI",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, one {# Foto pro Tag} other {# Fotos pro Tag}}",
+      "assistantMessagesPerDay": "{count, plural, one {# Nachricht pro Tag} other {# Nachrichten pro Tag}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, one {# Frage pro Tag} other {# Fragen pro Tag}}"
     },
     "unlimited": "Unbegrenzt",
     "fullHistory": "Gesamter Verlauf",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "Zusätzliche Buchungen",
         "description": "{count} weitere Online-Buchungen pro Monat und Paket."
+      },
+      "assistantMessages": {
+        "name": "Nachrichten an den KI-Assistenten",
+        "description": "{count} weitere Nachrichten pro Tag an Ihren KI-Assistenten, pro Paket. Enthält Ihr Tarif den Assistenten nicht, schaltet ihn das erste Paket frei."
       }
     },
     "perPackPerMonth": "pro Paket / Monat",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "Preise für Anbieter",
-    "metaDescription": "Bookie-Tarife für Dienstleister: Starten Sie kostenlos oder wechseln Sie in einen höheren Tarif für mehr Leistungen, unbegrenzte Buchungen, Telegram-Benachrichtigungen und Kalender-Synchronisierung. Buchen ist für Kunden immer kostenlos.",
+    "metaDescription": "Bookie-Tarife für Dienstleister: Starten Sie kostenlos oder wechseln Sie in einen höheren Tarif für mehr Leistungen, unbegrenzte Buchungen, Telegram-Benachrichtigungen, Kalender-Synchronisierung und KI-Assistenten. Buchen ist für Kunden immer kostenlos.",
     "title": "Preise",
-    "subtitle": "Starten Sie kostenlos und wechseln Sie in einen höheren Tarif, wenn sich Ihr Kalender füllt. Kunden zahlen nie für eine Buchung.",
+    "subtitle": "Starten Sie kostenlos und wechseln Sie in einen höheren Tarif, wenn sich Ihr Kalender füllt. Höhere Tarife enthalten KI-Assistenten. Kunden zahlen nie für eine Buchung.",
     "startFree": "Kostenlos starten",
     "requestPlan": "Diesen Tarif anfragen",
     "manualNote": "Kostenpflichtige Tarife werden derzeit von unserem Team eingerichtet. Senden Sie eine Anfrage, und wir melden uns per E-Mail, um ihn freizuschalten.",
@@ -1767,6 +1784,13 @@
     "usdNote": "Die Preise sind in US-Dollar angegeben. Gegebenenfalls anfallende Steuern werden beim Bezahlen hinzugefügt.",
     "includedTitle": "In jedem Tarif enthalten",
     "includedSubtitle": "Schon im kostenlosen Tarif enthalten – kostenpflichtige Tarife bieten zusätzlich mehr Kapazität und Komfort.",
+    "aiTitle": "KI-Funktionen",
+    "aiSubtitle": "Mit Google Gemini. Jeder Tarif enthält ein Tageskontingent, das sich jeden Tag um Mitternacht (UTC) erneuert.",
+    "ai": {
+      "photoImportsPerDay": "Fotografieren Sie Ihren Papierkalender, und wir lesen die Buchungen darin aus. Sie prüfen jede einzelne, bevor etwas gespeichert wird.",
+      "assistantMessagesPerDay": "Sagen Sie ihm in Ihren eigenen Worten, was sich ändern soll – Zeiten, freie Tage, Leistungen, Buchungen. Er zeigt genau, was sich ändern würde, und nichts passiert, bevor Sie auf „Übernehmen“ klicken.",
+      "visitorAssistantMessagesPerDay": "Besucher fragen direkt auf Ihrer Seite nach Leistungen, Preisen, Öffnungszeiten und freien Terminen. Er antwortet anhand der Angaben Ihrer Seite und kann nichts buchen oder ändern. Schalten Sie ihn in den Einstellungen ein; die Fragen pro Tag teilen sich alle Besucher."
+    },
     "included": {
       "publicPage": "Ihre eigene Buchungsseite",
       "onlineBooking": "Online-Buchung rund um die Uhr",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "Was passiert mit meiner Seite, wenn ich in einen kleineren Tarif wechsle?",
-        "a": "Nichts, was Ihre Kunden sehen, wird entfernt. Leistungen über dem neuen Limit bleiben online und bearbeitbar – Sie können nur keine weiteren hinzufügen, bis Sie wieder unter dem Limit liegen. Buchungen werden durch einen Tarifwechsel nie storniert."
+        "a": "Sie behalten Ihren aktuellen Tarif bis zum Ende des bezahlten Monats. Nichts, was Ihre Kunden sehen, wird entfernt. Leistungen über dem neuen Limit bleiben online und bearbeitbar – Sie können nur keine weiteren hinzufügen, bis Sie wieder unter dem Limit liegen. Buchungen werden durch einen Tarifwechsel nie storniert."
       },
       "switching": {
         "q": "Kann ich den Tarif später wechseln?",
-        "a": "Ja, jederzeit in Ihren Tarifeinstellungen. Die Änderung gilt sofort, und die Differenz für den Rest des Monats wird automatisch berechnet oder gutgeschrieben."
+        "a": "Ja, jederzeit in Ihren Tarifeinstellungen. Ein Wechsel nach oben gilt sofort, und die Differenz für den Rest des Monats wird automatisch berechnet. Ein Wechsel nach unten wird zum Ende des bezahlten Monats wirksam, und bis dahin können Sie es sich anders überlegen."
       },
       "paymentProcessor": {
         "q": "Wer wickelt die Zahlung ab?",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "Kann ich eine einzelne Funktion ohne Tarif kaufen?",
         "a": "Ja. Jede Funktion und jedes Kapazitätspaket gibt es einzeln, monatlich, zu jedem Tarif – auch zum kostenlosen. Add-ons verlängern sich mit Ihrem Abonnement, und beim Wechsel in einen Tarif, der ein Add-on enthält, wird es automatisch entfernt – Sie zahlen also nie doppelt."
+      },
+      "ai": {
+        "q": "Wie funktionieren die KI-Funktionen?",
+        "a": "Jeder Tarif enthält für jede KI-Funktion ein Tageskontingent, das sich um Mitternacht (UTC) erneuert. Gezählt werden nur Anfragen – eine Änderung zu übernehmen, die Ihr Assistent vorschlägt, ist kostenlos, und nichts ändert sich, bevor Sie sie übernehmen. Hat der Assistent für Ihre Kunden alle Fragen des Tages beantwortet, werden Besucher gebeten, sich direkt an Sie zu wenden. Die KI-Funktionen laufen über Google Gemini; unsere <privacy>Datenschutzerklärung</privacy> erklärt, was es erhält."
       }
     },
     "addonsTitle": "Add-ons",
     "addonsSubtitle": "Sie brauchen nur eine Sache? Buchen Sie sie zu jedem Tarif dazu, auch zum kostenlosen. Jedes Add-on wird monatlich abgerechnet.",
     "addonsBundleNote": "Tarife bündeln das günstiger – {plan} enthält alle Funktionen oben, dazu mehr Leistungen und Buchungen.",
     "addAddon": "Hinzufügen",
-    "requestAddon": "Anfragen"
+    "requestAddon": "Anfragen",
+    "switchToPlan": "Zu {plan} wechseln"
   },
   "Billing": {
     "checkoutTitle": "Kasse",
@@ -1883,8 +1912,8 @@
       "photo": "Foto vom Kalender"
     },
     "locked": {
-      "title": "Der KI-Assistent ist in Standard und Premium enthalten",
-      "body": "Sagen Sie ihm, was sich ändern soll – Zeiten, freie Tage, Leistungen, Buchungen – und bestätigen Sie jede Änderung im Chat. Wechseln Sie den Tarif, um ihn zu nutzen.",
+      "title": "KI-Assistent freischalten",
+      "body": "Sagen Sie ihm, was sich ändern soll – Zeiten, freie Tage, Leistungen, Buchungen – und bestätigen Sie jede Änderung im Chat. Er ist in Standard und Premium enthalten oder als Add-on zu jedem Tarif erhältlich.",
       "cta": "Tarife ansehen"
     },
     "unavailable": {

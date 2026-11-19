@@ -5,7 +5,8 @@ Two chats on Google Gemini, streamed as they are written:
 - **The provider's assistant** — a round chat button in the bottom end corner of **every page**
   a signed-in provider opens, as chat widgets sit. It answers questions about the provider's own
   workspace and **proposes** changes to it; nothing changes until the provider presses Apply on
-  the card. Standard and Premium (other plans see what unlocks it).
+  the card. Standard and Premium, or any plan with the `assistantMessages` add-on (others see
+  what unlocks it).
 - **The visitor assistant** — **Ask a question** on a provider's public page. It answers a
   visitor's questions about that provider and changes nothing. Premium, switched on by the
   provider (Advanced settings).
@@ -146,8 +147,8 @@ work unchanged. nginx buffering is off per response (`X-Accel-Buffering: no`).
 
 | | Free | Basic | Standard | Premium |
 |---|---|---|---|---|
-| Provider assistant messages / UTC day (`assistantMessagesPerDay`) | — | — | 40 | 150 |
-| Visitor questions / UTC day, all visitors (`visitorAssistantMessagesPerDay`) | — | — | — | 300 |
+| Provider assistant messages / UTC day (`assistantMessagesPerDay`) | — | — | 5 | 30 |
+| Visitor questions / UTC day, all visitors (`visitorAssistantMessagesPerDay`) | — | — | — | 20 |
 
 - **Per message:** 1,000 characters (provider), 500 (visitor). The composer counts down.
 - **Brakes on the shared key**, every plan, in-memory: 30 provider messages per 10 minutes per

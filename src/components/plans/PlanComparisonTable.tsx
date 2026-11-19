@@ -1,8 +1,10 @@
 import { FC, ReactNode } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
 import { Entitlements, Plan, PlanCatalogueEntry } from '@interfaces/plans'
+import { AI_ENTITLEMENTS, AiEntitlement } from '@constants/plans'
 import { cn } from '@helpers/cn'
 import { AppText } from '@components/ui/bare/AppText'
+import { AiBadge } from './AiBadge'
 import { PlanPrice } from './PlanPrice'
 
 type Props = {
@@ -17,18 +19,19 @@ type Props = {
   className?: string
 }
 
+/** The AI features come last, each under an `AiBadge` — the order `AI_ENTITLEMENTS` gives them. */
 const FEATURE_ROWS: (keyof Entitlements)[] = [
   'maxActiveServices',
   'maxBookingsPerMonth',
-  'photoImportsPerDay',
-  'assistantMessagesPerDay',
-  'visitorAssistantMessagesPerDay',
   'analyticsHistoryDays',
   'customSlug',
   'telegramNotifications',
   'calendarFeed',
   'removeBranding',
+  ...AI_ENTITLEMENTS,
 ]
+
+const isAiRow = (key: keyof Entitlements): key is AiEntitlement => (AI_ENTITLEMENTS as readonly string[]).includes(key)
 
 /**
  * Every plan side by side, its monthly price under its name and one row per limit or
@@ -51,6 +54,8 @@ export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderActio
     if (key === 'analyticsHistoryDays') return t('days', { count: Number(value) })
     // A limit of zero is a feature the plan does not have, not a count of nothing.
     if (value === 0) return t('notIncluded')
+    // The AI rows' labels name the feature, not the unit, so the cell carries it.
+    if (isAiRow(key)) return t(`perDay.${key}`, { count: Number(value) })
     return format.number(Number(value))
   }
 
@@ -91,6 +96,7 @@ export const PlanComparisonTable: FC<Props> = ({ plans, currentPlan, renderActio
                 <AppText size='body-sm' tone='muted' className='font-semibold'>
                   {t(`features.${key}`)}
                 </AppText>
+                {isAiRow(key) && <AiBadge className='ms-2' />}
               </th>
               {plans.map(({ id, entitlements }) => (
                 <td

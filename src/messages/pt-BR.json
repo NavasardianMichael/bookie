@@ -928,7 +928,14 @@
       "switchToFreeBody": "Seus complementos continuam. A parte não usada do plano vira crédito no seu próximo pagamento.",
       "betterPlanTitle": "O {plan} sairia mais barato",
       "betterPlanBody": "O plano {plan} inclui o que você paga como complementos, por menos a cada mês.",
-      "addonsCancelNote": "Os complementos renovam com a sua assinatura. Cancelá-la em Gerenciar cobrança encerra os complementos também."
+      "addonsCancelNote": "Os complementos renovam com a sua assinatura. Cancelá-la em Gerenciar cobrança encerra os complementos também.",
+      "switchScheduledBody": "Você mantém o plano {plan} até {date} e depois passa para o {next}. Nada é cobrado agora — seu próximo pagamento será pelo preço do plano {next}.",
+      "switchToFreeScheduledBody": "Você mantém o plano {plan} até {date}. Depois o plano sai da sua assinatura e seus complementos continuam. Nada é cobrado agora.",
+      "scheduledTitle": "Mudança para o plano {plan} em {date}",
+      "scheduledBody": "Você mantém o plano {plan} e tudo o que ele inclui até lá.",
+      "keepPlan": "Manter o plano {plan}",
+      "keepPlanFailed": "Não foi possível manter seu plano atual",
+      "scheduled": "Agendado"
     },
     "visitorAssistant": {
       "title": "Assistente de IA na sua página",
@@ -955,7 +962,7 @@
       "photoAlt": "A foto que você escolheu",
       "noteLabel": "Observação para a leitura",
       "notePlaceholder": "Ex.: “todos são para sexta-feira” ou “M = manicure”",
-      "privacy": "As fotos são lidas pelo Google Gemini e não são armazenadas pelo Bookie. No nível gratuito do Google, o que é enviado pode ser usado para melhorar os serviços do Google.",
+      "privacy": "As fotos são lidas pelo Google Gemini e não são armazenadas pelo Bookie. O Google não as usa para melhorar seus serviços.",
       "dailyLimit": "{count, plural, one {Seu plano inclui # foto por dia.} other {Seu plano inclui # fotos por dia.}}",
       "read": "Ler foto",
       "reading": "Lendo seus agendamentos…",
@@ -1300,7 +1307,7 @@
         },
         "plans": {
           "title": "Planos e pagamentos",
-          "p1": "Agendar é sempre grátis para os clientes. Os profissionais podem usar o Bookie de graça ou assinar um plano pago, cobrado mensalmente até ser cancelado, pelos preços da nossa <pricing>página de preços</pricing>. Podem incidir impostos, dependendo de onde você está. Você pode mudar de plano ou cancelá-lo a qualquer momento nas configurações do seu Plano; o cancelamento entra em vigor no fim do mês já pago. Para reembolsos, consulte nossa <refund>Política de reembolso</refund>.",
+          "p1": "Agendar é sempre grátis para os clientes. Os profissionais podem usar o Bookie de graça ou assinar um plano pago, cobrado mensalmente até ser cancelado, pelos preços da nossa <pricing>página de preços</pricing>. Podem incidir impostos, dependendo de onde você está. Você pode mudar de plano ou cancelá-lo a qualquer momento nas configurações do seu Plano; o cancelamento, ou a mudança para um plano mais barato, entra em vigor no fim do mês já pago. Para reembolsos, consulte nossa <refund>Política de reembolso</refund>.",
           "p2": "Nosso processo de pedidos é conduzido pela nossa revendedora on-line Paddle.com. A Paddle.com é o Merchant of Record de todos os nossos pedidos. A Paddle atende a todas as solicitações de atendimento ao cliente e cuida das devoluções."
         },
         "planChanges": {
@@ -1356,7 +1363,7 @@
           "p3": "<b>Nosso serviço de envio de e-mails</b> — envia os e-mails da conta e dos agendamentos.",
           "p4": "<b>Telegram</b> — entrega notificações, apenas se você o conectar.",
           "p5": "<b>Google</b> — faz seu login, apenas se você escolher continuar com o Google.",
-          "p6": "<b>Google Gemini</b> — lê a foto de agendamentos escritos à mão, as mensagens de um prestador para o seu assistente de IA e as perguntas de um visitante ao assistente de IA de uma página, apenas quando alguém escolhe usar esses recursos. No nível gratuito do Gemini, o Google pode usar o que recebe para melhorar seus serviços. Não armazenamos fotos nem perguntas de visitantes; a conversa de um prestador com o seu assistente fica guardada na conta dele até que ele a apague.",
+          "p6": "<b>Google Gemini</b> — lê a foto de agendamentos escritos à mão, as mensagens de um prestador para o seu assistente de IA e as perguntas de um visitante ao assistente de IA de uma página, apenas quando alguém escolhe usar esses recursos. O Google não usa o que recebe para melhorar seus serviços. Não armazenamos fotos nem perguntas de visitantes; a conversa de um prestador com o seu assistente fica guardada na conta dele até que ele a apague.",
           "p7": "<b>Google Analytics</b> — conta as visitas e como as páginas são usadas, sem anúncios nem criação de perfis. Na UE, no EEE, no Reino Unido e na Suíça, só grava cookies depois que você concorda.",
           "p8": "<b>Sentry</b> — recebe um relatório quando algo falha no seu navegador: o erro, a página e o tipo de navegador, sem seus cookies, o conteúdo de formulários ou os dados da sua conta.",
           "p9": "Os detalhes de um agendamento são compartilhados com o profissional com quem ele é feito, e os dados de contato públicos do profissional, com o cliente — é isso que um agendamento é."
@@ -1407,7 +1414,7 @@
         },
         "planChanges": {
           "title": "Mudança de plano",
-          "p1": "A mudança de plano é proporcional: ao subir de plano, a diferença do restante do mês é cobrada; ao descer, ela é creditada nos seus próximos pagamentos."
+          "p1": "Subir de plano é proporcional: a diferença do restante do mês é cobrada na hora. Descer de plano entra em vigor no fim do mês já pago, então não há nada a creditar."
         },
         "request": {
           "title": "Como pedir um reembolso",
@@ -1602,7 +1609,7 @@
       "notConfigured": "Os pagamentos on-line não estão disponíveis no momento. Solicite o plano e nós o configuraremos para você.",
       "alreadySubscribed": "Você já tem uma assinatura. Altere-a nas configurações do seu Plano.",
       "noSubscription": "Não há nenhuma assinatura ativa para alterar.",
-      "photoImportLimit": "Você já usou a importação por foto de hoje. Ela volta amanhã, ou faça upgrade do plano para ter importações ilimitadas.",
+      "photoImportLimit": "Você já usou as importações por foto de hoje. Elas voltam amanhã, ou faça upgrade do plano para ter mais.",
       "bookingLimit": "Estes agendamentos ultrapassariam o limite mensal do seu plano. Remova alguns ou faça upgrade do plano.",
       "photoImportUnavailable": "Adicionar agendamentos por foto não está disponível no momento.",
       "photoUnreadable": "Não conseguimos ler esta foto. Tente uma mais nítida e bem iluminada.",
@@ -1701,14 +1708,20 @@
     "features": {
       "maxActiveServices": "Serviços ativos",
       "maxBookingsPerMonth": "Reservas on-line por mês",
-      "photoImportsPerDay": "Importações de fotos por dia",
+      "photoImportsPerDay": "Importar agendamentos de uma foto",
       "analyticsHistoryDays": "Histórico de análises",
       "customSlug": "Link personalizado",
       "telegramNotifications": "Notificações no Telegram",
       "calendarFeed": "Sincronização de agenda (iCal)",
       "removeBranding": "Sem a marca Bookie na sua página",
-      "assistantMessagesPerDay": "Mensagens ao assistente de IA por dia",
-      "visitorAssistantMessagesPerDay": "Perguntas de visitantes ao assistente de IA da sua página por dia"
+      "assistantMessagesPerDay": "Seu assistente de IA",
+      "visitorAssistantMessagesPerDay": "Assistente de IA para seus clientes"
+    },
+    "aiBadge": "IA",
+    "perDay": {
+      "photoImportsPerDay": "{count, plural, one {# foto por dia} other {# fotos por dia}}",
+      "assistantMessagesPerDay": "{count, plural, one {# mensagem por dia} other {# mensagens por dia}}",
+      "visitorAssistantMessagesPerDay": "{count, plural, one {# pergunta por dia} other {# perguntas por dia}}"
     },
     "unlimited": "Ilimitado",
     "fullHistory": "Histórico completo",
@@ -1743,6 +1756,10 @@
       "extraBookings": {
         "name": "Reservas extras",
         "description": "{count} reservas on-line a mais por mês, por pacote."
+      },
+      "assistantMessages": {
+        "name": "Mensagens ao assistente de IA",
+        "description": "{count} mensagens a mais por dia para o seu assistente de IA, por pacote. Se o seu plano não inclui o assistente, o primeiro pacote o ativa."
       }
     },
     "perPackPerMonth": "por pacote / mês",
@@ -1752,9 +1769,9 @@
   },
   "Pricing": {
     "metaTitle": "Preços para profissionais",
-    "metaDescription": "Planos do Bookie para profissionais: comece grátis ou faça upgrade para ter mais serviços, reservas ilimitadas, notificações no Telegram e sincronização de agenda. Agendar é sempre grátis para os clientes.",
+    "metaDescription": "Planos do Bookie para profissionais: comece grátis ou faça upgrade para ter mais serviços, reservas ilimitadas, notificações no Telegram, sincronização de agenda e assistentes de IA. Agendar é sempre grátis para os clientes.",
     "title": "Preços",
-    "subtitle": "Comece grátis e mude de plano quando sua agenda encher. Os clientes nunca pagam para reservar.",
+    "subtitle": "Comece grátis e mude de plano quando sua agenda encher. Os planos superiores incluem assistentes de IA. Os clientes nunca pagam para reservar.",
     "startFree": "Começar grátis",
     "requestPlan": "Solicitar este plano",
     "manualNote": "Por enquanto, os planos pagos são configurados pela nossa equipe. Envie uma solicitação e responderemos por e-mail para ativá-lo.",
@@ -1767,6 +1784,13 @@
     "usdNote": "Os preços estão em dólares americanos. Os impostos são adicionados no checkout quando aplicável.",
     "includedTitle": "Incluído em todos os planos",
     "includedSubtitle": "Tudo isso já vem no Grátis — os planos pagos acrescentam mais capacidade e comodidades.",
+    "aiTitle": "Recursos de IA",
+    "aiSubtitle": "Com tecnologia Google Gemini. Cada plano inclui uma cota diária, renovada todos os dias à meia-noite (UTC).",
+    "ai": {
+      "photoImportsPerDay": "Fotografe sua agenda de papel e nós lemos os agendamentos nela. Você confere cada um antes de qualquer coisa ser salva.",
+      "assistantMessagesPerDay": "Diga com suas palavras o que mudar: horários, folgas, serviços, agendamentos. Ele mostra exatamente o que mudaria, e nada acontece até você clicar em Aplicar.",
+      "visitorAssistantMessagesPerDay": "Os visitantes perguntam sobre seus serviços, preços, horário de funcionamento e horários disponíveis direto na sua página. Ele responde com os dados da sua página e não pode reservar nem alterar nada. Ative nas suas configurações; as perguntas diárias são compartilhadas por todos os visitantes."
+    },
     "included": {
       "publicPage": "Sua própria página de agendamento",
       "onlineBooking": "Agendamento on-line 24 horas por dia",
@@ -1792,11 +1816,11 @@
       },
       "downgrade": {
         "q": "O que acontece com minha página se eu mudar para um plano menor?",
-        "a": "Nada do que seus clientes veem é removido. Os serviços acima do novo limite continuam publicados e editáveis — você só não pode adicionar outros até ficar abaixo dele. Uma mudança de plano nunca cancela agendamentos."
+        "a": "Você mantém o plano atual até o fim do mês já pago. Nada do que seus clientes veem é removido. Os serviços acima do novo limite continuam publicados e editáveis — você só não pode adicionar outros até ficar abaixo dele. Uma mudança de plano nunca cancela agendamentos."
       },
       "switching": {
         "q": "Posso mudar de plano depois?",
-        "a": "Sim, a qualquer momento, nas configurações do seu Plano. A mudança vale na hora, e a diferença do restante do mês é cobrada ou creditada automaticamente."
+        "a": "Sim, a qualquer momento, nas configurações do seu Plano. Subir de plano vale na hora, e a diferença do restante do mês é cobrada automaticamente. Descer de plano entra em vigor quando termina o mês já pago, e você pode mudar de ideia até lá."
       },
       "paymentProcessor": {
         "q": "Quem processa o pagamento?",
@@ -1817,13 +1841,18 @@
       "addons": {
         "q": "Posso comprar um recurso só, sem plano?",
         "a": "Pode. Cada recurso e cada pacote de capacidade são vendidos separadamente, por mês, em qualquer plano — inclusive o Grátis. Os complementos renovam junto com a sua assinatura e, ao mudar para um plano que já inclui um deles, ele é removido automaticamente, então você nunca paga duas vezes."
+      },
+      "ai": {
+        "q": "Como funcionam os recursos de IA?",
+        "a": "Cada plano inclui uma cota diária para cada recurso de IA, renovada à meia-noite (UTC). Só as perguntas contam: aplicar uma alteração proposta pelo seu assistente é grátis, e nada muda até você aplicá-la. Quando o assistente para seus clientes já respondeu todas as perguntas do dia, os visitantes são orientados a falar com você diretamente. Os recursos de IA usam o Google Gemini; nossa <privacy>Política de Privacidade</privacy> explica o que ele recebe."
       }
     },
     "addonsTitle": "Complementos",
     "addonsSubtitle": "Precisa de uma coisa só? Adicione a qualquer plano, inclusive o Grátis. Cada complemento é cobrado mensalmente.",
     "addonsBundleNote": "Os planos juntam tudo isso por menos: o {plan} inclui todos os recursos acima, além de mais serviços e reservas.",
     "addAddon": "Adicionar",
-    "requestAddon": "Solicitar"
+    "requestAddon": "Solicitar",
+    "switchToPlan": "Mudar para {plan}"
   },
   "Billing": {
     "checkoutTitle": "Checkout",
@@ -1883,8 +1912,8 @@
       "photo": "Foto da agenda"
     },
     "locked": {
-      "title": "O assistente de IA está nos planos Padrão e Premium",
-      "body": "Diga o que mudar (horários, folgas, serviços, agendamentos) e aprove cada alteração na conversa. Faça upgrade para usar.",
+      "title": "Desbloqueie o assistente de IA",
+      "body": "Diga o que mudar (horários, folgas, serviços, agendamentos) e aprove cada alteração na conversa. Ele vem nos planos Padrão e Premium, ou como complemento em qualquer plano.",
       "cta": "Ver planos"
     },
     "unavailable": {
