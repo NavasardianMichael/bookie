@@ -113,6 +113,16 @@ font size while `matchMedia` strings are px.
    antd's derived `controlItemBgActive` land on mid-grey, so `components.Dropdown` pins the
    three aliases to the brand ramp (selected fill `BRAND[100]`, since the text is
    `colorPrimary`). **Read the component's own `style/index.js` before picking a token.**
+10. **The `prefers-reduced-motion` block (§7) is two rules, and both halves are load-bearing.**
+   Everything gets `transition-duration: 0.01ms` — not `0s`, because rc-motion pieces (the
+   `Segmented` thumb, Collapse) finish only on `transitionend`, which a `0s` transition never
+   fires; at `0s` a Segmented sticks mid-switch, navy fill with grey text. antd popup roots
+   (`.ant-select-dropdown`, `.ant-dropdown`, `.ant-picker-dropdown`, `.ant-tooltip`,
+   `.ant-popover`) get `0s` — they declare no transition, so `0.01ms` hands them a real
+   `transition: all` on their inset, rc-trigger measures mid-move, and every list opens
+   parked off screen at `-1000vw`. A new antd popup type joins that list. Windows'
+   *Animation effects: off* turns this on, so both bugs only show on some machines — test
+   with Playwright's `reducedMotion: 'reduce'`.
 
 ## Grep gates
 

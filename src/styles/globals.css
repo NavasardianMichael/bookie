@@ -311,12 +311,26 @@ button.copyable-link-copy.ant-btn:hover {
     scroll-behavior: auto;
   }
 
+  /* 0.01ms, not 0s: rc-motion pieces (the Segmented thumb, Collapse) finish only on
+     transitionend, and a 0s transition never fires one. */
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* …except antd popup roots. They declare no transition, so the rule above would
+     give them a real `transition: all` on their inset, and rc-trigger would then
+     measure mid-move and leave every list parked off screen at -1000vw — open, never
+     visible. Their own motion is keyframes, untouched here. */
+  .ant-select-dropdown,
+  .ant-dropdown,
+  .ant-picker-dropdown,
+  .ant-tooltip,
+  .ant-popover {
+    transition-duration: 0s !important;
   }
 }
 
