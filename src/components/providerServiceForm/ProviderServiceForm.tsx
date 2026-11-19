@@ -68,7 +68,9 @@ export const ProviderServiceForm: React.FC<Props> = ({
       requiredMark
       className='mt-4 flex min-w-0 w-full flex-col gap-4 [&_.ant-form-item-label>label]:font-semibold'
       layout='vertical'
-      onFinish={onSubmit}
+      // `onFinish` carries registered fields only, and `id` is none — without it every edit
+      // reached the API as a create and duplicated the service.
+      onFinish={(values) => onSubmit({ ...values, id: initialValues.id })}
       onValuesChange={unsaved.mark}
       scrollToFirstError
       disabled={isSubmitting}
