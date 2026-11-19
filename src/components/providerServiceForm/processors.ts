@@ -71,7 +71,6 @@ export const toServiceAvailabilityFormValues = (
         mode: SERVICE_AVAILABILITY_MODES.recurring,
         recurrence: SERVICE_RECURRENCES.monthDays,
         monthDays: { days: availability.days, ...(availability.lastDay ? { lastDay: true } : {}) },
-        shortLast: availability.shortMonths === 'last',
       }
     case 'dates':
       return {
@@ -115,7 +114,6 @@ const toServiceDays = (values: Partial<ServiceAvailabilityFormValues> | undefine
       mode: 'monthDays',
       days: [...(values.monthDays?.days ?? [])].sort((a, b) => a - b),
       ...(values.monthDays?.lastDay ? { lastDay: true } : {}),
-      ...(values.shortLast ? { shortMonths: 'last' as const } : {}),
     }
   }
   return { mode: 'weekdays', days: values.weekdays ?? [] }

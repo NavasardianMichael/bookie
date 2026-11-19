@@ -545,8 +545,6 @@
         "monthDaysHelp": "毎月営業する日です。",
         "lastDay": "末日",
         "pickMonthDay": "日を1つ以上選んでください。",
-        "shortMonths": "短い月は末日に振り替える",
-        "shortMonthsHelp": "例：31日は4月30日に移動します。オフの場合、その月はスキップされます。",
         "monthHours": "その日の受付時間",
         "hoursRequired": "これらの日の受付時間を追加してください。"
       },

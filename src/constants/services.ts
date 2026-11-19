@@ -6,7 +6,6 @@ export const SERVICE_AVAILABILITY_FORM_INITIAL_VALUES: ServiceAvailabilityFormVa
   recurrence: SERVICE_RECURRENCES.weekdays,
   weekdays: [],
   monthDays: { days: [] },
-  shortLast: false,
   dates: [],
   limitHours: false,
   perDayHours: false,

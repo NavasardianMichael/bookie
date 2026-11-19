@@ -545,8 +545,6 @@
         "monthDaysHelp": "您每月工作的日期。",
         "lastDay": "最后一天",
         "pickMonthDay": "请至少选择一天。",
-        "shortMonths": "较短的月份改用最后一天",
-        "shortMonthsHelp": "例如，31 日会移到 4 月 30 日。关闭时，这些月份会跳过该日。",
         "monthHours": "这些日期的时间",
         "hoursRequired": "请添加您在这些日期的工作时间。"
       },

@@ -545,8 +545,6 @@
         "monthDaysHelp": "매월 일하는 날짜예요.",
         "lastDay": "말일",
         "pickMonthDay": "하루 이상 선택하세요.",
-        "shortMonths": "짧은 달에는 말일로 옮기기",
-        "shortMonthsHelp": "예를 들어 31일은 4월 30일로 옮겨져요. 끄면 해당 달에는 건너뛰어요.",
         "monthHours": "해당 날짜의 시간",
         "hoursRequired": "이 날짜에 일하는 시간을 추가하세요."
       },

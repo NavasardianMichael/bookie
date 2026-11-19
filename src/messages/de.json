@@ -545,8 +545,6 @@
         "monthDaysHelp": "Die Tage, an denen Sie jeden Monat arbeiten.",
         "lastDay": "Letzter Tag",
         "pickMonthDay": "Wählen Sie mindestens einen Tag.",
-        "shortMonths": "In kürzeren Monaten den letzten Tag nehmen",
-        "shortMonthsHelp": "Zum Beispiel wird der 31. auf den 30. April verschoben. Aus: Diese Monate lassen ihn aus.",
         "monthHours": "Zeiten an diesen Tagen",
         "hoursRequired": "Fügen Sie die Zeiten hinzu, zu denen Sie an diesen Tagen arbeiten."
       },

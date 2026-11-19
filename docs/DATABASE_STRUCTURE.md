@@ -389,7 +389,7 @@ that day, never outside them: no rule can open a day or an hour the provider is 
 `always` is every day the provider is open; `weekdays` those weekdays; `monthDays` those days of
 every month, plus the month's last day with `lastDay: true`, and — with `shortMonths: 'last'` —
 a listed day a short month lacks moves to its last day (default `'skip'`: the 31st in April just
-passes); `dates` those calendar days on the provider's clock. Hours: `hours` (up to five
+passes — neither form sets `'last'` any more, see `docs/routes/account-settings.md`); `dates` those calendar days on the provider's clock. Hours: `hours` (up to five
 windows) on every day it is offered, or per weekday with `hoursByDay` (weekdays rule only,
 winning over `hours`). `exceptions` (at most 100, past ones dropped on write, never overlapping)
 are `{ from, to, kind, hours?, note? }`: `open` offers that date at `hours` — or the provider's

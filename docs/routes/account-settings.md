@@ -34,8 +34,7 @@ is disabled with a line linking to the Plan tab; the API refuses the same write 
 
 The service form ends with an **Availability** section, the same vocabulary as the
 Availability tab: *Always*, *Recurring* (Weekdays, or Days of the month — the 1–31 chips, a
-*Last day* chip, and whether a short month moves a missing day to its last day or skips it) or
-*Specific days*. Then *Only at certain hours* — one set, or under Weekdays **each ticked day
+*Last day* chip) or *Specific days*. Then *Only at certain hours* — one set, or under Weekdays **each ticked day
 its own** (`hoursByDay`) — and the service's own **Added dates** and **Excluded dates**
 (`availability.exceptions`, the Availability tab's dates editor reused through
 `ServiceExceptionsField`): an added date is offered on the provider's hours that day or only
@@ -54,9 +53,14 @@ behind it:
   every service at once, with no stored rule left pointing at hours that no longer exist.
   The form warns when a pick can never be booked but still saves it, since it fixes itself
   when the provider opens those days.
-- **A missing month day is skipped unless the provider says otherwise**: "every 31st" that
-  quietly became "April 30th" would book a day the provider never chose, so moving it is the
-  *In shorter months, use the last day* switch, off by default.
+- **A missing month day is skipped, and neither form asks.** "Every 31st" that quietly became
+  "April 30th" would book a day the provider never chose; someone who means the end of the
+  month ticks *Last day*. An *In shorter months, use the last day* switch used to offer the
+  move (`shortMonths: 'last'`) and was removed: 31 with it on *is* Last day, and its one other
+  reading — "the 30th, or the month's end when shorter" — is a billing rule, not opening hours.
+  The API still accepts and honours `shortMonths`, so a rule saved with it keeps working until
+  its form is saved again, which drops it (the Availability tab's publish dialog lists that as a
+  change of rule).
 - **The form keeps every mode's pick** while it is open, so trying Weekdays and going back
   to Always loses nothing; only the active mode is sent. Switching an *Always* service to
   Weekdays starts with the provider's open weekdays ticked, and every day's own hours start
@@ -115,8 +119,7 @@ the session carries a single role, resolved provider-first at login.
   re-counts the Approvals badge. See [ai-assistant.md](ai-assistant.md).
 - **Availability is a rule plus dates**, all saved together as one draft. **Your hours** picks the
   rule (`ProviderScheduleRuleFields`): *Recurring* on weekdays (each with its own windows) or on
-  days of the month (1–31 and *Last day*, one set of hours, and a switch moving a day a short month
-  lacks to its last day), or *Specific days* — then **Open dates** are the only open days. Under a
+  days of the month (1–31 and *Last day*, one set of hours), or *Specific days* — then **Open dates** are the only open days. Under a
   recurring rule, **Added dates** (their own hours, replacing the usual ones) and **Excluded dates**
   (all day, or some hours) sit below. All three date sections are one `specialDates` list
   (open / closed entries) that never overlaps; the weekly rows stay in the form under every rule,

@@ -1,7 +1,7 @@
 'use client'
 
 import { FC } from 'react'
-import { Form, Segmented, Switch } from 'antd'
+import { Form, Segmented } from 'antd'
 import type { Rule } from 'antd/es/form'
 import { useTranslations } from 'next-intl'
 import { ProviderScheduleRule } from '@store/providers/profile/types'
@@ -25,7 +25,7 @@ export type ScheduleRuleForm = {
   pattern: SchedulePattern
   recurrence: ScheduleRecurrence
   days: ScheduleDaysForm
-  monthDays: { pick: MonthDaysPick; shortLast: boolean; ranges: ScheduleRangeForm[] }
+  monthDays: { pick: MonthDaysPick; ranges: ScheduleRangeForm[] }
 }
 
 /** A stored rule as the form holds it; the weekly rows come from `weekSchedule` separately. */
@@ -36,10 +36,9 @@ export const scheduleRuleToForm = (rule: ProviderScheduleRule | undefined): Omit
     rule?.mode === 'monthDays'
       ? {
           pick: { days: rule.days, ...(rule.lastDay ? { lastDay: true } : {}) },
-          shortLast: rule.shortMonths === 'last',
           ranges: daySchedulesToRangeForms(rule.hours),
         }
-      : { pick: { days: [] }, shortLast: false, ranges: daySchedulesToRangeForms(null) },
+      : { pick: { days: [] }, ranges: daySchedulesToRangeForms(null) },
 })
 
 /**
@@ -55,7 +54,6 @@ export const formToScheduleRule = (values: Omit<ScheduleRuleForm, 'days'>): Prov
     mode: 'monthDays',
     days: values.monthDays.pick.days,
     ...(values.monthDays.pick.lastDay ? { lastDay: true } : {}),
-    ...(values.monthDays.shortLast ? { shortMonths: 'last' as const } : {}),
     hours,
   }
 }
@@ -146,19 +144,6 @@ export const ProviderScheduleRuleFields: FC<Props> = ({ timeFormat }) => {
             <MonthDaysField label={t('monthDays')} />
           </AppFormItem>
 
-          <div className='flex items-start justify-between gap-4'>
-            <div className='flex flex-col'>
-              <AppText size='body-sm' className='font-semibold'>
-                {t('shortMonths')}
-              </AppText>
-              <AppText size='body-sm' tone='muted'>
-                {t('shortMonthsHelp')}
-              </AppText>
-            </div>
-            <AppFormItem name={['monthDays', 'shortLast']} valuePropName='checked' className='m-0'>
-              <Switch aria-label={t('shortMonths')} />
-            </AppFormItem>
-          </div>
 
           <div className='flex flex-col gap-2'>
             <AppText size='body-sm' className='font-semibold'>

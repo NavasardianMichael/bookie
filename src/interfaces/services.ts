@@ -16,8 +16,6 @@ export type ServiceAvailabilityFormValues = {
   weekdays: WeekDay[]
   /** Days 1–31 and the month's last day (`MonthDaysField`'s value). */
   monthDays: { days: number[]; lastDay?: boolean }
-  /** A short month moves a listed day it lacks to its last day, rather than skipping it. */
-  shortLast: boolean
   /** `YYYY-MM-DD` on the provider's calendar. */
   dates: string[]
   /** The service keeps to hours of its own, inside the provider's, on every day it is offered. */

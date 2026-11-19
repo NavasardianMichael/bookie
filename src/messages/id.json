@@ -545,8 +545,6 @@
         "monthDaysHelp": "Tanggal Anda bekerja setiap bulan.",
         "lastDay": "Hari terakhir",
         "pickMonthDay": "Pilih setidaknya satu tanggal.",
-        "shortMonths": "Di bulan yang lebih pendek, gunakan hari terakhir",
-        "shortMonthsHelp": "Misalnya, tanggal 31 dipindah ke 30 April. Nonaktif: bulan tersebut melewatinya.",
         "monthHours": "Jam pada tanggal tersebut",
         "hoursRequired": "Tambahkan jam kerja Anda pada tanggal ini."
       },

@@ -545,8 +545,6 @@
         "monthDaysHelp": "I giorni in cui lavori ogni mese.",
         "lastDay": "Ultimo giorno",
         "pickMonthDay": "Scegli almeno un giorno.",
-        "shortMonths": "Nei mesi più corti, usa l’ultimo giorno",
-        "shortMonthsHelp": "Ad esempio, il 31 passa al 30 aprile. Disattivato: in quei mesi viene saltato.",
         "monthHours": "Orari in quei giorni",
         "hoursRequired": "Aggiungi gli orari in cui lavori in questi giorni."
       },

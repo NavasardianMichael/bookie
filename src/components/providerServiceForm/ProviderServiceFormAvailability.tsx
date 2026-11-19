@@ -167,19 +167,6 @@ export const ProviderServiceFormAvailability: FC<Props> = ({
           >
             <MonthDaysField label={t('monthDaysLabel')} />
           </AppFormItem>
-          <div className='flex items-start justify-between gap-4'>
-            <div className='flex flex-col'>
-              <AppText size='body-sm' className='font-semibold'>
-                {tSettings('schedule.shortMonths')}
-              </AppText>
-              <AppText size='body-sm' tone='muted'>
-                {tSettings('schedule.shortMonthsHelp')}
-              </AppText>
-            </div>
-            <AppFormItem name={['availability', 'shortLast']} valuePropName='checked' hasFeedback={false} className='m-0'>
-              <Switch aria-label={tSettings('schedule.shortMonths')} />
-            </AppFormItem>
-          </div>
         </div>
       )}
 

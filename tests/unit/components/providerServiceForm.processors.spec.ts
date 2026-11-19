@@ -136,16 +136,15 @@ describe('toServiceAvailability', () => {
     })
   })
 
-  it('sends the last day and the short-month choice of a month-days pick', () => {
+  it('sends the last day of a month-days pick, and never a short-month choice', () => {
     expect(
       toServiceAvailability({
         ...ALL,
         mode: 'recurring',
         recurrence: 'monthDays',
         monthDays: { days: [31], lastDay: true },
-        shortLast: true,
       })
-    ).toEqual({ mode: 'monthDays', days: [31], lastDay: true, shortMonths: 'last' })
+    ).toEqual({ mode: 'monthDays', days: [31], lastDay: true })
   })
 
   it('sends each ticked weekday its own hours when split by day, and never an unticked one', () => {
