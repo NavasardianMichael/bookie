@@ -91,6 +91,10 @@ export const antdTheme: ThemeConfig = {
       // `controlItemBgActive` (not optionSelectedBg). Hover is `cellHoverBg`.
       controlItemBgActive: BRAND[900],
       cellHoverBg: BRAND[100],
+      // A range's middle days default to `controlItemBgActive` — navy above — while their
+      // text stays charcoal, so they read as a solid bar. A tint one step past hover keeps
+      // the days legible and a hovered day inside the range still visible.
+      cellActiveWithRangeBg: BRAND[200],
     },
     // A Dropdown's menu does NOT read Menu's tokens — `dropdown/style/index.js` styles
     // `ant-dropdown-menu-item` itself, off the global `controlItemBg*` aliases. So a
