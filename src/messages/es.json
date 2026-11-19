@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "Asistente de IA",
-    "tooltip": "Pregunta sobre tu espacio o dile qué cambiar: horario, días libres, servicios, reservas. No cambia nada hasta que lo apruebes.",
     "title": "Asistente de IA",
     "expand": "Ampliar",
     "shrink": "Reducir",

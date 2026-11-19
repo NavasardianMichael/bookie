@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "Assistant IA",
-    "tooltip": "Posez une question sur votre espace, ou dites-lui quoi changer : horaires, jours de fermeture, prestations, réservations. Rien ne change tant que vous n’avez pas validé.",
     "title": "Assistant IA",
     "expand": "Agrandir",
     "shrink": "Réduire",

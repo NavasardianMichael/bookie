@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "Assistente de IA",
-    "tooltip": "Pergunte sobre seu espaço ou diga o que mudar: horários, folgas, serviços, agendamentos. Nada muda até você aprovar.",
     "title": "Assistente de IA",
     "expand": "Expandir",
     "shrink": "Reduzir",

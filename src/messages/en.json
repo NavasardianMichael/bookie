@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "AI assistant",
-    "tooltip": "Ask about your workspace, or tell it what to change — hours, days off, services, bookings. Nothing changes until you approve it.",
     "title": "AI assistant",
     "expand": "Expand",
     "shrink": "Shrink",

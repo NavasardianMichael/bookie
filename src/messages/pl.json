@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "Asystent AI",
-    "tooltip": "Zapytaj o swoje miejsce pracy albo powiedz, co zmienić — godziny, dni wolne, usługi, rezerwacje. Nic się nie zmieni, dopóki tego nie zatwierdzisz.",
     "title": "Asystent AI",
     "expand": "Powiększ",
     "shrink": "Zmniejsz",

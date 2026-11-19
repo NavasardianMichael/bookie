@@ -2,7 +2,7 @@
 
 import { FC, useCallback, useRef, useState } from 'react'
 import { CloseOutlined, MessageOutlined } from '@ant-design/icons'
-import { Spin } from 'antd'
+import { Spin, Tooltip } from 'antd'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useAssistantPanelStore } from '@store/assistant/panel/store'
@@ -71,17 +71,19 @@ export const AssistantLauncher: FC = () => {
 
   if (!shown) return null
 
+  const label = open ? tCommon('close') : t('button')
+
   return (
     <>
       {opened && <AssistantPanel id={PANEL_ID} open={open} onClose={close} onApplied={handleApplied} />}
+      <Tooltip title={label} placement='left'>
       <button
         ref={buttonRef}
         type='button'
         onClick={toggle}
         aria-expanded={open}
         aria-controls={opened ? PANEL_ID : undefined}
-        aria-label={open ? tCommon('close') : t('button')}
-        title={open ? tCommon('close') : t('tooltip')}
+        aria-label={label}
         className={cn(
           // Above the home indicator on a notched phone: the safe area moves the button, not its icon.
           'bg-brand hover:bg-brand-hover fixed end-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 flex size-14 cursor-pointer items-center justify-center rounded-full border-0 text-2xl text-white shadow-xl transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2',
@@ -91,6 +93,7 @@ export const AssistantLauncher: FC = () => {
       >
         {open ? <CloseOutlined aria-hidden /> : <MessageOutlined aria-hidden />}
       </button>
+      </Tooltip>
     </>
   )
 }

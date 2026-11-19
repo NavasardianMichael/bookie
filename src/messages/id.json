@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "Asisten AI",
-    "tooltip": "Tanyakan tentang ruang kerja Anda, atau beri tahu apa yang perlu diubah — jam kerja, hari libur, layanan, pemesanan. Tidak ada yang berubah sampai Anda menyetujuinya.",
     "title": "Asisten AI",
     "expand": "Perbesar",
     "shrink": "Perkecil",

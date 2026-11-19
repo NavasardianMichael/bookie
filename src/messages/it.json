@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "Assistente IA",
-    "tooltip": "Fai domande sul tuo spazio o digli cosa cambiare: orari, giorni di chiusura, servizi, prenotazioni. Non cambia nulla finché non approvi.",
     "title": "Assistente IA",
     "expand": "Espandi",
     "shrink": "Riduci",

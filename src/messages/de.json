@@ -1854,7 +1854,6 @@
   },
   "Assistant": {
     "button": "KI-Assistent",
-    "tooltip": "Fragen Sie nach Ihrem Arbeitsbereich oder sagen Sie, was sich ändern soll – Zeiten, freie Tage, Leistungen, Buchungen. Nichts ändert sich, bevor Sie zustimmen.",
     "title": "KI-Assistent",
     "expand": "Vergrößern",
     "shrink": "Verkleinern",
